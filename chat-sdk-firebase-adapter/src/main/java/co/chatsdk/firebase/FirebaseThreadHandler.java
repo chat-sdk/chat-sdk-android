@@ -24,6 +24,7 @@ import co.chatsdk.firebase.wrappers.MessageWrapper;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
+import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -180,28 +181,31 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     public Single<Thread> createThread(String name, List<User> users, int type, String entityID) {
-        return createThread(name, users, type, entityID, ChatSDK.config().reuseDeleted1to1Threads);
+        return createThread(name, users, type, entityID, null);
     }
 
-    public Single<Thread> createThread(String name, List<User> users, int type, String entityID, boolean reuseDeletedThreads) {
-        return Single.create((SingleOnSubscribe<Thread>) e -> {
+    public Single<Thread> createThread(String name, List<User> users, int type, String entityID, String imageURL) {
+        return createThread(name, users, type, entityID, imageURL, ChatSDK.config().reuseDeleted1to1Threads);
+    }
+
+    public Single<Thread> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL, boolean reuseDeletedThreads) {
+        return Single.create((SingleOnSubscribe<ThreadPusher>) e -> {
+            ArrayList<User> users = new ArrayList<>(theUsers);
 
             // If the entity ID is set, see if the thread exists and return it if it does
             // TODO: Check this - what if for some reason the user isn't a member of this thread?
             if (entityID != null) {
                 Thread t = ChatSDK.db().fetchThreadWithEntityID(entityID);
                 if (t != null) {
-                    e.onSuccess(t);
+                    e.onSuccess(new ThreadPusher(t, false));
                     return;
                 }
             }
-
             User currentUser = ChatSDK.currentUser();
 
             if (!users.contains(currentUser)) {
                 users.add(currentUser);
             }
-
 
             if (users.size() == 2 && (type == ThreadType.None || ThreadType.is(type, ThreadType.Private1to1))) {
 
@@ -230,7 +234,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 if(jointThread != null) {
                     jointThread.setDeleted(false);
                     DaoCore.updateEntity(jointThread);
-                    e.onSuccess(jointThread);
+                    e.onSuccess(new ThreadPusher(jointThread, false));
                     return;
                 }
             }
@@ -242,6 +246,8 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             thread.setCreatorEntityId(currentUser.getEntityID());
             thread.setCreationDate(new Date());
             thread.setName(name);
+            thread.setImageUrl(imageURL);
+            thread.addUsers(users);
 
             if (type != -1) {
                 thread.setType(type);
@@ -249,19 +255,13 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 thread.setType(users.size() == 2 ? ThreadType.Private1to1 : ThreadType.PrivateGroup);
             }
 
+            thread.update();
+
             // Save the thread to the database.
-            e.onSuccess(thread);
+            e.onSuccess(new ThreadPusher(thread, true));
 
-        }).flatMap((Function<Thread, SingleSource<? extends Thread>>) thread -> Single.create(e -> {
-            if (thread.getEntityID() == null) {
-                ThreadWrapper wrapper = new ThreadWrapper(thread);
-
-                wrapper.push().concatWith(addUsersToThread(thread, users)).subscribe(() -> e.onSuccess(thread), e::onError);
-
-            } else {
-                e.onSuccess(thread);
-            }
-        })).doOnSuccess(thread -> thread.addUsers(users)).subscribeOn(Schedulers.single());
+        }).flatMap((Function<ThreadPusher, SingleSource<Thread>>) ThreadPusher::push)
+                .subscribeOn(Schedulers.single());
     }
 
     public Completable deleteThread(Thread thread) {

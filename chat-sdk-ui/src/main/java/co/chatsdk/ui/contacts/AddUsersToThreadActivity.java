@@ -27,13 +27,13 @@ public class AddUsersToThreadActivity extends SelectContactActivity {
     @Override
     protected void getDataFromBundle(Bundle bundle) {
         super.getDataFromBundle(bundle);
-        threadEntityID = bundle.getString(Keys.THREAD_ENTITY_ID, threadEntityID);
+        threadEntityID = bundle.getString(Keys.IntentKeyThreadEntityID, threadEntityID);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(Keys.THREAD_ENTITY_ID, threadEntityID);
+        outState.putString(Keys.IntentKeyThreadEntityID, threadEntityID);
     }
 
     @Override

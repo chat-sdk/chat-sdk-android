@@ -7,7 +7,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     style="@style/RowStyle"
-    android:id="@+id/message_root_layout">
+    android:id="@+id/message_root_layout"
+    android:animateLayoutChanges="true">
 
     <TextView
         android:id="@+id/text_time"
@@ -31,7 +32,8 @@
         android:layout_toRightOf="@+id/text_time"
         android:layout_toEndOf="@+id/text_time"
         android:gravity="end"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:animateLayoutChanges="true">
 
         <!-- The unevenness in the padding is a result of the asymmetry of the bubble / tail -->
         <androidx.constraintlayout.widget.ConstraintLayout

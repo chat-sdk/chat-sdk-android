@@ -209,10 +209,9 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     protected void showToast(String text){
-        if (StringUtils.isEmpty(text))
-            return;
-
-        ToastHelper.show(this, text);
+        if (!text.isEmpty()) {
+            ToastHelper.show(this, text);
+        }
     }
 
     protected void showSnackbar(int textResourceId){
@@ -220,11 +219,17 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     protected void showSnackbar (String text) {
-        Snackbar.make(findViewById(android.R.id.content), text, Snackbar.LENGTH_LONG).show();
+        if (!text.isEmpty()) {
+            Snackbar.make(findViewById(android.R.id.content), text, Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     protected Consumer<? super Throwable> toastOnErrorConsumer () {
         return (Consumer<Throwable>) throwable -> showToast(throwable.getLocalizedMessage());
+    }
+
+    protected Consumer<? super Throwable> snackbarOnErrorConsumer () {
+        return (Consumer<Throwable>) throwable -> showSnackbar(throwable.getLocalizedMessage());
     }
 
     protected void showProgressDialog(int stringResId) {

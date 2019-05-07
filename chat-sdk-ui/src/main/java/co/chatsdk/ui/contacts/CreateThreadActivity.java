@@ -26,18 +26,19 @@ public class CreateThreadActivity extends SelectContactActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setActionBarTitle(R.string.new_chat);
+        setMultiSelectEnabled(ChatSDK.config().groupsEnabled);
     }
 
     @Override
     protected void getDataFromBundle(Bundle bundle) {
         super.getDataFromBundle(bundle);
-        threadEntityID = bundle.getString(Keys.THREAD_ENTITY_ID, threadEntityID);
+        threadEntityID = bundle.getString(Keys.IntentKeyThreadEntityID, threadEntityID);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(Keys.THREAD_ENTITY_ID, threadEntityID);
+        outState.putString(Keys.IntentKeyThreadEntityID, threadEntityID);
     }
 
     @Override
@@ -57,27 +58,13 @@ public class CreateThreadActivity extends SelectContactActivity {
             return;
         }
 
-        showProgressDialog(getString(R.string.pick_friends_activity_prog_dialog_open_new_convo_message));
-
         // If there are more than 2 users then show a dialog to enter the name
         if(users.size() > 1) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(CreateThreadActivity.this);
-            builder.setTitle(getString(R.string.pick_friends_activity_prog_group_name_dialog));
-
-            // Set up the input
-            final EditText input = new EditText(CreateThreadActivity.this);
-            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-            builder.setView(input);
-
-            // Set up the buttons
-            builder.setPositiveButton(getString(R.string.create), (dialog, which) -> {
-                CreateThreadActivity.this.createAndOpenThread(input.getText().toString(), users);
-            });
-            builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
-                dialog.cancel();
-                dismissProgressDialog();
-            });
-            builder.show();
+            ArrayList<String> userEntityIDs = new ArrayList<>();
+            for (User u : users) {
+                userEntityIDs.add(u.getEntityID());
+            }
+            ChatSDK.ui().startThreadEditDetailsActivity(this, null, userEntityIDs);
         }
         else {
             createAndOpenThread("", users);
@@ -85,6 +72,7 @@ public class CreateThreadActivity extends SelectContactActivity {
     }
 
     protected void createAndOpenThread (String name, List<User> users) {
+        showProgressDialog(getString(R.string.pick_friends_activity_prog_dialog_open_new_convo_message));
         disposableList.add(ChatSDK.thread()
                 .createThread(name, users)
                 .observeOn(AndroidSchedulers.mainThread())

@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.AvailabilityHelper;
@@ -41,7 +40,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     protected SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
 
-    protected boolean isMultiSelect = false;
+    protected boolean multiSelectEnabled = false;
     protected final PublishSubject<Object> onClickSubject = PublishSubject.create();
     protected final PublishSubject<Object> onLongClickSubject = PublishSubject.create();
     protected final PublishSubject<List<UserListItem>> onToggleSubject = PublishSubject.create();
@@ -76,14 +75,24 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             // Clicks are handled at the list item level
             checkBox.setClickable(false);
         }
+
+        public void setMultiSelectEnabled (boolean enabled) {
+            if (enabled) {
+                checkBox.setVisibility(View.VISIBLE);
+                availabilityImageView.setVisibility(View.INVISIBLE);
+            } else {
+                availabilityImageView.setVisibility(View.VISIBLE);
+                checkBox.setVisibility(View.INVISIBLE);
+            }
+        }
     }
 
     public UsersListAdapter() {
         this(null, false);
     }
 
-    public UsersListAdapter(boolean isMultiSelect) {
-        this(null, isMultiSelect);
+    public UsersListAdapter(boolean multiSelectEnabled) {
+        this(null, multiSelectEnabled);
     }
 
     public UsersListAdapter(List<UserListItem> users, boolean multiSelect) {
@@ -93,7 +102,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         setUsers(users);
 
-        this.isMultiSelect = multiSelect;
+        this.multiSelectEnabled = multiSelect;
     }
 
     @Override
@@ -139,26 +148,24 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         if (type == TYPE_USER) {
-            UserViewHolder uh = (UserViewHolder) holder;
-            UserListItem user = (UserListItem) item;
+            UserViewHolder userViewHolder = (UserViewHolder) holder;
+            UserListItem userListItem = (UserListItem) item;
 
-            uh.nameTextView.setText(user.getName());
+            userViewHolder.nameTextView.setText(userListItem.getName());
 
-            uh.availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(user.getAvailability()));
-            uh.statusTextView.setText(user.getStatus());
+            userViewHolder.availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(userListItem.getAvailability()));
+            userViewHolder.statusTextView.setText(userListItem.getStatus());
 
-            Timber.v("User: " + user.getName() + " Availability: " + user.getAvailability());
+            Timber.v("User: " + userListItem.getName() + " Availability: " + userListItem.getAvailability());
 
-            uh.avatarImageView.setImageURI(user.getAvatarURL());
+            userViewHolder.avatarImageView.setImageURI(userListItem.getAvatarURL());
 
-            if (isMultiSelect && user instanceof User) {
-                uh.checkBox.setVisibility(View.VISIBLE);
-                uh.checkBox.setChecked(selectedUsersPositions.get(position));
-                uh.availabilityImageView.setVisibility(View.INVISIBLE);
+            userViewHolder.setMultiSelectEnabled(multiSelectEnabled);
+
+            if (multiSelectEnabled) {
+                userViewHolder.checkBox.setChecked(selectedUsersPositions.get(position));
             }
-            else {
-                uh.availabilityImageView.setVisibility(View.VISIBLE);
-            }
+
         }
 
         holder.itemView.setOnClickListener(view -> onClickSubject.onNext(item));
@@ -359,6 +366,11 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public Observable<Object> onLongClickObservable () {
         return onLongClickSubject;
+    }
+
+    public void setMultiSelectEnabled (boolean enabled) {
+        multiSelectEnabled = enabled;
+        notifyDataSetChanged();
     }
 
 }

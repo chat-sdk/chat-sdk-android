@@ -223,7 +223,7 @@ public class ThreadWrapper  {
 
             updateReadReceipts();
 
-            final DatabaseReference ref = FirebasePaths.threadMessagesRef(model.getEntityID());
+            final DatabaseReference ref = messagesRef();
 
 //            if(FirebaseReferenceManager.shared().isOn(ref)) {
 //                e.onComplete();
@@ -312,7 +312,7 @@ public class ThreadWrapper  {
      * Stop listening to incoming messages.
      **/
     public void messagesOff() {
-        DatabaseReference ref = FirebasePaths.threadMessagesRef(model.getEntityID());
+        DatabaseReference ref = messagesRef();
         FirebaseReferenceManager.shared().removeListeners(ref);
     }
 
@@ -583,15 +583,13 @@ public class ThreadWrapper  {
 
         if (value.containsKey(Keys.CreationDate))
         {
-            if (value.get(Keys.CreationDate) instanceof Long)
-            {
+            if (value.get(Keys.CreationDate) instanceof Long) {
                 Long data = (Long) value.get(Keys.CreationDate);
                 if (data != null && data > 0) {
                     this.model.setCreationDate(new Date(data));
                 }
             }
-            else if (value.get(Keys.CreationDate) instanceof Double)
-            {
+            else if (value.get(Keys.CreationDate) instanceof Double) {
                 Double data = (Double) value.get(Keys.CreationDate);
                 if (data != null && data > 0) {
                     this.model.setCreationDate(new Date(data.longValue()));
@@ -602,6 +600,7 @@ public class ThreadWrapper  {
         String creatorEntityID = (String) value.get(Keys.CreatorEntityId);
         if (creatorEntityID != null) {
             this.model.setCreatorEntityId(creatorEntityID);
+            this.model.setCreator(ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, creatorEntityID));
         }
 
         long type = ThreadType.PrivateGroup;

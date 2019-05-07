@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    android:id="@+id/linear"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:background="@drawable/send_message_border"
-    android:id="@+id/linear">
+    android:animateLayoutChanges="true">
 
     <ImageButton
         android:layout_width="36dp"
@@ -23,15 +24,17 @@
         android:layout_gravity="center_vertical"
         android:layout_height="wrap_content">
 
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/text_input_message"
-            android:hint="Message"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="@string/message"
+            android:background="@null"
             android:gravity="bottom"
             android:maxLines="@integer/chat_sdk_max_message_lines"
             android:isScrollContainer="true"
             android:inputType="textShortMessage|textMultiLine"/>
+
     </FrameLayout>
 
     <ImageButton

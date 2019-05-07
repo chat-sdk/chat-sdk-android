@@ -25,6 +25,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputEditText;
+
 import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +46,7 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
 
     protected ImageButton btnSend;
     protected ImageButton btnOptions;
-    protected EditText etMessage;
+    protected TextInputEditText etMessage;
     protected boolean audioModeEnabled = false;
     protected boolean recordOnPress = false;
     protected Recording recording = null;

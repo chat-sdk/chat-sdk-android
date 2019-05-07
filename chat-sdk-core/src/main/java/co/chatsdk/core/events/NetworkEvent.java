@@ -198,6 +198,7 @@ public class NetworkEvent {
                 EventType.ThreadRemoved,
                 EventType.ThreadLastMessageUpdated,
                 EventType.ThreadUsersChanged,
+                EventType.MessageAdded,
                 EventType.MessageRemoved,
                 EventType.UserMetaUpdated // Be careful to check that the user is a member of the thread...
         );

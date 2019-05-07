@@ -67,7 +67,7 @@
 
     <co.chatsdk.ui.chat.TextInputView
         android:id="@+id/view_message_text_input"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
     </co.chatsdk.ui.chat.TextInputView>
 

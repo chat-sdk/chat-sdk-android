@@ -19,10 +19,10 @@ public class BaseBroadcastHandler implements BroadcastHandler {
             return;
         }
 
-        final String threadEntityID = extras.getString(Keys.THREAD_ENTITY_ID);
-        final String userEntityID = extras.getString(Keys.USER_ENTITY_ID);
-        final String title = extras.getString(Keys.PUSH_TITLE);
-        final String body = extras.getString(Keys.PUSH_BODY);
+        final String threadEntityID = extras.getString(Keys.PushKeyThreadEntityID);
+        final String userEntityID = extras.getString(Keys.PushKeyUserEntityID);
+        final String title = extras.getString(Keys.PushKeyTitle);
+        final String body = extras.getString(Keys.PushKeyBody);
 
         // Only show the notification if the user is offline
         // This will be the case if the app
@@ -34,7 +34,7 @@ public class BaseBroadcastHandler implements BroadcastHandler {
             appIntent = new Intent(context, ChatSDK.ui().getChatActivity());
         }
         if (appIntent != null) {
-            appIntent.putExtra(Keys.THREAD_ENTITY_ID, threadEntityID);
+            appIntent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
             appIntent.setAction(threadEntityID);
 //            appIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             appIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

@@ -25,6 +25,7 @@ public interface ThreadHandler {
     Single<Thread> createThread(String name, User... users);
     Single<Thread> createThread(String name, List<User> users, int type);
     Single<Thread> createThread(String name, List<User> users, int type, String entityID);
+    Single<Thread> createThread(String name, List<User> users, int type, String entityID, String imageURL);
     /**
      * Remove users from a thread
      */

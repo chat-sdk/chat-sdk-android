@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/content"
-    tools:context="co.chatsdk.ui.main.MainActivity">
+    android:animateLayoutChanges="true">
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
@@ -14,7 +14,6 @@
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tab_layout"
-        tools:context=".MainActivity" />
+        android:layout_below="@+id/tab_layout" />
 
 </RelativeLayout>

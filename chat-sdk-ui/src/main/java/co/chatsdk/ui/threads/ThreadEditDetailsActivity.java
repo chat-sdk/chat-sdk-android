@@ -20,8 +20,13 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.appcompat.app.ActionBar;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
+import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
@@ -32,6 +37,8 @@ import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.BiConsumer;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 
 /**
@@ -44,7 +51,10 @@ public class ThreadEditDetailsActivity extends BaseActivity {
 
     protected ActionBar actionBar;
     protected String threadEntityID;
+
     protected Thread thread;
+    protected ArrayList<User> users = new ArrayList<>();
+
     protected TextInputEditText nameInput;
     protected MaterialButton saveButton;
     protected SimpleDraweeView threadImageView;
@@ -55,13 +65,24 @@ public class ThreadEditDetailsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        threadEntityID = getIntent().getStringExtra(Keys.THREAD_ENTITY_ID);
+        threadEntityID = getIntent().getStringExtra(Keys.IntentKeyThreadEntityID);
         if (threadEntityID != null) {
             thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
         }
 
+        List<String> userEntityIDs = getIntent().getStringArrayListExtra(Keys.IntentKeyUserEntityIDList);
+        if (userEntityIDs != null) {
+            for (String userEntityID : userEntityIDs) {
+                User user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
+                if (user != null) {
+                    users.add(user);
+                }
+            }
+        }
+
         setContentView(R.layout.activity_edit_thread_details);
         initViews();
+
     }
 
     protected void initViews() {
@@ -136,39 +157,49 @@ public class ThreadEditDetailsActivity extends BaseActivity {
 
     protected void didClickOnSaveButton() {
         final String threadName = nameInput.getText().toString();
+
+        // There are several ways this view can be used:
+        // 1. Create a Public Thread
+        // 2. Create a Private Group
+        // 3. Update a thread
         if (thread == null) {
             showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
 
-            disposableList.add(ChatSDK.publicThread().createPublicThreadWithName(threadName)
-                    .observeOn(AndroidSchedulers.mainThread()).flatMap((Function<Thread, SingleSource<Thread>>) thread -> {
-                        if (threadImageURL != null) {
-                            thread.setImageUrl(threadImageURL);
-                        }
-                        return ChatSDK.thread().pushThread(thread).andThen(Single.just(thread));
-                    }).subscribe((thread, throwable) -> {
-                        dismissProgressDialog();
-                        if (throwable == null) {
-                            ToastHelper.show(ChatSDK.shared().context(), String.format(getString(R.string.thread__created), threadName));
+            BiConsumer<Thread, Throwable> consumer = new BiConsumer<Thread, Throwable>() {
+                @Override
+                public void accept(Thread thread, Throwable throwable) throws Exception {
+                    dismissProgressDialog();
+                    if (throwable == null) {
+                        ToastHelper.show(ChatSDK.shared().context(), String.format(getString(R.string.thread__created), threadName));
 
-                            // Finish this activity before opening the new thread to prevent the
-                            // user from going back to the creation screen by pressing the back button
-                            finish();
-                            ChatSDK.ui().startChatActivityForID(ChatSDK.shared().context(), thread.getEntityID());
-                        } else {
-                            ChatSDK.logError(throwable);
-                            Toast.makeText(ChatSDK.shared().context(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }));
+                        // Finish this activity before opening the new thread to prevent the
+                        // user from going back to the creation screen by pressing the back button
+                        finish();
+                        ChatSDK.ui().startChatActivityForID(ChatSDK.shared().context(), thread.getEntityID());
+                    } else {
+                        ChatSDK.logError(throwable);
+                        Toast.makeText(ChatSDK.shared().context(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            };
+
+            // If we aren't adding users then this is a public thread
+            if (users.isEmpty()) {
+                disposableList.add(ChatSDK.publicThread().createPublicThreadWithName(threadName, null, null, threadImageURL)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(consumer));
+            } else {
+                disposableList.add(ChatSDK.thread().createThread(threadName, users, ThreadType.PrivateGroup, null, threadImageURL)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(consumer));
+            }
         } else {
             thread.setName(threadName);
             if (threadImageURL != null) {
                 thread.setImageUrl(threadImageURL);
             }
             thread.update();
-            disposableList.add(ChatSDK.thread().pushThread(thread).subscribe(this::finish, throwable -> {
-                System.out.println("Error");
-                ToastHelper.show(ThreadEditDetailsActivity.this, R.string.update_thread_failed);
-            }));
+            disposableList.add(ChatSDK.thread().pushThread(thread).subscribe(this::finish, toastOnErrorConsumer()));
         }
     }
 

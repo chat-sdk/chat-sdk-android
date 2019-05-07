@@ -48,6 +48,7 @@ import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.interfaces.ChatOptionsDelegate;
 import co.chatsdk.core.interfaces.ChatOptionsHandler;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
@@ -65,9 +66,12 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeOnSubscribe;
 import io.reactivex.Observable;
+import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -88,16 +92,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     }
 
     protected static boolean enableTrace = false;
-
-    /**
-     * The key to get the thread long id.
-     */
-    public static final String LIST_POS = "list_pos";
-
-    /**
-     * Pass true if you want slide down animation for this context exit.
-     */
-    public static final String ANIMATE_EXIT = "animate_exit";
 
     protected View actionBarView;
 
@@ -144,8 +138,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
 
         if (savedInstanceState != null) {
-            listPos = savedInstanceState.getInt(LIST_POS, -1);
-            savedInstanceState.remove(LIST_POS);
+            listPos = savedInstanceState.getInt(Keys.IntentKeyListPosSelectEnabled, -1);
+            savedInstanceState.remove(Keys.IntentKeyListPosSelectEnabled);
         }
 
         if (thread.typeIs(ThreadType.Private1to1) && thread.otherUser() != null && ChatSDK.lastOnline() != null) {
@@ -292,15 +286,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         messageActionsSpeedDialView = findViewById(R.id.speed_dial_message_actions);
         messageActionHandler = new MessageActionHandler(messageActionsSpeedDialView);
 
-        disposableList.add(messageListAdapter.getMessageActionObservable().doOnError(new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                throwable.printStackTrace();
-            }
-        }).subscribe(messageActions -> {
-            // Show the message options
-            messageActionHandler.open(messageActions, ChatActivity.this);
-        }, toastOnErrorConsumer()));
+        disposableList.add(messageListAdapter.getMessageActionObservable()
+                .flatMapSingle((Function<List<MessageAction>, SingleSource<String>>) messageActions -> {
+            // Open the message action sheet
+            return messageActionHandler.open(messageActions, ChatActivity.this);
+        }).subscribe(this::showSnackbar, snackbarOnErrorConsumer()));
     }
 
     public Completable loadMoreMessages (boolean loadFromServer, boolean saveScrollPosition, boolean notify) {
@@ -384,11 +374,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         // Save the thread ID
         if (thread != null) {
-            outState.putString(Keys.THREAD_ENTITY_ID, thread.getEntityID());
+            outState.putString(Keys.IntentKeyThreadEntityID, thread.getEntityID());
         }
 
         // Save the list position
-        outState.putInt(LIST_POS, layoutManager().findFirstVisibleItemPosition());
+        outState.putInt(Keys.IntentKeyListPosSelectEnabled, layoutManager().findFirstVisibleItemPosition());
     }
 
     protected LinearLayoutManager layoutManager () {
@@ -621,7 +611,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
             if (resultCode == RESULT_OK) {
                 // Updating the selected chat id.
-                if (data != null && data.getExtras() != null && data.getExtras().containsKey(Keys.THREAD_ENTITY_ID)) {
+                if (data != null && data.getExtras() != null && data.getExtras().containsKey(Keys.IntentKeyThreadEntityID)) {
                     if (!updateThreadFromBundle(data.getExtras())) {
                         return;
                     }
@@ -645,7 +635,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             return super.onCreateOptionsMenu(menu);
 
         // Adding the add user option only if group chat is enabled.
-        if (ChatSDK.config().groupsEnabled && thread.typeIs(ThreadType.Private)) {
+        if (thread.typeIs(ThreadType.PrivateGroup) && thread.getCreator().isMe()) {
             MenuItem item = menu.add(Menu.NONE, R.id.action_add, 10, getString(R.string.chat_activity_show_users_item_text));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
             item.setIcon(R.drawable.ic_plus);
@@ -688,9 +678,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
      */
     protected void startAddUsersActivity() {
         Intent intent = new Intent(this, ChatSDK.ui().getAddUsersToThreadActivity());
-        intent.putExtra(Keys.THREAD_ENTITY_ID, thread.getEntityID());
-        intent.putExtra(LIST_POS, listPos);
-        intent.putExtra(ANIMATE_EXIT, true);
+        intent.putExtra(Keys.IntentKeyThreadEntityID, thread.getEntityID());
+        intent.putExtra(Keys.IntentKeyListPosSelectEnabled, listPos);
+        intent.putExtra(Keys.IntentKeyAnimateExit, true);
 
         startActivityForResult(intent, ADD_USERS);
 
@@ -711,9 +701,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void openThreadDetailsActivity() {
         // Showing the pick friends context.
         Intent intent = new Intent(this, ChatSDK.ui().getThreadDetailsActivity());
-        intent.putExtra(Keys.THREAD_ENTITY_ID, thread.getEntityID());
-        intent.putExtra(LIST_POS, listPos);
-        intent.putExtra(ANIMATE_EXIT, true);
+        intent.putExtra(Keys.IntentKeyThreadEntityID, thread.getEntityID());
+        intent.putExtra(Keys.IntentKeyListPosSelectEnabled, listPos);
+        intent.putExtra(Keys.IntentKeyAnimateExit, true);
 
         startActivityForResult(intent, SHOW_DETAILS);
 
@@ -725,7 +715,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
      */
     protected boolean updateThreadFromBundle(Bundle bundle) {
 
-        if (bundle != null && (bundle.containsKey(Keys.THREAD_ENTITY_ID))) {
+        if (bundle != null && (bundle.containsKey(Keys.IntentKeyThreadEntityID))) {
             this.bundle = bundle;
         }
         else {
@@ -736,14 +726,14 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             this.bundle = getIntent().getExtras();
         }
 
-        if (this.bundle.containsKey(Keys.THREAD_ENTITY_ID)) {
-            String threadEntityID = this.bundle.getString(Keys.THREAD_ENTITY_ID);
+        if (this.bundle.containsKey(Keys.IntentKeyThreadEntityID)) {
+            String threadEntityID = this.bundle.getString(Keys.IntentKeyThreadEntityID);
             if(threadEntityID != null) {
                 thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
             }
         }
-        if (this.bundle.containsKey(LIST_POS)) {
-            listPos = (Integer) this.bundle.get(LIST_POS);
+        if (this.bundle.containsKey(Keys.IntentKeyListPosSelectEnabled)) {
+            listPos = (Integer) this.bundle.get(Keys.IntentKeyListPosSelectEnabled);
             scrollListTo(ListPosition.Current, false);
         }
 
@@ -906,5 +896,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     public void executeChatOption(ChatOption option) {
         handleMessageSend(option.execute(this, thread));
     }
+
 
 }

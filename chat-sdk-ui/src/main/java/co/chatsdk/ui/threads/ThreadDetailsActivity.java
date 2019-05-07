@@ -14,6 +14,7 @@ import androidx.annotation.LayoutRes;
 import androidx.appcompat.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -21,6 +22,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
@@ -67,8 +69,15 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             finish();
         }
 
-//        setContentView(activityLayout());
         initViews();
+
+        // Depending on the thread type, disable / enable options
+        if (thread.typeIs(ThreadType.Private1to1)) {
+            threadNameTextView.setVisibility(View.INVISIBLE);
+        } else {
+            threadNameTextView.setVisibility(View.VISIBLE);
+        }
+
     }
 
     protected @LayoutRes int activityLayout() {
@@ -153,9 +162,9 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             return;
         }
 
-        animateExit = bundle.getBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
+        animateExit = bundle.getBoolean(Keys.IntentKeyAnimateExit, animateExit);
 
-        String threadEntityID = bundle.getString(Keys.THREAD_ENTITY_ID);
+        String threadEntityID = bundle.getString(Keys.IntentKeyThreadEntityID);
 
         if (threadEntityID != null && !threadEntityID.isEmpty()) {
             thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
@@ -168,13 +177,14 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(Keys.THREAD_ENTITY_ID, thread.getEntityID());
-        outState.putBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
+        outState.putString(Keys.IntentKeyThreadEntityID, thread.getEntityID());
+        outState.putBoolean(Keys.IntentKeyAnimateExit, animateExit);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (thread != null && thread.getCreatorEntityId().equals(ChatSDK.currentUserID())) {
+        // Only the creator can modify the group. Also, private 1-to-1 chats can't be edited
+        if (thread.getCreatorEntityId().equals(ChatSDK.currentUserID()) && !thread.typeIs(ThreadType.Private1to1)) {
             settingsItem = menu.add(Menu.NONE, R.id.action_chat_sdk_settings, 12, getString(R.string.action_settings));
             settingsItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
             settingsItem.setIcon(R.drawable.icn_24_settings);
@@ -189,7 +199,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             onBackPressed();
         }
         if (item.getItemId() == R.id.action_chat_sdk_settings) {
-            ChatSDK.ui().startPublicThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
+            ChatSDK.ui().startThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
         }
         return true;
     }

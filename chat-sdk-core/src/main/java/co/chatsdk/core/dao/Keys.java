@@ -69,12 +69,18 @@ public class Keys {
     public static final String Status = "status";
 
     public static final String IntentKeyUserEntityID = "user-entity-id";
+    public static final String IntentKeyUserEntityIDList = "user-entity-id-list";
     public static final String IntentKeyMessageEntityID = "message-entity-id";
+    public static final String IntentKeyThreadEntityID = "thread-entity-id";
+    public static final String IntentKeyAnimateExit = "animate-exit";
+    public static final String IntentKeyMultiSelectEnabled = "multi-select-enabled";
+    public static final String IntentKeyErrorMessage = "error-message";
+    public static final String IntentKeyListPosSelectEnabled = "list-pos";
 
     // For push notifications
-    public static String USER_ENTITY_ID = "chat_sdk_user_entity_id";
-    public static final String THREAD_ENTITY_ID = "chat_sdk_thread_entity_id";
-    public static final String PUSH_TITLE = "chat_sdk_push_title";
-    public static final String PUSH_BODY = "chat_sdk_push_body";
+    public static final String PushKeyUserEntityID = "chat_sdk_user_entity_id";
+    public static final String PushKeyThreadEntityID = "chat_sdk_thread_entity_id";
+    public static final String PushKeyTitle = "chat_sdk_push_title";
+    public static final String PushKeyBody = "chat_sdk_push_body";
 
 }

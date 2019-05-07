@@ -33,7 +33,7 @@ public abstract class MainActivity extends BaseActivity {
 
     public void launchFromPush (Bundle bundle) {
         if (bundle != null) {
-            String threadID = bundle.getString(Keys.THREAD_ENTITY_ID);
+            String threadID = bundle.getString(Keys.IntentKeyThreadEntityID);
             if (threadID != null && !threadID.isEmpty()) {
                 ChatSDK.ui().startChatActivityForID(getBaseContext(), threadID);
             }

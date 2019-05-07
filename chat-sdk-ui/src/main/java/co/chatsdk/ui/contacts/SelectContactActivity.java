@@ -19,8 +19,10 @@ import android.view.View;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
@@ -58,6 +60,7 @@ public abstract class SelectContactActivity extends BaseActivity {
         }
 
         Predicate<NetworkEvent> contactChanged = ne -> {
+            // Make a filter for user update events
             return NetworkEvent.filterContactsChanged().test(ne) || NetworkEvent.filterType(EventType.UserMetaUpdated).test(ne);
         };
 
@@ -75,13 +78,13 @@ public abstract class SelectContactActivity extends BaseActivity {
     }
 
     protected void getDataFromBundle(Bundle bundle){
-        animateExit = bundle.getBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
+        animateExit = bundle.getBoolean(Keys.IntentKeyAnimateExit, animateExit);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(ChatActivity.ANIMATE_EXIT, animateExit);
+        outState.putBoolean(Keys.IntentKeyAnimateExit, animateExit);
     }
 
     @Override
@@ -114,8 +117,7 @@ public abstract class SelectContactActivity extends BaseActivity {
     }
 
     protected void initList() {
-        boolean enableMultiSelect = ChatSDK.config().groupsEnabled;
-        adapter = new UsersListAdapter(enableMultiSelect);
+        adapter = new UsersListAdapter(multiSelectEnabled);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
@@ -128,7 +130,9 @@ public abstract class SelectContactActivity extends BaseActivity {
                     adapter.toggleSelection(item);
                     userSelectionChanged(getUserList());
                 } else {
-                    doneButtonPressed(getUserList());
+                    if (item instanceof User) {
+                        doneButtonPressed(Arrays.asList((User) item));
+                    }
                 }
             }
         }));
@@ -164,6 +168,7 @@ public abstract class SelectContactActivity extends BaseActivity {
     public void setMultiSelectEnabled (boolean enabled) {
         multiSelectEnabled = enabled;
         refreshDoneButtonVisibility();
+        adapter.setMultiSelectEnabled(enabled);
     }
 
     public void refreshDoneButtonVisibility () {

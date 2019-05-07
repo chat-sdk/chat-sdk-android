@@ -93,6 +93,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                 }
             }
         }).flatMapCompletable(user -> new UserWrapper(user).push()).subscribeOn(Schedulers.single());
+
     }
 
     public Completable setUserOnline() {

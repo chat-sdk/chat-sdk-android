@@ -372,7 +372,7 @@
     <string name="search_threads">Search Threads</string>
 
     <!-- Edit Thread Details -->
-    <string name="create_thread">Create Room</string>
+    <string name="create_thread">Create Chat</string>
 
     <string name="update_thread">Update Room</string>
     <string name="update_thread_failed">Only the thread creator can update the thread</string>

@@ -37,7 +37,7 @@ public class NotificationDisplayHandler {
         String threadID = message.getThread().getEntityID();
 
         Intent openChatIntent = new Intent(context, ChatSDK.ui().getChatActivity());
-        openChatIntent.putExtra(Keys.THREAD_ENTITY_ID, threadID);
+        openChatIntent.putExtra(Keys.IntentKeyThreadEntityID, threadID);
         openChatIntent.setAction(threadID);
         openChatIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 

@@ -404,13 +404,12 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     public void startActivityForResult (Activity activity, Intent intent, int code) {
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         activity.startActivityForResult(intent, code);
     }
 
     public void startChatActivityForID(Context context, String threadEntityID) {
         Intent intent = new Intent(context, getChatActivity());
-        intent.putExtra(Keys.THREAD_ENTITY_ID, threadEntityID);
+        intent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
         startActivity(context, intent);
     }
 
@@ -452,8 +451,21 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     public void startPublicThreadEditDetailsActivity(Context context, String threadEntityID){
+        startThreadEditDetailsActivity(context, threadEntityID);
+    }
+
+    public void startThreadEditDetailsActivity(Context context, String threadEntityID){
+        startThreadEditDetailsActivity(context, threadEntityID, null);
+    }
+
+    public void startThreadEditDetailsActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs){
         Intent intent = new Intent(context, getThreadEditDetailsActivity());
-        intent.putExtra(Keys.THREAD_ENTITY_ID, threadEntityID);
+        if (threadEntityID != null) {
+            intent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
+        }
+        if (userEntityIDs != null) {
+            intent.putStringArrayListExtra(Keys.IntentKeyUserEntityIDList, userEntityIDs);
+        }
         startActivity(context, intent);
     }
 
@@ -470,10 +482,10 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public void startForwardMessageActivityForResult(Activity activity, Message message) {
+    public void startForwardMessageActivityForResult(Activity activity, Message message, int code) {
         Intent intent = new Intent(activity, getForwardMessageActivity());
         intent.putExtra(Keys.IntentKeyMessageEntityID, message.getEntityID());
-        startActivityForResult(activity, intent, 0);
+        startActivityForResult(activity, intent, code);
     }
 
     @Override

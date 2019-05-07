@@ -5,6 +5,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 
 import java.util.HashMap;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.AbstractPublicThreadHandler;
 import co.chatsdk.core.dao.DaoCore;
@@ -14,8 +15,17 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
+import io.reactivex.Completable;
+import io.reactivex.CompletableObserver;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleObserver;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -24,19 +34,18 @@ import io.reactivex.schedulers.Schedulers;
 
 public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
 
-    public Single<Thread> createPublicThreadWithName(final String name, final String entityID, HashMap<String, String> meta) {
-        return Single.create((SingleOnSubscribe<Thread>) e -> {
-
+    public Single<Thread> createPublicThreadWithName(final String name, final String entityID, HashMap<String, String> meta, String imageURL) {
+        return Single.create((SingleOnSubscribe<ThreadPusher>) emitter -> {
             // If the entity ID is set, see if the thread exists and return it if it does
             if (entityID != null) {
                 Thread t = ChatSDK.db().fetchThreadWithEntityID(entityID);
                 if (t != null) {
-                    e.onSuccess(t);
+                    emitter.onSuccess(new ThreadPusher(t, false));
                     return;
                 }
             }
 
-            // Crating the new thread.
+            // Creating the new thread.
             // This thread would not be saved to the local db until it is successfully uploaded to the firebase server.
             final Thread thread = new Thread();
 
@@ -46,7 +55,7 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
             thread.setType(ThreadType.PublicGroup);
             thread.setName(name);
             thread.setEntityID(entityID);
-
+            thread.setImageUrl(imageURL);
 
             // Add the path and API key
             // This allows you to restrict public threads to a particular
@@ -59,35 +68,9 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
             if (meta != null) {
                 thread.updateValues(meta);
             }
+            emitter.onSuccess(new ThreadPusher(thread, true));
 
-            ThreadWrapper wrapper = new ThreadWrapper(thread);
-
-            wrapper.push().doOnError(throwable -> {
-                DaoCore.deleteEntity(thread);
-                e.onError(throwable);
-            }).concatWith(wrapper.pushMeta()).subscribe(() -> {
-                DaoCore.updateEntity(thread);
-
-                // Add the thread to the list of public threads
-                DatabaseReference publicThreadRef = FirebasePaths.publicThreadsRef()
-                        .child(thread.getEntityID());
-
-                HashMap<String, Object> value = new HashMap<>();
-                value.put(Keys.CreationDate, ServerValue.TIMESTAMP);
-
-                publicThreadRef.setValue(value, (databaseError, databaseReference) -> {
-                    if(databaseError == null) {
-                        e.onSuccess(thread);
-                    }
-                    else {
-                        DaoCore.deleteEntity(thread);
-                        e.onError(databaseError.toException());
-                    }
-                });
-            });
-
-        }).subscribeOn(Schedulers.single());
+        }).flatMap((Function<ThreadPusher, SingleSource<Thread>>) ThreadPusher::push)
+                .subscribeOn(Schedulers.single());
     }
-
-
 }

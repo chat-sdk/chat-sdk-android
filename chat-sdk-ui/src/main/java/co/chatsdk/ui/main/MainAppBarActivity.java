@@ -9,6 +9,9 @@ import java.util.List;
 import androidx.annotation.LayoutRes;
 import androidx.viewpager.widget.ViewPager;
 import co.chatsdk.core.Tab;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.interfaces.LocalNotificationHandler;
+import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 
@@ -79,16 +82,22 @@ public class MainAppBarActivity extends MainActivity {
 
     public void updateLocalNotificationsForTab () {
         TabLayout.Tab tab = tabLayout.getTabAt(tabLayout.getSelectedTabPosition());
-        ChatSDK.ui().setLocalNotificationHandler(thread -> showLocalNotificationsForTab(tab));
+        ChatSDK.ui().setLocalNotificationHandler(thread -> showLocalNotificationsForTab(tab, thread));
     }
 
-    public boolean showLocalNotificationsForTab (TabLayout.Tab tab) {
+    public boolean showLocalNotificationsForTab (TabLayout.Tab tab, Thread thread) {
         // Don't show notifications on the threads tabs
         Tab t = adapter.getTabs().get(tab.getPosition());
 
-        Class privateThreadsFragmentClass = ChatSDK.ui().privateThreadsFragment().getClass();
-
-        return !t.fragment.getClass().isAssignableFrom(privateThreadsFragmentClass);
+        if (thread.typeIs(ThreadType.Private)) {
+            Class privateThreadsFragmentClass = ChatSDK.ui().privateThreadsFragment().getClass();
+            return !t.fragment.getClass().isAssignableFrom(privateThreadsFragmentClass);
+        }
+        if (thread.typeIs(ThreadType.Public)) {
+            Class publicThreadsFragmentClass = ChatSDK.ui().publicThreadsFragment().getClass();
+            return !t.fragment.getClass().isAssignableFrom(publicThreadsFragmentClass);
+        }
+        return true;
     }
 
     public void clearData () {

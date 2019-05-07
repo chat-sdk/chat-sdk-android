@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import androidx.fragment.app.Fragment;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -84,7 +85,16 @@ public interface InterfaceAdapter {
     void startActivity(Context context, Class activity);
     void startActivity (Context context, Intent intent);
     void startChatActivityForID(Context context, String threadEntityID);
+
+    /**
+     * Use {@link #startThreadEditDetailsActivity(Context, String)}
+     * @param context
+     * @param threadEntityID
+     */
+    @Deprecated
     void startPublicThreadEditDetailsActivity(Context context, String threadEntityID);
+    void startThreadEditDetailsActivity(Context context, String threadEntityID);
+    void startThreadEditDetailsActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs);
 
     // @Deprecated use {@link #getLoginIntent(Context, HashMap)}
 //  void startLoginActivity(Context context, boolean attemptCachedLogin);
@@ -94,7 +104,7 @@ public interface InterfaceAdapter {
     void startMainActivity (Context context);
     void startMainActivity (Context context, HashMap<String, Object> extras);
     void startSearchActivity (Context context);
-    void startForwardMessageActivityForResult(Activity activity, Message message);
+    void startForwardMessageActivityForResult(Activity activity, Message message, int code);
 
     void startAddUsersToThreadActivity(Context context);
     void startCreateThreadActivity(Context context);

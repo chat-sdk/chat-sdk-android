@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:orientation="vertical"
     android:background="@android:color/white"
-    android:id="@+id/view_root">
+    android:id="@+id/view_root"
+    android:animateLayoutChanges="true">
 
     <ImageView
         android:id="@+id/image_app_icon"

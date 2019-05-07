@@ -20,4 +20,8 @@ public abstract class AbstractPublicThreadHandler implements PublicThreadHandler
         return createPublicThreadWithName(name, entityID, null);
     }
 
+    public Single<Thread> createPublicThreadWithName(final String name, final String entityID, HashMap<String, String> meta) {
+        return createPublicThreadWithName(name, entityID, meta, null);
+    }
+
 }
