@@ -375,7 +375,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.7.0'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.7.8'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -418,7 +418,7 @@ Now the script is active and push notifications will be set out automatically.
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.7.0'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.7.8'
 ```
 
 ##### Enable the module
@@ -443,7 +443,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.7.0'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.7.8'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
