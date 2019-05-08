@@ -24,6 +24,7 @@ import co.chatsdk.core.R;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.interfaces.MessageDisplayHandler;
 import co.chatsdk.core.session.ChatSDK;
 
 public class NotificationDisplayHandler {
@@ -41,7 +42,9 @@ public class NotificationDisplayHandler {
         openChatIntent.setAction(threadID);
         openChatIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        createMessageNotification(context, openChatIntent, message.getSender().getEntityID(), message.getSender().getName(), message.getText());
+        MessageDisplayHandler displayHandler = ChatSDK.ui().getMessageHandler(message.getMessageType());
+
+        createMessageNotification(context, openChatIntent, message.getSender().getEntityID(), message.getSender().getName(), displayHandler.displayName(message));
 
     }
 

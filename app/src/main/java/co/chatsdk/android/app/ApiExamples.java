@@ -3,6 +3,7 @@ package co.chatsdk.android.app;
 import android.content.Context;
 import android.content.Intent;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
@@ -50,12 +51,12 @@ public class ApiExamples {
 
     }
 
-                        /**
+    /**
      * Example of how to send an image message to a thread
      * @param filePath - Local path to image file
      * @param thread - The thread to send the message to
      */
-    public void sendImageMessage (String filePath, Thread thread) {
+    public void sendImageMessage (File filePath, Thread thread) {
         Disposable d = ChatSDK.imageMessage().sendMessageWithImage(filePath, thread).subscribe(() -> {
             // Handle Success
         }, (Consumer<Throwable>) throwable -> {
@@ -231,6 +232,7 @@ public class ApiExamples {
         ChatSDK.thread().deleteMessage(message).subscribe(() -> {
             // Message has been deleted
         });
+
     }
 
     // These fragments can be embedded in your views to display lists of chats

@@ -1,5 +1,7 @@
 package co.chatsdk.core.handlers;
 
+import java.io.File;
+
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.types.MessageSendProgress;
 import io.reactivex.Completable;
@@ -18,9 +20,9 @@ public interface ImageMessageHandler extends MessageHandler {
      * If the upload is successful we will update the message entity so the entityId given from the server will be saved.
      * When done or when an error occurred the calling method will be notified.
      *
-     * @param filePath is a file that contain the image. For now the file will be decoded to a Base64 image representation.
+     * @param imageFile is a file that contain the image. For now the file will be decoded to a Base64 image representation.
      * @param thread   thread that the message is sent to.
      */
-    Completable sendMessageWithImage(String filePath, Thread thread);
+    Completable sendMessageWithImage(File imageFile, Thread thread);
 
 }

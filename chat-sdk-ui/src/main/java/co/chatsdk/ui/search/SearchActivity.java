@@ -176,7 +176,7 @@ public class SearchActivity extends BaseActivity {
                         if (!existingContacts.contains(user) && !user.isMe()) {
                             users.add(user);
                             adapter.setUsers(users, true);
-                            hideSoftKeyboard(SearchActivity.this);
+                            hideKeyboard();
                             dialog.dismiss();
                         }
                     }

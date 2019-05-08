@@ -39,7 +39,7 @@ public class MediaSelector {
 
     protected Uri fileUri;
     protected Disposable disposable;
-    protected SingleEmitter<String> emitter;
+    protected SingleEmitter<File> emitter;
 
     protected CropType cropType = CropType.Rectangle;
 
@@ -50,17 +50,17 @@ public class MediaSelector {
         Circle,
     }
 
-    public Single<String> startActivity (Activity activity, MediaType type) {
+    public Single<File> startActivity (Activity activity, MediaType type) {
         return startActivity(activity, type, null);
     }
 
-    public Single<String> startActivity (Activity activity, MediaType type, CropType cropType) {
+    public Single<File> startActivity (Activity activity, MediaType type, CropType cropType) {
 
         if (cropType != null) {
             this.cropType = cropType;
         }
 
-        Single<String> action = null;
+        Single<File> action = null;
         if (type.isEqual(MediaType.TakePhoto)) {
             action = startTakePhotoActivity(activity, this.cropType);
         }
@@ -85,7 +85,7 @@ public class MediaSelector {
         return Single.error(new Throwable(activity.getString(R.string.error_launching_activity)));
     }
 
-    public Single<String> startTakePhotoActivity (Activity activity, CropType cropType) {
+    public Single<File> startTakePhotoActivity (Activity activity, CropType cropType) {
         return Single.create(emitter -> {
             MediaSelector.this.emitter = emitter;
             MediaSelector.this.cropType = cropType;
@@ -102,7 +102,7 @@ public class MediaSelector {
         });
     }
 
-    public Single<String> startChooseImageActivity(Activity activity, CropType cropType) {
+    public Single<File> startChooseImageActivity(Activity activity, CropType cropType) {
         return Single.create(emitter -> {
             MediaSelector.this.emitter = emitter;
             MediaSelector.this.cropType = cropType;
@@ -114,7 +114,7 @@ public class MediaSelector {
         });
     }
 
-    public Single<String> startTakeVideoActivity (Activity activity) {
+    public Single<File> startTakeVideoActivity (Activity activity) {
         return Single.create(emitter -> {
             MediaSelector.this.emitter = emitter;
 
@@ -125,7 +125,7 @@ public class MediaSelector {
         });
     }
 
-    public Single<String> startChooseVideoActivity (Activity activity) {
+    public Single<File> startChooseVideoActivity (Activity activity) {
         return Single.create(emitter -> {
             MediaSelector.this.emitter = emitter;
 
@@ -148,10 +148,10 @@ public class MediaSelector {
 
     protected void processPickedPhoto(Activity activity, Uri uri) throws Exception {
         if (!ChatSDK.config().imageCroppingEnabled && cropType == CropType.None) {
-            String imagePath = pathFromURI(uri, activity, MediaStore.Images.Media.DATA);
+            File imageFile = fileFromURI(uri, activity, MediaStore.Images.Media.DATA);
             // New
-            File file = ImageUtils.compressImageToFile(activity, imagePath, "COMPRESSED", "jpg");
-            handleImageFile(activity, file.getPath());
+            File file = ImageUtils.compressImageToFile(activity, imageFile.getPath(), "COMPRESSED", "jpg");
+            handleImageFile(activity, file);
         }
         else {
             if (cropType == CropType.Circle) {
@@ -166,13 +166,13 @@ public class MediaSelector {
         }
     }
 
-    protected String pathFromURI (Uri uri, Activity activity, String column) {
+    protected File fileFromURI (Uri uri, Activity activity, String column) {
         File file = null;
         if (uri.getPath() != null) {
             file = new File(uri.getPath());
         }
         if (file != null && file.length() > 0) {
-            return uri.getPath();
+            return file;
         }
         else {
             // Try to get it another way for this kind of URL
@@ -181,7 +181,8 @@ public class MediaSelector {
             Cursor cursor = activity.getContentResolver().query(uri, filePathColumn,null, null, null);
             if (cursor != null) {
                 cursor.moveToFirst();
-                return cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
+                String fileURI = cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
+                return new File(fileURI);
             }
         }
         return null;
@@ -196,7 +197,7 @@ public class MediaSelector {
         }
         else if (resultCode == RESULT_OK) {
             try {
-                handleImageFile(activity, result.getUri().getPath());
+                handleImageFile(activity, new File(result.getUri().getPath()));
             }
             catch (NullPointerException e){
                 notifyError(new Exception(activity.getString(R.string.unable_to_fetch_image)));
@@ -205,13 +206,13 @@ public class MediaSelector {
 
     }
 
-    public void handleImageFile (Activity activity, String path) {
+    public void handleImageFile (Activity activity, File file) {
 
         // Scanning the messageImageView so it would be visible in the gallery images.
         if (ChatSDK.config().saveImagesToDirectory) {
-            ImageUtils.scanFilePathForGallery(activity, path);
+            ImageUtils.scanFilePathForGallery(activity, file.getPath());
         }
-        notifySuccess(path);
+        notifySuccess(file);
     }
 
     public void handleResult (Activity activity, int requestCode, int resultCode, Intent intent) throws Exception {
@@ -228,7 +229,7 @@ public class MediaSelector {
             }
             else if (requestCode == TAKE_VIDEO || requestCode == CHOOSE_VIDEO) {
                 Uri videoUri = intent.getData();
-                notifySuccess(pathFromURI(videoUri, activity, MediaStore.Video.Media.DATA));
+                notifySuccess(fileFromURI(videoUri, activity, MediaStore.Video.Media.DATA));
             }
             else {
                 notifyError(new Exception(activity.getString(R.string.error_processing_image)));
@@ -236,9 +237,9 @@ public class MediaSelector {
         }
     }
 
-    protected void notifySuccess (@NotNull String path) {
+    protected void notifySuccess (@NotNull File file) {
         if (emitter != null) {
-            emitter.onSuccess(path);
+            emitter.onSuccess(file);
         }
         clear();
     }

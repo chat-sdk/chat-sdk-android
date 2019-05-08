@@ -11,7 +11,7 @@ import io.reactivex.Observable;
  * Created by SimonSmiley-Andrews on 01/05/2017.
  */
 
-public interface AudioMessageHandler extends MessageDisplayHandler {
+public interface AudioMessageHandler extends MessageHandler {
 
     /**
      * Send an audio message

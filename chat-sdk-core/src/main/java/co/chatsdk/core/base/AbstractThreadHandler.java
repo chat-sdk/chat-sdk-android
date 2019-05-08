@@ -17,6 +17,7 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.rigs.MessageSendRig;
 import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
@@ -62,10 +63,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
      * When done or when an error occurred the calling method will be notified.
      */
     public Completable sendMessageWithText(final String text, final Thread thread) {
-        return Single.just(newMessage(MessageType.Text, thread)).flatMapCompletable(message -> {
-            message.setText(text);
-            return implSendMessage(message);
-        }).subscribeOn(Schedulers.single());
+        return new MessageSendRig (new MessageType(MessageType.Text), thread, message -> message.setText(text)).run();
     }
 
     public static Message newMessage (int type, Thread thread) {

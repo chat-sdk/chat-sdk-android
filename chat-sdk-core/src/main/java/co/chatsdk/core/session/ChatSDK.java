@@ -23,6 +23,7 @@ import co.chatsdk.core.handlers.AudioMessageHandler;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;
 import co.chatsdk.core.handlers.ContactHandler;
+import co.chatsdk.core.handlers.ContactMessageHandler;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.EncryptionHandler;
 import co.chatsdk.core.handlers.EventHandler;
@@ -291,6 +292,10 @@ public class ChatSDK {
 
     public static StickerMessageHandler stickerMessage () {
         return a().stickerMessage;
+    }
+
+    public static ContactMessageHandler contactMessage () {
+        return a().contactMessage;
     }
 
     public static FileMessageHandler fileMessage () {

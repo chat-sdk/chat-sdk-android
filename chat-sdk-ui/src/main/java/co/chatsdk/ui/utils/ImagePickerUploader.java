@@ -53,11 +53,11 @@ public class ImagePickerUploader {
         return mediaSelector.startChooseImageActivity(activity, cropType).map(this::compressFile).flatMap(this::uploadImageFile);
     }
 
-    public File compressFile (String path) throws Exception {
+    public File compressFile (File file) throws Exception {
         File compress = new Compressor(ChatSDK.shared().context())
                 .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
                 .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
-                .compressToFile(new File(path));
+                .compressToFile(file);
 
         Bitmap bitmap = BitmapFactory.decodeFile(compress.getPath());
 

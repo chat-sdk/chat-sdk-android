@@ -85,7 +85,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     public boolean onLongClick (View v) {
         if (onLongClickListener != null) {
             onLongClickListener.onLongClick(v);
-        } else if (message != null && message.getSender().isMe()) {
+        } else if (message != null) {
 
             ArrayList<MessageAction> actions = new ArrayList<>();
 
@@ -96,6 +96,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
             actions.add(new ForwardMessageAction(message));
 
             actionPublishSubject.onNext(actions);
+            return true;
         }
         return false;
     }

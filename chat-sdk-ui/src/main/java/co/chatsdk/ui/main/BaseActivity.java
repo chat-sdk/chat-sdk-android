@@ -10,6 +10,7 @@ package co.chatsdk.ui.main;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -159,7 +160,7 @@ public class BaseActivity extends AppCompatActivity {
      * */
     public void setupTouchUIToDismissKeyboard(View view) {
         setupTouchUIToDismissKeyboard(view, (v, event) -> {
-            hideSoftKeyboard(BaseActivity.this);
+            hideKeyboard();
             return false;
         }, -1);
     }
@@ -190,17 +191,6 @@ public class BaseActivity extends AppCompatActivity {
                 setupTouchUIToDismissKeyboard(innerView, onTouchListener, exceptIDs);
             }
         }
-    }
-
-    /** Hide the Soft Keyboard.*/
-    public static void hideSoftKeyboard(Activity activity) {
-        InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-
-        if (inputMethodManager == null)
-            return;
-
-        if (activity.getCurrentFocus() != null && activity.getCurrentFocus().getWindowToken() != null)
-            inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
     }
 
     /** Show a SuperToast with the given text. */
@@ -283,6 +273,20 @@ public class BaseActivity extends AppCompatActivity {
         ActivityResultPushSubjectHolder.shared().onNext(new ActivityResult(requestCode, resultCode, data));
     }
 
+    public void hideKeyboard() {
+        BaseActivity.hideKeyboard(this);
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        // Check if no view has focus:
+        View view = activity.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (inputManager != null) {
+                inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+        }
+    }
 
 
 }

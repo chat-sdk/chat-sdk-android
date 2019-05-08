@@ -11,6 +11,7 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.ImageMessageHandler;
+import co.chatsdk.core.rigs.MessageSendRig;
 import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.FileUploadResult;
@@ -45,67 +46,26 @@ import timber.log.Timber;
 
 public class BaseImageMessageHandler implements ImageMessageHandler {
 
-        protected Disposable imageUploadDisposable;
+    @Override
+    public Completable sendMessageWithImage(final File imageFile, final Thread thread) {
+        return new MessageSendRig(new MessageType(MessageType.Image), thread, message -> {
+            // Get the image and set the image message dimensions
+            final Bitmap image = BitmapFactory.decodeFile(imageFile.getPath(), null);
 
-        @Override
-        public Completable sendMessageWithImage(final String filePath, final Thread thread) {
-            return Completable.create(emitter -> {
+            message.setValueForKey(image.getWidth(), Keys.MessageImageWidth);
+            message.setValueForKey(image.getHeight(), Keys.MessageImageHeight);
 
-                final Message message = AbstractThreadHandler.newMessage(MessageType.Image, thread);
+        }).setFile(imageFile, "image.jpg", "image/jpeg", (message, result) -> {
+            // When the file has uploaded, set the image URL
+            message.setValueForKey(result.url, Keys.MessageImageURL);
 
-                // First pass back an empty result so that we add the cell to the table view
-                message.setMessageStatus(MessageSendStatus.Uploading);
-                message.update();
-
-                ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
-
-                File compress = new Compressor(ChatSDK.shared().context())
-                        .setMaxHeight(ChatSDK.config().imageMaxHeight)
-                        .setMaxWidth(ChatSDK.config().imageMaxWidth)
-                        .compressToFile(new File(filePath));
-
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                final Bitmap image = BitmapFactory.decodeFile(compress.getPath(), options);
-
-                if(image != null) {
-
-                    imageUploadDisposable = ChatSDK.upload().uploadImage(image).flatMapMaybe((Function<FileUploadResult, MaybeSource<Message>>) result -> {
-
-                        ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
-
-                        if (result.urlValid()) {
-
-                            message.setValueForKey(image.getWidth(), Keys.MessageImageWidth);
-                            message.setValueForKey(image.getHeight(), Keys.MessageImageHeight);
-                            message.setValueForKey(result.url, Keys.MessageImageURL);
-                            message.setValueForKey(result.url, Keys.MessageThumbnailURL);
-
-                            message.update();
-
-                            return Maybe.just(message);
-                        } else {
-                            return Maybe.empty();
-                        }
-                    }).firstElement().toSingle().flatMapCompletable(message1 -> {
-                        message1.setMessageStatus(MessageSendStatus.Sending);
-                        message1.update();
-
-                        ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message1)));
-
-                        return ChatSDK.thread().sendMessage(message1);
-                    }).subscribe(emitter::onComplete, emitter::onError);
-
-                } else {
-                    emitter.onError(new Throwable(ChatSDK.shared().context().getString(R.string.unable_to_save_image_to_disk)));
-                }
-            }).subscribeOn(Schedulers.single()).doOnDispose(() -> {
-                if (imageUploadDisposable != null) {
-                    imageUploadDisposable.dispose();
-                }
-            });
-
-        }
+        }).setFileCompressAction(file -> {
+            return new Compressor(ChatSDK.shared().context())
+                    .setMaxHeight(ChatSDK.config().imageMaxHeight)
+                    .setMaxWidth(ChatSDK.config().imageMaxWidth)
+                    .compressToFile(file);
+        }).run();
+    }
 
     @Override
     public String textRepresentation(Message message) {

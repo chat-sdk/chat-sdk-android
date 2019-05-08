@@ -51,7 +51,6 @@ public class Keys {
     public static final String MessageLongitude = "longitude";
     public static final String MessageLatitude = "latitude";
     public static final String MessageImageURL = "image-url";
-    public static final String MessageThumbnailURL = "thumbnail-url";
     public static final String MessageImageWidth = "image-width";
     public static final String MessageImageHeight = "image-height";
     public static final String MessageVideoURL = "video-url";

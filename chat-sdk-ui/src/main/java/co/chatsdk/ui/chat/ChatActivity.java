@@ -288,8 +288,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         disposableList.add(messageListAdapter.getMessageActionObservable()
                 .flatMapSingle((Function<List<MessageAction>, SingleSource<String>>) messageActions -> {
-            // Open the message action sheet
-            return messageActionHandler.open(messageActions, ChatActivity.this);
+                    // Open the message action sheet
+                    hideKeyboard();
+                    return messageActionHandler.open(messageActions, ChatActivity.this);
         }).subscribe(this::showSnackbar, snackbarOnErrorConsumer()));
     }
 
@@ -532,7 +533,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             // Using small delay for better accuracy in catching the scrolls.
             v.postDelayed(() -> {
                 if (!scrolling) {
-                    hideSoftKeyboard(ChatActivity.this);
+                    hideKeyboard();
                     stopTyping(false);
                 }
             }, 300);
@@ -555,6 +556,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     protected void onPause() {
         super.onPause();
+        hideKeyboard();
     }
 
     /**

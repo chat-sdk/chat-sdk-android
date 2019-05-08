@@ -7,6 +7,8 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.LocationMessageHandler;
+import co.chatsdk.core.interfaces.MessageDisplayHandler;
+import co.chatsdk.core.rigs.MessageSendRig;
 import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
@@ -25,31 +27,30 @@ import io.reactivex.schedulers.Schedulers;
  * Created by ben on 10/24/17.
  */
 
-public class BaseLocationMessageHandler implements LocationMessageHandler {
+public class BaseLocationMessageHandler extends AbstractMessageHandler implements LocationMessageHandler {
 
+    @Override
     public Completable sendMessageWithLocation(final String filePath, final LatLng location, final Thread thread) {
-        return Single.create((SingleOnSubscribe<Message>) emitter -> {
+        return new MessageSendRig(new MessageType(MessageType.Location), thread, new MessageSendRig.MessageDidCreateUpdateAction() {
+            @Override
+            public void update(Message message) {
 
-            final Message message = AbstractThreadHandler.newMessage(MessageType.Location, thread);
+                int maxSize = ChatSDK.config().imageMaxThumbnailDimension;
+                String imageURL = GoogleUtils.getMapImageURL(location, maxSize, maxSize);
 
-            int maxSize = ChatSDK.config().imageMaxThumbnailDimension;
-            String imageURL = GoogleUtils.getMapImageURL(location, maxSize, maxSize);
+                message.setValueForKey(location.longitude, Keys.MessageLongitude);
+                message.setValueForKey(location.latitude, Keys.MessageLatitude);
+                message.setValueForKey(maxSize, Keys.MessageImageWidth);
+                message.setValueForKey(maxSize, Keys.MessageImageHeight);
+                message.setValueForKey(imageURL, Keys.MessageImageURL);
 
-            message.setValueForKey(location.longitude, Keys.MessageLongitude);
-            message.setValueForKey(location.latitude, Keys.MessageLatitude);
-            message.setValueForKey(maxSize, Keys.MessageImageWidth);
-            message.setValueForKey(maxSize, Keys.MessageImageHeight);
-            message.setValueForKey(imageURL, Keys.MessageImageURL);
-            message.setValueForKey(imageURL, Keys.MessageThumbnailURL);
-
-            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
-
-            emitter.onSuccess(message);
-        }).flatMapCompletable(ChatSDK.thread()::sendMessage).subscribeOn(Schedulers.single());
+            }
+        }).run();
     }
 
     @Override
     public String textRepresentation(Message message) {
         return String.format(ChatSDK.config().locationURLRepresentation, message.doubleForKey(Keys.MessageLatitude), message.doubleForKey(Keys.MessageLongitude));
     }
+
 }

@@ -32,7 +32,7 @@ import io.reactivex.disposables.Disposable;
 public class ImageMessageOnClickHandler {
 
     public static void onClick (Activity activity, View view, String url) {
-        BaseActivity.hideSoftKeyboard(activity);
+        BaseActivity.hideKeyboard(activity);
 
         if (StringUtils.isNotBlank(url)) {
 
