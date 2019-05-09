@@ -94,7 +94,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Fragment contactsFragment = new ContactsFragment();
     protected ProfileFragmentProvider profileFragmentProvider = user -> ProfileFragment.newInstance(user);
 
-    private SparseArray<Tab> additionalTabs = new SparseArray<>();
+    private ArrayList<Tab> tabs = new ArrayList<>();
     private Tab privateThreadsTab;
     private Tab publicThreadsTab;
     private Tab contactsTab;
@@ -136,6 +136,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         stringLocation = context.getResources().getString(R.string.location);
         stringTakePhoto = context.getResources().getString(R.string.take_photo);
         stringChoosePhoto = context.getResources().getString(R.string.choose_photo);
+
+        tabs.addAll(defaultTabs());
     }
 
     @Override
@@ -150,22 +152,17 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public List<Tab> tabs() {
-        List<Tab> tabs = defaultTabs();
-        for (int i = 0; i < additionalTabs.size(); i++) {
-            int key = additionalTabs.keyAt(i);
-            tabs.add(key, additionalTabs.get(key));
-        }
         return tabs;
     }
 
     @Override
     public void addTab(Tab tab) {
-        additionalTabs.append(tabs().size(), tab);
+        tabs.add(tab);
     }
 
     @Override
     public void addTab(Tab tab, int index) {
-        additionalTabs.append(index, tab);
+        tabs.add(index, tab);
     }
 
     @Override
@@ -180,7 +177,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public void removeTab(int index) {
-        additionalTabs.remove(index);
+        tabs.remove(index);
     }
 
     @Override

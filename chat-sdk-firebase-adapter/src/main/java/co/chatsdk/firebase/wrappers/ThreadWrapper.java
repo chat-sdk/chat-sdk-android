@@ -488,48 +488,40 @@ public class ThreadWrapper  {
     public Single<List<Message>> loadMoreMessages(final Date fromDate, final Integer numberOfMessages){
         return Single.create((SingleOnSubscribe<List<Message>>) e -> {
 
-            // First try to load the messages from the database
-            List<Message> list = ChatSDK.db().fetchMessagesForThreadWithID(model.getId(), numberOfMessages + 1, fromDate);
+            DatabaseReference messageRef = FirebasePaths.threadMessagesRef(model.getEntityID());
 
-            if(!list.isEmpty()) {
-                e.onSuccess(list);
+            Query query = messageRef.orderByChild(Keys.Date).limitToLast(numberOfMessages + 1);
+
+            if (fromDate != null) {
+                query = query.endAt(fromDate.getTime() - 1, Keys.Date);
             }
-            else {
-                DatabaseReference messageRef = FirebasePaths.threadMessagesRef(model.getEntityID());
 
-                Query query = messageRef.orderByChild(Keys.Date).limitToLast(numberOfMessages + 1);
+            query.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                if(hasValue) {
+                    List<Message> messages = new ArrayList<>();
 
-                if (fromDate != null) {
-                    query = query.endAt(fromDate.getTime() - 1, Keys.Date);
+                    MessageWrapper message;
+                    for (String key : ((Map<String, Object>) snapshot.getValue()).keySet())
+                    {
+                        message = new MessageWrapper(snapshot.child(key));
+                        model.addMessage(message.getModel());
+
+                        message.getModel().setMessageStatus(MessageSendStatus.Delivered);
+                        messages.add(message.getModel());
+
+                        message.getModel().update();
+                        model.update();
+                    }
+
+                    // Sort the messages
+                    Collections.sort(messages, new MessageSorter());
+
+                    e.onSuccess(messages);
                 }
-
-                query.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-                    if(hasValue) {
-                        List<Message> messages = new ArrayList<>();
-
-                        MessageWrapper message;
-                        for (String key : ((Map<String, Object>) snapshot.getValue()).keySet())
-                        {
-                            message = new MessageWrapper(snapshot.child(key));
-                            model.addMessage(message.getModel());
-
-                            message.getModel().setMessageStatus(MessageSendStatus.Delivered);
-                            messages.add(message.getModel());
-
-                            message.getModel().update();
-                            model.update();
-                        }
-
-                        // Sort the messages
-                        Collections.sort(messages, new MessageSorter());
-
-                        e.onSuccess(messages);
-                    }
-                    else {
-                        e.onSuccess(new ArrayList<>());
-                    }
-                }));
-            }
+                else {
+                    e.onSuccess(new ArrayList<>());
+                }
+            }));
         }).subscribeOn(Schedulers.single());
     }
 

@@ -54,11 +54,10 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
             if (localMessageSize < messageToLoad && loadFromServer) {
                 // If we did load some messages locally, update the from date to the last of those messages
-                Date finalFromDate = localMessages.size() > 0 ? localMessages.get(localMessageSize-1).getDate().toDate() : fromDate;
+                Date finalFromDate = localMessageSize > 0 ? localMessages.get(localMessageSize-1).getDate().toDate() : fromDate;
 
                 return new ThreadWrapper(thread).loadMoreMessages(finalFromDate, messageToLoad).map((Function<List<Message>, List<Message>>) remoteMessages -> {
-                    ArrayList<Message> mergedMessages = new ArrayList<>();
-                    mergedMessages.addAll(localMessages);
+                    ArrayList<Message> mergedMessages = new ArrayList<>(localMessages);
                     mergedMessages.addAll(remoteMessages);
                     return mergedMessages;
                 });
