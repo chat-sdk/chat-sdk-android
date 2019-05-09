@@ -154,7 +154,6 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             @Override
             protected void subscribeActual(CompletableObserver observer) {
                 pushForMessage(message);
-                ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
                 observer.onComplete();
             }
         });

@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import co.chatsdk.core.R;
 import co.chatsdk.core.base.AbstractThreadHandler;
@@ -31,6 +33,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
@@ -48,14 +51,30 @@ public class MessageSendRig {
         void update (Message message);
     }
 
+    public class FileItem {
+
+        public File file;
+        public String name;
+        public String mimeType;
+        public boolean compress;
+
+        public FileItem (File file, String name, String mimeType) {
+            this(file, name, mimeType, false);
+        }
+        public FileItem (File file, String name, String mimeType, boolean compress) {
+            this.file = file;
+            this.name = name;
+            this.mimeType = mimeType;
+            this.compress = compress;
+        }
+    }
+
     protected DisposableList disposableList = new DisposableList();
 
     protected MessageType messageType;
     protected Thread thread;
     protected Message message;
-    protected File file;
-    protected String fileName;
-    protected String fileMimeType;
+    protected ArrayList<FileItem> fileItems = new ArrayList<>();
 
     protected FileCompressAction fileCompressAction;
 
@@ -71,10 +90,14 @@ public class MessageSendRig {
         this.messageDidCreateUpdateAction = action;
     }
 
+    public MessageSendRig setFiles (List<FileItem> files, MessageDidUploadUpdateAction messageDidUploadUpdateAction) {
+        fileItems.addAll(files);
+        this.messageDidUploadUpdateAction = messageDidUploadUpdateAction;
+        return this;
+    }
+
     public MessageSendRig setFile (File file, String name, String mimeType, MessageDidUploadUpdateAction messageDidUploadUpdateAction) {
-        this.file = file;
-        this.fileName = name;
-        this.fileMimeType = mimeType;
+        fileItems.add(new FileItem(file, name, mimeType));
         this.messageDidUploadUpdateAction = messageDidUploadUpdateAction;
         return this;
     }
@@ -85,7 +108,7 @@ public class MessageSendRig {
     }
 
     public Completable run () {
-        if (file == null) {
+        if (fileItems.isEmpty()) {
             return Single.just(createMessage()).ignoreElement().concatWith(send()).subscribeOn(Schedulers.single());
         } else {
             return Single.just(createMessage()).flatMapCompletable(new Function<Message, CompletableSource>() {
@@ -93,16 +116,18 @@ public class MessageSendRig {
                 public CompletableSource apply(Message message) throws Exception {
                     // First pass back an empty result so that we add the cell to the table view
                     message.setMessageStatus(MessageSendStatus.Uploading);
-                    message.update();
-
                     ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
 
                     if (fileCompressAction != null) {
-                        file = fileCompressAction.compress(file);
+                        for (FileItem item : fileItems) {
+                            if (item.compress || fileItems.size() == 1) {
+                                item.file = fileCompressAction.compress(item.file);
+                            }
+                        }
                     }
                     return Completable.complete();
                 }
-            }).concatWith(uploadFile()).andThen(send()).subscribeOn(Schedulers.single());
+            }).concatWith(uploadFiles()).andThen(send()).subscribeOn(Schedulers.single());
         }
     }
 
@@ -112,32 +137,49 @@ public class MessageSendRig {
             messageDidCreateUpdateAction.update(message);
         }
         message.update();
+        // Message has been created and added to the thread
+        ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
         return message;
     }
 
     protected Completable send () {
         return Completable.create(emitter -> {
+            message.setMessageStatus(MessageSendStatus.WillSend);
+            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
             message.setMessageStatus(MessageSendStatus.Sending);
-            message.update();
             ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
             emitter.onComplete();
         }).andThen(ChatSDK.thread().sendMessage(message));
     }
 
-    protected Completable uploadFile () {
-        return ChatSDK.upload().uploadFile(FileUtils.fileToBytes(file), fileName, fileMimeType).flatMapMaybe((Function<FileUploadResult, MaybeSource<Message>>) result -> {
+    protected Completable uploadFiles () {
+        ArrayList<Completable> completables = new ArrayList<>();
 
+        message.setMessageStatus(MessageSendStatus.WillUpload);
+        ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+
+        message.setMessageStatus(MessageSendStatus.Uploading);
+        ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+
+        for (FileItem item : fileItems) {
+            completables.add(ChatSDK.upload().uploadFile(FileUtils.fileToBytes(item.file), item.name, item.mimeType).flatMapMaybe((Function<FileUploadResult, MaybeSource<Message>>) result -> {
+
+                ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+
+                if (result.urlValid() && messageDidUploadUpdateAction != null) {
+                    messageDidUploadUpdateAction.update(message, result);
+                    message.update();
+
+                    return Maybe.just(message);
+                } else {
+                    return Maybe.empty();
+                }
+            }).firstElement().ignoreElement());
+        }
+        return Completable.merge(completables).doOnComplete(() -> {
+            message.setMessageStatus(MessageSendStatus.DidUpload);
             ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
-
-            if (result.urlValid() && messageDidUploadUpdateAction != null) {
-                messageDidUploadUpdateAction.update(message, result);
-                message.update();
-
-                return Maybe.just(message);
-            } else {
-                return Maybe.empty();
-            }
-        }).firstElement().ignoreElement();
+        });
     }
 
 }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="app_name">Chat SDK Demo</string>
+    <string name="app_name">Chat SDK</string>
 
     <string name="facebook_app_identifier" translatable="false">648056098576150</string>
 
@@ -10,8 +9,4 @@
 
     <string name="google_maps_api_key" translatable="false">AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE</string>
     <string name="google_web_client_id" translatable="false">1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com</string>
-
-    <!--<string name="firebase_root_path">firebase_v4_web_new_4</string>-->
-    <!--<string name="firebase_cloud_messaging_server_key">AAAA_WvJyeI:APA91bFIDYoxnbFTub61SKCh8-RZrElzdkZpzyV3paGFlRWonMzq33zQmQW3ub5hDXLuRaipwtoHSoDKXkZlN5DRb_EYdrxtaDptmvZKCYBPKI-4RqTK9wVLOJvgc5X3bVWLfpNSJO_tLK2pnmhfpHDw2Zs-5L2yug</string>-->
-
 </resources>

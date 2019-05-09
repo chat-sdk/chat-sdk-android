@@ -69,7 +69,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     public static Message newMessage (int type, Thread thread) {
         Message message = ChatSDK.db().createEntity(Message.class);
         message.setSender(ChatSDK.currentUser());
-        message.setMessageStatus(MessageSendStatus.Sending);
+        message.setMessageStatus(MessageSendStatus.Created);
         message.setDate(new DateTime(System.currentTimeMillis()));
         message.setEntityID(UUID.randomUUID().toString());
         message.setType(type);
@@ -85,31 +85,17 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     /* Convenience method to save the message to the database then pass it to the token network adapter
      * send method so it can be sent via the network
      */
-    public Completable implSendMessage(final Message message) {
-        return Completable.create(emitter -> {
-            message.update();
-            message.getThread().update();
-
-            if (ChatSDK.encryption() != null) {
-                ChatSDK.encryption().encrypt(message);
-            }
-            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
-            emitter.onComplete();
-        }).concatWith(sendMessage(message)).doOnComplete(() -> {
-            message.setMessageStatus(MessageSendStatus.Sent);
-            message.update();
-            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
-        }).doOnError(throwable -> {
-            message.setMessageStatus(MessageSendStatus.Failed);
-            message.update();
-            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
-        }).subscribeOn(Schedulers.single());
-    }
-
     public Completable forwardMessage(Message message, Thread thread) {
         return Single.just(newMessage(message.getType(), thread)).flatMapCompletable(newMessage -> {
             newMessage.setMetaValues(message.getMetaValuesAsMap());
-            return implSendMessage(newMessage);
+
+            message.setMessageStatus(MessageSendStatus.WillSend);
+            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+            message.setMessageStatus(MessageSendStatus.Sending);
+            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+
+            return sendMessage(message);
+
         }).subscribeOn(Schedulers.single());
     }
 

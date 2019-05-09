@@ -16,7 +16,7 @@
             </intent-filter>
         </activity>
 
-        <!--<activity android:name="co.chatsdk.firebase.ui.FirebaseUILoginActivityity">-->
+        <!--<activity android:name="co.chatsdk.firebase.ui.FirebaseUILoginActivity">-->
             <!--<intent-filter>-->
                 <!--<action android:name="android.intent.action.MAIN" />-->
                 <!--<category android:name="android.intent.category.LAUNCHER" />-->
@@ -25,10 +25,6 @@
 
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_api_key"/>
 
-        <!--Contact Book-->
-        <meta-data android:name="contact_book_invite_contact_email_subject" android:value="@string/contact_book_email_subject" />
-        <meta-data android:name="contact_book_invite_contact_email_body" android:value="@string/contact_book_email_body" />
-        <meta-data android:name="contact_book_invite_contact_sms_body" android:value="@string/contact_book_sms_body" />
         <!--<meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_identifier"/>-->
 
     </application>

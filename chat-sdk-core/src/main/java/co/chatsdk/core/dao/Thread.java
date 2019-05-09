@@ -228,7 +228,6 @@ public class Thread implements CoreEntity {
 
     public void addMessage (Message message) {
         message.setThreadId(this.getId());
-        message.update();
         getMessages().add(message);
         update();
     }

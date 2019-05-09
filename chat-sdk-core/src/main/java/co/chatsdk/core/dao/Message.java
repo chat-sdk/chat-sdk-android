@@ -287,6 +287,7 @@ public class Message implements CoreEntity {
 
     public void setMessageStatus(MessageSendStatus status) {
         this.status = status.ordinal();
+        update();
     }
     public void setStatus(Integer status) {
         this.status = status;
@@ -299,6 +300,7 @@ public class Message implements CoreEntity {
 
     public void setThreadId(Long threadId) {
         this.threadId = threadId;
+        update();
     }
 
     public ReadStatus readStatusForUser (User user) {
@@ -371,6 +373,7 @@ public class Message implements CoreEntity {
 
     public void setRead(Boolean read) {
         this.read = read;
+        update();
     }
 
     public void cascadeDelete () {

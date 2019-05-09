@@ -69,7 +69,6 @@ import io.reactivex.Observable;
 import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -164,6 +163,95 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if(enableTrace) {
             android.os.Debug.startMethodTracing("chat");
         }
+
+        // Add the event listeners
+        disposableList.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageAdded))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+                .subscribe(networkEvent -> {
+                    Message message = networkEvent.message;
+
+                    message.setRead(true);
+
+                    boolean isAdded = messageListAdapter.addRow(message, false, true);
+
+                    // Check if the message from the current user, If so return so we wont vibrate for the user messages.
+                    if (message.getSender().isMe() && isAdded) {
+                        scrollListTo(ListPosition.Bottom, layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 2);
+                    }
+                    else {
+                        // If the user is near the bottom, then we scroll down when a message comes in
+                        if(layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 5) {
+                            scrollListTo(ListPosition.Bottom, true);
+                        }
+                    }
+                    if(ChatSDK.readReceipts() != null) {
+                        ChatSDK.readReceipts().markRead(thread);
+                    }
+                }));
+
+        disposableList.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.ThreadReadReceiptUpdated))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+                .subscribe(networkEvent -> {
+
+                    Message message = networkEvent.message;
+
+                    if (ChatSDK.readReceipts() != null && message.getSender().isMe() && !message.getReadStatus().is(ReadStatus.read())) {
+                        reloadDataForMessage(message);
+                    }
+                }));
+
+        disposableList.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageRemoved))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+                .subscribe(networkEvent -> {
+                    messageListAdapter.removeRow(networkEvent.message, true);
+                }));
+
+        disposableList.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.ThreadDetailsUpdated, EventType.ThreadUsersChanged))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+                .subscribe(networkEvent -> reloadActionBar()));
+
+        disposableList.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+                .filter(networkEvent -> thread.containsUser(networkEvent.user))
+                .subscribe(networkEvent -> {
+                    reloadData();
+                    reloadActionBar();
+                }));
+
+        disposableList.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.TypingStateChanged))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+                .subscribe(networkEvent -> {
+                    String typingText = networkEvent.text;
+                    if(typingText != null) {
+                        typingText += getString(R.string.typing);
+                    }
+                    Timber.v(typingText);
+                    setSubtitleText(typingText);
+                }));
+
+        disposableList.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageSendStatusChanged))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+                .subscribe(networkEvent -> {
+
+                    MessageSendProgress progress = networkEvent.getMessageSendProgress();
+                    MessageSendStatus status = progress.getStatus();
+
+                    if (status == MessageSendStatus.Sending || status == MessageSendStatus.Created) {
+                        if(messageListAdapter.addRow(progress.message, false, true, progress.uploadProgress, true)) {
+                            scrollListTo(ListPosition.Bottom, false);
+                        }
+                    }
+                    if (status == MessageSendStatus.Uploading || status == MessageSendStatus.Sent) {
+                        reloadDataForMessage(progress.message);
+                    }
+        }));
 
     }
 
@@ -390,95 +478,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     protected void onStart() {
         super.onStart();
-
-        disposableList.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageAdded))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .subscribe(networkEvent -> {
-                    Message message = networkEvent.message;
-
-                    message.setRead(true);
-                    message.update();
-
-                    boolean isAdded = messageListAdapter.addRow(message, false, true);
-
-                    // Check if the message from the current user, If so return so we wont vibrate for the user messages.
-                    if (message.getSender().isMe() && isAdded) {
-                        scrollListTo(ListPosition.Bottom, layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 2);
-                    }
-                    else {
-                        // If the user is near the bottom, then we scroll down when a message comes in
-                        if(layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 5) {
-                            scrollListTo(ListPosition.Bottom, true);
-                        }
-                    }
-                    if(ChatSDK.readReceipts() != null) {
-                        ChatSDK.readReceipts().markRead(thread);
-                    }
-                }));
-
-        disposableList.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadReadReceiptUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .subscribe(networkEvent -> {
-
-                    Message message = networkEvent.message;
-
-                    if (ChatSDK.readReceipts() != null && message.getSender().isMe() && !message.getReadStatus().is(ReadStatus.read())) {
-                        reloadDataForMessage(message);
-                    }
-                }));
-
-        disposableList.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageRemoved))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .subscribe(networkEvent -> {
-                    messageListAdapter.removeRow(networkEvent.message, true);
-                }));
-
-        disposableList.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadDetailsUpdated, EventType.ThreadUsersChanged))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .subscribe(networkEvent -> reloadActionBar()));
-
-        disposableList.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .filter(networkEvent -> thread.containsUser(networkEvent.user))
-                .subscribe(networkEvent -> {
-                    reloadData();
-                    reloadActionBar();
-                }));
-
-        disposableList.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.TypingStateChanged))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .subscribe(networkEvent -> {
-                    if(networkEvent.thread.equals(thread)) {
-                        String typingText = networkEvent.text;
-                        if(typingText != null) {
-                            typingText += getString(R.string.typing);
-                        }
-                        Timber.v(typingText);
-                        setSubtitleText(typingText);
-                    }
-                }));
-
-        disposableList.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageSendStatusChanged)).subscribe(networkEvent -> {
-            if (networkEvent.thread.equals(thread)) {
-                MessageSendProgress progress = (MessageSendProgress) networkEvent.data.get(NetworkEvent.MessageSendProgress);
-                MessageSendStatus status = progress.message.getMessageStatus();
-
-                if (status == MessageSendStatus.Sending) {
-                    if(messageListAdapter.addRow(progress.message, false, true, progress.uploadProgress, true)) {
-                        scrollListTo(ListPosition.Bottom, false);
-                    }
-                }
-                if (status == MessageSendStatus.Uploading || status == MessageSendStatus.Sent) {
-                    reloadDataForMessage(progress.message);
-                }
-            }
-        }));
     }
 
     protected void setSubtitleText(String text) {
@@ -838,7 +837,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     public void markAsDelivered(Message message){
         message.setMessageStatus(MessageSendStatus.Delivered);
-        message.update();
     }
 
     public void scrollListTo(final int position, final boolean animated) {
@@ -898,6 +896,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     public void executeChatOption(ChatOption option) {
         handleMessageSend(option.execute(this, thread));
     }
+
 
 
 }

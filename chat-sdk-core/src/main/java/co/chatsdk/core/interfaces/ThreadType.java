@@ -6,22 +6,22 @@ package co.chatsdk.core.interfaces;
 
 public class ThreadType {
 
-//    ThreadType
-
+    // Thread Type
     public static int None = -1;
     public static int PrivateGroup = 0x1;
     public static int Private1to1 = 0x2;
     public static int PublicGroup = 0x4;
+    public static int Snap = 0x8;
+
+    // Snaps
+    public static int Private1to1Snap = Private1to1 | Snap;
+    public static int PrivateGroupSnap = PrivateGroup | Snap;
 
     // Descriptors
     public static int Private = Private1to1 | PrivateGroup;
     public static int Public = PublicGroup;
     public static int Group = PrivateGroup | PublicGroup;
     public static int All = 0xFF;
-
-    // To maintain backwards compatibility
-    public static int PrivateV3 = 0;
-    public static int PublicV3 = 1;
 
     public static boolean isPublic (int type) {
         return is(type, Public);

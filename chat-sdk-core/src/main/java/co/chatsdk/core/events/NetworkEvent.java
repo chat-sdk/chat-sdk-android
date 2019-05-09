@@ -56,6 +56,8 @@ public class NetworkEvent {
     public static NetworkEvent messageSendStatusChanged (MessageSendProgress progress) {
         HashMap<String, Object> data = new HashMap<>();
         data.put(MessageSendProgress, progress);
+
+        System.out.println("Create: " + progress.message.getMessageStatus());
         return new NetworkEvent(EventType.MessageSendStatusChanged, progress.message.getThread(), progress.message, progress.message.getSender(), data);
     }
 
@@ -227,6 +229,13 @@ public class NetworkEvent {
                 EventType.ThreadUsersChanged,
                 EventType.UserPresenceUpdated
         );
+    }
+
+    public MessageSendProgress getMessageSendProgress() {
+        if (data != null && data.containsKey(MessageSendProgress)) {
+            return (MessageSendProgress) data.get(MessageSendProgress);
+        }
+        return null;
     }
 
 }

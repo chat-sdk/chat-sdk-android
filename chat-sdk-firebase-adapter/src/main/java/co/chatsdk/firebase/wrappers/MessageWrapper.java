@@ -21,14 +21,18 @@ import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
+import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.R;
 import io.reactivex.Completable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class MessageWrapper  {
@@ -201,20 +205,20 @@ public class MessageWrapper  {
     }
     
     public Completable send() {
-        return Completable.create(e -> {
-            if(model.getThread() != null) {
-                push().concatWith(new ThreadWrapper(model.getThread()).pushLastMessage(lastMessageData())).subscribe(() -> {
-                    FirebaseEntity.pushThreadMessagesUpdated(model.getThread().getEntityID());
-                    model.setMessageStatus(MessageSendStatus.Sent);
-                    model.update();
-                    e.onComplete();
-                }, e::onError);
-            }
-            else {
-                e.onError(new Throwable(ChatSDK.shared().context().getString(R.string.message_doesnt_have_a_thread)));
-            }
-        }).subscribeOn(Schedulers.single());
+        if (model.getThread() != null) {
+            return push().concatWith(new ThreadWrapper(model.getThread()).pushLastMessage(lastMessageData())).doOnComplete(() -> {
+                FirebaseEntity.pushThreadMessagesUpdated(model.getThread().getEntityID());
 
+                model.setMessageStatus(MessageSendStatus.Sent);
+                ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(model)));
+
+            }).doOnError(throwable -> {
+                model.setMessageStatus(MessageSendStatus.Failed);
+                ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(model)));
+            }).subscribeOn(Schedulers.single());
+        } else {
+            return Completable.error(new Throwable(ChatSDK.shared().context().getString(R.string.message_doesnt_have_a_thread)));
+        }
     }
 
     public HashMap<String, Object> lastMessageData () {

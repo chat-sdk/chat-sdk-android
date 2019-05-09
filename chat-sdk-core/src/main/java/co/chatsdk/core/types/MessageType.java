@@ -31,6 +31,7 @@ public class MessageType {
     public static final int Sticker = 6;
     public static final int File = 7;
     public static final int Contact = 8;
+    public static final int Snap = 9;
     public static final int Max = 100000;
 
     private int value;
