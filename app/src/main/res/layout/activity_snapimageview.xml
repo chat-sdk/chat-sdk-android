@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <com.github.chrisbanes.photoview.PhotoView
+        android:id="@+id/photo_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"/>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:id="@+id/chat_sdk_popup_image_progressbar"
+        android:visibility="invisible"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floating_button"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/ic_56_save" />
+
+    <com.dinuscxj.progressbar.CircleProgressBar
+        android:id="@+id/barTimer"
+
+        android:layout_width="100dp"
+
+        android:layout_height="100dp"
+        android:layout_alignParentTop="true"
+
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:indeterminate="false"
+        android:max="1000"
+        android:progress="45"
+        app:drawBackgroundOutsideProgress="true"
+
+        app:line_count="30"
+
+        app:line_width="4dp"
+
+        app:progress_background_color="@color/transparent"
+        app:progress_end_color="@color/holo_blue_bright"
+
+        app:progress_shader="sweep"
+        app:progress_start_color="@color/holo_red_dark"
+        app:progress_start_degree="-90"
+        app:progress_stroke_cap="round"
+        app:progress_stroke_width="1dp"
+        app:progress_text_color="@color/holo_blue_bright"
+        app:progress_text_size="@dimen/progress_text_size"
+        app:style="solid" />
+
+    <TextView
+        android:id="@+id/textTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="285dp"
+        android:layout_marginLeft="285dp"
+        android:layout_marginTop="35dp"
+        android:background="@color/common_google_signin_btn_text_light_default"
+        android:textColor="@color/white"
+        android:textSize="25sp"
+        android:textStyle="bold" />
+
+</RelativeLayout>

@@ -2,6 +2,13 @@
 <resources>
     <string name="app_name">Chat SDK</string>
 
+    <string name="picture_folder">Camera App Images</string>
+    <string name="video_folder">Camera App Videos</string>
+    <string name="minutes">Minutes</string>
+    <string name="seconds">Seconds</string>
+    <string name="select_recipient">Select Recipient</string>
+    <string name="viewing_time">Viewing Time</string>
+
     <string name="facebook_app_identifier" translatable="false">648056098576150</string>
 
     <string name="twitter_key" translatable="false">Kqprq5b6bVeEfcMAGoHzUmB3I</string>

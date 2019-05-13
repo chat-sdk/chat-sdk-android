@@ -158,6 +158,10 @@ public class NetworkEvent {
 //        };
 //    }
 
+    public static Predicate<NetworkEvent> filterSnapThreadsUpdated () {
+        return networkEvent -> threadsUpdated().test(networkEvent) && filterThreadType(ThreadType.Private1to1Snap).test(networkEvent);
+    }
+
     public static Predicate<NetworkEvent> filterType (final EventType type) {
         return networkEvent -> networkEvent.type == type;
     }

@@ -76,6 +76,18 @@ dependencies {
     implementation project(path: ':chat-sdk-firebase-file-storage')
     implementation project(path: ':chat-sdk-firebase-ui')
     implementation project(path: ':chat-sdk-profile-pictures')
+
+    implementation 'com.camerakit:jpegkit:0.1.0'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.21'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.0'
+    implementation "com.github.chrisbanes:PhotoView:$photoViewVersion"
+
+//    implementation 'com.wonderkiln:camerakit:0.13.1'
+    implementation 'com.camerakit:camerakit:1.0.0-beta3.10'
+
+    implementation 'com.dinuscxj:circleprogressbar:1.3.0'
+
+    implementation "com.leinardi.android:speed-dial:2.0.1"
 }
 
 apply plugin: 'com.google.gms.google-services'

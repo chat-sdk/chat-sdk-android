@@ -9,6 +9,7 @@ import co.chatsdk.android.app.test.MessageTestChatOption;
 import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
+import co.chatsdk.core.types.MessageType;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
@@ -31,7 +32,7 @@ public class AppObj extends MultiDexApplication {
 
             Configuration.Builder config = new Configuration.Builder(context);
 
-            config.firebaseRootPath("19_05_module_test_2");
+            config.firebaseRootPath("19_05_test_1");
             config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
             config.publicRoomCreationEnabled(true);
             config.pushNotificationSound("default");
@@ -49,6 +50,11 @@ public class AppObj extends MultiDexApplication {
             FirebaseFileStorageModule.activate();
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
+
+            ChatSDK.ui().addTab("Snap", R.drawable.push_icon, new SnapFragment(), 0);
+            ChatSDK.ui().setMessageHandler(new SnapImageMessageDisplayHandler(), new MessageType(MessageType.Image));
+
+            ChatSDK.ui().addChatOption(new MessageTestChatOption("Message Burst"));
 
             // Uncomment this to enable Firebase UI
             // FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
