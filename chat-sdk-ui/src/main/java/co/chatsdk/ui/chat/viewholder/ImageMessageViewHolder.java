@@ -27,6 +27,9 @@ import timber.log.Timber;
 public class ImageMessageViewHolder extends BaseMessageViewHolder {
     public ImageMessageViewHolder(View itemView, Activity activity, PublishSubject<List<MessageAction>> actionPublishSubject) {
         super(itemView, activity, actionPublishSubject);
+
+
+
     }
 
     @Override

@@ -52,7 +52,6 @@
                 android:layout_marginLeft="2dp"
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
-                android:src="ic_crop_original_green_a700_24dp"
 
                 fresco:layout_constraintBottom_toBottomOf="parent"
                 fresco:layout_constraintEnd_toStartOf="@+id/text_content"
@@ -83,6 +82,32 @@
                 fresco:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.facebook.drawee.view.SimpleDraweeView
+            android:id="@+id/image_message_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            fresco:roundedCornerRadius="10dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/layout_extra"
+            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginEnd="15dp"
+            android:gravity="start"
+            android:layout_gravity="start"
+            android:orientation="horizontal" />
 
     </RelativeLayout>
 

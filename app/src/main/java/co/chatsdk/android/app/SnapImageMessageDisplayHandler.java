@@ -17,10 +17,6 @@ import io.reactivex.subjects.PublishSubject;
 
 public class SnapImageMessageDisplayHandler extends AbstractMessageDisplayHandler {
 
-    Boolean messageSeen;
-    Activity activity;
-    Message message;
-
     @Override
     public void updateMessageCellView(Message message, AbstractMessageViewHolder viewHolder, Context context) {
     }
@@ -28,17 +24,6 @@ public class SnapImageMessageDisplayHandler extends AbstractMessageDisplayHandle
     @Override
     public String displayName(Message message) {
         return ChatSDK.shared().context().getString(co.chatsdk.ui.R.string.image_message);
-    }
-
-    public Boolean hasMessageBeenSeen(Message message) {
-        Object imageSeenObject = message.valueForKey("image-seen");
-        if (imageSeenObject instanceof Boolean) {
-            messageSeen = (Boolean) imageSeenObject;
-        } else {
-            //I can't make activity.get() work.
-            Toast.makeText(activity,"ERROR: Message Object imageSeenObject is not a Boolean", Toast.LENGTH_LONG).show();
-        }
-        return messageSeen;
     }
 
     @Override
@@ -50,15 +35,9 @@ public class SnapImageMessageDisplayHandler extends AbstractMessageDisplayHandle
     @Override
     protected View row (boolean isReply, Activity activity) {
         View row;
-        hasMessageBeenSeen(message);
         LayoutInflater inflater = LayoutInflater.from(activity);
         if(isReply) {
-            if (!messageSeen) {
-                row = inflater.inflate(R.layout.chat_sdk_row_snap_message_incoming_unseen, null);
-            } else {
-                row = inflater.inflate(R.layout.chat_sdk_row_snap_message_incoming_seen, null);
-            }
-
+            row = inflater.inflate(R.layout.chat_sdk_row_snap_message_incoming, null);
         } else {
             row = inflater.inflate(R.layout.chat_sdk_row_snap_message_sending, null);
         }

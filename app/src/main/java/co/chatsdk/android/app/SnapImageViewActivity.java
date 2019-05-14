@@ -88,6 +88,8 @@ public class SnapImageViewActivity extends BaseActivity {
         if (lifetime != 0) {
             RotateAnimation animation = new RotateAnimation(0.0f, 0.0f, 100f, 100f);
             animation.setFillAfter(true);
+            Boolean seen = true;
+            message.setValueForKey(seen, "image-seen");
             circleTimer.setMax(lifetime * 1000);
             startTimer(lifetime);
             circleTimer.startAnimation(animation);
@@ -114,11 +116,12 @@ public class SnapImageViewActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        if (lifetime != 0 && !saveMessage) {
+        super.onBackPressed();
+        /*if (lifetime != 0 && !saveMessage) {
             disposableList.add(ChatSDK.thread().deleteMessage(message).subscribe(super::onBackPressed, toastOnErrorConsumer()));
         }
         else {
             super.onBackPressed();
-        }
+        }*/
     }
 }

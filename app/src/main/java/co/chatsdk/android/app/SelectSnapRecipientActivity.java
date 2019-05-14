@@ -59,8 +59,6 @@ public class SelectSnapRecipientActivity extends SelectContactActivity {
                         // When the file has uploaded, set the image URL
                         message.setValueForKey(result.url, Keys.MessageImageURL);
                         message.setValueForKey(viewingTime, "message-lifetime");
-                        Boolean hasBeenSeen = false;
-                        message.setValueForKey(hasBeenSeen, "image-seen");
                         message.setText("");
                     }).setFileCompressAction(file -> {
                         return new Compressor(ChatSDK.shared().context())
