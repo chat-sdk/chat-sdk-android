@@ -28,7 +28,7 @@ public class BaseContactHandler implements ContactHandler {
     @Override
     public boolean exists(User user) {
         for (User u : contacts()) {
-            if (u.getEntityID().equals(user.getEntityID())) {
+            if (u.equalsEntity(user)) {
                 return true;
             }
         }

@@ -8,5 +8,7 @@ public interface CoreEntity {
 
     void setEntityID (String entityID);
     String getEntityID ();
+    boolean equalsEntity(CoreEntity entity);
+    boolean equalsEntityID(String entityID);
 
 }

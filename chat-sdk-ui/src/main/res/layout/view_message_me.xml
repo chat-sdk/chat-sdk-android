@@ -106,7 +106,8 @@
                 android:visibility="visible"
                 fresco:failureImage="@drawable/icn_200_image_message_error"
                 fresco:placeholderImage="@drawable/icn_200_image_message_placeholder"
-                fresco:roundedCornerRadius="10dp" />
+                fresco:roundedCornerRadius="10dp"
+                fresco:fadeDuration="0" />
 
             <LinearLayout
                 android:id="@+id/layout_extra"
@@ -141,7 +142,8 @@
         fresco:placeholderImage="@drawable/icn_100_profile"
         fresco:failureImage="@drawable/icn_100_profile"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        fresco:fadeDuration="0" />
 
     <ImageView
         android:id="@+id/image_read_receipt"

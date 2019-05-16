@@ -1,30 +1,18 @@
 package co.chatsdk.firebase;
 
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ServerValue;
-
 import java.util.HashMap;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.AbstractPublicThreadHandler;
 import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.firebase.wrappers.ThreadWrapper;
-import io.reactivex.Completable;
-import io.reactivex.CompletableObserver;
-import io.reactivex.Maybe;
+import co.chatsdk.firebase.wrappers.ThreadPusher;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleObserver;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 

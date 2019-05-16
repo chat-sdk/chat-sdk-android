@@ -165,21 +165,16 @@ public class ThreadEditDetailsActivity extends BaseActivity {
         if (thread == null) {
             showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
 
-            BiConsumer<Thread, Throwable> consumer = new BiConsumer<Thread, Throwable>() {
-                @Override
-                public void accept(Thread thread, Throwable throwable) throws Exception {
-                    dismissProgressDialog();
-                    if (throwable == null) {
-                        ToastHelper.show(ChatSDK.shared().context(), String.format(getString(R.string.thread__created), threadName));
-
-                        // Finish this activity before opening the new thread to prevent the
-                        // user from going back to the creation screen by pressing the back button
-                        finish();
-                        ChatSDK.ui().startChatActivityForID(ChatSDK.shared().context(), thread.getEntityID());
-                    } else {
-                        ChatSDK.logError(throwable);
-                        Toast.makeText(ChatSDK.shared().context(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                    }
+            BiConsumer<Thread, Throwable> consumer = (thread, throwable) -> {
+                dismissProgressDialog();
+                if (throwable == null) {
+                    // Finish this activity before opening the new thread to prevent the
+                    // user from going back to the creation screen by pressing the back button
+                    finish();
+                    ChatSDK.ui().startChatActivityForID(ChatSDK.shared().context(), thread.getEntityID());
+                } else {
+                    ChatSDK.logError(throwable);
+                    Toast.makeText(ChatSDK.shared().context(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 }
             };
 

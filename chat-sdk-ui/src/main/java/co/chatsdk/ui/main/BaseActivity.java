@@ -288,5 +288,10 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();  // optional depending on your needs
+    }
 
 }

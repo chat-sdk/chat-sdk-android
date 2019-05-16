@@ -141,18 +141,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             savedInstanceState.remove(Keys.IntentKeyListPosSelectEnabled);
         }
 
-        if (thread.typeIs(ThreadType.Private1to1) && thread.otherUser() != null && ChatSDK.lastOnline() != null) {
-            disposableList.add(ChatSDK.lastOnline().getLastOnline(thread.otherUser())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe((date, throwable) -> {
-                if (throwable == null && date != null) {
-                    Locale current = getResources().getConfiguration().locale;
-                    PrettyTime pt = new PrettyTime(current);
-                    setSubtitleText(String.format(getString(R.string.last_seen__), pt.format(date)));
-                }
-            }));
-        }
-
         initActionBar();
 
         // If the context is just been created we load regularly, else we load and retain position
@@ -197,7 +185,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
                     Message message = networkEvent.message;
 
-                    if (ChatSDK.readReceipts() != null && message.getSender().isMe() && !message.getReadStatus().is(ReadStatus.read())) {
+                    if (ChatSDK.readReceipts() != null && message.getSender().isMe()) {
                         reloadDataForMessage(message);
                     }
                 }));
@@ -523,6 +511,22 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             ChatSDK.thread().addUsersToThread(thread, currentUser)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new CrashReportingCompletableObserver(disposableList));
+        }
+
+        if (thread.typeIs(ThreadType.Private1to1) && thread.otherUser() != null && ChatSDK.lastOnline() != null) {
+            disposableList.add(ChatSDK.lastOnline().getLastOnline(thread.otherUser())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe((date, throwable) -> {
+                        if (throwable == null && date != null) {
+                            Locale current = getResources().getConfiguration().locale;
+                            PrettyTime pt = new PrettyTime(current);
+                            if (thread.otherUser().getIsOnline()) {
+                                setSubtitleText(ChatActivity.this.getString(R.string.online));
+                            } else {
+                                setSubtitleText(String.format(getString(R.string.last_seen__), pt.format(date)));
+                            }
+                        }
+                    }));
         }
 
         // Set up the UI to dismiss keyboard on touch event, Option and Send buttons are not included.
@@ -896,6 +900,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     public void executeChatOption(ChatOption option) {
         handleMessageSend(option.execute(this, thread));
     }
+
 
 
 

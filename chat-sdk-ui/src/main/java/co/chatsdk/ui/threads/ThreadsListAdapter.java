@@ -66,11 +66,13 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
             return true;
         });
 
-        Date lastMessageAddedDate = thread.getLastMessageAddedDate();
-        if (lastMessageAddedDate != null) {
-            holder.dateTextView.setText(getLastMessageDateAsString(lastMessageAddedDate));
-
+        Message lastMessage = thread.lastMessage();
+        if (lastMessage != null) {
+            holder.dateTextView.setText(getLastMessageDateAsString(lastMessage.getDate().toDate()));
             holder.lastMessageTextView.setText(getLastMessageText(thread.lastMessage()));
+        } else {
+            holder.dateTextView.setText("");
+            holder.lastMessageTextView.setText("");
         }
 
         if (typing.get(thread) != null) {
@@ -102,7 +104,7 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
     }
 
     public String getLastMessageText (Message lastMessage) {
-        String messageText = Strings.t(R.string.no_messages);
+        String messageText = "";//Strings.t(R.string.no_messages);
         if (lastMessage != null) {
             messageText = Strings.payloadAsString(lastMessage);
         }
@@ -121,7 +123,7 @@ public class ThreadsListAdapter extends RecyclerView.Adapter<ThreadViewHolder> {
 
     public boolean addRow (Thread thread, boolean notify) {
         for (Thread t : threads) {
-            if (t.getEntityID().equals(thread.getEntityID())) {
+            if (t.equalsEntity(thread)) {
                 return false;
             }
         }

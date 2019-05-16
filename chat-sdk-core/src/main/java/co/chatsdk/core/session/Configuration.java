@@ -157,6 +157,7 @@ public class Configuration {
     public int logoDrawableResourceID = R.drawable.ic_launcher_big;
 
     public long readReceiptMaxAge = TimeUnit.DAYS.toMillis(7);
+    public int readReceiptMaxMessagesPerThread = 30;
 
     public HashMap<String, Object> customProperties = new HashMap<>();
 
@@ -597,6 +598,11 @@ public class Configuration {
 
         public Builder readReceiptMaxAge(long millis) {
             config.readReceiptMaxAge = millis;
+            return this;
+        }
+
+        public Builder readReceiptMaxMessagesPerThread (int max) {
+            config.readReceiptMaxMessagesPerThread = max;
             return this;
         }
 

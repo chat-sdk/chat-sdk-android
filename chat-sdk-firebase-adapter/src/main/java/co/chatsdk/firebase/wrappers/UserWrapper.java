@@ -107,7 +107,7 @@ public class UserWrapper {
             model.setName(ChatSDK.config().defaultName);
         }
 
-        // Setting the email.//
+        // Setting the email.
         if (!StringChecker.isNullOrEmpty(email) && StringChecker.isNullOrEmpty(model.getEmail())) {
             model.setEmail(email);
         }
@@ -125,43 +125,6 @@ public class UserWrapper {
         }
 
         model.update();
-
-//        switch ((Integer) (ChatSDK.auth().getLoginInfo().get(co.chatsdk.core.types.Defines.Prefs.AccountTypeKey)))
-//        {
-//            case Defines.ProviderInt.Facebook:
-//                linkedAccount = model.getAccountWithType(LinkedAccount.Type.FACEBOOK);
-//                if (linkedAccount == null)
-//                {
-//                    linkedAccount = new LinkedAccount();
-//                    linkedAccount.setType(LinkedAccount.Type.FACEBOOK);
-//                    linkedAccount.setUserId(model.getId());
-//                    DaoCore.createEntity(linkedAccount);
-//                }
-//                linkedAccount.setToken(token);
-//
-//                break;
-//
-//            case Defines.ProviderInt.Twitter:
-//                TwitterManager.userId = uid;
-//
-//                linkedAccount = model.getAccountWithType(LinkedAccount.Type.TWITTER);
-//                if (linkedAccount == null)
-//                {
-//                    linkedAccount = new LinkedAccount();
-//                    linkedAccount.setType(LinkedAccount.Type.TWITTER);
-//                    linkedAccount.setUserId(model.getId());
-//                    DaoCore.createEntity(linkedAccount);
-//                }
-//                linkedAccount.setToken(token);
-//
-//                break;
-//
-//            case Defines.ProviderInt.Password:
-//                break;
-//
-//            default: break;
-//        }
-
     }
 
     public Completable once(){
@@ -237,16 +200,13 @@ public class UserWrapper {
             // Updating the old bundle
             for (String key : newData.keySet()) {
                 if (oldData.get(key) == null || !oldData.get(key).equals(newData.get(key))) {
-                    // We don't store availability data in the Firebase meta - it's handled by the online flag
-                    if (!key.equals(Keys.Availability)) {
-                        oldData.put(key, newData.get(key).toString());
-                    }
+                    oldData.put(key, newData.get(key).toString());
                 }
             }
 
             model.setMetaMap(oldData);
+            model.update();
 
-            model = DaoCore.updateEntity(model);
         }
     }
 
@@ -278,7 +238,6 @@ public class UserWrapper {
 
         // Don't push availability to Firebase
         HashMap<String, String> metaMap = new HashMap<>(model.metaMap());
-        metaMap.remove(Keys.Availability);
         metaMap.put(Keys.NameLowercase, model.getName() != null ? model.getName().toLowerCase() : "");
 
         // Expand
@@ -305,12 +264,11 @@ public class UserWrapper {
                     ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(model));
 
                     e.onComplete();
-                }
-                else {
+                } else {
                     e.onError(firebaseError.toException());
                 }
             });
-        }).subscribeOn(Schedulers.single()).andThen(updateIndex());
+        }).subscribeOn(Schedulers.single());
     }
 
     public Completable updateFirebaseUser () {
@@ -335,32 +293,6 @@ public class UserWrapper {
         return FirebasePaths.userRef(model.getEntityID());
     }
 
-    public Completable updateIndex() {
-        return Completable.create(e -> {
-
-            final Map<String, String> values = new HashMap<String, String>();
-
-            String name = model.getName();
-            String email = model.getEmail();
-            String phoneNumber = model.metaStringForKey(Keys.Phone);
-
-            values.put(Keys.Name, StringUtils.isNotEmpty(name) ? processForQuery(name) : "");
-            values.put(Keys.Email, StringUtils.isNotEmpty(email) ? processForQuery(email) : "");
-            values.put(Keys.Phone, StringUtils.isNotEmpty(phoneNumber) ? processForQuery(phoneNumber) : "");
-
-            final DatabaseReference ref = FirebasePaths.indexRef().child(model.getEntityID());
-
-
-            ref.setValue(values, (firebaseError, firebase) -> {
-                if (firebaseError == null) {
-                    e.onComplete();
-                } else {
-                    e.onError(firebaseError.toException());
-                }
-            });
-        }).subscribeOn(Schedulers.single());
-    }
-    
     /**
      * Set the user online value to false.
      **/

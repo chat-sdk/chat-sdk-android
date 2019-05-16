@@ -10,17 +10,17 @@ import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
 
+import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.types.ConnectionType;
 
 @org.greenrobot.greendao.annotation.Entity
-public class ContactLink implements CoreEntity {
+public class ContactLink  extends AbstractEntity {
 
     @Id
     private Long id;
     private Long userId;
     private Long linkOwnerUserDaoId;
-
 
     @NotNull
     private Integer type;
@@ -202,8 +202,4 @@ public class ContactLink implements CoreEntity {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getContactLinkDao() : null;
     }
-
-
-
-
 }

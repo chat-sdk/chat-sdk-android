@@ -6,17 +6,12 @@ package co.chatsdk.core.types;
 
 public class ReadStatus {
 
-    public static int NotSet = -2;
     public static int Hide = -1;
     public static int None = 0;
     public static int Delivered = 1;
     public static int Read = 2;
 
     private int status;
-
-    public static ReadStatus notSet () {
-        return new ReadStatus(NotSet);
-    }
 
     public static ReadStatus hide () {
         return new ReadStatus(Hide);

@@ -27,7 +27,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0"
             fresco:roundAsCircle="true"
-            fresco:placeholderImage="@drawable/icn_32_profile_placeholder" />
+            fresco:placeholderImage="@drawable/icn_32_profile_placeholder"
+            fresco:fadeDuration="0" />
 
         <TextView
             android:id="@+id/text_name"

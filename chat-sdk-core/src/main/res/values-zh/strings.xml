@@ -33,8 +33,6 @@
     <string name="tap_here_for_contact_info">点击此处获取联系信息</string>
     <string name="search_with_name">搜索姓名</string>
     <string name="add_conversation">添加对话</string>
-    <string formatted="false" name="thread__created">线程%s已创建</string>
-    <string formatted="false" name="public_thread__created">公共线程%s已创建</string>
     <string name="creating_thread">创建线程</string>
 
     <string name="send_mail">发邮件</string>

@@ -2,8 +2,6 @@ package co.chatsdk.core.hook;
 
 import java.util.HashMap;
 
-import co.chatsdk.core.dao.User;
-
 public class HookEvent {
 
     public static String DidAuthenticate = "DidAuthenticate";
@@ -22,11 +20,6 @@ public class HookEvent {
 
     public static String UserDidConnect = "UserDidConnect";
     public static String UserWillDisconnect = "UserWillDisconnect";
-
-//    public static String MessageWillSend = "MessageWillSend";
-//    public static String MessageDidSend = "MessageDidSend";
-//    public static String MessageWillUpload = "MessageWillUpload";
-//    public static String MessageDidUpload = "MessageDidUpload";
 
     public static String ContactWillBeAdded = "ContactWillBeAdded";
     public static String ContactWasAdded = "ContactWasAdded";

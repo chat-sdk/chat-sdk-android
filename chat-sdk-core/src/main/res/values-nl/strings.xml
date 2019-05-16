@@ -32,8 +32,6 @@
     <string name="tap_here_for_contact_info">Tik voor meer contactinformatie</string>
     <string name="search_with_name">Zoeken volgens naam</string>
     <string name="add_conversation">Gesprek toevoegen</string>
-    <string name="thread__created" formatted="false">Gesprek %s aangemaakt</string>
-    <string name="public_thread__created" formatted="false">Publiek gesprek %s aangemaakt</string>
     <string name="creating_thread">Bezig met het aanmaken van het gesprek</string>
     <string name="send_mail">Verstuur bericht</string>
     <string name="there_are_no_email_clients_installed">Geen e-mailcliënten te vinden</string>

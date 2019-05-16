@@ -15,7 +15,8 @@
         android:layout_height="38dp"
         fresco:roundAsCircle="true"
         fresco:placeholderImage="@drawable/icn_100_profile"
-        fresco:failureImage="@drawable/icn_100_profile"/>
+        fresco:failureImage="@drawable/icn_100_profile"
+        fresco:fadeDuration="0" />
 
     <RelativeLayout
         android:id="@+id/content"
@@ -93,7 +94,8 @@
                 android:scaleType="centerCrop"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
-                fresco:roundedCornerRadius="10dp" />
+                fresco:roundedCornerRadius="10dp"
+                fresco:fadeDuration="0" />
 
             <LinearLayout
                 android:layout_width="match_parent"

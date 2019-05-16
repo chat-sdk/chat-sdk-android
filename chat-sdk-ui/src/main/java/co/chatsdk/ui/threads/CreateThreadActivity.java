@@ -1,4 +1,4 @@
-package co.chatsdk.ui.contacts;
+package co.chatsdk.ui.threads;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -15,6 +15,7 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.contacts.SelectContactActivity;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class CreateThreadActivity extends SelectContactActivity {

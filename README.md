@@ -124,6 +124,33 @@ Document](https://github.com/chat-sdk/chat-sdk-ios/blob/master/CONTRIBUTING.md) 
 
 If you have an app that uses the Chat SDK let us know and we'll add a link. 
 
+## Updating from 4.7.x to 4.8.x
+
+The latest update brings a range of improvements and new features including:
+
+- Detailed profile screen:
+	- User status
+	- User availability
+	- Country
+- Update to message view
+	- Efficiency improvements
+- Screens updated to use Material Design
+
+There are also a range of bug fixes and overall improvments. If we aren't able to document all the changes but if you have any issues updating your project, you can post on this [issue](https://github.com/chat-sdk/chat-sdk-android/issues/533) and we will answer your questions. 
+
+The [security rules](firebase-rules.json) have also been updated so make sure to bring your project up to date. 		
+
+Several schema have also been deprecated and will be removed at some point in the future. These include:
+
+- `message/to` field added
+- `message/meta` will replace `json_v2`
+- `message/from` will replace `user-firebase-id`
+- `thread/meta` will replace `details`
+- `thread/meta/creator` will replace `creator-entity-id`
+- `thread/meta/type` will replace `type_v4`
+
+At the moment these fields are not being used and are only included for future compatibility. However, in a future version of the client, the old fields will be removed and any old versions of the client will stop working.
+
 ## Running the demo project
 
 This repository contains a fully functional version of the Chat SDK which is configured using our Firebase account and social media logins. This is great way to test the features of the Chat SDK before you start integrating it with your app. 
@@ -157,10 +184,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.7.8'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.7.8'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.7.8'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.7.8'
+compile 'co.chatsdk.chatsdk:chat-sdk-core:4.8.2'
+compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.8.2'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.8.2'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.8.2'
 ```
 
 You may also need to enable Java 8:
@@ -375,7 +402,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.7.8'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.8.2'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -418,7 +445,7 @@ Now the script is active and push notifications will be set out automatically.
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.7.8'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.8.2'
 ```
 
 ##### Enable the module
@@ -443,7 +470,7 @@ Add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.7.8'
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.8.2'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -616,7 +643,7 @@ ext {
     materialVersion = "1.0.0"
     playAuthVersion = "16.0.1"
     playMapsVersion = "16.1.0"
-    playPlacesVersion = "16.0.0"
+    googlePlacesVersion = "1.1.0"
     playLocationVersion = "16.0.0"
     firebaseUiVersion = "4.3.2"
     firebaseCoreVersion = "16.0.9"

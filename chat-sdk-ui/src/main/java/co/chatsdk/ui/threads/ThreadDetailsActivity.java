@@ -90,7 +90,8 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         threadNameTextView = findViewById(R.id.name_text_view);
 
         disposableList.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.threadsUpdated())
+                .filter(NetworkEvent.threadDetailsUpdated())
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> reloadData()));
 
         reloadData();
@@ -114,13 +115,16 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         }
 
         // CoreThread users bundle
-        contactsFragment = new ContactsFragment();
-        contactsFragment.setInflateMenu(false);
-        contactsFragment.setLoadingMode(ContactsFragment.MODE_LOAD_THREAD_USERS);
-        contactsFragment.setExtraData(thread.getEntityID());
-        contactsFragment.setClickMode(ContactsFragment.CLICK_MODE_SHOW_PROFILE);
-
-        getSupportFragmentManager().beginTransaction().replace(R.id.frame_thread_users, contactsFragment).commit();
+        if (contactsFragment == null) {
+            contactsFragment = new ContactsFragment();
+            contactsFragment.setInflateMenu(false);
+            contactsFragment.setLoadingMode(ContactsFragment.MODE_LOAD_THREAD_USERS);
+            contactsFragment.setExtraData(thread.getEntityID());
+            contactsFragment.setClickMode(ContactsFragment.CLICK_MODE_SHOW_PROFILE);
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame_thread_users, contactsFragment).commit();
+        } else {
+            contactsFragment.loadData(false);
+        }
     }
 
     @Override

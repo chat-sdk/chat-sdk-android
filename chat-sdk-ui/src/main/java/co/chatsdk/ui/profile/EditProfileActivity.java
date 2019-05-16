@@ -211,7 +211,7 @@ public class EditProfileActivity extends BaseActivity {
         currentUser.setPhoneNumber(phoneNumber);
         currentUser.setEmail(email);
 
-        boolean changed = !userMeta.equals(currentUser.metaMap());
+        boolean changed = !userMeta.entrySet().equals(currentUser.metaMap().entrySet());
 //        boolean imageChanged = false;
         boolean presenceChanged = false;
 

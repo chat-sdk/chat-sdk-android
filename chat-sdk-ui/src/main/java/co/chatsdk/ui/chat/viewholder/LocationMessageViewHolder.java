@@ -11,7 +11,6 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.utils.GoogleUtils;
-import co.chatsdk.ui.chat.BaseMessageViewHolder;
 import co.chatsdk.ui.chat.LocationMessageOnClickHandler;
 import io.reactivex.subjects.PublishSubject;
 

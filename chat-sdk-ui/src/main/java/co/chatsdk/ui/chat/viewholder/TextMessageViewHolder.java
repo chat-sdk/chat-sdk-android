@@ -1,7 +1,6 @@
 package co.chatsdk.ui.chat.viewholder;
 
 import android.app.Activity;
-import android.graphics.PorterDuff;
 import android.view.View;
 
 import java.util.List;
@@ -9,10 +8,7 @@ import java.util.List;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageType;
-import co.chatsdk.ui.chat.BaseMessageViewHolder;
 import io.reactivex.subjects.PublishSubject;
-import timber.log.Timber;
 
 public class TextMessageViewHolder extends BaseMessageViewHolder {
 

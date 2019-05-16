@@ -9,11 +9,12 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Keep;
 
+import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.interfaces.CoreEntity;
 
 @Entity
 @Deprecated
-public class LinkedAccount implements CoreEntity {
+public class LinkedAccount extends AbstractEntity {
 
     @Keep
     public static class Type{

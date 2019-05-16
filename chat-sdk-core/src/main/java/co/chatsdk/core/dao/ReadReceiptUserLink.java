@@ -8,6 +8,7 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.joda.time.DateTime;
 
+import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.utils.DaoDateTimeConverter;
 
@@ -16,7 +17,7 @@ import co.chatsdk.core.utils.DaoDateTimeConverter;
  */
 
 @Entity
-public class ReadReceiptUserLink implements CoreEntity {
+public class ReadReceiptUserLink extends AbstractEntity {
 
     @Id
     private Long id;

@@ -150,8 +150,8 @@ public class ApiExamples {
      * How to get the unread message count for a thread
      * @param thread
      */
-    public void getUnreadMessageCount (Thread thread) {
-        int count  = thread.getUnreadMessagesCount();
+    public int getUnreadMessageCount (Thread thread) {
+        return thread.getUnreadMessagesCount();
     }
 
     /**

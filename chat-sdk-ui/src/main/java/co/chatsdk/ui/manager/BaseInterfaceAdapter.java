@@ -3,7 +3,6 @@ package co.chatsdk.ui.manager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.util.SparseArray;
 
 import androidx.fragment.app.Fragment;
 
@@ -47,9 +46,9 @@ import co.chatsdk.ui.chat.options.DialogChatOptionsHandler;
 import co.chatsdk.ui.chat.options.LocationChatOption;
 import co.chatsdk.ui.chat.options.MediaChatOption;
 import co.chatsdk.ui.chat.options.MediaType;
-import co.chatsdk.ui.contacts.AddUsersToThreadActivity;
+import co.chatsdk.ui.threads.AddUsersToThreadActivity;
 import co.chatsdk.ui.contacts.ContactsFragment;
-import co.chatsdk.ui.contacts.CreateThreadActivity;
+import co.chatsdk.ui.threads.CreateThreadActivity;
 import co.chatsdk.ui.contacts.ForwardMessageActivity;
 import co.chatsdk.ui.login.LoginActivity;
 import co.chatsdk.ui.login.SplashScreenActivity;

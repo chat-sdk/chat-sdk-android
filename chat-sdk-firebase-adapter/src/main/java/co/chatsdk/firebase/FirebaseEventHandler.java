@@ -26,6 +26,8 @@ import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
@@ -129,9 +131,8 @@ public class FirebaseEventHandler extends AbstractEventHandler {
     }
 
     protected void contactsOn (User user) {
-        String entityID = user.getEntityID();
 
-        DatabaseReference ref = FirebasePaths.userContactsRef(ChatSDK.currentUserID());
+        DatabaseReference ref = FirebasePaths.userContactsRef(user.getEntityID());
 
         ref.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
             if (hasValue) {
@@ -142,7 +143,9 @@ public class FirebaseEventHandler extends AbstractEventHandler {
                     if (type instanceof Long) {
                         ConnectionType connectionType = ConnectionType.values()[((Long) type).intValue()];
                         ChatSDK.contact().addContactLocal(contact, connectionType);
-                        eventSource.onNext(NetworkEvent.contactAdded(contact));
+                        disposableList.add(ChatSDK.core().userOn(contact).subscribe(() -> {
+                            eventSource.onNext(NetworkEvent.contactAdded(contact));
+                            }, eventSource::onError));
                     }
                 }
             }

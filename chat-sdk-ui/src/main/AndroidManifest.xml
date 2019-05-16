@@ -85,11 +85,11 @@
             android:theme="@style/SdkTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
-        <activity android:name=".contacts.AddUsersToThreadActivity"
+        <activity android:name=".threads.AddUsersToThreadActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
-        <activity android:name=".contacts.CreateThreadActivity"
+        <activity android:name=".threads.CreateThreadActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 

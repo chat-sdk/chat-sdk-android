@@ -44,7 +44,8 @@
             app:srcCompat="@drawable/icn_100_profile"
             fresco:placeholderImage="@drawable/icn_100_public_thread"
             fresco:failureImage="@drawable/icn_100_public_thread"
-            fresco:roundAsCircle="true" />
+            fresco:roundAsCircle="true"
+            fresco:fadeDuration="0" />
 
         <TextView
             android:id="@+id/text_subtitle"

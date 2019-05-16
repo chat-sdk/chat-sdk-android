@@ -7,15 +7,22 @@
 
 package co.chatsdk.firebase.wrappers;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
@@ -30,7 +37,13 @@ import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.R;
+import co.chatsdk.firebase.utils.FirebaseRX;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.CompletableSource;
+import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -52,23 +65,36 @@ public class MessageWrapper  {
         Map<String, Object> values = new HashMap<String, Object>();
 
         values.put(Keys.JSON, model.getMetaValuesAsMap());
+        values.put(Keys.Meta, model.getMetaValuesAsMap());
         values.put(Keys.Date, ServerValue.TIMESTAMP);
         values.put(Keys.Type, model.getType());
         values.put(Keys.UserFirebaseId, model.getSender().getEntityID());
         values.put(FirebasePaths.ReadPath, initialReadReceipts());
+        values.put(Keys.To, getTo());
+        values.put(Keys.From, ChatSDK.currentUserID());
 
         return values;
+    }
+
+    protected ArrayList<String> getTo () {
+        ArrayList<String> users = new ArrayList<>();
+        for (User user : model.getThread().getUsers()) {
+            if(!user.isMe()) {
+                users.add(user.getEntityID());
+            }
+        }
+        return users;
     }
 
     private HashMap<String, HashMap<String, Integer>> initialReadReceipts () {
         HashMap<String, HashMap<String, Integer>> map = new HashMap<>();
 
         for(User u : getModel().getThread().getUsers()) {
-            if(!u.isMe()) {
-                HashMap<String, Integer> status = new HashMap<>();
-                status.put(Keys.Status, ReadStatus.none().getValue());
-                map.put(u.getEntityID(), status);
-            }
+            ReadStatus readStatus = u.isMe() ? ReadStatus.read() : ReadStatus.none();
+
+            HashMap<String, Integer> status = new HashMap<>();
+            status.put(Keys.Status, readStatus.getValue());
+            map.put(u.getEntityID(), status);
         }
 
         return map;
@@ -183,7 +209,6 @@ public class MessageWrapper  {
                 model.setUserReadStatus(user, new ReadStatus((int) status), new DateTime(date));
             }
         }
-
     }
 
     public Completable push() {
@@ -206,7 +231,7 @@ public class MessageWrapper  {
     
     public Completable send() {
         if (model.getThread() != null) {
-            return push().concatWith(new ThreadWrapper(model.getThread()).pushLastMessage(lastMessageData())).doOnComplete(() -> {
+            return push().concatWith(Completable.defer(() -> new ThreadWrapper(model.getThread()).pushLastMessage(lastMessageData()))).doOnComplete(() -> {
                 FirebaseEntity.pushThreadMessagesUpdated(model.getThread().getEntityID());
 
                 model.setMessageStatus(MessageSendStatus.Sent);
@@ -226,7 +251,10 @@ public class MessageWrapper  {
         map.put(Keys.Type, model.getType());
         map.put(Keys.Date, ServerValue.TIMESTAMP);
         map.put(Keys.UserFirebaseId, model.getSender().getEntityID());
+        map.put(Keys.From, model.getSender().getEntityID());
         map.put(Keys.UserName, model.getSender().getName());
+        map.put(Keys.JSON, model.getMetaValuesAsMap());
+        map.put(Keys.Meta, model.getMetaValuesAsMap());
         return map;
     }
 
@@ -244,13 +272,11 @@ public class MessageWrapper  {
         });
     }
     
-    private DatabaseReference ref(){
-        if (StringUtils.isNotEmpty(model.getEntityID()))
-        {
+    private DatabaseReference ref() {
+        if (StringUtils.isNotEmpty(model.getEntityID())) {
             return FirebasePaths.threadMessagesRef(model.getThread().getEntityID()).child(model.getEntityID());
         }
-        else
-        {
+        else {
             return FirebasePaths.threadMessagesRef(model.getThread().getEntityID()).push();
         }
     }
@@ -259,4 +285,42 @@ public class MessageWrapper  {
         return model;
     }
 
+    public Completable markAsReceived () {
+        return setReadStatus(ReadStatus.delivered());
+    }
+
+    public Completable setReadStatus (ReadStatus status) {
+        return Completable.create(emitter -> {
+
+            if (model.getSender().isMe()) {
+                emitter.onComplete();
+                return;
+            }
+
+            String entityID = ChatSDK.currentUserID();
+
+            ReadStatus currentStatus = model.getReadStatus();
+
+            if (currentStatus.getValue() >= status.getValue()) {
+                emitter.onComplete();
+                return;
+            }
+
+            model.setUserReadStatus(ChatSDK.currentUser(), status, new DateTime());
+
+            HashMap<String, Object> map = new HashMap<>();
+            map.put(Keys.Status, status.getValue());
+            map.put(Keys.Date, ServerValue.TIMESTAMP);
+
+            DatabaseReference ref = FirebasePaths.threadMessagesReadRef(model.getThread().getEntityID(), model.getEntityID());
+            ref.child(entityID).setValue(map, (databaseError, databaseReference) -> {
+                if (databaseError == null) {
+                    emitter.onComplete();
+                } else {
+                    emitter.onError(databaseError.toException());
+                }
+            });
+
+        });
+    }
 }

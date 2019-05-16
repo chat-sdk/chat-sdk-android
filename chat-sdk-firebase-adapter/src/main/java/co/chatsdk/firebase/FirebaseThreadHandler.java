@@ -13,27 +13,19 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.StorageManager;
-import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+import co.chatsdk.firebase.update.FirebaseUpdate;
+import co.chatsdk.firebase.update.FirebaseUpdateWriter;
 import co.chatsdk.firebase.wrappers.MessageWrapper;
+import co.chatsdk.firebase.wrappers.ThreadPusher;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
-import io.reactivex.CompletableSource;
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Observer;
-import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
@@ -89,44 +81,36 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * @return
      */
     protected Completable setUserThreadLinkValue(final Thread thread, final List<User> users, final int userThreadLinkType) {
-        return Completable.create(e -> {
-
-            DatabaseReference ref = FirebasePaths.firebaseRawRef();
-            final HashMap<String, Object> data = new HashMap<>();
+        return Single.create((SingleOnSubscribe<FirebaseUpdateWriter>) emitter -> {
+            FirebaseUpdateWriter updateWriter = new FirebaseUpdateWriter(FirebaseUpdateWriter.Type.Update);
 
             for (final User u : users) {
 
                 DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(u.getEntityID()).child(Keys.Status);
                 DatabaseReference userThreadsRef = FirebasePaths.userThreadsRef(u.getEntityID()).child(thread.getEntityID()).child(Keys.InvitedBy);
 
-                String threadUsersPath = threadUsersRef.toString().replace(threadUsersRef.getRoot().toString(), "");
-                String userThreadsPath = userThreadsRef.toString().replace(userThreadsRef.getRoot().toString(), "");
-
-                //
                 if (userThreadLinkType == UserThreadLinkTypeAddUser) {
-                    data.put(threadUsersPath, u.getEntityID().equals(thread.getCreatorEntityId()) ? Keys.Owner : Keys.Member);
-                    data.put(userThreadsPath, ChatSDK.currentUserID());
 
-                    if (thread.typeIs(ThreadType.Public)) {
+                    updateWriter.add(new FirebaseUpdate(threadUsersRef, u.equalsEntity(thread.getCreator()) ? Keys.Owner : Keys.Member));
+                    updateWriter.add(new FirebaseUpdate(userThreadsRef, ChatSDK.currentUserID()));
+
+                    if (thread.typeIs(ThreadType.Public) && u.isMe()) {
                         threadUsersRef.onDisconnect().removeValue();
                     }
+
                 } else if (userThreadLinkType == UserThreadLinkTypeRemoveUser) {
-                    data.put(threadUsersPath, null);
-                    data.put(userThreadsPath, null);
+                    updateWriter.add(new FirebaseUpdate(threadUsersRef, null));
+                    updateWriter.add(new FirebaseUpdate(userThreadsRef, null));
                 }
             }
-
-            ref.updateChildren(data, (databaseError, databaseReference) -> {
-                if (databaseError == null) {
-                    FirebaseEntity.pushThreadUsersUpdated(thread.getEntityID()).subscribe(new CrashReportingCompletableObserver());
-                    for (User u : users) {
-                        FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe(new CrashReportingCompletableObserver());
-                    }
-                    e.onComplete();
-                } else {
-                    e.onError(databaseError.toException());
-                }
-            });
+            emitter.onSuccess(updateWriter);
+        }).flatMap((Function<FirebaseUpdateWriter, SingleSource<?>>) FirebaseUpdateWriter::execute)
+                .ignoreElement()
+                .doOnComplete(() -> {
+            FirebaseEntity.pushThreadUsersUpdated(thread.getEntityID()).subscribe(new CrashReportingCompletableObserver());
+            for (User u : users) {
+                FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe(new CrashReportingCompletableObserver());
+            }
         }).subscribeOn(Schedulers.single());
     }
 
@@ -263,14 +247,9 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     public Completable deleteThread(Thread thread) {
-        return deleteThreadWithEntityID(thread.getEntityID());
-    }
-
-    public Completable deleteThreadWithEntityID(final String entityID) {
-        return Single.create((SingleOnSubscribe<Thread>) e -> {
-            final Thread thread = DaoCore.fetchEntityWithEntityID(Thread.class, entityID);
-            e.onSuccess(thread);
-        }).flatMapCompletable(thread -> new ThreadWrapper(thread).deleteThread()).subscribeOn(Schedulers.single());
+        return Single.just(thread)
+                .flatMapCompletable(theThread -> new ThreadWrapper(theThread).deleteThread())
+                .subscribeOn(Schedulers.single());
     }
 
     protected void pushForMessage(final Message message) {

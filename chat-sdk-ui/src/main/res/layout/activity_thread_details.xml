@@ -32,7 +32,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 fresco:failureImage="@drawable/icn_100_public_thread"
                 fresco:placeholderImage="@drawable/icn_100_public_thread"
-                fresco:roundAsCircle="true" />
+                fresco:roundAsCircle="true"
+                fresco:fadeDuration="0" />
 
             <FrameLayout
                 android:id="@+id/frame_thread_users"

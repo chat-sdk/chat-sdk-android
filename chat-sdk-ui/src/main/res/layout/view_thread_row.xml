@@ -30,7 +30,8 @@
             android:layout_width="50dp"
             fresco:placeholderImage="@drawable/icn_100_public_thread"
             fresco:failureImage="@drawable/icn_100_public_thread"
-            fresco:roundAsCircle="true" />
+            fresco:roundAsCircle="true"
+            fresco:fadeDuration="0" />
 
         <LinearLayout
             android:layout_toRightOf="@id/img_thread_image"

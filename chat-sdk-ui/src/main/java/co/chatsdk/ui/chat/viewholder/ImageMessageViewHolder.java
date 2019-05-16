@@ -8,21 +8,15 @@ import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.imagepipeline.common.ResizeOptions;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.message_action.MessageAction;
-import co.chatsdk.core.types.MessageType;
-import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.chat.BaseMessageViewHolder;
 import co.chatsdk.ui.chat.ImageMessageOnClickHandler;
-import co.chatsdk.ui.chat.LocationMessageOnClickHandler;
 import io.reactivex.subjects.PublishSubject;
-import timber.log.Timber;
 
 public class ImageMessageViewHolder extends BaseMessageViewHolder {
     public ImageMessageViewHolder(View itemView, Activity activity, PublishSubject<List<MessageAction>> actionPublishSubject) {

@@ -18,6 +18,7 @@ public class MessageTestChatOption extends BaseChatOption {
             ArrayList<Completable> completables = new ArrayList<>();
             for (Integer i = 0; i < 100; i++) {
                 completables.add(ChatSDK.thread().sendMessageWithText(i.toString(), thread));
+
             }
             return Completable.concat(completables);
         });

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
@@ -30,7 +31,7 @@ import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.DaoDateTimeConverter;
 
 @Entity
-public class Message implements CoreEntity {
+public class Message extends AbstractEntity {
 
     @Id
     private Long id;
@@ -107,18 +108,32 @@ public class Message implements CoreEntity {
     private transient Long lastMessage__resolvedKey;
 
     public boolean isRead() {
-        ReadStatus status = readStatusForUser(ChatSDK.currentUser());
-        if (status != null && status.is(ReadStatus.read())) {
+        if (sender != null && sender.isMe()) {
             return true;
+        } else {
+            ReadStatus status = readStatusForUser(ChatSDK.currentUser());
+            if (status != null && status.is(ReadStatus.read())) {
+                return true;
+            }
+            else if (read == null) {
+                return false;
+            }
+            else {
+                return read;
+            }
         }
-        else if (sender != null && sender.isMe()) {
+    }
+
+    public boolean isDelivered () {
+        if (sender != null && sender.isMe()) {
             return true;
-        }
-        else if (read == null) {
-            return false;
-        }
-        else {
-            return read;
+        } else {
+            ReadStatus status = readStatusForUser(ChatSDK.currentUser());
+            if (status != null && status.getValue() >= ReadStatus.Delivered) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
@@ -331,32 +346,38 @@ public class Message implements CoreEntity {
 
     public ReadStatus readStatusForUser (String userEntityID) {
         for(ReadReceiptUserLink link : getReadReceiptLinks()) {
-            if(link.getUser() != null && link.getUser().getEntityID().equals(userEntityID)) {
+            if(link.getUser() != null && link.getUser().equalsEntityID(userEntityID)) {
                 return new ReadStatus(link.getStatus());
             }
         }
-        return ReadStatus.notSet();
+        return ReadStatus.none();
     }
 
     public ReadStatus getReadStatus () {
-        int total = 0;
-        int userCount = getReadReceiptLinks().size();
+        int userCount = 0;
+        int deliveredCount = 0;
+        int readCount = 0;
         for(ReadReceiptUserLink link : getReadReceiptLinks()) {
-            total += link.getStatus();
+            if (link.getStatus() != ReadStatus.Hide) {
+                if (link.getStatus() == ReadStatus.Delivered) {
+                    deliveredCount++;
+                }
+                if (link.getStatus() == ReadStatus.Read) {
+                    deliveredCount++;
+                    readCount++;
+                }
+                userCount++;
+            }
         }
-        int status = ReadStatus.None;
-
-        if(total >= ReadStatus.Delivered * userCount) {
-            status = ReadStatus.Delivered;
+        if (readCount == userCount) {
+            return ReadStatus.read();
         }
-        if(total >= ReadStatus.Read * userCount) {
-            status = ReadStatus.Read;
+        else if (deliveredCount == userCount) {
+            return ReadStatus.delivered();
         }
-        if (total == 0) {
-            status = ReadStatus.None;
+        else {
+            return ReadStatus.none();
         }
-        return new ReadStatus(status);
-
     }
 
     public Long getSenderId() {

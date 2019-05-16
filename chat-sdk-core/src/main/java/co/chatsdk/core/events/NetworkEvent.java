@@ -122,13 +122,13 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.ContactDeleted, null, null, user);
     }
 
-    public static NetworkEvent contactChanged (User user) {
-        return new NetworkEvent(EventType.ContactChanged, null, null, user);
-    }
-
-    public static NetworkEvent contactsUpdated () {
-        return new NetworkEvent(EventType.ContactsUpdated);
-    }
+//    public static NetworkEvent contactChanged (User user) {
+//        return new NetworkEvent(EventType.ContactChanged, null, null, user);
+//    }
+//
+//    public static NetworkEvent contactsUpdated () {
+//        return new NetworkEvent(EventType.ContactsUpdated);
+//    }
 
     public static NetworkEvent threadRead (Thread thread) {
         return new NetworkEvent(EventType.ThreadRead, thread);
@@ -175,7 +175,7 @@ public class NetworkEvent {
     public static Predicate<NetworkEvent> filterThreadEntityID (final String entityID) {
         return networkEvent -> {
             if(networkEvent.thread != null) {
-                if (networkEvent.thread.getEntityID().equals(entityID)) {
+                if (networkEvent.thread.equalsEntityID(entityID)) {
                     return true;
                 }
             }
@@ -191,6 +191,14 @@ public class NetworkEvent {
             }
             return false;
         };
+    }
+
+    public static Predicate<NetworkEvent> threadDetailsUpdated () {
+        return filterType(
+                EventType.ThreadDetailsUpdated,
+                EventType.ThreadUsersChanged,
+                EventType.UserMetaUpdated // Be careful to check that the user is a member of the thread...
+        );
     }
 
     public static Predicate<NetworkEvent> threadsUpdated () {
@@ -217,10 +225,9 @@ public class NetworkEvent {
 
     public static Predicate<NetworkEvent> filterContactsChanged () {
         return filterType(
-                EventType.ContactChanged,
                 EventType.ContactAdded,
                 EventType.ContactDeleted,
-                EventType.ContactsUpdated
+                EventType.UserMetaUpdated
         );
     }
 

@@ -122,7 +122,7 @@ public class StorageManager {
     public List<Message> fetchMessagesForThreadWithID (long threadID, int limit, Date olderThan) {
 
         // If we have a zero date, treat it as null
-        if (olderThan.equals(new Date(0))) {
+        if (olderThan != null && olderThan.equals(new Date(0))) {
             olderThan = null;
         }
 

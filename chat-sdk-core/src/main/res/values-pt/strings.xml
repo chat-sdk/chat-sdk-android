@@ -33,8 +33,6 @@
     <string name="tap_here_for_contact_info">Toque aqui para informações de contato</string>
     <string name="search_with_name">Pesquisar com nome</string>
     <string name="add_conversation">Adicionar conversa</string>
-    <string formatted="false" name="thread__created">Tópico %s criado</string>
-    <string formatted="false" name="public_thread__created">Encadeamento público %s criado</string>
     <string name="creating_thread">Criando Thread</string>
 
     <string name="send_mail">Enviar correio</string>

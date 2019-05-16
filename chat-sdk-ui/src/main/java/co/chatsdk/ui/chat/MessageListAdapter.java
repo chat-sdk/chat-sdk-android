@@ -50,6 +50,11 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
 
     @Override
     public AbstractMessageViewHolder onCreateViewHolder(ViewGroup parent, int type) {
+
+        if (ChatSDK.config().debug) {
+            System.out.println("onCreateViewHolder: " + type);
+        }
+
         int viewType = (int) Math.ceil(type / MessageType.Max);
         int messageType = type - viewType * MessageType.Max;
         boolean isReply = viewType == ViewTypeReply;
@@ -67,6 +72,10 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
 
     @Override
     public void onBindViewHolder(AbstractMessageViewHolder holder, int position) {
+
+        if (ChatSDK.config().debug) {
+            System.out.println("onBindViewHolder: pos: " + position);
+        }
 
         MessageListItem messageItem = getMessageItems().get(position);
         Message message = messageItem.getMessage();
@@ -214,7 +223,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
 
     protected MessageListItem messageItemForMessage (Message message) {
         for(MessageListItem i : messageItems) {
-            if(i.message.getEntityID().equals(message.getEntityID())) {
+            if(i.message.equalsEntity(message)) {
                 return i;
             }
         }

@@ -22,6 +22,8 @@ public class Keys {
     public static final String Time = "time";
 
     public static final String UserName = "userName";
+
+    // TODO: This will be deprecated in favour of the from variable
     public static final String UserFirebaseId = "user-firebase-id";
     public static final String Color = "color";
     public static final String Name = "name";
@@ -29,8 +31,12 @@ public class Keys {
     public static final String InvitedBy = "invitedBy";
     public static final String CreationDate = "creation-date";
     public static final String JSON = "json_v2";
-    public static final String Type = "type";
+    public static final String To = "to";
+    public static final String From = "from";
+
+    // Deprecated in favour of type
     public static final String Type_v4 = "type_v4";
+    public static final String Type = "type";
     public static final String Online = "online";
     public static final String Date = "date";
     public static final String LastOnline = "last-online";
@@ -44,7 +50,10 @@ public class Keys {
     public static final String Member = "member";
 
     public static final String ImageUrl = "image-url";
+
+    // Deprecated in favour of Creator
     public static final String CreatorEntityId = "creator-entity-id";
+    public static final String Creator = "creator";
     public static final String Deleted = "deleted";
     public static final String UserId = "user-id";
     public static final String MessageText = "text";

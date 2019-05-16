@@ -1,4 +1,4 @@
-package co.chatsdk.ui.chat;
+package co.chatsdk.ui.chat.viewholder;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -128,6 +128,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     }
 
     protected void updateReadStatus () {
+
         if (message != null) {
             int resource = R.drawable.ic_message_received;
             ReadStatus status = message.getReadStatus();
@@ -220,10 +221,8 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         messageIconView.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
         if (hidden) {
             setIconSize(0, 0);
-            setIconMargins(0,0,0,0);
         } else {
             setIconSize(activity.get().getResources().getDimensionPixelSize(R.dimen.message_icon_max_width), activity.get().getResources().getDimensionPixelSize(R.dimen.message_icon_max_height));
-            setIconMargins(5,0,5,0);
         }
         messageBubble.requestLayout();
     }

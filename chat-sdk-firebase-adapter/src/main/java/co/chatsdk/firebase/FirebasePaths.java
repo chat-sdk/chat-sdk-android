@@ -21,7 +21,6 @@ public class FirebasePaths{
     public static final String ContactsPath = "contacts";
     public static final String PublicThreadsPath = "public-threads";
     public static final String DetailsPath = "details";
-    public static final String IndexPath = "searchIndex";
     public static final String OnlinePath = "online";
     public static final String MetaPath = "meta";
     public static final String UpdatedPath = "updated";
@@ -101,6 +100,14 @@ public class FirebasePaths{
         return threadRef(firebaseId).child(MessagesPath);
     }
 
+    public static DatabaseReference threadMessageRef(String threadID, String messageID){
+        return threadMessagesRef(threadID).child(messageID);
+    }
+
+    public static DatabaseReference threadMessagesReadRef(String threadID, String messageID){
+        return threadMessageRef(threadID, messageID).child(ReadPath);
+    }
+
     public static DatabaseReference threadMetaRef(String firebaseId){
         return threadRef(firebaseId).child(MetaPath);
     }
@@ -111,12 +118,6 @@ public class FirebasePaths{
 
     public static DatabaseReference onlineRef(String userEntityID){
         return firebaseRef().child(OnlinePath).child(userEntityID);
-    }
-
-
-    /* Index */
-    public static DatabaseReference indexRef(){
-        return firebaseRef().child(IndexPath);
     }
 
 }

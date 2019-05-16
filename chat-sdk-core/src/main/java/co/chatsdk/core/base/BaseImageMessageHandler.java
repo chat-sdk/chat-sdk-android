@@ -4,41 +4,20 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import java.io.File;
+import java.io.IOException;
 
-import co.chatsdk.core.R;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.ImageMessageHandler;
+import co.chatsdk.core.rigs.FileUploadable;
 import co.chatsdk.core.rigs.MessageSendRig;
-import co.chatsdk.core.rx.ObservableConnector;
+import co.chatsdk.core.rigs.Uploadable;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.FileUploadResult;
-import co.chatsdk.core.types.MessageSendProgress;
-import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
-import co.chatsdk.core.utils.StringChecker;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.CompletableSource;
-import io.reactivex.Maybe;
-import io.reactivex.MaybeSource;
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.ObservableSource;
-import io.reactivex.Observer;
-import io.reactivex.Single;
-import io.reactivex.SingleSource;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.BiConsumer;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
-import timber.log.Timber;
 
 /**
  * Created by ben on 10/24/17.
@@ -55,15 +34,20 @@ public class BaseImageMessageHandler implements ImageMessageHandler {
             message.setValueForKey(image.getWidth(), Keys.MessageImageWidth);
             message.setValueForKey(image.getHeight(), Keys.MessageImageHeight);
 
-        }).setFile(imageFile, "image.jpg", "image/jpeg", (message, result) -> {
+        }).setUploadable(new FileUploadable(imageFile, "image.jpg", "image/jpeg", uploadable -> {
+            if (uploadable instanceof FileUploadable) {
+                FileUploadable fileUploadable = (FileUploadable) uploadable;
+                fileUploadable.file = new Compressor(ChatSDK.shared().context())
+                        .setMaxHeight(ChatSDK.config().imageMaxHeight)
+                        .setMaxWidth(ChatSDK.config().imageMaxWidth)
+                        .compressToFile(fileUploadable.file);
+                return fileUploadable;
+            }
+            return uploadable;
+        }), (message, result) -> {
             // When the file has uploaded, set the image URL
             message.setValueForKey(result.url, Keys.MessageImageURL);
 
-        }).setFileCompressAction(file -> {
-            return new Compressor(ChatSDK.shared().context())
-                    .setMaxHeight(ChatSDK.config().imageMaxHeight)
-                    .setMaxWidth(ChatSDK.config().imageMaxWidth)
-                    .compressToFile(file);
         }).run();
     }
 

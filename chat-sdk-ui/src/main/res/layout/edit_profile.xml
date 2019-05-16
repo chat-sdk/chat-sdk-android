@@ -33,7 +33,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 fresco:placeholderImage="@drawable/icn_100_profile"
                 fresco:failureImage="@drawable/icn_100_profile"
-                fresco:roundAsCircle="true" />
+                fresco:roundAsCircle="true"
+                fresco:fadeDuration="0" />
 
             <TextView
                 android:id="@+id/text_status"

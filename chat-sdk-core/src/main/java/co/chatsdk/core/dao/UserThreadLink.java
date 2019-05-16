@@ -9,10 +9,11 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.DaoException;
 
+import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.interfaces.CoreEntity;
 
 @org.greenrobot.greendao.annotation.Entity
-public class UserThreadLink implements CoreEntity {
+public class UserThreadLink extends AbstractEntity {
 
     @Id
     private Long id;

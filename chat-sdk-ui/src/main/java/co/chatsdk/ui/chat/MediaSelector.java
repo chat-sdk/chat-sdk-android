@@ -234,6 +234,8 @@ public class MediaSelector {
             else {
                 notifyError(new Exception(activity.getString(R.string.error_processing_image)));
             }
+        } else {
+            notifyError(new Exception(""));
         }
     }
 

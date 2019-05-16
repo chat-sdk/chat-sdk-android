@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Chat SDK Demo</string>
-
-    <!-- Contact Book -->
-    <string name="contact_book_email_subject">Onderwerp</string>
-    <string name="contact_book_email_body">Tekst</string>
-    <string name="contact_book_sms_body">SMS-tekst</string>
+    <string name="app_name">Chat SDK</string>
 </resources>

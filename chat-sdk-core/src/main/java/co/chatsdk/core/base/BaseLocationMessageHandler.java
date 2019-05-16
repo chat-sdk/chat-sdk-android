@@ -31,20 +31,17 @@ public class BaseLocationMessageHandler extends AbstractMessageHandler implement
 
     @Override
     public Completable sendMessageWithLocation(final String filePath, final LatLng location, final Thread thread) {
-        return new MessageSendRig(new MessageType(MessageType.Location), thread, new MessageSendRig.MessageDidCreateUpdateAction() {
-            @Override
-            public void update(Message message) {
+        return new MessageSendRig(new MessageType(MessageType.Location), thread, message -> {
 
-                int maxSize = ChatSDK.config().imageMaxThumbnailDimension;
-                String imageURL = GoogleUtils.getMapImageURL(location, maxSize, maxSize);
+            int maxSize = ChatSDK.config().imageMaxThumbnailDimension;
+            String imageURL = GoogleUtils.getMapImageURL(location, maxSize, maxSize);
 
-                message.setValueForKey(location.longitude, Keys.MessageLongitude);
-                message.setValueForKey(location.latitude, Keys.MessageLatitude);
-                message.setValueForKey(maxSize, Keys.MessageImageWidth);
-                message.setValueForKey(maxSize, Keys.MessageImageHeight);
-                message.setValueForKey(imageURL, Keys.MessageImageURL);
+            message.setValueForKey(location.longitude, Keys.MessageLongitude);
+            message.setValueForKey(location.latitude, Keys.MessageLatitude);
+            message.setValueForKey(maxSize, Keys.MessageImageWidth);
+            message.setValueForKey(maxSize, Keys.MessageImageHeight);
+            message.setValueForKey(imageURL, Keys.MessageImageURL);
 
-            }
         }).run();
     }
 

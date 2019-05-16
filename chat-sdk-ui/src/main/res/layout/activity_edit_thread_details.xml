@@ -22,7 +22,8 @@
         app:layout_constraintTop_toTopOf="parent"
         fresco:failureImage="@drawable/icn_100_public_thread"
         fresco:placeholderImage="@drawable/icn_100_public_thread"
-        fresco:roundAsCircle="true" />
+        fresco:roundAsCircle="true"
+        fresco:fadeDuration="0" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/thread_name_til"

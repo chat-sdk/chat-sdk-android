@@ -11,13 +11,14 @@ import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
 
+import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.interfaces.CoreEntity;
 // KEEP INCLUDES END
 /**
  * CoreEntity mapped to table FOLLOWER_LINK.
  */
 @Entity
-public class FollowerLink implements CoreEntity {
+public class FollowerLink extends AbstractEntity {
 
     @Id
     private Long id;

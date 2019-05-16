@@ -21,6 +21,7 @@ import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 
 import static co.chatsdk.core.utils.ImageBuilder.bitmapForURL;
 
