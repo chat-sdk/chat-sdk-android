@@ -107,13 +107,13 @@ public class EditProfileActivity extends BaseActivity {
                 ChatSDK.profilePictures().startProfilePicturesActivity(this, currentUser.getEntityID());
             } else {
                 ImagePickerUploader uploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
-                uploader.choosePhoto(EditProfileActivity.this).subscribe((result, throwable) -> {
+                disposableList.add(uploader.choosePhoto(EditProfileActivity.this).subscribe((result, throwable) -> {
                     if (throwable == null) {
                         avatarImageView.setImageURI(Uri.fromFile(new File(result.uri)));
                     } else {
                         ToastHelper.show(EditProfileActivity.this, throwable.getLocalizedMessage());
                     }
-                });
+                }));
             }
         });
 
