@@ -37,26 +37,19 @@
 
     <com.dinuscxj.progressbar.CircleProgressBar
         android:id="@+id/barTimer"
-
         android:layout_width="100dp"
-
         android:layout_height="100dp"
         android:layout_alignParentTop="true"
-
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:indeterminate="false"
         android:max="1000"
         android:progress="45"
         app:drawBackgroundOutsideProgress="true"
-
         app:line_count="30"
-
         app:line_width="4dp"
-
         app:progress_background_color="@color/transparent"
         app:progress_end_color="@color/holo_blue_bright"
-
         app:progress_shader="sweep"
         app:progress_start_color="@color/holo_red_dark"
         app:progress_start_degree="-90"

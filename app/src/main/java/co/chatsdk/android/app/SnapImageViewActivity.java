@@ -54,11 +54,8 @@ public class SnapImageViewActivity extends BaseActivity {
         lifetime = (int)i.getSerializableExtra("lifetime");
         messageEntityID = (String)i.getSerializableExtra("messageEntityID");
         message = ChatSDK.db().fetchEntityWithEntityID(messageEntityID, Message.class);
-
-        if (lifetime == 0) {
-            circleTimer.setVisibility(View.GONE);
-            textTimer.setVisibility(View.GONE);
-        }
+        circleTimer.setVisibility(View.GONE);
+        textTimer.setVisibility(View.GONE);
 
         saveButton.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.VISIBLE);
@@ -69,6 +66,7 @@ public class SnapImageViewActivity extends BaseActivity {
                 .subscribe(bitmap -> {
                     imageView.setImageBitmap(bitmap);
                     saveButton.setVisibility(View.VISIBLE);
+                    initiateTimer();
                     saveButton.setOnClickListener(v1 -> PermissionRequestHandler.shared().requestWriteExternalStorage(this).subscribe(() -> {
                         if (bitmap != null) {
                             String bitmapURL = MediaStore.Images.Media.insertImage(this.getContentResolver(), bitmap, "" , "");
@@ -85,15 +83,6 @@ public class SnapImageViewActivity extends BaseActivity {
                 }, throwable -> {
                     ToastHelper.show(this, co.chatsdk.ui.R.string.unable_to_fetch_image);
                 });
-        if (lifetime != 0) {
-            RotateAnimation animation = new RotateAnimation(0.0f, 0.0f, 100f, 100f);
-            animation.setFillAfter(true);
-            Boolean seen = true;
-            message.setValueForKey(seen, "image-seen");
-            circleTimer.setMax(lifetime * 1000);
-            startTimer(lifetime);
-            circleTimer.startAnimation(animation);
-        }
     }
 
     private void startTimer(final int secondsInput) {
@@ -124,4 +113,20 @@ public class SnapImageViewActivity extends BaseActivity {
             super.onBackPressed();
         }*/
     }
+
+    public void initiateTimer() {
+        if (lifetime != 0) {
+            RotateAnimation animation = new RotateAnimation(0.0f, 0.0f, 100f, 100f);
+            animation.setFillAfter(true);
+            Boolean seen = true;
+            message.setValueForKey(seen, "image-seen");
+            circleTimer.setVisibility(View.VISIBLE);
+            textTimer.setVisibility(View.VISIBLE);
+            circleTimer.setMax(lifetime * 1000);
+            startTimer(lifetime);
+            circleTimer.startAnimation(animation);
+        }
+    }
+
+
 }
