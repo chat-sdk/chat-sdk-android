@@ -2,16 +2,8 @@ package co.chatsdk.android.app;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.Icon;
-import android.net.Uri;
 import android.view.View;
 import android.widget.Toast;
-
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.view.SimpleDraweeView;
-import com.facebook.imagepipeline.common.ResizeOptions;
-import com.facebook.imagepipeline.request.ImageRequest;
-import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
 import java.io.Serializable;
 import java.util.List;
@@ -19,7 +11,6 @@ import java.util.List;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.message_action.MessageAction;
-import co.chatsdk.ui.chat.viewholder.ImageMessageViewHolder;
 import co.chatsdk.ui.chat.viewholder.TextMessageViewHolder;
 import io.reactivex.subjects.PublishSubject;
 

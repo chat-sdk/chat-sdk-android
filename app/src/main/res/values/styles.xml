@@ -1,8 +1,7 @@
 <resources>
     <style name="NumberPickerText">
-        <item name="android:textSize">50sp</item>
+        <item name="android:textSize">30sp</item>
         <item name="android:textColorPrimary">#FFFFFF</item>
-        <item name="android:dividerHeight">20dp</item>
-        <item name="android:scaleHeight">10dp</item>
+        <item name="android:dividerHeight">40dp</item>
     </style>
 </resources>

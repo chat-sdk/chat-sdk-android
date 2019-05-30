@@ -36,7 +36,7 @@
         android:scaleType="center"
         android:src="@drawable/circle_shape"
         android:tint="@color/white"
-        app:backgroundTint="@color/fui_transparent"
+        app:backgroundTint="@color/transparent"
         app:fabCustomSize="100dp"
         app:layout_constraintBottom_toTopOf="@+id/gotoGallery"
         app:layout_constraintEnd_toEndOf="parent"
@@ -56,10 +56,10 @@
         android:tint="@color/white"
         app:borderWidth="0dp"
         app:elevation="0dp"
-        app:backgroundTint="@color/fui_transparent"
+        app:backgroundTint="@color/transparent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:maxImageSize="48dp" />
+        app:maxImageSize="36dp" />
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -78,10 +78,10 @@
         android:scaleType="center"
         android:tint="@color/white"
         android:src="@drawable/icons8_photo_gallery_48"
-        app:backgroundTint="@color/fui_transparent"
+        app:backgroundTint="@color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:maxImageSize="48dp" />
+        app:maxImageSize="36dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

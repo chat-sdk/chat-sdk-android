@@ -51,7 +51,12 @@ public class SnapImageViewActivity extends BaseActivity {
 
         Intent i = getIntent();
         imageURL = (String)i.getSerializableExtra("imageURL");
-        lifetime = (int)i.getSerializableExtra("lifetime");
+        if (i.getSerializableExtra("lifetime") != null) {
+            lifetime = (int)i.getSerializableExtra("lifetime");
+        } else {
+            lifetime = 0;
+        }
+
         messageEntityID = (String)i.getSerializableExtra("messageEntityID");
         message = ChatSDK.db().fetchEntityWithEntityID(messageEntityID, Message.class);
         circleTimer.setVisibility(View.GONE);
@@ -65,7 +70,9 @@ public class SnapImageViewActivity extends BaseActivity {
                 .doFinally(() -> progressBar.setVisibility(View.INVISIBLE))
                 .subscribe(bitmap -> {
                     imageView.setImageBitmap(bitmap);
-                    saveButton.setVisibility(View.VISIBLE);
+                    if (lifetime == 0) {
+                        saveButton.setVisibility(View.VISIBLE);
+                    }
                     initiateTimer();
                     saveButton.setOnClickListener(v1 -> PermissionRequestHandler.shared().requestWriteExternalStorage(this).subscribe(() -> {
                         if (bitmap != null) {
