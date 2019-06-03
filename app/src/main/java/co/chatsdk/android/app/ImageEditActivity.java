@@ -57,6 +57,8 @@ public class ImageEditActivity extends BaseActivity {
         timerText = (TextView) findViewById(R.id.timerText);
         setTheImage(picBitmap);
         secondsInt = 0;
+        timerText.setText("No Time Limit");
+
 
         FloatingActionButton selectRecipient = (FloatingActionButton) findViewById(R.id.button3);
         NumberPicker numberPicker = (NumberPicker) findViewById(R.id.number_picker);
@@ -103,7 +105,10 @@ public class ImageEditActivity extends BaseActivity {
                             secondsInt = timesInSeconds.get(value);
                             numberPicker.setVisibility(View.GONE);
                             setTheImage(picBitmap);
-                            setViewingTimeText();
+
+                            Integer timeInSecondsIndex = timesInSeconds.indexOf(secondsInt);
+                            String viewingTime = timeOptionsStrings[timeInSecondsIndex];
+                            timerText.setText(viewingTime);
                         } else {
                             blurredBitmap = Blur.fastblur(context, picBitmap, 25);
                             blurredBitmap2 = Blur.fastblur(context, blurredBitmap, 25);
@@ -134,11 +139,12 @@ public class ImageEditActivity extends BaseActivity {
                 Integer value = numberPicker.getValue();
                 secondsInt = timesInSeconds.get(value);
                 numberPicker.setVisibility(View.GONE);
-                setViewingTimeText();
+
+                Integer timeInSecondsIndex = timesInSeconds.indexOf(secondsInt);
+                String viewingTime = timeOptionsStrings[timeInSecondsIndex];
+                timerText.setText(viewingTime);
             }
         });
-
-        setViewingTimeText();
     }
 
 // End of the onCreate method.
@@ -188,15 +194,5 @@ public class ImageEditActivity extends BaseActivity {
         canvas.drawBitmap(bm, new Matrix(), p);
 
         return bm;
-    }
-
-    private void setViewingTimeText () {
-        if (timesInSeconds != null && timeOptionsStrings != null) {
-            Integer timeInSecondsIndex = timesInSeconds.indexOf(secondsInt);
-            String viewingTime = timeOptionsStrings[timeInSecondsIndex];
-            timerText.setText(viewingTime);
-        } else {
-            timerText.setText("No Time Limit");
-        }
     }
 }

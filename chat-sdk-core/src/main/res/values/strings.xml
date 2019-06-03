@@ -253,7 +253,7 @@
     <string name="typing">Typing&#8230;</string>
     <string name="recording">Recording</string>
 
-    <string name="image_saved">Image saved successfully</string>
+    <string name="image_saved_successfully">Image saved successfully</string>
     <string name="image_save_failed">Image save failed</string>
 
 
@@ -378,11 +378,14 @@
     <string name="update_thread_failed">Only the thread creator can update the thread</string>
     <string name="uploading">Uploading</string>
 
+    <string name="image_saved">Image Saved</string>
     <string name="copy">Copy</string>
+    <string name="save">Save</string>
     <string name="forward">Forward</string>
     <string name="forward_message">Forward Message</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="copy_failed">Copy failed!</string>
+    <string name="save_failed">Save Failed!</string>
     <string name="message">Message</string>
     <string name="add_user_to_chat">Add User To Chat</string>
     <string name="success">Success!</string>
