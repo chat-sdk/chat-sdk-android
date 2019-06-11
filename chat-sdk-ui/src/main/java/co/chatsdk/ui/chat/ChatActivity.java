@@ -52,7 +52,6 @@ import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
-import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
@@ -84,7 +83,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     // Should we remove the user from the public chat when we stop this activity?
     // If we are showing a temporary screen like the sticker message screen
     // this should be set to no
-    protected boolean removeUserFromChatOnExit = true;
+    protected boolean removeUserFromChatOnExit = ChatSDK.config().removeUserFromPublicThreadOnExit;
 
     protected enum ListPosition {
         Top, Current, Bottom

@@ -94,7 +94,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                     updateWriter.add(new FirebaseUpdate(threadUsersRef, u.equalsEntity(thread.getCreator()) ? Keys.Owner : Keys.Member));
                     updateWriter.add(new FirebaseUpdate(userThreadsRef, ChatSDK.currentUserID()));
 
-                    if (thread.typeIs(ThreadType.Public) && u.isMe()) {
+                    if (thread.typeIs(ThreadType.Public) && u.isMe() && ChatSDK.config().removeUserFromPublicThreadOnExit) {
                         threadUsersRef.onDisconnect().removeValue();
                     }
 

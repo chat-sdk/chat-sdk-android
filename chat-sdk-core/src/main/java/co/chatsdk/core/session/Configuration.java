@@ -126,6 +126,8 @@ public class Configuration {
     public int maxInboxNotificationLines = 7;
     public boolean imageCroppingEnabled = true;
 
+    public boolean removeUserFromPublicThreadOnExit = true;
+
     public String defaultNamePrefix = "ChatSDK";
     public String defaultName = null;
 
@@ -648,6 +650,11 @@ public class Configuration {
 
         public Builder nearbyUserMaxDistance (int maxDistance) {
             config.nearbyUserMaxDistance = maxDistance;
+            return this;
+        }
+
+        public Builder removeUserFromPublicThreadOnExit (boolean remove) {
+            config.removeUserFromPublicThreadOnExit = remove;
             return this;
         }
 

@@ -122,13 +122,9 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.ContactDeleted, null, null, user);
     }
 
-//    public static NetworkEvent contactChanged (User user) {
-//        return new NetworkEvent(EventType.ContactChanged, null, null, user);
-//    }
-//
-//    public static NetworkEvent contactsUpdated () {
-//        return new NetworkEvent(EventType.ContactsUpdated);
-//    }
+    public static NetworkEvent contactsUpdated () {
+        return new NetworkEvent(EventType.ContactsUpdated);
+    }
 
     public static NetworkEvent threadRead (Thread thread) {
         return new NetworkEvent(EventType.ThreadRead, thread);
@@ -227,7 +223,8 @@ public class NetworkEvent {
         return filterType(
                 EventType.ContactAdded,
                 EventType.ContactDeleted,
-                EventType.UserMetaUpdated
+                EventType.UserMetaUpdated,
+                EventType.ContactsUpdated
         );
     }
 
