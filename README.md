@@ -23,6 +23,10 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Java 8** supports Java 8 and lamda expressions
 - **API Level 16+** Compatible with 99.3% of Android devices
 
+## Demo Available on the Play Store
+
+
+
 ## Features
 
 - Private and group messages
