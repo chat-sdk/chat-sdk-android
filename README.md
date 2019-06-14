@@ -10,9 +10,11 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Full control of the data.** You have full and exclusive access to the user's chat data
 - **Quick integration.** Chat SDK is fully featured out of the box
 <!--- Install the demo **[Firebase](https://i.diawi.com/2JGr4o)** app now by clicking the link on your Android phone! -->
-- **Demo Versions.** **[Firebase](https://i.diawi.com/jqhWBs)** or **[XMPP](https://i.diawi.com/mE5GkM)** open this link on your Android phone to install
+- **Demo Versions.** **[XMPP](https://i.diawi.com/mE5GkM)** open this link on your Android phone to install
 - **Scalable.** Supports millons of daily users [[1](https://firebase.google.com/docs/database/usage/limits), [2](https://blog.process-one.net/ejabberd-massive-scalability-1node-2-million-concurrent-users/)]
 - **Backend agnostic.** Chat SDK can be customized to [support any backend](https://github.com/chat-sdk/chat-sdk-android#backend-agnostic-architecture) 
+
+[<img target="_blank" src="https://raw.githubusercontent.com/chat-sdk/chat-sdk-android/master/graphics/en_badge_web_generic.png" style="width:323px; height:125px" />](https://play.google.com/store/apps/details?id=co.chatsdk.android.app_modules&hl=en)
 
 ## Technical details
 
@@ -22,10 +24,6 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Reactive** using [RXAndroid](https://github.com/ReactiveX/RxAndroid)
 - **Java 8** supports Java 8 and lamda expressions
 - **API Level 16+** Compatible with 99.3% of Android devices
-
-## Demo Available on the Play Store
-
-
 
 ## Features
 
