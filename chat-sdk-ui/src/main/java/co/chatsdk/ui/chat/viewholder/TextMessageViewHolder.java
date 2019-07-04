@@ -1,6 +1,7 @@
 package co.chatsdk.ui.chat.viewholder;
 
 import android.app.Activity;
+import android.net.Uri;
 import android.view.View;
 
 import java.util.List;

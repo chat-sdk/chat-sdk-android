@@ -142,16 +142,18 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
     public List<Thread> getThreads(int type, boolean allowDeleted, boolean showEmpty){
 
-        if(ThreadType.isPublic(type)) {
-            return ChatSDK.db().fetchThreadsWithType(ThreadType.PublicGroup);
-        }
-
         // We may access this method post authentication
         if(ChatSDK.currentUser() == null) {
             return new ArrayList<>();
         }
 
-        List<Thread> threads = ChatSDK.db().fetchThreadsForUserWithID(ChatSDK.currentUser().getId());
+        List<Thread> threads;
+
+        if(ThreadType.isPublic(type)) {
+            threads =  ChatSDK.db().fetchThreadsWithType(ThreadType.PublicGroup);
+        } else {
+            threads = ChatSDK.db().fetchThreadsForUserWithID(ChatSDK.currentUser().getId());
+        }
 
         List<Thread> filteredThreads = new ArrayList<>();
         for(Thread thread : threads) {

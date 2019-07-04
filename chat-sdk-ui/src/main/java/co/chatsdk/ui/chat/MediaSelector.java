@@ -165,7 +165,6 @@ public class MediaSelector {
             }
         }
     }
-
     protected File fileFromURI (Uri uri, Activity activity, String column) {
         File file = null;
         if (uri.getPath() != null) {
@@ -187,6 +186,7 @@ public class MediaSelector {
         }
         return null;
     }
+
 
     protected void processCroppedPhoto(Activity activity, int resultCode, Intent data) throws Exception {
 

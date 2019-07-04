@@ -1,8 +1,8 @@
 {
   "rules": {
         
-    //".read": "auth != null",
-    //".write": "auth != null",
+    // ".read": "auth != null",
+    // ".write": "auth != null",
     
     "$root": {
       
@@ -120,7 +120,7 @@
               // 0x8 (8) - Snap
               // 0x16 (22) -
               // 0x32 (50) -
-              ".validate": "newData.val() == 1 || newData.val() == 2 || newData.val() == 4  || newData.val() == 10"
+              ".validate": "newData.val() == 1 || newData.val() == 2 || newData.val() == 4 || newData.val() == 10"
             }
           },
 
@@ -173,24 +173,15 @@
               // Only the sender can modify a message
               // Make sure that if this is a private thread that the user isn't blocked
               ".write": "data.parent().parent().child('users/' + auth.uid).exists() && (!data.exists() || data.child('user-firebase-id').val() == auth.uid)",
-//  || root.child($root + '/users/' + auth.uid + '/blocked/' + newData.child('user-firbease-id').val()).exists() == false && false
-                // ".validate": "data.parent().parent().child('details/type_v4').val() != 2 || !data.parent().parent().child('details/type_v4').exists() || root.child($root + '/users/' + auth.uid + '/blocked/' + newData.child('user-firbease-id').val()).exists()",
-
-                // The problem is that we don't know who the message is to
-                 // ".validate": "root.child($root + '/users/' + data.parent().parent().child('users').child('') + auth.uid + '/blocked/').exists()",
                 
               "date": {
                 // Must be current time
                 ".validate": "newData.val() == now"
               },
 
-              "payload": {
-                ".validate": "newData.val() != null"
-              },
-
               "type": {
                 // Can only be set on message creation must be 0 - 7
-                ".validate": "!data.exists() && (newData.val() >= 0 && newData.val() <= 7)"
+                ".validate": "!data.exists() && (newData.val() >= 0 && newData.val() <= 20)"
               },
 
               // Will be deprecated in favour of the from field
@@ -200,7 +191,7 @@
               },
                 
               "to": {
-                ".validate": "!data.exists()"
+              	".validate": "!data.exists()"
               }, 
 
               "from": {
@@ -212,7 +203,6 @@
                 "$user_id": {
                   ".write": "auth.uid == $user_id && root.child($root+'/threads/'+$thread_id+'/users/'+auth.uid).exists()",
                   "status": {
-                    //".validate": "newData.val() >= -2 && newData.val() <= 2"
                   }
                 }
               }
@@ -270,7 +260,7 @@
         
        ".indexOn": ["meta/name", "meta/phone", "meta/email", "meta/location", "meta/country-code, meta/username"],
 
-         ".read": "data.child(auth.uid).exists() || !data.child(auth.uid).exists()",
+         ".read": "data.child(auth.uid).exists()",
          
           "$user_id": {
 

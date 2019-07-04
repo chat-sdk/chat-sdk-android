@@ -42,6 +42,7 @@ public class BaseLocationMessageHandler extends AbstractMessageHandler implement
             message.setValueForKey(maxSize, Keys.MessageImageHeight);
             message.setValueForKey(imageURL, Keys.MessageImageURL);
 
+
         }).run();
     }
 

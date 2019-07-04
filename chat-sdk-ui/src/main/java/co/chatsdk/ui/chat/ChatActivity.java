@@ -306,7 +306,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                         .doFinally(() -> mSwipeRefresh.setRefreshing(false))
                         .subscribeOn(AndroidSchedulers.mainThread())
                         .doOnError(toastOnErrorConsumer())
-                        .subscribe();
+                        .subscribe(new CrashReportingCompletableObserver());
             } else {
                 mSwipeRefresh.setRefreshing(false);
             }
@@ -435,12 +435,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     }
 
     protected void handleMessageSend (Completable completable) {
-        completable.observeOn(AndroidSchedulers.mainThread()).doOnError(new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                ChatSDK.logError(throwable);
-                ToastHelper.show(getApplicationContext(), throwable.getLocalizedMessage());
-            }
+        completable.observeOn(AndroidSchedulers.mainThread()).doOnError(throwable -> {
+            ChatSDK.logError(throwable);
+            ToastHelper.show(getApplicationContext(), throwable.getLocalizedMessage());
         }).subscribe(new CrashReportingCompletableObserver());
     }
 
