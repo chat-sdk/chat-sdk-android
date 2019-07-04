@@ -41,7 +41,7 @@
 
             android:background="@drawable/message_received_3">
 
-            <ImageView
+            <com.facebook.drawee.view.SimpleDraweeView
                 android:id="@+id/image_icon"
                 android:layout_width="@dimen/message_icon_max_width"
                 android:layout_height="@dimen/message_icon_max_height"
