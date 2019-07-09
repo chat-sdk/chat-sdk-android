@@ -46,7 +46,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     protected SimpleDraweeView messageImageView;
     protected ConstraintLayout messageBubble;
     protected TextView messageTextView;
-    protected ImageView messageIconView;
+    protected SimpleDraweeView messageIconView;
     protected LinearLayout extraLayout;
     protected ImageView readReceiptImageView;
     protected ProgressBar progressBar;
