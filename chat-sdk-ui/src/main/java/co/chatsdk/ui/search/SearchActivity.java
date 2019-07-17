@@ -228,14 +228,8 @@ public class SearchActivity extends BaseActivity {
 
     public String searchText () {
         if (searchEditText.getText() != null) {
-//Here we determine if the last character in the search text is a space. If so we delete that space and run the search without it.
-            String searchTextString = searchEditText.getText().toString();
-            char lastCharacterInText = searchTextString.charAt(searchTextString.length() - 1);
-            if (lastCharacterInText == ' ') {
-                searchTextString = searchTextString.substring(0, searchTextString.length() - 1);
-                return searchTextString;
-            }
-            return searchTextString;
+//Here we trim the leading and trailing spaces around the search term.
+            return searchEditText.getText().toString().trim();
         }
         return "";
     }
