@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.facebook.drawee.view.SimpleDraweeView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.greenrobot.eventbus.EventBus;
 import org.ocpsoft.prettytime.PrettyTime;
 
 import java.util.List;
@@ -313,6 +314,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                         if(messageListAdapter.addRow(messageSendProgress.message, false, true, messageSendProgress.uploadProgress)) {
                             scrollListTo(ListPosition.Bottom, false);
                         }
+                        /*Intent messageSent = new Intent("ChatMessageGotSent");
+                        messageSent.putExtra("isImage", false);
+                        sendBroadcast(messageSent);*/
+                        EventBus.getDefault().post(new ChatMessageGotSent(true, false));
                     }
 
                     @Override

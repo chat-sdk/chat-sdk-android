@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.theartofdev.edmodo.cropper.CropImage;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 
 import co.chatsdk.core.session.ChatSDK;
@@ -163,6 +165,8 @@ public class MediaSelector {
             resultHandler.result(path);
             clear();
         }
+
+        EventBus.getDefault().post(new ChatMessageGotSent(true, true));
     }
 
     public void handleResult (Activity activity, int requestCode, int resultCode, Intent intent) throws Exception {
