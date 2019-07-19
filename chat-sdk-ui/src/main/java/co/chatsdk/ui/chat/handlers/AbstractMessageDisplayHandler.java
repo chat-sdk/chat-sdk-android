@@ -13,9 +13,9 @@ public abstract class AbstractMessageDisplayHandler implements MessageDisplayHan
         View row;
         LayoutInflater inflater = LayoutInflater.from(activity);
         if(isReply) {
-            row = inflater.inflate(R.layout.chat_sdk_row_message_reply , null);
+            row = inflater.inflate(R.layout.view_message_reply, null);
         } else {
-            row = inflater.inflate(R.layout.chat_sdk_row_message_me , null);
+            row = inflater.inflate(R.layout.view_message_me, null);
         }
         return row;
     }

@@ -5,12 +5,14 @@ package co.chatsdk.core.types;
  */
 
 public enum MessageSendStatus {
-
     None,
-    Sending,
+    Created,
+    WillUpload,
     Uploading,
+    DidUpload,
+    WillSend,
+    Sending,
     Sent,
     Delivered,
     Failed,
-
 }

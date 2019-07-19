@@ -1,10 +1,12 @@
 package co.chatsdk.core.base;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.ContactHandler;
+import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
 import io.reactivex.Completable;
@@ -26,7 +28,7 @@ public class BaseContactHandler implements ContactHandler {
     @Override
     public boolean exists(User user) {
         for (User u : contacts()) {
-            if (u.getEntityID().equals(user.getEntityID())) {
+            if (u.equalsEntity(user)) {
                 return true;
             }
         }
@@ -50,7 +52,13 @@ public class BaseContactHandler implements ContactHandler {
     @Override
     public void addContactLocal(User user, ConnectionType type) {
         if (ChatSDK.currentUser() != null && !user.isMe()) {
+
+            ChatSDK.hook().executeHook(HookEvent.ContactWillBeAdded, HookEvent.userData(user));
+
             ChatSDK.currentUser().addContact(user, type);
+
+            ChatSDK.hook().executeHook(HookEvent.ContactWasAdded, HookEvent.userData(user));
+
             ChatSDK.core().userOn(user);
         }
     }
@@ -58,7 +66,13 @@ public class BaseContactHandler implements ContactHandler {
     @Override
     public void deleteContactLocal(User user, ConnectionType type) {
         if (ChatSDK.currentUser() != null && !user.isMe()) {
+
+            ChatSDK.hook().executeHook(HookEvent.ContactWillBeDeleted, HookEvent.userData(user));
+
             ChatSDK.currentUser().deleteContact(user, type);
+
+            ChatSDK.hook().executeHook(HookEvent.ContactWasDeleted, HookEvent.userData(user));
+
             ChatSDK.core().userOff(user);
         }
     }

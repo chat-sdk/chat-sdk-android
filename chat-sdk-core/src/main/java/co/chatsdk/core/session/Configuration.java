@@ -7,7 +7,11 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import co.chatsdk.core.R;
+import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.interfaces.CrashHandler;
 import co.chatsdk.core.utils.StringChecker;
 
@@ -64,12 +68,17 @@ public class Configuration {
     public boolean unreadMessagesCountForPublicChatRoomsEnabled;
     public boolean inboundPushHandlingEnabled = true;
 
+    // Rooms that are older than this will be hidden
+    // Zero is infinite lifetime
+    // Default - 7 days
+    public int publicChatRoomLifetimeMinutes = 60 * 24 * 7;
+
     // Should the client send the push or is a server script handling it?
     public boolean clientPushEnabled = false;
 
     // If this is true, then we will only send a push notification if the recipient is offline
     public boolean onlySendPushToOfflineUsers = false;
-    public boolean showEmptyChats = false;
+    public boolean showEmptyChats = true;
 
     // Contact Book
     public String contactBookInviteContactEmailSubject;
@@ -117,6 +126,8 @@ public class Configuration {
     public int maxInboxNotificationLines = 7;
     public boolean imageCroppingEnabled = true;
 
+    public boolean removeUserFromPublicThreadOnExit = true;
+
     public String defaultNamePrefix = "ChatSDK";
     public String defaultName = null;
 
@@ -127,18 +138,28 @@ public class Configuration {
     public String defaultUserAvatarURL = "http://flathash.com/" + String.valueOf(new Random().nextInt(1000)) + ".png";
     public int audioMessageMaxLengthSeconds = 300;
 
+    // If we are representing a location as a URL, which service should we use? Google Maps is the default
+    public String locationURLRepresentation = "https://www.google.com/maps/search/?api=1&query=%f,%f";
+
     public String pushNotificationSound = "";
-    public boolean showLocalNotifications = true;
+    public boolean showLocalNotifications = false;
     public int pushNotificationColor = Color.parseColor("#ff33b5e5");
-    public boolean pushNotificationsForPublicChatRoomsEnabled;
+    public boolean pushNotificationsForPublicChatRoomsEnabled = false;
+
+    // Maximum distance to pick up nearby users
+    public int nearbyUserMaxDistance = 50000;
+
+    // How much distance must be moved to update the server with our new location
+    public int nearbyUsersMinimumLocationChangeToUpdateServer = 50;
 
     // If this is set to true, we will simulate what happens when a push is recieved and the app
     // is in the killed state. This is useful to help us debug that process.
     public boolean backgroundPushTestModeEnabled = false;
 
-    public int loginScreenDrawableResourceID = -1;
+    public int logoDrawableResourceID = R.drawable.ic_launcher_big;
 
     public long readReceiptMaxAge = TimeUnit.DAYS.toMillis(7);
+    public int readReceiptMaxMessagesPerThread = 30;
 
     public HashMap<String, Object> customProperties = new HashMap<>();
 
@@ -208,7 +229,7 @@ public class Configuration {
             return this;
         }
 
-        public Builder firebase(String rootPath) {
+        public Builder firebase(String rootPath) throws ChatSDKException {
 
             if (rootPath != null && rootPath.length() > 0 && !rootPath.substring(rootPath.length() - 1).equals('/')) {
                 rootPath += "/";
@@ -229,7 +250,12 @@ public class Configuration {
             return this;
         }
 
-        public Builder firebaseRootPath(String rootPath) {
+        public Builder firebaseRootPath(String rootPath) throws ChatSDKException {
+            Pattern p = Pattern.compile("[^a-z0-9_]", Pattern.CASE_INSENSITIVE);
+            Matcher m = p.matcher(rootPath);
+            if (m.find()) {
+                throw new ChatSDKException("The root path can only contain letters, numbers and underscores");
+            }
             config.firebaseRootPath = rootPath;
             return this;
         }
@@ -538,9 +564,13 @@ public class Configuration {
             return this;
         }
 
-        public Builder loginScreenDrawableResourceID(int resource) {
-            config.loginScreenDrawableResourceID = resource;
+        public Builder logoDrawableResourceID(int resource) {
+            config.logoDrawableResourceID = resource;
             return this;
+        }
+
+        public boolean logoIsSet () {
+            return config.logoDrawableResourceID != R.drawable.ic_launcher_big;
         }
 
         public Builder contactDeveloperEmailAddress(String value) {
@@ -573,6 +603,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder readReceiptMaxMessagesPerThread (int max) {
+            config.readReceiptMaxMessagesPerThread = max;
+            return this;
+        }
+
         public Builder addCustomSetting(String key, Object value) {
             config.customProperties.put(key, value);
             return this;
@@ -600,6 +635,31 @@ public class Configuration {
 
         public Builder pushNotificationColor(int color) {
             config.pushNotificationColor = color;
+            return this;
+        }
+
+        public Builder publicChatRoomLifetimeMinutes (int minutes) {
+            config.publicChatRoomLifetimeMinutes = minutes;
+            return this;
+        }
+
+        public Builder locationURLRepresentation (String representation) {
+            config.locationURLRepresentation = representation;
+            return this;
+        }
+
+        public Builder nearbyUserMaxDistance (int maxDistance) {
+            config.nearbyUserMaxDistance = maxDistance;
+            return this;
+        }
+
+        public Builder removeUserFromPublicThreadOnExit (boolean remove) {
+            config.removeUserFromPublicThreadOnExit = remove;
+            return this;
+        }
+
+        public Builder nearbyUsersMinimumLocationChangeToUpdateServer (int minimumDistance) {
+            config.nearbyUsersMinimumLocationChangeToUpdateServer = minimumDistance;
             return this;
         }
 

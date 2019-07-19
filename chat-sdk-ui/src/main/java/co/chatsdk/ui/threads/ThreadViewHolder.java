@@ -24,7 +24,7 @@ public class ThreadViewHolder extends RecyclerView.ViewHolder {
     public ThreadViewHolder(View itemView) {
         super(itemView);
 
-        nameTextView = itemView.findViewById(R.id.chat_sdk_txt);
+        nameTextView = itemView.findViewById(R.id.text_name);
         lastMessageTextView = itemView.findViewById(R.id.txt_last_message);
         dateTextView = itemView.findViewById(R.id.txt_last_message_date);
         imageView = itemView.findViewById(R.id.img_thread_image);

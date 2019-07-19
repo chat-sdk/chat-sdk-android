@@ -10,6 +10,7 @@ import com.google.firebase.database.DatabaseError;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.AbstractAuthenticationHandler;
 import co.chatsdk.core.dao.User;
@@ -23,8 +24,12 @@ import co.chatsdk.core.types.ChatError;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
@@ -35,7 +40,7 @@ import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
 
 public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler {
 
-    public Completable authenticateWithCachedToken() {
+    public Completable authenticate() {
         return Single.create((SingleOnSubscribe<FirebaseUser>) emitter-> {
                     if (isAuthenticating()) {
                         emitter.onError(ChatError.getError(ChatError.Code.AUTH_IN_PROCESS, "Cant execute two auth in parallel"));
@@ -103,49 +108,86 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     }
 
     public Completable authenticateWithUser(final FirebaseUser user) {
-        return Completable.create(
-                e->{
-                    final Map<String, Object> loginInfoMap = new HashMap<>();
-                    // Save the authentication ID for the current user
-                    // Set the current user
+        return Single.create((SingleOnSubscribe<UserWrapper>) emitter -> {
+            final Map<String, Object> loginInfoMap = new HashMap<>();
+            // Save the authentication ID for the current user
+            // Set the current user
 
-                    String uid = user.getUid();
+            String uid = user.getUid();
 
-                    loginInfoMap.put(AuthKeys.CurrentUserID, uid);
+            loginInfoMap.put(AuthKeys.CurrentUserID, uid);
 
-                    setLoginInfo(loginInfoMap);
+            setLoginInfo(loginInfoMap);
 
-                    setAuthStatus(AuthStatus.HANDLING_F_USER);
+            setAuthStatus(AuthStatus.HANDLING_F_USER);
 
-                    // Do a once() on the user to push its details to firebase.
-                    final UserWrapper userWrapper = UserWrapper.initWithAuthData(user);
+            // Do a once() on the user to push its details to firebase.
+            UserWrapper userWrapper = UserWrapper.initWithAuthData(user);
+            emitter.onSuccess(userWrapper);
 
-                    userWrapper.once().subscribe(()->{
-                        userWrapper.getModel().update();
+        }).flatMap((Function<UserWrapper, SingleSource<UserWrapper>>) userWrapper -> userWrapper.once()
+                .toSingle(() -> userWrapper))
+                .flatMapCompletable(userWrapper -> {
 
-                        FirebaseEventHandler.shared().currentUserOn(userWrapper.getModel().getEntityID());
+            userWrapper.getModel().update();
 
-//                        if (ChatSDK.push() != null) {
-//                            ChatSDK.push().subscribeToPushChannel(userWrapper.getModel().getPushChannel());
+            ChatSDK.events().impl_currentUserOn(userWrapper.getModel().getEntityID());
+
+            if (ChatSDK.hook() != null) {
+                HashMap<String, Object> data = new HashMap<>();
+                data.put(HookEvent.User, userWrapper.getModel());
+                ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(new CrashReportingCompletableObserver());
+            }
+
+            ChatSDK.core().setUserOnline().subscribe(new CrashReportingCompletableObserver());
+
+            authenticatedThisSession = true;
+
+            return userWrapper.push();
+        });
+
+//        return Completable.create(e-> {
+//                    final Map<String, Object> loginInfoMap = new HashMap<>();
+//                    // Save the authentication ID for the current user
+//                    // Set the current user
+//
+//                    String uid = user.getUid();
+//
+//                    loginInfoMap.put(AuthKeys.CurrentUserID, uid);
+//
+//                    setLoginInfo(loginInfoMap);
+//
+//                    setAuthStatus(AuthStatus.HANDLING_F_USER);
+//
+//                    // Do a once() on the user to push its details to firebase.
+//                    final UserWrapper userWrapper = UserWrapper.initWithAuthData(user);
+//
+//                    userWrapper.once().subscribe(()->{
+//                        userWrapper.getModel().update();
+//
+//                        ChatSDK.events().impl_currentUserOn(userWrapper.getModel().getEntityID());
+//
+////                        if (ChatSDK.push() != null) {
+////                            ChatSDK.push().subscribeToPushChannel(userWrapper.getModel().getPushChannel());
+////                        }
+//
+//                        if (ChatSDK.hook() != null) {
+//                            HashMap<String, Object> data = new HashMap<>();
+//                            data.put(HookEvent.User, userWrapper.getModel());
+//                            ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(new CrashReportingCompletableObserver());
 //                        }
-
-                        if (ChatSDK.hook() != null) {
-                            HashMap<String, Object> data = new HashMap<>();
-                            data.put(HookEvent.User, userWrapper.getModel());
-                            ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(new CrashReportingCompletableObserver());
-                        }
-
-                        ChatSDK.core().setUserOnline().subscribe(new CrashReportingCompletableObserver());
-
-                        authenticatedThisSession = true;
-
-                        userWrapper.push().subscribe(e::onComplete, e::onError);
-                    }, e::onError);
-                })
-                .subscribeOn(Schedulers.single());
+//
+//                        ChatSDK.core().setUserOnline().subscribe(new CrashReportingCompletableObserver());
+//
+//                        authenticatedThisSession = true;
+//
+//                        userWrapper.push().subscribe(e::onComplete, e::onError);
+//                    }, e::onError);
+//                })
+//                .subscribeOn(Schedulers.single());
     }
 
-    public Boolean userAuthenticated() {
+    public Boolean isAuthenticated() {
         return FirebaseAuth.getInstance().getCurrentUser() != null;
     }
 
@@ -175,7 +217,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     final User user = ChatSDK.currentUser();
 
                     // Stop listening to user related alerts. (added message or thread.)
-                    FirebaseEventHandler.shared().userOff(user.getEntityID());
+                    ChatSDK.events().impl_currentUserOff(user.getEntityID());
 
                     // Removing the push channel
 //                    if (ChatSDK.push() != null) {

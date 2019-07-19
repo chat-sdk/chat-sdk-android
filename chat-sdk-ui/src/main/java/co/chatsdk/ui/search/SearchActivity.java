@@ -12,12 +12,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +25,15 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
+
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.SearchActivityType;
-import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.contacts.UsersListAdapter;
 import co.chatsdk.ui.main.BaseActivity;
@@ -40,18 +42,18 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
+import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL;
+
 /**
  * Created by braunster on 29/06/14.
  */
 public class SearchActivity extends BaseActivity {
 
-    protected ImageView searchImageView;
-    protected Button addContactsButton;
-    protected EditText searchTextView;
+    protected FloatingActionButton floatingActionButton;
+    protected TextInputEditText searchEditText;
     protected RecyclerView recyclerView;
     protected UsersListAdapter adapter;
-
-    protected DisposableList disposableList = new DisposableList();
+    protected Disposable searchDisposable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +63,34 @@ public class SearchActivity extends BaseActivity {
 
         initViews();
 
-        getSupportActionBar().setHomeButtonEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setHomeButtonEnabled(true);
+        }
 
+        setActionBarTitle(R.string.search);
+
+        adapter = new UsersListAdapter(true);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == SCROLL_STATE_TOUCH_SCROLL) {
+                    floatingActionButton.setVisibility(View.INVISIBLE);
+                } else {
+                    refreshDoneButton();
+                }
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
+
+        disposableList.add(adapter.onToggleObserver().subscribe(userListItem -> refreshDoneButton()));
     }
 
     @Override
@@ -71,20 +99,18 @@ public class SearchActivity extends BaseActivity {
     }
 
     protected @LayoutRes int activityLayout() {
-        return R.layout.chat_sdk_activity_search;
+        return R.layout.activity_search;
     }
 
     protected void initViews() {
-        searchImageView = findViewById(R.id.chat_sdk_btn_search);
-        addContactsButton = findViewById(R.id.chat_sdk_btn_add_contacts);
-        searchTextView = findViewById(R.id.chat_sdk_et_search_input);
-        recyclerView = findViewById(R.id.chat_sdk_list_search_results);
+        floatingActionButton = findViewById(R.id.floating_action_button);
+        searchEditText = findViewById(R.id.search_text_input_edit_text);
+        recyclerView = findViewById(R.id.result_list_recycler_view);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home)
-        {
+        if (item.getItemId() == android.R.id.home) {
             onBackPressed();
         }
         return true;
@@ -99,120 +125,113 @@ public class SearchActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
-        adapter = new UsersListAdapter(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
 
         // Listening to key press - if they click the ok button on the keyboard
         // we start the search
-        searchTextView.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH)
-            {
-                searchImageView.callOnClick();
+        searchEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                search();
+                return false;
             }
-
+        });
+        searchEditText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                if (!searchText().isEmpty()) {
+                    search();
+                }
+            }
             return false;
         });
 
-        adapter.getItemClicks().subscribe(item -> adapter.toggleSelection(item));
+        disposableList.add(adapter.onClickObservable().subscribe(item -> adapter.toggleSelection(item)));
 
-        searchImageView.setOnClickListener(searchOnClickListener);
+        floatingActionButton.setOnClickListener(v -> done());
 
-        addContactsButton.setOnClickListener(v -> {
-
-            if (adapter.getSelectedCount() == 0)
-            {
-                showToast(getString(R.string.search_activity_no_contact_selected_toast));
-                return;
-            }
-
-            ArrayList<Completable> completables = new ArrayList<>();
-
-            for (UserListItem u : adapter.getSelectedUsers()) {
-                if (u instanceof User && !((User) u).isMe()) {
-                    completables.add(ChatSDK.contact().addContact((User) u, ConnectionType.Contact));
-                }
-            }
-
-            final ProgressDialog dialog = new ProgressDialog(SearchActivity.this);
-            dialog.setMessage(getString(R.string.alert_save_contact));
-            dialog.show();
-
-            Completable.merge(completables)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(() -> {
-                        showToast(adapter.getSelectedCount() + " " + getString(R.string.search_activity_user_added_as_contact_after_count_toast));
-
-                        disposableList.dispose();
-
-                        dialog.dismiss();
-                        finish();
-                    }, throwable -> {
-                        showToast(throwable.getLocalizedMessage());
-                        dialog.dismiss();
-                    });
-        });
-
+        refreshDoneButton();
     }
-    
-    protected View.OnClickListener searchOnClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (searchTextView.getText().toString().isEmpty())
-            {
-                showToast(getString(R.string.search_activity_no_text_input_toast));
-                return;
-            }
 
-            final ProgressDialog dialog = new ProgressDialog(SearchActivity.this);
-            dialog.setMessage(getString(R.string.search_activity_prog_dialog_init_message));
-            dialog.show();
+    protected void search () {
+        final ProgressDialog dialog = new ProgressDialog(SearchActivity.this);
+        dialog.setMessage(getString(R.string.search_activity_prog_dialog_init_message));
+        dialog.show();
 
-            // Clear the list of users
-            adapter.clear();
+        // Clear the list of users
+        adapter.clear();
 
-            final List<UserListItem> users = new ArrayList<>();
+        final List<UserListItem> users = new ArrayList<>();
+        final List<User> existingContacts = ChatSDK.contact().contacts();
 
-            final List<User> existingContacts = ChatSDK.contact().contacts();
+        ChatSDK.search().usersForIndex(searchText())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<User>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                        searchDisposable = d;
+                    }
 
-            ChatSDK.search().usersForIndex(searchTextView.getText().toString())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Observer<User>() {
-                @Override
-                public void onSubscribe(@NonNull Disposable d) {
-                    disposableList.add(d);
-                }
+                    @Override
+                    public void onNext(@NonNull User user) {
 
-                @Override
-                public void onNext(@NonNull User user) {
+                        if (!existingContacts.contains(user) && !user.isMe()) {
+                            users.add(user);
+                            adapter.setUsers(users, true);
+                            hideKeyboard();
+                            dialog.dismiss();
+                        }
+                    }
 
-                    if (!existingContacts.contains(user) && !user.isMe()) {
-                        users.add(user);
-                        adapter.setUsers(users, true);
-                        hideSoftKeyboard(SearchActivity.this);
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        showToast(e.getLocalizedMessage());
                         dialog.dismiss();
                     }
-               }
 
-                @Override
-                public void onError(@NonNull Throwable e) {
-                    showToast(e.getLocalizedMessage());
-                    dialog.dismiss();
-                }
-
-                @Override
-                public void onComplete() {
-                    dialog.dismiss();
-                    if (users.size() == 0) {
-                        showToast(getString(R.string.search_activity_no_user_found_toast));
+                    @Override
+                    public void onComplete() {
+                        dialog.dismiss();
+                        if (users.size() == 0) {
+                            showToast(getString(R.string.search_activity_no_user_found_toast));
+                        }
                     }
-                }
-            });
+                });
 
-            dialog.setOnCancelListener(dialog1 -> disposableList.dispose());
+        dialog.setOnCancelListener(dialog1 -> {
+            if (searchDisposable != null) {
+                searchDisposable.dispose();
+            }
+        });
+    }
 
+    protected void done () {
+
+        ArrayList<Completable> completables = new ArrayList<>();
+
+        for (UserListItem u : adapter.getSelectedUsers()) {
+            if (u instanceof User && !((User) u).isMe()) {
+                completables.add(ChatSDK.contact().addContact((User) u, ConnectionType.Contact));
+            }
         }
-    };
+
+        showProgressDialog(R.string.alert_save_contact);
+
+        disposableList.add(Completable.merge(completables)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doFinally(this::dismissProgressDialog)
+                .subscribe(this::finish, toastOnErrorConsumer()));
+    }
+
+    public void refreshDoneButton () {
+        floatingActionButton.setImageResource(R.drawable.ic_check_white_48dp);
+        floatingActionButton.setVisibility(adapter.getSelectedCount() > 0 ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    public String searchText () {
+        if (searchEditText.getText() != null) {
+            return searchEditText.getText().toString();
+        }
+        return "";
+    }
 
     public static void startSearchActivity (final Context context) {
         if (context != null) {

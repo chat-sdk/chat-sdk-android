@@ -3,11 +3,14 @@ package co.chatsdk.core.session;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.android.gms.auth.api.signin.internal.Storage;
+
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
+import co.chatsdk.core.base.LocationProvider;
 import co.chatsdk.core.base.BaseNetworkAdapter;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
@@ -20,6 +23,7 @@ import co.chatsdk.core.handlers.AudioMessageHandler;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;
 import co.chatsdk.core.handlers.ContactHandler;
+import co.chatsdk.core.handlers.ContactMessageHandler;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.EncryptionHandler;
 import co.chatsdk.core.handlers.EventHandler;
@@ -56,9 +60,15 @@ public class ChatSDK {
     public static String Preferences = "chat_sdk_preferences";
 
     private static final ChatSDK instance = new ChatSDK();
-    public WeakReference<Context> context;
+    protected WeakReference<Context> context;
     public Configuration config;
     public Disposable localNotificationDisposable;
+
+    protected InterfaceAdapter interfaceAdapter;
+    protected StorageManager storageManager;
+    protected BaseNetworkAdapter networkAdapter;
+
+    protected LocationProvider locationProvider;
 
     protected ChatSDK () {
     }
@@ -78,19 +88,23 @@ public class ChatSDK {
 
         DaoCore.init(shared().context());
 
+        shared().storageManager = new StorageManager();
+
         if(interfaceAdapter != null) {
-            InterfaceManager.shared().a = interfaceAdapter;
+            shared().interfaceAdapter = interfaceAdapter;
         }
-        else {
-            shared().activateModule("UserInterfaceModule", "activate", new MethodArgument(Context.class, shared().context()));
-        }
+//        else {
+//            shared().activateModule("UserInterfaceModule", "activate", new MethodArgument(Context.class, shared().context()));
+//        }
 
         if (networkAdapter != null) {
-            NetworkManager.shared().a = networkAdapter;
+            shared().networkAdapter = networkAdapter;
         }
-        else {
-            shared().activateModule("FirebaseModule", "activate");
-        }
+//        else {
+//            shared().activateModule("FirebaseModule", "activate");
+//        }
+
+        shared().locationProvider = new LocationProvider();
 
         shared().handleLocalNotifications();
         // Monitor the app so if it goes into the background we know
@@ -145,7 +159,7 @@ public class ChatSDK {
                     Thread thread = networkEvent.thread;
                     if(message != null && !AppBackgroundMonitor.shared().inBackground()) {
                         if (thread.typeIs(ThreadType.Private) || (thread.typeIs(ThreadType.Public) && ChatSDK.config().pushNotificationsForPublicChatRoomsEnabled)) {
-                            if(!message.getSender().isMe() && ChatSDK.ui().showLocalNotifications(message.getThread())) {
+                            if(!message.getSender().isMe() && !message.isDelivered() && ChatSDK.ui().showLocalNotifications(message.getThread())) {
                                 ReadStatus status = message.readStatusForUser(ChatSDK.currentUser());
                                 if (!message.isRead() && !status.is(ReadStatus.delivered())) {
                                     // Only show the alert if we'recyclerView not on the private threads tab
@@ -195,11 +209,15 @@ public class ChatSDK {
      * @return InterfaceAdapter
      */
     public static InterfaceAdapter ui () {
-        return InterfaceManager.shared().a;
+        return shared().interfaceAdapter;
     }
 
     public void setInterfaceAdapter (InterfaceAdapter interfaceAdapter) {
-        InterfaceManager.shared().a = interfaceAdapter;
+        shared().interfaceAdapter = interfaceAdapter;
+    }
+
+    public void setNetworkAdapter (BaseNetworkAdapter networkAdapter) {
+        shared().networkAdapter = networkAdapter;
     }
 
     public static CoreHandler core () {
@@ -276,6 +294,10 @@ public class ChatSDK {
         return a().stickerMessage;
     }
 
+    public static ContactMessageHandler contactMessage () {
+        return a().contactMessage;
+    }
+
     public static FileMessageHandler fileMessage () {
         return a().fileMessage;
     }
@@ -300,12 +322,16 @@ public class ChatSDK {
         return a().profilePictures;
     }
 
+    public static LocationProvider locationProvider () {
+        return shared().locationProvider;
+    }
+
     public static BaseNetworkAdapter a() {
-        return NetworkManager.shared().a;
+        return shared().networkAdapter;
     }
 
     public static StorageManager db () {
-        return StorageManager.shared();
+        return shared().storageManager;
     }
 
 }

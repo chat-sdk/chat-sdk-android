@@ -4,11 +4,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
-import co.chatsdk.core.session.StorageManager;
-import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.ToastHelper;
@@ -24,19 +22,17 @@ public class ProfileActivity extends BaseActivity {
     protected boolean startingChat = false;
     protected MenuItem chatMenuItem;
 
-    private DisposableList disposableList = new DisposableList();
-
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.chat_sdk_profile_activity);
+        setContentView(R.layout.activity_profile);
 
-        String userEntityID = getIntent().getStringExtra(InterfaceManager.USER_ENTITY_ID);
+        String userEntityID = getIntent().getStringExtra(Keys.IntentKeyUserEntityID);
 
         if (userEntityID != null && !userEntityID.isEmpty()) {
-            user =  StorageManager.shared().fetchUserWithEntityID(userEntityID);
+            user =  ChatSDK.db().fetchUserWithEntityID(userEntityID);
             if (user != null) {
-                ProfileFragment fragment = (ProfileFragment) getSupportFragmentManager().findFragmentById(R.id.profile_fragment);
+                ProfileFragment fragment = (ProfileFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_profile);
                 fragment.setUser(user);
                 fragment.updateInterface();
                 return;
@@ -101,12 +97,6 @@ public class ProfileActivity extends BaseActivity {
     public void onBackPressed() {
         super.onBackPressed();
         this.finish();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        disposableList.dispose();
     }
 
 }

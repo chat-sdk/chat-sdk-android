@@ -1,10 +1,6 @@
 package co.chatsdk.profile.pictures;
 
 import android.app.AlertDialog;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,28 +10,19 @@ import android.widget.Toast;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 
-import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.LayoutRes;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
-import co.chatsdk.core.session.StorageManager;
-import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.utils.DisposableList;
-import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.ui.chat.MediaSelector;
+import co.chatsdk.ui.utils.ImagePickerUploader;
+import co.chatsdk.ui.utils.ImagePreviewActivity;
 import co.chatsdk.ui.utils.ToastHelper;
-import id.zelory.compressor.Compressor;
-import io.reactivex.Completable;
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
 
 /**
  * Created by Pepe on 01/12/19.
@@ -46,7 +33,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
     protected User user;
     protected GridLayout gridLayout;
     protected MenuItem addMenuItem;
-    protected MediaSelector mediaSelector = new MediaSelector();
+    protected ImagePickerUploader imagePickerUploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
 
     protected int gridPadding = 4;
     protected int pictureMargin = 8;
@@ -55,15 +42,13 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
     protected boolean hideButton = false;
     protected String limitWarning = null;
 
-    private DisposableList disposableList = new DisposableList();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String userEntityID = getIntent().getStringExtra(InterfaceManager.USER_ENTITY_ID);
+        String userEntityID = getIntent().getStringExtra(Keys.IntentKeyUserEntityID);
         if (userEntityID != null && !userEntityID.isEmpty()) {
-            user = StorageManager.shared().fetchUserWithEntityID(userEntityID);
+            user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
             if (user == null) {
                 ToastHelper.show(this, R.string.user_entity_id_not_set);
                 finish();
@@ -88,8 +73,8 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
     }
 
     @Override
-    protected void initViews() {
-        super.initViews();
+    protected void setupViews() {
+        super.setupViews();
         gridLayout = findViewById(R.id.gridLayout);
         gridLayout.setPadding(gridPadding, gridPadding, gridPadding, gridPadding);
         gridLayout.setColumnCount(picturesPerRow);
@@ -172,97 +157,26 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
             }
             return;
         }
-        mediaSelector.startChooseImageActivity(this, MediaSelector.CropType.Circle, result -> {
-            try {
-                File compress = new Compressor(ChatSDK.shared().context())
-                        .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
-                        .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
-                        .compressToFile(new File(result));
 
-                Bitmap bitmap = BitmapFactory.decodeFile(compress.getPath());
-
-                // Cache the file
-                File file = ImageUtils.compressImageToFile(ChatSDK.shared().context(), bitmap, getUser().getEntityID(), ".png");
-
-                String imagePath = Uri.fromFile(file).toString();
-                ChatSDK.profilePictures().addPicture(getUser(), imagePath);
+        disposableList.add(imagePickerUploader.choosePhoto(this).subscribe((result, throwable) -> {
+            if (throwable == null) {
+                ChatSDK.profilePictures().addPicture(getUser(), result.url);
                 updateGallery();
-
-                showOrUpdateProgressDialog(getString(R.string.uploading_picture));
-                if (ChatSDK.profilePictures().fromUser(getUser()).size() == 1) {
-                    // If it is the first picture, upload the default user avatar using ChatSDK.core().push()
-                    disposableList.add(ChatSDK.core().pushUser()
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(() -> {
-                                dismissProgressDialog();
-                                updateGallery();
-                            }));
-                } else {
-                    // If it is the not first picture, upload the picture using uploadImage()
-                    disposableList.add(uploadImage(imagePath)
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(() -> {
-                                dismissProgressDialog();
-                                updateGallery();
-                            }));
-                }
-            } catch (Exception e) {
-                ChatSDK.logError(e);
-                Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                disposableList.add(ChatSDK.core().pushUser()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(() -> {
+                        }, throwable1 -> {
+                            // Handle Error
+                            Toast.makeText(ProfilePicturesActivity.this, throwable1.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        }));
+            } else {
+                Toast.makeText(ProfilePicturesActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
-        });
+        }));
     }
 
     protected User getUser() {
         return user != null ? user : ChatSDK.currentUser();
-    }
-
-    protected Completable uploadImage(String path) {
-        return Completable.create(e -> {
-            File avatar = new File(new URI(path).getPath());
-            Bitmap bitmap = BitmapFactory.decodeFile(avatar.getPath());
-            if (bitmap != null && ChatSDK.upload() != null) {
-                ChatSDK.upload().uploadImage(bitmap).subscribe(new Observer<FileUploadResult>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {}
-
-                    @Override
-                    public void onNext(@NonNull FileUploadResult fileUploadResult) {
-                        if (fileUploadResult.urlValid()) {
-                            ChatSDK.profilePictures().replacePicture(ChatSDK.currentUser(), path, fileUploadResult.url);
-                            ChatSDK.currentUser().update();
-                            ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(ChatSDK.currentUser()));
-                        }
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable ex) {
-                        ChatSDK.logError(ex);
-                        e.onError(ex);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        e.onComplete();
-                    }
-                });
-            } else {
-                ToastHelper.show(ChatSDK.shared().context(), "Error: bitmap is null");
-                e.onComplete();
-            }
-        }).concatWith(ChatSDK.core().pushUser());
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        try {
-            mediaSelector.handleResult(this, requestCode, resultCode, data);
-        }
-        catch (Exception e) {
-            Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            ChatSDK.logError(e);
-        }
     }
 
     @Override
@@ -277,7 +191,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
         if (!getUser().isMe())
             return super.onCreateOptionsMenu(menu);
 
-        addMenuItem = menu.add(Menu.NONE, R.id.action_chat_sdk_add, 12, getString(R.string.action_add_picture));
+        addMenuItem = menu.add(Menu.NONE, R.id.action_add, 12, getString(R.string.action_add_picture));
         addMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         addMenuItem.setIcon(R.drawable.ic_plus);
         addMenuItem.setVisible(shouldShowAddButton(ChatSDK.profilePictures().fromUser(getUser())));
@@ -290,18 +204,11 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
 
         int id = item.getItemId();
 
-        if (id == R.id.action_chat_sdk_add) {
+        if (id == R.id.action_add) {
             addProfilePicture();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        disposableList.dispose();
-    }
-
 }

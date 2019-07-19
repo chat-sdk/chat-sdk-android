@@ -47,8 +47,9 @@ public class Strings {
 
     public static String nameForThread (Thread thread) {
 
-        if (StringUtils.isNotEmpty(thread.getDisplayName())) {
-            return thread.getDisplayName();
+        String displayName = thread.getDisplayName();
+        if (StringUtils.isNotEmpty(displayName)) {
+            return displayName;
         }
 
         // Due to the bundle printing when the app execute on debug this sometime is null.

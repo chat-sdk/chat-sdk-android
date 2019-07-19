@@ -6,6 +6,7 @@ import com.google.firebase.database.DatabaseReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import co.chatsdk.core.base.AbstractEventHandler;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
@@ -25,6 +26,8 @@ import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
@@ -32,22 +35,11 @@ import io.reactivex.subjects.PublishSubject;
  * Created by benjaminsmiley-andrews on 10/05/2017.
  */
 
-public class FirebaseEventHandler implements EventHandler {
+public class FirebaseEventHandler extends AbstractEventHandler {
 
-    final private PublishSubject<NetworkEvent> eventSource = PublishSubject.create();
+    protected boolean isOn = false;
 
-    private static FirebaseEventHandler instance;
-    boolean isOn = false;
-    private DisposableList disposableList = new DisposableList();
-
-    public static FirebaseEventHandler shared() {
-        if (instance == null) {
-            instance = new FirebaseEventHandler();
-        }
-        return instance;
-    }
-
-    public void currentUserOn(final String entityID){
+    public void impl_currentUserOn(final String entityID){
 
         if(isOn) {
             return;
@@ -62,14 +54,17 @@ public class FirebaseEventHandler implements EventHandler {
             ChatSDK.hook().executeHook(HookEvent.UserOn, data).subscribe(new CrashReportingCompletableObserver());;
         }
 
-        // Remove all users from public threads
-        // These may not have been cleared down when we exited so clear them down and
-        // start again
-        for(Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
-            for(User u : thread.getUsers()) {
-                thread.removeUser(u);
-            }
+        threadsOn(user);
+        publicThreadsOn(user);
+        contactsOn(user);
+
+        if (ChatSDK.push() != null) {
+            ChatSDK.push().subscribeToPushChannel(user.getPushChannel());
         }
+    }
+
+    protected void threadsOn (User user) {
+        String entityID = user.getEntityID();
 
         final DatabaseReference threadsRef = FirebasePaths.userThreadsRef(entityID);
         ChildEventListener threadsListener = threadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
@@ -97,10 +92,27 @@ public class FirebaseEventHandler implements EventHandler {
             }
         }));
         FirebaseReferenceManager.shared().addRef(threadsRef, threadsListener);
+    }
+
+    protected void publicThreadsOn (User user) {
+        String entityID = user.getEntityID();
+        // Remove all users from public threads
+        // These may not have been cleared down when we exited so clear them down and
+        // start again
+//        for(Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
+//            for(User u : thread.getUsers()) {
+//                thread.removeUser(u);
+//            }
+//        }
 
         DatabaseReference publicThreadsRef = FirebasePaths.publicThreadsRef();
         ChildEventListener publicThreadsListener = publicThreadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
             final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
+
+            // Make sure that we're not in the thread
+            // there's an edge case where the user could kill the app and remain
+            // a member of a public thread
+            ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).subscribe(new CrashReportingCompletableObserver());
 
             // Starting to listen to thread changes.
             thread.on().doOnNext(thread12 -> eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread12))).subscribe(new CrashReportingObserver<>(disposableList));
@@ -116,70 +128,24 @@ public class FirebaseEventHandler implements EventHandler {
             eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
         }));
         FirebaseReferenceManager.shared().addRef(publicThreadsRef, publicThreadsListener);
+    }
 
-        if (ChatSDK.push() != null) {
-            ChatSDK.push().subscribeToPushChannel(user.getPushChannel());
-        }
+    protected void contactsOn (User user) {
 
-        // TODO: Check this
-        DatabaseReference followersRef = FirebasePaths.userFollowersRef(entityID);
-        ChildEventListener followersListener = followersRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
-
-            //TODO: Implement this
-
-            //FollowerLink follower = (FollowerLink) FirebaseInterface.objectFromSnapshot(snapshot);
-//
-//
-//
-//                UserWrapper wrapper = UserWrapper.initWithModel(follower.getUser());
-//                wrapper.once();
-//                wrapper.metaOn();
-
-            eventSource.onNext(NetworkEvent.followerAdded());
-
-        }).onChildRemoved((snapshot, hasValue) -> {
-
-//                FollowerLink follower = (FollowerLink) FirebaseInterface.objectFromSnapshot(snapshot);
-//                DaoCore.deleteEntity(follower);
-
-            eventSource.onNext(NetworkEvent.followerRemoved());
-
-        }));
-        FirebaseReferenceManager.shared().addRef(followersRef, followersListener);
-
-        DatabaseReference followingRef = FirebasePaths.userFollowingRef(entityID);
-        ChildEventListener followingListener = followingRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
-
-            // TODO: Implement this
-//                FollowerLink follower = (FollowerLink) FirebaseInterface.objectFromSnapshot(snapshot);
-//
-//                UserWrapper wrapper = UserWrapper.initWithModel(follower.getUser());
-//                wrapper.once();
-//                wrapper.metaOn();
-
-            eventSource.onNext(NetworkEvent.followingAdded());
-
-        }).onChildRemoved((snapshot, hasValue) -> {
-
-//                FollowerLink follower = (FollowerLink) FirebaseInterface.objectFromSnapshot(snapshot);
-//                DaoCore.deleteEntity(follower);
-
-            eventSource.onNext(NetworkEvent.followingRemoved());
-        }));
-        FirebaseReferenceManager.shared().addRef(followersRef, followingListener);
-
-        DatabaseReference ref = FirebasePaths.userContactsRef(ChatSDK.currentUserID());
+        DatabaseReference ref = FirebasePaths.userContactsRef(user.getEntityID());
 
         ref.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
             if (hasValue) {
-                User contact = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
+                User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
                 Object value = snapshot.getValue();
                 if (value instanceof HashMap) {
                     Object type = ((HashMap) value).get(Keys.Type);
                     if (type instanceof Long) {
                         ConnectionType connectionType = ConnectionType.values()[((Long) type).intValue()];
                         ChatSDK.contact().addContactLocal(contact, connectionType);
-                        eventSource.onNext(NetworkEvent.contactAdded(contact));
+                        disposableList.add(ChatSDK.core().userOn(contact).subscribe(() -> {
+                            eventSource.onNext(NetworkEvent.contactAdded(contact));
+                            }, eventSource::onError));
                     }
                 }
             }
@@ -187,7 +153,7 @@ public class FirebaseEventHandler implements EventHandler {
 
         ref.addChildEventListener(new FirebaseEventListener().onChildRemoved((snapshot, hasValue) -> {
             if (hasValue) {
-                User contact = StorageManager.shared().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
+                User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
                 Object value = snapshot.getValue();
                 if (value instanceof HashMap) {
                     Object type = ((HashMap) value).get(Keys.Type);
@@ -200,42 +166,16 @@ public class FirebaseEventHandler implements EventHandler {
             }
         }));
 
-        contactsMetaOn().subscribe(new CrashReportingCompletableObserver(disposableList));
     }
 
-    private Completable contactsMetaOn () {
-        return Completable.create(e -> {
-            ArrayList<Completable> completables = new ArrayList<>();
-            for (User contact : ChatSDK.contact().contacts()) {
-                completables.add(ChatSDK.core().userOn(contact));
-            }
-            Completable.merge(completables).subscribe(e::onComplete, throwable -> e.onError(throwable));
-        }).subscribeOn(Schedulers.single());
-    }
-
-    public void userOff(final String entityID){
+    public void impl_currentUserOff(final String entityID){
         isOn = false;
 
         final User user = DaoCore.fetchEntityWithEntityID(User.class, entityID);
 
-        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.userThreadsRef(entityID));
-        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.publicThreadsRef());
-        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.userFollowersRef(entityID));
-        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.userFollowingRef(entityID));
-
-        ThreadWrapper wrapper;
-        for (Thread thread : ChatSDK.thread().getThreads(ThreadType.All))
-        {
-            wrapper = new ThreadWrapper(thread);
-
-            wrapper.off();
-            wrapper.messagesOff();
-            wrapper.usersOff();
-        }
-
-        for (User contact : ChatSDK.contact().contacts()) {
-            UserWrapper.initWithModel(contact).metaOff();
-        }
+        threadsOff(user);
+        publicThreadsOff(user);
+        contactsOff(user);
 
         if (ChatSDK.push() != null) {
             ChatSDK.push().unsubscribeToPushChannel(user.getPushChannel());
@@ -244,13 +184,33 @@ public class FirebaseEventHandler implements EventHandler {
         disposableList.dispose();
     }
 
-    public PublishSubject<NetworkEvent> source () {
-        return eventSource;
+    protected void threadsOff (User user) {
+        String entityID = user.getEntityID();
+        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.userThreadsRef(entityID));
+        for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Private)) {
+            ThreadWrapper wrapper = new ThreadWrapper(thread);
+            wrapper.off();
+            wrapper.messagesOff();
+            wrapper.usersOff();
+        }
     }
 
-    public Observable<NetworkEvent> sourceOnMain () {
-        return eventSource.observeOn(AndroidSchedulers.mainThread());
+    protected void publicThreadsOff (User user) {
+        String entityID = user.getEntityID();
+        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.publicThreadsRef());
+        for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
+            ThreadWrapper wrapper = new ThreadWrapper(thread);
+            wrapper.off();
+            wrapper.messagesOff();
+            wrapper.usersOff();
+        }
     }
 
+    protected void contactsOff (User user) {
+        String entityID = user.getEntityID();
+        for (User contact : ChatSDK.contact().contacts()) {
+            UserWrapper.initWithModel(contact).metaOff();
+        }
+    }
 
 }

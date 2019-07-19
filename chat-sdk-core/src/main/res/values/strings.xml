@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ChatSdkCore</string>
+    <string name="app_name" translatable="false">Chat SDK Core</string>
 
     <string name="image_message">Image</string>
     <string name="location_message">Location</string>
@@ -30,12 +31,12 @@
     <string name="send_location">Send this location</string>
     <string name="search_upper_case">SEARCH</string>
     <string name="send">Send</string>
-    <string name="pick_friends">Pick Friends</string>
     <string name="tap_here_for_contact_info">Tap here for contact info</string>
     <string name="search_with_name">Search with name</string>
     <string name="add_conversation">Add Conversation</string>
-    <string name="public_thread__is_created" formatted="false">Public thread %s is created</string>
     <string name="creating_thread">Creating Thread</string>
+
+    <string name="new_chat">New Chat</string>
 
     <string name="send_mail">Send Mail</string>
     <string name="there_are_no_email_clients_installed">Send Mail</string>
@@ -44,7 +45,7 @@
     <string name="thread_users_have_no_valid_avatar_urls">Thread users have no valid avatar URLs</string>
     <string name="could_not_save_composite_thread_image_to_file">Could not save composite thread image to file</string>
     <string name="thread_image_could_not_be_created">Thread image could not be created</string>
-    <string name="__typing" formatted="false">%s typing..</string>
+    <string name="__typing" formatted="false">%s typing...</string>
     <string name="message_doesnt_have_a_thread">Message doesn\'t have a thread</string>
     <string name="login_method_doesnt_exist">Login method doesn\'t exist</string>
     <string name="seconds_remaining__">Seconds remaining %d</string>
@@ -128,13 +129,16 @@
     <string name="permission_read_contacts_message">Grant permission to allow contact book search</string>
 
     <string name="permission_location_title">Location Access</string>
-    <string name="permission_location_message">Grant permission to allow discovery of nearby users</string>
+    <string name="permission_location_message">Grant permission to allow discovery by other users</string>
+    <string name="permission_location_not_granted">Location permissions not granted</string>
+    <string name="location_services_not_enabled">Location services not enabled</string>
+    <string name="location_services_problem_message">There was a problem with the location services. Make sure you enabled them in your phone settings.</string>
+    <string name="location_is_null">Location is null</string>
 
     <!--SearchActivity-->
     <string name="search_activity_no_text_input_toast">Please enter some text for the search</string>
     <string name="search_activity_no_user_found_toast">No match found</string>
     <string name="search_activity_no_contact_selected_toast">No contacts were selected</string>
-    <string name="search_activity_user_added_as_contact_after_count_toast"> Users were added as contacts</string>
     <string name="search_activity_prog_dialog_init_message">Fetching&#8230;</string>
     <string name="search_activity_prog_dialog_before_count_message">Fetching&#8230; Found:&#160;</string>
     <string name="search_activity_searching_message">Searching</string>
@@ -196,6 +200,12 @@
 
     <!--Error-->
     <string name="unable_to_fetch_image">Unable to fetch image&#8230;</string>
+    <string name="unable_to_start_activity">Unable to start activity</string>
+    <string name="error_processing_image">Error processing image</string>
+    <string name="error_picking_location">Error picking location</string>
+    <string name="error_launching_activity">Error launching activity</string>
+    <string name="error_thread_not_found">Error thread not found</string>
+
     <string name="unable_to_save_file">Unable to save file&#8230;</string>
     <string name="unable_to_send_location_message">Unable to send location message&#8230;</string>
     <string name="unable_to_send_image_message">Unable to send image message&#8230;</string>
@@ -217,6 +227,9 @@
     <string name="name_hint">Name</string>
     <string name="phone_number_hint">Phone Number</string>
     <string name="email_hint">Email</string>
+    <string name="location">Location</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="choose_photo">Choose Photo</string>
     <string name="take_video">Take Video</string>
     <string name="choose_video">Choose Video</string>
 
@@ -287,7 +300,7 @@
     <string name="last_seen_on__at__" formatted="false">Last seen on %s at %s</string>
 
     <!-- AppContext -->
-    <string name="preference_database_id">PREFERENCE_DATABASE_SESSION_ID</string>
+    <string name="preference_database_id" translatable="false">PREFERENCE_DATABASE_SESSION_ID</string>
 
     <!-- Hints -->
     <string name="email_field">Email</string>
@@ -354,5 +367,26 @@
     <string name="user_list_availability_placeholder">Availability</string>
 
     <string name="push_channel_name">Message Notifications</string>
+    <string name="search_threads">Search Threads</string>
+
+    <!-- Edit Thread Details -->
+    <string name="create_thread">Create Chat</string>
+
+    <string name="update_thread">Update Room</string>
+    <string name="update_thread_failed">Only the thread creator can update the thread</string>
+    <string name="uploading">Uploading</string>
+
+    <string name="copy">Copy</string>
+    <string name="forward">Forward</string>
+    <string name="forward_message">Forward Message</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="copy_failed">Copy failed!</string>
+    <string name="message">Message</string>
+    <string name="add_user_to_chat">Add User To Chat</string>
+    <string name="success">Success!</string>
+    <string name="message_sent">Message sent!</string>
+    <string name="message_forward_failed">Message forwarded failed</string>
+    <string name="online">Online</string>
+
 
 </resources>

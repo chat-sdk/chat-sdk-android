@@ -1,5 +1,6 @@
 package co.chatsdk.core.handlers;
 
+import java.util.Date;
 import java.util.List;
 
 import co.chatsdk.core.dao.Message;
@@ -24,6 +25,7 @@ public interface ThreadHandler {
     Single<Thread> createThread(String name, User... users);
     Single<Thread> createThread(String name, List<User> users, int type);
     Single<Thread> createThread(String name, List<User> users, int type, String entityID);
+    Single<Thread> createThread(String name, List<User> users, int type, String entityID, String imageURL);
     /**
      * Remove users from a thread
      */
@@ -38,7 +40,8 @@ public interface ThreadHandler {
      * Lazy loading of messages this method will load
      * that are not already in memory
      */
-    Single<List<Message>> loadMoreMessagesForThread(Message fromMessage, Thread thread);
+    Single<List<Message>> loadMoreMessagesForThread(Date fromDate, Thread thread, boolean loadFromServer);
+    Single<List<Message>> loadMoreMessagesForThread(Date fromDate, Thread thread);
 
     /**
      * This method deletes an existing thread. It deletes the thread from memory
@@ -54,11 +57,12 @@ public interface ThreadHandler {
     /**
      * Send different types of message to a particular thread
      */
-    Observable<MessageSendProgress> sendMessageWithText(String text, Thread thread);
+    Completable sendMessageWithText(String text, Thread thread);
     /**
      * Send a message object
      */
-    Observable<MessageSendProgress> sendMessage(Message message);
+    Completable sendMessage(Message message);
+    Completable forwardMessage(Message message, Thread thread);
 
     int getUnreadMessagesAmount(boolean onePerThread);
 

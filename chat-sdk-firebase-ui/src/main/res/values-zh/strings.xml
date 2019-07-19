@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sign_in_cancelled">登录已取消</string>
+    <string name="no_internet_connection">没有网络连接</string>
+    <string name="unknown_error">未知错误</string>
+    <string name="unknown_sign_in_response">未知的签到响应</string>
+    <string name="back_not_available">返回不可用</string>
+</resources>

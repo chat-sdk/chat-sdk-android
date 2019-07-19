@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="image_message">图片</string>
+    <string name="location_message">地点</string>
+    <string name="unknown_message">未知消息</string>
+    <string name="no_messages">没有消息</string>
+    <string name="audio_message">记录</string>
+    <string name="video_message">视频</string>
+    <string name="sticker_message">贴纸</string>
+    <string name="file_message">文件</string>
+    <string name="thread">线</string>
+    <string name="no_name">无名</string>
+
+    <string name="register">寄存器</string>
+    <string name="login">登录</string>
+    <string name="anonymous_login">匿名登录</string>
+    <string name="loading">载入中…</string>
+    <string name="email">电子邮件</string>
+    <string name="sms">短信</string>
+    <string name="password">密码</string>
+    <string name="logout">登出</string>
+    <string name="search">搜索</string>
+    <string name="add_contacts">添加到通讯录</string>
+    <string name="delete_contact">删除联系人</string>
+    <string name="add_users">添加用户</string>
+    <string name="start_chat">开始聊天</string>
+    <string name="contacts_upper_case">联系</string>
+    <string name="select_all">全选</string>
+    <string name="send_location">发送这个位置</string>
+    <string name="search_upper_case">搜索</string>
+    <string name="send">发送</string>
+    <string name="tap_here_for_contact_info">点击此处获取联系信息</string>
+    <string name="search_with_name">搜索姓名</string>
+    <string name="add_conversation">添加对话</string>
+    <string name="creating_thread">创建线程</string>
+
+    <string name="send_mail">发邮件</string>
+    <string name="there_are_no_email_clients_installed">发邮件</string>
+
+
+    <string name="thread_users_have_no_valid_avatar_urls">线程用户没有有效的头像URL</string>
+    <string name="could_not_save_composite_thread_image_to_file">无法将复合线程图像保存到文件</string>
+    <string name="thread_image_could_not_be_created">无法创建线程图像</string>
+    <string formatted="false" name="__typing">%s打字..</string>
+    <string name="message_doesnt_have_a_thread">消息没有线程</string>
+    <string name="login_method_doesnt_exist">登录方法不存在</string>
+    <string name="seconds_remaining__">剩余秒数％d</string>
+    <string name="audio_length_limit_reached">达到了音频长度限制</string>
+    <string name="send_or_discard_recording">发送或放弃录制</string>
+    <string name="recording_cancelled">录音已取消</string>
+    <string name="recording_too_short">录音太短</string>
+
+    
+    <string name="thread_details_activity_title">线程细节</string>
+    <string name="thread_details_activity_change_name_dialog_title">设置线程名称</string>
+
+    
+    <string name="message_adapter_no_google_maps">此设备没有谷歌地图</string>
+    <string name="message_adapter_load_image_fail">无法显示图像</string>
+
+    
+    <string name="chat_sdk__version_label">版：</string>
+    <string name="login_activity_no_mail_toast">请输入您的电子邮件</string>
+    <string name="login_activity_no_password_toast">请输入密码</string>
+    <string name="login_activity_facebook_connection_fail_toast">无法连接到Facebook</string>
+    <string name="login_activity_failed_to_login_toast">连接失败</string>
+    <string name="login_activity_failed_to_register_toast">注册失败</string>
+
+    
+    <string name="create_thread_with_users_fail_toast">无法开始聊天</string>
+    <string name="delete_thread_fail_toast">无法删除线程</string>
+    <string name="delete_thread_success_toast">线程被删除</string>
+
+    
+    <string name="chat_activity_no_more_messages_to_load_toast">没有要加载的新消息...</string>
+    <string name="chat_activity_add_item_text">添加联系人聊天</string>
+    <string name="chat_activity_show_users_item_text">显示线程用户</string>
+    <string name="chat_activity_show_thread_details">线程细节</string>
+    <string name="thread_users">线程用户：</string>
+
+    
+    <string name="abstract_contact_fragment_user_added_to_thread_toast_success">用户已添加到主题，名称：</string>
+    <string name="abstract_contact_fragment_user_added_to_thread_toast_fail">无法将用户添加到线程。</string>
+    <string name="abstract_contact_fragment_share_with_contact_toast_fail_unknown_type">问题共享联系人，未知共享类型。</string>
+
+    
+    <string name="share_activity_error_getting_share_data">获取共享数据时出错</string>
+
+    
+    <string name="pick_friends_activity_no_users_selected_toast">请至少选择一个用户</string>
+    <string name="pick_friends_activity_prog_dialog_add_to_convo_message">将用户添加到线程...</string>
+    <string name="pick_friends_activity_prog_dialog_open_new_convo_message">创建线程......</string>
+    <string name="pick_friends_activity_prog_group_name_dialog">团队名字</string>
+
+    
+    <string name="exit_helper_double_tap_toast">再次单击返回退出</string>
+    
+    <string name="alert_exit">你确定要离开？</string>
+    <string name="exit">出口</string>
+    <string name="stay">留</string>
+    <string name="create">创建</string>
+    <string name="cancel">取消</string>
+    <string name="submit">提交</string>
+    <string name="ok">好</string>
+
+    <string name="permission_record_audio_title">麦克风访问</string>
+    <string name="permission_record_audio_message">授予发送音频消息的权限</string>
+
+    <string name="permission_write_external_storage_title">图库访问</string>
+    <string name="permission_write_external_storage_message">授予允许将图像保存到手机的权限</string>
+
+    <string name="permission_manage_documents_storage_title">管理文件</string>
+    <string name="permission_manage_documents_message">授予允许访问您的文档的权限</string>
+
+    <string name="permission_read_external_storage_title">图库访问</string>
+    <string name="permission_read_external_storage_message">授予允许从您的图库发送图像的权限</string>
+
+    <string name="permission_camera_title">相机访问</string>
+    <string name="permission_camera_message">授予允许发送图像消息的权限</string>
+
+    <string name="permission_video_output_title">相机访问</string>
+    <string name="permission_video_output_message">授予允许发送视频消息的权限</string>
+
+    <string name="permission_read_contacts_title">联系人访问</string>
+    <string name="permission_read_contacts_message">授予允许联系簿搜索的权限</string>
+
+    <string name="permission_location_title">位置访问</string>
+    <string name="permission_location_message">授予允许其他用户发现的权限</string>
+    <string name="permission_location_not_granted">未授予位置权限</string>
+    <string name="location_services_not_enabled">位置服务未启用</string>
+    <string name="location_services_problem_message">位置服务出现问题。 确保在手机设置中启用它们。</string>
+    <string name="location_is_null">位置为空</string>
+
+    
+    <string name="search_activity_no_text_input_toast">请输入一些搜索文本</string>
+    <string name="search_activity_no_user_found_toast">找不到匹配项</string>
+    <string name="search_activity_no_contact_selected_toast">没有选择任何联系人</string>
+    <string name="search_activity_prog_dialog_init_message">正在获取...</string>
+    <string name="search_activity_prog_dialog_before_count_message">找...发现：</string>
+    <string name="search_activity_searching_message">搜索</string>
+
+    
+    <string name="thread_fragment_add_item_text">创建聊天</string>
+
+    
+    <string name="add_public_chat_dialog_title">添加聊天室</string>
+    <string name="add_public_chat_dialog_progress_message">创建线程......</string>
+    <string name="add_public_chat_dialog_toast_success_before_thread_name">公共线程</string>
+    <string name="add_public_chat_dialog_toast_success_after_thread_name">被建造。</string>
+    <string name="add_public_chat_dialog_toast_error_before_thread_name">无法创建公共线程</string>
+
+    
+    <string name="alert_save_contact">保存</string>
+    <string name="contact_book">联系书</string>
+    <string name="delete_message">删除邮件</string>
+
+    
+    <string name="alert_delete_contact">您确定要删除此联系人吗？</string>
+
+    
+    <string name="alert_delete_thread">您确定要删除此主题吗？</string>
+
+    <string name="delete">删除</string>
+
+    
+    <string name="authenticating">验证...</string>
+    <string name="login_activity_auth_failed">验证失败</string>
+    <string name="connecting">连接...</string>
+    <string name="registering">注册…</string>
+
+
+    
+    <string name="acces_message_option_button">消息选项按钮</string>
+
+    <string name="chat_sdk__action_settings">action_setting</string>
+    <string name="action_logout">登出</string>
+    <string name="action_save">保存</string>
+    <string name="action_chat">聊</string>
+    <string name="action_settings">设置</string>
+    <string name="action_contact_developer">联系开发人员</string>
+    <string name="action_add_chat">添加聊天</string>
+    <string name="actions">操作</string>
+    <string name="done_show_again">再次显示</string>
+    <string name="double_back_press_exit">按下双后退按钮退出</string>
+    <string name="subscription">在线订阅</string>
+
+    
+    <string name="not_message_title">信息</string>
+    <string name="not_message_ticker">你有一条新消息</string>
+    <string name="not_follower_title">新追随者</string>
+    <string name="not_follower_ticker">你有一个新的追随者</string>
+    <string name="not_follower_content">跟着你！</string>
+
+    <string formatted="false" name="new_message_from__">来自%s的新消息</string>
+    <string name="message_already_exists">消息已存在</string>
+
+    
+    <string name="unable_to_fetch_image">无法获取图片...</string>
+    <string name="unable_to_save_file">无法保存文件...</string>
+    <string name="unable_to_send_location_message">无法发送位置信息...</string>
+    <string name="unable_to_send_image_message">无法发送图片信息......</string>
+    <string name="unable_to_send_message">无法发送消息......</string>
+    <string name="file_read_permission_not_granted">读取未授予的外部存储权限</string>
+    <string name="record_permission_not_granted">未授予记录许可</string>
+    <string name="unable_to_save_image_to_disk">无法将图像保存到磁盘</string>
+    <string name="couldnt_load_sticker_pack">无法加载贴纸包装</string>
+    <string name="unable_to_load_image">无法加载图片</string>
+    <string formatted="true" name="__permission_not_granted">未授予%s权限。请在手机设置中启用此权限。</string>
+    <string name="error_permission_not_granted">未授予权限：%s</string>
+
+    
+    <string name="sending">发送中...</string>
+    <string name="not_messages_summary">％d条未读消息</string>
+    <string name="unable_to_catch_image">无法捕捉图像</string>
+    <string name="status">状态</string>
+    <string name="location_hint">地点</string>
+    <string name="name_hint">名称</string>
+    <string name="phone_number_hint">电话号码</string>
+    <string name="email_hint">电子邮件</string>
+    <string name="location">地点</string>
+    <string name="take_photo">拍照</string>
+    <string name="choose_photo">选择照片</string>
+    <string name="take_video">拍视频</string>
+    <string name="choose_video">选择视频</string>
+
+    <string name="availability">可用性</string>
+    <string name="details">细节</string>
+    <string name="country">国家</string>
+    <string name="dateOfBirth">出生日期</string>
+    <string name="follows">如下</string>
+    <string name="followed">其次</string>
+    <string name="block">块</string>
+    <string name="blocked">阻止</string>
+    <string name="unblock">解除封锁</string>
+    <string name="contact_deleted">联系已删除</string>
+    <string name="contact_added">联系人已添加</string>
+    <string name="user_blocked">用户被阻止</string>
+    <string name="user_unblocked">用户畅通无阻</string>
+    <string name="user_deleted">用户已删除</string>
+    <string name="user_entity_id_not_set">未设置用户实体ID</string>
+    <string name="typing">打字...</string>
+    <string name="recording">记录</string>
+
+    <string name="image_saved">图像已成功保存</string>
+    <string name="image_save_failed">图像保存失败</string>
+
+
+    <string name="male">男</string>
+    <string name="female">女</string>
+    <string name="action_edit">编辑</string>
+    <string name="chat_sdk_edit_profile_select_country">选择国家</string>
+    <string name="chat_sdk_edit_profile_pick_birth_date">选择出生日期</string>
+    <string name="app_info">应用信息</string>
+    <string name="unable_to_open_app_in_settings">无法在设置中打开应用</string>
+
+    <string name="select_country">选择国家</string>
+
+    <string name="availability_unavailable">不可用</string>
+    <string name="availability_available">可得到</string>
+    <string name="availability_away">远</string>
+    <string name="availability_busy">忙</string>
+    <string name="availability_extended_away">延长离开</string>
+
+    
+    <string name="conversations">对话</string>
+    <string name="chat_rooms">聊天室</string>
+    <string name="contacts">往来</string>
+    <string name="invite_more_friends">邀请更多朋友</string>
+    <string name="profile">轮廓</string>
+
+    <string-array name="availability_states">
+        <item>可得到</item>
+        <item>远</item>
+        <item>延长离开</item>
+        <item>忙</item>
+    </string-array>
+
+    
+        
+        
+        
+        
+    
+
+    <string name="forgot_password">忘记密码</string>
+    <string name="requesting">请求</string>
+    <string name="password_reset_success">您收到了一封电子邮件，其中包含重置密码的说明</string>
+    <string name="reset_password">重设密码</string>
+    <string formatted="false" name="last_seen__">上次见过%s</string>
+    <string formatted="false" name="last_seen_on__at__">最后一次出现在%s的%s上</string>
+
+
+    <string name="email_field">电子邮件</string>
+    <string name="password_field">密码</string>
+
+    
+    <string name="button_login_text">登录</string>
+    <string name="button_register_text">寄存器</string>
+
+    
+    <string name="toast_no_email">请输入您的电子邮件</string>
+    <string name="toast_no_password">请输入密码</string>
+    <string name="toast_connection_failed">连接失败</string>
+    <string name="toast_password_incorrect">用户名或密码不正确</string>
+    <string name="toast_register_failed">注册失败</string>
+    <string name="toast_connected">连接的</string>
+    <string name="toast_authenticated">经过身份验证</string>
+    <string name="toast_disconnected">服务器连接丢失</string>
+
+    
+
+    
+    <string name="profile_menu_button_edit">编辑</string>
+    <string name="profile_menu_button_save">保存</string>
+    <string name="profile_menu_button_cancel">取消</string>
+    <string name="profile_menu_button_logout">登出</string>
+    
+    <string name="profile_label_user_availability">可用性</string>
+
+    
+    <string name="profile_placeholder_user_name">用户名</string>
+    <string name="profile_hint_user_name">用户名</string>
+    <string name="profile_hint_location">地点</string>
+    <string name="profile_hint_phone_number">+1 123 456 7890</string>
+    <string name="profile_hint_email">example@domain.com</string>
+    <string name="profile_hint_birthday">日月年</string>
+    <string name="profile_placeholder_user_metadata_null">不可用</string>
+
+    
+    <string name="profile_country_flag_clicked">选择你的国家</string>
+    <string name="profile_saving">保存更改</string>
+    <string name="profile_saving_success">保存更改</string>
+    <string name="profile_saving_fail">保存失败</string>
+
+    
+
+    <string name="thread_timestamp_placeholder">周一嗯</string>
+    <string name="thread_button_send">发送</string>
+
+    <string name="thread_button_message_option">消息选项按钮</string>
+
+    <dimen name="thread_timestamp_text_height">8sp</dimen>
+    <integer name="chat_sdk_max_message_lines">5</integer>
+    <integer name="chat_sdk_max_status_length">140</integer>
+
+    
+
+    <string name="thread_item_placeholder_timestamp">昨天 hh.mm</string>
+    <string name="thread_item_placeholder_title">标题或用户名</string>
+    <string name="thread_item_placeholder_last_message">有人说过</string>
+
+
+    <string name="user_list_username">用户名</string>
+    <string name="user_list_availability_placeholder">可用性</string>
+
+    <string name="push_channel_name">消息通知</string>
+    <string name="search_threads">搜索主题</string>
+
+    <!-- Edit Thread Details -->
+    <string name="create_thread">创建聊天室</string>
+    <string name="update_thread">更新聊天室名稱</string>
+
+</resources>

@@ -5,19 +5,28 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.lang.ref.WeakReference;
+import java.util.List;
+
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.message_action.MessageAction;
+import io.reactivex.subjects.PublishSubject;
 
 public abstract class AbstractMessageViewHolder extends RecyclerView.ViewHolder {
 
-    protected Activity activity;
+    protected WeakReference<Activity> activity;
     protected Message message;
 
     protected View.OnClickListener onClickListener = null;
     protected View.OnLongClickListener onLongClickListener = null;
+    protected PublishSubject<List<MessageAction>> actionPublishSubject;
 
-    public AbstractMessageViewHolder(View itemView, Activity activity) {
+
+    public AbstractMessageViewHolder(View itemView, Activity activity, PublishSubject<List<MessageAction>> actionPublishSubject) {
         super(itemView);
-        this.activity = activity;
+        this.activity = new WeakReference<>(activity);
+        this.actionPublishSubject = actionPublishSubject;
     }
 
     public abstract void showProgressBar();

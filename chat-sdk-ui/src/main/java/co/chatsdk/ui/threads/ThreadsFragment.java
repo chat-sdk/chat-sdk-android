@@ -22,7 +22,6 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
 import io.reactivex.disposables.Disposable;
@@ -35,8 +34,6 @@ public abstract class ThreadsFragment extends BaseFragment {
     protected ThreadsListAdapter adapter;
     protected String filter;
     protected MenuItem addMenuItem;
-
-    private DisposableList disposableList = new DisposableList();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -77,7 +74,7 @@ public abstract class ThreadsFragment extends BaseFragment {
     protected abstract Predicate<NetworkEvent> mainEventFilter ();
 
     protected  @LayoutRes int activityLayout () {
-        return R.layout.chat_sdk_activity_threads;
+        return R.layout.activity_threads;
     }
 
     public void initViews() {
@@ -102,7 +99,7 @@ public abstract class ThreadsFragment extends BaseFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         if (allowThreadCreation()) {
-            addMenuItem = menu.add(Menu.NONE, R.id.action_chat_sdk_add, 10, getString(R.string.thread_fragment_add_item_text));
+            addMenuItem = menu.add(Menu.NONE, R.id.action_add, 10, getString(R.string.thread_fragment_add_item_text));
             addMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
             addMenuItem.setIcon(R.drawable.ic_plus);
         }
@@ -184,16 +181,4 @@ public abstract class ThreadsFragment extends BaseFragment {
         }
         return filteredThreads;
     }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroy () {
-        super.onDestroy();
-        disposableList.dispose();
-    }
-
 }

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    style="@style/RowStyle"
+    android:id="@+id/message_root_layout"
+    android:animateLayoutChanges="true">
+
+    <TextView
+        android:id="@+id/text_time"
+        style="@style/MessageDateStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="2dp"
+        android:text="Time"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <RelativeLayout
+        android:id="@+id/content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/image_avatar"
+        android:layout_toStartOf="@+id/image_avatar"
+        android:layout_toRightOf="@+id/text_time"
+        android:layout_toEndOf="@+id/text_time"
+        android:gravity="end"
+        android:orientation="vertical"
+        android:animateLayoutChanges="true">
+
+        <!-- The unevenness in the padding is a result of the asymmetry of the bubble / tail -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/image_message_bubble"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+
+            android:paddingStart="5dp"
+            android:paddingLeft="5dp"
+            android:paddingEnd="15dp"
+            android:paddingRight="15dp"
+
+            android:background="@drawable/message_sent_3">
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/image_icon"
+                android:layout_width="@dimen/message_icon_max_width"
+                android:layout_height="@dimen/message_icon_max_height"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentBottom="true"
+
+                android:layout_marginStart="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+
+                fresco:layout_constraintBottom_toBottomOf="parent"
+                fresco:layout_constraintEnd_toStartOf="@+id/text_content"
+                fresco:layout_constraintStart_toStartOf="parent"
+                fresco:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/text_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:layout_marginStart="0dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginEnd="0dp"
+                android:layout_marginRight="0dp"
+                android:paddingStart="0dp"
+                android:paddingLeft="0dp"
+                android:paddingEnd="0dp"
+                android:paddingRight="0dp"
+
+                android:autoLink="all"
+                android:gravity="center_vertical"
+                android:text=""
+                app:layout_constrainedWidth="true"
+                fresco:layout_constraintBottom_toBottomOf="parent"
+                fresco:layout_constraintEnd_toEndOf="parent"
+                fresco:layout_constraintStart_toEndOf="@+id/image_icon"
+                fresco:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/image_message_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:visibility="visible"
+                fresco:failureImage="@drawable/icn_200_image_message_error"
+                fresco:placeholderImage="@drawable/icn_200_image_message_placeholder"
+                fresco:roundedCornerRadius="10dp"
+                fresco:fadeDuration="0" />
+
+            <LinearLayout
+                android:id="@+id/layout_extra"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_gravity="start"
+                android:layout_marginLeft="15dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginRight="4dp"
+                android:layout_marginEnd="4dp"
+                android:gravity="end"
+                android:orientation="horizontal" />
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:visibility="gone" />
+
+        </RelativeLayout>
+
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/image_avatar"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:src="@drawable/ic_profile"
+        fresco:roundAsCircle="true"
+        fresco:placeholderImage="@drawable/icn_100_profile"
+        fresco:failureImage="@drawable/icn_100_profile"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        fresco:fadeDuration="0" />
+
+    <ImageView
+        android:id="@+id/image_read_receipt"
+        android:layout_width="34dp"
+        android:layout_height="26dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:background="@drawable/ic_message_received" />
+
+</RelativeLayout>

@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -16,6 +17,7 @@ import co.chatsdk.core.base.AbstractCoreHandler;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.FileUploadResult;
@@ -28,6 +30,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -39,9 +42,12 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     private DisposableList disposableList = new DisposableList();
 
-    public FirebaseCoreHandler() {
+    public FirebaseCoreHandler(EventHandler events) {
+
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+
         // When the user logs out, turn off all the existing listeners
-        FirebaseEventHandler.shared().source()
+        Disposable d = events.source()
                 .filter(NetworkEvent.filterType(EventType.Logout))
                 .subscribe(networkEvent -> disposableList.dispose());
     }
@@ -88,6 +94,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                 }
             }
         }).flatMapCompletable(user -> new UserWrapper(user).push()).subscribeOn(Schedulers.single());
+
     }
 
     public Completable setUserOnline() {
@@ -145,21 +152,6 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             e.onComplete();
         }).concatWith(pushUser()).subscribeOn(Schedulers.single());
     }
-
-//    public Single<Boolean> isOnline() {
-//        return Single.create((SingleOnSubscribe<Boolean>) e -> {
-//            if (ChatSDK.currentUser() == null) {
-//                e.onError(ChatError.getError(ChatError.Code.NULL, "Current user is null"));
-//                return;
-//            }
-//
-//            FirebasePaths.userOnlineRef(ChatSDK.currentUser().getEntityID()).addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-//                updateLastOnline().subscribe(new CrashReportingCompletableObserver(disposableList));
-//                e.onSuccess((Boolean) snapshot.getValue());
-//            }));
-//
-//        }).subscribeOn(Schedulers.single());
-//    }
 
     public Completable userOn(final User user) {
         return Completable.create(e -> {

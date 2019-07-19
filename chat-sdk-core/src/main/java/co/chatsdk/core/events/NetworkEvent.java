@@ -1,9 +1,13 @@
 package co.chatsdk.core.events;
 
+import java.util.HashMap;
+
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.types.MessageSendProgress;
+import co.chatsdk.core.types.MessageSendStatus;
 import io.reactivex.functions.Predicate;
 
 /**
@@ -17,6 +21,9 @@ public class NetworkEvent {
     public Thread thread;
     public User user;
     public String text;
+    public HashMap<String, Object> data;
+
+    public static String MessageSendProgress = "MessageSendProgress";
 
     public NetworkEvent(EventType type) {
         this.type = type;
@@ -31,14 +38,27 @@ public class NetworkEvent {
     }
 
     public NetworkEvent(EventType type, Thread thread, Message message, User user) {
+        this(type, thread, message, user, null);
+    }
+
+    public NetworkEvent(EventType type, Thread thread, Message message, User user, HashMap<String, Object> data) {
         this.type = type;
         this.thread = thread;
         this.message = message;
         this.user = user;
+        this.data = data;
     }
 
     public static NetworkEvent threadAdded (Thread thread) {
         return new NetworkEvent(EventType.ThreadAdded, thread);
+    }
+
+    public static NetworkEvent messageSendStatusChanged (MessageSendProgress progress) {
+        HashMap<String, Object> data = new HashMap<>();
+        data.put(MessageSendProgress, progress);
+
+        System.out.println("Create: " + progress.message.getMessageStatus());
+        return new NetworkEvent(EventType.MessageSendStatusChanged, progress.message.getThread(), progress.message, progress.message.getSender(), data);
     }
 
     public static NetworkEvent threadRemoved (Thread thread) {
@@ -102,10 +122,6 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.ContactDeleted, null, null, user);
     }
 
-    public static NetworkEvent contactChanged (User user) {
-        return new NetworkEvent(EventType.ContactChanged, null, null, user);
-    }
-
     public static NetworkEvent contactsUpdated () {
         return new NetworkEvent(EventType.ContactsUpdated);
     }
@@ -155,7 +171,7 @@ public class NetworkEvent {
     public static Predicate<NetworkEvent> filterThreadEntityID (final String entityID) {
         return networkEvent -> {
             if(networkEvent.thread != null) {
-                if (networkEvent.thread.getEntityID().equals(entityID)) {
+                if (networkEvent.thread.equalsEntityID(entityID)) {
                     return true;
                 }
             }
@@ -173,6 +189,14 @@ public class NetworkEvent {
         };
     }
 
+    public static Predicate<NetworkEvent> threadDetailsUpdated () {
+        return filterType(
+                EventType.ThreadDetailsUpdated,
+                EventType.ThreadUsersChanged,
+                EventType.UserMetaUpdated // Be careful to check that the user is a member of the thread...
+        );
+    }
+
     public static Predicate<NetworkEvent> threadsUpdated () {
         return filterType(
                 EventType.ThreadDetailsUpdated,
@@ -180,6 +204,7 @@ public class NetworkEvent {
                 EventType.ThreadRemoved,
                 EventType.ThreadLastMessageUpdated,
                 EventType.ThreadUsersChanged,
+                EventType.MessageAdded,
                 EventType.MessageRemoved,
                 EventType.UserMetaUpdated // Be careful to check that the user is a member of the thread...
         );
@@ -196,9 +221,9 @@ public class NetworkEvent {
 
     public static Predicate<NetworkEvent> filterContactsChanged () {
         return filterType(
-                EventType.ContactChanged,
                 EventType.ContactAdded,
                 EventType.ContactDeleted,
+                EventType.UserMetaUpdated,
                 EventType.ContactsUpdated
         );
     }
@@ -208,6 +233,13 @@ public class NetworkEvent {
                 EventType.ThreadUsersChanged,
                 EventType.UserPresenceUpdated
         );
+    }
+
+    public MessageSendProgress getMessageSendProgress() {
+        if (data != null && data.containsKey(MessageSendProgress)) {
+            return (MessageSendProgress) data.get(MessageSendProgress);
+        }
+        return null;
     }
 
 }

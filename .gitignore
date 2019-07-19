@@ -8,6 +8,9 @@
 **/gen/
 **/out/
 **/build/
+.project
+.classpath
+org.eclipse.buildship.core.prefs
 
 #Gradle files
 .gradle/

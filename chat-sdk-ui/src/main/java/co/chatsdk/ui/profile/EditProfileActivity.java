@@ -1,9 +1,6 @@
 package co.chatsdk.ui.profile;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
@@ -29,15 +26,14 @@ import androidx.annotation.LayoutRes;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
+import co.chatsdk.core.events.EventType;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
-import co.chatsdk.core.session.StorageManager;
-import co.chatsdk.core.utils.DisposableList;
-import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.main.BaseActivity;
-import id.zelory.compressor.Compressor;
+import co.chatsdk.ui.utils.ImagePickerUploader;
+import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
@@ -56,17 +52,14 @@ public class EditProfileActivity extends BaseActivity {
     protected Button countryButton;
     protected Button logoutButton;
     protected HashMap<String, Object> userMeta;
-    protected MediaSelector mediaSelector = new MediaSelector();
 
     protected User currentUser;
-
-    private DisposableList disposableList = new DisposableList();
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String userEntityID = getIntent().getStringExtra(InterfaceManager.USER_ENTITY_ID);
+        String userEntityID = getIntent().getStringExtra(Keys.IntentKeyUserEntityID);
 
         if (userEntityID == null || userEntityID.isEmpty()) {
             showToast("User Entity ID not set");
@@ -74,11 +67,19 @@ public class EditProfileActivity extends BaseActivity {
             return;
         }
         else {
-            currentUser =  StorageManager.shared().fetchUserWithEntityID(userEntityID);
+            currentUser =  ChatSDK.db().fetchUserWithEntityID(userEntityID);
 
             // Save a copy of the data to see if it has changed
             userMeta = new HashMap<>(currentUser.metaMap());
         }
+
+        disposableList.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(networkEvent -> {
+                    if (networkEvent.user.equals(currentUser)) {
+                        reloadData();
+                    }
+                }));
 
         setContentView(activityLayout());
 
@@ -86,11 +87,11 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     protected @LayoutRes int activityLayout() {
-        return R.layout.chat_sdk_edit_profile;
+        return R.layout.edit_profile;
     }
 
     protected void initViews() {
-        avatarImageView = findViewById(R.id.ivAvatar);
+        avatarImageView = findViewById(R.id.image_avatar);
         statusEditText = findViewById(R.id.etStatus);
         availabilitySpinner = findViewById(R.id.spAvailability);
         nameEditText = findViewById(R.id.etName);
@@ -101,49 +102,20 @@ public class EditProfileActivity extends BaseActivity {
         countryButton = findViewById(R.id.btnCountry);
         logoutButton = findViewById(R.id.btnLogout);
 
-        // Set the current user's information
-        String status = currentUser.getStatus();
-        String availability = currentUser.getAvailability();
-        String name = currentUser.getName();
-        String location = currentUser.getLocation();
-        String phoneNumber = currentUser.getPhoneNumber();
-        String email = currentUser.getEmail();
-        String countryCode = currentUser.getCountryCode();
-
         avatarImageView.setOnClickListener(view -> {
             if (ChatSDK.profilePictures() != null) {
                 ChatSDK.profilePictures().startProfilePicturesActivity(this, currentUser.getEntityID());
             } else {
-                mediaSelector.startChooseImageActivity(EditProfileActivity.this, MediaSelector.CropType.Circle,result -> {
-
-                    try {
-                        File compress = new Compressor(ChatSDK.shared().context())
-                                .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
-                                .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
-                                .compressToFile(new File(result));
-
-                        Bitmap bitmap = BitmapFactory.decodeFile(compress.getPath());
-
-                        // Cache the file
-                        File file = ImageUtils.compressImageToFile(ChatSDK.shared().context(), bitmap, ChatSDK.currentUserID(), ".png");
-
-                        avatarImageView.setImageURI(Uri.fromFile(file));
-                        currentUser.setAvatarURL(Uri.fromFile(file).toString());
+                ImagePickerUploader uploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
+                disposableList.add(uploader.choosePhoto(EditProfileActivity.this).subscribe((result, throwable) -> {
+                    if (throwable == null) {
+                        avatarImageView.setImageURI(Uri.fromFile(new File(result.uri)));
+                    } else {
+                        ToastHelper.show(EditProfileActivity.this, throwable.getLocalizedMessage());
                     }
-                    catch (Exception e) {
-                        ChatSDK.logError(e);
-                        Toast.makeText(EditProfileActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                }));
             }
         });
-
-        avatarImageView.setImageURI(currentUser.getAvatarURL());
-
-        if (StringUtils.isNotEmpty(countryCode)) {
-            Locale l = new Locale("", countryCode);
-            countryButton.setText(l.getDisplayCountry());
-        }
 
         countryButton.setOnClickListener(view -> {
 
@@ -158,6 +130,26 @@ public class EditProfileActivity extends BaseActivity {
 
         logoutButton.setOnClickListener(view -> logout());
 
+        reloadData();
+    }
+
+    protected void reloadData () {
+        // Set the current user's information
+        String status = currentUser.getStatus();
+        String availability = currentUser.getAvailability();
+        String name = currentUser.getName();
+        String location = currentUser.getLocation();
+        String phoneNumber = currentUser.getPhoneNumber();
+        String email = currentUser.getEmail();
+        String countryCode = currentUser.getCountryCode();
+
+        avatarImageView.setImageURI(currentUser.getAvatarURL());
+
+        if (StringUtils.isNotEmpty(countryCode)) {
+            Locale l = new Locale("", countryCode);
+            countryButton.setText(l.getDisplayCountry());
+        }
+
         statusEditText.setText(status);
 
         if (!StringUtils.isEmpty(availability)) {
@@ -168,13 +160,12 @@ public class EditProfileActivity extends BaseActivity {
         locationEditText.setText(location);
         phoneNumberEditText.setText(phoneNumber);
         emailEditText.setText(email);
-
     }
 
     protected void logout () {
         disposableList.add(ChatSDK.auth().logout()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> ChatSDK.ui().startLoginActivity(getApplicationContext(), false), throwable -> {
+                .subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getApplicationContext()), throwable -> {
             ChatSDK.logError(throwable);
             Toast.makeText(EditProfileActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         }));
@@ -204,18 +195,6 @@ public class EditProfileActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        try {
-            mediaSelector.handleResult(this, requestCode, resultCode, data);
-        }
-        catch (Exception e) {
-            Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            ChatSDK.logError(e);
-        }
-    }
-
     protected void saveAndExit () {
 
         String status = statusEditText.getText().toString().trim();
@@ -232,7 +211,7 @@ public class EditProfileActivity extends BaseActivity {
         currentUser.setPhoneNumber(phoneNumber);
         currentUser.setEmail(email);
 
-        boolean changed = !userMeta.equals(currentUser.metaMap());
+        boolean changed = !userMeta.entrySet().equals(currentUser.metaMap().entrySet());
 //        boolean imageChanged = false;
         boolean presenceChanged = false;
 

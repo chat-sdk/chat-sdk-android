@@ -8,6 +8,7 @@ import co.chatsdk.core.enums.AuthStatus;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.AuthKeys;
+import io.reactivex.Completable;
 
 /**
  * Created by benjaminsmiley-andrews on 03/05/2017.
@@ -36,8 +37,23 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
         authStatus = AuthStatus.IDLE;
     }
 
+    @Deprecated
+    public Boolean userAuthenticated() {
+        return isAuthenticated();
+    }
+
+    @Deprecated
     public Boolean userAuthenticatedThisSession () {
-        return userAuthenticated() && authenticatedThisSession;
+        return isAuthenticatedThisSession();
+    }
+
+    public Boolean isAuthenticatedThisSession () {
+        return isAuthenticated() && authenticatedThisSession;
+    }
+
+    @Deprecated
+    public Completable authenticateWithCachedToken () {
+        return authenticate();
     }
 
     /**

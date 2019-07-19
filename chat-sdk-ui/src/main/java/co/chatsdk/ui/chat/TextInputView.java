@@ -12,7 +12,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Rect;
-import androidx.appcompat.widget.AppCompatImageButton;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -25,6 +24,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;
@@ -41,11 +42,11 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
-public class TextInputView extends LinearLayout implements View.OnKeyListener, TextView.OnEditorActionListener{
+public class TextInputView extends LinearLayout implements TextView.OnEditorActionListener{
 
-    protected AppCompatImageButton btnSend;
+    protected ImageButton btnSend;
     protected ImageButton btnOptions;
-    protected EditText etMessage;
+    protected TextInputEditText etMessage;
     protected boolean audioModeEnabled = false;
     protected boolean recordOnPress = false;
     protected Recording recording = null;
@@ -76,13 +77,13 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
     }
 
     protected void init(){
-        inflate(getContext(), R.layout.chat_sdk_view_message_box, this);
+        inflate(getContext(), R.layout.view_chat_text_input, this);
     }
 
     protected void initViews(){
-        btnSend = findViewById(R.id.chat_sdk_btn_chat_send_message);
-        btnOptions = findViewById(R.id.chat_sdk_btn_options);
-        etMessage = findViewById(R.id.chat_sdk_et_message_to_send);
+        btnSend = findViewById(R.id.button_send);
+        btnOptions = findViewById(R.id.button_options);
+        etMessage = findViewById(R.id.text_input_message);
     }
 
     protected Activity getActivity() {
@@ -135,7 +136,13 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
         btnOptions.setOnClickListener(view -> showOption());
 
         etMessage.setOnEditorActionListener(this);
-        etMessage.setOnKeyListener(this);
+        etMessage.setOnKeyListener(new OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                return false;
+            }
+        });
+
         etMessage.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 
         etMessage.setOnFocusChangeListener((view, focus) -> {
@@ -291,19 +298,19 @@ public class TextInputView extends LinearLayout implements View.OnKeyListener, T
         return false;
     }
 
-    @Override
-    public boolean onKey(View v, int keyCode, KeyEvent event) {
-        // if enter is pressed start calculating
-        if(delegate != null) {
-            delegate.get().startTyping();
-        }
-        if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
-            int editTextLineCount = ((EditText) v).getLineCount();
-            if (editTextLineCount >= getResources().getInteger(R.integer.chat_sdk_max_message_lines))
-                return true;
-        }
-        return false;
-    }
+//    @Override
+//    public boolean onKey(View v, int keyCode, KeyEvent event) {
+//        // if enter is pressed start calculating
+//        if(delegate != null) {
+//            delegate.get().startTyping();
+//        }
+//        if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+//            int editTextLineCount = ((EditText) v).getLineCount();
+//            if (editTextLineCount >= getResources().getInteger(R.integer.chat_sdk_max_message_lines))
+//                return true;
+//        }
+//        return false;
+//    }
 
     public String getMessageText(){
         return etMessage.getText().toString();

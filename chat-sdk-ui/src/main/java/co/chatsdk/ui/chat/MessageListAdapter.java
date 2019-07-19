@@ -7,11 +7,12 @@
 
 package co.chatsdk.ui.chat;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.view.ViewGroup;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +26,9 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.Progress;
 import co.chatsdk.ui.chat.handlers.TextMessageDisplayHandler;
+import co.chatsdk.core.message_action.MessageAction;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 import timber.log.Timber;
 
 public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageViewHolder> {
@@ -32,33 +36,46 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
     public static int ViewTypeMine = 1;
     public static int ViewTypeReply = 2;
 
-    protected AppCompatActivity activity;
+    protected WeakReference<Activity> activity;
+    protected PublishSubject<List<MessageAction>> messageActionPublishSubject = PublishSubject.create();
 
     protected List<MessageListItem> messageItems = new ArrayList<>();
 
-    public MessageListAdapter(AppCompatActivity activity) {
-        this.activity = activity;
+    public MessageListAdapter(Activity activity) {
+        this.activity = new WeakReference<>(activity);
+
+        // Optimization
+        setHasStableIds(true);
     }
 
     @Override
     public AbstractMessageViewHolder onCreateViewHolder(ViewGroup parent, int type) {
+
+        if (ChatSDK.config().debug) {
+            System.out.println("onCreateViewHolder: " + type);
+        }
+
         int viewType = (int) Math.ceil(type / MessageType.Max);
         int messageType = type - viewType * MessageType.Max;
         boolean isReply = viewType == ViewTypeReply;
 
         MessageDisplayHandler handler = ChatSDK.ui().getMessageHandler(new MessageType(messageType));
         if (handler != null) {
-            return handler.newViewHolder(isReply, activity);
+            return handler.newViewHolder(isReply, activity.get(), messageActionPublishSubject);
         } else {
             // TODO: Handler this better
             Timber.w("Message handler not available for message type");
             handler = new TextMessageDisplayHandler();
-            return handler.newViewHolder(isReply, activity);
+            return handler.newViewHolder(isReply, activity.get(), messageActionPublishSubject);
         }
     }
 
     @Override
     public void onBindViewHolder(AbstractMessageViewHolder holder, int position) {
+
+        if (ChatSDK.config().debug) {
+            System.out.println("onBindViewHolder: pos: " + position);
+        }
 
         MessageListItem messageItem = getMessageItems().get(position);
         Message message = messageItem.getMessage();
@@ -73,7 +90,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
         }
 
         for(MessageDisplayHandler handler : ChatSDK.ui().getMessageHandlers()) {
-            handler.updateMessageCellView(messageItem.message, holder, activity);
+            handler.updateMessageCellView(messageItem.message, holder, activity.get());
         }
     }
 
@@ -103,7 +120,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
         return messageItems;
     }
 
-    protected boolean addRow(MessageListItem item, boolean sort, boolean notify){
+    protected boolean addRow(MessageListItem item, boolean sort, boolean notify, boolean toEnd){
         if (item == null)
             return false;
 
@@ -112,15 +129,23 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
             return false;
         }
 
-        Timber.d("Add Message Item: " + item.message.getText());
-        messageItems.add(item);
+
+        if (toEnd) {
+            messageItems.add(item);
+        } else {
+            messageItems.add(0, item);
+        }
 
         if(sort) {
             sort();
         }
 
         if(notify) {
-            notifyDataSetChanged();
+            if (toEnd) {
+                notifyItemInserted(messageItems.size() - 1);
+            } else {
+                notifyItemInserted(0);
+            }
         }
 
         return true;
@@ -135,6 +160,21 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
         notifyDataSetChanged();
     }
 
+    public void notifyMessageChanged (Message message) {
+        int index = indexOf(message);
+        if (index > 0) {
+            notifyItemChanged(index);
+        }
+    }
+
+    public int indexOf(Message message) {
+        MessageListItem item = messageItemForMessage(message);
+        if (item != null) {
+            return messageItems.indexOf(item);
+        }
+        return -1;
+    }
+
     /**
      * Add a new message to the list.
      * @return true if the item is added to the list.
@@ -143,12 +183,12 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
         return addRow(message, true, true);
     }
 
-    public boolean addRow(Message message, boolean sort, boolean notify, Progress progress){
+    public boolean addRow(Message message, boolean sort, boolean notify, Progress progress, boolean toEnd){
         MessageListItem item = messageItemForMessage(message);
         boolean returnStatus = false;
         if (item == null) {
             item = new MessageListItem(message);
-            returnStatus = addRow(item, sort, notify);
+            returnStatus = addRow(item, sort, notify, toEnd);
         }
         if (progress != null) {
             item.progress = progress.asFraction();
@@ -156,16 +196,21 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
         return returnStatus;
     }
 
+    public boolean addRow(Message message, boolean sort, boolean notify, boolean toEnd) {
+        return addRow(message, sort, notify, null, toEnd);
+    }
+
     public boolean addRow(Message message, boolean sort, boolean notify) {
-        return addRow(message, sort, notify, null);
+        return addRow(message, sort, notify, null, true);
     }
 
     public boolean removeRow (Message message, boolean notify) {
         MessageListItem item = messageItemForMessage(message);
         if (item != null) {
+            int index = messageItems.indexOf(item);
             messageItems.remove(item);
             if (notify) {
-                notifyDataSetChanged();
+                notifyItemRemoved(index);
             }
             return true;
         }
@@ -178,7 +223,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
 
     protected MessageListItem messageItemForMessage (Message message) {
         for(MessageListItem i : messageItems) {
-            if(i.message.getEntityID().equals(message.getEntityID())) {
+            if(i.message.equalsEntity(message)) {
                 return i;
             }
         }
@@ -228,6 +273,10 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
 
     public int size () {
         return messageItems.size();
+    }
+
+    public Observable<List<MessageAction>> getMessageActionObservable () {
+        return messageActionPublishSubject;
     }
 
 }

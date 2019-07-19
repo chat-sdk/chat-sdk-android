@@ -4,6 +4,7 @@ package co.chatsdk.core.dao;
 
 // KEEP INCLUDES - put your token includes here
 
+
 import com.google.android.gms.maps.model.LatLng;
 
 import org.greenrobot.greendao.DaoException;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
@@ -29,11 +31,13 @@ import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.DaoDateTimeConverter;
 
 @Entity
-public class Message implements CoreEntity {
+public class Message extends AbstractEntity {
 
-    @Id private Long id;
+    @Id
+    private Long id;
 
-    @Unique private String entityID;
+    @Unique
+    private String entityID;
 
     @Convert(converter = DaoDateTimeConverter.class, columnType = Long.class)
     private DateTime date;
@@ -72,8 +76,9 @@ public class Message implements CoreEntity {
     private transient MessageDao myDao;
 
     @Generated(hash = 842349170)
-    public Message(Long id, String entityID, DateTime date, Boolean read, Integer type, Integer status,
-            Long senderId, Long threadId, Long nextMessageId, Long lastMessageId) {
+    public Message(Long id, String entityID, DateTime date, Boolean read, Integer type,
+            Integer status, Long senderId, Long threadId, Long nextMessageId,
+            Long lastMessageId) {
         this.id = id;
         this.entityID = entityID;
         this.date = date;
@@ -90,11 +95,11 @@ public class Message implements CoreEntity {
     public Message() {
     }
 
-    @Generated(hash = 1974258785)
-    private transient Long thread__resolvedKey;
-
     @Generated(hash = 880682693)
     private transient Long sender__resolvedKey;
+
+    @Generated(hash = 1974258785)
+    private transient Long thread__resolvedKey;
 
     @Generated(hash = 992601680)
     private transient Long nextMessage__resolvedKey;
@@ -103,18 +108,32 @@ public class Message implements CoreEntity {
     private transient Long lastMessage__resolvedKey;
 
     public boolean isRead() {
-        ReadStatus status = readStatusForUser(ChatSDK.currentUser());
-        if (status != null && status.is(ReadStatus.read())) {
+        if (sender != null && sender.isMe()) {
             return true;
+        } else {
+            ReadStatus status = readStatusForUser(ChatSDK.currentUser());
+            if (status != null && status.is(ReadStatus.read())) {
+                return true;
+            }
+            else if (read == null) {
+                return false;
+            }
+            else {
+                return read;
+            }
         }
-        else if (sender != null && sender.isMe()) {
+    }
+
+    public boolean isDelivered () {
+        if (sender != null && sender.isMe()) {
             return true;
-        }
-        else if (read == null) {
-            return false;
-        }
-        else {
-            return read;
+        } else {
+            ReadStatus status = readStatusForUser(ChatSDK.currentUser());
+            if (status != null && status.getValue() >= ReadStatus.Delivered) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
@@ -164,7 +183,7 @@ public class Message implements CoreEntity {
     protected void setMetaValue(String key, Object value) {
         MessageMetaValue metaValue = (MessageMetaValue) metaValue(key);
         if (metaValue == null) {
-            metaValue = StorageManager.shared().createEntity(MessageMetaValue.class);
+            metaValue = ChatSDK.db().createEntity(MessageMetaValue.class);
             metaValue.setMessageId(this.getId());
             getMetaValues().add(metaValue);
         }
@@ -223,7 +242,7 @@ public class Message implements CoreEntity {
     public void setUserReadStatus (User user, ReadStatus status, DateTime date) {
         ReadReceiptUserLink link = linkForUser(user);
         if(link == null) {
-            link = StorageManager.shared().createEntity(ReadReceiptUserLink.class);
+            link = ChatSDK.db().createEntity(ReadReceiptUserLink.class);
             link.setMessageId(this.getId());
             getReadReceiptLinks().add(link);
         }
@@ -283,6 +302,7 @@ public class Message implements CoreEntity {
 
     public void setMessageStatus(MessageSendStatus status) {
         this.status = status.ordinal();
+        update();
     }
     public void setStatus(Integer status) {
         this.status = status;
@@ -295,40 +315,69 @@ public class Message implements CoreEntity {
 
     public void setThreadId(Long threadId) {
         this.threadId = threadId;
+        update();
     }
 
     public ReadStatus readStatusForUser (User user) {
         return readStatusForUser(user.getEntityID());
     }
 
+    public String getTextRepresentation () {
+        if (getMessageType().is(MessageType.Text, MessageType.System)) {
+            return getText();
+        }
+        if (getMessageType().is(MessageType.Location) && ChatSDK.locationMessage() != null) {
+            ChatSDK.locationMessage().textRepresentation(this);
+        }
+        if (getMessageType().is(MessageType.Image) && ChatSDK.imageMessage() != null) {
+            return ChatSDK.imageMessage().textRepresentation(this);
+        }
+        if (getMessageType().is(MessageType.Audio)) {
+            // TODO:
+        }
+        if (getMessageType().is(MessageType.Video)) {
+            // TODO:
+        }
+        if (getMessageType().is(MessageType.File)) {
+            // TODO:
+        }
+        return null;
+    }
+
     public ReadStatus readStatusForUser (String userEntityID) {
         for(ReadReceiptUserLink link : getReadReceiptLinks()) {
-            if(link.getUser() != null && link.getUser().getEntityID().equals(userEntityID)) {
+            if(link.getUser() != null && link.getUser().equalsEntityID(userEntityID)) {
                 return new ReadStatus(link.getStatus());
             }
         }
-        return ReadStatus.notSet();
+        return ReadStatus.none();
     }
 
     public ReadStatus getReadStatus () {
-        int total = 0;
-        int userCount = getReadReceiptLinks().size();
+        int userCount = 0;
+        int deliveredCount = 0;
+        int readCount = 0;
         for(ReadReceiptUserLink link : getReadReceiptLinks()) {
-            total += link.getStatus();
+            if (link.getStatus() != ReadStatus.Hide) {
+                if (link.getStatus() == ReadStatus.Delivered) {
+                    deliveredCount++;
+                }
+                if (link.getStatus() == ReadStatus.Read) {
+                    deliveredCount++;
+                    readCount++;
+                }
+                userCount++;
+            }
         }
-        int status = ReadStatus.None;
-
-        if(total >= ReadStatus.Delivered * userCount) {
-            status = ReadStatus.Delivered;
+        if (readCount == userCount) {
+            return ReadStatus.read();
         }
-        if(total >= ReadStatus.Read * userCount) {
-            status = ReadStatus.Read;
+        else if (deliveredCount == userCount) {
+            return ReadStatus.delivered();
         }
-        if (total == 0) {
-            status = ReadStatus.None;
+        else {
+            return ReadStatus.none();
         }
-        return new ReadStatus(status);
-
     }
 
     public Long getSenderId() {
@@ -345,6 +394,7 @@ public class Message implements CoreEntity {
 
     public void setRead(Boolean read) {
         this.read = read;
+        update();
     }
 
     public void cascadeDelete () {
@@ -355,6 +405,22 @@ public class Message implements CoreEntity {
             link.delete();
         }
         delete();
+    }
+
+    public Long getNextMessageId() {
+        return this.nextMessageId;
+    }
+
+    public void setNextMessageId(Long nextMessageId) {
+        this.nextMessageId = nextMessageId;
+    }
+
+    public Long getLastMessageId() {
+        return this.lastMessageId;
+    }
+
+    public void setLastMessageId(Long lastMessageId) {
+        this.lastMessageId = lastMessageId;
     }
 
     /** To-one relationship, resolved on first access. */
@@ -413,94 +479,6 @@ public class Message implements CoreEntity {
             threadId = thread == null ? null : thread.getId();
             thread__resolvedKey = threadId;
         }
-    }
-
-    /**
-     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
-     * Entity must attached to an entity context.
-     */
-    @Generated(hash = 128553479)
-    public void delete() {
-        if (myDao == null) {
-            throw new DaoException("Entity is detached from DAO context");
-        }
-        myDao.delete(this);
-    }
-
-    /**
-     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#refresh(Object)}.
-     * Entity must attached to an entity context.
-     */
-    @Generated(hash = 1942392019)
-    public void refresh() {
-        if (myDao == null) {
-            throw new DaoException("Entity is detached from DAO context");
-        }
-        myDao.refresh(this);
-    }
-
-    /**
-     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#update(Object)}.
-     * Entity must attached to an entity context.
-     */
-    @Generated(hash = 713229351)
-    public void update() {
-        if (myDao == null) {
-            throw new DaoException("Entity is detached from DAO context");
-        }
-        myDao.update(this);
-    }
-
-    /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 747015224)
-    public void __setDaoSession(DaoSession daoSession) {
-        this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getMessageDao() : null;
-    }
-
-    /**
-     * To-many relationship, resolved on first access (and after reset).
-     * Changes to to-many relations are not persisted, make changes to the target entity.
-     */
-    @Generated(hash = 2025183823)
-    public List<ReadReceiptUserLink> getReadReceiptLinks() {
-        if (readReceiptLinks == null) {
-            final DaoSession daoSession = this.daoSession;
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            ReadReceiptUserLinkDao targetDao = daoSession.getReadReceiptUserLinkDao();
-            List<ReadReceiptUserLink> readReceiptLinksNew = targetDao
-                    ._queryMessage_ReadReceiptLinks(id);
-            synchronized (this) {
-                if (readReceiptLinks == null) {
-                    readReceiptLinks = readReceiptLinksNew;
-                }
-            }
-        }
-        return readReceiptLinks;
-    }
-
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    @Generated(hash = 273652628)
-    public synchronized void resetReadReceiptLinks() {
-        readReceiptLinks = null;
-    }
-
-    public Long getNextMessageId() {
-        return this.nextMessageId;
-    }
-
-    public void setNextMessageId(Long nextMessageId) {
-        this.nextMessageId = nextMessageId;
-    }
-
-    public Long getLastMessageId() {
-        return this.lastMessageId;
-    }
-
-    public void setLastMessageId(Long lastMessageId) {
-        this.lastMessageId = lastMessageId;
     }
 
     /** To-one relationship, resolved on first access. */
@@ -565,6 +543,35 @@ public class Message implements CoreEntity {
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
      */
+    @Generated(hash = 2025183823)
+    public List<ReadReceiptUserLink> getReadReceiptLinks() {
+        if (readReceiptLinks == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            ReadReceiptUserLinkDao targetDao = daoSession.getReadReceiptUserLinkDao();
+            List<ReadReceiptUserLink> readReceiptLinksNew = targetDao
+                    ._queryMessage_ReadReceiptLinks(id);
+            synchronized (this) {
+                if (readReceiptLinks == null) {
+                    readReceiptLinks = readReceiptLinksNew;
+                }
+            }
+        }
+        return readReceiptLinks;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 273652628)
+    public synchronized void resetReadReceiptLinks() {
+        readReceiptLinks = null;
+    }
+
+    /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
     @Generated(hash = 2015206446)
     public List<MessageMetaValue> getMetaValues() {
         if (metaValues == null) {
@@ -587,6 +594,49 @@ public class Message implements CoreEntity {
     @Generated(hash = 365870950)
     public synchronized void resetMetaValues() {
         metaValues = null;
+    }
+
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 128553479)
+    public void delete() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.delete(this);
+    }
+
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#refresh(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 1942392019)
+    public void refresh() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.refresh(this);
+    }
+
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#update(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 713229351)
+    public void update() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.update(this);
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 747015224)
+    public void __setDaoSession(DaoSession daoSession) {
+        this.daoSession = daoSession;
+        myDao = daoSession != null ? daoSession.getMessageDao() : null;
     }
 
 }

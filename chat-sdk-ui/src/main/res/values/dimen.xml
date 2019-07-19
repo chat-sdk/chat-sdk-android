@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="chat_sdk_chat_action_barcircle_image_view_size">32dp</dimen>
-    <dimen name="chat_sdk_max_image_message_width">300dp</dimen>
-    <dimen name="chat_sdk_max_image_message_height">300dp</dimen>
-    <dimen name="chat_sdk_max_icon_message_width">48dp</dimen>
-    <dimen name="chat_sdk_max_icon_message_height">48dp</dimen>
-    <dimen name="chat_sdk_unread_message_indicator_width">5dp</dimen>
+    <dimen name="action_bar_avatar_max_size">32dp</dimen>
+
+    <dimen name="message_image_max_width">300dp</dimen>
+    <dimen name="message_image_max_height">300dp</dimen>
+    <dimen name="message_icon_max_width">48dp</dimen>
+    <dimen name="message_icon_max_height">48dp</dimen>
+
+    <dimen name="thread_avatar_max_width">48dp</dimen>
+    <dimen name="thread_avatar_max_height">48dp</dimen>
+
+    <dimen name="login_button_height">60dp</dimen>
+    <dimen name="login_button_outer_margin">10dp</dimen>
+    <dimen name="login_button_inner_margin">5dp</dimen>
+
 </resources>

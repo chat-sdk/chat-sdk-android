@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sign_in_cancelled">Login geannuleerd</string>
+    <string name="no_internet_connection">Geen internetverbinding</string>
+    <string name="unknown_error">Onbekende fout</string>
+    <string name="unknown_sign_in_response">Onbekende loginrespons</string>
+    <string name="back_not_available">Teruggaan kan hier niet</string>
+</resources>

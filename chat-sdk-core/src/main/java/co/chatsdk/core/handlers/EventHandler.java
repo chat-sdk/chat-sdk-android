@@ -1,5 +1,6 @@
 package co.chatsdk.core.handlers;
 
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -16,5 +17,8 @@ public interface EventHandler {
 
     PublishSubject<NetworkEvent> source ();
     Observable<NetworkEvent> sourceOnMain ();
+
+    void impl_currentUserOn (String userEntityID);
+    void impl_currentUserOff (String userEntityID);
 
 }

@@ -26,7 +26,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+//            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -38,10 +38,10 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
     api project(':chat-sdk-core')
 
-    api "com.google.firebase:firebase-storage:$firebaseStorageVersion"
-
+    implementation "com.google.firebase:firebase-storage:$firebaseStorageVersion"
 }
 
 ext {

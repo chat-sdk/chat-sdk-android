@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:id="@+id/view_root"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:clipChildren="false"
+        android:layout_weight="1">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progress_bar"
+            android:layout_gravity="center"
+            android:visibility="invisible"/>
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/card_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_blue_dark"
+            android:orientation="vertical" />
+
+        <com.leinardi.android.speeddial.SpeedDialOverlayLayout
+            android:id="@+id/messageOptionsOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.leinardi.android.speeddial.SpeedDialView
+            android:id="@+id/speed_dial_message_actions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:visibility="invisible"
+            app:sdMainFabClosedSrc="@drawable/ic_plus"
+            app:sdOverlayLayout="@id/messageOptionsOverlay"
+            app:layout_behavior="@string/speeddial_scrolling_view_snackbar_behavior"/>
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:layout_width="match_parent"
+            android:id="@+id/layout_swipe_to_refresh"
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/recycler_messages"
+                android:transcriptMode="normal"
+                android:layout_below="@id/card_container"
+                android:layout_above="@+id/linear"
+                android:scrollbars="none"
+                android:dividerHeight="0dp"
+                android:divider="@null"
+                android:listSelector="@android:color/transparent"
+                android:descendantFocusability="afterDescendants"/>
+            
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    </FrameLayout>
+
+    <co.chatsdk.ui.chat.TextInputView
+        android:id="@+id/view_message_text_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </co.chatsdk.ui.chat.TextInputView>
+
+</LinearLayout>

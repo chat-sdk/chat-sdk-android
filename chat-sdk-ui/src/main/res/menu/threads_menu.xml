@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.braunster.chatsdk.wanderingdevelopment.tk.sdkbaseui.FragmentTemplates.PublicThreadsFragment">
-    <item android:id="@+id/action_chat_sdk_add"
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/action_add"
         android:title="@string/action_add_chat"
         android:icon="@android:drawable/ic_menu_add"
         android:orderInCategory="10" />
 
-
-    <item android:id="@+id/action_chat_sdk_show"
+    <item android:id="@+id/action_show"
         android:title="@string/action_add_chat"
         android:icon="@android:drawable/ic_menu_info_details"
         android:orderInCategory="11" />
@@ -41,5 +39,11 @@
     <item android:id="@+id/action_chat_sdk_thread_details"
         android:title="@string/action_add_chat"
         android:icon="@android:drawable/ic_menu_add"
-        android:orderInCategory="10" />
+        android:orderInCategory="17" />
+
+    <item android:id="@+id/action_search"
+        android:title="@string/search"
+        android:icon="@drawable/ic_search_white_36dp"
+        android:orderInCategory="18" />
+
 </menu>

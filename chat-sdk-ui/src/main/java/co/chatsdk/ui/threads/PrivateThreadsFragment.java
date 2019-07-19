@@ -10,6 +10,7 @@ package co.chatsdk.ui.threads;
 import android.view.MenuItem;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
@@ -19,8 +20,12 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.helpers.DialogUtils;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.CompletableObserver;
+import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 
 /**
@@ -32,29 +37,16 @@ public class PrivateThreadsFragment extends ThreadsFragment {
     public void initViews() {
         super.initViews();
 
-        Disposable d = adapter.onLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
+        disposableList.add(adapter.onLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
                 getResources().getString(R.string.cancel), null, () -> {
-                    ChatSDK.thread().deleteThread(thread)
+                    disposableList.add(ChatSDK.thread().deleteThread(thread)
                             .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new CompletableObserver() {
-                                @Override
-                                public void onSubscribe(Disposable d) {
-                                }
-
-                                @Override
-                                public void onComplete() {
-                                    adapter.clearData();
-                                    reloadData();
-                                    ToastHelper.show(getContext(), getString(R.string.delete_thread_success_toast));
-                                }
-
-                                @Override
-                                public void onError(Throwable e) {
-                                    ToastHelper.show(getContext(), getString(R.string.delete_thread_fail_toast));
-                                }
-                            });
+                            .subscribe(() -> {
+                                adapter.clearData();
+                                reloadData();
+                            }, throwable -> ToastHelper.show(getContext(), throwable.getLocalizedMessage())));
                     return null;
-                }));
+                })));
     }
 
     @Override
@@ -68,8 +60,8 @@ public class PrivateThreadsFragment extends ThreadsFragment {
         /* Cant use switch in the library*/
         int id = item.getItemId();
 
-        if (id == R.id.action_chat_sdk_add) {
-            ChatSDK.ui().startSelectContactsActivity(getContext());
+        if (id == R.id.action_add) {
+            ChatSDK.ui().startCreateThreadActivity(getContext());
             return true;
         }
 

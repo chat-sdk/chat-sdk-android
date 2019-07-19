@@ -1,5 +1,6 @@
 package co.chatsdk.core.handlers;
 
+import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 
 /**
@@ -9,6 +10,7 @@ import co.chatsdk.core.dao.Thread;
 public interface ReadReceiptHandler {
 
     void updateReadReceipts(Thread thread);
+    void updateReadReceipts(Message message);
     void markRead (Thread thread);
 
 }

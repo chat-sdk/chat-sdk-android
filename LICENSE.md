@@ -4,6 +4,7 @@ We offer a choice of two license for this app. You can either use the [Chat SDK]
 
 ### Chat SDK License Summary
 
++ The Chat SDK license costs $0 for all the code hosted on the public Github repository.
 + License does not expire.
 + Can be used for creating unlimited applications
 + Can be distributed in binary or object form only

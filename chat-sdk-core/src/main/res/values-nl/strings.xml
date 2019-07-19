@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="image_message">Afbeelding</string>
+    <string name="location_message">Plaatsbepaling</string>
+    <string name="unknown_message">Onbekend bericht</string>
+    <string name="no_messages">Geen berichten</string>
+    <string name="audio_message">Audio-opname</string>
+    <string name="video_message">Video-opname</string>
+    <string name="sticker_message">Sticker</string>
+    <string name="file_message">Bestand</string>
+    <string name="thread">Gesprek</string>
+    <string name="no_name">Naamloos</string>
+    <string name="register">Registreren</string>
+    <string name="login">Inloggen</string>
+    <string name="anonymous_login">Anonieme login</string>
+    <string name="loading">Bezig met laden&#8230;</string>
+    <string name="email">E-mail</string>
+    <string name="sms">SMS</string>
+    <string name="password">Paswoord</string>
+    <string name="logout">Uitloggen</string>
+    <string name="search">Zoeken</string>
+    <string name="add_contacts">Toevoegen aan contacten</string>
+    <string name="delete_contact">Contact verwijderen</string>
+    <string name="add_users">Gebruikers toevoegen;</string>
+    <string name="start_chat">Gesprek beginnen</string>
+    <string name="contacts_upper_case">Contacten</string>
+    <string name="select_all">Alles selecteren</string>
+    <string name="send_location">Deze plaatsbepaling doorsturen</string>
+    <string name="search_upper_case">Zoeken</string>
+    <string name="send">Versturen</string>
+    <string name="tap_here_for_contact_info">Tik voor meer contactinformatie</string>
+    <string name="search_with_name">Zoeken volgens naam</string>
+    <string name="add_conversation">Gesprek toevoegen</string>
+    <string name="creating_thread">Bezig met het aanmaken van het gesprek</string>
+    <string name="send_mail">Verstuur bericht</string>
+    <string name="there_are_no_email_clients_installed">Geen e-mailcliënten te vinden</string>
+    <string name="thread_users_have_no_valid_avatar_urls">De gespreksdeelnemers hebben geen geldige avatar-url</string>
+    <string name="could_not_save_composite_thread_image_to_file">Deze afbeelding als bestand opslaan is mislukt </string>
+    <string name="thread_image_could_not_be_created">De gespreksafbeelding aanmaken is mislukt</string>
+    <string name="__typing" formatted="false">is iets aan het schrijven</string>
+    <string name="message_doesnt_have_a_thread">Dit bericht hoort bij geen gesprek</string>
+    <string name="login_method_doesnt_exist">Deze loginmethode werkt niet</string>
+    <string name="seconds_remaining__">Resterende seconden %d</string>
+    <string name="audio_length_limit_reached">Limiet van je audiobericht bereikt</string>
+    <string name="send_or_discard_recording">Opname versturen of annuleren</string>
+    <string name="recording_cancelled">Opname geannuleerd</string>
+    <string name="recording_too_short">Te korte opname</string>
+    <!--ThreadDetails context-->
+    <string name="thread_details_activity_title">Gespreksdetails</string>
+    <string name="thread_details_activity_change_name_dialog_title">Gespreksnaam geven</string>
+    <!--CoreMessage list adapter-->
+    <string name="message_adapter_no_google_maps">O jee. Je toestel heeft geen Google Maps</string>
+    <string name="message_adapter_load_image_fail">Het lukt niet de afbeelding te tonen</string>
+    <!-- Login Activity-->
+    <string name="chat_sdk__version_label">Versie:</string>
+    <string name="login_activity_no_mail_toast">Je e-mail</string>
+    <string name="login_activity_no_password_toast">Je paswoord</string>
+    <string name="login_activity_facebook_connection_fail_toast">Verbinding maken met Facebook mislukt</string>
+    <string name="login_activity_failed_to_login_toast">Verbinden mislukt</string>
+    <string name="login_activity_failed_to_register_toast">Registratie mislukt</string>
+    <!--BaseFragment/BaseActivity-->
+    <string name="create_thread_with_users_fail_toast">Gesprek opstarten mislukt</string>
+    <string name="delete_thread_fail_toast">Gesprek verwijderen mislukt</string>
+    <string name="delete_thread_success_toast">Gesprek verwijderd</string>
+    <!--ChatActivity-->
+    <string name="chat_activity_no_more_messages_to_load_toast">Niks nieuws onder de zon</string>
+    <string name="chat_activity_add_item_text">Een contact toevoegen aan het gesprek</string>
+    <string name="chat_activity_show_users_item_text">Toon de gespreksdeelnemers</string>
+    <string name="chat_activity_show_thread_details">Gespreksdetails</string>
+    <string name="thread_users">Gespreksdeelnemers:</string>
+    <!--ChatSDKAbstractContactsFragment-->
+    <string name="abstract_contact_fragment_user_added_to_thread_toast_success">&#160; doet nu mee</string>
+    <string name="abstract_contact_fragment_user_added_to_thread_toast_fail">Meh. Deze gebruiker toevoegen lukt niet.</string>
+    <string name="abstract_contact_fragment_share_with_contact_toast_fail_unknown_type">Ik ken dit formaat niet, dus ik kan je contact niet delen</string>
+    <!--ShareWithContactsActivity-->
+    <string name="share_activity_error_getting_share_data">Foutje met informatieontvangen</string>
+    <!--SelectContactActivity-->
+    <string name="pick_friends_activity_no_users_selected_toast">Minstens één gebruiker kiezen</string>
+    <string name="pick_friends_activity_prog_dialog_add_to_convo_message">Gebruikers toevoegen aan gesprek &#8230;</string>
+    <string name="pick_friends_activity_prog_dialog_open_new_convo_message">Bezig met gesprek &#8230; te maken</string>
+    <string name="pick_friends_activity_prog_group_name_dialog">Groepsnaam</string>
+    <!--ExitHelper-->
+    <string name="exit_helper_double_tap_toast">Nog eens tikken om te verlaten</string> <!-- Exit Dialog-->
+    <string name="alert_exit">c@r verlaten?</string>
+    <string name="exit">Ja</string>
+    <string name="stay">Nee</string>
+    <string name="create">Maak</string>
+    <string name="cancel">Annuleer</string>
+    <string name="submit">Verstuur</string>
+    <string name="ok">Oké</string>
+    <string name="permission_record_audio_title">Toelaten om audio op te nemen</string>
+    <string name="permission_record_audio_message">Toelaten om audio te versturen</string>
+    <string name="permission_write_external_storage_title">Toelaten om je galerij te bekijken</string>
+    <string name="permission_write_external_storage_message">Toelaten om afbeeldingen op te slaan op je toestel</string>
+    <string name="permission_manage_documents_storage_title">Documenten beheren</string>
+    <string name="permission_manage_documents_message">Toelaten om je documenten te bekijken</string>
+    <string name="permission_read_external_storage_title">Toegang verlenen tot de galerij</string>
+    <string name="permission_read_external_storage_message">Toelaten dat er vanuit je galerij afbeeldingen worden verstuurd</string>
+    <string name="permission_camera_title">Toelaten om je camera te gebruiken</string>
+    <string name="permission_camera_message">Toelaten om afbeeldingen te versturen</string>
+    <string name="permission_video_output_title">Toegang verlenen tot je galerij</string>
+    <string name="permission_video_output_message">Toelaten dat er videoberichten worden verstuurd</string>
+    <string name="permission_read_contacts_title">Toegang verlenen tot je contacten</string>
+    <string name="permission_read_contacts_message">Toelaten dat er in je telefoonboek wordtgezocht</string>
+    <!--SearchActivity-->
+    <string name="search_activity_no_text_input_toast">Tekst invoeren om te zoeken</string>
+    <string name="search_activity_no_user_found_toast">Meh. Niks gevonden</string>
+    <string name="search_activity_no_contact_selected_toast">Niemand geselecteerd</string>
+    <string name="search_activity_prog_dialog_init_message">Bezig met thread&#8230; te zoeken</string>
+    <string name="search_activity_prog_dialog_before_count_message">thread&#8230; aan het zoeken. Gevonden: thread&#160;</string>
+    <string name="search_activity_searching_message">Bezig met zoeken</string>
+    <!--PublicThreadFragment-->
+    <string name="thread_fragment_add_item_text">Gesprek opstarten</string>
+    <!--Add public chat room dialog-->
+    <string name="add_public_chat_dialog_title">Gespreksruimte toevoegen</string>
+    <string name="add_public_chat_dialog_progress_message">Bezig met het maken van thread&#8230;</string>
+    <string name="add_public_chat_dialog_toast_success_before_thread_name">Publiek gesprek thread&#160;</string>
+    <string name="add_public_chat_dialog_toast_success_after_thread_name">&#160; is aangemaakt</string>
+    <string name="add_public_chat_dialog_toast_error_before_thread_name">Oj, oj. Publiek gesprek thread&#160; aanmaken mislukt</string>
+    <!--Save Contact Dialog-->
+    <string name="alert_save_contact">Bezig met opslaan</string>
+    <string name="contact_book">Contactenlijst</string>
+    <string name="delete_message">Gesprek verwijderen</string>
+    <!--Delete Contact Dialog-->
+    <string name="alert_delete_contact">Ben je zeker dat je dit contact wil verwijderen?</string>
+    <!--Delete CoreThread Dialog-->
+    <string name="alert_delete_thread">Ben je zeker dat je dit gesprek wil verwijderen?</string>
+    <string name="delete">Verwijderen</string>
+    <!-- Login Dialog-->
+    <string name="authenticating">Bezig met authentificatie&#8230;</string>
+    <string name="login_activity_auth_failed">Authentificatie mislukt&#8230;</string>
+    <string name="connecting">Aan het verbinden&#8230;</string>
+    <string name="registering">Aan het registreren&#8230;</string>
+    <!--Acceptability-->
+    <string name="acces_message_option_button">Berichtoptietoets</string>
+    <string name="chat_sdk__action_settings">Instellingen</string>
+    <string name="action_logout">Uitloggen</string>
+    <string name="action_save">Opslaan</string>
+    <string name="action_chat">Gesprek</string>
+    <string name="action_settings">Instellingen</string>
+    <string name="action_contact_developer">De ontwikkelaar contacteren</string>
+    <string name="action_add_chat">Gesprek aanmaken</string>
+    <string name="actions">Handelingen</string>
+    <string name="done_show_again">Niet opnieuw tonen</string>
+    <string name="double_back_press_exit">Dubbeltikken om te verlaten</string>
+    <string name="subscription">Lidmaatschap</string>
+    <!--Notification-->
+    <string name="not_message_title">Bericht</string>
+    <string name="not_message_ticker">Vers bericht</string>
+    <string name="not_follower_title">Nieuwe volger</string>
+    <string name="not_follower_ticker">Jeej! Iemand nieuw volgt jou</string>
+    <string name="not_follower_content">is jou aan het volgen</string>
+    <string name="new_message_from__" formatted="false">Nieuw bericht van %s</string>
+    <string name="message_already_exists">Ja, hallo! Dit bericht bestaat al</string>
+    <!--Error-->
+    <string name="unable_to_fetch_image">Onmogelijk afbeelding image&#8230; op te halen</string>
+    <string name="unable_to_save_file">Ik krijg bestand file&#8230; niet opgeslagen</string>
+    <string name="unable_to_send_location_message">Onmogelijk om de plaatsbepaling door te sturenmessage&#8230;</string>
+    <string name="unable_to_send_image_message">Ik krijg afbeelding message&#8230; niet verstuurd</string>
+    <string name="unable_to_send_message">Meh. Ik kan dit bericht niet vesturen message&#8230;</string>
+    <string name="file_read_permission_not_granted">Ik krijg geen toestemming om je extern geheugen te lezen</string>
+    <string name="record_permission_not_granted">Ik heb geen toestemming om iets op te nemen</string>
+    <string name="unable_to_save_image_to_disk">Ik kan deze afbeelding niet opslaan</string>
+    <string name="couldnt_load_sticker_pack">Emoji’s inladen mislukt</string>
+    <string name="unable_to_load_image">Afbeelding tonen mislukt</string>
+    <string name="__permission_not_granted" formatted="true">Geen toestemming om dit te doen</string>
+    <string name="error_permission_not_granted">Toestemming niet verleend: %s</string>
+    <!--State-->
+    <string name="sending">Aan het versturen</string>
+    <string name="not_messages_summary">%d ongelezen berichten</string>
+    <string name="unable_to_catch_image">Foto ophalen mislukt</string>
+    <string name="status">Status</string>
+    <string name="location_hint">Plaats</string>
+    <string name="name_hint">Name</string>
+    <string name="phone_number_hint">Telefoonnummer</string>
+    <string name="email_hint">E-mail</string>
+    <string name="location">Locatie</string>
+    <string name="take_photo">Maak een Foto</string>
+    <string name="choose_photo">Kies een Foto</string>
+    <string name="take_video">Maak een video</string>
+    <string name="choose_video">Kies een video</string>
+    <string name="availability">Beschikbaarheid</string>
+    <string name="details">Details</string>
+    <string name="country">Land</string>
+    <string name="dateOfBirth">Geboortedatum</string>
+    <string name="follows">Volgt</string>
+    <string name="followed">Gevolgd</string>
+    <string name="block">Blokkeren</string>
+    <string name="blocked">Geblokkeerd</string>
+    <string name="unblock">Deblokkeren</string>
+    <string name="contact_deleted">Contact verwijderd</string>
+    <string name="contact_added">Contact toegevoegd</string>
+    <string name="user_blocked">Deze gebruiker is geblokkeerd</string>
+    <string name="user_unblocked">Deze gebruiker is niet meer geblokkeerd</string>
+    <string name="user_deleted">Die gebruiker is weg</string>
+    <string name="user_entity_id_not_set">Gebruikers-id niet ingesteld</string>
+    <string name="typing">Bezig met schrijven&#8230;</string>
+    <string name="recording">Bezig met de opname</string>
+    <string name="image_saved">De afbeelding is opgeslagen</string>
+    <string name="image_save_failed">De afbeelding is niet opgeslagen</string>
+    <string name="male">Man</string>
+    <string name="female">Vrouw</string>
+    <string name="action_edit">Wijzigen</string>
+    <string name="chat_sdk_edit_profile_select_country">Kies je land</string>
+    <string name="chat_sdk_edit_profile_pick_birth_date">Wat is je geboortedatum?</string>
+    <string name="app_info">App Info</string>
+    <string name="unable_to_open_app_in_settings">Het lukt me niet</string>
+    <string name="select_country">Kies je land</string>
+    <string name="availability_unavailable">Niet beschikbaar</string>
+    <string name="availability_available">Beschikbaar</string>
+    <string name="availability_away">Weg</string>
+    <string name="availability_busy">Bezig</string>
+    <string name="availability_extended_away">Een tijdje weg</string>
+    <!--Tabs-->
+    <string name="conversations">Gesprekken</string>
+    <string name="chat_rooms">Gespreksruimten</string>
+    <string name="contacts">Contacten</string>
+    <string name="invite_more_friends">Nodig mensen uit</string>
+    <string name="profile">Profiel</string>
+    <string-array name="availability_states">
+        <item>Beschikbaar</item>
+        <item>Weg</item>
+        <item>Lang weg</item>
+        <item>Bezig</item>
+    </string-array>
+    <string name="forgot_password">Paswoord vergeten</string>
+    <string name="requesting">Paswoord aanvragen</string>
+    <string name="password_reset_success">Kijk in je mailbox. Ik heb iets gestuurd.</string>
+    <string name="reset_password">Paswoord opnieuw instellen</string>
+    <string name="last_seen__" formatted="false">Laatst gezien %s</string>
+    <string name="last_seen_on__at__" formatted="false">Laatst gezien op %s om %s</string>
+    <!-- Hints -->
+    <string name="email_field">E-mail</string>
+    <string name="password_field">Paswoord</string>
+    <!-- Buttons -->
+    <string name="button_login_text">Log in</string>
+    <string name="button_register_text">Registreren</string>
+    <!-- Alerts / Toasts -->
+    <string name="toast_no_email">E-mail niet vergeten</string>
+    <string name="toast_no_password">Zonder paswoord werkt het niet</string>
+    <string name="toast_connection_failed">Verbinden mislukt</string>
+    <string name="toast_password_incorrect">Euhm. Je paswoord werkt niet</string>
+    <string name="toast_register_failed">Registreren mislukt</string>
+    <string name="toast_connected">Verbonden</string>
+    <string name="toast_authenticated">Je bent binnen</string>
+    <string name="toast_disconnected">Connectie met de server verloren</string>
+    <!--Profile-->
+    <!-- Menu Buttons -->
+    <string name="profile_menu_button_edit">Wijzigen</string>
+    <string name="profile_menu_button_save">Opslaan</string>
+    <string name="profile_menu_button_cancel">Annuleer</string>
+    <string name="profile_menu_button_logout">Uitloggen</string>
+    <!-- Labels -->
+    <string name="profile_label_user_availability">Beschikbaarheid</string>
+    <!-- Placeholders -->
+    <string name="profile_placeholder_user_name">Bestuurder</string>
+    <string name="profile_hint_user_name">c@r-id</string>
+    <string name="profile_hint_location">Locatie</string>
+    <string name="profile_hint_phone_number">+1 123 456 7890</string>
+    <string name="profile_hint_email">address@domain.com</string>
+    <string name="profile_hint_birthday">Dag Maand Jaar</string>
+    <string name="profile_placeholder_user_metadata_null">Onbeschikbaar</string>
+    <!-- Alerts -->
+    <string name="profile_country_flag_clicked">Ik woon in…</string>
+    <string name="profile_saving">Wijzigingen aan het opslaan</string>
+    <string name="profile_saving_success">Yes. Wijzigingen opgeslaan</string>
+    <string name="profile_saving_fail">De teleurstelling. Opslaan is mislukt</string>
+    <!--Threads -->
+    <string name="thread_timestamp_placeholder">Maandag om hh.mm</string>
+    <string name="thread_button_send">Versturen</string>
+    <string name="thread_button_message_option">Message option button</string> <!--Thread list item-->
+    <string name="thread_item_placeholder_timestamp">Gisteren om hh.mm</string>
+    <string name="thread_item_placeholder_title">Titel of gebruikersnaam</string>
+    <string name="thread_item_placeholder_last_message">Iemand zei onlangs dit</string>
+    <string name="user_list_username">Gebruikersnaam</string>
+    <string name="user_list_availability_placeholder">Beschikbaarheid</string>
+    <string name="push_channel_name">Berichtmeldingen</string>
+    <string name="permission_location_title">Toegang tot je locatie verlenen</string>
+    <string name="permission_location_message">Toelaten dat gebruikers je kunnen zien</string>
+    <string name="permission_location_not_granted">Locatie machtigingen niet verleend</string>
+    <string name="location_services_not_enabled">Locatieservices niet ingeschakeld</string>
+    <string name="location_services_problem_message">Er was een probleem met de locatieservices. Zorg ervoor dat je ze hebt ingeschakeld in je telefooninstellingen.</string>s
+    <string name="location_is_null">Locatie is null</string>
+    <string name="search_threads">doorzoek discussies</string>
+
+    <!-- Edit Thread Details -->
+    <string name="create_thread">Maak een chatroom</string>
+    <string name="update_thread">Update chatroom</string>
+
+</resources>

@@ -32,21 +32,12 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation project(':chat-sdk-core')
 
-    // The latest versions aren't used because of Firebase UI - see: https://github.com/firebase/FirebaseUI-Android/releases
+    api project(':chat-sdk-core')
+
     api "com.google.firebase:firebase-core:$firebaseCoreVersion"
     api "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
     api "com.google.firebase:firebase-auth:$firebaseAuthVersion"
-
-    api "com.jakewharton.timber:timber:$timberVersion"
-
-    // Fix dependency issue from firebase-core:16.0.5 -> firebase-iid:17.0.3
-    // Can likely be removed later
-    implementation "com.google.firebase:firebase-iid:17.0.4"
-
-    implementation "org.apache.commons:commons-lang3:$apacheCommonsVersion"
-
 }
 
 ext {

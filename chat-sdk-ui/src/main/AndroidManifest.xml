@@ -5,7 +5,6 @@
     <!--For capturing photos in profile and chat UI-->
     <uses-feature android:name="android.hardware.camera" android:required="true" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
@@ -33,6 +32,13 @@
 
         <activity android:name=".login.LoginActivity"
             android:screenOrientation="portrait"
+            android:launchMode = "singleTask"
+            android:theme="@style/SdkTheme">
+        </activity>
+
+        <activity android:name=".login.SplashScreenActivity"
+            android:screenOrientation="portrait"
+            android:launchMode = "singleTask"
             android:theme="@style/SdkTheme">
         </activity>
 
@@ -40,8 +46,12 @@
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
+        <activity android:name=".threads.ThreadEditDetailsActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
+
         <activity android:name=".chat.ChatActivity"
-            android:parentActivityName=".main.MainActivity"
+            android:parentActivityName=".main.MainAppBarActivity"
             android:launchMode = "singleTop"
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@style/ChatSDKSlidingTransactionTheme">
@@ -65,12 +75,25 @@
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/SdkTheme"/>
 
-        <activity android:name=".main.MainActivity"
+        <activity android:name=".main.MainAppBarActivity"
             android:launchMode = "singleTask"
             android:theme="@style/SdkTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
-        <activity android:name=".contacts.SelectContactActivity"
+        <activity android:name=".main.MainDrawActivity"
+            android:launchMode = "singleTask"
+            android:theme="@style/SdkTheme"
+            android:windowSoftInputMode="stateHidden|adjustResize"/>
+
+        <activity android:name=".threads.AddUsersToThreadActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
+
+        <activity android:name=".threads.CreateThreadActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
+
+        <activity android:name=".contacts.ForwardMessageActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 

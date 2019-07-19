@@ -48,16 +48,13 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
                 // TODO: With Firebase this appears to be brokenProfileFragment.newInstance
                 e.onNext(result);
             }).addOnSuccessListener(taskSnapshot -> {
-                fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        result.name = name;
-                        result.mimeType = mimeType;
-                        result.url = uri.toString();
-                        result.progress.set(taskSnapshot.getTotalByteCount(), taskSnapshot.getTotalByteCount());
-                        e.onNext(result);
-                        e.onComplete();
-                    }
+                fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                    result.name = name;
+                    result.mimeType = mimeType;
+                    result.url = uri.toString();
+                    result.progress.set(taskSnapshot.getTotalByteCount(), taskSnapshot.getTotalByteCount());
+                    e.onNext(result);
+                    e.onComplete();
                 });
             }).addOnFailureListener(error -> e.onError(ChatError.getError(ChatError.Code.FIREBASE_STORAGE_EXCEPTION, error.getMessage())));
 

@@ -32,12 +32,12 @@ import io.reactivex.disposables.Disposable;
 public class ImageMessageOnClickHandler {
 
     public static void onClick (Activity activity, View view, String url) {
-        BaseActivity.hideSoftKeyboard(activity);
+        BaseActivity.hideKeyboard(activity);
 
         if (StringUtils.isNotBlank(url)) {
 
             LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View popupView = inflater.inflate(R.layout.chat_sdk_popup_touch_image, null);
+            View popupView = inflater.inflate(R.layout.popup_image, null);
 
             final PopupWindow imagePopup = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
 
@@ -47,8 +47,8 @@ public class ImageMessageOnClickHandler {
             imagePopup.setAnimationStyle(R.style.ImagePopupAnimation);
 
             final PhotoView imageView = popupView.findViewById(R.id.photo_view);
-            final ProgressBar progressBar = popupView.findViewById(R.id.chat_sdk_popup_image_progressbar);
-            final FloatingActionButton saveButton = popupView.findViewById(R.id.floating_button);
+            final ProgressBar progressBar = popupView.findViewById(R.id.progress_bar);
+            final FloatingActionButton saveButton = popupView.findViewById(R.id.floating_button_save);
 
             saveButton.setVisibility(View.INVISIBLE);
 

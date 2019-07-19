@@ -22,4 +22,8 @@ public class GoogleUtils {
         return api + "?" + markers + "&" + size + "&" + key;
     }
 
+    public static String getMapWebURL (LatLng location) {
+        return "http://maps.google.com/maps?z=12&t=m&q=loc:" + location.latitude + "+" + location.longitude;
+    }
+
 }

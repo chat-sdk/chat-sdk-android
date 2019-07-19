@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.DisposableList;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -25,6 +26,7 @@ public abstract class BaseFragment extends DialogFragment {
 
     protected View mainView;
     protected boolean tabIsVisible;
+    protected DisposableList disposableList = new DisposableList();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,9 +45,13 @@ public abstract class BaseFragment extends DialogFragment {
 
     public void setupTouchUIToDismissKeyboard(View view, final Integer... exceptIDs) {
         BaseActivity.setupTouchUIToDismissKeyboard(view, (v, event) -> {
-            BaseActivity.hideSoftKeyboard(getActivity());
+            hideKeyboard();
             return false;
         }, exceptIDs);
+    }
+
+    public void hideKeyboard () {
+        BaseActivity.hideKeyboard(getActivity());
     }
 
     protected void showOrUpdateProgressDialog(String message) {
@@ -80,11 +86,17 @@ public abstract class BaseFragment extends DialogFragment {
 
     abstract public void clearData ();
     public void safeReloadData () {
-        if(getView() != null && ChatSDK.auth().userAuthenticated()) {
+        if(getView() != null && ChatSDK.auth().isAuthenticated()) {
             reloadData();
         }
     }
     public abstract void reloadData();
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        disposableList.dispose();
+    }
 
 }
 

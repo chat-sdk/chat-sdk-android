@@ -6,6 +6,7 @@ import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
 
+import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.interfaces.CoreEntity;
 
 /**
@@ -13,7 +14,7 @@ import co.chatsdk.core.interfaces.CoreEntity;
  */
 
 @Entity
-public class ThreadMetaValue implements CoreEntity, MetaValue {
+public class ThreadMetaValue extends AbstractEntity implements MetaValue {
 
     @Id
     private Long id;

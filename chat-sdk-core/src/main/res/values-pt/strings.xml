@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="image_message">Imagem</string>
+    <string name="location_message">Localização</string>
+    <string name="unknown_message">Mensagem Desconhecida</string>
+    <string name="no_messages">Sem mensagens</string>
+    <string name="audio_message">Gravação</string>
+    <string name="video_message">Vídeo</string>
+    <string name="sticker_message">Adesivo</string>
+    <string name="file_message">Arquivo</string>
+    <string name="thread">Fio</string>
+    <string name="no_name">Sem nome</string>
+
+    <string name="register">registo</string>
+    <string name="login">Entrar</string>
+    <string name="anonymous_login">Login anônimo</string>
+    <string name="loading">Carregando…</string>
+    <string name="email">O email</string>
+    <string name="sms">SMS</string>
+    <string name="password">Senha</string>
+    <string name="logout">Sair</string>
+    <string name="search">Procurar</string>
+    <string name="add_contacts">Adicionar aos contatos</string>
+    <string name="delete_contact">Remover contato</string>
+    <string name="add_users">Adicionar usuários</string>
+    <string name="start_chat">Iniciar bate-papo</string>
+    <string name="contacts_upper_case">CONTATOS</string>
+    <string name="select_all">Selecionar tudo</string>
+    <string name="send_location">Envie este local</string>
+    <string name="search_upper_case">PROCURAR</string>
+    <string name="send">Mandar</string>
+    <string name="tap_here_for_contact_info">Toque aqui para informações de contato</string>
+    <string name="search_with_name">Pesquisar com nome</string>
+    <string name="add_conversation">Adicionar conversa</string>
+    <string name="creating_thread">Criando Thread</string>
+
+    <string name="send_mail">Enviar correio</string>
+    <string name="there_are_no_email_clients_installed">Enviar correio</string>
+
+
+    <string name="thread_users_have_no_valid_avatar_urls">Os usuários de segmento não têm URLs de avatar válidos</string>
+    <string name="could_not_save_composite_thread_image_to_file">Não foi possível salvar a imagem de encadeamento composto no arquivo</string>
+    <string name="thread_image_could_not_be_created">A imagem de segmento não pôde ser criada</string>
+    <string formatted="false" name="__typing">%s digitando ..</string>
+    <string name="message_doesnt_have_a_thread">A mensagem não tem um fio</string>
+    <string name="login_method_doesnt_exist">O método de login não existe</string>
+    <string name="seconds_remaining__">Segundos restantes% d</string>
+    <string name="audio_length_limit_reached">Limite de comprimento de áudio atingido</string>
+    <string name="send_or_discard_recording">Enviar ou descartar gravação</string>
+    <string name="recording_cancelled">Gravação cancelada</string>
+    <string name="recording_too_short">Gravação muito curta</string>
+
+    
+    <string name="thread_details_activity_title">Detalhes do Tópico</string>
+    <string name="thread_details_activity_change_name_dialog_title">Definir nome do thread</string>
+
+    
+    <string name="message_adapter_no_google_maps">Este dispositivo não tem mapas do google</string>
+    <string name="message_adapter_load_image_fail">Não pode mostrar a imagem</string>
+
+    
+    <string name="chat_sdk__version_label">Versão:</string>
+    <string name="login_activity_no_mail_toast">Por favor introduza o seu e-mail</string>
+    <string name="login_activity_no_password_toast">Por favor insira a senha</string>
+    <string name="login_activity_facebook_connection_fail_toast">Falha ao conectar-se ao Facebook</string>
+    <string name="login_activity_failed_to_login_toast">Falhou ao conectar</string>
+    <string name="login_activity_failed_to_register_toast">Falha ao registrar</string>
+
+    
+    <string name="create_thread_with_users_fail_toast">Não foi possível iniciar o bate-papo</string>
+    <string name="delete_thread_fail_toast">Não é possível excluir o segmento</string>
+    <string name="delete_thread_success_toast">Tópico é eliminado</string>
+
+    
+    <string name="chat_activity_no_more_messages_to_load_toast">Não há novas mensagens para carregar…</string>
+    <string name="chat_activity_add_item_text">Adicionar contato ao bate-papo</string>
+    <string name="chat_activity_show_users_item_text">Mostrar usuários do segmento</string>
+    <string name="chat_activity_show_thread_details">Detalhes do Tópico</string>
+    <string name="thread_users">Usuários do segmento:</string>
+
+    
+    <string name="abstract_contact_fragment_user_added_to_thread_toast_success">Usuário adicionado ao segmento, Nome:</string>
+    <string name="abstract_contact_fragment_user_added_to_thread_toast_fail">Não é possível adicionar usuário ao thread.</string>
+    <string name="abstract_contact_fragment_share_with_contact_toast_fail_unknown_type">Problema de compartilhamento de contato, tipo de compartilhamento desconhecido.</string>
+
+    
+    <string name="share_activity_error_getting_share_data">Erro ao obter dados de compartilhamento</string>
+
+    
+    <string name="pick_friends_activity_no_users_selected_toast">Por favor, selecione pelo menos um usuário</string>
+    <string name="pick_friends_activity_prog_dialog_add_to_convo_message">Adicionando usuários ao thread…</string>
+    <string name="pick_friends_activity_prog_dialog_open_new_convo_message">Criando thread…</string>
+    <string name="pick_friends_activity_prog_group_name_dialog">Nome do grupo</string>
+
+    
+    <string name="exit_helper_double_tap_toast">clique novamente para sair</string>
+    
+    <string name="alert_exit">Você tem certeza que quer sair?</string>
+    <string name="exit">Saída</string>
+    <string name="stay">Fique</string>
+    <string name="create">Crio</string>
+    <string name="cancel">Cancelar</string>
+    <string name="submit">Enviar</string>
+    <string name="ok">Está bem</string>
+
+    <string name="permission_record_audio_title">Acesso ao Microfone</string>
+    <string name="permission_record_audio_message">Conceder permissão para enviar mensagens de áudio</string>
+
+    <string name="permission_write_external_storage_title">Acesso à Galeria</string>
+    <string name="permission_write_external_storage_message">Conceder permissão para permitir que imagens sejam salvas em seu telefone</string>
+
+    <string name="permission_manage_documents_storage_title">Gerenciar documentos</string>
+    <string name="permission_manage_documents_message">Conceder permissão para permitir que seus documentos sejam acessados</string>
+
+    <string name="permission_read_external_storage_title">Acesso à Galeria</string>
+    <string name="permission_read_external_storage_message">Conceder permissão para permitir que imagens sejam enviadas de sua galeria</string>
+
+    <string name="permission_camera_title">Acesso à câmera</string>
+    <string name="permission_camera_message">Conceder permissão para permitir que mensagens de imagem sejam enviadas</string>
+
+    <string name="permission_video_output_title">Acesso à câmera</string>
+    <string name="permission_video_output_message">Conceder permissão para permitir que mensagens de vídeo sejam enviadas</string>
+
+    <string name="permission_read_contacts_title">Acesso de contatos</string>
+    <string name="permission_read_contacts_message">Conceder permissão para permitir a pesquisa do livro de contatos</string>
+
+    <string name="permission_location_title">Acesso à localização</string>
+    <string name="permission_location_message">Conceder permissão para permitir a descoberta por outros usuários</string>
+    <string name="permission_location_not_granted">Permissões de localização não concedidas</string>
+    <string name="location_services_not_enabled">Serviços de localização não ativados</string>
+    <string name="location_services_problem_message">Houve um problema com os serviços de localização. Certifique-se de que você os habilitou nas configurações do seu telefone.</string>
+    <string name="location_is_null">Localização é nula</string>
+
+    
+    <string name="search_activity_no_text_input_toast">Por favor, insira algum texto para a pesquisa</string>
+    <string name="search_activity_no_user_found_toast">Nenhuma combinação encontrada</string>
+    <string name="search_activity_no_contact_selected_toast">Nenhum contato foi selecionado</string>
+    <string name="search_activity_prog_dialog_init_message">Buscando&#8230;</string>
+    <string name="search_activity_prog_dialog_before_count_message">Buscando… Encontrado:</string>
+    <string name="search_activity_searching_message">Procurando</string>
+
+    
+    <string name="thread_fragment_add_item_text">Criar chat</string>
+
+    
+    <string name="add_public_chat_dialog_title">Adicionar sala de chat</string>
+    <string name="add_public_chat_dialog_progress_message">Criando thread…</string>
+    <string name="add_public_chat_dialog_toast_success_before_thread_name">Tópico público</string>
+    <string name="add_public_chat_dialog_toast_success_after_thread_name">é criado.</string>
+    <string name="add_public_chat_dialog_toast_error_before_thread_name">Falha ao criar encadeamento público</string>
+
+    
+    <string name="alert_save_contact">Salvando</string>
+    <string name="contact_book">Contato Livro</string>
+    <string name="delete_message">Apagar mensagem</string>
+
+    
+    <string name="alert_delete_contact">Tem certeza de que deseja excluir este contato?</string>
+
+    
+    <string name="alert_delete_thread">Tem certeza de que deseja excluir este tópico?</string>
+
+    <string name="delete">Excluir</string>
+
+    
+    <string name="authenticating">Autenticando…</string>
+    <string name="login_activity_auth_failed">Falha na autenticaçao</string>
+    <string name="connecting">Conectando&#8230;</string>
+    <string name="registering">Registrando&#8230;</string>
+
+
+    
+    <string name="acces_message_option_button">Botão de opção de mensagem</string>
+
+    <string name="chat_sdk__action_settings">action_setting</string>
+    <string name="action_logout">Sair</string>
+    <string name="action_save">Salve </string>
+    <string name="action_chat">Bate-papo</string>
+    <string name="action_settings">Definições</string>
+    <string name="action_contact_developer">Entre em contato com o desenvolvedor</string>
+    <string name="action_add_chat">Adicionar bate-papo</string>
+    <string name="actions">Ações</string>
+    <string name="done_show_again">Feito show novamente</string>
+    <string name="double_back_press_exit">Use o botão duplo de volta pressionado para sair</string>
+    <string name="subscription">Presença de Presença</string>
+
+    
+    <string name="not_message_title">mensagem</string>
+    <string name="not_message_ticker">Você tem uma nova mensagem</string>
+    <string name="not_follower_title">Novo seguidor</string>
+    <string name="not_follower_ticker">Você tem um novo seguidor</string>
+    <string name="not_follower_content">está a seguir-te!</string>
+
+    <string formatted="false" name="new_message_from__">Nova mensagem de %s</string>
+    <string name="message_already_exists">A mensagem já existe</string>
+
+    
+    <string name="unable_to_fetch_image">Não é possível buscar a imagem&#8230;</string>
+    <string name="unable_to_save_file">Não é possível salvar o arquivo&#8230;</string>
+    <string name="unable_to_send_location_message">Não é possível enviar a mensagem de localização&#8230;</string>
+    <string name="unable_to_send_image_message">Não é possível enviar mensagem de imagem…</string>
+    <string name="unable_to_send_message">incapaz de enviar mensagem&#8230;</string>
+    <string name="file_read_permission_not_granted">Ler permissão de armazenamento externo não concedida</string>
+    <string name="record_permission_not_granted">Permissão de registro não concedida</string>
+    <string name="unable_to_save_image_to_disk">Não é possível salvar a imagem no disco</string>
+    <string name="couldnt_load_sticker_pack">Não foi possível carregar o pacote de adesivos</string>
+    <string name="unable_to_load_image">Não é possível carregar a imagem</string>
+    <string formatted="true" name="__permission_not_granted">%s permissão não concedida. Por favor, ative esta permissão nas configurações do seu telefone.</string>
+    <string name="error_permission_not_granted">Permissão não concedida: %s</string>
+
+    
+    <string name="sending">Enviando&#8230;</string>
+    <string name="not_messages_summary">% d mensagens não lidas</string>
+    <string name="unable_to_catch_image">Não é possível capturar a imagem</string>
+    <string name="status">Status</string>
+    <string name="location_hint">Localização</string>
+    <string name="name_hint">Nome</string>
+    <string name="phone_number_hint">Número de telefone</string>
+    <string name="email_hint">O email</string>
+    <string name="location">Localização</string>
+    <string name="take_photo">Tirar fotos</string>
+    <string name="choose_photo">Escolher Foto</string>
+    <string name="take_video">Tomar vídeo</string>
+    <string name="choose_video">Escolha o vídeo</string>
+
+    <string name="availability">Disponibilidade</string>
+    <string name="details">Detalhes</string>
+    <string name="country">País</string>
+    <string name="dateOfBirth">Data de nascimento</string>
+    <string name="follows">Segue</string>
+    <string name="followed">Seguido</string>
+    <string name="block">Quadra</string>
+    <string name="blocked">Bloqueado</string>
+    <string name="unblock">Desbloquear</string>
+    <string name="contact_deleted">Contato excluído</string>
+    <string name="contact_added">Contato adicionado</string>
+    <string name="user_blocked">Usuário bloqueado</string>
+    <string name="user_unblocked">Usuário desbloqueado</string>
+    <string name="user_deleted">Usuário excluído</string>
+    <string name="user_entity_id_not_set">ID da entidade do usuário não definida</string>
+    <string name="typing">Digitando…</string>
+    <string name="recording">Gravação</string>
+
+    <string name="image_saved">Imagem salva com sucesso</string>
+    <string name="image_save_failed">O salvamento da imagem falhou</string>
+
+
+    <string name="male">Masculino</string>
+    <string name="female">Fêmea</string>
+    <string name="action_edit">Editar</string>
+    <string name="chat_sdk_edit_profile_select_country">Selecione o pais</string>
+    <string name="chat_sdk_edit_profile_pick_birth_date">Selecione data de nascimento</string>
+    <string name="app_info">Informações do aplicativo</string>
+    <string name="unable_to_open_app_in_settings">Não é possível abrir o aplicativo nas configurações</string>
+
+    <string name="select_country">Selecione o pais</string>
+
+    <string name="availability_unavailable">Indisponível</string>
+    <string name="availability_available">acessível</string>
+    <string name="availability_away">Longe</string>
+    <string name="availability_busy">Ocupado</string>
+    <string name="availability_extended_away">Afastado</string>
+
+    
+    <string name="conversations">Conversas</string>
+    <string name="chat_rooms">Salas de conversa</string>
+    <string name="contacts">Contatos</string>
+    <string name="invite_more_friends">Convide mais amigos</string>
+    <string name="profile">Perfil</string>
+
+    <string-array name="availability_states">
+        <item>acessível</item>
+        <item>Longe</item>
+        <item>Afastado</item>
+        <item>Ocupado</item>
+    </string-array>
+
+    
+        
+        
+        
+        
+    
+
+    <string name="forgot_password">Esqueceu a senha</string>
+    <string name="requesting">Solicitando</string>
+    <string name="password_reset_success">Você recebeu um email com instruções para redefinir sua senha</string>
+    <string name="reset_password">Redefinir Senha</string>
+    <string formatted="false" name="last_seen__">Visto pela última vez %s</string>
+    <string formatted="false" name="last_seen_on__at__">Visto pela última vez em %s em %s</string>
+
+    
+    <string name="preference_database_id" translatable="false">PREFERENCE_DATABASE_SESSION_ID</string>
+
+    
+    <string name="email_field">O email</string>
+    <string name="password_field">Senha</string>
+
+    
+    <string name="button_login_text">Entrar</string>
+    <string name="button_register_text">registo</string>
+
+    
+    <string name="toast_no_email">Por favor introduza o seu e-mail</string>
+    <string name="toast_no_password">Por favor insira a senha</string>
+    <string name="toast_connection_failed">Falhou ao conectar</string>
+    <string name="toast_password_incorrect">Nome de usuário ou senha está incorreta</string>
+    <string name="toast_register_failed">Falha ao registrar</string>
+    <string name="toast_connected">Conectado</string>
+    <string name="toast_authenticated">Autenticado</string>
+    <string name="toast_disconnected">Conexão do servidor perdida</string>
+
+    
+
+    
+    <string name="profile_menu_button_edit">Editar</string>
+    <string name="profile_menu_button_save">Salve </string>
+    <string name="profile_menu_button_cancel">Cancelar</string>
+    <string name="profile_menu_button_logout">Sair</string>
+    
+    <string name="profile_label_user_availability">Disponibilidade</string>
+
+    
+    <string name="profile_placeholder_user_name">Nome de usuário</string>
+    <string name="profile_hint_user_name">Nome de usuário</string>
+    <string name="profile_hint_location">Localização</string>
+    <string name="profile_hint_phone_number">+1 123 456 7890</string>
+    <string name="profile_hint_email">address@domain.com</string>
+    <string name="profile_hint_birthday">Dia mês ano</string>
+    <string name="profile_placeholder_user_metadata_null">indisponível</string>
+
+    
+    <string name="profile_country_flag_clicked">Escolha o seu país</string>
+    <string name="profile_saving">Salvando alterações</string>
+    <string name="profile_saving_success">Alterações salvas</string>
+    <string name="profile_saving_fail">Falha ao salvar</string>
+
+    
+
+    <string name="thread_timestamp_placeholder">Segunda-feira hh.mm</string>
+    <string name="thread_button_send">Mandar</string>
+
+    <string name="thread_button_message_option">Botão de opção de mensagem</string>
+
+    <dimen name="thread_timestamp_text_height">8sp</dimen>
+    <integer name="chat_sdk_max_message_lines">5</integer>
+    <integer name="chat_sdk_max_status_length">140</integer>
+
+    
+
+    <string name="thread_item_placeholder_timestamp">Ontem hh.mm</string>
+    <string name="thread_item_placeholder_title">Título ou nome de usuário</string>
+    <string name="thread_item_placeholder_last_message">Algo que foi dito</string>
+
+
+    <string name="user_list_username">Nome de usuário</string>
+    <string name="user_list_availability_placeholder">Disponibilidade</string>
+
+    <string name="push_channel_name">Notificações de mensagens</string>
+    <string name="search_threads">Tópicos de pesquisa</string>
+
+    <!-- Edit Thread Details -->
+    <string name="create_thread">Criar</string>
+    <string name="update_thread">Atualizar</string>
+
+</resources>

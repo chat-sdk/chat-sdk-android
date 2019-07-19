@@ -22,16 +22,21 @@ public class Keys {
     public static final String Time = "time";
 
     public static final String UserName = "userName";
+
+    // TODO: This will be deprecated in favour of the from variable
     public static final String UserFirebaseId = "user-firebase-id";
     public static final String Color = "color";
     public static final String Name = "name";
     public static final String NameLowercase = "name-lowercase";
-    public static final String Null = "null";
     public static final String InvitedBy = "invitedBy";
     public static final String CreationDate = "creation-date";
     public static final String JSON = "json_v2";
-    public static final String Type = "type";
+    public static final String To = "to";
+    public static final String From = "from";
+
+    // Deprecated in favour of type
     public static final String Type_v4 = "type_v4";
+    public static final String Type = "type";
     public static final String Online = "online";
     public static final String Date = "date";
     public static final String LastOnline = "last-online";
@@ -45,14 +50,16 @@ public class Keys {
     public static final String Member = "member";
 
     public static final String ImageUrl = "image-url";
+
+    // Deprecated in favour of Creator
     public static final String CreatorEntityId = "creator-entity-id";
+    public static final String Creator = "creator";
     public static final String Deleted = "deleted";
     public static final String UserId = "user-id";
     public static final String MessageText = "text";
     public static final String MessageLongitude = "longitude";
     public static final String MessageLatitude = "latitude";
     public static final String MessageImageURL = "image-url";
-    public static final String MessageThumbnailURL = "thumbnail-url";
     public static final String MessageImageWidth = "image-width";
     public static final String MessageImageHeight = "image-height";
     public static final String MessageVideoURL = "video-url";
@@ -68,5 +75,20 @@ public class Keys {
     public static final String Location = "location";
     public static final String DateOfBirth = "date-of-birth";
     public static final String Status = "status";
+
+    public static final String IntentKeyUserEntityID = "user-entity-id";
+    public static final String IntentKeyUserEntityIDList = "user-entity-id-list";
+    public static final String IntentKeyMessageEntityID = "message-entity-id";
+    public static final String IntentKeyThreadEntityID = "thread-entity-id";
+    public static final String IntentKeyAnimateExit = "animate-exit";
+    public static final String IntentKeyMultiSelectEnabled = "multi-select-enabled";
+    public static final String IntentKeyErrorMessage = "error-message";
+    public static final String IntentKeyListPosSelectEnabled = "list-pos";
+
+    // For push notifications
+    public static final String PushKeyUserEntityID = "chat_sdk_user_entity_id";
+    public static final String PushKeyThreadEntityID = "chat_sdk_thread_entity_id";
+    public static final String PushKeyTitle = "chat_sdk_push_title";
+    public static final String PushKeyBody = "chat_sdk_push_body";
 
 }

@@ -1,5 +1,6 @@
 package co.chatsdk.core.interfaces;
 
+import android.app.Activity;
 import android.content.Context;
 
 /**
@@ -8,7 +9,7 @@ import android.content.Context;
 
 public interface ChatOptionsHandler {
 
-    boolean show (Context context);
+    boolean show (Activity activity);
     boolean hide ();
     void setDelegate (ChatOptionsDelegate delegate);
     ChatOptionsDelegate getDelegate ();

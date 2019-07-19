@@ -4,99 +4,55 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import java.io.File;
+import java.io.IOException;
 
-import co.chatsdk.core.R;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.handlers.ImageMessageHandler;
-import co.chatsdk.core.rx.ObservableConnector;
+import co.chatsdk.core.rigs.FileUploadable;
+import co.chatsdk.core.rigs.MessageSendRig;
+import co.chatsdk.core.rigs.Uploadable;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.FileUploadResult;
-import co.chatsdk.core.types.MessageSendProgress;
-import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
-import co.chatsdk.core.utils.StringChecker;
 import id.zelory.compressor.Compressor;
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-import timber.log.Timber;
+import io.reactivex.Completable;
 
 /**
  * Created by ben on 10/24/17.
  */
 
 public class BaseImageMessageHandler implements ImageMessageHandler {
-        @Override
-        public Observable<MessageSendProgress> sendMessageWithImage(final String filePath, final Thread thread) {
-            return Observable.create((ObservableOnSubscribe<MessageSendProgress>) e -> {
 
-                final Message message = AbstractThreadHandler.newMessage(MessageType.Image, thread);
+    @Override
+    public Completable sendMessageWithImage(final File imageFile, final Thread thread) {
+        return new MessageSendRig(new MessageType(MessageType.Image), thread, message -> {
+            // Get the image and set the image message dimensions
+            final Bitmap image = BitmapFactory.decodeFile(imageFile.getPath(), null);
 
-                // First pass back an empty result so that we add the cell to the table view
-                message.setMessageStatus(MessageSendStatus.Uploading);
-                message.update();
-                e.onNext(new MessageSendProgress(message));
+            message.setValueForKey(image.getWidth(), Keys.MessageImageWidth);
+            message.setValueForKey(image.getHeight(), Keys.MessageImageHeight);
 
-                File compress = new Compressor(ChatSDK.shared().context())
+        }).setUploadable(new FileUploadable(imageFile, "image.jpg", "image/jpeg", uploadable -> {
+            if (uploadable instanceof FileUploadable) {
+                FileUploadable fileUploadable = (FileUploadable) uploadable;
+                fileUploadable.file = new Compressor(ChatSDK.shared().context())
                         .setMaxHeight(ChatSDK.config().imageMaxHeight)
                         .setMaxWidth(ChatSDK.config().imageMaxWidth)
-                        .compressToFile(new File(filePath));
+                        .compressToFile(fileUploadable.file);
+                return fileUploadable;
+            }
+            return uploadable;
+        }), (message, result) -> {
+            // When the file has uploaded, set the image URL
+            message.setValueForKey(result.url, Keys.MessageImageURL);
 
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                final Bitmap image = BitmapFactory.decodeFile(compress.getPath(), options);
+        }).run();
+    }
 
-                if(image == null) {
-                    e.onError(new Throwable(ChatSDK.shared().context().getString(R.string.unable_to_save_image_to_disk)));
-                    return;
-                }
-
-                ChatSDK.upload().uploadImage(image).subscribe(new Observer<FileUploadResult>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {}
-
-                    @Override
-                    public void onNext(FileUploadResult result) {
-                        if(!StringChecker.isNullOrEmpty(result.url))  {
-
-                            message.setValueForKey(image.getWidth(), Keys.MessageImageWidth);
-                            message.setValueForKey(image.getHeight(), Keys.MessageImageHeight);
-                            message.setValueForKey(result.url, Keys.MessageImageURL);
-                            message.setValueForKey(result.url, Keys.MessageThumbnailURL);
-
-                            message.update();
-
-                            Timber.v("ProgressListener: " + result.progress.asFraction());
-
-                        }
-
-                        e.onNext(new MessageSendProgress(message, result.progress));
-
-                    }
-
-                    @Override
-                    public void onError(Throwable ex) {
-                        e.onError(ex);
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                        message.setMessageStatus(MessageSendStatus.Sending);
-                        message.update();
-
-                        e.onNext(new MessageSendProgress(message));
-
-                        ObservableConnector<MessageSendProgress> connector = new ObservableConnector<>();
-                        connector.connect(ChatSDK.thread().sendMessage(message), e);
-
-                    }
-                });
-            }).subscribeOn(Schedulers.single());
-
-        }
+    @Override
+    public String textRepresentation(Message message) {
+        return message.stringForKey(Keys.MessageImageURL);
+    }
 }

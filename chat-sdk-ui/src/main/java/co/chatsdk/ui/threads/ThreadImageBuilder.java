@@ -21,6 +21,7 @@ import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 
 import static co.chatsdk.core.utils.ImageBuilder.bitmapForURL;
 
@@ -87,7 +88,7 @@ public class ThreadImageBuilder {
 
             Single.merge(singles).observeOn(AndroidSchedulers.mainThread())
                     .doOnComplete(() -> {
-                        int size = context.getResources().getDimensionPixelSize(R.dimen.chat_sdk_chat_action_barcircle_image_view_size);
+                        int size = context.getResources().getDimensionPixelSize(R.dimen.action_bar_avatar_max_size);
                         Bitmap bitmap = ImageUtils.getMixImagesBitmap(size, size, bitmaps);
 
                         if(bitmap == null) {

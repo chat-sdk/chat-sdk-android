@@ -21,12 +21,12 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
-import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
@@ -62,19 +62,17 @@ public class ProfileFragment extends BaseFragment {
     protected ImageView phoneImageView;
     protected ImageView emailImageView;
 
-    private DisposableList disposableList = new DisposableList();
-
     protected User user;
-
-    public static ProfileFragment newInstance() {
-        return ProfileFragment.newInstance(null);
-    }
 
     public static ProfileFragment newInstance(User user) {
         ProfileFragment f = new ProfileFragment();
-        f.user = user;
 
         Bundle b = new Bundle();
+
+        if (user != null) {
+            b.putString(Keys.UserId, user.getEntityID());
+        }
+
         f.setArguments(b);
         f.setRetainInstance(true);
         return f;
@@ -83,6 +81,10 @@ public class ProfileFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+
+        if (savedInstanceState != null && savedInstanceState.getString(Keys.UserId) != null) {
+            user = ChatSDK.db().fetchUserWithEntityID(savedInstanceState.getString(Keys.UserId));
+        }
 
         disposableList.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
                 .observeOn(AndroidSchedulers.mainThread())
@@ -94,7 +96,7 @@ public class ProfileFragment extends BaseFragment {
 
         mainView = inflater.inflate(activityLayout(), null);
 
-        setupTouchUIToDismissKeyboard(mainView, R.id.ivAvatar);
+        setupTouchUIToDismissKeyboard(mainView, R.id.image_avatar);
 
         initViews();
 
@@ -102,15 +104,15 @@ public class ProfileFragment extends BaseFragment {
     }
 
     protected @LayoutRes int activityLayout() {
-        return R.layout.chat_sdk_profile_fragment;
+        return R.layout.fragment_profile;
     }
 
     public void initViews() {
-        avatarImageView = mainView.findViewById(R.id.ivAvatar);
+        avatarImageView = mainView.findViewById(R.id.image_avatar);
         flagImageView = mainView.findViewById(R.id.ivFlag);
-        availabilityImageView = mainView.findViewById(R.id.ivAvailability);
-        nameTextView = mainView.findViewById(R.id.tvName);
-        statusTextView = mainView.findViewById(R.id.tvStatus);
+        availabilityImageView = mainView.findViewById(R.id.image_availability);
+        nameTextView = mainView.findViewById(R.id.text_name);
+        statusTextView = mainView.findViewById(R.id.text_status);
 
         locationTextView = mainView.findViewById(R.id.tvLocation);
         phoneTextView = mainView.findViewById(R.id.tvPhone);
@@ -350,33 +352,6 @@ public class ProfileFragment extends BaseFragment {
         // Email
         setViewText(emailTextView, getUser().getEmail());
 
-//        String presenceSubscription = getUser().getPresenceSubscription();
-//
-//        boolean follows = false;
-//        boolean followed = false;
-//        if (presenceSubscription != null) {
-//            follows = presenceSubscription.equals("from") || presenceSubscription.equals("both");
-//            followed = presenceSubscription.equals("to") || presenceSubscription.equals("both");
-//        }
-//
-//        if (follows) {
-//            followsImageView.setMaxHeight(followsHeight);
-//            followsTextView.setMaxHeight(followsHeight);
-//        }
-//        else {
-//            followsImageView.setMaxHeight(0);
-//            followsTextView.setMaxHeight(0);
-//        }
-//        if (followed) {
-//            followedImageView.setMaxHeight(followedHeight);
-//            followedTextView.setMaxHeight(followedHeight);
-//        }
-//        else {
-//            followedImageView.setMaxHeight(0);
-//            followedTextView.setMaxHeight(0);
-//        }
-
-
         ConstraintLayout layout = mainView.findViewById(R.id.mainConstraintLayout);
         ConstraintSet set = new ConstraintSet();
         set.clone(layout);
@@ -388,7 +363,7 @@ public class ProfileFragment extends BaseFragment {
         imageViewIds.add(R.id.ivFollows);
         imageViewIds.add(R.id.ivFollowed);
 
-        stackViews(imageViewIds, R.id.tvStatus, set);
+        stackViews(imageViewIds, R.id.text_status, set);
 
         ArrayList<Integer> textViewIds = new ArrayList<>();
         textViewIds.add(R.id.tvLocation);
@@ -399,7 +374,7 @@ public class ProfileFragment extends BaseFragment {
         textViewIds.add(R.id.btnAddOrDelete);
         textViewIds.add(R.id.btnBlockOrUnblock);
 
-        stackViews(textViewIds, R.id.tvStatus, set);
+        stackViews(textViewIds, R.id.text_status, set);
 
         set.applyTo(layout);
     }
@@ -475,12 +450,6 @@ public class ProfileFragment extends BaseFragment {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        disposableList.dispose();
     }
 
     @Override

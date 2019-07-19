@@ -6,19 +6,24 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import org.greenrobot.eventbus.EventBus;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.ImageUtils;
+import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.chat.options.MediaType;
 import co.chatsdk.ui.utils.Cropper;
-import timber.log.Timber;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.disposables.Disposable;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -33,95 +38,142 @@ public class MediaSelector {
     private static final int TAKE_VIDEO = 102;
     private static final int CHOOSE_VIDEO = 103;
 
-    protected Result resultHandler;
-    protected CropType cropType = CropType.Rectangle;
     protected Uri fileUri;
+    protected Disposable disposable;
+    protected SingleEmitter<File> emitter;
+
+    protected CropType cropType = CropType.Rectangle;
 
     public enum CropType {
+        None,
         Rectangle,
         Square,
         Circle,
     }
 
-    public interface Result {
-        void result (String result);
+    public Single<File> startActivity (Activity activity, MediaType type) {
+        return startActivity(activity, type, null);
     }
 
-    public void startTakePhotoActivity (Activity activity, Result resultHandler) throws Exception {
-        this.resultHandler = resultHandler;
+    public Single<File> startActivity (Activity activity, MediaType type, CropType cropType) {
 
-        Context context = ChatSDK.shared().context();
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File destination = ImageUtils.createEmptyFileInCacheDirectory(context, "CAPTURE", ".jpg");
-        fileUri = PhotoProvider.getPhotoUri(destination, context);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+        if (cropType != null) {
+            this.cropType = cropType;
+        }
 
-        if (intent.resolveActivity(activity.getPackageManager()) != null) {
-            activity.startActivityForResult(intent, TAKE_PHOTO);
+        Single<File> action = null;
+        if (type.isEqual(MediaType.TakePhoto)) {
+            action = startTakePhotoActivity(activity, this.cropType);
+        }
+        if (type.isEqual(MediaType.ChoosePhoto)) {
+            action = startChooseImageActivity(activity, this.cropType);
+        }
+        if (type.isEqual(MediaType.TakeVideo)) {
+            action = startTakeVideoActivity(activity);
+        }
+        if (type.isEqual(MediaType.ChooseVideo)) {
+            action = startChooseVideoActivity(activity);
+        }
+
+        if (action != null) {
+            if(type.is(MediaType.Take)) {
+                return PermissionRequestHandler.shared().requestCameraAccess(activity).andThen(action);
+            }
+            if(type.is(MediaType.Choose)) {
+                return PermissionRequestHandler.shared().requestReadExternalStorage(activity).andThen(action);
+            }
+        }
+        return Single.error(new Throwable(activity.getString(R.string.error_launching_activity)));
+    }
+
+    public Single<File> startTakePhotoActivity (Activity activity, CropType cropType) {
+        return Single.create(emitter -> {
+            MediaSelector.this.emitter = emitter;
+            MediaSelector.this.cropType = cropType;
+
+            Context context = ChatSDK.shared().context();
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            File destination = ImageUtils.createEmptyFileInCacheDirectory(context, "CAPTURE", ".jpg");
+            fileUri = PhotoProvider.getPhotoUri(destination, context);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+
+            if (!startActivityForResult(activity, intent, TAKE_PHOTO)) {
+                notifyError(new Exception(activity.getString(R.string.unable_to_fetch_image)));
+            }
+        });
+    }
+
+    public Single<File> startChooseImageActivity(Activity activity, CropType cropType) {
+        return Single.create(emitter -> {
+            MediaSelector.this.emitter = emitter;
+            MediaSelector.this.cropType = cropType;
+
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            if(!startActivityForResult(activity, intent, CHOOSE_PHOTO)) {
+                notifyError(new Exception(activity.getString(R.string.unable_to_start_activity)));
+            };
+        });
+    }
+
+    public Single<File> startTakeVideoActivity (Activity activity) {
+        return Single.create(emitter -> {
+            MediaSelector.this.emitter = emitter;
+
+            Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+            if (!startActivityForResult(activity, intent, TAKE_VIDEO)) {
+                notifyError(new Exception(activity.getString(R.string.unable_to_start_activity)));
+            }
+        });
+    }
+
+    public Single<File> startChooseVideoActivity (Activity activity) {
+        return Single.create(emitter -> {
+            MediaSelector.this.emitter = emitter;
+
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+            if (!startActivityForResult(activity, intent, CHOOSE_VIDEO)) {
+                notifyError(new Exception(activity.getString(R.string.unable_to_start_activity)));
+            }
+        });
+    }
+
+    protected boolean startActivityForResult (Activity activity, Intent intent, int tag) {
+        if (disposable == null && intent.resolveActivity(activity.getPackageManager()) != null) {
+            disposable = ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> handleResult(activity, activityResult.requestCode, activityResult.resultCode, activityResult.data));
+            activity.startActivityForResult(intent, tag);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected void processPickedPhoto(Activity activity, Uri uri) throws Exception {
+        if (!ChatSDK.config().imageCroppingEnabled && cropType == CropType.None) {
+            File imageFile = fileFromURI(uri, activity, MediaStore.Images.Media.DATA);
+            // New
+            File file = ImageUtils.compressImageToFile(activity, imageFile.getPath(), "COMPRESSED", "jpg");
+            handleImageFile(activity, file);
         }
         else {
-            resultHandler.result(null);
+            if (cropType == CropType.Circle) {
+                Cropper.startCircleActivity(activity, uri);
+            }
+            else if (cropType == CropType.Square) {
+                Cropper.startSquareActivity(activity, uri);
+            }
+            else {
+                Cropper.startActivity(activity, uri);
+            }
         }
     }
 
-    public void startTakeVideoActivity (Activity activity, Result resultHandler) {
-        this.resultHandler = resultHandler;
-        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        if (takeVideoIntent.resolveActivity(activity.getPackageManager()) != null) {
-            activity.startActivityForResult(takeVideoIntent, TAKE_VIDEO);
-        }
-    }
-
-    public void startChooseVideoActivity (Activity activity, Result resultHandler) {
-        this.resultHandler = resultHandler;
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-        activity.startActivityForResult(intent , CHOOSE_VIDEO);
-    }
-
-    public void startChooseImageActivity(Activity activity, CropType cropType, Result resultHandler) {
-        this.cropType = cropType;
-        this.resultHandler = resultHandler;
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        activity.startActivityForResult(intent, CHOOSE_PHOTO);
-    }
-
-    protected void processPickedPhoto(Activity activity, int resultCode, Intent data) throws Exception {
-
-        switch (resultCode)
-        {
-            case RESULT_OK:
-
-                Uri uri = data.getData();
-
-                if (!ChatSDK.config().imageCroppingEnabled) {
-                    String imagePath = pathFromURI(uri, activity, MediaStore.Images.Media.DATA);
-                    handleImageFile(activity, imagePath);
-                }
-                else {
-                    if (cropType == CropType.Circle) {
-                        Cropper.startCircleActivity(activity, uri);
-                    }
-                    else if (cropType == CropType.Square) {
-                        Cropper.startSquareActivity(activity, uri);
-                    }
-                    else {
-                        Cropper.startActivity(activity, uri);
-                    }
-                }
-
-                break;
-            case AppCompatActivity.RESULT_CANCELED:
-                throw new Exception();
-        }
-    }
-
-    protected String pathFromURI (Uri uri, Activity activity, String column) {
+    protected File fileFromURI (Uri uri, Activity activity, String column) {
         File file = null;
         if (uri.getPath() != null) {
             file = new File(uri.getPath());
         }
         if (file != null && file.length() > 0) {
-            return uri.getPath();
+            return file;
         }
         else {
             // Try to get it another way for this kind of URL
@@ -130,7 +182,8 @@ public class MediaSelector {
             Cursor cursor = activity.getContentResolver().query(uri, filePathColumn,null, null, null);
             if (cursor != null) {
                 cursor.moveToFirst();
-                return cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
+                String fileURI = cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
+                return new File(fileURI);
             }
         }
         return null;
@@ -140,67 +193,72 @@ public class MediaSelector {
 
         CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
-        if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE || resultCode == AppCompatActivity.RESULT_CANCELED) {
+        if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE || resultCode == Activity.RESULT_CANCELED) {
             throw new Exception(result.getError());
         }
         else if (resultCode == RESULT_OK) {
             try {
-                handleImageFile(activity, result.getUri().getPath());
+                handleImageFile(activity, new File(result.getUri().getPath()));
             }
             catch (NullPointerException e){
-                throw new Exception(activity.getString(R.string.unable_to_fetch_image));
+                notifyError(new Exception(activity.getString(R.string.unable_to_fetch_image)));
             }
         }
 
     }
 
-    public void handleImageFile (Activity activity, String path) {
+    public void handleImageFile (Activity activity, File file) {
 
         // Scanning the messageImageView so it would be visible in the gallery images.
         if (ChatSDK.config().saveImagesToDirectory) {
-            ImageUtils.scanFilePathForGallery(activity, path);
-        }
-
-        if (resultHandler != null) {
-            resultHandler.result(path);
-            clear();
+            ImageUtils.scanFilePathForGallery(activity, file.getPath());
         }
 
         EventBus.getDefault().post(new ChatMessageGotSent(true, true));
+        notifySuccess(file);
     }
 
     public void handleResult (Activity activity, int requestCode, int resultCode, Intent intent) throws Exception {
 
-        if (requestCode == CHOOSE_PHOTO) {
-            processPickedPhoto(activity, resultCode, intent);
-        }
-        else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            processCroppedPhoto(activity, resultCode, intent);
-        }
-
-        else if (requestCode == TAKE_PHOTO && resultCode == RESULT_OK) {
-            if(resultHandler != null && fileUri != null) {
-                activity.getContentResolver().notifyChange(fileUri, null);
-                String path = pathFromURI(fileUri, activity, MediaStore.Images.Media.DATA);
-                File file = ImageUtils.compressImageToFile(activity, path, "COMPRESSED", "jpg");
-                resultHandler.result(file.getPath());
-                clear();
+        if (resultCode == RESULT_OK) {
+            if (requestCode == CHOOSE_PHOTO) {
+                processPickedPhoto(activity, intent.getData());
             }
-        }
-        else if (requestCode == TAKE_VIDEO || requestCode == CHOOSE_VIDEO && resultCode == RESULT_OK && resultHandler != null) {
+            else if (requestCode == TAKE_PHOTO && fileUri != null) {
+                processPickedPhoto(activity, fileUri);
+            }
+            else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+                processCroppedPhoto(activity, resultCode, intent);
+            }
+            else if (requestCode == TAKE_VIDEO || requestCode == CHOOSE_VIDEO) {
                 Uri videoUri = intent.getData();
-                resultHandler.result(pathFromURI(videoUri, activity, MediaStore.Video.Media.DATA ));
-                clear();
+                notifySuccess(fileFromURI(videoUri, activity, MediaStore.Video.Media.DATA));
+            }
+            else {
+                notifyError(new Exception(activity.getString(R.string.error_processing_image)));
+            }
+        } else {
+            notifyError(new Exception(""));
         }
-        else {
-            Timber.d("Error handling photo");
+    }
+
+    protected void notifySuccess (@NotNull File file) {
+        if (emitter != null) {
+            emitter.onSuccess(file);
         }
+        clear();
+    }
+
+    protected void notifyError (@NotNull Throwable throwable) {
+        if (emitter != null) {
+            emitter.onError(throwable);
+        }
+        clear();
     }
 
     public void clear () {
-        resultHandler = null;
+        emitter = null;
+        disposable.dispose();
+        disposable = null;
     }
-
-
-
 }

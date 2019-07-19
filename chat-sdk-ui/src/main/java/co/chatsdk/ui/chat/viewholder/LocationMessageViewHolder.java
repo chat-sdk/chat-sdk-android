@@ -5,15 +5,18 @@ import android.view.View;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.List;
+
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.utils.GoogleUtils;
-import co.chatsdk.ui.chat.BaseMessageViewHolder;
 import co.chatsdk.ui.chat.LocationMessageOnClickHandler;
+import io.reactivex.subjects.PublishSubject;
 
 public class LocationMessageViewHolder extends BaseMessageViewHolder {
-    public LocationMessageViewHolder(View itemView, Activity activity) {
-        super(itemView, activity);
+    public LocationMessageViewHolder(View itemView, Activity activity, PublishSubject<List<MessageAction>> actionPublishSubject) {
+        super(itemView, activity, actionPublishSubject);
     }
 
     @Override
@@ -34,7 +37,7 @@ public class LocationMessageViewHolder extends BaseMessageViewHolder {
     public void onClick (View v) {
         super.onClick(v);
         if (message != null) {
-            LocationMessageOnClickHandler.onClick(activity, getLatLng());
+            LocationMessageOnClickHandler.onClick(activity.get(), getLatLng());
         }
     }
 

@@ -1,8 +1,8 @@
 {
   "rules": {
         
-    // ".read": "auth != null",
-    // ".write": "auth != null",
+    //".read": "auth != null",
+    //".write": "auth != null",
     
     "$root": {
       
@@ -77,6 +77,7 @@
 
             // Any user can make a new thread. Only the creator can change the details 
             ".write": "!data.exists() || (data.child('creator-entity-id').val() == auth.uid)",
+            // ".write": true
 
           },
             
@@ -99,11 +100,16 @@
               ".validate": "newData.val() == auth.uid"
             },
 
+            "creator": {
+              // A room could be created by the server
+              ".validate": "newData.val() == auth.uid"
+            },
+
             "type": {
               // Legacy type value for backwards compatibility
               // 0x0 (0) - Group
               // 0x1 (1) - Public
-              ".validate": "newData.val() == 0 || newData.val() == 1"
+              ".validate": "newData.val() == 1 || newData.val() == 2 || newData.val() == 4  || newData.val() == 10"
             },
 
             "type_v4": {
@@ -111,10 +117,10 @@
               // 0x1 (1) - Group
               // 0x2 (2) - 1to1
               // 0x4 (4) - Public
-              // 0x8 (8) -
+              // 0x8 (8) - Snap
               // 0x16 (22) -
               // 0x32 (50) -
-              ".validate": "newData.val() == 1 || newData.val() == 2 || newData.val() == 4  || newData.val() == 8 || newData.val() == 16 || newData.val() == 32"
+              ".validate": "newData.val() == 1 || newData.val() == 2 || newData.val() == 4  || newData.val() == 10"
             }
           },
 
@@ -124,7 +130,7 @@
 
             "type": {
               // Can only be set on message creation must be 0 - 7
-              ".validate": "newData.val() >= 0 && newData.val() <= 7"
+              ".validate": "newData.val() >= 0"
              },
 
              // It should be the same as the last message
@@ -187,7 +193,17 @@
                 ".validate": "!data.exists() && (newData.val() >= 0 && newData.val() <= 7)"
               },
 
+              // Will be deprecated in favour of the from field
               "user-firebase-id": {
+                // Can only be set on message creation - a user can only mark a message with their uid
+                ".validate": "!data.exists() && newData.val() == auth.uid"
+              },
+                
+              "to": {
+                ".validate": "!data.exists()"
+              }, 
+
+              "from": {
                 // Can only be set on message creation - a user can only mark a message with their uid
                 ".validate": "!data.exists() && newData.val() == auth.uid"
               },

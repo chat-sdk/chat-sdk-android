@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_add_picture">Adicionar foto</string>
+    <string name="action_delete_picture">Excluir foto</string>
+    <string name="set_as_default">Escolha como padrão</string>
+    <string name="uploading_picture">Carregando imagem</string>
+    <string name="updating_pictures">Atualizando fotos</string>
+    <string name="deleting_picture">Excluindo imagem</string>
+</resources>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/linear"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/send_message_border"
+    android:animateLayoutChanges="true">
+
+    <ImageButton
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ic_options"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:layout_gravity="bottom"
+        android:id="@+id/button_options"
+        android:layout_margin="10dp"
+        android:contentDescription="@string/acces_message_option_button" />
+
+    <FrameLayout
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_gravity="center_vertical"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/text_input_message"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="@string/message"
+            android:background="@null"
+            android:gravity="bottom"
+            android:maxLines="@integer/chat_sdk_max_message_lines"
+            android:isScrollContainer="true"
+            android:inputType="textShortMessage|textMultiLine"/>
+
+    </FrameLayout>
+
+    <ImageButton
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ic_36_mic"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:gravity="center"
+        android:layout_margin="10dp"
+        android:layout_gravity="bottom"
+        android:layout_marginLeft="5dp"
+        android:id="@+id/button_send"/>
+
+
+</LinearLayout>

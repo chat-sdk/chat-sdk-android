@@ -10,6 +10,7 @@ package co.chatsdk.ui.main;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -18,6 +19,8 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.View;
@@ -25,20 +28,31 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.ActivityResult;
+import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
+import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.ToastHelper;
+import io.reactivex.functions.Consumer;
 
 public class BaseActivity extends AppCompatActivity {
 
     protected ProgressDialog progressDialog;
+
+    // This is a list of extras that are passed to the login view
+    protected HashMap<String, Object> extras = new HashMap<>();
+    protected DisposableList disposableList = new DisposableList();
 
     public BaseActivity() {
     }
@@ -46,8 +60,18 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        updateExtras(getIntent().getExtras());
+
         // Setting the default task description.
         setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
+    }
+
+    protected void setActionBarTitle (int resourceId) {
+        ActionBar ab = getSupportActionBar();
+        if (ab != null) {
+            ab.setTitle(getString(resourceId));
+            ab.setHomeButtonEnabled(true);
+        }
     }
 
     @Override
@@ -59,7 +83,7 @@ public class BaseActivity extends AppCompatActivity {
      * @return the bitmap that will be used for the screen overview also called the recents apps.
      **/
     protected Bitmap getTaskDescriptionBitmap(){
-        return BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+        return BitmapFactory.decodeResource(getResources(), ChatSDK.config().logoDrawableResourceID);
     }
 
     protected int getTaskDescriptionColor(){
@@ -83,13 +107,20 @@ public class BaseActivity extends AppCompatActivity {
             setTaskDescription(td);
         }
     }
-    
+
+    protected void updateExtras (Bundle bundle) {
+        if (bundle != null) {
+            for (String s : bundle.keySet()) {
+                extras.put(s, bundle.get(s));
+            }
+        }
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        updateExtras(intent.getExtras());
     }
-
-
 
     @Override
     protected void onResume() {
@@ -115,6 +146,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         dismissProgressDialog();
+        disposableList.dispose();
     }
 
     @Override
@@ -128,7 +160,7 @@ public class BaseActivity extends AppCompatActivity {
      * */
     public void setupTouchUIToDismissKeyboard(View view) {
         setupTouchUIToDismissKeyboard(view, (v, event) -> {
-            hideSoftKeyboard(BaseActivity.this);
+            hideKeyboard();
             return false;
         }, -1);
     }
@@ -161,23 +193,37 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    /** Hide the Soft Keyboard.*/
-    public static void hideSoftKeyboard(Activity activity) {
-        InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE);
-
-        if (inputMethodManager == null)
-            return;
-
-        if (activity.getCurrentFocus() != null && activity.getCurrentFocus().getWindowToken() != null)
-            inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+    /** Show a SuperToast with the given text. */
+    protected void showToast(int textResourceId){
+        showToast(this.getString(textResourceId));
     }
 
-    /** Show a SuperToast with the given text. */
     protected void showToast(String text){
-        if (StringUtils.isEmpty(text))
-            return;
+        if (!text.isEmpty()) {
+            ToastHelper.show(this, text);
+        }
+    }
 
-        ToastHelper.show(this, text);
+    protected void showSnackbar(int textResourceId){
+        showSnackbar(this.getString(textResourceId));
+    }
+
+    protected void showSnackbar (String text) {
+        if (!text.isEmpty()) {
+            Snackbar.make(findViewById(android.R.id.content), text, Snackbar.LENGTH_SHORT).show();
+        }
+    }
+
+    protected Consumer<? super Throwable> toastOnErrorConsumer () {
+        return (Consumer<Throwable>) throwable -> showToast(throwable.getLocalizedMessage());
+    }
+
+    protected Consumer<? super Throwable> snackbarOnErrorConsumer () {
+        return (Consumer<Throwable>) throwable -> showSnackbar(throwable.getLocalizedMessage());
+    }
+
+    protected void showProgressDialog(int stringResId) {
+        showProgressDialog(getString(stringResId));
     }
 
     protected void showProgressDialog(String message) {
@@ -219,6 +265,33 @@ public class BaseActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         PermissionRequestHandler.shared().onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        ActivityResultPushSubjectHolder.shared().onNext(new ActivityResult(requestCode, resultCode, data));
+    }
+
+    public void hideKeyboard() {
+        BaseActivity.hideKeyboard(this);
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        // Check if no view has focus:
+        View view = activity.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (inputManager != null) {
+                inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();  // optional depending on your needs
     }
 
 }

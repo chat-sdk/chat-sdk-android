@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.interfaces.UserListItem;
@@ -27,7 +28,7 @@ import co.chatsdk.core.types.ConnectionType;
 // KEEP INCLUDES - put your token includes here
 
 @Entity
-public class User implements CoreEntity, UserListItem {
+public class User extends AbstractEntity implements UserListItem {
 
     @Id
     private Long id;
@@ -40,11 +41,6 @@ public class User implements CoreEntity, UserListItem {
 
     @ToMany(referencedJoinProperty = "userId")
     private List<LinkedAccount> linkedAccounts;
-
-    @Transient
-    private static final String TAG = User.class.getSimpleName();
-    @Transient
-    private static final String USER_PREFIX = "user";
 
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
@@ -66,8 +62,6 @@ public class User implements CoreEntity, UserListItem {
     public User() {
     }
 
-
-
     public List<User> getContacts() {
         return getContacts(ConnectionType.Contact);
     }
@@ -82,7 +76,7 @@ public class User implements CoreEntity, UserListItem {
         for (ContactLink contactLink : contactLinks){
             if(contactLink.getConnectionType().equals(type)) {
                 User user = contactLink.getUser();
-                if(user != null && StringUtils.isNotEmpty(user.getName())) {
+                if(user != null) {
                     contactList.add(contactLink.getUser());
                 }
             }
@@ -93,7 +87,7 @@ public class User implements CoreEntity, UserListItem {
 
     public void addContact(User user, ConnectionType type) {
 
-        if (user.equals(this)) {
+        if (user.isMe()) {
             return;
         }
 
@@ -115,6 +109,7 @@ public class User implements CoreEntity, UserListItem {
         contactLink.setUserId(user.getId());
         // insert contact link entity into DB
         daoSession.insertOrReplace(contactLink);
+
         this.update();
     }
 
@@ -137,75 +132,12 @@ public class User implements CoreEntity, UserListItem {
             DaoCore.deleteEntity(link);
         }
 
-        daoSession.update(this);
+//        this.refresh();
+        this.update();
     }
 
     public void addContact(User user) {
         addContact(user, ConnectionType.Contact);
-    }
-
-    private FollowerLink fetchFollower(User follower, int type){
-        return DaoCore.fetchEntityWithProperties(FollowerLink.class,
-                new Property[]{FollowerLinkDao.Properties.UserId, FollowerLinkDao.Properties.LinkOwnerUserDaoId, FollowerLinkDao.Properties.Type},
-                follower.getId(), getId(),  type);
-    }
-
-    public List<User> getFollowers() {
-        List<User> users = new ArrayList<User>();
-
-        List<FollowerLink> followers = DaoCore.fetchEntitiesWithProperties(FollowerLink.class,
-                new Property[]{FollowerLinkDao.Properties.LinkOwnerUserDaoId, FollowerLinkDao.Properties.Type},
-                getId(), FollowerLink.Type.FOLLOWER);
-
-        for (FollowerLink f : followers)
-        {
-            if (f!=null)
-                users.add(f.getUser());
-        }
-
-        return users;
-    }
-
-    public List<User> getFollows() {
-        List<User> users = new ArrayList<User>();
-
-        List<FollowerLink> followers = DaoCore.fetchEntitiesWithProperties(FollowerLink.class,
-                new Property[]{FollowerLinkDao.Properties.LinkOwnerUserDaoId, FollowerLinkDao.Properties.Type},
-                getId(), FollowerLink.Type.FOLLOWS);
-
-        for (FollowerLink f : followers)
-        {
-            if (f!=null)
-                users.add(f.getUser());
-        }
-
-        return users;
-    }
-
-    public FollowerLink fetchOrCreateFollower(User follower, int type) {
-
-        FollowerLink follows = fetchFollower(follower, type);
-
-        if (follows== null)
-        {
-            follows = new FollowerLink();
-
-            follows.setLinkOwnerUser(this);
-            follows.setUser(follower);
-            follows.setType(type);
-
-            follows = DaoCore.createEntity(follows);
-        }
-
-        return follows;
-    }
-
-    public boolean isFollowing(User user){
-        return fetchFollower(user, FollowerLink.Type.FOLLOWER) != null;
-    }
-
-    public boolean follows(User user){
-        return fetchFollower(user, FollowerLink.Type.FOLLOWS) != null;
     }
 
     public void setAvatarURL(String imageUrl, String hash) {
@@ -340,33 +272,6 @@ public class User implements CoreEntity, UserListItem {
         }
     }
 
-
-    @Deprecated
-    /**
-     * This is for maintaining compatibility with older chat versions, It will be removed in a few versions.
-     **/
-    private Map<String, Object> updateMetaDataFormat(Map<String, Object> map){
-        
-        Map<String, Object> newData = new HashMap<>();
-
-        String newKey, value;
-        for (String key : map.keySet())
-        {
-            if (map.get(key) instanceof Map)
-            {
-                value = (String) ((Map) map.get(key)).get(Keys.Value);
-                newKey = (String) ((Map) map.get(key)).get(Keys.Key);
-                newData.put(newKey, value);
-                
-                //if (DEBUG) Timber.i("convertedData, Key: %s, Value: %s", newKey, value);
-            }
-            else 
-                newData.put(key, map.get(key));
-        }
-        
-        return newData;
-    }
-
     /**
      * Converting the metaData json to a map object
      **/
@@ -378,28 +283,13 @@ public class User implements CoreEntity, UserListItem {
         }
 
         return map;
-
-//        if(metaMapCache == null || metaMapCache.keySet().size() == 0) {
-//            if(metaData != null) {
-//                try {
-//                    metaMapCache = JsonHelper.toMap(new JSONObject(metaData));
-//                } catch (JSONException e) {
-//                    ChatSDK.logError(e);
-//                    Timber.e(e.getCause(), "Cant parse metaData json to map. Meta: %s", metaData);
-//                }
-//            }
-//        }
-//        if(metaMapCache == null) {
-//            metaMapCache = new HashMap<>();
-//        }
-//        return metaMapCache;
     }
 
     @Keep
     public void setMetaValue (String key, String value) {
         UserMetaValue metaValue = metaValueForKey(key);
         if (metaValue == null) {
-            metaValue = StorageManager.shared().createEntity(UserMetaValue.class);
+            metaValue = ChatSDK.db().createEntity(UserMetaValue.class);
             metaValue.setUserId(this.getId());
             getMetaValues().add(metaValue);
         }
@@ -417,9 +307,12 @@ public class User implements CoreEntity, UserListItem {
     }
 
     public boolean hasThread(Thread thread){
-        UserThreadLink data =
-                DaoCore.fetchEntityWithProperties(UserThreadLink.class,
-                        new Property[]{UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, thread.getId(), getId());
+        UserThreadLink data = DaoCore.fetchEntityWithProperties (
+                UserThreadLink.class,
+                new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId},
+                thread.getId(),
+                getId()
+        );
 
         return data != null;
     }
@@ -436,14 +329,13 @@ public class User implements CoreEntity, UserListItem {
         return channel;
     }
 
-    public boolean isMe(){
-        return getId().longValue() == ChatSDK.currentUser().getId().longValue();
+    public boolean isMe() {
+        return equalsEntity(ChatSDK.currentUser());
     }
 
     public String toString() {
         return String.format("User, id: %s meta: %s", id, metaMap().toString());
     }
-
 
     public Long getId() {
         return this.id;

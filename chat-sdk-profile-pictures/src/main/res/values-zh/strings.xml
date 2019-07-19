@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_add_picture">添加图片</string>
+    <string name="action_delete_picture">删除图片</string>
+    <string name="set_as_default">设为默认</string>
+    <string name="uploading_picture">正在上传图片</string>
+    <string name="updating_pictures">更新图片</string>
+    <string name="deleting_picture">删除图片</string>
+</resources>

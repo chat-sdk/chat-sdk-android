@@ -8,10 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.ProfilePicturesHandler;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.InterfaceManager;
 import co.chatsdk.core.utils.HashMapHelper;
 
 /**
@@ -28,6 +28,7 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
     public static final String KeyLimitWarning = "limitWarning";
     public static final String KeyHideButton = "hideButton";
 
+    protected Class profilePicturesActivity;
     protected int gridPadding = 4;
     protected int pictureMargin = 8;
     protected int picturesPerRow = 2;
@@ -35,35 +36,46 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
     protected boolean hideButton = false;
     protected String limitWarning = null;
 
+    public BaseProfilePicturesHandler() {
+        profilePicturesActivity = ProfilePicturesActivity.class;
+    }
+
     protected String getLimitWarning() {
         if (limitWarning != null) return limitWarning;
         return "You can only add up to " + maxPictures + " pictures";
     }
 
+    @Override
     public void setGridPadding(int padding) {
         gridPadding = padding;
     }
 
+    @Override
     public void setPictureMargin(int margin) {
         pictureMargin = margin;
     }
 
+    @Override
     public void setPicturesPerRow(int count) {
         picturesPerRow = count;
     }
 
+    @Override
     public void setMaxPictures(int count) {
         maxPictures = count;
     }
 
+    @Override
     public void setLimitWarning(String warning) {
         limitWarning = warning;
     }
 
+    @Override
     public void setAddButtonHidden(boolean hidden) {
         hideButton = hidden;
     }
 
+    @Override
     public void setDefaultPicture(User user, String url, List<String> urls) {
         if (urls.size() > 1) {
             if (urls.indexOf(url) > -1) {
@@ -75,10 +87,12 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
         user.setAvatarURL(url);
     }
 
+    @Override
     public void setDefaultPicture(User user, String url) {
         setDefaultPicture(user, url, fromUser(user));
     }
 
+    @Override
     public void addPicture(User user, String url) {
         ArrayList<String> urls = fromUser(user);
         if (urls.size() == 0) {
@@ -90,6 +104,7 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
 
     }
 
+    @Override
     public void removePicture(User user, String url) {
         ArrayList<String> urls = fromUser(user);
         boolean isDefault = urls.indexOf(url) == 0;
@@ -101,6 +116,7 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
         setPictures(user, urls);
     }
 
+    @Override
     public void replacePicture(User user, String prevUrl, String newUrl) {
         ArrayList<String> urls = fromUser(user);
         int i = urls.indexOf(prevUrl);
@@ -110,6 +126,7 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
         }
     }
 
+    @Override
     public void setPictures(User user, List<String> urls) {
         HashMap<String, String> pictures = new HashMap<>();
         for (int i = 0; i < urls.size(); i++) {
@@ -121,6 +138,7 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
         user.setMetaMap(meta);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public ArrayList<String> fromUser(User user) {
         Map<String, Object> expandedMeta = expandMeta(user.metaMap());
@@ -139,13 +157,20 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
         }
     }
 
+    @Override
     public Class getProfilePicturesActivity() {
-        return ProfilePicturesActivity.class;
+        return profilePicturesActivity;
     }
 
+    @Override
+    public void setProfilePicturesActivity(Class profilePicturesActivity) {
+        this.profilePicturesActivity = profilePicturesActivity;
+    }
+
+    @Override
     public void startProfilePicturesActivity(Context context, String userEntityID) {
         Intent intent = new Intent(context, getProfilePicturesActivity());
-        intent.putExtra(InterfaceManager.USER_ENTITY_ID, userEntityID);
+        intent.putExtra(Keys.IntentKeyUserEntityID, userEntityID);
         intent.putExtra(KeyGridPadding, gridPadding);
         intent.putExtra(KeyPictureMargin, pictureMargin);
         intent.putExtra(KeyPicturesPerRow, picturesPerRow);

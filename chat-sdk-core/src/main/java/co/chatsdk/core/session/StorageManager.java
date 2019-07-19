@@ -26,12 +26,6 @@ import static co.chatsdk.core.dao.DaoCore.fetchEntityWithProperty;
 
 public class StorageManager {
 
-    private final static StorageManager instance = new StorageManager();
-
-    public static StorageManager shared() {
-        return instance;
-    }
-
     public List<Thread> fetchThreadsForUserWithID (Long userId) {
         List<Thread> threads = new ArrayList<>();
 
@@ -126,7 +120,11 @@ public class StorageManager {
     }
 
     public List<Message> fetchMessagesForThreadWithID (long threadID, int limit, Date olderThan) {
-        List<Message> list ;
+
+        // If we have a zero date, treat it as null
+        if (olderThan != null && olderThan.equals(new Date(0))) {
+            olderThan = null;
+        }
 
         QueryBuilder<Message> qb = daoSession.queryBuilder(Message.class);
         qb.where(MessageDao.Properties.ThreadId.eq(threadID));
@@ -141,12 +139,11 @@ public class StorageManager {
 
         qb.orderDesc(MessageDao.Properties.Date);
 
-        if (limit != -1)
+        if (limit != -1) {
             qb.limit(limit);
+        }
 
-        list = qb.list();
-
-        return list;
+        return  qb.list();
 
     }
 

@@ -13,14 +13,6 @@
         android:label="@string/app_name"
         android:supportsRtl="true">
 
-        <!--<meta-data-->
-            <!--android:name="com.google.firebase.messaging.default_notification_icon"-->
-            <!--android:resource="@drawable/push_icon" />-->
-
-        <!--<meta-data-->
-            <!--android:name="com.google.firebase.messaging.default_notification_color"-->
-            <!--android:resource="@color/chat_blue" />-->
-
         <service
             android:name="co.chatsdk.firebase.push.InstanceIdService">
             <intent-filter>
@@ -36,8 +28,8 @@
         </service>
 
         <receiver
-            android:name="co.chatsdk.firebase.push.DefaultBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
+            android:name="co.chatsdk.core.push.DefaultBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
