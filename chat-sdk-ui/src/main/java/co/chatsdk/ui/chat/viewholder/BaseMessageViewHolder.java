@@ -1,6 +1,8 @@
 package co.chatsdk.ui.chat.viewholder;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.text.util.Linkify;
@@ -10,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 
@@ -27,12 +30,15 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.message_action.CopyMessageAction;
 import co.chatsdk.ui.chat.message_action.DeleteMessageAction;
 import co.chatsdk.ui.chat.message_action.ForwardMessageAction;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.PublishSubject;
 
 public class BaseMessageViewHolder extends AbstractMessageViewHolder {
@@ -118,10 +124,56 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         //or red depending on if the user is or is not already in the list of contacts.
         User user = message.getSender();
         if (!ChatSDK.contact().exists(user)) {
-            usernameTextView.setTextColor(Color.rgb(0, 153, 0));
-        } else {
             usernameTextView.setTextColor(Color.RED);
+        } else {
+            usernameTextView.setTextColor(Color.rgb(0, 153, 0));
         }
+
+        //This is the action that is triggered when the user clicks on a contact that is not already in his or her list.
+        //I put this block inside of of the setMessage function in order to be able to re-use the usernameTextView.
+        usernameTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                User user = message.getSender();
+                if (!ChatSDK.contact().exists(user)) {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(activity.get());
+                    alert.setTitle("Add Contact");
+                    alert.setMessage("Are you sure you want to add " + message.getSender().getName() + " to your list of contacts?");
+
+                    alert.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            ChatSDK.contact().addContact(user, ConnectionType.Contact)
+                                    .subscribe(new Action() {
+                                        @Override
+                                        public void run() throws Exception {
+                                            Toast.makeText(activity.get(), message.getSender().getName() + " has been added to your list of contacts.", Toast.LENGTH_LONG).show();
+                                            //This works, but only if the thread does not contain more than one instance of the message containing the contact in question.
+                                            setMessage(message);
+                                            dialog.cancel();
+                                        }
+                                    }, new Consumer<Throwable>() {
+                                        @Override
+                                        public void accept(Throwable throwable) throws Exception {
+                                            Toast.makeText(activity.get(), "There was an error, " + message.valueForKey("text") + " could not be added.", Toast.LENGTH_LONG).show();
+                                            dialog.cancel();
+                                        }
+                                    });
+                        }
+                    });
+                    alert.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                    alert.show();
+                } else {
+                    Toast.makeText(activity.get(), "This person is already in your list of contacts", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
 
         float alpha = message.getMessageStatus() == MessageSendStatus.Sent || message.getMessageStatus() == MessageSendStatus.Delivered ? 1.0f : 0.7f;
         setAlpha(alpha);
@@ -141,7 +193,6 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
                 setUsernameTextHidden(false);
             }
         }
-
         updateReadStatus();
     }
 
