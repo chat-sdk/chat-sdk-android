@@ -53,6 +53,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;

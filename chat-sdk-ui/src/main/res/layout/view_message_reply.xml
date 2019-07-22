@@ -4,6 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:fresco="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     style="@style/RowStyle"
@@ -51,36 +52,34 @@
 
                 android:layout_marginStart="2dp"
                 android:layout_marginLeft="2dp"
-                android:layout_marginEnd="5dp"
-                android:layout_marginRight="5dp"
 
                 fresco:layout_constraintBottom_toBottomOf="parent"
-                fresco:layout_constraintEnd_toStartOf="@+id/text_content"
                 fresco:layout_constraintStart_toStartOf="parent"
+                fresco:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/username_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_weight="1"
+                android:text=""
+                fresco:layout_constraintStart_toEndOf="@+id/image_icon"
                 fresco:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/text_content"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
-                android:layout_marginStart="0dp"
-                android:layout_marginLeft="0dp"
-                android:layout_marginEnd="0dp"
-                android:layout_marginRight="0dp"
-                android:paddingStart="0dp"
-                android:paddingLeft="0dp"
-                android:paddingEnd="0dp"
-                android:paddingRight="0dp"
-
-                android:autoLink="all"
-                android:gravity="center_vertical"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_weight="1"
                 android:text=""
-                app:layout_constrainedWidth="true"
-                fresco:layout_constraintBottom_toBottomOf="parent"
-                fresco:layout_constraintEnd_toEndOf="parent"
                 fresco:layout_constraintStart_toEndOf="@+id/image_icon"
-                fresco:layout_constraintTop_toTopOf="parent" />
+                fresco:layout_constraintTop_toBottomOf="@+id/username_text" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -97,19 +96,21 @@
                 fresco:roundedCornerRadius="10dp"
                 fresco:fadeDuration="0" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:id="@+id/layout_extra"
-                android:layout_marginLeft="4dp"
-                android:layout_marginStart="4dp"
-                android:layout_marginRight="15dp"
-                android:layout_marginEnd="15dp"
-                android:gravity="start"
-                android:layout_gravity="start"
-                android:orientation="horizontal" />
+        <LinearLayout
+            android:id="@+id/layout_extra"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_gravity="start"
+            android:layout_marginStart="23dp"
+            android:layout_marginLeft="23dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginRight="15dp"
+            android:gravity="start"
+            android:orientation="horizontal" >
+
+        </LinearLayout>
 
         </RelativeLayout>
 

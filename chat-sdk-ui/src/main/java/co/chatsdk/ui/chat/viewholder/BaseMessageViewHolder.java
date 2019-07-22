@@ -1,8 +1,7 @@
 package co.chatsdk.ui.chat.viewholder;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.text.util.Linkify;
 import android.view.View;
@@ -22,13 +21,14 @@ import java.util.Locale;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import co.chatsdk.core.base.AbstractMessageViewHolder;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.ReadStatus;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.message_action.CopyMessageAction;
 import co.chatsdk.ui.chat.message_action.DeleteMessageAction;
@@ -50,6 +50,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     protected LinearLayout extraLayout;
     protected ImageView readReceiptImageView;
     protected ProgressBar progressBar;
+    protected TextView usernameTextView;
 
     public BaseMessageViewHolder(View itemView, Activity activity, PublishSubject<List<MessageAction>> actionPublishSubject) {
         super(itemView, activity, actionPublishSubject);
@@ -63,6 +64,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         extraLayout = itemView.findViewById(R.id.layout_extra);
         readReceiptImageView = itemView.findViewById(R.id.image_read_receipt);
         progressBar = itemView.findViewById(R.id.progress_bar);
+        usernameTextView = itemView.findViewById(R.id.username_text);
 
         itemView.setOnClickListener(this::onClick);
         itemView.setOnLongClickListener(this::onLongClick);
@@ -73,7 +75,6 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
 
         // Enable linkify
         messageTextView.setAutoLinkMask(Linkify.ALL);
-
     }
 
     public void onClick (View v) {
@@ -108,6 +109,19 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         setTextHidden(true);
         setIconHidden(true);
         setImageHidden(true);
+        setUsernameTextHidden(true);
+
+        //This part will load the name of the sender into the message display at the top of the message.
+        usernameTextView.setText(message.getSender().getName());
+
+        //Now we check to see if the user in in the list of contacts. There names are color code green
+        //or red depending on if the user is or is not already in the list of contacts.
+        User user = message.getSender();
+        if (!ChatSDK.contact().exists(user)) {
+            usernameTextView.setTextColor(Color.rgb(0, 153, 0));
+        } else {
+            usernameTextView.setTextColor(Color.RED);
+        }
 
         float alpha = message.getMessageStatus() == MessageSendStatus.Sent || message.getMessageStatus() == MessageSendStatus.Delivered ? 1.0f : 0.7f;
         setAlpha(alpha);
@@ -122,6 +136,10 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         }
         else {
             messageBubble.getBackground().setColorFilter(ChatSDK.config().messageColorReply, PorterDuff.Mode.MULTIPLY);
+            //If this is a public message, the name of the user who sent it will be displayed at the top of the message.
+            if (message.getThread().typeIs(ThreadType.Public)) {
+                setUsernameTextHidden(false);
+            }
         }
 
         updateReadStatus();
@@ -235,7 +253,6 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
 //                setImageSize(maxWidth(), maxHeight());
             setImageSize(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         }
-
     }
 
     public void setTextHidden (boolean hidden) {
@@ -251,6 +268,22 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         }
         messageTextView.setLayoutParams(textLayoutParams);
         messageTextView.requestLayout();
+        messageBubble.requestLayout();
+    }
+
+    public void setUsernameTextHidden (boolean hidden) {
+        usernameTextView.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
+        ConstraintLayout.LayoutParams textLayoutParams = (ConstraintLayout.LayoutParams) usernameTextView.getLayoutParams();
+        if(hidden) {
+            textLayoutParams.width = 0;
+            textLayoutParams.height = 0;
+        }
+        else {
+            textLayoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            textLayoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        }
+        usernameTextView.setLayoutParams(textLayoutParams);
+        usernameTextView.requestLayout();
         messageBubble.requestLayout();
     }
 
