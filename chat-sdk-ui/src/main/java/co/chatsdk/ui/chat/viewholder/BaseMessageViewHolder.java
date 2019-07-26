@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +31,7 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.Configuration;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.ReadStatus;
@@ -115,11 +117,20 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         setTextHidden(true);
         setIconHidden(true);
         setImageHidden(true);
+        //these setting have to do with displaying the username and the time on top of the message or not
         setUsernameTextHidden(true);
+        setTimeTextViewHidden(false);
 
-        //This part will load the name of the sender into the message display at the top of the message.
-        usernameTextView.setText(message.getSender().getName());
+        //This is the block that deals with the Username display on top of the message.
+        //Only if the message is in a public thread and the sender isn't you is it displayed
 
+        if (!message.getSender().isMe() && message.getThread().typeIs(ThreadType.Public) && ChatSDK.config().messageUserNamesEnabled) {
+            setUsernameTextHidden(false);
+            setTimeTextViewHidden(true);
+        }
+        //This part will load the name of the sender and the time into the message display at the top of the message.
+        String usernameAndTime = message.getSender().getName() + ", " + String.valueOf(getTimeFormat(message).format(message.getDate().toDate()));
+        usernameTextView.setText(usernameAndTime);
         //Now we check to see if the user in in the list of contacts. There names are color code green
         //or red depending on if the user is or is not already in the list of contacts.
         User user = message.getSender();
@@ -128,7 +139,6 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         } else {
             usernameTextView.setTextColor(Color.rgb(0, 153, 0));
         }
-
         //This is the action that is triggered when the user clicks on a contact that is not already in his or her list.
         //I put this block inside of of the setMessage function in order to be able to re-use the usernameTextView.
         usernameTextView.setOnClickListener(new View.OnClickListener() {
@@ -188,10 +198,6 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         }
         else {
             messageBubble.getBackground().setColorFilter(ChatSDK.config().messageColorReply, PorterDuff.Mode.MULTIPLY);
-            //If this is a public message, the name of the user who sent it will be displayed at the top of the message.
-            if (message.getThread().typeIs(ThreadType.Public)) {
-                setUsernameTextHidden(false);
-            }
         }
         updateReadStatus();
     }
@@ -324,7 +330,8 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
 
     public void setUsernameTextHidden (boolean hidden) {
         usernameTextView.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
-        ConstraintLayout.LayoutParams textLayoutParams = (ConstraintLayout.LayoutParams) usernameTextView.getLayoutParams();
+
+        RelativeLayout.LayoutParams textLayoutParams = (RelativeLayout.LayoutParams) usernameTextView.getLayoutParams();
         if(hidden) {
             textLayoutParams.width = 0;
             textLayoutParams.height = 0;
@@ -335,6 +342,23 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         }
         usernameTextView.setLayoutParams(textLayoutParams);
         usernameTextView.requestLayout();
+        messageBubble.requestLayout();
+    }
+
+    public void setTimeTextViewHidden (boolean hidden) {
+        timeTextView.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
+
+        RelativeLayout.LayoutParams textLayoutParams = (RelativeLayout.LayoutParams) timeTextView.getLayoutParams();
+        if(hidden) {
+            textLayoutParams.width = 0;
+            textLayoutParams.height = 0;
+        }
+        else {
+            textLayoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            textLayoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        }
+        timeTextView.setLayoutParams(textLayoutParams);
+        timeTextView.requestLayout();
         messageBubble.requestLayout();
     }
 

@@ -146,6 +146,9 @@ public class Configuration {
     public int pushNotificationColor = Color.parseColor("#ff33b5e5");
     public boolean pushNotificationsForPublicChatRoomsEnabled = false;
 
+    //Put the username and the time on top, yes or no? I set this to null because it is not being changed in the AppObj file
+    public boolean messageUserNamesEnabled =false;
+
     // Maximum distance to pick up nearby users
     public int nearbyUserMaxDistance = 50000;
 
@@ -395,6 +398,11 @@ public class Configuration {
 
         public Builder pushNotificationsForPublicChatRoomsEnabled(boolean value) {
             config.pushNotificationsForPublicChatRoomsEnabled = value;
+            return this;
+        }
+        //This is where we decide where to write the time that the message was posted at.
+        public Builder messageUserNamesEnabled(boolean value) {
+            config.messageUserNamesEnabled = value;
             return this;
         }
 

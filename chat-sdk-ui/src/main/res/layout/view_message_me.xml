@@ -35,6 +35,13 @@
         android:orientation="vertical"
         android:animateLayoutChanges="true">
 
+        <TextView
+            android:id="@+id/username_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            android:layout_above="@+id/image_message_bubble"/>
+
         <!-- The unevenness in the padding is a result of the asymmetry of the bubble / tail -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/image_message_bubble"
@@ -49,31 +56,6 @@
             android:paddingRight="15dp"
 
             android:background="@drawable/message_sent_3">
-
-            <TextView
-                android:id="@+id/username_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-
-                android:layout_marginStart="0dp"
-                android:layout_marginLeft="0dp"
-                android:layout_marginEnd="0dp"
-                android:layout_marginRight="0dp"
-                android:paddingStart="0dp"
-                android:paddingLeft="0dp"
-                android:paddingEnd="0dp"
-                android:paddingRight="0dp"
-
-                android:autoLink="all"
-                android:gravity="center_vertical"
-                android:text=""
-
-                fresco:layout_constraintLeft_toRightOf="@+id/image_icon"
-                fresco:layout_constraintStart_toEndOf="@+id/image_icon"
-                fresco:layout_constraintTop_toTopOf="parent"
-                fresco:layout_constraintEnd_toEndOf="parent"
-                fresco:layout_constraintBottom_toTopOf="@+id/text_content"/>
 
             <com.facebook.drawee.view.SimpleDraweeView
                 android:id="@+id/image_icon"
