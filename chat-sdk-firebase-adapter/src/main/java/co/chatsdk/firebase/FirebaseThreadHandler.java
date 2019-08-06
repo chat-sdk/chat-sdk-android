@@ -49,8 +49,22 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 Date finalFromDate = localMessageSize > 0 ? localMessages.get(localMessageSize-1).getDate().toDate() : fromDate;
 
                 return new ThreadWrapper(thread).loadMoreMessages(finalFromDate, messageToLoad).map((Function<List<Message>, List<Message>>) remoteMessages -> {
+
+//                    if (ChatSDK.encryption() != null) {
+//                        for (Message m : remoteMessages) {
+//                            ChatSDK.encryption().decrypt(m);
+//                        }
+//                    }
+
                     ArrayList<Message> mergedMessages = new ArrayList<>(localMessages);
                     mergedMessages.addAll(remoteMessages);
+
+                    if (ChatSDK.encryption() != null) {
+                        for (Message m : mergedMessages) {
+                            ChatSDK.encryption().decrypt(m);
+                        }
+                    }
+
                     return mergedMessages;
                 });
             }

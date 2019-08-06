@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
@@ -137,6 +138,8 @@ public class UserWrapper {
                     deserialize((Map<String, Object>) snapshot.getValue());
                 }
                 e.onComplete();
+            }).onCancelled(error -> {
+                e.onError(error.toException());
             }));
 
         }).subscribeOn(Schedulers.single());

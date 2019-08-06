@@ -26,7 +26,7 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
 
     @Override
     public Observable<User> usersForIndex(String value, int limit) {
-        return usersForIndexes(value, limit, Keys.Name, Keys.Email, Keys.Phone, Keys.NameLowercase);
+        return usersForIndexes(value, limit, ChatSDK.config().searchIndexes);
     }
 
     @Override
@@ -49,6 +49,7 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
                     .orderByChild(Keys.Meta + '/' + index)
                     .startAt(value)
                     .limitToFirst(limit);
+
             query.keepSynced(true);
 
             query.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
@@ -78,7 +79,9 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
                 }
                 e.onComplete();
             }).onCancelled(error -> {
-                e.onError(new Throwable(error.getMessage()));
+                if(!e.isDisposed()) {
+                    e.onError(new Throwable(error.getMessage()));
+                }
 //                e.onComplete();
             }));
 

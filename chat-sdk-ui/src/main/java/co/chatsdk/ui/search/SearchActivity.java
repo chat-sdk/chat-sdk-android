@@ -235,31 +235,4 @@ public class SearchActivity extends BaseActivity {
         return "";
     }
 
-    public static void startSearchActivity (final Context context) {
-        if (context != null) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-            final List<SearchActivityType> activities = new ArrayList<>(ChatSDK.ui().getSearchActivities());
-            activities.add(new SearchActivityType(ChatSDK.ui().getSearchActivity(), context.getString(R.string.search_with_name)));
-
-            if (activities.size() == 1) {
-                ChatSDK.ui().startActivity(context, activities.get(0).className);
-                return;
-            }
-
-            String [] items = new String [activities.size()];
-            int i = 0;
-
-            for (SearchActivityType activity : activities) {
-                items[i++] = activity.title;
-            }
-
-            builder.setTitle(context.getString(R.string.search)).setItems(items, (dialogInterface, i1) -> {
-                // Launch the appropriate context
-                ChatSDK.ui().startActivity(context, activities.get(i1).className);
-            });
-
-            builder.show();
-        }
-    }
 }

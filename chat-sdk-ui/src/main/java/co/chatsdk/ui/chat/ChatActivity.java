@@ -897,7 +897,4 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         handleMessageSend(option.execute(this, thread));
     }
 
-
-
-
 }

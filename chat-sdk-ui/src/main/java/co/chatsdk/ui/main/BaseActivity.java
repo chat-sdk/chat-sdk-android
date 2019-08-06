@@ -247,7 +247,9 @@ public class BaseActivity extends AppCompatActivity {
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage(message);
             progressDialog.show();
-        } else progressDialog.setMessage(message);
+        } else {
+            progressDialog.setMessage(message);
+        }
     }
 
     protected void dismissProgressDialog() {

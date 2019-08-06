@@ -7,6 +7,8 @@
 
 package co.chatsdk.ui.contacts;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.LayoutRes;
@@ -30,10 +32,12 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
+import co.chatsdk.ui.search.SearchActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -251,11 +255,37 @@ public class ContactsFragment extends BaseFragment {
 
         // Each user that will be found in the search context will be automatically added as a contact.
         if (id == R.id.action_add) {
-            ChatSDK.ui().startSearchActivity(getActivity());
+            startSearchActivity();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void startSearchActivity () {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        final List<SearchActivityType> activities = new ArrayList<>(ChatSDK.ui().getSearchActivities());
+        activities.add(new SearchActivityType(ChatSDK.ui().getSearchActivity(), getActivity().getString(R.string.search_with_name)));
+
+        if (activities.size() == 1) {
+            ChatSDK.ui().startActivity(getActivity(), activities.get(0).className);
+            return;
+        }
+
+        String [] items = new String [activities.size()];
+        int i = 0;
+
+        for (SearchActivityType activity : activities) {
+            items[i++] = activity.title;
+        }
+
+        builder.setTitle(getActivity().getString(R.string.search)).setItems(items, (dialogInterface, i1) -> {
+            // Launch the appropriate context
+            ChatSDK.ui().startActivity(getActivity(), activities.get(i1).className);
+        });
+
+        builder.show();
     }
 
     public void loadData (final boolean force) {

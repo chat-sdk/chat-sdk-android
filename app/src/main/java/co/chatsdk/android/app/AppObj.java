@@ -5,11 +5,16 @@ import android.content.Context;
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
 
+import com.google.firebase.database.DataSnapshot;
+
 import co.chatsdk.android.app.test.MessageTestChatOption;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
+import co.chatsdk.firebase.FirebaseEventListener;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
+import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
@@ -31,7 +36,7 @@ public class AppObj extends MultiDexApplication {
 
             Configuration.Builder config = new Configuration.Builder(context);
 
-            config.firebaseRootPath("web_testing_07_19");
+            config.firebaseRootPath("modules_test_june_20");
             config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
             config.publicRoomCreationEnabled(true);
             config.pushNotificationSound("default");
@@ -49,10 +54,12 @@ public class AppObj extends MultiDexApplication {
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
 
+
             // Uncomment this to enable Firebase UI
             // FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
 
 //            ChatSDK.ui().addChatOption(new MessageTestChatOption("Message Burst"));
+
 
         }
         catch (ChatSDKException e) {

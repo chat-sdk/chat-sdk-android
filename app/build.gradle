@@ -3,10 +3,6 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
 
-    dexOptions {
-        preDexLibraries = false
-    }
-
     defaultConfig {
         applicationId "co.chatsdk.android.app"
 
@@ -57,6 +53,7 @@ android {
 
     dexOptions {
         javaMaxHeapSize "6g"
+        preDexLibraries = false
     }
 
     compileOptions {

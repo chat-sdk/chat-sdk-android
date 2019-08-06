@@ -10,7 +10,6 @@ import com.google.firebase.database.DatabaseError;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.AbstractAuthenticationHandler;
 import co.chatsdk.core.dao.User;
@@ -24,9 +23,7 @@ import co.chatsdk.core.types.ChatError;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
@@ -145,46 +142,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
             return userWrapper.push();
         });
-
-//        return Completable.create(e-> {
-//                    final Map<String, Object> loginInfoMap = new HashMap<>();
-//                    // Save the authentication ID for the current user
-//                    // Set the current user
-//
-//                    String uid = user.getUid();
-//
-//                    loginInfoMap.put(AuthKeys.CurrentUserID, uid);
-//
-//                    setLoginInfo(loginInfoMap);
-//
-//                    setAuthStatus(AuthStatus.HANDLING_F_USER);
-//
-//                    // Do a once() on the user to push its details to firebase.
-//                    final UserWrapper userWrapper = UserWrapper.initWithAuthData(user);
-//
-//                    userWrapper.once().subscribe(()->{
-//                        userWrapper.getModel().update();
-//
-//                        ChatSDK.events().impl_currentUserOn(userWrapper.getModel().getEntityID());
-//
-////                        if (ChatSDK.push() != null) {
-////                            ChatSDK.push().subscribeToPushChannel(userWrapper.getModel().getPushChannel());
-////                        }
-//
-//                        if (ChatSDK.hook() != null) {
-//                            HashMap<String, Object> data = new HashMap<>();
-//                            data.put(HookEvent.User, userWrapper.getModel());
-//                            ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(new CrashReportingCompletableObserver());
-//                        }
-//
-//                        ChatSDK.core().setUserOnline().subscribe(new CrashReportingCompletableObserver());
-//
-//                        authenticatedThisSession = true;
-//
-//                        userWrapper.push().subscribe(e::onComplete, e::onError);
-//                    }, e::onError);
-//                })
-//                .subscribeOn(Schedulers.single());
     }
 
     public Boolean isAuthenticated() {
@@ -212,43 +169,67 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     }
 
     public Completable logout() {
-        return Completable.create(
-                emitter-> {
+
+        return ChatSDK.hook().executeHook(HookEvent.WillLogout)
+                .concatWith(ChatSDK.core().setUserOffline())
+                .concatWith(Completable.defer(() -> {
+
                     final User user = ChatSDK.currentUser();
 
                     // Stop listening to user related alerts. (added message or thread.)
                     ChatSDK.events().impl_currentUserOff(user.getEntityID());
 
-                    // Removing the push channel
-//                    if (ChatSDK.push() != null) {
-//                        ChatSDK.push().unsubscribeToPushChannel(user.getPushChannel());
-//                    }
+                    FirebaseAuth.getInstance().signOut();
 
-                    ChatSDK.hook().executeHook(HookEvent.WillLogout, new HashMap<>()).concatWith(ChatSDK.core().setUserOffline()).subscribe(()->{
+                    removeLoginInfo(AuthKeys.CurrentUserID);
 
-                        FirebaseAuth.getInstance().signOut();
+                    ChatSDK.events().source().onNext(NetworkEvent.logout());
 
-                        removeLoginInfo(AuthKeys.CurrentUserID);
+                    if (ChatSDK.socialLogin() != null) {
+                        ChatSDK.socialLogin().logout();
+                    }
 
-                        ChatSDK.events().source().onNext(NetworkEvent.logout());
+                    if (ChatSDK.hook() != null) {
+                        HashMap<String, Object> data = new HashMap<>();
+                        data.put(HookEvent.User, user);
+                        return ChatSDK.hook().executeHook(HookEvent.DidLogout, data);
+                    } else {
+                        return Completable.complete();
+                    }
+                })).subscribeOn(Schedulers.single());
 
-                        if (ChatSDK.socialLogin() != null) {
-                            ChatSDK.socialLogin().logout();
-                        }
-
-                        if (ChatSDK.hook() != null) {
-                            HashMap<String, Object> data = new HashMap<>();
-                            data.put(HookEvent.User, user);
-                            ChatSDK.hook().executeHook(HookEvent.DidLogout, data).subscribe(new CrashReportingCompletableObserver());;
-                        }
-
-                        authenticatedThisSession = false;
-
-                        emitter.onComplete();
-                    }, emitter::onError);
-
-                })
-                .subscribeOn(Schedulers.single());
+//        return Completable.create(
+//                emitter-> {
+//                    final User user = ChatSDK.currentUser();
+//
+//                    // Stop listening to user related alerts. (added message or thread.)
+//                    ChatSDK.events().impl_currentUserOff(user.getEntityID());
+//
+//                    Disposable d = ChatSDK.hook().executeHook(HookEvent.WillLogout, new HashMap<>()).concatWith(ChatSDK.core().setUserOffline()).subscribe(()->{
+//
+//                        FirebaseAuth.getInstance().signOut();
+//
+//                        removeLoginInfo(AuthKeys.CurrentUserID);
+//
+//                        ChatSDK.events().source().onNext(NetworkEvent.logout());
+//
+//                        if (ChatSDK.socialLogin() != null) {
+//                            ChatSDK.socialLogin().logout();
+//                        }
+//
+//                        if (ChatSDK.hook() != null) {
+//                            HashMap<String, Object> data = new HashMap<>();
+//                            data.put(HookEvent.User, user);
+//                            ChatSDK.hook().executeHook(HookEvent.DidLogout, data).subscribe(new CrashReportingCompletableObserver());;
+//                        }
+//
+//                        authenticatedThisSession = false;
+//
+//                        emitter.onComplete();
+//                    }, emitter::onError);
+//
+//                })
+//                .subscribeOn(Schedulers.single());
     }
 
     public Completable sendPasswordResetMail(final String email) {

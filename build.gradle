@@ -8,8 +8,8 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:3.4.1"
-        classpath "com.google.gms:google-services:4.2.0"
+        classpath "com.android.tools.build:gradle:3.4.2"
+        classpath "com.google.gms:google-services:4.3.0"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
     }
 }
@@ -24,9 +24,9 @@ ext {
     androidxMultidexVersion = "2.0.1"
     materialVersion = "1.0.0"
     playAuthVersion = "16.0.1"
-    playMapsVersion = "16.1.0"
+    playMapsVersion = "17.0.0"
     googlePlacesVersion = "1.1.0"
-    playLocationVersion = "16.0.0"
+    playLocationVersion = "17.0.0"
     firebaseUiVersion = "4.3.2"
     firebaseCoreVersion = "16.0.9"
     firebaseDatabaseVersion = "17.0.0"

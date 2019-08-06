@@ -1,5 +1,7 @@
 package co.chatsdk.core.handlers;
 
+import java.util.List;
+
 import co.chatsdk.core.dao.User;
 import io.reactivex.Observable;
 
@@ -17,10 +19,11 @@ public interface SearchHandler {
     Observable<User> usersForIndex(final String value, final String index);
 
     Observable<User> usersForIndex(final String value, int limit, final String index);
+    Observable<User> usersForIndexes(final String value, List<String> indexes);
 
     // Checks a list of indexes
     Observable<User> usersForIndexes(final String value, final String... indexes);
 
     Observable<User> usersForIndexes(final String value, int limit, final String... indexes);
-
+    Observable<User> usersForIndexes(String value, int limit, List<String> indexes);
 }

@@ -9,6 +9,7 @@ package co.chatsdk.ui.login;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -155,6 +156,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         Action doFinally = this::dismissProgressDialog;
 
         showProgressDialog(getString(R.string.authenticating));
+        progressDialog.setOnDismissListener(dialog -> {
+            // Dispose
+            disposableList.dispose();
+        });
 
         if (i == R.id.button_login) {
             passwordLogin();
@@ -170,26 +175,26 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
         else if (i == R.id.button_twitter) {
             if(ChatSDK.socialLogin() != null) {
-                ChatSDK.socialLogin().loginWithTwitter(this).doOnError(error)
+                disposableList.add(ChatSDK.socialLogin().loginWithTwitter(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
                         .doFinally(doFinally)
-                        .subscribe(completion, error);
+                        .subscribe(completion, error));
             }
         }
         else if (i == R.id.button_facebook) {
             if(ChatSDK.socialLogin() != null) {
-                ChatSDK.socialLogin().loginWithFacebook(this).doOnError(error)
+                disposableList.add(ChatSDK.socialLogin().loginWithFacebook(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
                         .doFinally(doFinally)
-                        .subscribe(completion, error);
+                        .subscribe(completion, error));
             }
         }
         else if (i == R.id.button_google) {
             if(ChatSDK.socialLogin() != null) {
-                ChatSDK.socialLogin().loginWithGoogle(this).doOnError(error)
+                disposableList.add(ChatSDK.socialLogin().loginWithGoogle(this).doOnError(error)
                         .observeOn(AndroidSchedulers.mainThread())
                         .doFinally(doFinally)
-                        .subscribe(completion, error);
+                        .subscribe(completion, error));
             }
         }
     }
@@ -233,7 +238,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         showProgressDialog(getString(R.string.connecting));
 
-        Disposable d = ChatSDK.auth().authenticate(details)
+        disposableList.add(ChatSDK.auth().authenticate(details)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
                     authenticating = false;
@@ -243,7 +248,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                     dismissProgressDialog();
                     toastErrorMessage(e, false);
                     ChatSDK.logError(e);
-                });
+                }));
     }
 
     @Override
@@ -331,12 +336,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         builder.setPositiveButton(getString(R.string.submit), (dialog, which) -> {
             showOrUpdateProgressDialog(getString(R.string.requesting));
-            requestNewPassword(input.getText().toString()).observeOn(AndroidSchedulers.mainThread()).subscribe(() -> {
+            disposableList.add(requestNewPassword(input.getText().toString()).observeOn(AndroidSchedulers.mainThread()).subscribe(() -> {
                 dismissProgressDialog();
                 showToast(getString(R.string.password_reset_success));
             }, throwable -> {
                 showToast(throwable.getLocalizedMessage());
-            });
+            }));
         });
 
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> {

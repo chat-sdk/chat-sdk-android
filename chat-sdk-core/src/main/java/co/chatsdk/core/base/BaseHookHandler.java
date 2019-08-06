@@ -38,12 +38,17 @@ public class BaseHookHandler implements HookHandler {
     @Override
     public Completable executeHook(String name, HashMap<String, Object> data) {
         ArrayList<Hook> existingHooks = hooks.get(name);
-        ArrayList<Completable> comparables = new ArrayList<>();
+        ArrayList<Completable> completables = new ArrayList<>();
         if(existingHooks != null) {
             for(Hook hook : existingHooks) {
-                comparables.add(hook.execute(data));
+                completables.add(hook.execute(data));
             }
         }
-        return Completable.merge(comparables);
+        return Completable.merge(completables);
+    }
+
+    @Override
+    public Completable executeHook(String name) {
+        return executeHook(name, null);
     }
 }

@@ -296,6 +296,38 @@ ChatSDK.ui().startSplashScreenActivity(context);
 8. Set a custom root path. The chat SDK allows you to run multiple chat instances on one Firebase database. This could be useful if you want *test* and *production* environments for example. To do this set `builder.firebaseRootPath("prod")` in the configuration builder.  
 9. In the Firebase dashboard click **Authentication -> Sign-in method** and enable all the appropriate methods 
 
+### Security Rules
+
+Firebase secures your data by allowing you to write rules to govern who can access the database and what can be written. The rules are also needed to enable user search. To enable the rules see the guide [Enabling Security Rules](https://github.com/chat-sdk/chat-sdk-firebase).
+
+### Push Notifications
+
+Follow the instructions on our [Chat SDK Firebase repository](https://github.com/chat-sdk/chat-sdk-firebase)
+
+Then add the following to your `build.gradle`
+
+##### Add the library
+
+*Gradle*
+
+```
+compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.8.2'
+```
+
+[*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
+
+```
+compile project(path: ':chat-sdk-firebase-push')
+```
+
+##### Enable the module
+
+In your main class `onCreate` method add:
+
+```
+FirebasePushModule.activate();
+```
+
 ### Enabling location messages
 
 The Chat SDK needs two google services to support location messages. The [Google Places API](https://developers.google.com/places/) to select the location and the [Google Static Maps API](https://developers.google.com/maps/documentation/static-maps/) to display the location.
@@ -395,51 +427,6 @@ For the following modules:
 - [Contact book integration](http://chatsdk.co/downloads/contact-book-integration/)
 
 The free modules are located in the main [Github repository](https://github.com/chat-sdk/chat-sdk-android). The premium modules can be purchased and downloaded from the links provided above. 
-
-### Push Notifications
-
-Add the following to your `build.gradle`
-
-##### Add the library
-
-*Gradle*
-
-```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.8.2'
-```
-
-[*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
-
-```
-compile project(path: ':chat-sdk-firebase-push')
-```
-
-##### Enable the module
-
-In your main class `onCreate` method add:
-
-```
-FirebasePushModule.activate();
-```
-
-##### Setup Firebase Cloud Functions
-
-To handle push notifications, we use [Firebase Cloud Functions](https://firebase.google.com/docs/functions/). This service allows you to upload a script to Firebase hosting. This script monitors the realtime database and whenever a new messsage is detected, it sends a push notification to the recipient. 
-
-Below is a summary of the steps that are required to setup push using the Firebase Cloud Functions script. For further instructions you can look at the [Firebase Documentation](https://firebase.google.com/docs/functions/get-started). 
-
-1. Run `firebase login` and login using the browser
-2. Make a new directory to store your push functions in. It can be called anything
-3. Navigate to that directory using the terminal
-4. Run `firebase init functions`
-5. Choose the correct app from the list
-6. Choose `JavaScript`
-7. Choose `y` for ESLint
-8. Choose `Y` to install node dependencies
-9. Find the `functions` directory you've just created and copy the `index.js` file from [Github](https://github.com/chat-sdk/chat-sdk-android/tree/master/FirebasePushNotifications) into the directory
-10. Run `firebase deploy` 
-
-Now the script is active and push notifications will be set out automatically. 
 
 ### Firebase UI
 
@@ -586,12 +573,6 @@ After you have purchased the module you will be provided with a link to the modu
   ContactBookModule.activate();
   ```
   
-### Security Rules
-
-Firebase secures your data by allowing you to write rules to govern who can access the database and what can be written. On the Firebase dashboard click **Database** then the **Rules** tab. 
-
-Copy the contents of the [**rules.json**](https://github.com/chat-sdk/chat-sdk-android/blob/master/firebase-rules.json) file into the rules and click publish.
-
 ### Adding Modules Manually
 
 In Android Studio:

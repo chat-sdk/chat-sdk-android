@@ -4,13 +4,16 @@ import android.content.Context;
 import android.graphics.Color;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import co.chatsdk.core.R;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.interfaces.CrashHandler;
 import co.chatsdk.core.utils.StringChecker;
@@ -161,7 +164,16 @@ public class Configuration {
     public long readReceiptMaxAge = TimeUnit.DAYS.toMillis(7);
     public int readReceiptMaxMessagesPerThread = 30;
 
+    public ArrayList<String> searchIndexes = new ArrayList<>();
+
     public HashMap<String, Object> customProperties = new HashMap<>();
+
+    public Configuration () {
+        searchIndexes.add(Keys.Name);
+        searchIndexes.add(Keys.Email);
+        searchIndexes.add(Keys.Phone);
+        searchIndexes.add(Keys.NameLowercase);
+    }
 
     public Object getCustomProperty(String key) {
         return customProperties.get(key);
@@ -660,6 +672,12 @@ public class Configuration {
 
         public Builder nearbyUsersMinimumLocationChangeToUpdateServer (int minimumDistance) {
             config.nearbyUsersMinimumLocationChangeToUpdateServer = minimumDistance;
+            return this;
+        }
+
+        public Builder setSearchIndexes (List<String> indexes) {
+            config.searchIndexes.clear();
+            config.searchIndexes.addAll(indexes);
             return this;
         }
 

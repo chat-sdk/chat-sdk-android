@@ -89,12 +89,12 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Single.just(newMessage(message.getType(), thread)).flatMapCompletable(newMessage -> {
             newMessage.setMetaValues(message.getMetaValuesAsMap());
 
-            message.setMessageStatus(MessageSendStatus.WillSend);
+            newMessage.setMessageStatus(MessageSendStatus.WillSend);
             ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
-            message.setMessageStatus(MessageSendStatus.Sending);
+            newMessage.setMessageStatus(MessageSendStatus.Sending);
             ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
 
-            return sendMessage(message);
+            return sendMessage(newMessage);
 
         }).subscribeOn(Schedulers.single());
     }
