@@ -92,7 +92,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected static boolean enableTrace = false;
 
     protected View actionBarView;
-
+    // Set up the message box - this is the box that sits above the keyboard
+    protected QuoteView quoteView;
     protected TextInputView textInputView;
     protected RecyclerView recyclerView;
     protected MessageListAdapter messageListAdapter;
@@ -126,10 +127,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         setContentView(activityLayout());
 
         initViews();
+
+        quoteView.setVisibility(View.INVISIBLE);
 
         if (!updateThreadFromBundle(savedInstanceState)) {
             return;
@@ -143,7 +145,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         initActionBar();
 
         // If the context is just been created we load regularly, else we load and retain position
-//        loadMessages(true, -1, ListPosition.Bottom);
+        //loadMessages(true, -1, ListPosition.Bottom);
 
         setChatState(TypingIndicatorHandler.State.active);
 
@@ -290,8 +292,15 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         return R.layout.activity_chat;
     }
 
+    public void displayQuoteView (Message quotedMessage) {
+        quoteView.setDelegate(this);
+        quoteView.quotedUsername.setText(quotedMessage.getText());
+        quoteView.quotedText.setText(quotedMessage.getSender().getName());
+        quoteView.setVisibility(View.VISIBLE);
+    }
+
     protected void initViews () {
-        // Set up the message box - this is the box that sits above the keyboard
+        quoteView = findViewById(R.id.quote_view);
         textInputView = findViewById(R.id.view_message_text_input);
         textInputView.setDelegate(this);
         textInputView.setAudioModeEnabled(ChatSDK.audioMessage() != null);
@@ -422,7 +431,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if (StringUtils.isEmpty(text) || StringUtils.isBlank(text)) {
             return;
         }
-
 
         handleMessageSend(ChatSDK.thread().sendMessageWithText(text.trim(), thread));
 

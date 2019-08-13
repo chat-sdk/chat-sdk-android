@@ -232,7 +232,7 @@ public class TextInputView extends LinearLayout implements TextView.OnEditorActi
         finishRecording();
         if(recording != null) {
             if(delegate != null && recording.getDurationMillis() > 1000) {
-                if(!rect.contains(view.getLeft() + (int) motionEvent.getX(), view.getTop() + (int) motionEvent.getY())){
+                if(!rect.contains(view.getLeft() + (int) motionEvent.getX(), view.getTop() + (int) motionEvent.getY())) {
                     // User moved outside bounds
                     ToastHelper.show(getContext(), getContext().getString(R.string.recording_cancelled));
                 }

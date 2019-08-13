@@ -18,6 +18,7 @@ import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.SendMultipleImagesAtOnceActivity;
 import co.chatsdk.ui.chat.options.MediaType;
 import co.chatsdk.ui.utils.Cropper;
 import io.reactivex.Single;
@@ -32,10 +33,10 @@ import static android.app.Activity.RESULT_OK;
 
 public class MediaSelector {
 
-    private static final int TAKE_PHOTO = 100;
-    private static final int CHOOSE_PHOTO = 101;
-    private static final int TAKE_VIDEO = 102;
-    private static final int CHOOSE_VIDEO = 103;
+    public static final int TAKE_PHOTO = 100;
+    public static final int CHOOSE_PHOTO = 101;
+    public static final int TAKE_VIDEO = 102;
+    public static final int CHOOSE_VIDEO = 103;
 
     protected Uri fileUri;
     protected Disposable disposable;
@@ -146,6 +147,13 @@ public class MediaSelector {
         }
     }
 
+    protected void goToSendMultipleImages(Activity activity, Uri uri) {
+        String uriString = uri.toString();
+        Intent i = new Intent(activity, SendMultipleImagesAtOnceActivity.class);
+        i.putExtra("uriString", uriString);
+        activity.startActivity(i);
+    }
+
     protected void processPickedPhoto(Activity activity, Uri uri) throws Exception {
         if (!ChatSDK.config().imageCroppingEnabled && cropType == CropType.None) {
             File imageFile = fileFromURI(uri, activity, MediaStore.Images.Media.DATA);
@@ -165,7 +173,8 @@ public class MediaSelector {
             }
         }
     }
-    protected File fileFromURI (Uri uri, Activity activity, String column) {
+
+    public static File fileFromURI (Uri uri, Activity activity, String column) {
         File file = null;
         if (uri.getPath() != null) {
             file = new File(uri.getPath());
@@ -219,10 +228,10 @@ public class MediaSelector {
 
         if (resultCode == RESULT_OK) {
             if (requestCode == CHOOSE_PHOTO) {
-                processPickedPhoto(activity, intent.getData());
+                goToSendMultipleImages(activity, intent.getData());
             }
             else if (requestCode == TAKE_PHOTO && fileUri != null) {
-                processPickedPhoto(activity, fileUri);
+                goToSendMultipleImages(activity, fileUri);
             }
             else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
                 processCroppedPhoto(activity, resultCode, intent);
