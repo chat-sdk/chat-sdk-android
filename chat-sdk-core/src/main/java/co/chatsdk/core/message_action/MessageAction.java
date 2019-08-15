@@ -16,7 +16,7 @@ public abstract class MessageAction {
         None,
         Delete,
         Forward,
-        Copy
+        Copy,
     }
 
     public WeakReference<Message> message;
