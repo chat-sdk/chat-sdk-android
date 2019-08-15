@@ -378,6 +378,7 @@
 
     <string name="copy">Copy</string>
     <string name="forward">Forward</string>
+    <string name="quote">Quote</string>
     <string name="forward_message">Forward Message</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="copy_failed">Copy failed!</string>
@@ -385,6 +386,7 @@
     <string name="add_user_to_chat">Add User To Chat</string>
     <string name="success">Success!</string>
     <string name="message_sent">Message sent!</string>
+    <string name="quote_message_created">Quote message created</string>
     <string name="message_forward_failed">Message forwarded failed</string>
     <string name="online">Online</string>
 

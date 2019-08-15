@@ -150,7 +150,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/multipleImageRecycler"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="70dp"
         android:orientation="horizontal"
         fresco:backgroundTint="#444444" />
 

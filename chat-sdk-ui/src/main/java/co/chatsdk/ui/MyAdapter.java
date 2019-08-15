@@ -12,12 +12,14 @@ import java.util.ArrayList;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>  {
 
-    private ArrayList<Uri> mDataset;
+    private static ArrayList<Uri> mDataset;
+    public Uri mainImageUri;
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
         public ImageView imageView;
-        public Uri mainImageURI;
+        public Uri thisImageUri;
+        public int thisImagePosition;
 
         public MyViewHolder(ImageView v) {
             super(v);
@@ -26,14 +28,23 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>  {
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    SendMultipleImagesAtOnceActivity.mainImageDisplay.setImageURI(mainImageURI);
+                    SendMultipleImagesAtOnceActivity.mainImageDisplay.setImageURI(thisImageUri);
+                    SendMultipleImagesAtOnceActivity.mainImageUri = thisImageUri;
                 }
             });
 
-/*            imageView.setOnLongClickListener(new View.OnLongClickListener() {
+            imageView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
-                public void onLongClick(View v) {}
-            });*/
+                public boolean onLongClick(View v) {
+                    Uri toBeDeletedUri = thisImageUri;
+                    SendMultipleImagesAtOnceActivity.myImageArray.remove(thisImageUri);
+                    SendMultipleImagesAtOnceActivity.mAdapter.notifyDataSetChanged();
+                    if (SendMultipleImagesAtOnceActivity.mainImageUri == toBeDeletedUri) {
+                        SendMultipleImagesAtOnceActivity.mainImageDisplay.setImageURI(mDataset.get(thisImagePosition));
+                    }
+                    return true;
+                }
+            });
         }
     }
 
@@ -52,7 +63,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>  {
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         holder.imageView.setImageURI(mDataset.get(position));
-        holder.mainImageURI = mDataset.get(position);
+        holder.thisImageUri = mDataset.get(position);
+        holder.thisImagePosition = position;
     }
 
     @Override
@@ -62,6 +74,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>  {
 
     public void onDataSetChanged (ArrayList<Uri> myImageArray) {
 
+    }
+
+    public void setMainImageUri (Uri uri) {
+        mainImageUri = uri;
+    }
+
+    public static void addImageToMyAdapter(Uri uri) {
+        mDataset.add(uri);
     }
 
 }

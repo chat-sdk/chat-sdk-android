@@ -212,7 +212,6 @@ public class MediaSelector {
                 notifyError(new Exception(activity.getString(R.string.unable_to_fetch_image)));
             }
         }
-
     }
 
     public void handleImageFile (Activity activity, File file) {

@@ -40,13 +40,10 @@ public class QuoteView extends LinearLayout {
     }
 
     protected void init(){
-        inflate(getContext(), R.layout.quote_view, this);
+        inflate(getContext(), R.layout.image_view, this);
     }
 
     protected void initViews() {
-        quotedUsername = findViewById(R.id.quoted_user_name);
-        quotedText = findViewById(R.id.quoted_text_content);
-        quotedImageView = findViewById(R.id.quoted_image_view);
     }
 
     protected Activity getActivity() {
