@@ -12,6 +12,7 @@ import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.facebook.imagepipeline.listener.RequestListener;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -64,6 +65,8 @@ import co.chatsdk.ui.threads.ThreadDetailsActivity;
 
 public class BaseInterfaceAdapter implements InterfaceAdapter {
 
+    private WeakReference<Context> context;
+
     public List<SearchActivityType> searchActivities = new ArrayList<>();
     public List<ChatOption> chatOptions = new ArrayList<>();
     public ChatOptionsHandler chatOptionsHandler = null;
@@ -104,6 +107,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     private String stringChoosePhoto;
 
     public BaseInterfaceAdapter (Context context) {
+        this.context = new WeakReference<>(context);
+
         DiskCacheConfig diskCacheConfig = DiskCacheConfig
                 .newBuilder(context)
                 .setMaxCacheSizeOnVeryLowDiskSpace(10 * ByteConstants.MB)
@@ -127,16 +132,10 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         setMessageHandler(new ImageMessageDisplayHandler(), new MessageType(MessageType.Image));
         setMessageHandler(new LocationMessageDisplayHandler(), new MessageType(MessageType.Location));
 
-        privateThreadsTab = new Tab(context.getString(R.string.conversations), R.drawable.ic_action_private, privateThreadsFragment());
-        publicThreadsTab = new Tab(context.getString(R.string.chat_rooms), R.drawable.ic_action_public, publicThreadsFragment());
-        contactsTab = new Tab(context.getString(R.string.contacts), R.drawable.ic_action_contacts, contactsFragment());
-        profileTab = new Tab (context.getString(R.string.profile), R.drawable.ic_action_user, profileFragment(null));
-
         stringLocation = context.getResources().getString(R.string.location);
         stringTakePhoto = context.getResources().getString(R.string.take_photo);
         stringChoosePhoto = context.getResources().getString(R.string.choose_photo);
 
-        tabs.addAll(defaultTabs());
     }
 
     @Override
@@ -151,6 +150,9 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public List<Tab> tabs() {
+        if (tabs.size() == 0) {
+            tabs.addAll(defaultTabs());
+        }
         return tabs;
     }
 
@@ -181,21 +183,33 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public Tab privateThreadsTab() {
+        if (privateThreadsTab == null) {
+            privateThreadsTab = new Tab(context.get().getString(R.string.conversations), R.drawable.ic_action_private, privateThreadsFragment());
+        }
         return privateThreadsTab;
     }
 
     @Override
     public Tab publicThreadsTab() {
+        if (publicThreadsTab == null) {
+            publicThreadsTab = new Tab(context.get().getString(R.string.chat_rooms), R.drawable.ic_action_public, publicThreadsFragment());
+        }
         return publicThreadsTab;
     }
 
     @Override
     public Tab contactsTab() {
+        if (contactsTab == null) {
+            contactsTab = new Tab(context.get().getString(R.string.contacts), R.drawable.ic_action_contacts, contactsFragment());
+        }
         return contactsTab;
     }
 
     @Override
     public Tab profileTab() {
+        if (profileTab == null) {
+            profileTab = new Tab (context.get().getString(R.string.profile), R.drawable.ic_action_user, profileFragment(null));
+        }
         return profileTab;
     }
 
