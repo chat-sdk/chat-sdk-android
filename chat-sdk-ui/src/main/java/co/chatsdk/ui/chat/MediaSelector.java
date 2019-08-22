@@ -32,10 +32,10 @@ import static android.app.Activity.RESULT_OK;
 
 public class MediaSelector {
 
-    private static final int TAKE_PHOTO = 100;
-    private static final int CHOOSE_PHOTO = 101;
-    private static final int TAKE_VIDEO = 102;
-    private static final int CHOOSE_VIDEO = 103;
+    public static final int TAKE_PHOTO = 100;
+    public static final int CHOOSE_PHOTO = 101;
+    public static final int TAKE_VIDEO = 102;
+    public static final int CHOOSE_VIDEO = 103;
 
     protected Uri fileUri;
     protected Disposable disposable;
@@ -165,7 +165,8 @@ public class MediaSelector {
             }
         }
     }
-    protected File fileFromURI (Uri uri, Activity activity, String column) {
+
+    public static File fileFromURI (Uri uri, Activity activity, String column) {
         File file = null;
         if (uri.getPath() != null) {
             file = new File(uri.getPath());

@@ -229,6 +229,12 @@ public class Thread extends AbstractEntity {
 
     public void addMessage (Message message) {
         message.setThreadId(this.getId());
+        List<Message> messages = getMessages();
+        if (messages.size() > 0) {
+            Message previousMessage = messages.get(messages.size() - 1);
+            previousMessage.setNextMessage(message);
+            message.setLastMessage(previousMessage);
+        }
         getMessages().add(message);
         update();
         refresh();
@@ -265,8 +271,27 @@ public class Thread extends AbstractEntity {
     public void removeMessage (Message message) {
 
         List<Message> messages = getMessages();
+        int indexOfMessage = messages.indexOf(message);
+        if (indexOfMessage >= 0) {
+            Message previousMessage = null;
+            Message nextMessage = null;
 
-        messages.remove(message);
+            // If it's not the first message
+            if (indexOfMessage > 0) {
+                previousMessage = messages.get(indexOfMessage - 1);
+            }
+            // If it's not the last message
+            if (indexOfMessage < messages.size() - 1) {
+                nextMessage = messages.get(indexOfMessage + 1);
+            }
+            if (previousMessage != null) {
+                previousMessage.setNextMessage(nextMessage);
+            }
+            if (nextMessage != null) {
+                nextMessage.setLastMessage(previousMessage);
+            }
+            messages.remove(message);
+        }
 
         message.cascadeDelete();
 

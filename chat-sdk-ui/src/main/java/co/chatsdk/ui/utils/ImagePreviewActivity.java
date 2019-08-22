@@ -5,9 +5,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,12 @@ import com.facebook.drawee.drawable.ScalingUtils;
 import com.facebook.drawee.view.SimpleDraweeView;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
+
+import java.io.File;
+
+import co.chatsdk.core.utils.ActivityResult;
+import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.ui.main.BaseActivity;
 
 public class ImagePreviewActivity extends BaseActivity {
@@ -254,5 +262,4 @@ public class ImagePreviewActivity extends BaseActivity {
         set1.start();
         currentAnimator = set1;
     }
-
 }
