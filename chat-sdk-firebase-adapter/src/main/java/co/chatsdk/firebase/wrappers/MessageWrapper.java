@@ -297,6 +297,10 @@ public class MessageWrapper  {
                 return;
             }
 
+            if (!model.getThread().containsUser(ChatSDK.currentUser())) {
+                return;
+            }
+
             String entityID = ChatSDK.currentUserID();
 
             ReadStatus currentStatus = model.getReadStatus();

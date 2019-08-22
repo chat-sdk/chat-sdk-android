@@ -109,6 +109,8 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         ChildEventListener publicThreadsListener = publicThreadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
             final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
 
+
+
             // Make sure that we're not in the thread
             // there's an edge case where the user could kill the app and remain
             // a member of a public thread

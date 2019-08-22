@@ -197,39 +197,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                         return Completable.complete();
                     }
                 })).subscribeOn(Schedulers.single());
-
-//        return Completable.create(
-//                emitter-> {
-//                    final User user = ChatSDK.currentUser();
-//
-//                    // Stop listening to user related alerts. (added message or thread.)
-//                    ChatSDK.events().impl_currentUserOff(user.getEntityID());
-//
-//                    Disposable d = ChatSDK.hook().executeHook(HookEvent.WillLogout, new HashMap<>()).concatWith(ChatSDK.core().setUserOffline()).subscribe(()->{
-//
-//                        FirebaseAuth.getInstance().signOut();
-//
-//                        removeLoginInfo(AuthKeys.CurrentUserID);
-//
-//                        ChatSDK.events().source().onNext(NetworkEvent.logout());
-//
-//                        if (ChatSDK.socialLogin() != null) {
-//                            ChatSDK.socialLogin().logout();
-//                        }
-//
-//                        if (ChatSDK.hook() != null) {
-//                            HashMap<String, Object> data = new HashMap<>();
-//                            data.put(HookEvent.User, user);
-//                            ChatSDK.hook().executeHook(HookEvent.DidLogout, data).subscribe(new CrashReportingCompletableObserver());;
-//                        }
-//
-//                        authenticatedThisSession = false;
-//
-//                        emitter.onComplete();
-//                    }, emitter::onError);
-//
-//                })
-//                .subscribeOn(Schedulers.single());
     }
 
     public Completable sendPasswordResetMail(final String email) {
