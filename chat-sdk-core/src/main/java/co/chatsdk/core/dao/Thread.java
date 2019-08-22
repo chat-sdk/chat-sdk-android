@@ -233,7 +233,7 @@ public class Thread extends AbstractEntity {
         if (messages.size() > 0) {
             Message previousMessage = messages.get(messages.size() - 1);
             previousMessage.setNextMessage(message);
-            message.setLastMessage(previousMessage);
+            message.setPreviousMessage(previousMessage);
         }
         getMessages().add(message);
         update();
@@ -288,7 +288,7 @@ public class Thread extends AbstractEntity {
                 previousMessage.setNextMessage(nextMessage);
             }
             if (nextMessage != null) {
-                nextMessage.setLastMessage(previousMessage);
+                nextMessage.setPreviousMessage(previousMessage);
             }
             messages.remove(message);
         }

@@ -47,7 +47,7 @@ public class Message extends AbstractEntity {
     private Long senderId;
     private Long threadId;
     private Long nextMessageId;
-    private Long lastMessageId;
+    private Long previousMessageId;
 
     @ToMany(referencedJoinProperty = "messageId")
     private List<ReadReceiptUserLink> readReceiptLinks;
@@ -61,8 +61,8 @@ public class Message extends AbstractEntity {
     @ToOne(joinProperty = "nextMessageId")
     private Message nextMessage;
 
-    @ToOne(joinProperty = "lastMessageId")
-    private Message lastMessage;
+    @ToOne(joinProperty = "previousMessageId")
+    private Message previousMessage;
 
     @ToMany(referencedJoinProperty = "messageId")
     private List<MessageMetaValue> metaValues;
@@ -75,10 +75,9 @@ public class Message extends AbstractEntity {
     @Generated(hash = 859287859)
     private transient MessageDao myDao;
 
-    @Generated(hash = 842349170)
-    public Message(Long id, String entityID, DateTime date, Boolean read, Integer type,
-            Integer status, Long senderId, Long threadId, Long nextMessageId,
-            Long lastMessageId) {
+    @Generated(hash = 683389848)
+    public Message(Long id, String entityID, DateTime date, Boolean read, Integer type, Integer status,
+            Long senderId, Long threadId, Long nextMessageId, Long previousMessageId) {
         this.id = id;
         this.entityID = entityID;
         this.date = date;
@@ -88,7 +87,7 @@ public class Message extends AbstractEntity {
         this.senderId = senderId;
         this.threadId = threadId;
         this.nextMessageId = nextMessageId;
-        this.lastMessageId = lastMessageId;
+        this.previousMessageId = previousMessageId;
     }
 
     @Generated(hash = 637306882)
@@ -104,8 +103,8 @@ public class Message extends AbstractEntity {
     @Generated(hash = 992601680)
     private transient Long nextMessage__resolvedKey;
 
-    @Generated(hash = 88977546)
-    private transient Long lastMessage__resolvedKey;
+    @Generated(hash = 829136111)
+    private transient Long previousMessage__resolvedKey;
 
     public boolean isRead() {
         if (sender != null && sender.isMe()) {
@@ -415,12 +414,12 @@ public class Message extends AbstractEntity {
         this.nextMessageId = nextMessageId;
     }
 
-    public Long getLastMessageId() {
-        return this.lastMessageId;
+    public Long getPreviousMessageId() {
+        return this.previousMessageId;
     }
 
-    public void setLastMessageId(Long lastMessageId) {
-        this.lastMessageId = lastMessageId;
+    public void setPreviousMessageId(Long previousMessageId) {
+        this.previousMessageId = previousMessageId;
     }
 
     /** To-one relationship, resolved on first access. */
@@ -507,35 +506,6 @@ public class Message extends AbstractEntity {
             this.nextMessage = nextMessage;
             nextMessageId = nextMessage == null ? null : nextMessage.getId();
             nextMessage__resolvedKey = nextMessageId;
-        }
-    }
-
-    /** To-one relationship, resolved on first access. */
-    @Generated(hash = 1697405005)
-    public Message getLastMessage() {
-        Long __key = this.lastMessageId;
-        if (lastMessage__resolvedKey == null || !lastMessage__resolvedKey.equals(__key)) {
-            final DaoSession daoSession = this.daoSession;
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            MessageDao targetDao = daoSession.getMessageDao();
-            Message lastMessageNew = targetDao.load(__key);
-            synchronized (this) {
-                lastMessage = lastMessageNew;
-                lastMessage__resolvedKey = __key;
-            }
-        }
-        return lastMessage;
-    }
-
-    /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 944284900)
-    public void setLastMessage(Message lastMessage) {
-        synchronized (this) {
-            this.lastMessage = lastMessage;
-            lastMessageId = lastMessage == null ? null : lastMessage.getId();
-            lastMessage__resolvedKey = lastMessageId;
         }
     }
 
@@ -637,6 +607,35 @@ public class Message extends AbstractEntity {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getMessageDao() : null;
+    }
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 1032175552)
+    public Message getPreviousMessage() {
+        Long __key = this.previousMessageId;
+        if (previousMessage__resolvedKey == null || !previousMessage__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            MessageDao targetDao = daoSession.getMessageDao();
+            Message previousMessageNew = targetDao.load(__key);
+            synchronized (this) {
+                previousMessage = previousMessageNew;
+                previousMessage__resolvedKey = __key;
+            }
+        }
+        return previousMessage;
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 222971428)
+    public void setPreviousMessage(Message previousMessage) {
+        synchronized (this) {
+            this.previousMessage = previousMessage;
+            previousMessageId = previousMessage == null ? null : previousMessage.getId();
+            previousMessage__resolvedKey = previousMessageId;
+        }
     }
 
 }

@@ -2,6 +2,7 @@ package co.chatsdk.core.dao;
 
 import android.content.Context;
 
+import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.database.Database;
 
 import java.util.ArrayList;
@@ -14,6 +15,10 @@ import java.util.List;
  */
 
 public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
+
+    // Legacy column names
+    public final static Property LastMessageId = new Property(9, Long.class, "lastMessageId", false, "LAST_MESSAGE_ID");
+
 
     public DatabaseUpgradeHelper(Context context, String name) {
         super(context, name);
@@ -61,7 +66,7 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
             //Adding new table
             //UserDao.createTable(db, false);
             db.execSQL("ALTER TABLE " + MessageDao.TABLENAME + " ADD COLUMN " + MessageDao.Properties.NextMessageId.columnName + " LONG");
-            db.execSQL("ALTER TABLE " + MessageDao.TABLENAME + " ADD COLUMN " + MessageDao.Properties.LastMessageId.columnName + " LONG");
+            db.execSQL("ALTER TABLE " + MessageDao.TABLENAME + " ADD COLUMN " + LastMessageId.columnName + " LONG");
         }
     }
 
@@ -155,6 +160,18 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         @Override
         public void runMigration(Database db) {
             db.execSQL("ALTER TABLE " + ThreadDao.TABLENAME + " DROP COLUMN " + "LAST_MESSAGE_ID");
+        }
+    }
+
+    private static class MigrationV10 implements Migration {
+        @Override
+        public Integer getVersion() {
+            return 10;
+        }
+
+        @Override
+        public void runMigration(Database db) {
+            db.execSQL("ALTER TABLE " + MessageDao.TABLENAME + " ADD COLUMN " + MessageDao.Properties.PreviousMessageId.columnName + " LONG");
         }
     }
 
