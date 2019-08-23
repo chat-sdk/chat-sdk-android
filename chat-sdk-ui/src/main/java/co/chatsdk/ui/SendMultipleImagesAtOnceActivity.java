@@ -1,12 +1,14 @@
 package co.chatsdk.ui;
 
 import android.app.Activity;
-import android.content.Context;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -15,30 +17,30 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.main.BaseActivity;
+import co.chatsdk.ui.utils.Cropper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 
 import static co.chatsdk.ui.chat.MediaSelector.CHOOSE_PHOTO;
+import static com.theartofdev.edmodo.cropper.CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE;
 
 public class SendMultipleImagesAtOnceActivity extends BaseActivity {
 
     private String imageURI;
     private RecyclerView multipleImageRecycler;
-    public static RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
-    public static ArrayList<Uri> myImageArray = new ArrayList<>();
-    //This crap has to be static or else it won't work in MyAdapter
-    public static PhotoView mainImageDisplay;
-    public static Uri mainImageUri;
+
+    public PhotoView mainImageDisplay;
+    public Uri mainImageUri;
+    public ImageListAdapter imageListAdapter;
+    public File fileBeingCropped;
+    public Uri uriBeingCropped;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,13 +66,14 @@ public class SendMultipleImagesAtOnceActivity extends BaseActivity {
         imageURI = (String)i.getSerializableExtra("uriString");
         Uri uri = Uri.parse(imageURI);
         mainImageDisplay.setImageURI(uri);
-        myImageArray.add(uri);
         mainImageUri = uri;
 
         //Adapter here
-        mAdapter = new MyAdapter(myImageArray);
-        multipleImageRecycler.setAdapter(mAdapter);
-        MyAdapter.addImageToMyAdapter(uri);
+        imageListAdapter = new ImageListAdapter(this);
+        multipleImageRecycler.setAdapter(imageListAdapter);
+        imageListAdapter.addImageToMyAdapter(uri);
+
+
         //When the add button is clicked, you are taken to the library.
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,22 +95,31 @@ public class SendMultipleImagesAtOnceActivity extends BaseActivity {
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick (View v) {
-                for(int i = 0; i <= myImageArray.size(); i++) {
-                    Uri uri = myImageArray.get(i);
-                    File file = new File(uri.getPath());
+                ArrayList<String> listOfUriStrings = new ArrayList<>();
+                for (int i = 0; i <= imageListAdapter.uriArrayList.size(); i++) {
+                    Uri uri = imageListAdapter.uriArrayList.get(i);
+                    String uriString = uri.toString();
+                    listOfUriStrings.add(uriString);
+                }
+                /*//This is the part where the project has to actually be integrated with the rest of the app.
                     Disposable d = ChatSDK.imageMessage().sendMessageWithImage(file, thread).subscribe(() -> {
                         // Handle Success
                     }, (Consumer<Throwable>) throwable -> {
                         // Handle failure
-                    });
-                }
+                    });*/
+
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("result", listOfUriStrings);
+                setResult(Activity.RESULT_OK,returnIntent);
+                finish();
             }
         });
 
         write.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick (View v) {
-
+                uriBeingCropped = mainImageUri;
+                Cropper.startActivity(SendMultipleImagesAtOnceActivity.this, uriBeingCropped);
             }
         });
     }
@@ -119,12 +131,31 @@ public class SendMultipleImagesAtOnceActivity extends BaseActivity {
                 File file = MediaSelector.fileFromURI(data.getData(), this, MediaStore.Images.Media.DATA);
                 String uriString = file.toString();
                 Uri uri = Uri.parse(uriString);
-                if (!myImageArray.contains(uri)) {
-                    myImageArray.add(uri);
-                    mAdapter.notifyDataSetChanged();
+                if (!imageListAdapter.uriArrayList.contains(uri)) {
+                    imageListAdapter.uriArrayList.add(uri);
+                    mainImageUri = uri;
+                    imageListAdapter.notifyDataSetChanged();
                 }
-                mainImageDisplay.setImageURI(uri);
+                setTheMainImageDisplay(uri);
+            }
+            else if (requestCode == CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+                CropImage.ActivityResult result = CropImage.getActivityResult(data);
+                fileBeingCropped = MediaSelector.fileFromURI(result.getUri(), this, MediaStore.Images.Media.DATA);
+                Uri uri = Uri.parse(fileBeingCropped.getPath());
+                imageListAdapter.uriArrayList.add(uri);
+                setTheMainImageDisplay(uri);
+                mainImageUri = uri;
+                imageListAdapter.removeImageFromAdapter(uriBeingCropped);
+                imageListAdapter.notifyDataSetChanged();
             }
         }
+    }
+
+    public void setTheMainImageDisplay(Uri uri) {
+        mainImageDisplay.setImageURI(uri);
+    }
+
+    public void setTheMainImageUri(Uri uri) {
+        mainImageUri = uri;
     }
 }

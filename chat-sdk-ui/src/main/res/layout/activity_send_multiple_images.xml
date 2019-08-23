@@ -80,10 +80,11 @@
         <com.github.chrisbanes.photoview.PhotoView
             android:id="@+id/main_displayed_image"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:scaleType="fitCenter"
+            android:scaleType="centerInside"
             android:visibility="visible"
+            android:background="@drawable/ic_image_white_48dp"
             fresco:layout_constraintLeft_toLeftOf="parent"
             fresco:layout_constraintStart_toStartOf="parent"
             fresco:layout_constraintTop_toTopOf="parent" />
