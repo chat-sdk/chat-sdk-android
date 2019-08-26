@@ -1,8 +1,6 @@
 package co.chatsdk.ui.chat.viewholder;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
 import android.graphics.PorterDuff;
 import android.text.util.Linkify;
 import android.view.View;
@@ -28,12 +26,10 @@ import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.ReadStatus;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.message_action.CopyMessageAction;
 import co.chatsdk.ui.chat.message_action.DeleteMessageAction;
 import co.chatsdk.ui.chat.message_action.ForwardMessageAction;
-import co.chatsdk.ui.chat.message_action.QuoteMessageAction;
 import io.reactivex.subjects.PublishSubject;
 
 public class BaseMessageViewHolder extends AbstractMessageViewHolder {
@@ -95,7 +91,6 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
             }
             actions.add(new CopyMessageAction(message));
             actions.add(new ForwardMessageAction(message));
-            actions.add(new QuoteMessageAction(message));
 
             actionPublishSubject.onNext(actions);
             return true;

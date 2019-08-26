@@ -129,8 +129,7 @@ public class SendMultipleImagesAtOnceActivity extends BaseActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == CHOOSE_PHOTO) {
                 File file = MediaSelector.fileFromURI(data.getData(), this, MediaStore.Images.Media.DATA);
-                String uriString = file.toString();
-                Uri uri = Uri.parse(uriString);
+                Uri uri = data.getData();
                 if (!imageListAdapter.uriArrayList.contains(uri)) {
                     imageListAdapter.uriArrayList.add(uri);
                     mainImageUri = uri;
@@ -141,7 +140,7 @@ public class SendMultipleImagesAtOnceActivity extends BaseActivity {
             else if (requestCode == CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
                 CropImage.ActivityResult result = CropImage.getActivityResult(data);
                 fileBeingCropped = MediaSelector.fileFromURI(result.getUri(), this, MediaStore.Images.Media.DATA);
-                Uri uri = Uri.parse(fileBeingCropped.getPath());
+                Uri uri = result.getUri();
                 imageListAdapter.uriArrayList.add(uri);
                 setTheMainImageDisplay(uri);
                 mainImageUri = uri;
