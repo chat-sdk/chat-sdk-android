@@ -1,14 +1,11 @@
 package co.chatsdk.ui;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -65,14 +62,13 @@ public class SendMultipleImagesAtOnceActivity extends BaseActivity {
         Intent i = getIntent();
         imageURI = (String)i.getSerializableExtra("uriString");
         Uri uri = Uri.parse(imageURI);
-        mainImageDisplay.setImageURI(uri);
-        mainImageUri = uri;
+        setTheMainImageDisplay(uri);
+        setTheMainImageUri(uri);
 
         //Adapter here
         imageListAdapter = new ImageListAdapter(this);
         multipleImageRecycler.setAdapter(imageListAdapter);
         imageListAdapter.addImageToMyAdapter(uri);
-
 
         //When the add button is clicked, you are taken to the library.
         add.setOnClickListener(new View.OnClickListener() {
@@ -132,7 +128,7 @@ public class SendMultipleImagesAtOnceActivity extends BaseActivity {
                 Uri uri = data.getData();
                 if (!imageListAdapter.uriArrayList.contains(uri)) {
                     imageListAdapter.uriArrayList.add(uri);
-                    mainImageUri = uri;
+                    setTheMainImageUri(uri);
                     imageListAdapter.notifyDataSetChanged();
                 }
                 setTheMainImageDisplay(uri);
@@ -143,7 +139,7 @@ public class SendMultipleImagesAtOnceActivity extends BaseActivity {
                 Uri uri = result.getUri();
                 imageListAdapter.uriArrayList.add(uri);
                 setTheMainImageDisplay(uri);
-                mainImageUri = uri;
+                setTheMainImageUri(uri);
                 imageListAdapter.removeImageFromAdapter(uriBeingCropped);
                 imageListAdapter.notifyDataSetChanged();
             }
