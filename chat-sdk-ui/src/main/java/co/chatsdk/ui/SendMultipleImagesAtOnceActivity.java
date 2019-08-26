@@ -152,6 +152,7 @@ public class SendMultipleImagesAtOnceActivity extends BaseActivity {
 
     public void setTheMainImageDisplay(Uri uri) {
         mainImageDisplay.setImageURI(uri);
+        mainImageDisplay.setAdjustViewBounds(true);
     }
 
     public void setTheMainImageUri(Uri uri) {
