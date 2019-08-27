@@ -141,7 +141,7 @@ The latest update brings a range of improvements and new features including:
 
 There are also a range of bug fixes and overall improvments. If we aren't able to document all the changes but if you have any issues updating your project, you can post on this [issue](https://github.com/chat-sdk/chat-sdk-android/issues/533) and we will answer your questions. 
 
-The [security rules](firebase-rules.json) have also been updated so make sure to bring your project up to date. 		
+The [security rules](https://github.com/chat-sdk/chat-sdk-firebase) have also been updated so make sure to bring your project up to date. 		
 
 Several schema have also been deprecated and will be removed at some point in the future. These include:
 
