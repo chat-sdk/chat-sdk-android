@@ -253,7 +253,11 @@ public class ChatSDK {
     }
 
     public static String currentUserID() {
-        return ChatSDK.core().currentUserModel().getEntityID();
+        if (ChatSDK.core().currentUserModel() != null) {
+            return ChatSDK.core().currentUserModel().getEntityID();
+        } else {
+            return null;
+        }
     }
 
     public static SearchHandler search () {
