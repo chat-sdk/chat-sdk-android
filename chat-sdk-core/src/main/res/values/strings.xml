@@ -79,6 +79,7 @@
     <string name="chat_activity_no_more_messages_to_load_toast">There is no new messages to load&#8230;</string>
     <string name="chat_activity_add_item_text">Add contact to chat</string>
     <string name="chat_activity_show_users_item_text">Show thread users</string>
+    <string name="chat_activity_call_user_item_text">Call user</string>
     <string name="chat_activity_show_thread_details">Thread Details</string>
     <string name="thread_users">Thread users:</string>
 
@@ -180,6 +181,7 @@
     <string name="action_logout">Logout</string>
     <string name="action_save">Save</string>
     <string name="action_chat">Chat</string>
+    <string name="action_call">Call</string>
     <string name="action_settings">Settings</string>
     <string name="action_contact_developer">Contact Developer</string>
     <string name="action_add_chat">Add Chat</string>

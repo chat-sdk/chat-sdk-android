@@ -46,4 +46,9 @@
         android:icon="@drawable/ic_search_white_36dp"
         android:orderInCategory="18" />
 
+    <item android:id="@+id/action_chat_sdk_call"
+        android:title="@string/action_call"
+        android:icon="@drawable/ic_photo_camera_white_24dp"
+        android:orderInCategory="19" />
+
 </menu>
