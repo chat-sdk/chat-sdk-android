@@ -1,10 +1,12 @@
 package co.chatsdk.ui.chat;
 
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -12,6 +14,7 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
@@ -51,11 +54,11 @@ public class MediaSelector {
         Circle,
     }
 
-    public Single<File> startActivity (Activity activity, MediaType type) {
+    public Single<File> startActivity(Activity activity, MediaType type) {
         return startActivity(activity, type, null);
     }
 
-    public Single<File> startActivity (Activity activity, MediaType type, CropType cropType) {
+    public Single<File> startActivity(Activity activity, MediaType type, CropType cropType) {
 
         if (cropType != null) {
             this.cropType = cropType;
@@ -76,17 +79,17 @@ public class MediaSelector {
         }
 
         if (action != null) {
-            if(type.is(MediaType.Take)) {
+            if (type.is(MediaType.Take)) {
                 return PermissionRequestHandler.shared().requestCameraAccess(activity).andThen(action);
             }
-            if(type.is(MediaType.Choose)) {
+            if (type.is(MediaType.Choose)) {
                 return PermissionRequestHandler.shared().requestReadExternalStorage(activity).andThen(action);
             }
         }
         return Single.error(new Throwable(activity.getString(R.string.error_launching_activity)));
     }
 
-    public Single<File> startTakePhotoActivity (Activity activity, CropType cropType) {
+    public Single<File> startTakePhotoActivity(Activity activity, CropType cropType) {
         return Single.create(emitter -> {
             MediaSelector.this.emitter = emitter;
             MediaSelector.this.cropType = cropType;
@@ -109,13 +112,19 @@ public class MediaSelector {
             MediaSelector.this.cropType = cropType;
 
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            if(!startActivityForResult(activity, intent, CHOOSE_PHOTO)) {
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                // EXTRA_ALLOW_MULTIPLE only works in API 18+, IE Jelly Bean MR2 and higher.
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+            }
+            if (!startActivityForResult(activity, intent, CHOOSE_PHOTO)) {
                 notifyError(new Exception(activity.getString(R.string.unable_to_start_activity)));
-            };
+            }
+            ;
         });
     }
 
-    public Single<File> startTakeVideoActivity (Activity activity) {
+    public Single<File> startTakeVideoActivity(Activity activity) {
         return Single.create(emitter -> {
             MediaSelector.this.emitter = emitter;
 
@@ -126,7 +135,7 @@ public class MediaSelector {
         });
     }
 
-    public Single<File> startChooseVideoActivity (Activity activity) {
+    public Single<File> startChooseVideoActivity(Activity activity) {
         return Single.create(emitter -> {
             MediaSelector.this.emitter = emitter;
 
@@ -137,7 +146,7 @@ public class MediaSelector {
         });
     }
 
-    protected boolean startActivityForResult (Activity activity, Intent intent, int tag) {
+    protected boolean startActivityForResult(Activity activity, Intent intent, int tag) {
         if (disposable == null && intent.resolveActivity(activity.getPackageManager()) != null) {
             disposable = ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> handleResult(activity, activityResult.requestCode, activityResult.resultCode, activityResult.data));
             activity.startActivityForResult(intent, tag);
@@ -147,12 +156,33 @@ public class MediaSelector {
         }
     }
 
-    protected void goToSendMultipleImages(Activity activity, Uri uri) {
-        String uriString = uri.toString();
+    protected void goToSendMultipleImages(Activity activity, Intent intent) {
         Intent i = new Intent(activity, SendMultipleImagesAtOnceActivity.class);
+        if (!(intent.getData() == null)) {
+            Uri uri = intent.getData();
+            String uriString = uri.toString();
+            i.putExtra("uriString", uriString);
+        }
+        else if (!(intent.getClipData() == null)) {
+            ClipData mClipData = intent.getClipData();
+            ArrayList<Uri> mArrayUri = new ArrayList<Uri>();
+            for (int j = 0; j < mClipData.getItemCount(); j++) {
+                ClipData.Item item = mClipData.getItemAt(j);
+                Uri uri = item.getUri();
+                mArrayUri.add(uri);
+            }
+            i.putExtra("uriArray", mArrayUri);
+        }
+        activity.startActivity(i);
+    }
+
+    protected void goToTakenPhotosSMI(Activity activity, Uri uri) {
+        Intent i = new Intent(activity, SendMultipleImagesAtOnceActivity.class);
+        String uriString = uri.toString();
         i.putExtra("uriString", uriString);
         activity.startActivity(i);
     }
+
 
     protected void processPickedPhoto(Activity activity, Uri uri) throws Exception {
         if (!ChatSDK.config().imageCroppingEnabled && cropType == CropType.None) {
@@ -160,33 +190,29 @@ public class MediaSelector {
             // New
             File file = ImageUtils.compressImageToFile(activity, imageFile.getPath(), "COMPRESSED", "jpg");
             handleImageFile(activity, file);
-        }
-        else {
+        } else {
             if (cropType == CropType.Circle) {
                 Cropper.startCircleActivity(activity, uri);
-            }
-            else if (cropType == CropType.Square) {
+            } else if (cropType == CropType.Square) {
                 Cropper.startSquareActivity(activity, uri);
-            }
-            else {
+            } else {
                 Cropper.startActivity(activity, uri);
             }
         }
     }
 
-    public static File fileFromURI (Uri uri, Activity activity, String column) {
+    public static File fileFromURI(Uri uri, Activity activity, String column) {
         File file = null;
         if (uri.getPath() != null) {
             file = new File(uri.getPath());
         }
         if (file != null && file.length() > 0) {
             return file;
-        }
-        else {
+        } else {
             // Try to get it another way for this kind of URL
             // content://media/external ...
-            String [] filePathColumn = { column };
-            Cursor cursor = activity.getContentResolver().query(uri, filePathColumn,null, null, null);
+            String[] filePathColumn = {column};
+            Cursor cursor = activity.getContentResolver().query(uri, filePathColumn, null, null, null);
             if (cursor != null) {
                 cursor.moveToFirst();
                 String fileURI = cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
@@ -197,24 +223,23 @@ public class MediaSelector {
     }
 
 
-    protected void processCroppedPhoto(Activity activity, int resultCode, Intent data) throws Exception {
+    protected void processCroppedPhoto(Activity activity, int resultCode, Intent data) throws
+            Exception {
 
         CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
         if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE || resultCode == Activity.RESULT_CANCELED) {
             throw new Exception(result.getError());
-        }
-        else if (resultCode == RESULT_OK) {
+        } else if (resultCode == RESULT_OK) {
             try {
                 handleImageFile(activity, new File(result.getUri().getPath()));
-            }
-            catch (NullPointerException e){
+            } catch (NullPointerException e) {
                 notifyError(new Exception(activity.getString(R.string.unable_to_fetch_image)));
             }
         }
     }
 
-    public void handleImageFile (Activity activity, File file) {
+    public void handleImageFile(Activity activity, File file) {
 
         // Scanning the messageImageView so it would be visible in the gallery images.
         if (ChatSDK.config().saveImagesToDirectory) {
@@ -223,23 +248,20 @@ public class MediaSelector {
         notifySuccess(file);
     }
 
-    public void handleResult (Activity activity, int requestCode, int resultCode, Intent intent) throws Exception {
+    public void handleResult(Activity activity, int requestCode, int resultCode, Intent intent) throws
+            Exception {
 
         if (resultCode == RESULT_OK) {
             if (requestCode == CHOOSE_PHOTO) {
-                goToSendMultipleImages(activity, intent.getData());
-            }
-            else if (requestCode == TAKE_PHOTO && fileUri != null) {
-                goToSendMultipleImages(activity, fileUri);
-            }
-            else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+                goToSendMultipleImages(activity, intent);
+            } else if (requestCode == TAKE_PHOTO && fileUri != null) {
+                goToTakenPhotosSMI(activity, fileUri);
+            } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
                 processCroppedPhoto(activity, resultCode, intent);
-            }
-            else if (requestCode == TAKE_VIDEO || requestCode == CHOOSE_VIDEO) {
+            } else if (requestCode == TAKE_VIDEO || requestCode == CHOOSE_VIDEO) {
                 Uri videoUri = intent.getData();
                 notifySuccess(fileFromURI(videoUri, activity, MediaStore.Video.Media.DATA));
-            }
-            else {
+            } else {
                 notifyError(new Exception(activity.getString(R.string.error_processing_image)));
             }
         } else {
@@ -247,21 +269,21 @@ public class MediaSelector {
         }
     }
 
-    protected void notifySuccess (@NotNull File file) {
+    protected void notifySuccess(@NotNull File file) {
         if (emitter != null) {
             emitter.onSuccess(file);
         }
         clear();
     }
 
-    protected void notifyError (@NotNull Throwable throwable) {
+    protected void notifyError(@NotNull Throwable throwable) {
         if (emitter != null) {
             emitter.onError(throwable);
         }
         clear();
     }
 
-    public void clear () {
+    public void clear() {
         emitter = null;
         disposable.dispose();
         disposable = null;

@@ -1,6 +1,7 @@
 package co.chatsdk.ui;
 
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import static com.theartofdev.edmodo.cropper.CropImage.CROP_IMAGE_ACTIVITY_REQUE
 public class SendMultipleImagesAtOnceActivity extends BaseActivity {
 
     private String imageURI;
+    private ArrayList<Uri> uriArrayList;
     private RecyclerView multipleImageRecycler;
     private RecyclerView.LayoutManager layoutManager;
 
@@ -58,17 +60,28 @@ public class SendMultipleImagesAtOnceActivity extends BaseActivity {
         layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         multipleImageRecycler.setLayoutManager(layoutManager);
 
-        //Setting the image which was selected here.
+        //Getting the data from the MediaSelector. A single image will come as a string, multiple images will come as an array list of uris.
         Intent i = getIntent();
         imageURI = (String)i.getSerializableExtra("uriString");
-        Uri uri = Uri.parse(imageURI);
-        setTheMainImageDisplay(uri);
-        setTheMainImageUri(uri);
+        uriArrayList = (ArrayList<Uri>)i.getSerializableExtra("uriArray");
 
         //Adapter here
         imageListAdapter = new ImageListAdapter(this);
         multipleImageRecycler.setAdapter(imageListAdapter);
-        imageListAdapter.addImageToMyAdapter(uri);
+
+        //Setting the image which was selected here.
+        if (!(imageURI == null)) {
+            Uri uri = Uri.parse(imageURI);
+            setTheMainImageDisplay(uri);
+            setTheMainImageUri(uri);
+            imageListAdapter.addImageToMyAdapter(uri);
+        }
+        if (!(uriArrayList == null)) {
+            imageListAdapter.uriArrayList = uriArrayList;
+            Uri uri = uriArrayList.get(0);
+            setTheMainImageDisplay(uri);
+            setTheMainImageUri(uri);
+        }
 
         //When the add button is clicked, you are taken to the library.
         add.setOnClickListener(new View.OnClickListener() {
@@ -124,14 +137,25 @@ public class SendMultipleImagesAtOnceActivity extends BaseActivity {
     protected void onActivityResult (int requestCode, int resultCode, @Nullable Intent data) {
         if (resultCode == RESULT_OK) {
             if (requestCode == CHOOSE_PHOTO) {
-                File file = MediaSelector.fileFromURI(data.getData(), this, MediaStore.Images.Media.DATA);
-                Uri uri = data.getData();
-                if (!imageListAdapter.uriArrayList.contains(uri)) {
-                    imageListAdapter.uriArrayList.add(uri);
-                    setTheMainImageUri(uri);
+
+                if (!(data.getData() == null)) {
+                    Uri uri = data.getData();
+                    if (!imageListAdapter.uriArrayList.contains(uri)) {
+                        imageListAdapter.uriArrayList.add(uri);
+                        setTheMainImageUri(uri);
+                        imageListAdapter.notifyDataSetChanged();
+                        setTheMainImageDisplay(uri);
+                    }
+                }
+                else if (!(data.getClipData() == null)) {
+                    ClipData mClipData = data.getClipData();
+                    for (int j = 0; j < mClipData.getItemCount(); j++) {
+                        ClipData.Item item = mClipData.getItemAt(j);
+                        Uri uri = item.getUri();
+                        imageListAdapter.uriArrayList.add(uri);
+                    }
                     imageListAdapter.notifyDataSetChanged();
                 }
-                setTheMainImageDisplay(uri);
             }
             else if (requestCode == CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
                 CropImage.ActivityResult result = CropImage.getActivityResult(data);
