@@ -22,6 +22,7 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.AudioMessageHandler;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;
+import co.chatsdk.core.handlers.CallHandler;
 import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.handlers.ContactMessageHandler;
 import co.chatsdk.core.handlers.CoreHandler;
@@ -258,6 +259,10 @@ public class ChatSDK {
         } else {
             return null;
         }
+    }
+
+    public static CallHandler calling () {
+        return a().calling;
     }
 
     public static SearchHandler search () {
