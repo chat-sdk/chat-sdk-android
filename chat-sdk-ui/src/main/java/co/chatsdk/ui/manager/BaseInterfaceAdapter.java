@@ -158,12 +158,12 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public void addTab(Tab tab) {
-        tabs.add(tab);
+        tabs().add(tab);
     }
 
     @Override
     public void addTab(Tab tab, int index) {
-        tabs.add(index, tab);
+        tabs().add(index, tab);
     }
 
     @Override
