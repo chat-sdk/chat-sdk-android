@@ -1,10 +1,12 @@
 package co.chatsdk.ui.chat;
 
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -12,12 +14,14 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.SendMultipleImagesAtOnceActivity;
 import co.chatsdk.ui.chat.options.MediaType;
 import co.chatsdk.ui.utils.Cropper;
 import io.reactivex.Single;
@@ -108,6 +112,11 @@ public class MediaSelector {
             MediaSelector.this.cropType = cropType;
 
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                // EXTRA_ALLOW_MULTIPLE only works in API 18+, IE Jelly Bean MR2 and higher.
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+            }
             if(!startActivityForResult(activity, intent, CHOOSE_PHOTO)) {
                 notifyError(new Exception(activity.getString(R.string.unable_to_start_activity)));
             };
@@ -144,6 +153,33 @@ public class MediaSelector {
         } else {
             return false;
         }
+    }
+
+    protected void goToSendMultipleImages(Activity activity, Intent intent) {
+        Intent i = new Intent(activity, SendMultipleImagesAtOnceActivity.class);
+        if (!(intent.getData() == null)) {
+            Uri uri = intent.getData();
+            String uriString = uri.toString();
+            i.putExtra("uriString", uriString);
+        }
+        else if (!(intent.getClipData() == null)) {
+            ClipData mClipData = intent.getClipData();
+            ArrayList<Uri> mArrayUri = new ArrayList<Uri>();
+            for (int j = 0; j < mClipData.getItemCount(); j++) {
+                ClipData.Item item = mClipData.getItemAt(j);
+                Uri uri = item.getUri();
+                mArrayUri.add(uri);
+            }
+            i.putExtra("uriArray", mArrayUri);
+        }
+        activity.startActivity(i);
+    }
+
+    protected void goToTakenPhotosSMI(Activity activity, Uri uri) {
+        Intent i = new Intent(activity, SendMultipleImagesAtOnceActivity.class);
+        String uriString = uri.toString();
+        i.putExtra("uriString", uriString);
+        activity.startActivity(i);
     }
 
     protected void processPickedPhoto(Activity activity, Uri uri) throws Exception {
@@ -220,10 +256,10 @@ public class MediaSelector {
 
         if (resultCode == RESULT_OK) {
             if (requestCode == CHOOSE_PHOTO) {
-                processPickedPhoto(activity, intent.getData());
+                goToSendMultipleImages(activity, intent);
             }
             else if (requestCode == TAKE_PHOTO && fileUri != null) {
-                processPickedPhoto(activity, fileUri);
+                goToTakenPhotosSMI(activity, fileUri);
             }
             else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
                 processCroppedPhoto(activity, resultCode, intent);
