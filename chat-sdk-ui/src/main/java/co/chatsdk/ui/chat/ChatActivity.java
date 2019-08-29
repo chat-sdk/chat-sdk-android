@@ -645,7 +645,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if (thread.typeIs(ThreadType.Private1to1) && ChatSDK.calling() != null) {
             MenuItem item = menu.add(Menu.NONE, R.id.action_chat_sdk_call, 10, getString(R.string.chat_activity_call_user_item_text));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-            item.setIcon(R.drawable.ic_photo_camera_white_24dp);
+            item.setIcon(R.drawable.ic_call_white_24dp);
         }
 
         return super.onCreateOptionsMenu(menu);
@@ -667,10 +667,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             showUsersDialog();
         }
         else if (id == R.id.action_chat_sdk_call) {
-            ChatSDK.calling().callUser(thread.otherUser().getEntityID(), ChatActivity.this)
-                    .subscribe(call -> {
-                        ChatSDK.calling().startCallActivity(call.getCallId());
-                    }, err -> ToastHelper.show(ChatActivity.this, err.getLocalizedMessage()));
+            disposableList.add(ChatSDK.calling().callUser(thread.otherUser().getEntityID(), ChatActivity.this)
+                    .subscribe(
+                            call -> ChatSDK.calling().startCallActivity(call.getCallId()),
+                            err -> ToastHelper.show(ChatActivity.this, err.getLocalizedMessage())
+                    ));
         }
 
         return super.onOptionsItemSelected(item);

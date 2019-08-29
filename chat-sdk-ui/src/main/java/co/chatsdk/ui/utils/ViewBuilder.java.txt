@@ -1,0 +1,164 @@
+package co.chatsdk.ui.utils;
+
+import android.net.Uri;
+import android.text.TextWatcher;
+import android.view.View;
+import android.widget.Spinner;
+import android.widget.TextView;
+
+import androidx.annotation.FloatRange;
+import androidx.annotation.IdRes;
+import androidx.annotation.StringRes;
+import androidx.viewpager.widget.ViewPager;
+
+import com.facebook.drawee.view.SimpleDraweeView;
+
+public class ViewBuilder {
+
+    private View view;
+
+    public static ViewBuilder create(View view) {
+        return new ViewBuilder(view);
+    }
+
+    public ViewBuilder(View view) {
+        this.view = view;
+    }
+
+    public View build() {
+        return this.view;
+    }
+
+    // View
+
+    public ViewBuilder findViewById(@IdRes int id) {
+        this.view = ViewHelper.findViewById(this.view, id);
+        return this;
+    }
+
+    public ViewBuilder setVisibility(int visibility) {
+        ViewHelper.setVisibility(this.view, visibility);
+        return this;
+    }
+
+    public ViewBuilder setVisible(boolean visible) {
+        ViewHelper.setVisibility(this.view, visible ? View.VISIBLE : View.INVISIBLE);
+        return this;
+    }
+
+    public ViewBuilder setGone(boolean gone) {
+        ViewHelper.setVisibility(this.view, gone ? View.GONE : View.VISIBLE);
+        return this;
+    }
+
+    public ViewBuilder setOnClickListener(View.OnClickListener listener) {
+        ViewHelper.setOnClickListener(this.view, listener);
+        return this;
+    }
+
+    public ViewBuilder setOnLongClickListener(View.OnLongClickListener listener) {
+        ViewHelper.setOnLongClickListener(this.view, listener);
+        return this;
+    }
+
+    public ViewBuilder setEnabled(boolean enabled) {
+        ViewHelper.setEnabled(this.view, enabled);
+        return this;
+    }
+
+    public ViewBuilder setAlpha(@FloatRange(from=0.0, to=1.0) float alpha) {
+        ViewHelper.setAlpha(this.view, alpha);
+        return this;
+    }
+
+    // TextView
+
+    public ViewBuilder setText(String text) {
+        if (this.view instanceof TextView) {
+            ViewHelper.setText((TextView) this.view, text);
+        }
+        return this;
+    }
+
+    public ViewBuilder setText(@StringRes int resid) {
+        if (this.view instanceof TextView) {
+            ViewHelper.setText((TextView) this.view, resid);
+        }
+        return this;
+    }
+
+    public CharSequence getText() {
+        if (this.view instanceof TextView) {
+            return ViewHelper.getText((TextView) this.view);
+        }
+        else return null;
+    }
+
+    public String getTextString() {
+        if (this.view instanceof TextView) {
+            return ViewHelper.getTextString((TextView) this.view);
+        }
+        else return "";
+    }
+
+    public ViewBuilder addTextChangedListener(TextWatcher watcher) {
+        if (this.view instanceof TextView) {
+            ViewHelper.addTextChangedListener((TextView) this.view, watcher);
+        }
+        return this;
+    }
+
+    // SimpleDraweeView
+
+    public ViewBuilder setImageURI(Uri uri) {
+        if (this.view instanceof SimpleDraweeView) {
+            ViewHelper.setImageURI((SimpleDraweeView) this.view, uri);
+        }
+        return this;
+    }
+
+    public ViewBuilder setImageURI(String uriString) {
+        if (this.view instanceof SimpleDraweeView) {
+            ViewHelper.setImageURI((SimpleDraweeView) this.view, uriString);
+        }
+        return this;
+    }
+
+    // Spinner
+
+    public static int getCount(Spinner spinner) {
+        if (spinner != null) return spinner.getCount();
+        else return -1;
+    }
+
+    public static Object getSelectedItem(Spinner spinner) {
+        if (spinner != null) return spinner.getSelectedItem();
+        else return null;
+    }
+
+    public static String getSelectedString(Spinner spinner) {
+        Object item = getSelectedItem(spinner);
+        if (item != null) return item.toString();
+        else return "";
+    }
+
+    public static Object getItemAtPosition(Spinner spinner, int position) {
+        if (spinner != null) return spinner.getItemAtPosition(position);
+        else return null;
+    }
+
+    public static String getStringAtPosition(Spinner spinner, int position) {
+        Object item = getItemAtPosition(spinner, position);
+        if (item != null) return item.toString();
+        else return "";
+    }
+
+    public static void setSelection(Spinner spinner, int position) {
+        if (spinner != null) spinner.setSelection(position);
+    }
+
+    public static void setCurrentItem(ViewPager viewPager, int item) {
+        if (viewPager != null) viewPager.setCurrentItem(item);
+    }
+
+}
