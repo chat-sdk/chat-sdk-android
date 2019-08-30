@@ -28,85 +28,82 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import static co.chatsdk.ui.chat.MediaSelector.CHOOSE_PHOTO;
 import static com.theartofdev.edmodo.cropper.CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE;
 
-public class SendMultipleImagesAtOnceActivity extends BaseActivity {
+public class ImageGalleryActivity extends BaseActivity {
 
-    private String imageURI;
+    private String imageUriString;
     private ArrayList<Uri> uriArrayList;
-    private RecyclerView multipleImageRecycler;
+    private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
 
-    public PhotoView mainImageDisplay;
+    public PhotoView currentImage;
     public Uri mainImageUri;
     public ImageListAdapter imageListAdapter;
     public File fileBeingCropped;
     public Uri uriBeingCropped;
 
+    TextView topTextView;
+    TextView bottomTextView;
+    FloatingActionButton exitButton;
+    FloatingActionButton cropButton;
+    FloatingActionButton addButton;
+    FloatingActionButton sendButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_send_multiple_images);
+        setContentView(R.layout.activity_image_gallery);
 
-        TextView topTextView = findViewById(R.id.topTextView);
-        TextView bottomTextView = findViewById(R.id.bottomTextView);
-        FloatingActionButton exit = findViewById(R.id.exit);
-        FloatingActionButton write = findViewById(R.id.write);
-        FloatingActionButton add = findViewById(R.id.add);
-        FloatingActionButton send = findViewById(R.id.send);
-        mainImageDisplay = (PhotoView) findViewById(R.id.main_displayed_image);
+        topTextView = findViewById(R.id.topTextView);
+        bottomTextView = findViewById(R.id.bottomTextView);
+        exitButton = findViewById(R.id.exit);
+        cropButton = findViewById(R.id.crop);
+        addButton = findViewById(R.id.add);
+        sendButton = findViewById(R.id.send);
+        currentImage = findViewById(R.id.main_displayed_image);
 
         //Recycler view stuff here
-        multipleImageRecycler = (RecyclerView) findViewById(R.id.multipleImageRecycler);
-        multipleImageRecycler.setHasFixedSize(true);
+        recyclerView = findViewById(R.id.multipleImageRecycler);
+        recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        multipleImageRecycler.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(layoutManager);
 
-        //Getting the data from the MediaSelector. A single image will come as a string, multiple images will come as an array list of uris.
+        //Getting the data from the MediaSelector. All images will come as an array list of uris.
         Intent i = getIntent();
-        imageURI = (String)i.getSerializableExtra("uriString");
         uriArrayList = (ArrayList<Uri>)i.getSerializableExtra("uriArray");
 
         //Adapter here
         imageListAdapter = new ImageListAdapter(this);
-        multipleImageRecycler.setAdapter(imageListAdapter);
+        recyclerView.setAdapter(imageListAdapter);
 
         //Setting the image which was selected here.
-        if (!(imageURI == null)) {
-            Uri uri = Uri.parse(imageURI);
-            setTheMainImageDisplay(uri);
-            setTheMainImageUri(uri);
-            imageListAdapter.addImageToMyAdapter(uri);
-        }
-        if (!(uriArrayList == null)) {
-            imageListAdapter.uriArrayList = uriArrayList;
-            Uri uri = uriArrayList.get(0);
-            setTheMainImageDisplay(uri);
-            setTheMainImageUri(uri);
-        }
+        imageListAdapter.imageURIs = uriArrayList;
+        Uri uri = uriArrayList.get(0);
+        setTheMainImageDisplay(uri);
 
         //When the add button is clicked, you are taken to the library.
-        add.setOnClickListener(new View.OnClickListener() {
+        addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final MediaSelector mediaSelector = new MediaSelector();
-                disposableList.add(mediaSelector.startChooseImageActivity(SendMultipleImagesAtOnceActivity.this, MediaSelector.CropType.Rectangle)
+                disposableList.add(mediaSelector.startChooseImageActivity(ImageGalleryActivity.this, MediaSelector.CropType.Rectangle)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe());
             }
         });
-        //This might be too complicated, but I will get to that later.
-        exit.setOnClickListener(new View.OnClickListener() {
+        //This might be too complicated, but I will get to that later. Should I make lamda values out of these?
+        exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onBackPressed();
             }
         });
 
-        send.setOnClickListener(new View.OnClickListener() {
+        sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick (View v) {
                 ArrayList<String> listOfUriStrings = new ArrayList<>();
-                for (int i = 0; i <= imageListAdapter.uriArrayList.size(); i++) {
-                    Uri uri = imageListAdapter.uriArrayList.get(i);
+                for (int i = 0; i <= imageListAdapter.imageURIs.size(); i++) {
+                    Uri uri = imageListAdapter.imageURIs.get(i);
                     String uriString = uri.toString();
                     listOfUriStrings.add(uriString);
                 }
@@ -124,11 +121,11 @@ public class SendMultipleImagesAtOnceActivity extends BaseActivity {
             }
         });
 
-        write.setOnClickListener(new View.OnClickListener() {
+        cropButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick (View v) {
                 uriBeingCropped = mainImageUri;
-                Cropper.startActivity(SendMultipleImagesAtOnceActivity.this, uriBeingCropped);
+                Cropper.startActivity(ImageGalleryActivity.this, uriBeingCropped);
             }
         });
     }
@@ -138,21 +135,20 @@ public class SendMultipleImagesAtOnceActivity extends BaseActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == CHOOSE_PHOTO) {
 
-                if (!(data.getData() == null)) {
+                if (data.getData() != null) {
                     Uri uri = data.getData();
-                    if (!imageListAdapter.uriArrayList.contains(uri)) {
-                        imageListAdapter.uriArrayList.add(uri);
-                        setTheMainImageUri(uri);
+                    if (!imageListAdapter.imageURIs.contains(uri)) {
+                        imageListAdapter.imageURIs.add(uri);
                         imageListAdapter.notifyDataSetChanged();
                         setTheMainImageDisplay(uri);
                     }
                 }
-                else if (!(data.getClipData() == null)) {
+                else if (data.getClipData() != null) {
                     ClipData mClipData = data.getClipData();
                     for (int j = 0; j < mClipData.getItemCount(); j++) {
                         ClipData.Item item = mClipData.getItemAt(j);
                         Uri uri = item.getUri();
-                        imageListAdapter.uriArrayList.add(uri);
+                        imageListAdapter.imageURIs.add(uri);
                     }
                     imageListAdapter.notifyDataSetChanged();
                 }
@@ -161,21 +157,17 @@ public class SendMultipleImagesAtOnceActivity extends BaseActivity {
                 CropImage.ActivityResult result = CropImage.getActivityResult(data);
                 fileBeingCropped = MediaSelector.fileFromURI(result.getUri(), this, MediaStore.Images.Media.DATA);
                 Uri uri = result.getUri();
-                imageListAdapter.uriArrayList.add(uri);
+                imageListAdapter.imageURIs.add(uri);
                 setTheMainImageDisplay(uri);
-                setTheMainImageUri(uri);
-                imageListAdapter.removeImageFromAdapter(uriBeingCropped);
+                imageListAdapter.removeImageUri(uriBeingCropped);
                 imageListAdapter.notifyDataSetChanged();
             }
         }
     }
 
     public void setTheMainImageDisplay(Uri uri) {
-        mainImageDisplay.setImageURI(uri);
-        mainImageDisplay.setAdjustViewBounds(true);
-    }
-
-    public void setTheMainImageUri(Uri uri) {
+        currentImage.setImageURI(uri);
+        currentImage.setAdjustViewBounds(true);
         mainImageUri = uri;
     }
 }

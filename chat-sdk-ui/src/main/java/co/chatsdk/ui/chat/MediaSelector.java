@@ -21,7 +21,7 @@ import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.SendMultipleImagesAtOnceActivity;
+import co.chatsdk.ui.ImageGalleryActivity;
 import co.chatsdk.ui.chat.options.MediaType;
 import co.chatsdk.ui.utils.Cropper;
 import io.reactivex.Single;
@@ -156,29 +156,29 @@ public class MediaSelector {
     }
 
     protected void goToSendMultipleImages(Activity activity, Intent intent) {
-        Intent i = new Intent(activity, SendMultipleImagesAtOnceActivity.class);
+        Intent i = new Intent(activity, ImageGalleryActivity.class);
+        ArrayList<Uri> mArrayUri = new ArrayList<Uri>();
         if (!(intent.getData() == null)) {
             Uri uri = intent.getData();
-            String uriString = uri.toString();
-            i.putExtra("uriString", uriString);
+            mArrayUri.add(uri);
         }
         else if (!(intent.getClipData() == null)) {
             ClipData mClipData = intent.getClipData();
-            ArrayList<Uri> mArrayUri = new ArrayList<Uri>();
             for (int j = 0; j < mClipData.getItemCount(); j++) {
                 ClipData.Item item = mClipData.getItemAt(j);
                 Uri uri = item.getUri();
                 mArrayUri.add(uri);
             }
-            i.putExtra("uriArray", mArrayUri);
         }
+        i.putExtra("uriArray", mArrayUri);
         activity.startActivity(i);
     }
 
     protected void goToTakenPhotosSMI(Activity activity, Uri uri) {
-        Intent i = new Intent(activity, SendMultipleImagesAtOnceActivity.class);
-        String uriString = uri.toString();
-        i.putExtra("uriString", uriString);
+        Intent i = new Intent(activity, ImageGalleryActivity.class);
+        ArrayList<Uri> mArrayUri = new ArrayList<Uri>();
+        mArrayUri.add(uri);
+        i.putExtra("uriArray", mArrayUri);
         activity.startActivity(i);
     }
 

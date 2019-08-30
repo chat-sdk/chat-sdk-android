@@ -11,49 +11,41 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.MyViewHolder>  {
+public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.ImageGalleryViewHolder>  {
 
-    public ArrayList<Uri> uriArrayList = new ArrayList<>();
-    private WeakReference<SendMultipleImagesAtOnceActivity> theMainActivity;
+    public ArrayList<Uri> imageURIs = new ArrayList<>();
+    private WeakReference<ImageGalleryActivity> parentActivity;
 
-    public ImageListAdapter (SendMultipleImagesAtOnceActivity activity) {
-        this.theMainActivity = new WeakReference<SendMultipleImagesAtOnceActivity>(activity);
+    public ImageListAdapter (ImageGalleryActivity activity) {
+        this.parentActivity = new WeakReference(activity);
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder {
+    public class ImageGalleryViewHolder extends RecyclerView.ViewHolder {
 
         private WeakReference<ImageListAdapter> adapter;
         public ImageView imageView;
-        public Uri thisImageUri;
-        public int thisImagePosition;
+        public Uri currentImageUri;
+        public int imagePosition;
 
-        public MyViewHolder(ImageListAdapter la, ImageView v) {
-            super(v);
-            this.adapter = new WeakReference<ImageListAdapter>(la);
-            imageView = v;
+        public ImageGalleryViewHolder(ImageListAdapter la, ImageView iv) {
+            super(iv);
+            this.adapter = new WeakReference(la);
+            imageView = iv;
 
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    setMainImageDisplay(thisImageUri);
-                    setMainImageUri(thisImageUri);
-                }
+            imageView.setOnClickListener(v -> {
+                setCurrentImageURI(currentImageUri);
             });
 
             imageView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    Uri toBeDeletedUri = thisImageUri;
-                    removeImageFromAdapter(thisImageUri);
-                    notifyDataSetChanged();
-                    if (getMainImageUri() == toBeDeletedUri) {
-                        if (uriArrayList.size() >= 1 && uriArrayList.size() == thisImagePosition) {
-                            setMainImageDisplay(uriArrayList.get(thisImagePosition - 1));
-                            setMainImageUri(uriArrayList.get(thisImagePosition - 1));
+                    removeImageUri(currentImageUri);
+                    if (getCurrentImageUri().equals(currentImageUri)) {
+                        if (imageURIs.size() == imagePosition) {
+                            setCurrentImageUri(imageURIs.get(imagePosition - 1));
                         }
-                        else if (uriArrayList.size() > 1) {
-                            setMainImageDisplay(uriArrayList.get(thisImagePosition));
-                            setMainImageUri(uriArrayList.get(thisImagePosition));
+                        else {
+                            setCurrentImageUri(imageURIs.get(imagePosition));
                         }
                     }
                     return true;
@@ -63,45 +55,50 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.MyVi
     }
 
     @Override
-    public ImageListAdapter.MyViewHolder onCreateViewHolder (ViewGroup parent, int viewType) {
+    public ImageGalleryViewHolder onCreateViewHolder (ViewGroup parent, int viewType) {
 
         ImageView v = (ImageView) LayoutInflater.from(parent.getContext()).inflate(R.layout.image_view, parent, false);
-        MyViewHolder vh = new MyViewHolder(this, v);
+        ImageGalleryViewHolder vh = new ImageGalleryViewHolder(this, v);
         return vh;
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
-        holder.imageView.setImageURI(uriArrayList.get(position));
-        holder.thisImageUri = uriArrayList.get(position);
-        holder.thisImagePosition = position;
+    public void onBindViewHolder(ImageGalleryViewHolder holder, int position) {
+        setHolderURI(holder, position);
     }
 
     @Override
     public int getItemCount() {
-        return uriArrayList.size();
+        return imageURIs.size();
     }
 
-    public void addImageToMyAdapter(Uri uri) {
-        uriArrayList.add(uri);
+    public void addImageUri(Uri uri) {
+        imageURIs.add(uri);
     }
 
-    public void removeImageFromAdapter(Uri uri) {
-        uriArrayList.remove(uri);
-        if (uriArrayList.size() == 0) {
-            theMainActivity.get().finish();
+    public void removeImageUri(Uri uri) {
+        imageURIs.remove(uri);
+        if (imageURIs.size() == 0) {
+            parentActivity.get().finish();
         }
+        notifyDataSetChanged();
     }
 
-    public void setMainImageDisplay(Uri uri) {
-        theMainActivity.get().setTheMainImageDisplay(uri);
+    public void setCurrentImageUri(Uri uri) {
+        parentActivity.get().setTheMainImageDisplay(uri);
     }
 
-    public Uri getMainImageUri() {
-        return theMainActivity.get().mainImageUri;
+    public Uri getCurrentImageUri() {
+        return parentActivity.get().mainImageUri;
     }
 
-    public void setMainImageUri(Uri uri) {
-        theMainActivity.get().setTheMainImageUri(uri);
+    public void setCurrentImageURI (Uri uri) {
+        setCurrentImageUri(uri);
+    }
+
+    public void setHolderURI(ImageGalleryViewHolder holder, int position) {
+        holder.imageView.setImageURI(imageURIs.get(position));
+        holder.currentImageUri = imageURIs.get(position);
+        holder.imagePosition = position;
     }
 }

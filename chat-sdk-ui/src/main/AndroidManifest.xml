@@ -97,7 +97,7 @@
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
-        <activity android:name=".SendMultipleImagesAtOnceActivity"
+        <activity android:name=".ImageGalleryActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <!--Crop image-->
