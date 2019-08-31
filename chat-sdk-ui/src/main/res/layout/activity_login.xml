@@ -150,6 +150,8 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_reset_password"
         style="@style/LoginButton"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:text="@string/reset_password"
         android:textColor="@color/dark_text"
         app:backgroundTint="@color/reset_password_button_color"
