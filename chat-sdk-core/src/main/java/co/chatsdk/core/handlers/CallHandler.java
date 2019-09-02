@@ -3,6 +3,7 @@ package co.chatsdk.core.handlers;
 import android.app.Activity;
 import android.view.View;
 
+import io.reactivex.Completable;
 import io.reactivex.Single;
 
 /**
@@ -11,7 +12,7 @@ import io.reactivex.Single;
 
 public interface CallHandler {
 
-    void startWithUserId(String userId);
+    Completable startWithUserId(String userId);
     Single<Call> callUser(String userId);
     Single<Call> callUser(String userId, Activity activity);
     Call getCall(String entityId);
