@@ -1,5 +1,7 @@
 package co.chatsdk.core.events;
 
+import android.location.Location;
+
 import java.util.HashMap;
 
 import co.chatsdk.core.dao.Message;
@@ -7,7 +9,6 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.MessageSendProgress;
-import co.chatsdk.core.types.MessageSendStatus;
 import io.reactivex.functions.Predicate;
 
 /**
@@ -24,6 +25,7 @@ public class NetworkEvent {
     public HashMap<String, Object> data;
 
     public static String MessageSendProgress = "MessageSendProgress";
+    public Location location;
 
     public NetworkEvent(EventType type) {
         this.type = type;
@@ -139,6 +141,30 @@ public class NetworkEvent {
         event.text = message;
         event.thread = thread;
         return event;
+    }
+
+    public static NetworkEvent nearbyUserAdded (User user, Location location) {
+        NetworkEvent event = new NetworkEvent(EventType.NearbyUserAdded);
+        event.user = user;
+        event.location = location;
+        return event;
+    }
+
+    public static NetworkEvent nearbyUserMoved (User user, Location location) {
+        NetworkEvent event = new NetworkEvent(EventType.NearbyUserMoved);
+        event.user = user;
+        event.location = location;
+        return event;
+    }
+
+    public static NetworkEvent nearbyUserRemoved (User user) {
+        NetworkEvent event = new NetworkEvent(EventType.NearbyUserRemoved);
+        event.user = user;
+        return event;
+    }
+
+    public static NetworkEvent nearbyUsersUpdated () {
+        return new NetworkEvent(EventType.NearbyUsersUpdated);
     }
 
     public static NetworkEvent logout () {

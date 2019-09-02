@@ -28,4 +28,9 @@ public enum EventType {
     Logout,
     ThreadRead,
     ThreadReadReceiptUpdated,
+    NearbyUserAdded,
+    NearbyUserMoved,
+    NearbyUserRemoved,
+    NearbyUsersUpdated
+
 }
