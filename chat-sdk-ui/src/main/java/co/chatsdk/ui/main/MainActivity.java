@@ -13,6 +13,8 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+import co.chatsdk.core.utils.PermissionRequestHandler;
 
 
 public abstract class MainActivity extends BaseActivity {
@@ -29,6 +31,12 @@ public abstract class MainActivity extends BaseActivity {
         }
         initViews();
         launchFromPush(getIntent().getExtras());
+
+        if (ChatSDK.calling() != null) {
+            PermissionRequestHandler.shared().requestRecordAudio(MainActivity.this)
+                    .andThen(PermissionRequestHandler.shared().requestCameraAccess(MainActivity.this))
+                    .subscribe(new CrashReportingCompletableObserver());
+        }
     }
 
     public void launchFromPush (Bundle bundle) {
