@@ -31,10 +31,10 @@ public class QuoteMessageAction extends MessageAction {
     public Completable execute(Activity activity) {
         return Completable.create(emitter -> {
             if(activity instanceof ChatActivity) {
-                ChatActivity ca = (ChatActivity) activity;
+                ChatActivity chatActivity = (ChatActivity) activity;
                 Message quotedMessage = message.get();
                 //String imageURL = quotedMessage I must get the URL here.
-                ca.displayQuoteView(quotedMessage);
+                chatActivity.displayQuoteView(quotedMessage);
                 //Need to make one more here for the image
                 // Make a method on the chat activity to show and hide the reply view over the textInputView
             }
