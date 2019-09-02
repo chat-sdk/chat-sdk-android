@@ -96,8 +96,6 @@
         <activity android:name=".contacts.ForwardMessageActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
-        <activity android:name=".SendMultipleImagesAtOnceActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <!--Crop image-->
         <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"

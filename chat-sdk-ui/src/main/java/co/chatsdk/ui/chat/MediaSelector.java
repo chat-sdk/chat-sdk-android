@@ -18,7 +18,6 @@ import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.SendMultipleImagesAtOnceActivity;
 import co.chatsdk.ui.chat.options.MediaType;
 import co.chatsdk.ui.utils.Cropper;
 import io.reactivex.Single;
@@ -147,13 +146,6 @@ public class MediaSelector {
         }
     }
 
-    protected void goToSendMultipleImages(Activity activity, Uri uri) {
-        String uriString = uri.toString();
-        Intent i = new Intent(activity, SendMultipleImagesAtOnceActivity.class);
-        i.putExtra("uriString", uriString);
-        activity.startActivity(i);
-    }
-
     protected void processPickedPhoto(Activity activity, Uri uri) throws Exception {
         if (!ChatSDK.config().imageCroppingEnabled && cropType == CropType.None) {
             File imageFile = fileFromURI(uri, activity, MediaStore.Images.Media.DATA);
@@ -227,10 +219,10 @@ public class MediaSelector {
 
         if (resultCode == RESULT_OK) {
             if (requestCode == CHOOSE_PHOTO) {
-                goToSendMultipleImages(activity, intent.getData());
+                processPickedPhoto(activity, intent.getData());
             }
             else if (requestCode == TAKE_PHOTO && fileUri != null) {
-                goToSendMultipleImages(activity, fileUri);
+                processPickedPhoto(activity, fileUri);
             }
             else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
                 processCroppedPhoto(activity, resultCode, intent);
