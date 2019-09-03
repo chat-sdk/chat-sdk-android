@@ -178,7 +178,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public void removeTab(int index) {
-        tabs.remove(index);
+        tabs().remove(index);
     }
 
     @Override
