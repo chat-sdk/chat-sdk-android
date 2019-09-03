@@ -51,22 +51,22 @@ public class FirebaseReferenceManager {
     }
 
     public void addRef (Query ref, ChildEventListener l) {
-        references.put(ref.toString(), new Value(ref, l));
+        references.put(ref.getRef().toString(), new Value(ref, l));
     }
 
     public void addRef (Query ref, ValueEventListener l) {
-        references.put(ref.toString(), new Value(ref, l));
+        references.put(ref.getRef().toString(), new Value(ref, l));
     }
 
     public boolean isOn (Query ref) {
-        return references.get(ref.toString()) != null;
+        return references.get(ref.getRef().toString()) != null;
     }
 
     public void removeListeners (Query ref) {
         if(isOn(ref)) {
-            Value v = references.get(ref.toString());
+            Value v = references.get(ref.getRef().toString());
             v.removeListener();
-            references.remove(ref.toString());
+            references.remove(ref.getRef().toString());
         }
     }
 

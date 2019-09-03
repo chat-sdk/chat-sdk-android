@@ -20,6 +20,8 @@ import co.chatsdk.android.app.test.MessageTestChatOption;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.error.ChatSDKException;
+import co.chatsdk.core.hook.Hook;
+import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
 import co.chatsdk.core.ui.ProfileFragmentProvider;
@@ -31,6 +33,8 @@ import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import co.chatsdk.ui.utils.ToastHelper;
+import io.reactivex.Completable;
 
 /**
  * Created by itzik on 6/8/2014.
