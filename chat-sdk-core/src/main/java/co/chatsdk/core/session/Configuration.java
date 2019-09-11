@@ -298,12 +298,12 @@ public class Configuration {
             return this;
         }
 
-        public Builder setAudioMessageMaxLengthSeconds(int seconds) {
+        public Builder audioMessageMaxLengthSeconds(int seconds) {
             config.audioMessageMaxLengthSeconds = seconds;
             return this;
         }
 
-        public Builder setXxmppAcceptAllCertificates(boolean acceptAllCertificates) {
+        public Builder xmppAcceptAllCertificates(boolean acceptAllCertificates) {
             config.xmppAcceptAllCertificates = acceptAllCertificates;
             return this;
         }
@@ -313,17 +313,17 @@ public class Configuration {
             return this;
         }
 
-        public Builder setXmppSslEnabled(boolean sslEnabled) {
+        public Builder xmppSslEnabled(boolean sslEnabled) {
             config.xmppSslEnabled = sslEnabled;
             return this;
         }
 
-        public Builder setXmppMucMessageHistory(int history) {
+        public Builder xmppMucMessageHistory(int history) {
             config.xmppMucMessageHistory = history;
             return this;
         }
 
-        public Builder setXmppDisableHostNameVerification(boolean disableHostNameVerification) {
+        public Builder xmppDisableHostNameVerification(boolean disableHostNameVerification) {
             config.xmppDisableHostNameVerification = disableHostNameVerification;
             return this;
         }
@@ -334,12 +334,12 @@ public class Configuration {
          * @param allowClientSideAuthentication
          * @return
          */
-        public Builder setXmppAllowClientSideAuthentication(boolean allowClientSideAuthentication) {
+        public Builder xmppAllowClientSideAuthentication(boolean allowClientSideAuthentication) {
             config.xmppAllowClientSideAuthentication = allowClientSideAuthentication;
             return this;
         }
 
-        public Builder setXmppCompressionEnabled(boolean compressionEnabled) {
+        public Builder xmppCompressionEnabled(boolean compressionEnabled) {
             config.xmppCompressionEnabled = compressionEnabled;
             return this;
         }
@@ -353,7 +353,7 @@ public class Configuration {
          * @param securityMode
          * @return
          */
-        public Builder setXmppSecurityMode(String securityMode) {
+        public Builder xmppSecurityMode(String securityMode) {
             config.xmppSecurityMode = securityMode;
             return this;
         }
@@ -385,17 +385,17 @@ public class Configuration {
             return this;
         }
 
-        public Builder setPushNotificationAction(String action) {
+        public Builder pushNotificationAction(String action) {
             config.pushNotificationAction = action;
             return this;
         }
 
-        public Builder setShowEmptyChats(boolean showEmpty) {
+        public Builder showEmptyChats(boolean showEmpty) {
             config.showEmptyChats = showEmpty;
             return this;
         }
 
-        public Builder setInboundPushHandlingEnabled(boolean enabled) {
+        public Builder inboundPushHandlingEnabled(boolean enabled) {
             config.inboundPushHandlingEnabled = enabled;
             return this;
         }
@@ -460,62 +460,62 @@ public class Configuration {
             return this;
         }
 
-        public Builder setMessageColorMe(int color) {
+        public Builder messageColorMe(int color) {
             config.messageColorMe = color;
             return this;
         }
 
-        public Builder setMessageColorReply(int color) {
+        public Builder messageColorReply(int color) {
             config.messageColorReply = color;
             return this;
         }
 
-        public Builder setMessageColorMe(String hexColor) {
+        public Builder messageColorMe(String hexColor) {
             config.messageColorMe = Color.parseColor(hexColor);
             return this;
         }
 
-        public Builder setMessageColorReply(String hexColor) {
+        public Builder messageColorReply(String hexColor) {
             config.messageColorReply = Color.parseColor(hexColor);
             return this;
         }
 
-        public Builder setBackgroundPushTestModeEnabled(boolean enabled) {
+        public Builder backgroundPushTestModeEnabled(boolean enabled) {
             config.backgroundPushTestModeEnabled = enabled;
             return this;
         }
 
-        public Builder setMessageTextColorMe(int color) {
+        public Builder messageTextColorMe(int color) {
             config.messageTextColorMe = color;
             return this;
         }
 
-        public Builder setMessageTextColorReply(int color) {
+        public Builder messageTextColorReply(int color) {
             config.messageTextColorReply = color;
             return this;
         }
 
-        public Builder setMessageTextColorMe(String hexColor) {
+        public Builder messageTextColorMe(String hexColor) {
             config.messageTextColorMe = Color.parseColor(hexColor);
             return this;
         }
 
-        public Builder setMessageTextColorReply(String hexColor) {
+        public Builder messageTextColorReply(String hexColor) {
             config.messageTextColorReply = Color.parseColor(hexColor);
             return this;
         }
 
-        public Builder setCrashHandler(CrashHandler handler) {
+        public Builder crashHandler(CrashHandler handler) {
             config.crashHandler = handler;
             return this;
         }
 
-        public Builder setClientPushEnabled(boolean clientPushEnabled) {
+        public Builder clientPushEnabled(boolean clientPushEnabled) {
             config.clientPushEnabled = clientPushEnabled;
             return this;
         }
 
-        public Builder setShowLocalNotifications(boolean show) {
+        public Builder showLocalNotifications(boolean show) {
             config.showLocalNotifications = show;
             return this;
         }
@@ -566,12 +566,12 @@ public class Configuration {
             return this;
         }
 
-        public Builder setMessageTimeFormat(String format) {
+        public Builder messageTimeFormat(String format) {
             config.messageTimeFormat = format;
             return this;
         }
 
-        public Builder setLastOnlineTimeFormat(String format) {
+        public Builder lastOnlineTimeFormat(String format) {
             config.lastOnlineTimeFormat = format;
             return this;
         }
@@ -675,18 +675,18 @@ public class Configuration {
             return this;
         }
 
-        public Builder setSearchIndexes (List<String> indexes) {
+        public Builder searchIndexes(List<String> indexes) {
             config.searchIndexes.clear();
             config.searchIndexes.addAll(indexes);
             return this;
         }
 
-        public Builder setFirebaseApp(String firebaseApp) {
+        public Builder firebaseApp(String firebaseApp) {
             config.firebaseApp = firebaseApp;
             return this;
         }
 
-        public Builder setFirebaseFunctionsRegion(String firebaseFunctionsRegion) {
+        public Builder firebaseFunctionsRegion(String firebaseFunctionsRegion) {
             config.firebaseFunctionsRegion = firebaseFunctionsRegion;
             return this;
         }
