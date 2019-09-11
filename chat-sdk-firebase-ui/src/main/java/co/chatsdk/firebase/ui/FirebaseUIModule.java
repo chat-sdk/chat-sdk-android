@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.firebase.FirebaseCoreHandler;
 import co.chatsdk.firebase.FirebaseEventHandler;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
@@ -30,7 +31,7 @@ public class FirebaseUIModule {
 
         ArrayList<AuthUI.IdpConfig> idps = getProviders(providers);
 
-        Intent authUILoginIntent = AuthUI.getInstance()
+        Intent authUILoginIntent = authUI()
                 .createSignInIntentBuilder()
                 .setAvailableProviders(idps)
                 .build();
@@ -39,7 +40,7 @@ public class FirebaseUIModule {
 
         Disposable d = ChatSDK.events().source()
                 .filter(NetworkEvent.filterType(EventType.Logout))
-                .subscribe(networkEvent -> AuthUI.getInstance().signOut(ChatSDK.shared().context()));
+                .subscribe(networkEvent -> authUI().signOut(ChatSDK.shared().context()));
 
     }
 
@@ -67,6 +68,10 @@ public class FirebaseUIModule {
             }
         }
         return idps;
+    }
+
+    public static AuthUI authUI () {
+        return AuthUI.getInstance(FirebaseCoreHandler.app());
     }
 
 }

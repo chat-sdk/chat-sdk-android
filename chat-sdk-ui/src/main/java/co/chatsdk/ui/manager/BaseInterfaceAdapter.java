@@ -94,7 +94,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Fragment privateThreadsFragment = new PrivateThreadsFragment();
     protected Fragment publicThreadsFragment = new PublicThreadsFragment();
     protected Fragment contactsFragment = new ContactsFragment();
-    protected ProfileFragmentProvider profileFragmentProvider = user -> ProfileFragment.newInstance(user);
+    protected ProfileFragmentProvider profileFragmentProvider = ProfileFragment::newInstance;
 
     private ArrayList<Tab> tabs = new ArrayList<>();
     private Tab privateThreadsTab;

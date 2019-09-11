@@ -39,8 +39,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    api project(':chat-sdk-core')
-
+    implementation project(':chat-sdk-firebase-adapter')
     implementation "com.google.firebase:firebase-storage:$firebaseStorageVersion"
 }
 

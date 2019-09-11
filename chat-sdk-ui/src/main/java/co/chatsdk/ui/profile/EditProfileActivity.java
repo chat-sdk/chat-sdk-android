@@ -43,6 +43,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 public class EditProfileActivity extends BaseActivity {
 
     protected SimpleDraweeView avatarImageView;
+    protected String avatarImageURL = null;
+
     protected EditText statusEditText;
     protected Spinner availabilitySpinner;
     protected EditText nameEditText;
@@ -110,6 +112,7 @@ public class EditProfileActivity extends BaseActivity {
                 disposableList.add(uploader.choosePhoto(EditProfileActivity.this).subscribe((result, throwable) -> {
                     if (throwable == null) {
                         avatarImageView.setImageURI(Uri.fromFile(new File(result.uri)));
+                        avatarImageURL = result.url;
                     } else {
                         ToastHelper.show(EditProfileActivity.this, throwable.getLocalizedMessage());
                     }
@@ -226,6 +229,10 @@ public class EditProfileActivity extends BaseActivity {
             if (key.equals(Keys.Availability) || key.equals(Keys.Status)) {
                 presenceChanged = presenceChanged || valueChanged(metaMap, userMeta, key);
             }
+        }
+
+        if (avatarImageURL != null) {
+            currentUser.setAvatarURL(avatarImageURL);
         }
 
         currentUser.update();

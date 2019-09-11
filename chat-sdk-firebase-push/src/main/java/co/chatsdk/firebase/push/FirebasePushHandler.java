@@ -15,6 +15,7 @@ import co.chatsdk.core.push.AbstractPushHandler;
 import co.chatsdk.core.push.BaseBroadcastHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.StringChecker;
+import co.chatsdk.firebase.FirebaseCoreHandler;
 import timber.log.Timber;
 
 /**
@@ -29,18 +30,18 @@ public class FirebasePushHandler extends AbstractPushHandler {
 
     @Override
     public void subscribeToPushChannel(String channel) {
-        FirebaseMessaging.getInstance().subscribeToTopic(channel);
+        messaging().subscribeToTopic(channel);
     }
 
     @Override
     public void unsubscribeToPushChannel(String channel) {
-        FirebaseMessaging.getInstance().unsubscribeFromTopic(channel);
+        messaging().unsubscribeFromTopic(channel);
     }
 
     @Override
     public void sendPushNotification (HashMap<String, Object> data) {
         if (data != null) {
-            FirebaseFunctions.getInstance().getHttpsCallable("pushToChannels").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
+            functions().getHttpsCallable("pushToChannels").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
                 if(task.getException() != null) {
                     Timber.d(task.getException());
                 }
@@ -50,6 +51,18 @@ public class FirebasePushHandler extends AbstractPushHandler {
                 return null;
             });
         }
+    }
+
+    public static FirebaseFunctions functions () {
+        if (ChatSDK.config().firebaseFunctionsRegion != null) {
+            return FirebaseFunctions.getInstance(FirebaseCoreHandler.app(), ChatSDK.config().firebaseFunctionsRegion);
+        } else {
+            return FirebaseFunctions.getInstance(FirebaseCoreHandler.app());
+        }
+    }
+
+    public static FirebaseMessaging messaging () {
+        return FirebaseMessaging.getInstance();
     }
 
 }

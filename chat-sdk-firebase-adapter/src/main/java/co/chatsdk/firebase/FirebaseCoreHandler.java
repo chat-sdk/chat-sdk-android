@@ -3,6 +3,8 @@ package co.chatsdk.firebase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -44,7 +46,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public FirebaseCoreHandler(EventHandler events) {
 
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        database().setPersistenceEnabled(true);
 
         // When the user logs out, turn off all the existing listeners
         Disposable d = events.source()
@@ -175,4 +177,25 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     public void save() {
 
     }
+
+    public static FirebaseApp app () {
+        if (ChatSDK.config().firebaseApp != null) {
+            return FirebaseApp.getInstance(ChatSDK.config().firebaseApp);
+        } else {
+            return FirebaseApp.getInstance();
+        }
+    }
+
+    public static FirebaseAuth auth () {
+        return FirebaseAuth.getInstance(app());
+    }
+
+    public static FirebaseDatabase database () {
+        if (ChatSDK.config().firebaseDatabaseUrl != null) {
+            return FirebaseDatabase.getInstance(app(), ChatSDK.config().firebaseDatabaseUrl);
+        } else {
+            return FirebaseDatabase.getInstance(app());
+        }
+    }
+
 }

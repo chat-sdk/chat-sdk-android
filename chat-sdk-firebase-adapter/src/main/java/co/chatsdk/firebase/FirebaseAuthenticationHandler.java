@@ -44,7 +44,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     } else {
                         setAuthStatus(AuthStatus.CHECKING_IF_AUTH);
 
-                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        FirebaseUser user = FirebaseCoreHandler.auth().getCurrentUser();
 
                         if (user != null) {
                             emitter.onSuccess(user);
@@ -80,16 +80,16 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                     switch ( details.type ) {
                         case Username:
-                            FirebaseAuth.getInstance().signInWithEmailAndPassword(details.username, details.password).addOnCompleteListener(resultHandler);
+                            FirebaseCoreHandler.auth().signInWithEmailAndPassword(details.username, details.password).addOnCompleteListener(resultHandler);
                             break;
                         case Register:
-                            FirebaseAuth.getInstance().createUserWithEmailAndPassword(details.username, details.password).addOnCompleteListener(resultHandler);
+                            FirebaseCoreHandler.auth().createUserWithEmailAndPassword(details.username, details.password).addOnCompleteListener(resultHandler);
                             break;
                         case Anonymous:
-                            FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(resultHandler);
+                            FirebaseCoreHandler.auth().signInAnonymously().addOnCompleteListener(resultHandler);
                             break;
                         case Custom:
-                            FirebaseAuth.getInstance().signInWithCustomToken(details.token).addOnCompleteListener(resultHandler);
+                            FirebaseCoreHandler.auth().signInWithCustomToken(details.token).addOnCompleteListener(resultHandler);
                             break;
                         // Should be handled by Social Login Module
                         case Facebook:
@@ -145,14 +145,14 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     }
 
     public Boolean isAuthenticated() {
-        return FirebaseAuth.getInstance().getCurrentUser() != null;
+        return FirebaseCoreHandler.auth().getCurrentUser() != null;
     }
 
     @Override
     public Completable changePassword(String email, String oldPassword, final String newPassword) {
         return Completable.create(
                 emitter->{
-                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    FirebaseUser user = FirebaseCoreHandler.auth().getCurrentUser();
 
                     OnCompleteListener<Void> resultHandler = task->{
                         if (task.isSuccessful()) {
@@ -179,7 +179,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     // Stop listening to user related alerts. (added message or thread.)
                     ChatSDK.events().impl_currentUserOff(user.getEntityID());
 
-                    FirebaseAuth.getInstance().signOut();
+                    FirebaseCoreHandler.auth().signOut();
 
                     removeLoginInfo(AuthKeys.CurrentUserID);
 
@@ -210,7 +210,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                         }
                     };
 
-                    FirebaseAuth.getInstance().sendPasswordResetEmail(email).addOnCompleteListener(resultHandler);
+                    FirebaseCoreHandler.auth().sendPasswordResetEmail(email).addOnCompleteListener(resultHandler);
 
                 }).subscribeOn(Schedulers.single());
     }

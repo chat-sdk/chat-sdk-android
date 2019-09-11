@@ -12,6 +12,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ChatError;
 import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.utils.StringChecker;
+import co.chatsdk.firebase.FirebaseCoreHandler;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
@@ -24,14 +25,7 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
     public Observable<FileUploadResult> uploadFile(final byte[] data, final String name, final String mimeType) {
         return Observable.create((ObservableOnSubscribe<FileUploadResult>) e -> {
 
-            FirebaseStorage storage = null;
-            if(!StringChecker.isNullOrEmpty(ChatSDK.config().firebaseStorageUrl)) {
-                storage = FirebaseStorage.getInstance(ChatSDK.config().firebaseStorageUrl);
-            }
-            else {
-                storage = FirebaseStorage.getInstance();
-            }
-            StorageReference filesRef = storage.getReference().child("files");
+            StorageReference filesRef = storage().getReference().child("files");
             final String fullName = getUUID() + "_" + name;
             StorageReference fileRef = filesRef.child(fullName);
 
@@ -61,6 +55,17 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
         }).subscribeOn(Schedulers.single());
     }
 
+    public boolean shouldUploadAvatar () {
+        return true;
+    }
 
+    public static FirebaseStorage storage () {
+        if (ChatSDK.config().firebaseStorageUrl != null) {
+            return FirebaseStorage.getInstance(FirebaseCoreHandler.app(), ChatSDK.config().firebaseStorageUrl);
+        } else {
+            return FirebaseStorage.getInstance(FirebaseCoreHandler.app());
+        }
+
+    }
 
 }

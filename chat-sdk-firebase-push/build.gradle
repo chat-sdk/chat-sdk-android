@@ -32,7 +32,8 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    api project(':chat-sdk-ui')
+    implementation project(':chat-sdk-ui')
+    implementation project(':chat-sdk-firebase-adapter')
 
     implementation "com.google.firebase:firebase-messaging:$firebaseMessagingVersion"
     implementation "com.google.firebase:firebase-functions:$firebaseFunctionsVersion"

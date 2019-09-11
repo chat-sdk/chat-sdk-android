@@ -23,4 +23,8 @@ public abstract class AbstractUploadHandler implements UploadHandler {
         return DaoCore.generateRandomName();
     }
 
+    public boolean shouldUploadAvatar () {
+        return false;
+    }
+
 }

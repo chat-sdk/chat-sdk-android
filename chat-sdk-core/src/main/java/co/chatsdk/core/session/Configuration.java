@@ -24,8 +24,6 @@ import co.chatsdk.core.utils.StringChecker;
 
 public class Configuration {
 
-    public WeakReference<Context> context;
-
     // Basic parameters
     public int messagesToLoadPerBatch = 30;
     public int contactsToLoadPerBatch = 20;
@@ -46,8 +44,11 @@ public class Configuration {
 
     // Firebase
     public String firebaseRootPath = "default";
+
     public String firebaseDatabaseUrl;
     public String firebaseStorageUrl;
+    public String firebaseApp;
+    public String firebaseFunctionsRegion;
 
     // Should we call disconnect when the app is in the background for more than 5 seconds?
     public boolean disconnectFromFirebaseWhenInBackground = true;
@@ -199,9 +200,8 @@ public class Configuration {
 
         private Configuration config;
 
-        public Builder(Context context) {
+        public Builder() {
             config = new Configuration();
-            config.context = new WeakReference<>(context);
             config.updateDefaultName();
         }
 
@@ -678,6 +678,16 @@ public class Configuration {
         public Builder setSearchIndexes (List<String> indexes) {
             config.searchIndexes.clear();
             config.searchIndexes.addAll(indexes);
+            return this;
+        }
+
+        public Builder setFirebaseApp(String firebaseApp) {
+            config.firebaseApp = firebaseApp;
+            return this;
+        }
+
+        public Builder setFirebaseFunctionsRegion(String firebaseFunctionsRegion) {
+            config.firebaseFunctionsRegion = firebaseFunctionsRegion;
             return this;
         }
 

@@ -34,6 +34,7 @@ import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.HashMapHelper;
+import co.chatsdk.firebase.FirebaseCoreHandler;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebaseEventListener;
 import co.chatsdk.firebase.FirebasePaths;
@@ -277,7 +278,7 @@ public class UserWrapper {
     public Completable updateFirebaseUser () {
         return Completable.create(e -> {
 
-            final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            final FirebaseUser user = FirebaseCoreHandler.auth().getCurrentUser();
 
             UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder()
                     .setDisplayName(model.getName());

@@ -15,4 +15,6 @@ public interface UploadHandler {
 //    Observable<MessageUploadResult> uploadImage(final Bitmap image, final Bitmap thumbnail);
     Observable<FileUploadResult> uploadImage(final Bitmap image);
 
+    boolean shouldUploadAvatar ();
+
 }

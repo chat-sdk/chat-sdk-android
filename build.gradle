@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath "com.android.tools.build:gradle:3.4.2"
-        classpath "com.google.gms:google-services:4.3.1"
+        classpath "com.google.gms:google-services:4.3.2"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
     }
 }
@@ -28,12 +28,12 @@ ext {
     googlePlacesVersion = "1.1.0"
     playLocationVersion = "17.0.0"
     firebaseUiVersion = "4.3.2"
-    firebaseCoreVersion = "16.0.9"
-    firebaseDatabaseVersion = "17.0.0"
-    firebaseAuthVersion = "17.0.0"
-    firebaseStorageVersion = "17.0.0"
-    firebaseMessagingVersion = "18.0.0"
-    firebaseFunctionsVersion = "17.0.0"
+    firebaseCoreVersion = "17.2.0"
+    firebaseDatabaseVersion = "19.1.0"
+    firebaseAuthVersion = "19.0.0"
+    firebaseStorageVersion = "19.0.1"
+    firebaseMessagingVersion = "20.0.0"
+    firebaseFunctionsVersion = "19.0.1"
     firebaseIIDVersion = "18.0.0"
     timberVersion = "4.7.1"
     greenDaoVersion = "3.2.2"

@@ -188,10 +188,10 @@ public class FirebaseSocialLoginHandler implements SocialLoginHandler {
     }
 
     public Completable signInWithCredential (final Activity activity, final AuthCredential credential) {
-        return Completable.create(e -> FirebaseAuth.getInstance().signInWithCredential(credential)
+        return Completable.create(e -> FirebaseCoreHandler.auth().signInWithCredential(credential)
                 .addOnCompleteListener(activity, task -> {
                     if (task.isSuccessful() && task.isComplete()) {
-                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        FirebaseUser user = FirebaseCoreHandler.auth().getCurrentUser();
 
                         FirebaseAuthenticationHandler handler = (FirebaseAuthenticationHandler) ChatSDK.auth();
 

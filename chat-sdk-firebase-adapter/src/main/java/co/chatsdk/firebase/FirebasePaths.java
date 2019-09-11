@@ -34,9 +34,7 @@ public class FirebasePaths{
     /** @return The main databse ref.*/
 
     public static DatabaseReference firebaseRawRef() {
-        String url = ChatSDK.config().firebaseDatabaseUrl;
-        if (url != null) return FirebaseDatabase.getInstance(url).getReference();
-        else return FirebaseDatabase.getInstance().getReference();
+        return FirebaseCoreHandler.database().getReference();
     }
 
     public static DatabaseReference firebaseRef () {

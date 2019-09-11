@@ -49,7 +49,7 @@ public class AppObj extends MultiDexApplication {
 
         try {
 
-            Configuration.Builder config = new Configuration.Builder(context);
+            Configuration.Builder config = new Configuration.Builder();
 
             config.firebaseRootPath("modules_test_june_20");
             config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
@@ -60,12 +60,10 @@ public class AppObj extends MultiDexApplication {
             config.twitterLogin("Kqprq5b6bVeEfcMAGoHzUmB3I", "hPd9HCt3PLnifQFrGHJWi6pSZ5jF7kcHKXuoqB8GJpSDAlVcLq");
             config.googleLogin("1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com");
 
-
             // For the demo version of the client expire rooms after 24 hours
             config.publicChatRoomLifetimeMinutes(60 * 24);
 
-
-            ChatSDK.initialize(config.build(), new FirebaseNetworkAdapter(), new BaseInterfaceAdapter(context));
+            ChatSDK.initialize(context, config.build(), FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
 
 //            AConfigurator.configure();
 
@@ -81,7 +79,7 @@ public class AppObj extends MultiDexApplication {
 
 
         }
-        catch (ChatSDKException e) {
+        catch (Exception e) {
             e.printStackTrace();
         }
 

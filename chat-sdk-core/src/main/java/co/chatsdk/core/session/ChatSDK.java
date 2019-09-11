@@ -5,7 +5,10 @@ import android.content.SharedPreferences;
 
 import com.google.android.gms.auth.api.signin.internal.Storage;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -77,32 +80,20 @@ public class ChatSDK {
         this.context = new WeakReference<>(context);
     }
 
-
-    public static ChatSDK initialize (Configuration config) throws ChatSDKException {
-        return initialize(config, null, null);
-    }
-
-    public static ChatSDK initialize (Configuration config, BaseNetworkAdapter networkAdapter, InterfaceAdapter interfaceAdapter) throws ChatSDKException {
-        shared().setContext(config.context.get());
+    public static ChatSDK initialize (Context context, Configuration config, @NotNull Class<? extends BaseNetworkAdapter> networkAdapterClass, @NotNull Class<? extends InterfaceAdapter> interfaceAdapterClass) throws Exception {
+        shared().setContext(context);
         shared().config = config;
+
+        shared().networkAdapter = networkAdapterClass.getConstructor().newInstance();
+
+        Constructor<? extends InterfaceAdapter> constructor = interfaceAdapterClass.getConstructor(Context.class);
+        Object[] parameters = {context};
+
+        shared().interfaceAdapter = constructor.newInstance(parameters);
 
         DaoCore.init(shared().context());
 
         shared().storageManager = new StorageManager();
-
-        if(interfaceAdapter != null) {
-            shared().interfaceAdapter = interfaceAdapter;
-        }
-//        else {
-//            shared().activateModule("UserInterfaceModule", "activate", new MethodArgument(Context.class, shared().context()));
-//        }
-
-        if (networkAdapter != null) {
-            shared().networkAdapter = networkAdapter;
-        }
-//        else {
-//            shared().activateModule("FirebaseModule", "activate");
-//        }
 
         shared().locationProvider = new LocationProvider();
 
