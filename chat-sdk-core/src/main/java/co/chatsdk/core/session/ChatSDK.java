@@ -84,12 +84,12 @@ public class ChatSDK {
         shared().setContext(context);
         shared().config = config;
 
-        shared().networkAdapter = networkAdapterClass.getConstructor().newInstance();
+        shared().setNetworkAdapter(networkAdapterClass.getConstructor().newInstance());
 
         Constructor<? extends InterfaceAdapter> constructor = interfaceAdapterClass.getConstructor(Context.class);
         Object[] parameters = {context};
 
-        shared().interfaceAdapter = constructor.newInstance(parameters);
+        shared().setInterfaceAdapter(constructor.newInstance(parameters));
 
         DaoCore.init(shared().context());
 
