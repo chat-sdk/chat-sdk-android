@@ -33,6 +33,7 @@ import co.chatsdk.core.handlers.SocialLoginHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.firebase.FirebaseAuthenticationHandler;
+import co.chatsdk.firebase.FirebaseCoreHandler;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;

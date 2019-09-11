@@ -19,7 +19,7 @@ ext {
     mavenGradleVersion = "2.1"
     androidxAppcompatVersion = "1.0.2"
     androidxConstraintLayoutVersion = "2.0.0-beta1"
-    androidxLifecycleExtensionsVersion = "2.0.0"
+    androidxLifecycleExtensionsVersion = "2.1.0"
     androidxRecyclerViewVersion = "1.0.0"
     androidxMultidexVersion = "2.0.1"
     materialVersion = "1.0.0"
