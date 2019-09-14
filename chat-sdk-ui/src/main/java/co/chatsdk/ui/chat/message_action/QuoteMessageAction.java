@@ -1,12 +1,11 @@
 package co.chatsdk.ui.chat.message_action;
 
 import android.app.Activity;
+import android.widget.Toast;
 
-import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.message_action.MessageAction;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
+import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
@@ -26,17 +25,20 @@ public class QuoteMessageAction extends MessageAction {
         colorId = R.color.button_success;
         successMessageId = R.string.quote_message_created;
     }
-
+//This will ONLY work if the message to be quoted is a text message, otherwise the quote cannot be made, see line 40.
     @Override
     public Completable execute(Activity activity) {
         return Completable.create(emitter -> {
             if(activity instanceof ChatActivity) {
                 ChatActivity chatActivity = (ChatActivity) activity;
                 Message quotedMessage = message.get();
-                //String imageURL = quotedMessage I must get the URL here.
-                chatActivity.displayQuoteView(quotedMessage);
-                //Need to make one more here for the image
-                // Make a method on the chat activity to show and hide the reply view over the textInputView
+                if (quotedMessage.getType() == MessageType.Text) {
+                    chatActivity.setQuoteBoolean(true);
+                    chatActivity.displayQuoteView(quotedMessage);
+                }
+                else {
+                    chatActivity.sayOnlyTextMessageCanBeQuoted();
+                }
             }
         });
     }

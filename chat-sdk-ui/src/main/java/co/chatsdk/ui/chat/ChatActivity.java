@@ -9,6 +9,7 @@ package co.chatsdk.ui.chat;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.LayoutRes;
@@ -22,16 +23,25 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.common.ResizeOptions;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.leinardi.android.speeddial.SpeedDialView;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ocpsoft.prettytime.PrettyTime;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -49,14 +59,18 @@ import co.chatsdk.core.interfaces.ChatOptionsDelegate;
 import co.chatsdk.core.interfaces.ChatOptionsHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.message_action.MessageAction;
+import co.chatsdk.core.rigs.MessageSendRig;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+import co.chatsdk.core.utils.HashMapHelper;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.message_action.MessageActionHandler;
+import co.chatsdk.ui.chat.viewholder.BaseMessageViewHolder;
 import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.threads.ThreadImageBuilder;
@@ -111,6 +125,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     protected SpeedDialView messageActionsSpeedDialView;
     protected MessageActionHandler messageActionHandler;
+    protected FloatingActionButton closeQuoteView;
+
+    //This triggers the sending of the quoted text
+    protected boolean isQuoteMessage = false;
 
     /**
      * If set to false in onCreate the menu threads wont be inflated in the menu.
@@ -131,7 +149,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         initViews();
 
-        quoteView.setVisibility(View.INVISIBLE);
+        quoteView.setVisibility(View.GONE);
 
         if (!updateThreadFromBundle(savedInstanceState)) {
             return;
@@ -242,6 +260,19 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     }
         }));
 
+        //Here we close the quote view if the user presses the X button on it.
+        quoteView.closeQuoteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                quoteView.setVisibility(View.GONE);
+                quoteView.quotedUsername.setText("");
+                quoteView.quotedText.setText("");
+                quoteView.quotedImageView.setImageURI("");
+                quoteView.quotedImageUri = "";
+                setQuoteBoolean(false);
+            }
+        });
+
     }
 
     @Override
@@ -292,10 +323,21 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         return R.layout.activity_chat;
     }
 
+    //QUOTE VIEW This is where the quoted message is displayed
     public void displayQuoteView (Message quotedMessage) {
+
         quoteView.setDelegate(this);
-        quoteView.quotedUsername.setText(quotedMessage.getText());
-        quoteView.quotedText.setText(quotedMessage.getSender().getName());
+        quoteView.quotedUsername.setText(quotedMessage.getSender().getName());
+        quoteView.quotedText.setText(quotedMessage.getText());
+        //We cannot have quoted images at the moment, so the Image View is always going to ge GONE.
+        quoteView.quotedImageView.setVisibility(View.GONE);
+        //If the message is an image, if we ever enable that that is, we get the image url string.
+        if (quotedMessage.getType() == MessageType.Image || quotedMessage.getType() == MessageType.Location) {
+            quoteView.quotedImageView.setVisibility(View.VISIBLE);
+            quoteView.quotedText.setVisibility(View.GONE);
+            quoteView.quotedImageView.setImageURI(quotedMessage.getTextRepresentation());
+            quoteView.quotedImageUri = quotedMessage.getTextRepresentation();
+        }
         quoteView.setVisibility(View.VISIBLE);
     }
 
@@ -432,7 +474,27 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             return;
         }
 
-        handleMessageSend(ChatSDK.thread().sendMessageWithText(text.trim(), thread));
+        //Here we decided whether to attach the quote data or not
+        if (!isQuoteMessage) {
+            handleMessageSend(ChatSDK.thread().sendMessageWithText(text.trim(), thread));
+        }
+        else {
+            HashMap<String, Object> quoteData = new HashMap<>();
+            quoteData.put("Quoted_Name", quoteView.quotedUsername.getText().toString());
+            if (!quoteView.quotedText.getText().toString().equals("")) {
+                quoteData.put("Quoted_Text", quoteView.quotedText.getText().toString());
+            }
+            if (quoteView.quotedImageUri != null) {
+                quoteData.put("Quoted_Image", quoteView.quotedImageUri.toString());
+            }
+
+            MessageSendRig sender = new MessageSendRig(new MessageType(MessageType.Text), thread, message -> {
+                message.setText(text.trim());
+                message.setMetaValues(quoteData);
+            });
+            quoteView.closeQuoteButton.performClick();
+            handleMessageSend(sender.run());
+        }
 
         if (clearEditText && textInputView != null) {
             textInputView.clearText();
@@ -905,4 +967,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         handleMessageSend(option.execute(this, thread));
     }
 
+    public void setQuoteBoolean (Boolean isQuote) {
+        isQuoteMessage = isQuote;
+    }
+
+    public void sayOnlyTextMessageCanBeQuoted () {
+        Toast.makeText(this, "Unfortunately, only text messages can be quoted at this time", Toast.LENGTH_LONG).show();
+    }
 }

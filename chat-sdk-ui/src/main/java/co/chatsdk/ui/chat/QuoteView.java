@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.lang.ref.WeakReference;
 
@@ -19,6 +21,8 @@ public class QuoteView extends LinearLayout {
     public TextView quotedText;
     public SimpleDraweeView quotedImageView;
     public WeakReference<TextInputDelegate> delegate;
+    public String quotedImageUri;
+    public FloatingActionButton closeQuoteButton;
 
     public QuoteView(Context context) {
         super(context);
@@ -40,10 +44,14 @@ public class QuoteView extends LinearLayout {
     }
 
     protected void init(){
-        inflate(getContext(), R.layout.image_view, this);
+        inflate(getContext(), R.layout.view_quote, this);
     }
 
     protected void initViews() {
+        quotedUsername = findViewById(R.id.quotedUsername);
+        closeQuoteButton = findViewById(R.id.closeQuoteButton);
+        quotedImageView = findViewById(R.id.quotedImage);
+        quotedText = findViewById(R.id.quotedText);
     }
 
     protected Activity getActivity() {
@@ -61,7 +69,6 @@ public class QuoteView extends LinearLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
         initViews();
-
 
         if (isInEditMode()) {
             return;

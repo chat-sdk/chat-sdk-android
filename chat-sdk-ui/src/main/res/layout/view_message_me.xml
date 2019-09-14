@@ -4,6 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:fresco="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     style="@style/RowStyle"
@@ -50,6 +51,70 @@
 
             android:background="@drawable/message_sent_3">
 
+            <LinearLayout
+                android:id="@+id/quote_horizontal_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/layout_quoted_layout_rounded_corners"
+                android:orientation="horizontal"
+                fresco:layout_constraintStart_toStartOf="parent"
+                fresco:layout_constraintTop_toTopOf="parent">
+
+                <View
+                    android:id="@+id/divider3"
+                    android:layout_width="10dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_weight="0"
+                    android:background="@color/black" />
+
+                <LinearLayout
+                    android:id="@+id/quote_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="@android:color/darker_gray"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/quotedUsername"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="TextView"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/quotedText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="TextView" />
+
+                    <com.facebook.drawee.view.SimpleDraweeView
+                        android:id="@+id/quotedImage"
+                        android:layout_width="200dp"
+                        android:layout_height="200dp"
+
+                        android:layout_marginStart="5dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginRight="5dp"
+                        android:layout_marginBottom="5dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
             <com.facebook.drawee.view.SimpleDraweeView
                 android:id="@+id/image_icon"
                 android:layout_width="@dimen/message_icon_max_width"
@@ -63,10 +128,10 @@
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
 
+                fresco:layout_constraintTop_toBottomOf="@+id/quote_horizontal_layout"
                 fresco:layout_constraintBottom_toBottomOf="parent"
                 fresco:layout_constraintEnd_toStartOf="@+id/text_content"
-                fresco:layout_constraintStart_toStartOf="parent"
-                fresco:layout_constraintTop_toTopOf="parent" />
+                fresco:layout_constraintStart_toStartOf="parent" />
 
             <TextView
                 android:id="@+id/text_content"
@@ -85,11 +150,13 @@
                 android:autoLink="all"
                 android:gravity="center_vertical"
                 android:text=""
+
                 app:layout_constrainedWidth="true"
+
                 fresco:layout_constraintBottom_toBottomOf="parent"
                 fresco:layout_constraintEnd_toEndOf="parent"
                 fresco:layout_constraintStart_toEndOf="@+id/image_icon"
-                fresco:layout_constraintTop_toTopOf="parent" />
+                fresco:layout_constraintTop_toBottomOf="@+id/quote_horizontal_layout" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -3,6 +3,7 @@ package co.chatsdk.ui.chat.viewholder;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.text.util.Linkify;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -27,9 +29,12 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.chat.ChatActivity;
+import co.chatsdk.ui.chat.QuoteView;
 import co.chatsdk.ui.chat.message_action.CopyMessageAction;
 import co.chatsdk.ui.chat.message_action.DeleteMessageAction;
 import co.chatsdk.ui.chat.message_action.ForwardMessageAction;
@@ -52,6 +57,11 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     protected ImageView readReceiptImageView;
     protected ProgressBar progressBar;
 
+    protected LinearLayout quoteLayout;
+    protected TextView quotedUsername;
+    protected SimpleDraweeView quotedImage;
+    protected TextView quotedText;
+
     public BaseMessageViewHolder(View itemView, Activity activity, PublishSubject<List<MessageAction>> actionPublishSubject) {
         super(itemView, activity, actionPublishSubject);
 
@@ -64,6 +74,11 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         extraLayout = itemView.findViewById(R.id.layout_extra);
         readReceiptImageView = itemView.findViewById(R.id.image_read_receipt);
         progressBar = itemView.findViewById(R.id.progress_bar);
+
+        quoteLayout = itemView.findViewById(R.id.quote_horizontal_layout);
+        quotedUsername = itemView.findViewById(R.id.quotedUsername);
+        quotedImage = itemView.findViewById(R.id.quotedImage);
+        quotedText = itemView.findViewById(R.id.quotedText);
 
         itemView.setOnClickListener(this::onClick);
         itemView.setOnLongClickListener(this::onLongClick);
@@ -110,6 +125,10 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         setTextHidden(true);
         setIconHidden(true);
         setImageHidden(true);
+        setQuoteViewHidden(true);
+        setQuoteUsernameHidden(true);
+        setQuoteTextHidden(true);
+        setQuoteImageHidden(true);
 
         float alpha = message.getMessageStatus() == MessageSendStatus.Sent || message.getMessageStatus() == MessageSendStatus.Delivered ? 1.0f : 0.7f;
         setAlpha(alpha);
@@ -124,6 +143,29 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         }
         else {
             messageBubble.getBackground().setColorFilter(ChatSDK.config().messageColorReply, PorterDuff.Mode.MULTIPLY);
+        }
+
+        //This is where the dummy quoted message
+        /*HashMap<String, Object> quoteData = new HashMap<>();
+        quoteData.put("Quoted_Name", "Omega");
+        quoteData.put("Quoted_Text", "");
+        quoteData.put("Quoted_Image", "https://firebasestorage.googleapis.com/v0/b/chat-sdk-v4.appspot.com/o/files%2F9648li28qvet67tnctej1ekjlj_image.jpg?alt=media&token=eee7ba06-f2d6-4c4a-ac5e-5e09561e1bd5");
+        message.setMetaValues(quoteData);*/
+
+        if (!message.stringForKey("Quoted_Name").equals("")) {
+            setQuoteUsernameHidden(false);
+            setQuoteViewHidden(false);
+            quotedUsername.setText(message.valueForKey("Quoted_Name").toString());
+            if (!message.stringForKey("Quoted_Text").equals("")) {
+                quotedText.setText(message.valueForKey("Quoted_Text").toString());
+                setQuoteTextHidden(false);
+                setQuoteImageHidden(true);
+            }
+            if (!message.stringForKey("Quoted_Image").equals("")) {
+                quotedImage.setImageURI(message.valueForKey("Quoted_Image").toString());
+                setQuoteImageHidden(false);
+                setQuoteTextHidden(true);
+            }
         }
 
         updateReadStatus();
@@ -237,7 +279,6 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
 //                setImageSize(maxWidth(), maxHeight());
             setImageSize(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         }
-
     }
 
     public void setTextHidden (boolean hidden) {
@@ -253,6 +294,56 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         }
         messageTextView.setLayoutParams(textLayoutParams);
         messageTextView.requestLayout();
+        messageBubble.requestLayout();
+    }
+
+    public void setQuoteViewHidden (boolean hidden) {
+        if (hidden) {
+            quoteLayout.setVisibility(View.GONE);
+        }
+        else {
+            quoteLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void setQuoteImageHidden (boolean hidden) {
+        quotedImage.setVisibility(hidden ? View.GONE : View.VISIBLE);
+        if (hidden) {
+            setImageSize(0, 0);
+        } else {
+            //This has no effect. The 200 dp size is defined in the xml file
+            setImageSize(200, 200);
+        }
+
+    }
+
+    public void setQuoteUsernameHidden (boolean hidden) {
+        quotedUsername.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
+        LinearLayout.LayoutParams quotedUsernameLayoutParams = (LinearLayout.LayoutParams) quotedUsername.getLayoutParams();
+        if (hidden) {
+            quotedUsernameLayoutParams.width = 0;
+            quotedUsernameLayoutParams.height = 0;
+        } else {
+            quotedUsernameLayoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            quotedUsernameLayoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        }
+        quotedUsername.setLayoutParams(quotedUsernameLayoutParams);
+        quotedUsername.requestLayout();
+        messageBubble.requestLayout();
+    }
+
+    public void setQuoteTextHidden (boolean hidden) {
+        quotedText.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
+        LinearLayout.LayoutParams quotedTextLayoutParams = (LinearLayout.LayoutParams) quotedText.getLayoutParams();
+        if (hidden) {
+            quotedTextLayoutParams.width = 0;
+            quotedTextLayoutParams.height = 0;
+        } else {
+            quotedTextLayoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            quotedTextLayoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        }
+        quotedText.setLayoutParams(quotedTextLayoutParams);
+        quotedText.requestLayout();
         messageBubble.requestLayout();
     }
 
