@@ -31,6 +31,7 @@ import com.leinardi.android.speeddial.SpeedDialView;
 import org.apache.commons.lang3.StringUtils;
 import org.ocpsoft.prettytime.PrettyTime;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -94,6 +95,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected View actionBarView;
 
     protected TextInputView textInputView;
+
     protected RecyclerView recyclerView;
     protected MessageListAdapter messageListAdapter;
     protected Thread thread;
@@ -110,6 +112,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     protected SpeedDialView messageActionsSpeedDialView;
     protected MessageActionHandler messageActionHandler;
+    //This is the arraylist for the messages to be forwarded, and the boolean value for it.
+    protected ArrayList<Message> messagesToBeForwarded;
+    protected boolean multipleMessageSelectActive;
 
     /**
      * If set to false in onCreate the menu threads wont be inflated in the menu.
@@ -126,7 +131,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         setContentView(activityLayout());
 
         initViews();
@@ -141,6 +145,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
 
         initActionBar();
+
+        //This stays false until someone starts forwarding the messages.
+        multipleMessageSelectActive = false;
 
         // If the context is just been created we load regularly, else we load and retain position
 //        loadMessages(true, -1, ListPosition.Bottom);
@@ -895,6 +902,13 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     public void executeChatOption(ChatOption option) {
         handleMessageSend(option.execute(this, thread));
+    }
+
+    public void initiateForwardMessages (Message message) {
+        messagesToBeForwarded.add(0, message);
+        multipleMessageSelectActive = true;
+        textInputView.setVisibility(View.GONE);
+
     }
 
 }

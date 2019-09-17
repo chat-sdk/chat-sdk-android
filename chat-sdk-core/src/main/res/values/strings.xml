@@ -382,6 +382,7 @@
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="copy_failed">Copy failed!</string>
     <string name="message">Message</string>
+    <string name="messages_selected">Messages Selected</string>
     <string name="add_user_to_chat">Add User To Chat</string>
     <string name="success">Success!</string>
     <string name="message_sent">Message sent!</string>

@@ -6,10 +6,12 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.ActivityResult;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.chat.ChatActivity;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableObserver;
@@ -35,6 +37,24 @@ public class ForwardMessageAction extends MessageAction {
     @Override
     public Completable execute(Activity activity) {
         return Completable.create(emitter -> {
+            if(activity instanceof ChatActivity) {
+                ChatActivity chatActivity = (ChatActivity) activity;
+                Message messageToForward = message.get();
+                if (messageToForward.getType() == MessageType.Text) {
+                    chatActivity.initiateForwardMessages(messageToForward);
+                    chatActivity.displayForwardView(messageToForward);
+                }
+                else {
+                    chatActivity.sayThereIsAnError();
+                }
+            }
+        });
+    }
+
+    //This is the normal process that occurs when someone clicks on the forward button. The Cmart is leaving it in here as scrap code because we might need it again
+    /*@Override
+    public Completable execute(Activity activity) {
+        return Completable.create(emitter -> {
             disposableList.add(ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
                 if (activityResult.requestCode == messageForwardActivityCode) {
                     if (activityResult.resultCode == Activity.RESULT_OK) {
@@ -50,5 +70,5 @@ public class ForwardMessageAction extends MessageAction {
             }));
             ChatSDK.ui().startForwardMessageActivityForResult(activity, message.get(), messageForwardActivityCode);
         });
-    }
+    }*/
 }
