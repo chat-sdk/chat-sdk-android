@@ -65,6 +65,12 @@
 
     </FrameLayout>
 
+    <co.chatsdk.ui.chat.ForwardMultipleMessagesView
+        android:id="@+id/view_multiple_message_selection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </co.chatsdk.ui.chat.ForwardMultipleMessagesView>
+
     <co.chatsdk.ui.chat.TextInputView
         android:id="@+id/view_message_text_input"
         android:layout_width="match_parent"

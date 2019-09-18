@@ -96,6 +96,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     protected TextInputView textInputView;
 
+    protected ForwardMultipleMessagesView forwardMultipleMessagesView;
+
     protected RecyclerView recyclerView;
     protected MessageListAdapter messageListAdapter;
     protected Thread thread;
@@ -300,6 +302,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void initViews () {
         // Set up the message box - this is the box that sits above the keyboard
         textInputView = findViewById(R.id.view_message_text_input);
+        forwardMultipleMessagesView = findViewById(R.id.view_chat_forward_multiple_messages);
         textInputView.setDelegate(this);
         textInputView.setAudioModeEnabled(ChatSDK.audioMessage() != null);
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/linear"
+    android:id="@+id/view_multiple_message_selection"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -14,7 +14,7 @@
         android:src="@drawable/ic_arrow_back_blue_700_36dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:layout_gravity="bottom"
-        android:id="@+id/button_options"
+        android:id="@+id/button_back"
         android:layout_margin="10dp"
         android:contentDescription="@string/acces_message_option_button" />
 
@@ -25,10 +25,9 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/text_input_message"
+            android:id="@+id/text_messages_selected"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:hint="@string/message"
             android:background="@null"
             android:gravity="bottom"
             android:maxLines="@integer/chat_sdk_max_message_lines"
