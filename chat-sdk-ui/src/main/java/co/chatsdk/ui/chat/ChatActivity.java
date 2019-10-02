@@ -115,7 +115,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected SpeedDialView messageActionsSpeedDialView;
     protected MessageActionHandler messageActionHandler;
     //This is the arraylist for the messages to be forwarded, and the boolean value for it.
-    protected ArrayList<Message> messagesToBeForwarded;
+    protected ArrayList<Message> messagesToBeForwarded = new ArrayList<>();
     protected boolean multipleMessageSelectActive;
 
     /**
@@ -136,6 +136,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         setContentView(activityLayout());
 
         initViews();
+
+        forwardMultipleMessagesView.setVisibility(View.GONE);
 
         if (!updateThreadFromBundle(savedInstanceState)) {
             return;
@@ -249,6 +251,26 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     }
         }));
 
+        //FORWARD MESSAGE Button Commands are here.
+        forwardMultipleMessagesView.buttonBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textInputView.setVisibility(View.VISIBLE);
+                forwardMultipleMessagesView.setVisibility(View.GONE);
+                messagesToBeForwarded.clear();
+            }
+        });
+
+        forwardMultipleMessagesView.buttonSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textInputView.setVisibility(View.VISIBLE);
+                forwardMultipleMessagesView.setVisibility(View.GONE);
+                messagesToBeForwarded.clear();
+            }
+        });
+
+        // END OF ONCREATE METHOD!
     }
 
     @Override
@@ -302,7 +324,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void initViews () {
         // Set up the message box - this is the box that sits above the keyboard
         textInputView = findViewById(R.id.view_message_text_input);
-        forwardMultipleMessagesView = findViewById(R.id.view_chat_forward_multiple_messages);
+        forwardMultipleMessagesView = findViewById(R.id.view_multiple_message_selection);
         textInputView.setDelegate(this);
         textInputView.setAudioModeEnabled(ChatSDK.audioMessage() != null);
 
@@ -910,8 +932,24 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     public void initiateForwardMessages (Message message) {
         messagesToBeForwarded.add(0, message);
         multipleMessageSelectActive = true;
+        changeMessagesSelectedText();
         textInputView.setVisibility(View.GONE);
+        forwardMultipleMessagesView.setVisibility(View.VISIBLE);
+    }
 
+    public void changeMessagesSelectedText () {
+        Integer size = messagesToBeForwarded.size();
+        String displayedText = new String();
+        if (size == 0) {
+            displayedText = "No Messages Selected";
+        }
+        else if (size == 1) {
+            displayedText = "1 Message Selected";
+        }
+        else if (size > 1) {
+            displayedText = size.toString() + "Messages Selected";
+        }
+        forwardMultipleMessagesView.messagesSelected.setText(displayedText);
     }
 
 }

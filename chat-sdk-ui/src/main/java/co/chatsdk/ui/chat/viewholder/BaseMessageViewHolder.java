@@ -7,6 +7,7 @@ import android.graphics.PorterDuff;
 import android.text.util.Linkify;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -50,6 +51,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     protected LinearLayout extraLayout;
     protected ImageView readReceiptImageView;
     protected ProgressBar progressBar;
+    protected CheckBox checkBox;
 
     public BaseMessageViewHolder(View itemView, Activity activity, PublishSubject<List<MessageAction>> actionPublishSubject) {
         super(itemView, activity, actionPublishSubject);
@@ -63,6 +65,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         extraLayout = itemView.findViewById(R.id.layout_extra);
         readReceiptImageView = itemView.findViewById(R.id.image_read_receipt);
         progressBar = itemView.findViewById(R.id.progress_bar);
+        checkBox = itemView.findViewById(R.id.checkBox2);
 
         itemView.setOnClickListener(this::onClick);
         itemView.setOnLongClickListener(this::onLongClick);
@@ -108,6 +111,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         setTextHidden(true);
         setIconHidden(true);
         setImageHidden(true);
+        setCheckBoxHidden(false);
 
         float alpha = message.getMessageStatus() == MessageSendStatus.Sent || message.getMessageStatus() == MessageSendStatus.Delivered ? 1.0f : 0.7f;
         setAlpha(alpha);
@@ -219,6 +223,16 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
 
     public void setIconHidden (boolean hidden) {
         messageIconView.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
+        if (hidden) {
+            setIconSize(0, 0);
+        } else {
+            setIconSize(activity.get().getResources().getDimensionPixelSize(R.dimen.message_icon_max_width), activity.get().getResources().getDimensionPixelSize(R.dimen.message_icon_max_height));
+        }
+        messageBubble.requestLayout();
+    }
+
+    public void setCheckBoxHidden (boolean hidden) {
+        checkBox.setVisibility(hidden ? View.INVISIBLE : View.VISIBLE);
         if (hidden) {
             setIconSize(0, 0);
         } else {

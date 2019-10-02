@@ -22,6 +22,20 @@
         android:text="Time"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
+    <CheckBox
+        android:id="@+id/checkBox2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/text_time"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="10dp"
+        android:scaleX="1.5"
+        android:scaleY="1.5"
+        android:text="" />
+
     <RelativeLayout
         android:id="@+id/content"
         android:layout_width="wrap_content"
@@ -36,6 +50,7 @@
         android:animateLayoutChanges="true">
 
         <!-- The unevenness in the padding is a result of the asymmetry of the bubble / tail -->
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/image_message_bubble"
             android:layout_width="wrap_content"

@@ -37,19 +37,14 @@ public class ForwardMessageAction extends MessageAction {
     @Override
     public Completable execute(Activity activity) {
         return Completable.create(emitter -> {
-            if(activity instanceof ChatActivity) {
+            if (activity instanceof ChatActivity) {
                 ChatActivity chatActivity = (ChatActivity) activity;
                 Message messageToForward = message.get();
-                if (messageToForward.getType() == MessageType.Text) {
-                    chatActivity.initiateForwardMessages(messageToForward);
-                    chatActivity.displayForwardView(messageToForward);
-                }
-                else {
-                    chatActivity.sayThereIsAnError();
-                }
+                chatActivity.initiateForwardMessages(messageToForward);
             }
-        });
+    });
     }
+}
 
     //This is the normal process that occurs when someone clicks on the forward button. The Cmart is leaving it in here as scrap code because we might need it again
     /*@Override
@@ -71,4 +66,3 @@ public class ForwardMessageAction extends MessageAction {
             ChatSDK.ui().startForwardMessageActivityForResult(activity, message.get(), messageForwardActivityCode);
         });
     }*/
-}
