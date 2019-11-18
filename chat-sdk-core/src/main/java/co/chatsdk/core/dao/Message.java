@@ -17,14 +17,16 @@ import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Unique;
 import org.joda.time.DateTime;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.lang.Object;
+import java.lang.String;
+import java.lang.Class;
 
 import co.chatsdk.core.base.AbstractEntity;
-import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
@@ -357,6 +359,9 @@ public class Message extends AbstractEntity {
         int deliveredCount = 0;
         int readCount = 0;
         for(ReadReceiptUserLink link : getReadReceiptLinks()) {
+            if (link.getUser().getEntityID().equals(ChatSDK.currentUserID())) {
+                continue;
+            }
             if (link.getStatus() != ReadStatus.Hide) {
                 if (link.getStatus() == ReadStatus.Delivered) {
                     deliveredCount++;
@@ -368,10 +373,10 @@ public class Message extends AbstractEntity {
                 userCount++;
             }
         }
-        if (readCount == userCount) {
+        if (readCount == userCount && userCount != 0) {
             return ReadStatus.read();
         }
-        else if (deliveredCount == userCount) {
+        else if (deliveredCount == userCount && userCount != 0) {
             return ReadStatus.delivered();
         }
         else {

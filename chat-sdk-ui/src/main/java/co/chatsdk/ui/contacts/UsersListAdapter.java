@@ -160,6 +160,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             userViewHolder.avatarImageView.setImageURI(userListItem.getAvatarURL());
 
+
             userViewHolder.setMultiSelectEnabled(multiSelectEnabled);
 
             if (multiSelectEnabled) {

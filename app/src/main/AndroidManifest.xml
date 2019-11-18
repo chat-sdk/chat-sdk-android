@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="co.chatsdk.android.app">
+
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION"
+        tools:node="remove" />
+
+    <uses-permission
+        android:name="android.permission.ACCESS_COARSE_LOCATION"
+        tools:node="remove" />
+
 
     <application
         android:allowBackup="false"
@@ -8,6 +18,7 @@
         android:label="@string/app_name"
         android:theme="@style/SdkTheme"
         android:name="co.chatsdk.android.app.AppObj">
+
 
         <activity android:name="co.chatsdk.ui.login.SplashScreenActivity">
             <intent-filter>

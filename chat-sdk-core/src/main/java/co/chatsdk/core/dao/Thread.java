@@ -186,12 +186,16 @@ public class Thread extends AbstractEntity {
     }
 
     public boolean containsMessageWithID (String messageEntityID) {
+        return getMessageWithEntityID(messageEntityID) != null;
+    }
+
+    public Message getMessageWithEntityID (String messageEntityID) {
         for(Message m : getMessages()) {
             if(m.getEntityID() != null && messageEntityID != null && m.equalsEntityID(messageEntityID)) {
-                return true;
+                return m;
             }
         }
-        return false;
+        return null;
     }
 
     public void removeUsers (User... users) {

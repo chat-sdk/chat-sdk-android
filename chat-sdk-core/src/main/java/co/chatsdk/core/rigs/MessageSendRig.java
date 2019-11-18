@@ -1,7 +1,5 @@
 package co.chatsdk.core.rigs;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +15,6 @@ import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.utils.DisposableList;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Single;
@@ -47,7 +44,7 @@ public class MessageSendRig {
     // This is called after the message had been uploaded. Use it to update the message payload's url data
     protected MessageDidUploadUpdateAction messageDidUploadUpdateAction;
 
-    public MessageSendRig (MessageType type, Thread thread, MessageDidCreateUpdateAction action) {
+    public MessageSendRig(MessageType type, Thread thread, MessageDidCreateUpdateAction action) {
         this.messageType = type;
         this.thread = thread;
         this.messageDidCreateUpdateAction = action;

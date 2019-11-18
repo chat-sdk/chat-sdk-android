@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import java.io.File;
-import java.io.IOException;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
@@ -12,9 +11,7 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.handlers.ImageMessageHandler;
 import co.chatsdk.core.rigs.FileUploadable;
 import co.chatsdk.core.rigs.MessageSendRig;
-import co.chatsdk.core.rigs.Uploadable;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.types.MessageType;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Completable;

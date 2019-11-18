@@ -18,24 +18,12 @@ import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.rigs.MessageSendRig;
-import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.CompletableSource;
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.ObservableSource;
-import io.reactivex.Scheduler;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -63,7 +51,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
      * When done or when an error occurred the calling method will be notified.
      */
     public Completable sendMessageWithText(final String text, final Thread thread) {
-        return new MessageSendRig (new MessageType(MessageType.Text), thread, message -> message.setText(text)).run();
+        return new MessageSendRig(new MessageType(MessageType.Text), thread, message -> message.setText(text)).run();
     }
 
     public static Message newMessage (int type, Thread thread) {

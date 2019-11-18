@@ -50,6 +50,7 @@ public abstract class AbstractPushHandler implements PushHandler {
 
         HashMap<String, Object> data = new HashMap<>();
 
+        // TODO: Parameterise this - update "threadId" in XMPP too
         data.put("userIds", users);
         data.put("body", body);
         data.put("type", message.getType());

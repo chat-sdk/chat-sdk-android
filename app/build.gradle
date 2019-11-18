@@ -16,7 +16,7 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('/Users/ben/.android/release.keystore')
+            storeFile file('release.keystore')
             keyAlias 'androidreleasekey'
             storePassword 'R3l3ase123!'
             keyPassword 'R3l3ase123!'
