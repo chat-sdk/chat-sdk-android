@@ -43,7 +43,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 ## Hire us to build your next app
 
 We are now taking on projects, we are a team of full stack developers who are Firebase experts.
-For more information check out our app [development site](). 
+For more information check out our app [development site](https://chat-sdk.github.io/dev/). 
 
 ## Quick Start
 
