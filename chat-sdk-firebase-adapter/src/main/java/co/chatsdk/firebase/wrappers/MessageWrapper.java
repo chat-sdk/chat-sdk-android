@@ -29,11 +29,13 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.ReadStatus;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.R;
@@ -221,6 +223,9 @@ public class MessageWrapper  {
 
             ref.setValue(serialize(), ServerValue.TIMESTAMP, (firebaseError, firebase) -> {
                 if (firebaseError == null) {
+                    HashMap<String, Object> data = new HashMap<>();
+                    data.put(HookEvent.Message, model);
+                    ChatSDK.hook().executeHook(HookEvent.MessageSent, data).subscribe(new CrashReportingCompletableObserver());;
                     e.onComplete();
                 } else {
                     e.onError(firebaseError.toException());

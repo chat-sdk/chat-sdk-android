@@ -177,13 +177,13 @@ public class ApiExamples {
     public void getMessageReceived () {
         ChatSDK.hook().addHook(new Hook(data -> Completable.create(emitter -> {
 
-            // Get the payload from the notification
+            // Get the body from the notification
             if (data.get(HookEvent.Message) instanceof Message) {
 
                 // Cast it as a message
                 Message message = (Message) data.get(HookEvent.Message);
 
-                // Check the message type
+                // Check the message getBodyType
                 if (message.getMessageType().is(MessageType.Image)) {
 
                 }

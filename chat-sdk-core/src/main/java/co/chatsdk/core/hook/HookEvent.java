@@ -9,6 +9,7 @@ public class HookEvent {
     public static String UserOn = "UserOn";
 
     public static String MessageReceived = "MessageReceived";
+    public static String MessageSent = "MessageSent";
     public static String IsNew_Boolean = "IsNew_Boolean";
 
     public static String DidLogout = "DidLogout";
