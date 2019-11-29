@@ -61,7 +61,8 @@ public class AppObj extends MultiDexApplication {
 
 
 
-            ChatSDK.initialize(context, config.build(), FirestoreNetworkAdapter.class, BaseInterfaceAdapter.class);
+            ChatSDK.initialize(context, config.build(), FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
+//            ChatSDK.initialize(context, config.build(), FirestoreNetworkAdapter.class, BaseInterfaceAdapter.class);
 
 //            AConfigurator.configure();
 

@@ -47,7 +47,7 @@ public class GroupChat extends AbstractChat {
     }
 
     public Completable sendMessage() {
-
+        return null;
     }
 
 
