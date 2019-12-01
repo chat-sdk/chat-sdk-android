@@ -2,14 +2,12 @@ package sdk.chat.micro;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.reactivex.functions.Consumer;
 import sdk.chat.micro.firestore.FSPaths;
 import sdk.chat.micro.message.DeliveryReceipt;
 import sdk.chat.micro.message.Invitation;
@@ -68,46 +66,22 @@ public class MicroChatSDK extends AbstractChat {
         }
 
         disposableList.add(messagesOn(FSPaths.messagesRef()).subscribe(mr -> {
-            // For convenience also send notification for the specific
-            // Sendable getBodyType
+
+            passMessageResultToStream(mr);
+
             Sendable sendable = mr.sendable;
             DocumentSnapshot s = mr.snapshot;
 
             if (sendable.type == SendableType.Message) {
-                // This is a message so make a new message object
-                Message message = s.toObject(Message.class);
-                message.id = s.getId();
-
-                // Make the message available to the client
-                messageStream.onNext(message);
-
                 // If delivery receipts are enabled, send the delivery receipt
                 if (config.deliveryReceiptsEnabled) {
+                    Message message = messageForSnapshot(s);
                     disposableList.add(
-                            sendDeliveryReceipt(message.fromId, DeliveryReceiptType.received(), message.id).doOnError(MicroChatSDK.this).subscribe()
+                            sendDeliveryReceipt(sendable.fromId, DeliveryReceiptType.received(), message.id).doOnError(MicroChatSDK.this).subscribe()
                     );
                 }
             }
-            if (sendable.type == SendableType.DeliveryReceipt) {
-                DeliveryReceipt receipt = s.toObject(DeliveryReceipt.class);
-                receipt.id = s.getId();
-                deliveryReceiptStream.onNext(receipt);
-            }
-            if (sendable.type == SendableType.TypingState) {
-                TypingState state = s.toObject(TypingState.class);
-                state.id = s.getId();
-                typingStateStream.onNext(state);
-            }
-            if (sendable.type == SendableType.Invitation) {
-                Invitation invitation = s.toObject(Invitation.class);
-                invitation.id = s.getId();
-                invitationStream.onNext(invitation);
-            }
-            if (sendable.type == SendableType.Presence) {
-                Presence presence = s.toObject(Presence.class);
-                presence.id = s.getId();
-                presenceStream.onNext(presence);
-            }
+
 
             // The message has been received, so now delete it from the server
             disposableList.add(deleteSendable(sendable).doOnError(MicroChatSDK.this).subscribe());

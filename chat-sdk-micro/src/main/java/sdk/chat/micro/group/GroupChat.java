@@ -1,8 +1,11 @@
 package sdk.chat.micro.group;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -13,25 +16,33 @@ import sdk.chat.micro.message.Sendable;
 public class GroupChat extends AbstractChat {
 
     protected String id;
+    protected Date loadMessagesFrom;
 
-    protected ArrayList<ListenerRegistration> listenerRegistrations = new ArrayList<>();
+    protected HashMap<String, String> userRoles;
+    protected Listener userRoleChangedListener;
+
+    public GroupChat(String id, Date loadMessagesFrom) {
+        this.id = id;
+        this.loadMessagesFrom = loadMessagesFrom;
+    }
 
     public void connect() throws Exception {
-        disposableList.add(messagesOn(FSPaths.groupChatMessagesRef(id)).subscribe(messageResult -> {
 
-        }));
+        disposableList.add(messagesOn(FSPaths.groupChatMessagesRef(id), loadMessagesFrom).subscribe(this::passMessageResultToStream));
+
+        disposableList.add(userListOn(FSPaths.groupChatUsersRef(id)).subscribe(map -> {
+            userRoles.clear();
+            userRoles.putAll(map);
+            if (userRoleChangedListener != null) {
+                userRoleChangedListener.onEvent();
+            }
+        }, this));
+
     }
 
     @Override
     public Single<String> send(String userId, Sendable sendable) {
-        return null;
-    }
-
-    public void disconnect() {
-        for (ListenerRegistration lr : listenerRegistrations) {
-            lr.remove();
-        }
-        listenerRegistrations.clear();
+        return send(FSPaths.groupChatMessagesRef(id), sendable);
     }
 
     public Completable addUser(String userId, RoleType roleType) {
@@ -45,10 +56,5 @@ public class GroupChat extends AbstractChat {
     public Completable removeUser(String userId) {
         return removeUserId(FSPaths.groupChatUsersRef(id), userId);
     }
-
-    public Completable sendMessage() {
-        return null;
-    }
-
 
 }

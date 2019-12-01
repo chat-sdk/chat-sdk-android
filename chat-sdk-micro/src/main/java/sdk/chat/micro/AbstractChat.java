@@ -258,6 +258,66 @@ public abstract class AbstractChat implements Consumer<Throwable> {
             lr.remove();
         }
         listenerRegistrations.clear();
+        disposableList.dispose();
+    }
+
+    protected void passMessageResultToStream(MessageResult mr) {
+
+        Sendable sendable = mr.sendable;
+        DocumentSnapshot s = mr.snapshot;
+
+        if (sendable.type == SendableType.Message) {
+            messageStream.onNext(messageForSnapshot(s));
+        }
+        if (sendable.type == SendableType.DeliveryReceipt) {
+            deliveryReceiptStream.onNext(deliveryReceiptForSnapshot(s));
+        }
+        if (sendable.type == SendableType.TypingState) {
+            typingStateStream.onNext(typingStateForSnapshot(s));
+        }
+        if (sendable.type == SendableType.Invitation) {
+            invitationStream.onNext(invitationForSnapshot(s));
+        }
+        if (sendable.type == SendableType.Presence) {
+            presenceStream.onNext(presenceForSnapshot(s));
+        }
+    }
+
+    protected Message messageForSnapshot(DocumentSnapshot s) {
+        return new SnapshotParser<>(Message.class).parse(s);
+    }
+
+    protected DeliveryReceipt deliveryReceiptForSnapshot(DocumentSnapshot s) {
+        return new SnapshotParser<>(DeliveryReceipt.class).parse(s);
+    }
+
+    protected TypingState typingStateForSnapshot(DocumentSnapshot s) {
+        return new SnapshotParser<>(TypingState.class).parse(s);
+    }
+
+    protected Invitation invitationForSnapshot(DocumentSnapshot s) {
+        return new SnapshotParser<>(Invitation.class).parse(s);
+    }
+
+    protected Presence presenceForSnapshot(DocumentSnapshot s) {
+        return new SnapshotParser<>(Presence.class).parse(s);
+    }
+
+    public class SnapshotParser<T extends Sendable> {
+
+        protected final Class<T> type;
+
+        public SnapshotParser(Class<T> type) {
+            this.type = type;
+        }
+
+        public T parse(DocumentSnapshot s) {
+            T sendable = s.toObject(type);
+            if (sendable != null) {
+                sendable.id = s.getId();
+            }
+            return sendable;
+        }
     }
 
 }

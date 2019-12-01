@@ -4,9 +4,30 @@ import sdk.chat.micro.types.BaseType;
 
 public class RoleType extends BaseType {
 
+    /**
+     * They have full access rights, can add and remove admins
+     */
     public static String Owner = "owner";
+
+    /**
+     * An admin can change the status of any lower member
+     */
     public static String Admin = "admin";
-    public static String Member = "Member";
+
+    /**
+     * Standard member of the group, has write access but can't change roles
+     */
+    public static String Member = "member";
+
+    /**
+     * Read-only access
+     */
+    public static String Watcher = "watcher";
+
+    /**
+     * Cannot access the group, cannot be added
+     */
+    public static String Banned = "banned";
 
     public RoleType(String type) {
         super(type);
@@ -26,5 +47,13 @@ public class RoleType extends BaseType {
 
     public static RoleType member() {
         return new RoleType(Member);
+    }
+
+    public static RoleType watcher() {
+        return new RoleType(Watcher);
+    }
+
+    public static RoleType banned() {
+        return new RoleType(Banned);
     }
 }
