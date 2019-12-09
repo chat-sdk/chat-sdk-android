@@ -1,5 +1,7 @@
 package sdk.chat.micro.message;
 
+import com.google.firebase.firestore.Exclude;
+
 import sdk.chat.micro.types.PresenceType;
 import sdk.chat.micro.types.SendableType;
 
@@ -13,9 +15,10 @@ public class Presence extends Sendable {
 
     public Presence(PresenceType type) {
         this();
-        super.setType(type);
+        super.setBodyType(type);
     }
 
+    @Exclude
     public PresenceType getBodyType() {
         return new PresenceType(super.getBodyType());
     }

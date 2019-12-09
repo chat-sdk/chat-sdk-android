@@ -5,21 +5,21 @@ import java.util.HashMap;
 
 public class FSMessage {
 
-    public String fromId;
+    public String from;
     public Date date = new Date();
     public HashMap<String, Object> body = new HashMap<>();
-    public Integer type;
+    public String type;
 
     public FSMessage () {
 
     }
 
-    public String getFromId() {
-        return fromId;
+    public String getFrom() {
+        return from;
     }
 
-    public void setFromId(String fromId) {
-        this.fromId = fromId;
+    public void setFrom(String from) {
+        this.from = from;
     }
 
     public Date getDate() {
@@ -38,11 +38,11 @@ public class FSMessage {
         this.body = body;
     }
 
-    public Integer getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(String type) {
         this.type = type;
     }
 

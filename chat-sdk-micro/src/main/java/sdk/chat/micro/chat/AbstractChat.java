@@ -1,7 +1,8 @@
-package sdk.chat.micro;
+package sdk.chat.micro.chat;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.common.api.Batch;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
@@ -11,24 +12,23 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.PublishSubject;
-import sdk.chat.micro.firestore.FSKeys;
-import sdk.chat.micro.firestore.FSPaths;
+import sdk.chat.micro.Config;
+import sdk.chat.micro.MicroChatSDK;
+import sdk.chat.micro.firestore.Keys;
+import sdk.chat.micro.firestore.Paths;
 import sdk.chat.micro.message.DeliveryReceipt;
 import sdk.chat.micro.message.Invitation;
 import sdk.chat.micro.message.Message;
@@ -38,6 +38,7 @@ import sdk.chat.micro.message.TextMessage;
 import sdk.chat.micro.message.TypingState;
 import sdk.chat.micro.rx.DisposableList;
 import sdk.chat.micro.types.DeliveryReceiptType;
+import sdk.chat.micro.types.RoleType;
 import sdk.chat.micro.types.SendableType;
 import sdk.chat.micro.types.TypingStateType;
 
@@ -71,6 +72,8 @@ public abstract class AbstractChat implements Consumer<Throwable> {
 
     protected PublishSubject<Throwable> errorStream = PublishSubject.create();
 
+    protected Config config = new Config();
+
     @Override
     public void accept(Throwable throwable) throws Exception {
         errorStream.onNext(throwable);
@@ -100,44 +103,62 @@ public abstract class AbstractChat implements Consumer<Throwable> {
         return messagesOn(messagesRef, null);
     }
 
-    protected Observable<MessageResult> messagesOn(CollectionReference messagesRef, Date newerThan) {
+    protected Observable<MessageResult> messagesOn(final CollectionReference messagesRef, Date newerThan) {
         return Observable.create(emitter -> {
 
-            Query query = messagesRef.orderBy(FSKeys.Date, Query.Direction.ASCENDING);
-            if (newerThan != null) {
-                query = query.whereGreaterThan(FSKeys.Date, newerThan);
-            }
+            Query query = messagesRef.whereEqualTo(Keys.Type, SendableType.DeliveryReceipt);
+            query = query.whereEqualTo(Keys.From, MicroChatSDK.shared().currentUserId());
+            query = query.orderBy(Keys.Date, Query.Direction.DESCENDING);
+            query = query.limit(1);
 
-            listenerRegistrations.add(query.addSnapshotListener((snapshot, e) -> {
-                if (snapshot != null) {
-                    for (DocumentChange c : snapshot.getDocumentChanges()) {
-                        DocumentSnapshot s = c.getDocument();
-                        // Add the message
-                        if (s.exists() && c.getType() == DocumentChange.Type.ADDED) {
-                            Sendable sendable = s.toObject(Sendable.class);
-                            sendable.id = s.getId();
-
-                            sendableStream.onNext(sendable);
-
-                            emitter.onNext(new MessageResult(s, sendable));
-                        }
-                    }
-                } else if (e != null) {
-                    errorStream.onNext(e);
+            query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot snapshots) {
+                    System.out.println("Test");
                 }
-            }));
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    System.out.println("Test");
+                }
+            });
+
+
+//            Query query = messagesRef.orderBy(Keys.Date, Query.Direction.ASCENDING);
+//            if (newerThan != null) {
+//                query = query.whereGreaterThan(Keys.Date, newerThan);
+//            }
+//
+//            listenerRegistrations.add(query.addSnapshotListener((snapshot, e) -> {
+//                if (snapshot != null) {
+//                    for (DocumentChange c : snapshot.getDocumentChanges()) {
+//                        DocumentSnapshot s = c.getDocument();
+//                        // Add the message
+//                        if (s.exists() && c.getType() == DocumentChange.Type.ADDED) {
+//                            Sendable sendable = s.toObject(Sendable.class);
+//                            sendable.id = s.getId();
+//
+//                            sendableStream.onNext(sendable);
+//
+//                            emitter.onNext(new MessageResult(s, sendable));
+//                        }
+//                    }
+//                } else if (e != null) {
+//                    errorStream.onNext(e);
+//                }
+//            }));
         });
     }
 
     protected Observable<MessageResult> messagesOnce(CollectionReference messagesRef, Date fromDate, Date toDate, Integer limit) {
         return Observable.create(emitter -> {
 
-            Query query = messagesRef.orderBy(FSKeys.Date, Query.Direction.ASCENDING);
+            Query query = messagesRef.orderBy(Keys.Date, Query.Direction.ASCENDING);
             if (fromDate != null) {
-                query = query.whereGreaterThan(FSKeys.Date, fromDate);
+                query = query.whereGreaterThan(Keys.Date, fromDate);
             }
             if (toDate != null) {
-                query = query.whereLessThan(FSKeys.Date, toDate);
+                query = query.whereLessThan(Keys.Date, toDate);
             }
             if (limit != null) {
                 query = query.limit(limit);
@@ -184,7 +205,7 @@ public abstract class AbstractChat implements Consumer<Throwable> {
         }).addOnFailureListener(emitter::onError));
     }
 
-    protected Completable deleteSendable (DocumentReference messagesRef, Sendable sendable) {
+    protected Completable deleteSendable (DocumentReference messagesRef) {
         return Completable.create(emitter -> {
             messagesRef.delete().addOnSuccessListener(aVoid -> {
                 emitter.onComplete();
@@ -195,6 +216,48 @@ public abstract class AbstractChat implements Consumer<Throwable> {
     protected Completable addUserId(CollectionReference ref, String userId, String value) {
         return Completable.create(emitter -> {
             ref.document(userId).set(value).addOnCompleteListener(task -> {
+                emitter.onComplete();
+            }).addOnFailureListener(emitter::onError);
+        });
+    }
+
+    protected Completable addUserIds(CollectionReference ref, List<ListUser> users) {
+        WriteBatch batch = Paths.db().batch();
+
+        for (ListUser u : users) {
+            DocumentReference docRef = ref.document(u.id);
+            batch.set(docRef, new RoleType(u.value).data());
+        }
+
+        return runBatch(batch);
+    }
+
+    protected Completable updateUserIds(CollectionReference ref, List<ListUser> users) {
+
+        WriteBatch batch = Paths.db().batch();
+
+        for (ListUser u : users) {
+            DocumentReference docRef = ref.document(u.id);
+            batch.update(docRef, new RoleType(u.value).data());
+        }
+
+        return runBatch(batch);
+    }
+    protected Completable removeUserIds(CollectionReference ref, List<String> userIds) {
+
+        WriteBatch batch = Paths.db().batch();
+
+        for (String id : userIds) {
+            DocumentReference docRef = ref.document(id);
+            batch.delete(docRef);
+        }
+
+        return runBatch(batch);
+    }
+
+    protected Completable runBatch(WriteBatch batch) {
+        return Completable.create(emitter -> {
+            batch.commit().addOnCompleteListener(task -> {
                 emitter.onComplete();
             }).addOnFailureListener(emitter::onError);
         });
@@ -219,38 +282,6 @@ public abstract class AbstractChat implements Consumer<Throwable> {
 
     public abstract Single<String> send(String userId, Sendable sendable);
 
-    /**
-     * Send a delivery receipt to a user. If delivery receipts are enabled,
-     * a 'received' status will be returned as soon as a message is delivered
-     * and then you can then manually send a 'read' status when the user
-     * actually reads the message
-     * @param userId - the recipient user id
-     * @param type - the status getBodyType
-     * @return - subscribe to get a completion, error update from the method
-     */
-    public Single<String> sendDeliveryReceipt(String userId, DeliveryReceiptType type, String messageId) {
-        return send(userId, new DeliveryReceipt(type, messageId));
-    }
-
-    /**
-     * Send a typing indicator update to a user. This should be sent when the user
-     * starts or stops typing
-     * @param userId - the recipient user id
-     * @param type - the status getBodyType
-     * @return - subscribe to get a completion, error update from the method
-     */
-    public Single<String> sendTypingIndicator(String userId, TypingStateType type) {
-        return send(userId, new TypingState(type));
-    }
-
-    public Single<String> sendMessageWithText(String userId, String text) {
-        return send(userId, new TextMessage(text));
-    }
-
-    public Single<String> sendMessageWithBody(String userId, HashMap<String, Object> body) {
-        return send(userId, new Message(body));
-    }
-
     public abstract void connect() throws Exception;
 
     public void disconnect () {
@@ -266,21 +297,22 @@ public abstract class AbstractChat implements Consumer<Throwable> {
         Sendable sendable = mr.sendable;
         DocumentSnapshot s = mr.snapshot;
 
-        if (sendable.type == SendableType.Message) {
+        if (sendable.type.equals(SendableType.Message)) {
             messageStream.onNext(messageForSnapshot(s));
         }
-        if (sendable.type == SendableType.DeliveryReceipt) {
+        if (sendable.type.equals(SendableType.DeliveryReceipt)) {
             deliveryReceiptStream.onNext(deliveryReceiptForSnapshot(s));
         }
-        if (sendable.type == SendableType.TypingState) {
+        if (sendable.type.equals(SendableType.TypingState)) {
             typingStateStream.onNext(typingStateForSnapshot(s));
         }
-        if (sendable.type == SendableType.Invitation) {
+        if (sendable.type.equals(SendableType.Invitation)) {
             invitationStream.onNext(invitationForSnapshot(s));
         }
-        if (sendable.type == SendableType.Presence) {
+        if (sendable.type.equals(SendableType.Presence)) {
             presenceStream.onNext(presenceForSnapshot(s));
         }
+
     }
 
     protected Message messageForSnapshot(DocumentSnapshot s) {

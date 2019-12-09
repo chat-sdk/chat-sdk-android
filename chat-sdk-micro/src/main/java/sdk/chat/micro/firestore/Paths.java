@@ -7,17 +7,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import sdk.chat.micro.MicroChatSDK;
 import sdk.chat.micro.message.Message;
 
-public class FSPaths {
+public class Paths extends Keys {
 
-    protected static String Users = "users";
-    protected static String Messages = "messages";
-    protected static String Contacts = "contacts";
-    protected static String Blocked = "blocked";
-    protected static String GroupChats = "group-chats";
-    protected static String Meta = "meta";
+    public static FirebaseFirestore db() {
+        return FirebaseFirestore.getInstance();
+    }
 
     public static DocumentReference userRef (String uid) {
-        return FirebaseFirestore.getInstance().collection(Users).document(uid);
+        return db().collection(Users).document(uid);
     }
 
     public static DocumentReference userRef () {
@@ -30,6 +27,10 @@ public class FSPaths {
 
     public static CollectionReference messagesRef () {
         return messagesRef(currentUid());
+    }
+
+    public static CollectionReference userGroupChatsRef () {
+        return userRef(currentUid()).collection(Keys.GroupChats);
     }
 
     public static DocumentReference messageRef (String messageId) {
@@ -53,7 +54,7 @@ public class FSPaths {
     }
 
     public static CollectionReference groupChatsRef() {
-        return FirebaseFirestore.getInstance().collection(GroupChats);
+        return db().collection(GroupChats);
     }
 
     public static DocumentReference groupChatRef(String chatId) {

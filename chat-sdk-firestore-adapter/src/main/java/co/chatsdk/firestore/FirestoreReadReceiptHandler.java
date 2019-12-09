@@ -19,10 +19,10 @@ public class FirestoreReadReceiptHandler implements ReadReceiptHandler {
     private DisposableList disposableList = new DisposableList();
 
     public FirestoreReadReceiptHandler () {
-        disposableList.add(MicroChatSDK.shared().deliveryReceiptStream.subscribe(deliveryReceipt -> {
+        disposableList.add(MicroChatSDK.shared().getDeliveryReceiptStream().subscribe(deliveryReceipt -> {
 
             // Get the sender
-            String senderId = deliveryReceipt.fromId;
+            String senderId = deliveryReceipt.from;
 
             disposableList.add(UserHelper.fetchUser(senderId).subscribe(user -> {
                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(senderId);

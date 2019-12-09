@@ -1,6 +1,8 @@
-package sdk.chat.micro.group;
+package sdk.chat.micro.types;
 
-import sdk.chat.micro.types.BaseType;
+import java.util.HashMap;
+
+import sdk.chat.micro.firestore.Keys;
 
 public class RoleType extends BaseType {
 
@@ -55,5 +57,11 @@ public class RoleType extends BaseType {
 
     public static RoleType banned() {
         return new RoleType(Banned);
+    }
+
+    public HashMap<String, Object> data () {
+        HashMap<String, Object> data = new HashMap<>();
+        data.put(Keys.Role, get());
+        return data;
     }
 }

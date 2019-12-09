@@ -11,7 +11,7 @@ public class FirestoreNetworkAdapter extends FirebaseNetworkAdapter {
 
         events = new FirestoreEventHandler();
         thread = new FirestoreThreadHandler();
-        typingIndicator = new FirestoreTypingIndicatorHandler();
+//        typingIndicator = new FirestoreTypingIndicatorHandler();
         readReceipts = new FirestoreReadReceiptHandler();
 
     }

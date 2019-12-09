@@ -8,6 +8,7 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import io.reactivex.Completable;
 import sdk.chat.micro.MicroChatSDK;
+import sdk.chat.micro.chat.GroupChat;
 import sdk.chat.micro.rx.DisposableList;
 import sdk.chat.micro.types.TypingStateType;
 
@@ -16,9 +17,9 @@ public class FirestoreTypingIndicatorHandler implements TypingIndicatorHandler {
     private DisposableList disposableList = new DisposableList();
 
     public FirestoreTypingIndicatorHandler () {
-        disposableList.add(MicroChatSDK.shared().typingStateStream.subscribe(typingState -> {
+        disposableList.add(MicroChatSDK.shared().getTypingStateStream().subscribe(typingState -> {
             // Get the sender
-            String senderId = typingState.fromId;
+            String senderId = typingState.from;
 
             if (!senderId.equals(ChatSDK.currentUserID())) {
                 disposableList.add(UserHelper.fetchUser(senderId).subscribe((user, throwable) -> {
@@ -49,16 +50,22 @@ public class FirestoreTypingIndicatorHandler implements TypingIndicatorHandler {
 
     @Override
     public Completable setChatState(State state, Thread thread) {
-        if (!thread.typeIs(ThreadType.Private1to1)) {
-            return Completable.error(new Throwable("Only 1 to 1 threads are currently supported"));
-        }
 
-        User otherUser = thread.otherUser();
         TypingStateType typingStateType = TypingStateType.none();
         if (state == State.composing) {
             typingStateType = TypingStateType.typing();
         }
 
-        return MicroChatSDK.shared().sendTypingIndicator(otherUser.getEntityID(), typingStateType).ignoreElement();
+        if (thread.typeIs(ThreadType.Private1to1)) {
+            User otherUser = thread.otherUser();
+            return MicroChatSDK.shared().sendTypingIndicator(otherUser.getEntityID(), typingStateType).ignoreElement();
+        } else {
+            GroupChat groupChat = MicroChatSDK.shared().getGroupChat(thread.getEntityID());
+            if (groupChat != null) {
+                return groupChat.sendTypingIndicator(typingStateType).ignoreElement();
+            } else {
+                return Completable.complete();
+            }
+        }
     }
 }
