@@ -15,4 +15,24 @@ public class SendableType extends BaseType {
     public SendableType(BaseType type) {
         super(type);
     }
+
+    public static SendableType message() {
+        return new SendableType(Message);
+    }
+
+    public static SendableType deliveryReceipt() {
+        return new SendableType(DeliveryReceipt);
+    }
+
+    public static SendableType typingState() {
+        return new SendableType(TypingState);
+    }
+
+    public static SendableType presence() {
+        return new SendableType(Presence);
+    }
+
+    public static SendableType invitation() {
+        return new SendableType(Invitation);
+    }
 }

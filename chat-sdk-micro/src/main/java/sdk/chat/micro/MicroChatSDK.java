@@ -1,33 +1,23 @@
 package sdk.chat.micro;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
-import com.google.firestore.v1.DocumentTransform;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.CompletableSource;
+import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.SingleSource;
-import io.reactivex.functions.Function;
 import io.reactivex.subjects.PublishSubject;
 import sdk.chat.micro.chat.AbstractChat;
+import sdk.chat.micro.filter.MessageStreamFilter;
 import sdk.chat.micro.firestore.Keys;
 import sdk.chat.micro.firestore.Paths;
 import sdk.chat.micro.chat.GroupChat;
@@ -38,7 +28,6 @@ import sdk.chat.micro.message.Presence;
 import sdk.chat.micro.message.Sendable;
 import sdk.chat.micro.message.TextMessage;
 import sdk.chat.micro.message.TypingState;
-import sdk.chat.micro.rx.DisposableList;
 import sdk.chat.micro.types.DeliveryReceiptType;
 import sdk.chat.micro.types.InvitationType;
 import sdk.chat.micro.types.PresenceType;
@@ -90,67 +79,53 @@ public class MicroChatSDK extends AbstractChat {
     }
 
     public void connect () throws Exception {
-        disconnect();
 
         if (this.user == null) {
             throw new Exception("A user must be authenticated to connect");
         }
 
-        // Get the date of the last received message
+        super.connect();
+
+        // MESSAGE DELETION
+
+        // We always delete typing state and delivery receipt messages
+        Observable<Sendable> stream = sendableStream;
         if (!config.deleteMessagesOnReceipt) {
-            Query messagesRef = Paths.messagesRef().whereEqualTo(Keys.Type, SendableType.DeliveryReceipt);
-            messagesRef = messagesRef.whereEqualTo(Keys.From, MicroChatSDK.shared().currentUserId());
-            messagesRef = messagesRef.orderBy(Keys.Date, Query.Direction.DESCENDING);
-            messagesRef = messagesRef.limit(1);
-
-            messagesRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                @Override
-                public void onSuccess(QuerySnapshot snapshots) {
-                    System.out.println("Test");
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    System.out.println("Test");
-                }
-            });
+            stream = stream.filter(MessageStreamFilter.bySendableType(SendableType.typingState(), SendableType.deliveryReceipt()));
         }
+        // If deletion is enabled, we don't filter so we delete all the message types
+        dl.add(stream.flatMapCompletable(this::deleteSendable).subscribe());
 
-        disposableList.add(messagesOn(Paths.messagesRef()).subscribe(mr -> {
+        // DELIVERY RECEIPTS
 
-            passMessageResultToStream(mr);
-
-            Sendable sendable = mr.sendable;
-
-            // The message has been received, so now delete it from the server
-            if (config.deleteMessagesOnReceipt || sendable.type.equals(SendableType.TypingState) || sendable.type.equals(SendableType.Presence)) {
-                disposableList.add(deleteSendable(sendable).doOnError(MicroChatSDK.this).subscribe());
-            } else {
-                // If message deletion is disabled, instead mark the message as received. This means
-                // that when we add a listener, we only get new messages
-                disposableList.add(sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), sendable.id).doOnError(MicroChatSDK.this).subscribe());
-            }
-        }, this));
-
-        disposableList.add(messageStream.subscribe(message -> {
+        dl.add(messageStream.subscribe(message -> {
             // If delivery receipts are enabled, send the delivery receipt
             if (config.deliveryReceiptsEnabled) {
-                disposableList.add(
-                        sendDeliveryReceipt(message.from, DeliveryReceiptType.received(), message.id).doOnError(MicroChatSDK.this).subscribe()
-                );
-            }
-        }));
-
-        disposableList.add(invitationStream.subscribe(invitation -> {
-            if (config.autoAcceptGroupChatInvite) {
-                joinGroupChat(invitation.getGroupUid())
+                dl.add(sendDeliveryReceipt(message.from, DeliveryReceiptType.received(), message.id)
                         .doOnError(MicroChatSDK.this)
-                        .subscribe();
+                        .subscribe());
+            }
+            // If message deletion is disabled, instead mark the message as received. This means
+            // that when we add a listener, we only get new messages
+            if (!config.deleteMessagesOnReceipt) {
+                dl.add(sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), message.id)
+                        .doOnError(MicroChatSDK.this)
+                        .subscribe());
             }
         }));
 
+        // INVITATIONS
 
-        disposableList.add(userListOn(Paths.blockedRef()).subscribe(map -> {
+        dl.add(invitationStream.flatMapCompletable(invitation -> {
+            if (config.autoAcceptGroupChatInvite) {
+                return joinGroupChat(invitation.getGroupUid());
+            }
+            return Completable.complete();
+        }).doOnError(this).subscribe());
+
+        // BLOCKED USERS
+
+        dl.add(listOn(Paths.blockedRef()).subscribe(map -> {
             blocked.clear();
             blocked.addAll(map.keySet());
             if (blockListChangedListener != null) {
@@ -158,7 +133,9 @@ public class MicroChatSDK extends AbstractChat {
             }
         }, this));
 
-        disposableList.add(userListOn(Paths.contactsRef()).subscribe(map -> {
+        // CONTACTS
+
+        dl.add(listOn(Paths.contactsRef()).subscribe(map -> {
             contacts.clear();
             contacts.addAll(map.keySet());
             if (contactsChangedListener != null) {
@@ -166,7 +143,8 @@ public class MicroChatSDK extends AbstractChat {
             }
         }, this));
 
-        // Connect to our group chats
+        // CONNECT TO EXISTING GROUP CHATS
+
         listenerRegistrations.add(Paths.userGroupChatsRef().addSnapshotListener((snapshot, e) -> {
             if (snapshot != null) {
                 for (DocumentChange c : snapshot.getDocumentChanges()) {
@@ -191,7 +169,7 @@ public class MicroChatSDK extends AbstractChat {
                         if (c.getType() == DocumentChange.Type.REMOVED) {
                             if (groupChat != null) {
                                 final GroupChat finalGroupChat = groupChat;
-                                disposableList.add(groupChat.removeUser(currentUserId()).subscribe(() -> {
+                                dl.add(groupChat.removeUser(currentUserId()).subscribe(() -> {
                                     groupChatRemovedStream.onNext(finalGroupChat);
                                 }, MicroChatSDK.this));
                             }
@@ -201,6 +179,11 @@ public class MicroChatSDK extends AbstractChat {
             }
         }));
    }
+
+    @Override
+    protected CollectionReference messagesRef() {
+        return Paths.messagesRef();
+    }
 
     public Completable deleteSendable (Sendable sendable) {
         return deleteSendable(Paths.messageRef(sendable.id));
@@ -311,15 +294,21 @@ public class MicroChatSDK extends AbstractChat {
         return send(userId, new Message(body));
     }
 
-//    protected Completable markReceived(Sendable sendable) {
-//        return Completable.create(emitter -> {
-//            HashMap<String, Object> data = new HashMap<>();
-//            data.put(DeliveryReceiptType.Received, FieldValue.serverTimestamp());
-//
-//            Paths.messageRef(sendable.id).set(data, SetOptions.merge()).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
-//        });
-//    }
+    @Override
+    protected Single<Date> dateOfLastDeliveryReceipt() {
+        if (config.deleteMessagesOnReceipt) {
+            return Single.just(new Date(0));
+        } else {
+            return super.dateOfLastDeliveryReceipt();
+        }
+    }
 
+    public PublishSubject<GroupChat> getGroupChatAddedStream() {
+        return groupChatAddedStream;
+    }
 
+    public PublishSubject<GroupChat> getGroupChatRemovedStream() {
+        return groupChatRemovedStream;
+    }
 
 }

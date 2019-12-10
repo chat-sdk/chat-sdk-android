@@ -1,26 +1,16 @@
 package sdk.chat.micro.chat;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleObserver;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Consumer;
@@ -29,16 +19,13 @@ import sdk.chat.micro.MicroChatSDK;
 import sdk.chat.micro.firestore.Keys;
 import sdk.chat.micro.firestore.Paths;
 import sdk.chat.micro.message.DeliveryReceipt;
-import sdk.chat.micro.message.Invitation;
 import sdk.chat.micro.message.Message;
-import sdk.chat.micro.message.Presence;
 import sdk.chat.micro.message.Sendable;
 import sdk.chat.micro.message.TextMessage;
 import sdk.chat.micro.message.TypingState;
 import sdk.chat.micro.types.DeliveryReceiptType;
 import sdk.chat.micro.types.InvitationType;
 import sdk.chat.micro.types.RoleType;
-import sdk.chat.micro.types.SendableType;
 import sdk.chat.micro.types.TypingStateType;
 
 public class GroupChat extends AbstractChat {
@@ -57,7 +44,7 @@ public class GroupChat extends AbstractChat {
     protected String id;
     protected Date loadMessagesFrom;
 
-    protected HashMap<String, String> userRoles = new HashMap<>();
+    protected HashMap<String, RoleType> userRoles = new HashMap<>();
     protected Listener userRoleChangedListener;
 
     public GroupChat(String id) {
@@ -70,48 +57,32 @@ public class GroupChat extends AbstractChat {
     }
 
     public void connect() throws Exception {
-        disconnect();
+        super.connect();
 
-        // Get the last delivery receipt we sent to find out when to connect from
-        Query messagesRef = Paths.groupChatMessagesRef(id);
-        messagesRef = messagesRef.whereEqualTo(Keys.Type, SendableType.DeliveryReceipt);
-        messagesRef = messagesRef.whereEqualTo(Keys.From, MicroChatSDK.shared().currentUserId());
-        messagesRef = messagesRef.orderBy(Keys.Date, Query.Direction.DESCENDING);
-        messagesRef = messagesRef.limit(1);
+        // If delivery receipts are enabled, send the delivery receipt
+        if (config.deliveryReceiptsEnabled) {
+            dl.add(messageStream.flatMapSingle(message -> sendDeliveryReceipt(DeliveryReceiptType.received(), message.id))
+                    .doOnError(this)
+                    .subscribe());
+        }
 
-        messagesRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot snapshots) {
-                System.out.println("Test");
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                System.out.println("Test");
-            }
-        });
-
-        disposableList.add(messagesOn(Paths.groupChatMessagesRef(id), loadMessagesFrom).subscribe(mr -> {
-            passMessageResultToStream(mr);
-        }));
-
-        disposableList.add(messageStream.subscribe(message -> {
-            // If delivery receipts are enabled, send the delivery receipt
-            if (config.deliveryReceiptsEnabled) {
-                disposableList.add(
-                        sendDeliveryReceipt(DeliveryReceiptType.received(), message.id).doOnError(GroupChat.this).subscribe()
-                );
-            }
-        }));
-
-        disposableList.add(userListOn(Paths.groupChatUsersRef(id)).subscribe(map -> {
+        dl.add(listOn(Paths.groupChatUsersRef(id)).subscribe(map -> {
             userRoles.clear();
-            userRoles.putAll(map);
+            for (String userId: map.keySet()) {
+                HashMap<String, String> userRole = map.get(userId);
+                if (userRole != null) {
+                    userRoles.put(userId, new RoleType(userRole.get(Keys.Role)));
+                }
+            }
             if (userRoleChangedListener != null) {
                 userRoleChangedListener.onEvent();
             }
-        }, this));
+        }));
+    }
 
+    @Override
+    protected CollectionReference messagesRef() {
+        return Paths.groupChatMessagesRef(id);
     }
 
     public static Single<GroupChat> create(String name, String avatarURL, List<GroupChat.User> users) {
@@ -236,4 +207,19 @@ public class GroupChat extends AbstractChat {
     public Single<String> sendMessageWithBody(HashMap<String, Object> body) {
         return send(new Message(body));
     }
+
+    public RoleType getRoleTypeForUser(String userId) {
+        return userRoles.get(userId);
+    }
+
+    public List<String> getUserIdsForRoleType(RoleType roleType) {
+        ArrayList<String> userIds = new ArrayList<>();
+        for (String userId: userRoles.keySet()) {
+            if (userRoles.get(userId).equals(roleType)) {
+                userIds.add(userId);
+            }
+        }
+        return userIds;
+    }
+
 }

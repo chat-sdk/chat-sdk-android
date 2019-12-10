@@ -17,8 +17,10 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.firebase.FirebaseEventHandler;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import sdk.chat.micro.MicroChatSDK;
 import co.chatsdk.core.dao.Thread;
+import sdk.chat.micro.chat.GroupChat;
 import sdk.chat.micro.message.TextMessage;
 import sdk.chat.micro.rx.DisposableList;
 
@@ -27,6 +29,60 @@ public class FirestoreEventHandler extends FirebaseEventHandler {
     protected DisposableList disposableList = new DisposableList();
 
     public FirestoreEventHandler () {
+
+        disposableList.add(MicroChatSDK.shared().getGroupChatAddedStream().subscribe(new Consumer<GroupChat>() {
+            @Override
+            public void accept(GroupChat groupChat) throws Exception {
+
+                // Get the thread
+                Thread thread = ChatSDK.db().fetchThreadWithEntityID(groupChat.getId());
+                if (thread == null) {
+                    thread = DaoCore.getEntityForClass(Thread.class);
+                    DaoCore.createEntity(thread);
+                    thread.setEntityID(groupChat.getId());
+                    thread.setType(ThreadType.Private1to1);
+                    thread.setCreationDate(new Date());
+                    // TODO:
+                    // Continue here
+//                    thread.setCreatorEntityId(groupChat.);
+
+                    // Add the sender
+//                    thread.addUsers(user, ChatSDK.currentUser());
+                }
+
+                // User roles
+
+                groupChat.getMessageStream().subscribe(message -> {
+
+                    Message chatSDKMessage = ChatSDK.db().createEntity(Message.class);
+//                    chatSDKMessage.setSender(user);
+                    chatSDKMessage.setMessageStatus(MessageSendStatus.Delivered);
+                    chatSDKMessage.setDate(new DateTime(message.date));
+                    chatSDKMessage.setEntityID(message.id);
+
+                    HashMap<String, Object> body = message.getBody();
+
+                    Object metaObject = body.get(Keys.Meta);
+                    if (metaObject instanceof HashMap) {
+                        HashMap<String, Object> meta = new HashMap<>((HashMap) metaObject);
+                        chatSDKMessage.setMetaValues(meta);
+                    }
+
+                    Object typeObject = body.get(Keys.Type);
+                    if (typeObject instanceof Long) {
+                        Integer type = ((Long) typeObject).intValue();
+                        chatSDKMessage.setType(type);
+                    }
+                    if (typeObject instanceof Integer) {
+                        Integer type = (Integer) typeObject;
+                        chatSDKMessage.setType(type);
+                    }
+
+                });
+
+            }
+        }));
+
         disposableList.add(MicroChatSDK.shared().getMessageStream().subscribe(message -> {
 
             // Get the user
@@ -45,7 +101,8 @@ public class FirestoreEventHandler extends FirebaseEventHandler {
                     // Add the sender
                     thread.addUsers(user, ChatSDK.currentUser());
                 }
-//                if (!thread.containsMessageWithID(message.id)) {
+
+                //                if (!thread.containsMessageWithID(message.id)) {
                     Message chatSDKMessage = ChatSDK.db().createEntity(Message.class);
                     chatSDKMessage.setSender(user);
                     chatSDKMessage.setMessageStatus(MessageSendStatus.Delivered);

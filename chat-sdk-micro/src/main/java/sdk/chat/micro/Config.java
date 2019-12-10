@@ -21,4 +21,8 @@ public class Config {
      */
     public boolean deleteMessagesOnReceipt = false;
 
+    /**
+     * How many historic messages should we retrieve?
+     */
+    public int messageHistoryLimit = 100;
 }
