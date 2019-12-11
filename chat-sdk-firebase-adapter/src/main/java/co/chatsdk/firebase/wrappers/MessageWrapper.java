@@ -157,8 +157,8 @@ public class MessageWrapper  {
 
         Long date = long_(value, Keys.Date);
         if(date != null) {
-            // If the server time of the message is too different to local time
-            // set the status to none, which causes the message to be refreshed
+            // If the server time of the text is too different to local time
+            // set the status to none, which causes the text to be refreshed
             // in the chat view.
             if (this.getModel().getDate() == null || Math.abs(this.getModel().getDate().toDate().getTime() - date) > 1000) {
                 model.setMessageStatus(MessageSendStatus.None);
@@ -216,7 +216,7 @@ public class MessageWrapper  {
     public Completable push() {
         return Completable.create(e -> {
 
-            // Getting the message ref. Will be created if not exist.
+            // Getting the text ref. Will be created if not exist.
             final DatabaseReference ref = ref();
             model.setEntityID(ref.getKey());
             DaoCore.updateEntity(model);

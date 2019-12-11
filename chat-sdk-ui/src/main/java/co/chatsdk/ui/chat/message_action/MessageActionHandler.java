@@ -86,8 +86,8 @@ public class MessageActionHandler {
 //        Snackbar.make(activity.findViewById(android.R.id.content), messageResId, Snackbar.LENGTH_SHORT);
 //    }
 //
-//    public void showSnackbar (Activity activity, String message) {
-//        Snackbar.make(activity.findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT);
+//    public void showSnackbar (Activity activity, String text) {
+//        Snackbar.make(activity.findViewById(android.R.id.content), text, Snackbar.LENGTH_SHORT);
 //    }
 
     public void hide () {

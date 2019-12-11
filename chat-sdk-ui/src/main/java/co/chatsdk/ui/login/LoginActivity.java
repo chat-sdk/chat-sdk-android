@@ -209,7 +209,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     /* Dismiss dialog and open main context.*/
     protected void afterLogin() {
         // We pass the extras in case this activity was launched by a push. In that case
-        // we can load up the thread the message belongs to
+        // we can load up the thread the text belongs to
 //        ChatSDK.ui().startMainActivity(this, extras);
         finish();
     }

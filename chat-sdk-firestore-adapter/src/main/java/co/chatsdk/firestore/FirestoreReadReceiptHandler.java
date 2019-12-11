@@ -27,7 +27,7 @@ public class FirestoreReadReceiptHandler implements ReadReceiptHandler {
             disposableList.add(UserHelper.fetchUser(senderId).subscribe(user -> {
                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(senderId);
                 if (thread != null) {
-                    // Get the message
+                    // Get the text
                     Message message = thread.getMessageWithEntityID(deliveryReceipt.getMessageId());
                     if (message != null) {
                         if (deliveryReceipt.getBodyType().equals(DeliveryReceiptType.read())) {

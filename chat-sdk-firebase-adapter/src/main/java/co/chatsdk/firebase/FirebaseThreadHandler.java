@@ -141,9 +141,9 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     /**
-     * Send a message,
-     * The message need to have a owner thread attached to it or it cant be added.
-     * If the destination thread is public the system will add the user to the message thread if needed.
+     * Send a text,
+     * The text need to have a owner thread attached to it or it cant be added.
+     * If the destination thread is public the system will add the user to the text thread if needed.
      * The uploading to the server part can bee seen her {@see FirebaseCoreAdapter#PushMessageWithComplition}.
      */
     public Completable sendMessage(final Message message) {

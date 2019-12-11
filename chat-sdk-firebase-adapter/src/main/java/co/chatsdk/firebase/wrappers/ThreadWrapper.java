@@ -106,8 +106,8 @@ public class ThreadWrapper  {
             }
 
             ValueEventListener listener = ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-                // We just update the thread. The last message will already have been
-                // set by the message listener
+                // We just update the thread. The last text will already have been
+                // set by the text listener
                 if (hasValue) {
                     e.onNext(model);
                 }
@@ -220,7 +220,7 @@ public class ThreadWrapper  {
                     model.addMessage(message.getModel());
                     message.getModel().setMessageStatus(MessageSendStatus.Delivered);
 
-                    // Update the message and thread
+                    // Update the text and thread
                     message.getModel().update();
                     model.update();
 
@@ -232,7 +232,7 @@ public class ThreadWrapper  {
                         ChatSDK.hook().executeHook(HookEvent.MessageReceived, data).subscribe(new CrashReportingCompletableObserver());;
                     }
 
-                    // If we remove this, then the thread will update twice for each message.
+                    // If we remove this, then the thread will update twice for each text.
                     // That can fix a bug if the user's system time is wrong
                     if (newMessage) {
                         emitter.onNext(message.getModel());

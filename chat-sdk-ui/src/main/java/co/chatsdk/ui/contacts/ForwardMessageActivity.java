@@ -28,7 +28,7 @@ public class ForwardMessageActivity extends SelectContactActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        // Get the message
+        // Get the text
         String messageEntityID = getIntent().getStringExtra(Keys.IntentKeyMessageEntityID);
         if (messageEntityID != null && !messageEntityID.isEmpty()) {
             message = ChatSDK.db().fetchEntityWithEntityID(messageEntityID, Message.class);

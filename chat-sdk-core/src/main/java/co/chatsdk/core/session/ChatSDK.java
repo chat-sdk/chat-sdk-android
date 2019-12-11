@@ -49,6 +49,7 @@ import co.chatsdk.core.handlers.VideoMessageHandler;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
 import co.chatsdk.core.interfaces.LocalNotificationHandler;
 import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.notifications.NotificationDisplayHandler;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.AppBackgroundMonitor;
 import io.reactivex.disposables.Disposable;
@@ -150,7 +151,7 @@ public class ChatSDK {
                     Thread thread = networkEvent.thread;
                     if(message != null && !AppBackgroundMonitor.shared().inBackground()) {
                         if (thread.typeIs(ThreadType.Private) || (thread.typeIs(ThreadType.Public) && ChatSDK.config().pushNotificationsForPublicChatRoomsEnabled)) {
-                            if(!message.getSender().isMe() && !message.isDelivered() && ChatSDK.ui().showLocalNotifications(message.getThread())) {
+                            if(!message.getSender().isMe() && !message.isDelivered() && ChatSDK.ui().showLocalNotifications(message.getThread()) || NotificationDisplayHandler.connectedToAuto(context())) {
                                 ReadStatus status = message.readStatusForUser(ChatSDK.currentUser());
                                 if (!message.isRead() && !status.is(ReadStatus.delivered()) && !status.is(ReadStatus.read())) {
                                     // Only show the alert if we'recyclerView not on the private threads tab

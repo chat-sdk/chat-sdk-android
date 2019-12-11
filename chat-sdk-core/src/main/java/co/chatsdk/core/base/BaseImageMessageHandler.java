@@ -25,7 +25,7 @@ public class BaseImageMessageHandler implements ImageMessageHandler {
     @Override
     public Completable sendMessageWithImage(final File imageFile, final Thread thread) {
         return new MessageSendRig(new MessageType(MessageType.Image), thread, message -> {
-            // Get the image and set the image message dimensions
+            // Get the image and set the image text dimensions
             final Bitmap image = BitmapFactory.decodeFile(imageFile.getPath(), null);
 
             message.setValueForKey(image.getWidth(), Keys.MessageImageWidth);

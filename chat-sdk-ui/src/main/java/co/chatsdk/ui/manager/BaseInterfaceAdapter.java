@@ -37,7 +37,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.core.ui.ProfileFragmentProvider;
-import co.chatsdk.core.utils.NotificationDisplayHandler;
+import co.chatsdk.core.notifications.NotificationDisplayHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.chat.handlers.ImageMessageDisplayHandler;

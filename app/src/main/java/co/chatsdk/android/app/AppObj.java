@@ -46,8 +46,8 @@ public class AppObj extends MultiDexApplication {
 
             Configuration.Builder config = new Configuration.Builder();
 
-            config.firebaseRootPath("micro_test_19");
-//            config.firebaseRootPath("live_12_19");
+//            config.firebaseRootPath("micro_test_19");
+            config.firebaseRootPath("live_12_19");
             config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
             config.publicRoomCreationEnabled(true);
             config.pushNotificationSound("default");
@@ -61,8 +61,8 @@ public class AppObj extends MultiDexApplication {
             config.publicChatRoomLifetimeMinutes(60 * 24);
 
 
-//            ChatSDK.initialize(context, config.build(), FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
-            ChatSDK.initialize(context, config.build(), FirestoreNetworkAdapter.class, BaseInterfaceAdapter.class);
+            ChatSDK.initialize(context, config.build(), FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
+//            ChatSDK.initialize(context, config.build(), FirestoreNetworkAdapter.class, BaseInterfaceAdapter.class);
 
 
 //            AConfigurator.configure();

@@ -81,7 +81,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected ChatOptionsHandler optionsHandler;
 
     // Should we remove the user from the public chat when we stop this activity?
-    // If we are showing a temporary screen like the sticker message screen
+    // If we are showing a temporary screen like the sticker text screen
     // this should be set to no
     protected boolean removeUserFromChatOnExit = ChatSDK.config().removeUserFromPublicThreadOnExit;
 
@@ -162,12 +162,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
                     boolean isAdded = messageListAdapter.addRow(message, false, true);
 
-                    // Check if the message from the current user, If so return so we wont vibrate for the user messages.
+                    // Check if the text from the current user, If so return so we wont vibrate for the user messages.
                     if (message.getSender().isMe() && isAdded) {
                         scrollListTo(ListPosition.Bottom, layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 2);
                     }
                     else {
-                        // If the user is near the bottom, then we scroll down when a message comes in
+                        // If the user is near the bottom, then we scroll down when a text comes in
                         if(layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 5) {
                             scrollListTo(ListPosition.Bottom, true);
                         }
@@ -291,7 +291,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     }
 
     protected void initViews () {
-        // Set up the message box - this is the box that sits above the keyboard
+        // Set up the text box - this is the box that sits above the keyboard
         textInputView = findViewById(R.id.view_message_text_input);
         textInputView.setDelegate(this);
         textInputView.setAudioModeEnabled(ChatSDK.audioMessage() != null);
@@ -363,7 +363,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         disposableList.add(messageListAdapter.getMessageActionObservable()
                 .flatMapSingle((Function<List<MessageAction>, SingleSource<String>>) messageActions -> {
-                    // Open the message action sheet
+                    // Open the text action sheet
                     hideKeyboard();
                     return messageActionHandler.open(messageActions, ChatActivity.this);
         }).subscribe(this::showSnackbar, snackbarOnErrorConsumer()));
@@ -412,10 +412,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     }
 
     /**
-     * Send text message
+     * Send text text
      *
      * @param text to send.
-     * @param clearEditText if true clear the message edit text.
+     * @param clearEditText if true clear the text edit text.
      */
     public void sendMessage(String text, boolean clearEditText) {
 
@@ -547,7 +547,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         // the background
         loadMessages(messageListAdapter.getItemCount() == 0, -1, ListPosition.Bottom);
 
-        // Show a local notification if the message is from a different thread
+        // Show a local notification if the text is from a different thread
         ChatSDK.ui().setLocalNotificationHandler(thread -> !thread.equals(ChatActivity.this.thread));
 
     }

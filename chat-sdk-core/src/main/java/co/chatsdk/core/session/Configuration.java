@@ -72,6 +72,8 @@ public class Configuration {
     public boolean unreadMessagesCountForPublicChatRoomsEnabled;
     public boolean inboundPushHandlingEnabled = true;
 
+    public boolean replyFromNotificationEnabled = true;
+
     // Rooms that are older than this will be hidden
     // Zero is infinite lifetime
     // Default - 7 days
@@ -259,6 +261,11 @@ public class Configuration {
 
         public Builder firebaseDatabaseURL(String firebaseDatabaseUrl) {
             config.firebaseDatabaseUrl = firebaseDatabaseUrl;
+            return this;
+        }
+
+        public Builder replyFromNotificationEnabled(boolean enabled) {
+            config.replyFromNotificationEnabled = enabled;
             return this;
         }
 

@@ -102,7 +102,7 @@ public class FirestoreEventHandler extends FirebaseEventHandler {
                     thread.addUsers(user, ChatSDK.currentUser());
                 }
 
-                //                if (!thread.containsMessageWithID(message.id)) {
+                //                if (!thread.containsMessageWithID(text.id)) {
                     Message chatSDKMessage = ChatSDK.db().createEntity(Message.class);
                     chatSDKMessage.setSender(user);
                     chatSDKMessage.setMessageStatus(MessageSendStatus.Delivered);
@@ -128,7 +128,7 @@ public class FirestoreEventHandler extends FirebaseEventHandler {
                 }
 
                     // Make this more robust
-//                    chatSDKMessage.setText((String)message.getBody().get(TextMessage.TextKey));
+//                    chatSDKMessage.setText((String)text.getBody().get(TextMessage.TextKey));
 
                     thread.addMessage(chatSDKMessage);
 

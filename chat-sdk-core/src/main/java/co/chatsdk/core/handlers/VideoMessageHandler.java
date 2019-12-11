@@ -15,7 +15,7 @@ import io.reactivex.Observable;
 public interface VideoMessageHandler extends MessageHandler {
 
     /**
-     * Send a video message
+     * Send a video text
      */
     Completable sendMessageWithVideo(File videoFile, Thread thread);
 

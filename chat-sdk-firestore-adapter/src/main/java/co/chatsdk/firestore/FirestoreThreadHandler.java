@@ -43,7 +43,7 @@ public class FirestoreThreadHandler extends FirebaseThreadHandler {
                     .doOnSuccess(message::setEntityID)
                     .ignoreElement();
 //            return MicroChatSDK.shared().send(otherUser.getEntityID(), sendable)
-//                    .doOnSuccess(message::setEntityID)
+//                    .doOnSuccess(text::setEntityID)
 //                    .ignoreElement();
         } else {
             GroupChat groupChat = MicroChatSDK.shared().getGroupChat(message.getThread().getEntityID());

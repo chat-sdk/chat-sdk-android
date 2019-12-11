@@ -176,7 +176,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                     final User user = ChatSDK.currentUser();
 
-                    // Stop listening to user related alerts. (added message or thread.)
+                    // Stop listening to user related alerts. (added text or thread.)
                     ChatSDK.events().impl_currentUserOff(user.getEntityID());
 
                     FirebaseCoreHandler.auth().signOut();

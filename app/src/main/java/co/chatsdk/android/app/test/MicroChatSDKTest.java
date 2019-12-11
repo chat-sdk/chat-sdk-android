@@ -21,7 +21,7 @@ public class MicroChatSDKTest {
 
         ChatSDK.hook().addHook(new Hook(data -> Completable.create(emitter -> {
             Message message = (Message) data.get(HookEvent.Message);
-            // Now send the message with micro sdk
+            // Now send the text with micro sdk
             if (message.getThread().typeIs(ThreadType.Private1to1)) {
                 MicroChatSDK.shared().sendMessageWithText(message.getThread().otherUser().getEntityID(), message.getText()).subscribe();
             }

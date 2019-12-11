@@ -52,9 +52,9 @@ public class ApiExamples {
     }
 
     /**
-     * Example of how to send an image message to a thread
+     * Example of how to send an image text to a thread
      * @param filePath - Local path to image file
-     * @param thread - The thread to send the message to
+     * @param thread - The thread to send the text to
      */
     public void sendImageMessage (File filePath, Thread thread) {
         Disposable d = ChatSDK.imageMessage().sendMessageWithImage(filePath, thread).subscribe(() -> {
@@ -73,7 +73,7 @@ public class ApiExamples {
     }
 
     /**
-     * Example of how to listen for when a message is received
+     * Example of how to listen for when a text is received
      */
     public void listenForReceivedMessage () {
         ChatSDK.hook().addHook(new Hook(data -> Completable.create(emitter -> {
@@ -147,7 +147,7 @@ public class ApiExamples {
     }
 
     /**
-     * How to get the unread message count for a thread
+     * How to get the unread text count for a thread
      * @param thread
      */
     public int getUnreadMessageCount (Thread thread) {
@@ -155,7 +155,7 @@ public class ApiExamples {
     }
 
     /**
-     * How to determine when a message has been sent / uploaded etc...
+     * How to determine when a text has been sent / uploaded etc...
      * @param thread
      */
     public void getNotificationWhenFileUploaded (Thread thread) {
@@ -172,7 +172,7 @@ public class ApiExamples {
 
 
     /**
-     * How to detect when a new message has been received
+     * How to detect when a new text has been received
      */
     public void getMessageReceived () {
         ChatSDK.hook().addHook(new Hook(data -> Completable.create(emitter -> {
@@ -180,10 +180,10 @@ public class ApiExamples {
             // Get the body from the notification
             if (data.get(HookEvent.Message) instanceof Message) {
 
-                // Cast it as a message
+                // Cast it as a text
                 Message message = (Message) data.get(HookEvent.Message);
 
-                // Check the message getBodyType
+                // Check the text getBodyType
                 if (message.getMessageType().is(MessageType.Image)) {
 
                 }
@@ -222,7 +222,7 @@ public class ApiExamples {
     }
 
     /**
-     * Add extra meta data to a message
+     * Add extra meta data to a text
      */
     public void addMetaDataToMessage (Message message) {
         message.setValueForKey("Value", "Key");

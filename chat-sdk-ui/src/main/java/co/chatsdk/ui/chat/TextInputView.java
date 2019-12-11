@@ -275,7 +275,7 @@ public class TextInputView extends LinearLayout implements TextView.OnEditorActi
         }
     }
 
-    /** Show the message option popup, From here the user can send images and location messages.*/
+    /** Show the text option popup, From here the user can send images and location messages.*/
     public void showOption () {
         if(delegate != null) {
             delegate.get().showOptions();
@@ -288,7 +288,7 @@ public class TextInputView extends LinearLayout implements TextView.OnEditorActi
         }
     }
 
-    /** Send a text message when the done button is pressed on the keyboard.*/
+    /** Send a text text when the done button is pressed on the keyboard.*/
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_SEND && delegate != null) {

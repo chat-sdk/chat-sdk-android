@@ -17,7 +17,7 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.core.ui.ProfileFragmentProvider;
-import co.chatsdk.core.utils.NotificationDisplayHandler;
+import co.chatsdk.core.notifications.NotificationDisplayHandler;
 
 /**
  * Created by benjaminsmiley-andrews on 12/07/2017.

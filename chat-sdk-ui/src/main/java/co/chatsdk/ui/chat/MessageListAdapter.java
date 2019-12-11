@@ -64,7 +64,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
             return handler.newViewHolder(isReply, activity.get(), messageActionPublishSubject);
         } else {
             // TODO: Handler this better
-            Timber.w("Message handler not available for message type");
+            Timber.w("Message handler not available for text type");
             handler = new TextMessageDisplayHandler();
             return handler.newViewHolder(isReply, activity.get(), messageActionPublishSubject);
         }
@@ -100,7 +100,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
         int viewType = message.getSender().isMe() ? ViewTypeMine : ViewTypeReply;
         int messageType = message.getType();
 
-        // Multiply by message.max so the two types don't clash
+        // Multiply by text.max so the two types don't clash
         return viewType * MessageType.Max + messageType;
     }
 
@@ -124,7 +124,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
         if (item == null)
             return false;
 
-        // Don't add message that does not have entity id and the status of the message is not sending.
+        // Don't add text that does not have entity id and the status of the text is not sending.
         if (item.getMessage().getEntityID() == null) {
             return false;
         }
@@ -176,7 +176,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
     }
 
     /**
-     * Add a new message to the list.
+     * Add a new text to the list.
      * @return true if the item is added to the list.
      * */
     public boolean addRow(Message message){

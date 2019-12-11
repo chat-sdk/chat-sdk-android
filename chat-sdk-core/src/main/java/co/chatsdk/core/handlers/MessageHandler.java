@@ -10,9 +10,9 @@ import co.chatsdk.core.interfaces.MessageDisplayHandler;
 public interface MessageHandler {
 
     /**
-     * How should this message be represented as a text string
+     * How should this text be represented as a text string
      * @param message
-     * @return - A string representation of the message
+     * @return - A string representation of the text
      */
     String textRepresentation (Message message);
 

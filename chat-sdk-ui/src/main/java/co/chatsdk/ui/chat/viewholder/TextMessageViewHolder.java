@@ -25,7 +25,7 @@ public class TextMessageViewHolder extends BaseMessageViewHolder {
         setBubbleHidden(false);
         setTextHidden(false);
 
-//        Timber.d("Is Me: " + message.getSender().isMe() + " left padding: " + messageBubble.getPaddingLeft() + " right padding: " + messageBubble.getPaddingRight());
+//        Timber.d("Is Me: " + text.getSender().isMe() + " left padding: " + messageBubble.getPaddingLeft() + " right padding: " + messageBubble.getPaddingRight());
 
         if (message.getSender().isMe()) {
             messageTextView.setTextColor(ChatSDK.config().messageTextColorMe);

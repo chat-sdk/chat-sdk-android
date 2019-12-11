@@ -55,11 +55,11 @@ public interface ThreadHandler {
     Completable deleteMessage (Message message);
 
     /**
-     * Send different types of message to a particular thread
+     * Send different types of text to a particular thread
      */
     Completable sendMessageWithText(String text, Thread thread);
     /**
-     * Send a message object
+     * Send a text object
      */
     Completable sendMessage(Message message);
     Completable forwardMessage(Message message, Thread thread);

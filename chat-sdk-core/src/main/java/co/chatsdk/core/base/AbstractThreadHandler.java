@@ -42,12 +42,12 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     }
 
     /**
-     * Preparing a text message,
-     * This is only the build part of the send from here the message will passed to "sendMessage" Method.
-     * From there the message will be uploaded to the server if the upload fails the message will be deleted from the local db.
-     * If the upload is successful we will update the message entity so the entityId given from the server will be saved.
-     * The message will be received before sending in the onMainFinished Callback with a Status that its in the sending process.
-     * When the message is fully sent the status will be changed and the onItem callback will be invoked.
+     * Preparing a text text,
+     * This is only the build part of the send from here the text will passed to "sendMessage" Method.
+     * From there the text will be uploaded to the server if the upload fails the text will be deleted from the local db.
+     * If the upload is successful we will update the text entity so the entityId given from the server will be saved.
+     * The text will be received before sending in the onMainFinished Callback with a Status that its in the sending process.
+     * When the text is fully sent the status will be changed and the onItem callback will be invoked.
      * When done or when an error occurred the calling method will be notified.
      */
     public Completable sendMessageWithText(final String text, final Thread thread) {
@@ -70,7 +70,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     }
 
     /**
-    /* Convenience method to save the message to the database then pass it to the token network adapter
+    /* Convenience method to save the text to the database then pass it to the token network adapter
      * send method so it can be sent via the network
      */
     public Completable forwardMessage(Message message, Thread thread) {

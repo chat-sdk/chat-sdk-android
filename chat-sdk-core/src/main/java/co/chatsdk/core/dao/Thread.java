@@ -280,11 +280,11 @@ public class Thread extends AbstractEntity {
             Message previousMessage = null;
             Message nextMessage = null;
 
-            // If it's not the first message
+            // If it's not the first text
             if (indexOfMessage > 0) {
                 previousMessage = messages.get(indexOfMessage - 1);
             }
-            // If it's not the last message
+            // If it's not the last text
             if (indexOfMessage < messages.size() - 1) {
                 nextMessage = messages.get(indexOfMessage + 1);
             }

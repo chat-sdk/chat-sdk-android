@@ -118,7 +118,7 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
             ReadReceiptUserLinkDao.dropTable(db, false);
             ReadReceiptUserLinkDao.createTable(db, true);
 
-            // Clear down the message database and re synchronize
+            // Clear down the text database and re synchronize
             MessageDao.dropTable(db, false);
             MessageDao.createTable(db, true);
         }

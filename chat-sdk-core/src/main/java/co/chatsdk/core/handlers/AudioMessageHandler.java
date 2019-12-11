@@ -14,7 +14,7 @@ import io.reactivex.Observable;
 public interface AudioMessageHandler extends MessageHandler {
 
     /**
-     * Send an audio message
+     * Send an audio text
      */
     Completable sendMessage (final Recording recording, final Thread thread);
 

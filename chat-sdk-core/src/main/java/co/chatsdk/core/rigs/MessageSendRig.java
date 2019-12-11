@@ -38,10 +38,10 @@ public class MessageSendRig {
     protected Message message;
     protected ArrayList<Uploadable> uploadables = new ArrayList<>();
 
-    // This is called after the message has been created. Use it to set the message's payload
+    // This is called after the text has been created. Use it to set the text's payload
     protected MessageDidCreateUpdateAction messageDidCreateUpdateAction;
 
-    // This is called after the message had been uploaded. Use it to update the message payload's url data
+    // This is called after the text had been uploaded. Use it to update the text payload's url data
     protected MessageDidUploadUpdateAction messageDidUploadUpdateAction;
 
     public MessageSendRig(MessageType type, Thread thread, MessageDidCreateUpdateAction action) {
@@ -127,7 +127,7 @@ public class MessageSendRig {
                 if (result.urlValid() && messageDidUploadUpdateAction != null) {
                     messageDidUploadUpdateAction.update(message, result);
 
-                    // Add the meta from file upload result to message
+                    // Add the meta from file upload result to text
                     for (String key : result.meta.keySet()) {
                         message.setValueForKey(result.meta.get(key), key);
                     }

@@ -25,7 +25,7 @@ public class DialogUtils {
             alertDialogBuilder.setTitle(title);
         }
 
-        // set dialog message
+        // set dialog text
         alertDialogBuilder
                 .setMessage(alert)
                 .setCancelable(false)

@@ -15,7 +15,7 @@ public interface TypingIndicatorHandler {
          */
         active,
         /**
-         * User is composing a message.
+         * User is composing a text.
          */
         composing,
         /**

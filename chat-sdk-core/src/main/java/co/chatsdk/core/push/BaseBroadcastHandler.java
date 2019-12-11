@@ -38,7 +38,8 @@ public class BaseBroadcastHandler implements BroadcastHandler {
             appIntent.setAction(threadEntityID);
 //            appIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             appIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            ChatSDK.ui().notificationDisplayHandler().createMessageNotification(context, appIntent, userEntityID, title, body);
+
+            ChatSDK.ui().notificationDisplayHandler().createMessageNotification(context, appIntent, userEntityID, threadEntityID, title, body);
         }
 
     }
