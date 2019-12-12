@@ -245,7 +245,7 @@ public class NotificationBuilder {
                 if (bitmap != null) {
                     builder.setLargeIcon(scaleLargeIcon(bitmap));
                 }
-                return null;
+                return builder;
             });
         }
         return Single.just(builder);

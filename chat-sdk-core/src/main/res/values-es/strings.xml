@@ -171,7 +171,7 @@
 
 
     
-    <string name="acces_message_option_button">Botón de opción de mensaje</string>
+    <string name="access_message_option_button">Botón de opción de mensaje</string>
 
     <string name="chat_sdk__action_settings">action_setting</string>
     <string name="action_logout">Cerrar sesión</string>

@@ -1,9 +1,7 @@
 package co.chatsdk.core.session;
 
-import android.content.Context;
 import android.graphics.Color;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -132,7 +130,9 @@ public class Configuration {
     public int maxInboxNotificationLines = 7;
     public boolean imageCroppingEnabled = true;
 
+    @Deprecated
     public boolean removeUserFromPublicThreadOnExit = true;
+    public boolean publicChatAutoSubscriptionEnabled = false;
 
     public String defaultNamePrefix = "ChatSDK";
     public String defaultName = null;
@@ -150,7 +150,7 @@ public class Configuration {
     public String pushNotificationSound = "";
     public boolean showLocalNotifications = false;
     public int pushNotificationColor = Color.parseColor("#ff33b5e5");
-    public boolean pushNotificationsForPublicChatRoomsEnabled = false;
+    public boolean localPushNotificationsForPublicChatRoomsEnabled = false;
 
     // Maximum distance to pick up nearby users
     public int nearbyUserMaxDistance = 50000;
@@ -412,8 +412,17 @@ public class Configuration {
             return this;
         }
 
+        /**
+         * @deprecated use {@link #localPushNotificationsForPublicChatRoomsEnabled}
+         */
+        @Deprecated
         public Builder pushNotificationsForPublicChatRoomsEnabled(boolean value) {
-            config.pushNotificationsForPublicChatRoomsEnabled = value;
+            config.localPushNotificationsForPublicChatRoomsEnabled = value;
+            return this;
+        }
+
+        public Builder localPushNotificationsForPublicChatRoomsEnabled(boolean value) {
+            config.localPushNotificationsForPublicChatRoomsEnabled = value;
             return this;
         }
 
@@ -672,8 +681,18 @@ public class Configuration {
             return this;
         }
 
+        /**
+         * @deprecated use {@link #publicChatAutoSubscriptionEnabled(boolean)}
+         */
+        @Deprecated
         public Builder removeUserFromPublicThreadOnExit (boolean remove) {
             config.removeUserFromPublicThreadOnExit = remove;
+            return this;
+        }
+
+        public Builder publicChatAutoSubscriptionEnabled(boolean enabled) {
+            config.publicChatAutoSubscriptionEnabled = enabled;
+            config.removeUserFromPublicThreadOnExit = !enabled;
             return this;
         }
 

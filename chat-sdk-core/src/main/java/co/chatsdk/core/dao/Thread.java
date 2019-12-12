@@ -259,6 +259,14 @@ public class Thread extends AbstractEntity {
     }
 
     @Keep
+    public void removeMetaValue (String key) {
+        ThreadMetaValue metaValue = metaValueForKey(key);
+        this.metaValues.remove(metaValue);
+//        metaValue.delete();
+        update();
+    }
+
+    @Keep
     public void updateValues (HashMap<String, String> values) {
         for (String key : values.keySet()) {
             setMetaValue(key, values.get(key));

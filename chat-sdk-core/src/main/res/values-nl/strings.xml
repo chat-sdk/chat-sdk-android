@@ -133,7 +133,7 @@
     <string name="connecting">Aan het verbinden&#8230;</string>
     <string name="registering">Aan het registreren&#8230;</string>
     <!--Acceptability-->
-    <string name="acces_message_option_button">Berichtoptietoets</string>
+    <string name="access_message_option_button">Berichtoptietoets</string>
     <string name="chat_sdk__action_settings">Instellingen</string>
     <string name="action_logout">Uitloggen</string>
     <string name="action_save">Opslaan</string>

@@ -172,11 +172,13 @@
     <string name="connecting">Connecting&#8230;</string>
     <string name="registering">Registering&#8230;</string>
 
+    <string name="mute_notifications">Mute Notifications</string>
+    <string name="unmute_notifications">Unmute Notifications</string>
 
     <!--Acceptability-->
-    <string name="acces_message_option_button">Message option button</string>
+    <string name="access_message_option_button">Message option button</string>
 
-    <string name="chat_sdk__action_settings">action_setting</string>
+    <!--    <string name="chat_sdk__action_settings">action_setting</string>-->
     <string name="action_logout">Logout</string>
     <string name="action_save">Save</string>
     <string name="action_chat">Chat</string>
@@ -184,8 +186,9 @@
     <string name="action_contact_developer">Contact Developer</string>
     <string name="action_add_chat">Add Chat</string>
     <string name="actions">Actions</string>
-    <string name="done_show_again">Done show again</string>
-    <string name="double_back_press_exit">Use double back button pressed to exit</string>
+
+    <!--    <string name="done_show_again">Done show again</string>-->
+    <!--    <string name="double_back_press_exit">Use double back button pressed to exit</string>-->
     <string name="subscription">Presence Subscription</string>
 
     <!--Notification-->
@@ -286,10 +289,10 @@
     </string-array>
 
     <!--<string-array name="profile_show_states">-->
-        <!--<item>Available</item>-->
-        <!--<item>Away</item>-->
-        <!--<item>Do not disturb</item>-->
-        <!--<item>Unavailable</item>-->
+    <!--<item>Available</item>-->
+    <!--<item>Away</item>-->
+    <!--<item>Do not disturb</item>-->
+    <!--<item>Unavailable</item>-->
     <!--</string-array>-->
 
     <string name="forgot_password">Forgot Password</string>

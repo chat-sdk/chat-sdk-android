@@ -6,6 +6,7 @@
         <item name="colorAccent">@color/accent</item>
         <item name="colorControlNormal">@color/text_primary</item>
         <item name="actionBarTheme">@style/ThemeOverlay.SdkTheme.ActionBar</item>
+        <item name="android:itemTextAppearance">@style/myCustomMenuTextAppearance</item>
     </style>
 
     <!-- For the sliding affect to look good in the chat context and pick friends context.-->
@@ -16,6 +17,10 @@
     <style name="ThemeOverlay.SdkTheme.ActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">?android:textColorSecondary</item>
+    </style>
+
+    <style name="myCustomMenuTextAppearance" parent="@android:style/TextAppearance.Widget.IconMenu.Item">
+        <item name="android:textColor">@android:color/black</item>
     </style>
 
     <!-- TextView Style-->

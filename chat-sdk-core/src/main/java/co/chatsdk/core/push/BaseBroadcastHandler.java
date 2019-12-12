@@ -8,6 +8,7 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.interfaces.BroadcastHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.AppBackgroundMonitor;
+import co.chatsdk.core.dao.Thread;
 
 public class BaseBroadcastHandler implements BroadcastHandler {
 
@@ -23,6 +24,14 @@ public class BaseBroadcastHandler implements BroadcastHandler {
         final String userEntityID = extras.getString(Keys.PushKeyUserEntityID);
         final String title = extras.getString(Keys.PushKeyTitle);
         final String body = extras.getString(Keys.PushKeyBody);
+
+        // Check if notifications are muted
+        Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
+        if (thread != null) {
+            if (thread.metaValueForKey(Keys.Mute) != null) {
+                return;
+            }
+        }
 
         // Only show the notification if the user is offline
         // This will be the case if the app

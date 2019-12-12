@@ -23,8 +23,9 @@ import androidx.core.app.NotificationManagerCompat;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.session.ChatSDK;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
-public class NotificationDisplayHandler {
+public class NotificationDisplayHandler implements Consumer<Throwable> {
 
     public static final int MESSAGE_NOTIFICATION_ID = 1001;
 
@@ -35,7 +36,7 @@ public class NotificationDisplayHandler {
         if (connectedToAuto(context)) {
             return new NotificationBuilder(context).forMessageAuto(message).build().subscribe(builder -> {
                         NotificationManagerCompat.from(context).notify(MESSAGE_NOTIFICATION_ID, builder.build());
-                    });
+                    }, this);
         } else {
             return new NotificationBuilder(context).forMessage(message).build().subscribe(builder -> {
                 Notification notification = builder.build();
@@ -43,7 +44,7 @@ public class NotificationDisplayHandler {
                 NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 notificationManager.notify(MESSAGE_NOTIFICATION_ID, notification);
                 wakeScreen(context);
-            });
+            }, this);
         }
 
     }
@@ -53,21 +54,24 @@ public class NotificationDisplayHandler {
         if (connectedToAuto(context) && thread != null) {
             return new NotificationBuilder(context).forAuto(title, message, thread).build().subscribe(builder -> {
                 NotificationManagerCompat.from(context).notify(MESSAGE_NOTIFICATION_ID, builder.build());
-            });
+            }, this);
         } else {
-            return new NotificationBuilder(context)
+            NotificationBuilder builder = new NotificationBuilder(context)
                     .useDefault()
                     .setIntent(resultIntent)
                     .addIconForUserEntityID(userEntityID)
                     .setTitle(title)
-                    .setText(message)
-                    .build().subscribe(builder -> {
-                        Notification notification = builder.build();
-                        notification.flags = Notification.FLAG_AUTO_CANCEL;
-                        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                        notificationManager.notify(MESSAGE_NOTIFICATION_ID, notification);
-                        wakeScreen(context);
-                    });
+                    .setText(message);
+            if (thread != null && ChatSDK.config().replyFromNotificationEnabled) {
+                builder = builder.addMessageReplyActionsForThread(thread);
+            }
+            return builder.build().subscribe(b -> {
+                Notification notification = b.build();
+                notification.flags = Notification.FLAG_AUTO_CANCEL;
+                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.notify(MESSAGE_NOTIFICATION_ID, notification);
+                wakeScreen(context);
+            }, this);
         }
     }
 
@@ -105,5 +109,10 @@ public class NotificationDisplayHandler {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void accept(Throwable t) throws Exception {
+        t.printStackTrace();
     }
 }

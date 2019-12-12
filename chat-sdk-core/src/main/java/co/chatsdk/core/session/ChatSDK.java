@@ -3,8 +3,6 @@ package co.chatsdk.core.session;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.google.android.gms.auth.api.signin.internal.Storage;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
@@ -16,6 +14,7 @@ import java.util.ArrayList;
 import co.chatsdk.core.base.LocationProvider;
 import co.chatsdk.core.base.BaseNetworkAdapter;
 import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -47,7 +46,6 @@ import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.handlers.UploadHandler;
 import co.chatsdk.core.handlers.VideoMessageHandler;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
-import co.chatsdk.core.interfaces.LocalNotificationHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.notifications.NotificationDisplayHandler;
 import co.chatsdk.core.types.ReadStatus;
@@ -149,8 +147,8 @@ public class ChatSDK {
                 .subscribe(networkEvent -> {
                     Message message = networkEvent.message;
                     Thread thread = networkEvent.thread;
-                    if(message != null && !AppBackgroundMonitor.shared().inBackground()) {
-                        if (thread.typeIs(ThreadType.Private) || (thread.typeIs(ThreadType.Public) && ChatSDK.config().pushNotificationsForPublicChatRoomsEnabled)) {
+                    if(message != null && !AppBackgroundMonitor.shared().inBackground() && thread.metaValueForKey(Keys.Mute) == null) {
+                        if (thread.typeIs(ThreadType.Private) || (thread.typeIs(ThreadType.Public) && ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled)) {
                             if(!message.getSender().isMe() && !message.isDelivered() && ChatSDK.ui().showLocalNotifications(message.getThread()) || NotificationDisplayHandler.connectedToAuto(context())) {
                                 ReadStatus status = message.readStatusForUser(ChatSDK.currentUser());
                                 if (!message.isRead() && !status.is(ReadStatus.delivered()) && !status.is(ReadStatus.read())) {
@@ -161,10 +159,6 @@ public class ChatSDK {
                         }
                     }
                 });
-    }
-
-    public void setLocalNotificationHandler (LocalNotificationHandler handler) {
-
     }
 
     public static ChatSDK shared () {

@@ -187,14 +187,13 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.threads_menu, menu);
+
         // Only the creator can modify the group. Also, private 1-to-1 chats can't be edited
-        if (thread.getCreatorEntityId().equals(ChatSDK.currentUserID()) && !thread.typeIs(ThreadType.Private1to1)) {
-            settingsItem = menu.add(Menu.NONE, R.id.action_chat_sdk_settings, 12, getString(R.string.action_settings));
-            settingsItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-            settingsItem.setIcon(R.drawable.icn_24_settings);
-            return super.onCreateOptionsMenu(menu);
+        if (!thread.getCreatorEntityId().equals(ChatSDK.currentUserID()) || thread.typeIs(ThreadType.Private1to1)) {
+            menu.removeItem(R.id.action_edit);
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -202,11 +201,36 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
         }
-        if (item.getItemId() == R.id.action_chat_sdk_settings) {
+        if (item.getItemId() == R.id.action_edit) {
             ChatSDK.ui().startThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
+        }
+        if (item.getItemId() == R.id.action_mute) {
+            if (thread.metaValueForKey(Keys.Mute) != null) {
+                thread.removeMetaValue(Keys.Mute);
+            } else {
+                thread.setMetaValue(Keys.Mute, "");
+            }
+            invalidateOptionsMenu();
         }
         return true;
     }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.action_mute);
+
+        String muteText = getApplicationContext().getString(R.string.mute_notifications);
+        String unmuteText = getApplicationContext().getString(R.string.unmute_notifications);
+
+        if (thread.metaValueForKey(Keys.Mute) != null) {
+            item.setTitle(unmuteText);
+        } else {
+            item.setTitle(muteText);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
 
 
 }

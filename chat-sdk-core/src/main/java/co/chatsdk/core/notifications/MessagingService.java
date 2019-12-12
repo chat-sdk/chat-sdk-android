@@ -46,6 +46,7 @@ public class MessagingService extends IntentService {
         if (action != null && action.equals(ActionKeys.MARK_AS_READ)) {
             if (ChatSDK.readReceipts() != null) {
                 ChatSDK.readReceipts().markRead(thread);
+                thread.markRead();
             }
         }
     }

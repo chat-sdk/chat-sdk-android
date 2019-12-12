@@ -83,7 +83,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     // Should we remove the user from the public chat when we stop this activity?
     // If we are showing a temporary screen like the sticker text screen
     // this should be set to no
-    protected boolean removeUserFromChatOnExit = ChatSDK.config().removeUserFromPublicThreadOnExit;
+    protected boolean removeUserFromChatOnExit = ChatSDK.config().publicChatAutoSubscriptionEnabled;
 
     protected enum ListPosition {
         Top, Current, Bottom
@@ -496,7 +496,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onResume() {
         super.onResume();
 
-        removeUserFromChatOnExit = true;
+        removeUserFromChatOnExit = ChatSDK.config().publicChatAutoSubscriptionEnabled;
 
         if (!updateThreadFromBundle(bundle)) {
             return;
@@ -871,9 +871,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     @Override
     public void showOptions() {
+        // We don't want to remove the user if we load another activity
+        // Like the sticker activity
        removeUserFromChatOnExit = false;
-
-//        optionsSpeedDialView.open();
 
        optionsHandler = ChatSDK.ui().getChatOptionsHandler(this);
        optionsHandler.show(this);
@@ -881,7 +881,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     @Override
     public void hideOptions() {
-        removeUserFromChatOnExit = true;
+        removeUserFromChatOnExit = ChatSDK.config().publicChatAutoSubscriptionEnabled;
         if(optionsHandler != null) {
             optionsHandler.hide();
         }

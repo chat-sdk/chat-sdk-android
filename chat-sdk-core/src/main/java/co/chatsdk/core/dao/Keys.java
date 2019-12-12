@@ -51,6 +51,8 @@ public class Keys {
 
     public static final String ImageUrl = "image-url";
 
+    public static final String Mute = "mute";
+
     // Deprecated in favour of Creator
     public static final String CreatorEntityId = "creator-entity-id";
     public static final String Creator = "creator";

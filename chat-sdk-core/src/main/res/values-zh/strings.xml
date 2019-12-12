@@ -171,7 +171,7 @@
 
 
     
-    <string name="acces_message_option_button">消息选项按钮</string>
+    <string name="access_message_option_button">消息选项按钮</string>
 
     <string name="chat_sdk__action_settings">action_setting</string>
     <string name="action_logout">登出</string>

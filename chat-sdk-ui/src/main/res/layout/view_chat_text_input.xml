@@ -16,7 +16,7 @@
         android:layout_gravity="bottom"
         android:id="@+id/button_options"
         android:layout_margin="10dp"
-        android:contentDescription="@string/acces_message_option_button" />
+        android:contentDescription="@string/access_message_option_button" />
 
     <FrameLayout
         android:layout_weight="1"

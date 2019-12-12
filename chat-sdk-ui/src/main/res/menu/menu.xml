@@ -1,0 +1,47 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+<item android:id="@+id/action_add"
+    android:title="@string/action_add_chat"
+    android:icon="@android:drawable/ic_menu_add"
+    android:orderInCategory="10" />
+
+<item android:id="@+id/action_show"
+    android:title="@string/action_add_chat"
+    android:icon="@android:drawable/ic_menu_info_details"
+    android:orderInCategory="11" />
+
+<item android:id="@+id/action_chat_sdk_logout"
+    android:title="@string/action_logout"
+    android:icon="@drawable/ic_cancel"
+    android:orderInCategory="12" />
+
+<item android:id="@+id/action_chat_sdk_edit"
+    android:title="@string/action_edit"
+    android:orderInCategory="13" />
+
+<item android:id="@+id/action_chat_sdk_save"
+    android:title="@string/action_save"
+    android:icon="@drawable/icn_24_save"
+    android:orderInCategory="14" />
+
+<item android:id="@+id/action_chat_sdk_chat"
+    android:title="@string/action_chat"
+    android:icon="@drawable/icn_24_chat"
+    android:orderInCategory="15" />
+
+<item android:id="@+id/action_chat_sdk_settings"
+    android:title="@string/action_settings"
+    android:icon="@drawable/icn_24_settings"
+    android:orderInCategory="16" />
+
+<item android:id="@+id/action_chat_sdk_thread_details"
+    android:title="@string/action_add_chat"
+    android:icon="@android:drawable/ic_menu_add"
+    android:orderInCategory="17" />
+
+<item android:id="@+id/action_search"
+    android:title="@string/search"
+    android:icon="@drawable/ic_search_white_36dp"
+    android:orderInCategory="18" />
+
+</menu>
