@@ -166,5 +166,13 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
     }
 
+    public Completable muteThread(Thread thread) {
+        return Completable.complete();
+    }
+
+    public Completable unmuteThread(Thread thread) {
+        return Completable.complete();
+    }
+
 
 }

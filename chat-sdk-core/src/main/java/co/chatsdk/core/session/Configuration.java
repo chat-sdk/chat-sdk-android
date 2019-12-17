@@ -22,6 +22,8 @@ import co.chatsdk.core.utils.StringChecker;
 
 public class Configuration {
 
+    HashMap<String, Object> remote = new HashMap<>();
+
     // Basic parameters
     public int messagesToLoadPerBatch = 30;
     public int contactsToLoadPerBatch = 20;
@@ -130,6 +132,8 @@ public class Configuration {
     public int maxInboxNotificationLines = 7;
     public boolean imageCroppingEnabled = true;
 
+    public boolean remoteConfigEnabled = false;
+
     @Deprecated
     public boolean removeUserFromPublicThreadOnExit = true;
     public boolean publicChatAutoSubscriptionEnabled = false;
@@ -196,6 +200,20 @@ public class Configuration {
 
     public boolean facebookLoginEnabled() {
         return facebookLoginEnabled;
+    }
+
+    public void updateRemoteConfig(HashMap<String, Object> config) {
+        for (String key : config.keySet()) {
+            setRemoteConfigValue(key, config.get(key));
+        }
+    }
+
+    public Object remoteConfigValue(String key) {
+        return remote.get(key);
+    }
+
+    public void setRemoteConfigValue(String key, Object value) {
+        remote.put(key, value);
     }
 
     public static class Builder {
@@ -438,6 +456,11 @@ public class Configuration {
 
         public Builder googleLoginEnabled(boolean value) {
             config.googleLoginEnabled = value;
+            return this;
+        }
+
+        public Builder remoteConfigEnabled(boolean value) {
+            config.remoteConfigEnabled = value;
             return this;
         }
 

@@ -4,7 +4,6 @@ import android.os.AsyncTask;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
 
@@ -70,8 +69,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                     setAuthStatus(AuthStatus.AUTH_WITH_MAP);
 
-                    OnCompleteListener<AuthResult> resultHandler = task->AsyncTask.execute(()->{
-                        if (task.isComplete() && task.isSuccessful()) {
+                    OnCompleteListener<AuthResult> resultHandler = task->AsyncTask.execute(()-> {
+                        if (task.isComplete() && task.isSuccessful() && task.getResult() != null) {
                             emitter.onSuccess(task.getResult().getUser());
                         } else {
                             emitter.onError(task.getException());
@@ -102,6 +101,22 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 .flatMapCompletable(this::authenticateWithUser)
                 .doOnTerminate(this::setAuthStateToIdle)
                 .subscribeOn(Schedulers.single());
+    }
+
+    public Completable retrieveRemoteConfig() {
+        return Completable.create(emitter -> {
+            if (ChatSDK.config().remoteConfigEnabled) {
+                FirebasePaths.configRef().addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                    if (hasValue && snapshot.getValue() instanceof HashMap) {
+                        HashMap<String, Object> map = (HashMap<String, Object>) snapshot.getValue();
+                        ChatSDK.config().updateRemoteConfig(map);
+                    }
+                    emitter.onComplete();
+                }).onCancelled(error -> emitter.onError(error.toException())));
+            } else {
+                emitter.onComplete();
+            }
+        });
     }
 
     public Completable authenticateWithUser(final FirebaseUser user) {
@@ -141,7 +156,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             authenticatedThisSession = true;
 
             return userWrapper.push();
-        });
+        }).andThen(retrieveRemoteConfig());
     }
 
     public Boolean isAuthenticated() {

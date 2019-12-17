@@ -1,5 +1,9 @@
 package co.chatsdk.firebase;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
@@ -22,7 +26,9 @@ import co.chatsdk.firebase.wrappers.MessageWrapper;
 import co.chatsdk.firebase.wrappers.ThreadPusher;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableObserver;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
@@ -106,7 +112,11 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 if (userThreadLinkType == UserThreadLinkTypeAddUser) {
 
                     updateWriter.add(new FirebaseUpdate(threadUsersRef, u.equalsEntity(thread.getCreator()) ? Keys.Owner : Keys.Member));
-                    updateWriter.add(new FirebaseUpdate(userThreadsRef, ChatSDK.currentUserID()));
+
+                    // Public threads aren't added to the user path
+                    if (!thread.typeIs(ThreadType.Public)) {
+                        updateWriter.add(new FirebaseUpdate(userThreadsRef, ChatSDK.currentUserID()));
+                    }
 
                     if (thread.typeIs(ThreadType.Public) && u.isMe() && !ChatSDK.config().publicChatAutoSubscriptionEnabled) {
                         threadUsersRef.onDisconnect().removeValue();
@@ -126,6 +136,20 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe(new CrashReportingCompletableObserver());
             }
         }).subscribeOn(Schedulers.single());
+    }
+
+    public Completable muteThread(Thread thread) {
+        return Completable.create(emitter -> {
+            DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(ChatSDK.currentUserID()).child(Keys.Mute);
+            threadUsersRef.setValue(true).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
+        });
+    }
+
+    public Completable unmuteThread(Thread thread) {
+        return Completable.create(emitter -> {
+            DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(ChatSDK.currentUserID()).child(Keys.Mute);
+            threadUsersRef.setValue(false).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
+        });
     }
 
     public Completable removeUsersFromThread(final Thread thread, List<User> users) {

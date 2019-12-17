@@ -24,6 +24,7 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
@@ -206,9 +207,9 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         }
         if (item.getItemId() == R.id.action_mute) {
             if (thread.metaValueForKey(Keys.Mute) != null) {
-                thread.removeMetaValue(Keys.Mute);
+                ChatSDK.thread().unmuteThread(thread).subscribe(new CrashReportingCompletableObserver());
             } else {
-                thread.setMetaValue(Keys.Mute, "");
+                ChatSDK.thread().muteThread(thread).subscribe(new CrashReportingCompletableObserver());
             }
             invalidateOptionsMenu();
         }

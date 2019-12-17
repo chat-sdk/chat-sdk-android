@@ -28,6 +28,7 @@ public class FirebasePaths{
     public static final String TypingPath = "typing";
     public static final String ReadPath = Keys.Read;
     public static final String LocationPath = "location";
+    public static final String ConfigPath = "config";
 
 
     /* Not sure if this the wanted implementation but its give the same result as the objective-C code.*/
@@ -39,6 +40,10 @@ public class FirebasePaths{
 
     public static DatabaseReference firebaseRef () {
         return firebaseRawRef().child(ChatSDK.config().firebaseRootPath);
+    }
+
+    public static DatabaseReference configRef() {
+        return firebaseRef().child(ConfigPath);
     }
 
     /* Users */

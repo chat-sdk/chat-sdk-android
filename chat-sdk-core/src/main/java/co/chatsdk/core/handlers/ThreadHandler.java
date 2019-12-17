@@ -83,4 +83,8 @@ public interface ThreadHandler {
 
     Completable pushThread(Thread thread);
     Completable pushThreadMeta(Thread thread);
+
+    Completable muteThread(Thread thread);
+    Completable unmuteThread(Thread thread);
+
 }

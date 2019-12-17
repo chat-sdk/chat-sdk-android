@@ -52,6 +52,7 @@ import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
@@ -83,7 +84,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     // Should we remove the user from the public chat when we stop this activity?
     // If we are showing a temporary screen like the sticker text screen
     // this should be set to no
-    protected boolean removeUserFromChatOnExit = ChatSDK.config().publicChatAutoSubscriptionEnabled;
+    protected boolean removeUserFromChatOnExit = !ChatSDK.config().publicChatAutoSubscriptionEnabled;
 
     protected enum ListPosition {
         Top, Current, Bottom
@@ -231,8 +232,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     MessageSendStatus status = progress.getStatus();
 
                     if (status == MessageSendStatus.Sending || status == MessageSendStatus.Created) {
-                        if(messageListAdapter.addRow(progress.message, false, true, progress.uploadProgress, true)) {
-                            scrollListTo(ListPosition.Bottom, false);
+                        // Add this so that the message only appears after it's been sent
+                        if (ChatSDK.encryption() == null) {
+                            if(messageListAdapter.addRow(progress.message, false, true, progress.uploadProgress, true)) {
+                                scrollListTo(ListPosition.Bottom, false);
+                            }
                         }
                     }
                     if (status == MessageSendStatus.Uploading || status == MessageSendStatus.Sent) {
@@ -423,7 +427,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             return;
         }
 
-
         handleMessageSend(ChatSDK.thread().sendMessageWithText(text.trim(), thread));
 
         if (clearEditText && textInputView != null) {
@@ -496,7 +499,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onResume() {
         super.onResume();
 
-        removeUserFromChatOnExit = ChatSDK.config().publicChatAutoSubscriptionEnabled;
+        removeUserFromChatOnExit = !ChatSDK.config().publicChatAutoSubscriptionEnabled;
 
         if (!updateThreadFromBundle(bundle)) {
             return;
@@ -569,7 +572,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         stopTyping(true);
         markRead();
 
-        if (thread != null && thread.typeIs(ThreadType.Public) && removeUserFromChatOnExit) {
+        if (thread != null && thread.typeIs(ThreadType.Public) && (removeUserFromChatOnExit || thread.metaValueForKey(Keys.Mute) != null)) {
             ChatSDK.thread().removeUsersFromThread(thread, ChatSDK.currentUser()).observeOn(AndroidSchedulers.mainThread()).subscribe(new CrashReportingCompletableObserver());
         }
     }
@@ -881,7 +884,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     @Override
     public void hideOptions() {
-        removeUserFromChatOnExit = ChatSDK.config().publicChatAutoSubscriptionEnabled;
+        removeUserFromChatOnExit = !ChatSDK.config().publicChatAutoSubscriptionEnabled;
         if(optionsHandler != null) {
             optionsHandler.hide();
         }

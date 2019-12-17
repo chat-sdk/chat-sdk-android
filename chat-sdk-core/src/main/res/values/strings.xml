@@ -178,7 +178,7 @@
     <!--Acceptability-->
     <string name="access_message_option_button">Message option button</string>
 
-    <!--    <string name="chat_sdk__action_settings">action_setting</string>-->
+        <string name="chat_sdk__action_settings">action_setting</string>
     <string name="action_logout">Logout</string>
     <string name="action_save">Save</string>
     <string name="action_chat">Chat</string>

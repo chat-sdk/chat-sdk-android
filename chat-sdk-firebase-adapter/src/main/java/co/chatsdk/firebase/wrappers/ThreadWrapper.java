@@ -8,6 +8,7 @@
 package co.chatsdk.firebase.wrappers;
 
 import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
@@ -234,7 +235,9 @@ public class ThreadWrapper  {
 
                     // If we remove this, then the thread will update twice for each text.
                     // That can fix a bug if the user's system time is wrong
-                    if (newMessage) {
+                    // For encryption, we want to refresh the thread after the message has been successfully delivered
+                    // This is because there was a bug whereby the message show show on the thread as "EncryptedMessage" for a second
+                    if (newMessage || ChatSDK.encryption() != null) {
                         emitter.onNext(message.getModel());
                     }
 
@@ -324,6 +327,7 @@ public class ThreadWrapper  {
                     .onChildAdded((snapshot, s, hasValue) -> {
                         final UserWrapper user = new UserWrapper(snapshot);
                         model.addUser(user.getModel());
+
                         ChatSDK.core().userOn(user.getModel()).subscribe(() -> e.onNext(user.getModel()), e::onError);
 
                     }).onChildRemoved((snapshot, hasValue) -> {
@@ -332,6 +336,19 @@ public class ThreadWrapper  {
                         // with this user
                         model.removeUser(user.getModel());
                         e.onNext(user.getModel());
+            }).onChildChanged((snapshot, s, hasValue) -> {
+                if (snapshot.getValue() instanceof HashMap && snapshot.getKey().equals(ChatSDK.currentUserID())) {
+                    HashMap<String, Object> value = (HashMap<String, Object>) snapshot.getValue();
+                    // Mute Value
+                    if (value.get(Keys.Mute) instanceof Boolean) {
+                        Boolean muted = (Boolean) value.get(Keys.Mute);
+                        if (muted) {
+                            model.setMetaValue(Keys.Mute, "");
+                        } else {
+                            model.removeMetaValue(Keys.Mute);
+                        }
+                    }
+                }
             }));
 
             FirebaseReferenceManager.shared().addRef(ref, listener);
