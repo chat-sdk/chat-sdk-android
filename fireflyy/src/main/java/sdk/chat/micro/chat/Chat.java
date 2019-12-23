@@ -31,6 +31,7 @@ import sdk.chat.micro.message.Message;
 import sdk.chat.micro.message.Sendable;
 import sdk.chat.micro.message.TextMessage;
 import sdk.chat.micro.message.TypingState;
+import sdk.chat.micro.namespace.Fire;
 import sdk.chat.micro.namespace.MicroUser;
 import sdk.chat.micro.rx.MultiQueueSubject;
 import sdk.chat.micro.types.DeliveryReceiptType;
@@ -153,7 +154,7 @@ public class Chat extends AbstractChat {
         ArrayList<Completable> completables = new ArrayList<>();
         for (User user : users) {
             if (!user.isMe()) {
-                completables.add(Fireflyy.shared().sendInvitation(user.id, InvitationType.chat(), id).ignoreElement());
+                completables.add(Fire.flyy.sendInvitation(user.id, InvitationType.chat(), id).ignoreElement());
             }
         }
         return Completable.merge(completables);

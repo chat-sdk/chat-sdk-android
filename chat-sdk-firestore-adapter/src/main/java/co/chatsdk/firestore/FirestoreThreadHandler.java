@@ -19,6 +19,7 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
 import sdk.chat.micro.Fireflyy;
 import sdk.chat.micro.chat.Chat;
+import sdk.chat.micro.namespace.Fire;
 import sdk.chat.micro.namespace.MicroUser;
 import sdk.chat.micro.rx.DisposableList;
 import sdk.chat.micro.types.RoleType;
@@ -36,14 +37,11 @@ public class FirestoreThreadHandler extends FirebaseThreadHandler {
 
         if (message.getThread().getType() == ThreadType.Private1to1) {
             User otherUser = message.getThread().otherUser();
-            return Fireflyy.shared().sendMessageWithBody(otherUser.getEntityID(), messageBody)
+            return Fire.flyy.sendMessageWithBody(otherUser.getEntityID(), messageBody)
                     .doOnSuccess(message::setEntityID)
                     .ignoreElement();
-//            return Fireflyy.shared().send(otherUser.getEntityID(), sendable)
-//                    .doOnSuccess(text::setEntityID)
-//                    .ignoreElement();
         } else {
-            Chat chat = Fireflyy.shared().getChat(message.getThread().getEntityID());
+            Chat chat = Fire.flyy.getChat(message.getThread().getEntityID());
             if (chat != null) {
                 return chat.sendMessageWithBody(messageBody)
                         .doOnSuccess(message::setEntityID)
@@ -133,7 +131,7 @@ public class FirestoreThreadHandler extends FirebaseThreadHandler {
                 }
 
                 // We need to actually create the chat
-                disposableList.add(Fireflyy.shared().createChat(name, imageURL, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
+                disposableList.add(Fire.flyy.createChat(name, imageURL, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
                     if (throwable == null) {
                         finalThread.setEntityID(groupChat.getId());
                         e.onSuccess(finalThread);

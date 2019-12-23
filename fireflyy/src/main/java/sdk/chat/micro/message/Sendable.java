@@ -9,6 +9,7 @@ import java.util.HashMap;
 import sdk.chat.micro.Fireflyy;
 import sdk.chat.micro.firestore.Keys;
 import sdk.chat.micro.firestore.Message;
+import sdk.chat.micro.namespace.Fire;
 import sdk.chat.micro.types.BaseType;
 
 @IgnoreExtraProperties
@@ -18,7 +19,7 @@ public class Sendable extends Message {
     public String id;
 
     public Sendable() {
-        from = Fireflyy.shared().currentUserId();
+        from = Fire.flyy.currentUserId();
     }
 
     @SuppressWarnings("unchecked")

@@ -5,6 +5,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import sdk.chat.micro.Fireflyy;
+import sdk.chat.micro.namespace.Fire;
 
 public class Paths extends Keys {
 
@@ -41,7 +42,7 @@ public class Paths extends Keys {
     }
 
     protected static String currentUid () {
-        return Fireflyy.shared().currentUserId();
+        return Fire.flyy.currentUserId();
     }
 
     public static CollectionReference contactsRef() {

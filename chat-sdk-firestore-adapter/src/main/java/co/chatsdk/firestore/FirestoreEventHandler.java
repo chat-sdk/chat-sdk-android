@@ -22,6 +22,7 @@ import sdk.chat.micro.Fireflyy;
 import co.chatsdk.core.dao.Thread;
 import sdk.chat.micro.chat.Chat;
 import sdk.chat.micro.events.EventType;
+import sdk.chat.micro.namespace.Fire;
 import sdk.chat.micro.namespace.MicroMessage;
 import sdk.chat.micro.types.RoleType;
 
@@ -34,7 +35,7 @@ public class FirestoreEventHandler extends FirebaseEventHandler implements Consu
 
     protected void threadsOn(User chatSDKUser) {
 
-        disposableList.add(Fireflyy.shared().getChatEvents().subscribe(chatEvent -> {
+        disposableList.add(Fire.flyy.getChatEvents().subscribe(chatEvent -> {
             if (chatEvent.type == EventType.Added) {
                 Chat chat = chatEvent.chat;
 
@@ -88,7 +89,7 @@ public class FirestoreEventHandler extends FirebaseEventHandler implements Consu
             }
         }));
 
-        disposableList.add(Fireflyy.shared().getStream().getMicroMessages().subscribe(message -> {
+        disposableList.add(Fire.flyy.getStream().getMicroMessages().subscribe(message -> {
             // Get the user
             disposableList.add(APIHelper.fetchRemoteUser(message.from).subscribe(user -> {
 
@@ -148,7 +149,7 @@ public class FirestoreEventHandler extends FirebaseEventHandler implements Consu
 
     @Override
     protected void contactsOn (User chatSDKUser) {
-        disposableList.add(Fireflyy.shared().getContactEvents().subscribe(userEvent -> {
+        disposableList.add(Fire.flyy.getContactEvents().subscribe(userEvent -> {
             User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEvent.user.id);
             if (userEvent.type == EventType.Added) {
                 disposableList.add(ChatSDK.core().userOn(contact).subscribe(() -> {

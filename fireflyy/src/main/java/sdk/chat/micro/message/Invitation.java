@@ -4,6 +4,7 @@ import com.google.firebase.firestore.Exclude;
 
 import io.reactivex.Completable;
 import sdk.chat.micro.Fireflyy;
+import sdk.chat.micro.namespace.Fire;
 import sdk.chat.micro.types.InvitationType;
 import sdk.chat.micro.types.SendableType;
 
@@ -34,7 +35,7 @@ public class Invitation extends Sendable {
     public Completable accept() {
         if (getBodyType().equals(InvitationType.chat())) {
             try {
-                return Fireflyy.shared().joinChat(getChatId());
+                return Fire.flyy.joinChat(getChatId());
             } catch (Exception e) {
                 return Completable.error(e);
             }

@@ -5,6 +5,7 @@ import com.google.firebase.firestore.FieldValue;
 import java.util.HashMap;
 
 import sdk.chat.micro.firestore.Keys;
+import sdk.chat.micro.namespace.Fire;
 import sdk.chat.micro.types.ContactType;
 import sdk.chat.micro.types.RoleType;
 
@@ -37,11 +38,11 @@ public class User {
     }
 
     public boolean isMe() {
-        return id.equals(Fireflyy.shared().currentUserId());
+        return id.equals(Fire.flyy.currentUserId());
     }
 
     public static User currentUser(RoleType role) {
-        return new User(Fireflyy.shared().currentUserId(), role);
+        return new User(Fire.flyy.currentUserId(), role);
     }
 
     public static User currentUser() {
