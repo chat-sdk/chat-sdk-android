@@ -12,7 +12,7 @@ import sdk.chat.micro.message.TypingState;
 import sdk.chat.micro.namespace.MicroMessage;
 import sdk.chat.micro.rx.MultiQueueSubject;
 
-public class Stream {
+public class Events {
 
     protected MultiQueueSubject<Message> messages = MultiQueueSubject.create();
     protected MultiQueueSubject<DeliveryReceipt> deliveryReceipts = MultiQueueSubject.create();
@@ -37,7 +37,7 @@ public class Stream {
      * exists is because Message is a very common class name. If for any reason
      * your project already has a Message object, you can use the MicroMessage
      * to avoid a naming clash
-     * @return stream of messages
+     * @return events of messages
      */
     public Observable<MicroMessage> getMicroMessages() {
         return messages.map(MicroMessage::fromMessage).hide();

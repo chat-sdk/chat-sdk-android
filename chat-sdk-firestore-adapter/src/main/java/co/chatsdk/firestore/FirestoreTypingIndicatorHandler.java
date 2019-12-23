@@ -8,9 +8,9 @@ import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import io.reactivex.Completable;
-import sdk.chat.micro.Fireflyy;
 import sdk.chat.micro.chat.Chat;
 import sdk.chat.micro.namespace.Fire;
+import sdk.chat.micro.namespace.Fly;
 import sdk.chat.micro.rx.DisposableList;
 import sdk.chat.micro.types.TypingStateType;
 
@@ -19,7 +19,7 @@ public class FirestoreTypingIndicatorHandler implements TypingIndicatorHandler {
     private DisposableList disposableList = new DisposableList();
 
     public FirestoreTypingIndicatorHandler () {
-        disposableList.add(Fire.flyy.getStream().getTypingStates().subscribe(typingState -> {
+        disposableList.add(Fly.y.getEvents().getTypingStates().subscribe(typingState -> {
             // Get the sender
             String senderId = typingState.from;
 
@@ -60,9 +60,9 @@ public class FirestoreTypingIndicatorHandler implements TypingIndicatorHandler {
 
         if (thread.typeIs(ThreadType.Private1to1)) {
             User otherUser = thread.otherUser();
-            return Fire.flyy.sendTypingIndicator(otherUser.getEntityID(), typingStateType).ignoreElement();
+            return Fly.y.sendTypingIndicator(otherUser.getEntityID(), typingStateType).ignoreElement();
         } else {
-            Chat chat = Fire.flyy.getChat(thread.getEntityID());
+            Chat chat = Fly.y.getChat(thread.getEntityID());
             if (chat != null) {
                 return chat.sendTypingIndicator(typingStateType).ignoreElement();
             } else {

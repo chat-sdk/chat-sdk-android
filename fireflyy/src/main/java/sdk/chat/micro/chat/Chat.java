@@ -20,7 +20,6 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
-import sdk.chat.micro.Fireflyy;
 import sdk.chat.micro.User;
 import sdk.chat.micro.events.EventType;
 import sdk.chat.micro.events.UserEvent;
@@ -32,6 +31,7 @@ import sdk.chat.micro.message.Sendable;
 import sdk.chat.micro.message.TextMessage;
 import sdk.chat.micro.message.TypingState;
 import sdk.chat.micro.namespace.Fire;
+import sdk.chat.micro.namespace.Fly;
 import sdk.chat.micro.namespace.MicroUser;
 import sdk.chat.micro.rx.MultiQueueSubject;
 import sdk.chat.micro.types.DeliveryReceiptType;
@@ -66,7 +66,7 @@ public class Chat extends AbstractChat {
 
         // If delivery receipts are enabled, send the delivery receipt
         if (config.deliveryReceiptsEnabled) {
-            dl.add(getStream().getMessages().pastAndNewEvents().flatMapSingle(message -> sendDeliveryReceipt(DeliveryReceiptType.received(), message.id))
+            dl.add(getEvents().getMessages().pastAndNewEvents().flatMapSingle(message -> sendDeliveryReceipt(DeliveryReceiptType.received(), message.id))
                     .doOnError(this)
                     .subscribe());
         }
@@ -87,7 +87,7 @@ public class Chat extends AbstractChat {
             @Override
             public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
                 if (e != null) {
-                    stream.impl_throwablePublishSubject().onNext(e);
+                    events.impl_throwablePublishSubject().onNext(e);
                 }
                 else if (snapshot != null && snapshot.exists()) {
                     HashMap<String, Object> meta = (HashMap<String, Object>) snapshot.getData().get(Keys.Meta);
@@ -154,7 +154,7 @@ public class Chat extends AbstractChat {
         ArrayList<Completable> completables = new ArrayList<>();
         for (User user : users) {
             if (!user.isMe()) {
-                completables.add(Fire.flyy.sendInvitation(user.id, InvitationType.chat(), id).ignoreElement());
+                completables.add(Fly.y.sendInvitation(user.id, InvitationType.chat(), id).ignoreElement());
             }
         }
         return Completable.merge(completables);
@@ -260,6 +260,18 @@ public class Chat extends AbstractChat {
             }
         }
         return result;
+    }
+
+    /**
+     * Update the role for a user - whether you can do this will
+     * depend on your admin level
+     * @param user to change role
+     * @param roleType new role
+     * @return completion
+     */
+    public Completable setRole(User user, RoleType roleType) {
+        user.roleType = roleType;
+        return updateUser(user);
     }
 
     @Override

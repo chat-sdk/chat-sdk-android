@@ -6,6 +6,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FieldValue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +66,7 @@ public class Fireflyy extends AbstractChat {
                 try {
                     connect();
                 } catch (Exception e) {
-                    stream.impl_throwablePublishSubject().onNext(e);
+                    events.impl_throwablePublishSubject().onNext(e);
                 }
             } else {
                 disconnect();
@@ -90,7 +91,7 @@ public class Fireflyy extends AbstractChat {
         // MESSAGE DELETION
 
         // We always delete typing state and delivery receipt messages
-        Observable<Sendable> stream = getStream().getSendables().pastAndNewEvents();
+        Observable<Sendable> stream = getEvents().getSendables().pastAndNewEvents();
         if (!config.deleteMessagesOnReceipt) {
             stream = stream.filter(MessageStreamFilter.bySendableType(SendableType.typingState(), SendableType.deliveryReceipt()));
         }
@@ -99,7 +100,7 @@ public class Fireflyy extends AbstractChat {
 
         // DELIVERY RECEIPTS
 
-        dl.add(getStream().getMessages().pastAndNewEvents().subscribe(message -> {
+        dl.add(getEvents().getMessages().pastAndNewEvents().subscribe(message -> {
             // If delivery receipts are enabled, send the delivery receipt
             if (config.deliveryReceiptsEnabled) {
                 dl.add(sendDeliveryReceipt(message.from, DeliveryReceiptType.received(), message.id)
@@ -117,7 +118,7 @@ public class Fireflyy extends AbstractChat {
 
         // INVITATIONS
 
-        dl.add(getStream().getInvitations().pastAndNewEvents().flatMapCompletable(invitation -> {
+        dl.add(getEvents().getInvitations().pastAndNewEvents().flatMapCompletable(invitation -> {
             if (config.autoAcceptChatInvite) {
                 return invitation.accept();
             }
@@ -170,7 +171,7 @@ public class Fireflyy extends AbstractChat {
             }
         }));
 
-        // Connect to the message stream AFTER we have added our stream listeners
+        // Connect to the message events AFTER we have added our events listeners
         super.connect();
     }
 
@@ -270,6 +271,10 @@ public class Fireflyy extends AbstractChat {
     //
     // Chats
     //
+
+    public Single<Chat> createChat(String name, String avatarURL, User... users) {
+        return createChat(name, avatarURL, Arrays.asList(users));
+    }
 
     public Single<Chat> createChat(String name, String avatarURL, List<User> users) {
         return Chat.create(name, avatarURL, users).flatMap(groupChat -> {

@@ -12,8 +12,8 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.ReplaySubject;
 
 /**
- * The MultiQueueSubject is a versatile stream object. It has a number of options:
- * The main function of this stream is to cache events until there is a consumer available to
+ * The MultiQueueSubject is a versatile events object. It has a number of options:
+ * The main function of this events is to cache events until there is a consumer available to
  * consume them. This means that if a new emitter is added, unconsumed events will be
  * emitted once and then new events will be emitted as they arise. For example:
  *
@@ -118,27 +118,27 @@ public class MultiQueueSubject<T> extends Observable<T> implements Observer<T> {
     }
 
     /**
-     * Get a stream of only new events. For example in the sequence: 1, 2, [subscribed], 3, 4,
+     * Get a events of only new events. For example in the sequence: 1, 2, [subscribed], 3, 4,
      * only 3 and 4 would be emitted to teh observer
-     * @return a stream of new events
+     * @return a events of new events
      */
     public Observable<T> newEvents() {
         return publishSubject.hide();
     }
 
     /**
-     * Get a stream of all events. For example in the sequence: 1, 2, [subscribed], 3, 4,
+     * Get a events of all events. For example in the sequence: 1, 2, [subscribed], 3, 4,
      * 1, 2, 3, 4 would be emitted
-     * @return a stream of all events past and future
+     * @return a events of all events past and future
      */
     public Observable<T> pastAndNewEvents() {
         return replaySubject.hide();
     }
 
     /**
-     * Get a stream of the last and all future events. For example in the sequence: 1, 2, [subscribed], 3, 4,
+     * Get a events of the last and all future events. For example in the sequence: 1, 2, [subscribed], 3, 4,
      * 2, 3, 4 would be emitted
-     * @return a stream of the last emitted event and all future events
+     * @return a events of the last emitted event and all future events
      */
     public Observable<T> currentAndNewEvents() {
         return behaviorSubject.hide();

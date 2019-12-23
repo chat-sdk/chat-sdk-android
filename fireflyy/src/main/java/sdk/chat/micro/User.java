@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import sdk.chat.micro.firestore.Keys;
 import sdk.chat.micro.namespace.Fire;
+import sdk.chat.micro.namespace.Fly;
 import sdk.chat.micro.types.ContactType;
 import sdk.chat.micro.types.RoleType;
 
@@ -38,11 +39,11 @@ public class User {
     }
 
     public boolean isMe() {
-        return id.equals(Fire.flyy.currentUserId());
+        return id.equals(Fly.y.currentUserId());
     }
 
     public static User currentUser(RoleType role) {
-        return new User(Fire.flyy.currentUserId(), role);
+        return new User(Fly.y.currentUserId(), role);
     }
 
     public static User currentUser() {

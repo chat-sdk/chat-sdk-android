@@ -18,11 +18,11 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.FirebaseEventHandler;
 import io.reactivex.functions.Consumer;
-import sdk.chat.micro.Fireflyy;
 import co.chatsdk.core.dao.Thread;
 import sdk.chat.micro.chat.Chat;
 import sdk.chat.micro.events.EventType;
 import sdk.chat.micro.namespace.Fire;
+import sdk.chat.micro.namespace.Fly;
 import sdk.chat.micro.namespace.MicroMessage;
 import sdk.chat.micro.types.RoleType;
 
@@ -35,7 +35,7 @@ public class FirestoreEventHandler extends FirebaseEventHandler implements Consu
 
     protected void threadsOn(User chatSDKUser) {
 
-        disposableList.add(Fire.flyy.getChatEvents().subscribe(chatEvent -> {
+        disposableList.add(Fly.y.getChatEvents().subscribe(chatEvent -> {
             if (chatEvent.type == EventType.Added) {
                 Chat chat = chatEvent.chat;
 
@@ -83,13 +83,13 @@ public class FirestoreEventHandler extends FirebaseEventHandler implements Consu
                     }
                 }));
 
-                disposableList.add(chat.getStream().getMicroMessages().subscribe(message -> {
+                disposableList.add(chat.getEvents().getMicroMessages().subscribe(message -> {
                     handleMessageForThread(message, finalThread);
                 }));
             }
         }));
 
-        disposableList.add(Fire.flyy.getStream().getMicroMessages().subscribe(message -> {
+        disposableList.add(Fly.y.getEvents().getMicroMessages().subscribe(message -> {
             // Get the user
             disposableList.add(APIHelper.fetchRemoteUser(message.from).subscribe(user -> {
 
@@ -149,7 +149,7 @@ public class FirestoreEventHandler extends FirebaseEventHandler implements Consu
 
     @Override
     protected void contactsOn (User chatSDKUser) {
-        disposableList.add(Fire.flyy.getContactEvents().subscribe(userEvent -> {
+        disposableList.add(Fly.y.getContactEvents().subscribe(userEvent -> {
             User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEvent.user.id);
             if (userEvent.type == EventType.Added) {
                 disposableList.add(ChatSDK.core().userOn(contact).subscribe(() -> {

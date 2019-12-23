@@ -24,7 +24,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import sdk.chat.micro.Config;
-import sdk.chat.micro.Fireflyy;
 import sdk.chat.micro.User;
 import sdk.chat.micro.events.Event;
 import sdk.chat.micro.events.EventType;
@@ -38,6 +37,7 @@ import sdk.chat.micro.message.Presence;
 import sdk.chat.micro.message.Sendable;
 import sdk.chat.micro.message.TypingState;
 import sdk.chat.micro.namespace.Fire;
+import sdk.chat.micro.namespace.Fly;
 import sdk.chat.micro.rx.DisposableList;
 import sdk.chat.micro.types.SendableType;
 
@@ -65,9 +65,9 @@ public abstract class AbstractChat implements Consumer<Throwable> {
     protected DisposableList dl = new DisposableList();
 
     /**
-     * Event stream
+     * Event events
      */
-    protected Stream stream = new Stream();
+    protected Events events = new Events();
 
     /**
      * A list of all sendables received
@@ -80,27 +80,27 @@ public abstract class AbstractChat implements Consumer<Throwable> {
     protected Config config = new Config();
 
     /**
-     * Error handler method so we can redirect all errors to the error stream
-     * @param throwable - the stream error
+     * Error handler method so we can redirect all errors to the error events
+     * @param throwable - the events error
      * @throws Exception
      */
     @Override
     public void accept(Throwable throwable) throws Exception {
-        stream.errors.onError(throwable);
+        events.errors.onError(throwable);
     }
 
     /**
      * Start listening to the current message reference and retrieve all messages
-     * @return a stream of message results
+     * @return a events of message results
      */
     protected Observable<MessageResult> messagesOn() {
         return messagesOn(null);
     }
 
     /**
-     * Start listening to the current message reference and pass the messages to the stream
+     * Start listening to the current message reference and pass the messages to the events
      * @param newerThan only listen for messages after this date
-     * @return a stream of message results
+     * @return a events of message results
      */
     protected Observable<MessageResult> messagesOn(Date newerThan) {
         return Observable.create((ObservableOnSubscribe<MessageResult>)emitter -> {
@@ -119,7 +119,7 @@ public abstract class AbstractChat implements Consumer<Throwable> {
                         if (c.getType() == DocumentChange.Type.ADDED) {
                             MessageResult mr = messageResultFromSnapshot(ds);
                             if (mr != null) {
-                                getStream().getSendables().onNext(mr.sendable);
+                                getEvents().getSendables().onNext(mr.sendable);
                             }
                             sendables.add(mr.sendable);
                             emitter.onNext(mr);
@@ -131,7 +131,7 @@ public abstract class AbstractChat implements Consumer<Throwable> {
 //                        sendables.add(mr.sendable);
 //                    }
                 } else if (e != null) {
-                    stream.impl_throwablePublishSubject().onNext(e);
+                    events.impl_throwablePublishSubject().onNext(e);
                 }
             }));
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
@@ -158,7 +158,7 @@ public abstract class AbstractChat implements Consumer<Throwable> {
      * @param fromDate get messages from this date
      * @param toDate get messages until this date
      * @param limit limit the maximum number of messages
-     * @return a stream of message results
+     * @return a events of message results
      */
     public Observable<MessageResult> messagesOnce(@Nullable Date fromDate, @Nullable Date toDate, @Nullable Integer limit) {
         return Observable.create((ObservableOnSubscribe<MessageResult>)emitter -> {
@@ -200,7 +200,7 @@ public abstract class AbstractChat implements Consumer<Throwable> {
         return Single.create((SingleOnSubscribe<Date>) emitter -> {
             Query query = messagesRef().whereEqualTo(Keys.Type, SendableType.DeliveryReceipt);
 
-            query = query.whereEqualTo(Keys.From, Fire.flyy.currentUserId());
+            query = query.whereEqualTo(Keys.From, Fly.y.currentUserId());
             query = query.orderBy(Keys.Date, Query.Direction.DESCENDING);
             query = query.limit(1);
 
@@ -222,7 +222,7 @@ public abstract class AbstractChat implements Consumer<Throwable> {
     /**
      * Listen for changes in the value of a list reference
      * @param ref the Firestore ref to listen to
-     * @return stream of list events
+     * @return events of list events
      */
     protected Observable<ListEvent> listChangeOn(CollectionReference ref) {
         return Observable.create((ObservableOnSubscribe<ListEvent>) emitter -> {
@@ -439,7 +439,7 @@ public abstract class AbstractChat implements Consumer<Throwable> {
     }
 
     /**
-     * Convenience method to cast sendables and send them to the correct stream
+     * Convenience method to cast sendables and send them to the correct events
      * @param mr message result
      */
     protected void passMessageResultToStream(MessageResult mr) {
@@ -448,19 +448,19 @@ public abstract class AbstractChat implements Consumer<Throwable> {
         DocumentSnapshot s = mr.snapshot;
 
         if (sendable.type.equals(SendableType.Message)) {
-            stream.getMessages().onNext(messageForSnapshot(s));
+            events.getMessages().onNext(messageForSnapshot(s));
         }
         if (sendable.type.equals(SendableType.DeliveryReceipt)) {
-            stream.getDeliveryReceipts().onNext(deliveryReceiptForSnapshot(s));
+            events.getDeliveryReceipts().onNext(deliveryReceiptForSnapshot(s));
         }
         if (sendable.type.equals(SendableType.TypingState)) {
-            stream.getTypingStates().onNext(typingStateForSnapshot(s));
+            events.getTypingStates().onNext(typingStateForSnapshot(s));
         }
         if (sendable.type.equals(SendableType.Invitation)) {
-            stream.getInvitations().onNext(invitationForSnapshot(s));
+            events.getInvitations().onNext(invitationForSnapshot(s));
         }
         if (sendable.type.equals(SendableType.Presence)) {
-            stream.getPresences().onNext(presenceForSnapshot(s));
+            events.getPresences().onNext(presenceForSnapshot(s));
         }
 
     }
@@ -532,11 +532,11 @@ public abstract class AbstractChat implements Consumer<Throwable> {
     }
 
     /**
-     * returns the stream object which exposes the different sendable streams
-     * @return stream
+     * returns the events object which exposes the different sendable streams
+     * @return events
      */
-    public Stream getStream() {
-        return stream;
+    public Events getEvents() {
+        return events;
     }
 
     /**
