@@ -3,12 +3,17 @@ package co.chatsdk.core.api;
 import android.app.Activity;
 import android.content.Context;
 
+import java.util.concurrent.Callable;
+
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import co.chatsdk.core.dao.Thread;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -20,7 +25,7 @@ public class APIHelper {
      * @param userEntityID
      * @return
      */
-    public Single<Thread> createPrivateChatWithUser (String userEntityID) {
+    public static Single<Thread> createPrivateChatWithUser (String userEntityID) {
         return ChatSDK.thread().createThread("", ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEntityID));
     }
 
@@ -31,12 +36,17 @@ public class APIHelper {
      * @param userEntityID
      * @return
      */
-    public Completable startPrivateChatActivityWithUser (Context context, String userEntityID) {
+    public static Completable startPrivateChatActivityWithUser (Context context, String userEntityID) {
         return createPrivateChatWithUser(userEntityID).doOnSuccess(thread -> {
             // Start the chat activity
             ChatSDK.ui().startChatActivityForID(context, userEntityID);
         }).ignoreElement();
     }
 
-
+    public static Single<User> fetchRemoteUser(String userEntityID) {
+        return Single.create((SingleOnSubscribe<User>) emitter -> {
+            User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEntityID);
+            emitter.onSuccess(user);
+        }).flatMap(user -> ChatSDK.core().userOn(user).toSingle(() -> user));
+    }
 }

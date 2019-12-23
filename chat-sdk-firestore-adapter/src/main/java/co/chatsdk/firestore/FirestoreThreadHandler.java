@@ -12,17 +12,14 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageType;
 import co.chatsdk.firebase.FirebaseThreadHandler;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
 import sdk.chat.micro.MicroChatSDK;
-import sdk.chat.micro.chat.GroupChat;
-import sdk.chat.micro.message.CustomMessage;
-import sdk.chat.micro.message.Sendable;
-import sdk.chat.micro.message.TextMessage;
+import sdk.chat.micro.chat.Chat;
+import sdk.chat.micro.namespace.MicroUser;
 import sdk.chat.micro.rx.DisposableList;
 import sdk.chat.micro.types.RoleType;
 
@@ -46,13 +43,13 @@ public class FirestoreThreadHandler extends FirebaseThreadHandler {
 //                    .doOnSuccess(text::setEntityID)
 //                    .ignoreElement();
         } else {
-            GroupChat groupChat = MicroChatSDK.shared().getGroupChat(message.getThread().getEntityID());
-            if (groupChat != null) {
-                return groupChat.sendMessageWithBody(messageBody)
+            Chat chat = MicroChatSDK.shared().getChat(message.getThread().getEntityID());
+            if (chat != null) {
+                return chat.sendMessageWithBody(messageBody)
                         .doOnSuccess(message::setEntityID)
                         .ignoreElement();
             } else {
-                return Completable.error(new Throwable("Group chat doesn't exist"));
+                return Completable.error(new Throwable("Chat chat doesn't exist"));
             }
         }
     }
@@ -128,15 +125,15 @@ public class FirestoreThreadHandler extends FirebaseThreadHandler {
                 }
             } else {
 
-                ArrayList<GroupChat.User> usersToAdd = new ArrayList<>();
+                ArrayList<MicroUser> usersToAdd = new ArrayList<>();
                 for (User u : allUsers) {
                     if (!u.isMe()) {
-                        usersToAdd.add(new GroupChat.User(u.getEntityID(), RoleType.member()));
+                        usersToAdd.add(new MicroUser(u.getEntityID(), RoleType.member()));
                     }
                 }
 
-                // We need to actually create the group
-                disposableList.add(MicroChatSDK.shared().createGroupChat(name, imageURL, usersToAdd).subscribe((groupChat, throwable) -> {
+                // We need to actually create the chat
+                disposableList.add(MicroChatSDK.shared().createChat(name, imageURL, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
                     if (throwable == null) {
                         finalThread.setEntityID(groupChat.getId());
                         e.onSuccess(finalThread);

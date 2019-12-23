@@ -3,14 +3,14 @@ package sdk.chat.micro.firestore;
 import java.util.Date;
 import java.util.HashMap;
 
-public class FSMessage {
+public class Message {
 
     public String from;
     public Date date = new Date();
     public HashMap<String, Object> body = new HashMap<>();
     public String type;
 
-    public FSMessage () {
+    public Message() {
 
     }
 

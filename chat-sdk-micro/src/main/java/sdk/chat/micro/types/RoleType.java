@@ -17,7 +17,7 @@ public class RoleType extends BaseType {
     public static String Admin = "admin";
 
     /**
-     * Standard member of the group, has write access but can't change roles
+     * Standard member of the chat, has write access but can't change roles
      */
     public static String Member = "member";
 
@@ -27,7 +27,7 @@ public class RoleType extends BaseType {
     public static String Watcher = "watcher";
 
     /**
-     * Cannot access the group, cannot be added
+     * Cannot access the chat, cannot be added
      */
     public static String Banned = "banned";
 

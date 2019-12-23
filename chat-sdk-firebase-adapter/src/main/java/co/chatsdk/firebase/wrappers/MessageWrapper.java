@@ -308,7 +308,7 @@ public class MessageWrapper  {
 
             String entityID = ChatSDK.currentUserID();
 
-            ReadStatus currentStatus = model.getReadStatus();
+            ReadStatus currentStatus = model.readStatusForUser(ChatSDK.currentUser());
 
             if (currentStatus.getValue() >= status.getValue()) {
                 emitter.onComplete();

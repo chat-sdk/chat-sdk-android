@@ -3,8 +3,6 @@ package sdk.chat.micro;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 
 import java.util.ArrayList;
@@ -15,12 +13,16 @@ import java.util.List;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.subjects.PublishSubject;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import sdk.chat.micro.chat.AbstractChat;
+import sdk.chat.micro.chat.Chat;
+import sdk.chat.micro.events.ChatEvent;
+import sdk.chat.micro.events.EventType;
+import sdk.chat.micro.events.UserEvent;
 import sdk.chat.micro.filter.MessageStreamFilter;
 import sdk.chat.micro.firestore.Keys;
 import sdk.chat.micro.firestore.Paths;
-import sdk.chat.micro.chat.GroupChat;
 import sdk.chat.micro.message.DeliveryReceipt;
 import sdk.chat.micro.message.Invitation;
 import sdk.chat.micro.message.Message;
@@ -28,6 +30,8 @@ import sdk.chat.micro.message.Presence;
 import sdk.chat.micro.message.Sendable;
 import sdk.chat.micro.message.TextMessage;
 import sdk.chat.micro.message.TypingState;
+import sdk.chat.micro.rx.MultiQueueSubject;
+import sdk.chat.micro.types.ContactType;
 import sdk.chat.micro.types.DeliveryReceiptType;
 import sdk.chat.micro.types.InvitationType;
 import sdk.chat.micro.types.PresenceType;
@@ -40,20 +44,18 @@ public class MicroChatSDK extends AbstractChat {
 
     protected FirebaseUser user;
 
-    public ArrayList<String> contacts = new ArrayList<>();
-    public ArrayList<String> blocked = new ArrayList<>();
+    protected ArrayList<User> contacts = new ArrayList<>();
+    protected ArrayList<User> blocked = new ArrayList<>();
 
-    protected PublishSubject<GroupChat> groupChatAddedStream = PublishSubject.create();
-    protected PublishSubject<GroupChat> groupChatRemovedStream = PublishSubject.create();
+    protected MultiQueueSubject<ChatEvent> chatEvents = MultiQueueSubject.create();
+    protected MultiQueueSubject<UserEvent> contactEvents = MultiQueueSubject.create();
+    protected MultiQueueSubject<UserEvent> blockedEvents = MultiQueueSubject.create();
 
     public static MicroChatSDK shared () {
         return instance;
     }
 
-    public Listener contactsChangedListener;
-    public Listener blockListChangedListener;
-
-    protected ArrayList<GroupChat> groupChats = new ArrayList<>();
+    protected ArrayList<Chat> chats = new ArrayList<>();
 
     public MicroChatSDK () {
 
@@ -63,7 +65,7 @@ public class MicroChatSDK extends AbstractChat {
                 try {
                     connect();
                 } catch (Exception e) {
-                    errorStream.onNext(e);
+                    stream.impl_throwablePublishSubject().onNext(e);
                 }
             } else {
                 disconnect();
@@ -79,17 +81,16 @@ public class MicroChatSDK extends AbstractChat {
     }
 
     public void connect () throws Exception {
+        disconnect();
 
         if (this.user == null) {
             throw new Exception("A user must be authenticated to connect");
         }
 
-        super.connect();
-
         // MESSAGE DELETION
 
         // We always delete typing state and delivery receipt messages
-        Observable<Sendable> stream = sendableStream;
+        Observable<Sendable> stream = getStream().getSendables().pastAndNewEvents();
         if (!config.deleteMessagesOnReceipt) {
             stream = stream.filter(MessageStreamFilter.bySendableType(SendableType.typingState(), SendableType.deliveryReceipt()));
         }
@@ -98,7 +99,7 @@ public class MicroChatSDK extends AbstractChat {
 
         // DELIVERY RECEIPTS
 
-        dl.add(messageStream.subscribe(message -> {
+        dl.add(getStream().getMessages().pastAndNewEvents().subscribe(message -> {
             // If delivery receipts are enabled, send the delivery receipt
             if (config.deliveryReceiptsEnabled) {
                 dl.add(sendDeliveryReceipt(message.from, DeliveryReceiptType.received(), message.id)
@@ -116,74 +117,70 @@ public class MicroChatSDK extends AbstractChat {
 
         // INVITATIONS
 
-        dl.add(invitationStream.flatMapCompletable(invitation -> {
-            if (config.autoAcceptGroupChatInvite) {
-                return joinGroupChat(invitation.getGroupUid());
+        dl.add(getStream().getInvitations().pastAndNewEvents().flatMapCompletable(invitation -> {
+            if (config.autoAcceptChatInvite) {
+                return invitation.accept();
             }
             return Completable.complete();
         }).doOnError(this).subscribe());
 
         // BLOCKED USERS
 
-        dl.add(listOn(Paths.blockedRef()).subscribe(map -> {
-            blocked.clear();
-            blocked.addAll(map.keySet());
-            if (blockListChangedListener != null) {
-                blockListChangedListener.onEvent();
+        dl.add(listChangeOn(Paths.blockedRef()).subscribe(listEvent -> {
+            UserEvent ue = UserEvent.from(listEvent);
+            if (ue.type == EventType.Added) {
+                blocked.add(ue.user);
             }
-        }, this));
+            if (ue.type == EventType.Removed) {
+                blocked.remove(ue.user);
+            }
+            blockedEvents.onNext(ue);
+        }));
 
         // CONTACTS
 
-        dl.add(listOn(Paths.contactsRef()).subscribe(map -> {
-            contacts.clear();
-            contacts.addAll(map.keySet());
-            if (contactsChangedListener != null) {
-                contactsChangedListener.onEvent();
+        dl.add(listChangeOn(Paths.contactsRef()).subscribe(listEvent -> {
+            UserEvent ue = UserEvent.from(listEvent);
+            if (ue.type == EventType.Added) {
+                contacts.add(ue.user);
             }
-        }, this));
+            else if (ue.type == EventType.Removed) {
+                contacts.remove(ue.user);
+            }
+            contactEvents.onNext(ue);
+        }));
 
         // CONNECT TO EXISTING GROUP CHATS
 
-        listenerRegistrations.add(Paths.userGroupChatsRef().addSnapshotListener((snapshot, e) -> {
-            if (snapshot != null) {
-                for (DocumentChange c : snapshot.getDocumentChanges()) {
-                    DocumentSnapshot s = c.getDocument();
-                    if (s.exists()) {
-
-                        String groupChatId = s.getId();
-                        GroupChat groupChat = getGroupChat(groupChatId);
-
-                        if (c.getType() == DocumentChange.Type.ADDED) {
-                            if (groupChat == null) {
-                                groupChat = new GroupChat(groupChatId);
-                            }
-                            try {
-                                groupChat.connect();
-                                MicroChatSDK.this.groupChatAddedStream.onNext(groupChat);
-
-                            } catch (Exception ex) {
-                                MicroChatSDK.this.errorStream.onNext(ex);
-                            }
-                        }
-                        if (c.getType() == DocumentChange.Type.REMOVED) {
-                            if (groupChat != null) {
-                                final GroupChat finalGroupChat = groupChat;
-                                dl.add(groupChat.removeUser(currentUserId()).subscribe(() -> {
-                                    groupChatRemovedStream.onNext(finalGroupChat);
-                                }, MicroChatSDK.this));
-                            }
-                        }
-                    }
-                }
+        dl.add(listChangeOn(Paths.userGroupChatsRef()).subscribe(listEvent -> {
+            ChatEvent chatEvent = ChatEvent.from(listEvent);
+            Chat chat = chatEvent.chat;
+            if (chatEvent.type == EventType.Added) {
+                chat.connect();
+                chats.add(chat);
+                chatEvents.onNext(chatEvent);
+            }
+            else if (chatEvent.type == EventType.Removed) {
+                dl.add(chat.leave().subscribe(() -> {
+                    chats.remove(chat);
+                    chatEvents.onNext(chatEvent);
+                }, this));
+            } else {
+                chatEvents.onNext(chatEvent);
             }
         }));
-   }
 
-    @Override
-    protected CollectionReference messagesRef() {
-        return Paths.messagesRef();
+        // Connect to the message stream AFTER we have added our stream listeners
+        super.connect();
     }
+
+    public String currentUserId() {
+        return user.getUid();
+    }
+
+    //
+    // Messages
+    //
 
     public Completable deleteSendable (Sendable sendable) {
         return deleteSendable(Paths.messageRef(sendable.id));
@@ -197,69 +194,8 @@ public class MicroChatSDK extends AbstractChat {
         return send(userId, new Invitation(type, groupId));
     }
 
-    public Single<String> send(String toId, Sendable sendable) {
-        return this.send(Paths.messagesRef(toId), sendable);
-    }
-
-    public String currentUserId() {
-        return user.getUid();
-    }
-
-    public Completable block(String userId) {
-        return addUserId(Paths.blockedRef(), userId, userId);
-    }
-
-    public Completable unblock(String userId) {
-        return removeUserId(Paths.blockedRef(), userId);
-    }
-
-    public Completable addContact(String userId) {
-        return addUserId(Paths.contactsRef(), userId, userId);
-    }
-
-    public Completable removeContact(String userId) {
-        return removeUserId(Paths.contactsRef(), userId);
-    }
-
-    public ArrayList<String> getContacts() {
-        return contacts;
-    }
-
-    public ArrayList<String> getBlocked() {
-        return blocked;
-    }
-
-    public Single<GroupChat> createGroupChat(String name, String avatarURL, List<GroupChat.User> users) {
-        return GroupChat.create(name, avatarURL, users).flatMap(groupChat -> {
-            return joinGroupChat(groupChat.getId()).toSingle(() -> groupChat);
-        });
-    }
-
-    public GroupChat getGroupChat(String id) {
-        for (GroupChat groupChat : groupChats) {
-            if (groupChat.getId().equals(id)) {
-                return groupChat;
-            }
-        }
-        return null;
-    }
-
-    public Completable leaveGroupChat(String id) {
-        return Completable.create(emitter -> {
-            Paths.userGroupChatsRef().document(id).delete().addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
-        });
-    }
-
-    protected Completable joinGroupChat(String id) {
-        return Completable.create(emitter -> {
-            HashMap<String, Object> data = new HashMap<>();
-            data.put(Keys.Date, FieldValue.serverTimestamp());
-            Paths.userGroupChatsRef().document(id).set(data).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
-        });
-    }
-
-    public List<GroupChat> getGroupChats() {
-        return groupChats;
+    public Single<String> send(String toUserId, Sendable sendable) {
+        return this.send(Paths.messagesRef(toUserId), sendable);
     }
 
     /**
@@ -294,6 +230,100 @@ public class MicroChatSDK extends AbstractChat {
         return send(userId, new Message(body));
     }
 
+    //
+    // Blocking
+    //
+
+    public Completable block(User user) {
+        return addUser(Paths.blockedRef(), User.dateDataProvider(), user);
+    }
+
+    public Completable unblock(User user) {
+        return removeUser(Paths.blockedRef(), user);
+    }
+
+    public ArrayList<User> getBlocked() {
+        return blocked;
+    }
+
+    public boolean isBlocked(User user) {
+        return blocked.contains(user);
+    }
+
+    //
+    // Contacts
+    //
+
+    public Completable addContact(User user, ContactType type) {
+        user.contactType = type;
+        return addUser(Paths.contactsRef(), User.contactTypeDataProvider(), user);
+    }
+
+    public Completable removeContact(User user) {
+        return removeUser(Paths.contactsRef(), user);
+    }
+
+    public ArrayList<User> getContacts() {
+        return contacts;
+    }
+
+    //
+    // Chats
+    //
+
+    public Single<Chat> createChat(String name, String avatarURL, List<User> users) {
+        return Chat.create(name, avatarURL, users).flatMap(groupChat -> {
+            return joinChat(groupChat.getId()).toSingle(() -> groupChat);
+        });
+    }
+
+    public Chat getChat(String chatId) {
+        for (Chat chat : chats) {
+            if (chat.getId().equals(chatId)) {
+                return chat;
+            }
+        }
+        return null;
+    }
+
+    public Completable leaveChat(String chatId) {
+        return Completable.create(emitter -> {
+            Paths.userGroupChatsRef().document(chatId).delete().addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public Completable joinChat(String chatId) {
+        return Completable.create(emitter -> {
+            HashMap<String, Object> data = new HashMap<>();
+            data.put(Keys.Date, FieldValue.serverTimestamp());
+            Paths.userGroupChatsRef().document(chatId).set(data).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public List<Chat> getChats() {
+        return chats;
+    }
+
+    //
+    // Events
+    //
+
+    public Observable<ChatEvent> getChatEvents() {
+        return chatEvents.hide();
+    }
+
+    public Observable<UserEvent> getBlockedEvents() {
+        return blockedEvents.hide();
+    }
+
+    public Observable<UserEvent> getContactEvents() {
+        return contactEvents.hide();
+    }
+
+    //
+    // Utility
+    //
+
     @Override
     protected Single<Date> dateOfLastDeliveryReceipt() {
         if (config.deleteMessagesOnReceipt) {
@@ -303,12 +333,8 @@ public class MicroChatSDK extends AbstractChat {
         }
     }
 
-    public PublishSubject<GroupChat> getGroupChatAddedStream() {
-        return groupChatAddedStream;
+    @Override
+    protected CollectionReference messagesRef() {
+        return Paths.messagesRef();
     }
-
-    public PublishSubject<GroupChat> getGroupChatRemovedStream() {
-        return groupChatRemovedStream;
-    }
-
 }

@@ -1,11 +1,13 @@
 package co.chatsdk.ui.chat.options;
 
 import android.app.Activity;
+import android.widget.Toast;
 
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 

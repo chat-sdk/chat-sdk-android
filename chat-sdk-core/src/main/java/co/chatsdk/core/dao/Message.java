@@ -359,9 +359,6 @@ public class Message extends AbstractEntity {
         int deliveredCount = 0;
         int readCount = 0;
         for(ReadReceiptUserLink link : getReadReceiptLinks()) {
-            if (link.getUser().getEntityID().equals(ChatSDK.currentUserID())) {
-                continue;
-            }
             if (link.getStatus() != ReadStatus.Hide) {
                 if (link.getStatus() == ReadStatus.Delivered) {
                     deliveredCount++;

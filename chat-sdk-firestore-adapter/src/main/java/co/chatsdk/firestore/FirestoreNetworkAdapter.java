@@ -13,6 +13,8 @@ public class FirestoreNetworkAdapter extends FirebaseNetworkAdapter {
         thread = new FirestoreThreadHandler();
 //        typingIndicator = new FirestoreTypingIndicatorHandler();
         readReceipts = new FirestoreReadReceiptHandler();
+        blocking = new FirestoreBlockingHandler();
+        contact = new FirestoreContactHandler();
 
     }
 

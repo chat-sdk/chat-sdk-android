@@ -2,7 +2,7 @@ package sdk.chat.micro.types;
 
 public class InvitationType extends BaseType {
 
-    public static String Group = "group";
+    public static String Chat = "chat";
 
     public InvitationType(String type) {
         super(type);
@@ -12,8 +12,8 @@ public class InvitationType extends BaseType {
         super(type);
     }
 
-    public static InvitationType group() {
-        return new InvitationType(Group);
+    public static InvitationType chat() {
+        return new InvitationType(Chat);
     }
 
 }

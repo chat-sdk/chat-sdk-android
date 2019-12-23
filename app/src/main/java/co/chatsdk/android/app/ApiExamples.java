@@ -197,7 +197,7 @@ public class ApiExamples {
     }
 
     /**
-     * To find out if a read receipt has been updated
+     * To find out if a read receipt has been modified
      */
     public void listenForReadReceiptUpdated () {
         Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {

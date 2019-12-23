@@ -16,7 +16,7 @@ public class Keys {
     public static String Messages = "messages";
     public static String Contacts = "contacts";
     public static String Blocked = "blocked";
-    public static String GroupChats = "group-chats";
+    public static String Chats = "chats";
     public static String Meta = "meta";
 
 }

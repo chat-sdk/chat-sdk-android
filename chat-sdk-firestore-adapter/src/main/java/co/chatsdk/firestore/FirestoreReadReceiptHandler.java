@@ -2,6 +2,7 @@ package co.chatsdk.firestore;
 
 import org.joda.time.DateTime;
 
+import co.chatsdk.core.api.APIHelper;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -19,12 +20,12 @@ public class FirestoreReadReceiptHandler implements ReadReceiptHandler {
     private DisposableList disposableList = new DisposableList();
 
     public FirestoreReadReceiptHandler () {
-        disposableList.add(MicroChatSDK.shared().getDeliveryReceiptStream().subscribe(deliveryReceipt -> {
+        disposableList.add(MicroChatSDK.shared().getStream().getDeliveryReceipts().subscribe(deliveryReceipt -> {
 
             // Get the sender
             String senderId = deliveryReceipt.from;
 
-            disposableList.add(UserHelper.fetchUser(senderId).subscribe(user -> {
+            disposableList.add(APIHelper.fetchRemoteUser(senderId).subscribe(user -> {
                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(senderId);
                 if (thread != null) {
                     // Get the text

@@ -4,8 +4,8 @@ import org.joda.time.DateTime;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Observable;
 
+import co.chatsdk.core.api.APIHelper;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
@@ -13,80 +13,91 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.MessageSendStatus;
-import co.chatsdk.core.types.MessageType;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.FirebaseEventHandler;
+import co.chatsdk.firebase.FirebasePaths;
+import co.chatsdk.firebase.FirebaseReferenceManager;
+import co.chatsdk.firebase.wrappers.ThreadWrapper;
+import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import sdk.chat.micro.MicroChatSDK;
 import co.chatsdk.core.dao.Thread;
-import sdk.chat.micro.chat.GroupChat;
-import sdk.chat.micro.message.TextMessage;
+import sdk.chat.micro.chat.Chat;
+import sdk.chat.micro.events.EventType;
+import sdk.chat.micro.namespace.MicroMessage;
 import sdk.chat.micro.rx.DisposableList;
+import sdk.chat.micro.types.RoleType;
 
-public class FirestoreEventHandler extends FirebaseEventHandler {
+public class FirestoreEventHandler extends FirebaseEventHandler implements Consumer<Throwable> {
 
-    protected DisposableList disposableList = new DisposableList();
+    @Override
+    public void impl_currentUserOn(final String entityID) {
+        super.impl_currentUserOn(entityID);
+    }
 
-    public FirestoreEventHandler () {
+    protected void threadsOn(User chatSDKUser) {
 
-        disposableList.add(MicroChatSDK.shared().getGroupChatAddedStream().subscribe(new Consumer<GroupChat>() {
-            @Override
-            public void accept(GroupChat groupChat) throws Exception {
+        disposableList.add(MicroChatSDK.shared().getChatEvents().subscribe(chatEvent -> {
+            if (chatEvent.type == EventType.Added) {
+                Chat chat = chatEvent.chat;
 
                 // Get the thread
-                Thread thread = ChatSDK.db().fetchThreadWithEntityID(groupChat.getId());
+                Thread thread = ChatSDK.db().fetchThreadWithEntityID(chat.getId());
                 if (thread == null) {
                     thread = DaoCore.getEntityForClass(Thread.class);
                     DaoCore.createEntity(thread);
-                    thread.setEntityID(groupChat.getId());
-                    thread.setType(ThreadType.Private1to1);
+                    thread.setEntityID(chat.getId());
+                    thread.setType(ThreadType.PrivateGroup);
                     thread.setCreationDate(new Date());
-                    // TODO:
-                    // Continue here
-//                    thread.setCreatorEntityId(groupChat.);
 
-                    // Add the sender
-//                    thread.addUsers(user, ChatSDK.currentUser());
+                    eventSource.onNext(NetworkEvent.threadAdded(thread));
+
                 }
 
-                // User roles
+                final Thread finalThread = thread;
 
-                groupChat.getMessageStream().subscribe(message -> {
+                // TODO: handle name image change
+                disposableList.add(chat.getNameStream().subscribe(s -> {
+                    finalThread.setName(s);
+                    eventSource.onNext(NetworkEvent.threadDetailsUpdated(finalThread));
+                }));
 
-                    Message chatSDKMessage = ChatSDK.db().createEntity(Message.class);
-//                    chatSDKMessage.setSender(user);
-                    chatSDKMessage.setMessageStatus(MessageSendStatus.Delivered);
-                    chatSDKMessage.setDate(new DateTime(message.date));
-                    chatSDKMessage.setEntityID(message.id);
+                disposableList.add(chat.getAvatarURLStream().subscribe(s -> {
+                    finalThread.setImageUrl(s);
+                    eventSource.onNext(NetworkEvent.threadDetailsUpdated(finalThread));
+                }));
 
-                    HashMap<String, Object> body = message.getBody();
-
-                    Object metaObject = body.get(Keys.Meta);
-                    if (metaObject instanceof HashMap) {
-                        HashMap<String, Object> meta = new HashMap<>((HashMap) metaObject);
-                        chatSDKMessage.setMetaValues(meta);
+                disposableList.add(chat.getUserEventStream().subscribe(userEvent -> {
+                    if (userEvent.type == EventType.Added) {
+                        disposableList.add(APIHelper.fetchRemoteUser(userEvent.user.id).subscribe(user -> {
+                            if (userEvent.getMicroUser().roleType.equals(RoleType.owner())) {
+                                finalThread.setCreator(user);
+                            }
+                            finalThread.addUser(user);
+                            ChatSDK.core().userOn(user).subscribe(new CrashReportingCompletableObserver());
+                            eventSource.onNext(NetworkEvent.threadUsersChanged(finalThread, user));
+                        }, this));
                     }
-
-                    Object typeObject = body.get(Keys.Type);
-                    if (typeObject instanceof Long) {
-                        Integer type = ((Long) typeObject).intValue();
-                        chatSDKMessage.setType(type);
+                    if (userEvent.type == EventType.Removed) {
+                        User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEvent.user.id);
+                        finalThread.removeUser(user);
+                        eventSource.onNext(NetworkEvent.threadUsersChanged(finalThread, user));
                     }
-                    if (typeObject instanceof Integer) {
-                        Integer type = (Integer) typeObject;
-                        chatSDKMessage.setType(type);
-                    }
+                }));
 
-                });
-
+                disposableList.add(chat.getStream().getMicroMessages().subscribe(message -> {
+                    handleMessageForThread(message, finalThread);
+                }));
             }
         }));
 
-        disposableList.add(MicroChatSDK.shared().getMessageStream().subscribe(message -> {
-
+        disposableList.add(MicroChatSDK.shared().getStream().getMicroMessages().subscribe(message -> {
             // Get the user
-            disposableList.add(UserHelper.fetchUser(message.from).subscribe(user -> {
+            disposableList.add(APIHelper.fetchRemoteUser(message.from).subscribe(user -> {
 
                 // Get the thread
                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(message.from);
@@ -96,52 +107,93 @@ public class FirestoreEventHandler extends FirebaseEventHandler {
                     thread.setEntityID(message.from);
                     thread.setType(ThreadType.Private1to1);
                     thread.setCreationDate(new Date());
-                    thread.setCreatorEntityId(message.from);
+                    thread.setCreator(user);
 
                     // Add the sender
                     thread.addUsers(user, ChatSDK.currentUser());
                 }
 
-                //                if (!thread.containsMessageWithID(text.id)) {
-                    Message chatSDKMessage = ChatSDK.db().createEntity(Message.class);
-                    chatSDKMessage.setSender(user);
-                    chatSDKMessage.setMessageStatus(MessageSendStatus.Delivered);
-                    chatSDKMessage.setDate(new DateTime(message.date));
-                    chatSDKMessage.setEntityID(message.id);
-
-                HashMap<String, Object> body = message.getBody();
-
-                Object metaObject = body.get(Keys.Meta);
-                if (metaObject instanceof HashMap) {
-                    HashMap<String, Object> meta = new HashMap<>((HashMap) metaObject);
-                    chatSDKMessage.setMetaValues(meta);
-                }
-
-                Object typeObject = body.get(Keys.Type);
-                if (typeObject instanceof Long) {
-                    Integer type = ((Long) typeObject).intValue();
-                    chatSDKMessage.setType(type);
-                }
-                if (typeObject instanceof Integer) {
-                    Integer type = (Integer) typeObject;
-                    chatSDKMessage.setType(type);
-                }
-
-                    // Make this more robust
-//                    chatSDKMessage.setText((String)text.getBody().get(TextMessage.TextKey));
-
-                    thread.addMessage(chatSDKMessage);
-
-                    eventSource.onNext(NetworkEvent.messageAdded(thread, chatSDKMessage));
-//                }
-
+                handleMessageForThread(message, thread);
             }));
         }));
     }
 
-    protected void threadsOn (User user) {
+    protected void handleMessageForThread(MicroMessage mm, Thread thread) {
+        disposableList.add(APIHelper.fetchRemoteUser(mm.from).subscribe(user -> {
+
+            Message message = ChatSDK.db().createEntity(Message.class);
+
+            message.setSender(user);
+            message.setMessageStatus(MessageSendStatus.Delivered);
+            message.setDate(new DateTime(mm.date));
+            message.setEntityID(mm.id);
+
+            HashMap<String, Object> body = mm.getBody();
+
+            Object metaObject = body.get(Keys.Meta);
+            if (metaObject instanceof HashMap) {
+                HashMap<String, Object> meta = new HashMap<>((HashMap) metaObject);
+                message.setMetaValues(meta);
+            }
+
+            Object typeObject = body.get(Keys.Type);
+
+            if (typeObject instanceof Long) {
+                Integer type = ((Long) typeObject).intValue();
+                message.setType(type);
+            }
+            if (typeObject instanceof Integer) {
+                Integer type = (Integer) typeObject;
+                message.setType(type);
+            }
+
+            thread.addMessage(message);
+
+            eventSource.onNext(NetworkEvent.messageAdded(thread, message));
+            }, this));
     }
+
+    @Override
+    protected void contactsOn (User chatSDKUser) {
+        disposableList.add(MicroChatSDK.shared().getContactEvents().subscribe(userEvent -> {
+            User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEvent.user.id);
+            if (userEvent.type == EventType.Added) {
+                disposableList.add(ChatSDK.core().userOn(contact).subscribe(() -> {
+                    ChatSDK.contact().addContactLocal(contact, ConnectionType.Contact);
+                    eventSource.onNext(NetworkEvent.contactAdded(contact));
+                }, this));
+            }
+            if (userEvent.type == EventType.Removed) {
+                ChatSDK.contact().deleteContactLocal(contact, ConnectionType.Contact);
+                eventSource.onNext(NetworkEvent.contactDeleted(contact));
+            }
+        }, this));
+    }
+
+    @Override
     protected void publicThreadsOn (User user) {
     }
 
+    @Override
+    public void impl_currentUserOff(final String entityID) {
+        super.impl_currentUserOff(entityID);
+    }
+
+    protected void threadsOff (User user) {
+
+    }
+
+    protected void publicThreadsOff (User user) {
+
+    }
+
+    protected void contactsOff (User user) {
+
+    }
+
+
+    @Override
+    public void accept(Throwable throwable) throws Exception {
+        throwable.printStackTrace();
+    }
 }

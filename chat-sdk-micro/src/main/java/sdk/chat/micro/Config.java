@@ -9,9 +9,9 @@ public class Config {
     public boolean deliveryReceiptsEnabled = true;
 
     /**
-     * Are group chat invites accepted automatically
+     * Are chat chat invites accepted automatically
      */
-    public boolean autoAcceptGroupChatInvite = true;
+    public boolean autoAcceptChatInvite = true;
 
     /**
      * If this is enabled, each time a message is received, it will be

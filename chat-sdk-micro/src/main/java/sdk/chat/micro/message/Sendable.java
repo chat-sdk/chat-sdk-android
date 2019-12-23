@@ -8,11 +8,11 @@ import java.util.HashMap;
 
 import sdk.chat.micro.MicroChatSDK;
 import sdk.chat.micro.firestore.Keys;
-import sdk.chat.micro.firestore.FSMessage;
+import sdk.chat.micro.firestore.Message;
 import sdk.chat.micro.types.BaseType;
 
 @IgnoreExtraProperties
-public class Sendable extends FSMessage {
+public class Sendable extends Message {
 
     @Exclude
     public String id;

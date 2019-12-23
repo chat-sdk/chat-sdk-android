@@ -38,10 +38,11 @@ public class MessagingService extends IntentService {
         if (action != null && action.equals(ActionKeys.REPLY)) {
 
             Bundle results = RemoteInput.getResultsFromIntent(intent);
-            String message = results.getString(REMOTE_INPUT_RESULT_KEY);
 
-            ChatSDK.thread().sendMessageWithText(message, thread).subscribe(new CrashReportingCompletableObserver());
-
+            if (results != null) {
+                String message = results.getString(REMOTE_INPUT_RESULT_KEY);
+                ChatSDK.thread().sendMessageWithText(message, thread).subscribe(new CrashReportingCompletableObserver());
+            }
         }
         if (action != null && action.equals(ActionKeys.MARK_AS_READ)) {
             if (ChatSDK.readReceipts() != null) {

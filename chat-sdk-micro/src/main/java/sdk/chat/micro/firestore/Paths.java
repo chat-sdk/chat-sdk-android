@@ -5,7 +5,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import sdk.chat.micro.MicroChatSDK;
-import sdk.chat.micro.message.Message;
 
 public class Paths extends Keys {
 
@@ -30,7 +29,7 @@ public class Paths extends Keys {
     }
 
     public static CollectionReference userGroupChatsRef () {
-        return userRef(currentUid()).collection(Keys.GroupChats);
+        return userRef(currentUid()).collection(Keys.Chats);
     }
 
     public static DocumentReference messageRef (String messageId) {
@@ -54,7 +53,7 @@ public class Paths extends Keys {
     }
 
     public static CollectionReference groupChatsRef() {
-        return db().collection(GroupChats);
+        return db().collection(Chats);
     }
 
     public static DocumentReference groupChatRef(String chatId) {
@@ -67,10 +66,6 @@ public class Paths extends Keys {
 
     public static CollectionReference groupChatUsersRef(String chatId) {
         return groupChatRef(chatId).collection(Users);
-    }
-
-    public static CollectionReference groupChatMetaRef(String chatId) {
-        return groupChatRef(chatId).collection(Meta);
     }
 
 }
