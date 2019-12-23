@@ -1,13 +1,13 @@
 package co.chatsdk.firestore;
 
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
-import sdk.chat.micro.MicroChatSDK;
+import sdk.chat.micro.Fireflyy;
 
 public class FirestoreNetworkAdapter extends FirebaseNetworkAdapter {
 
     public FirestoreNetworkAdapter () {
 
-        MicroChatSDK.shared().initialize();
+        Fireflyy.shared().initialize();
 
         events = new FirestoreEventHandler();
         thread = new FirestoreThreadHandler();

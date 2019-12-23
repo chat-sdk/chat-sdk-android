@@ -17,19 +17,12 @@ import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.FirebaseEventHandler;
-import co.chatsdk.firebase.FirebasePaths;
-import co.chatsdk.firebase.FirebaseReferenceManager;
-import co.chatsdk.firebase.wrappers.ThreadWrapper;
-import co.chatsdk.firebase.wrappers.UserWrapper;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import sdk.chat.micro.MicroChatSDK;
+import sdk.chat.micro.Fireflyy;
 import co.chatsdk.core.dao.Thread;
 import sdk.chat.micro.chat.Chat;
 import sdk.chat.micro.events.EventType;
 import sdk.chat.micro.namespace.MicroMessage;
-import sdk.chat.micro.rx.DisposableList;
 import sdk.chat.micro.types.RoleType;
 
 public class FirestoreEventHandler extends FirebaseEventHandler implements Consumer<Throwable> {
@@ -41,7 +34,7 @@ public class FirestoreEventHandler extends FirebaseEventHandler implements Consu
 
     protected void threadsOn(User chatSDKUser) {
 
-        disposableList.add(MicroChatSDK.shared().getChatEvents().subscribe(chatEvent -> {
+        disposableList.add(Fireflyy.shared().getChatEvents().subscribe(chatEvent -> {
             if (chatEvent.type == EventType.Added) {
                 Chat chat = chatEvent.chat;
 
@@ -95,7 +88,7 @@ public class FirestoreEventHandler extends FirebaseEventHandler implements Consu
             }
         }));
 
-        disposableList.add(MicroChatSDK.shared().getStream().getMicroMessages().subscribe(message -> {
+        disposableList.add(Fireflyy.shared().getStream().getMicroMessages().subscribe(message -> {
             // Get the user
             disposableList.add(APIHelper.fetchRemoteUser(message.from).subscribe(user -> {
 
@@ -155,7 +148,7 @@ public class FirestoreEventHandler extends FirebaseEventHandler implements Consu
 
     @Override
     protected void contactsOn (User chatSDKUser) {
-        disposableList.add(MicroChatSDK.shared().getContactEvents().subscribe(userEvent -> {
+        disposableList.add(Fireflyy.shared().getContactEvents().subscribe(userEvent -> {
             User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEvent.user.id);
             if (userEvent.type == EventType.Added) {
                 disposableList.add(ChatSDK.core().userOn(contact).subscribe(() -> {

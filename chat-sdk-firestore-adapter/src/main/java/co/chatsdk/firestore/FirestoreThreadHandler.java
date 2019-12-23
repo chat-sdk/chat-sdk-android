@@ -17,7 +17,7 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
-import sdk.chat.micro.MicroChatSDK;
+import sdk.chat.micro.Fireflyy;
 import sdk.chat.micro.chat.Chat;
 import sdk.chat.micro.namespace.MicroUser;
 import sdk.chat.micro.rx.DisposableList;
@@ -36,14 +36,14 @@ public class FirestoreThreadHandler extends FirebaseThreadHandler {
 
         if (message.getThread().getType() == ThreadType.Private1to1) {
             User otherUser = message.getThread().otherUser();
-            return MicroChatSDK.shared().sendMessageWithBody(otherUser.getEntityID(), messageBody)
+            return Fireflyy.shared().sendMessageWithBody(otherUser.getEntityID(), messageBody)
                     .doOnSuccess(message::setEntityID)
                     .ignoreElement();
-//            return MicroChatSDK.shared().send(otherUser.getEntityID(), sendable)
+//            return Fireflyy.shared().send(otherUser.getEntityID(), sendable)
 //                    .doOnSuccess(text::setEntityID)
 //                    .ignoreElement();
         } else {
-            Chat chat = MicroChatSDK.shared().getChat(message.getThread().getEntityID());
+            Chat chat = Fireflyy.shared().getChat(message.getThread().getEntityID());
             if (chat != null) {
                 return chat.sendMessageWithBody(messageBody)
                         .doOnSuccess(message::setEntityID)
@@ -133,7 +133,7 @@ public class FirestoreThreadHandler extends FirebaseThreadHandler {
                 }
 
                 // We need to actually create the chat
-                disposableList.add(MicroChatSDK.shared().createChat(name, imageURL, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
+                disposableList.add(Fireflyy.shared().createChat(name, imageURL, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
                     if (throwable == null) {
                         finalThread.setEntityID(groupChat.getId());
                         e.onSuccess(finalThread);

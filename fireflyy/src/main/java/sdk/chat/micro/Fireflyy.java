@@ -38,9 +38,9 @@ import sdk.chat.micro.types.PresenceType;
 import sdk.chat.micro.types.SendableType;
 import sdk.chat.micro.types.TypingStateType;
 
-public class MicroChatSDK extends AbstractChat {
+public class Fireflyy extends AbstractChat {
 
-    static final MicroChatSDK instance = new MicroChatSDK();
+    public static final Fireflyy instance = new Fireflyy();
 
     protected FirebaseUser user;
 
@@ -51,13 +51,13 @@ public class MicroChatSDK extends AbstractChat {
     protected MultiQueueSubject<UserEvent> contactEvents = MultiQueueSubject.create();
     protected MultiQueueSubject<UserEvent> blockedEvents = MultiQueueSubject.create();
 
-    public static MicroChatSDK shared () {
+    public static Fireflyy shared () {
         return instance;
     }
 
     protected ArrayList<Chat> chats = new ArrayList<>();
 
-    public MicroChatSDK () {
+    public Fireflyy() {
 
         FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
             this.user = firebaseAuth.getCurrentUser();
@@ -103,14 +103,14 @@ public class MicroChatSDK extends AbstractChat {
             // If delivery receipts are enabled, send the delivery receipt
             if (config.deliveryReceiptsEnabled) {
                 dl.add(sendDeliveryReceipt(message.from, DeliveryReceiptType.received(), message.id)
-                        .doOnError(MicroChatSDK.this)
+                        .doOnError(Fireflyy.this)
                         .subscribe());
             }
             // If message deletion is disabled, instead mark the message as received. This means
             // that when we add a listener, we only get new messages
             if (!config.deleteMessagesOnReceipt) {
                 dl.add(sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), message.id)
-                        .doOnError(MicroChatSDK.this)
+                        .doOnError(Fireflyy.this)
                         .subscribe());
             }
         }));

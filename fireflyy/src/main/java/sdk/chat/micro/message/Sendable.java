@@ -6,7 +6,7 @@ import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Date;
 import java.util.HashMap;
 
-import sdk.chat.micro.MicroChatSDK;
+import sdk.chat.micro.Fireflyy;
 import sdk.chat.micro.firestore.Keys;
 import sdk.chat.micro.firestore.Message;
 import sdk.chat.micro.types.BaseType;
@@ -18,7 +18,7 @@ public class Sendable extends Message {
     public String id;
 
     public Sendable() {
-        from = MicroChatSDK.shared().currentUserId();
+        from = Fireflyy.shared().currentUserId();
     }
 
     @SuppressWarnings("unchecked")

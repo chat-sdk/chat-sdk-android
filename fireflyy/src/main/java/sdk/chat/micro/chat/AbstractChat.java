@@ -11,15 +11,12 @@ import com.google.firebase.firestore.WriteBatch;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Nullable;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
@@ -27,7 +24,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import sdk.chat.micro.Config;
-import sdk.chat.micro.MicroChatSDK;
+import sdk.chat.micro.Fireflyy;
 import sdk.chat.micro.User;
 import sdk.chat.micro.events.Event;
 import sdk.chat.micro.events.EventType;
@@ -40,6 +37,7 @@ import sdk.chat.micro.message.Message;
 import sdk.chat.micro.message.Presence;
 import sdk.chat.micro.message.Sendable;
 import sdk.chat.micro.message.TypingState;
+import sdk.chat.micro.namespace.Fire;
 import sdk.chat.micro.rx.DisposableList;
 import sdk.chat.micro.types.SendableType;
 
@@ -202,7 +200,7 @@ public abstract class AbstractChat implements Consumer<Throwable> {
         return Single.create((SingleOnSubscribe<Date>) emitter -> {
             Query query = messagesRef().whereEqualTo(Keys.Type, SendableType.DeliveryReceipt);
 
-            query = query.whereEqualTo(Keys.From, MicroChatSDK.shared().currentUserId());
+            query = query.whereEqualTo(Keys.From, Fire.flyy.currentUserId());
             query = query.orderBy(Keys.Date, Query.Direction.DESCENDING);
             query = query.limit(1);
 

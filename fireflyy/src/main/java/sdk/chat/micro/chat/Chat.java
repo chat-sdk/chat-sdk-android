@@ -20,7 +20,7 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
-import sdk.chat.micro.MicroChatSDK;
+import sdk.chat.micro.Fireflyy;
 import sdk.chat.micro.User;
 import sdk.chat.micro.events.EventType;
 import sdk.chat.micro.events.UserEvent;
@@ -153,7 +153,7 @@ public class Chat extends AbstractChat {
         ArrayList<Completable> completables = new ArrayList<>();
         for (User user : users) {
             if (!user.isMe()) {
-                completables.add(MicroChatSDK.shared().sendInvitation(user.id, InvitationType.chat(), id).ignoreElement());
+                completables.add(Fireflyy.shared().sendInvitation(user.id, InvitationType.chat(), id).ignoreElement());
             }
         }
         return Completable.merge(completables);

@@ -4,7 +4,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import sdk.chat.micro.MicroChatSDK;
+import sdk.chat.micro.Fireflyy;
 
 public class Paths extends Keys {
 
@@ -41,7 +41,7 @@ public class Paths extends Keys {
     }
 
     protected static String currentUid () {
-        return MicroChatSDK.shared().currentUserId();
+        return Fireflyy.shared().currentUserId();
     }
 
     public static CollectionReference contactsRef() {

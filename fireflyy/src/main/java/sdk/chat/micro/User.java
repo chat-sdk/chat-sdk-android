@@ -37,11 +37,11 @@ public class User {
     }
 
     public boolean isMe() {
-        return id.equals(MicroChatSDK.shared().currentUserId());
+        return id.equals(Fireflyy.shared().currentUserId());
     }
 
     public static User currentUser(RoleType role) {
-        return new User(MicroChatSDK.shared().currentUserId(), role);
+        return new User(Fireflyy.shared().currentUserId(), role);
     }
 
     public static User currentUser() {
