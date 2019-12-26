@@ -29,4 +29,10 @@ public class DeliveryReceipt extends Sendable {
         return new DeliveryReceiptType(super.getBodyType());
     }
 
+    public static DeliveryReceipt fromSendable(Sendable sendable) {
+        DeliveryReceipt deliveryReceipt = new DeliveryReceipt();
+        sendable.copyTo(deliveryReceipt);
+        return deliveryReceipt;
+    }
+
 }

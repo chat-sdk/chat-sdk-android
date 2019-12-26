@@ -1,10 +1,8 @@
 package sdk.chat.micro.types;
 
-import android.content.Context;
-
 import java.util.HashMap;
 
-import sdk.chat.micro.firestore.Keys;
+import sdk.chat.micro.firebase.service.Keys;
 
 public class ContactType extends BaseType {
 

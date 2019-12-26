@@ -1,10 +1,9 @@
-package sdk.chat.micro.rx;
+package sdk.chat.micro.firebase.rx;
 
 import com.jakewharton.rxrelay2.PublishRelay;
 import com.victorrendina.rxqueue2.QueueSubject;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;

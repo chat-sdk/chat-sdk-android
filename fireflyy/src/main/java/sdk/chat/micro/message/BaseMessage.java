@@ -1,16 +1,16 @@
-package sdk.chat.micro.firestore;
+package sdk.chat.micro.message;
 
 import java.util.Date;
 import java.util.HashMap;
 
-public class Message {
+public class BaseMessage {
 
     public String from;
     public Date date = new Date();
     public HashMap<String, Object> body = new HashMap<>();
     public String type;
 
-    public Message() {
+    public BaseMessage() {
 
     }
 

@@ -1,4 +1,4 @@
-package sdk.chat.micro.firestore;
+package sdk.chat.micro.firebase.service;
 
 public class Keys {
 

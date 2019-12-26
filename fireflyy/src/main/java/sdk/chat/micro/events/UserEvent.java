@@ -1,7 +1,7 @@
 package sdk.chat.micro.events;
 
-import sdk.chat.micro.User;
-import sdk.chat.micro.firestore.Keys;
+import sdk.chat.micro.chat.User;
+import sdk.chat.micro.firebase.service.Keys;
 import sdk.chat.micro.namespace.MicroUser;
 import sdk.chat.micro.types.ContactType;
 import sdk.chat.micro.types.RoleType;

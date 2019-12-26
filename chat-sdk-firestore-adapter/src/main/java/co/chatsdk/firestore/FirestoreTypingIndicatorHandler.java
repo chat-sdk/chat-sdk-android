@@ -9,9 +9,8 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import io.reactivex.Completable;
 import sdk.chat.micro.chat.Chat;
-import sdk.chat.micro.namespace.Fire;
 import sdk.chat.micro.namespace.Fly;
-import sdk.chat.micro.rx.DisposableList;
+import sdk.chat.micro.firebase.rx.DisposableList;
 import sdk.chat.micro.types.TypingStateType;
 
 public class FirestoreTypingIndicatorHandler implements TypingIndicatorHandler {

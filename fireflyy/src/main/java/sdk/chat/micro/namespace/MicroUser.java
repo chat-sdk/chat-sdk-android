@@ -1,6 +1,6 @@
 package sdk.chat.micro.namespace;
 
-import sdk.chat.micro.User;
+import sdk.chat.micro.chat.User;
 import sdk.chat.micro.types.RoleType;
 
 public class MicroUser extends User {

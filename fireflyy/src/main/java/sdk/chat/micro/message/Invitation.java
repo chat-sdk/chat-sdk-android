@@ -44,4 +44,10 @@ public class Invitation extends Sendable {
         return Completable.complete();
     }
 
+    public static Invitation fromSendable(Sendable sendable) {
+        Invitation invitation = new Invitation();
+        sendable.copyTo(invitation);
+        return invitation;
+    }
+
 }

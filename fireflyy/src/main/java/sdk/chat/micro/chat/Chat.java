@@ -1,13 +1,5 @@
 package sdk.chat.micro.chat;
 
-import androidx.annotation.Nullable;
-
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,20 +12,19 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
-import sdk.chat.micro.User;
 import sdk.chat.micro.events.EventType;
 import sdk.chat.micro.events.UserEvent;
-import sdk.chat.micro.firestore.Keys;
-import sdk.chat.micro.firestore.Paths;
+import sdk.chat.micro.firebase.service.Keys;
+import sdk.chat.micro.firebase.service.Paths;
+import sdk.chat.micro.firebase.service.Path;
 import sdk.chat.micro.message.DeliveryReceipt;
 import sdk.chat.micro.message.Message;
 import sdk.chat.micro.message.Sendable;
 import sdk.chat.micro.message.TextMessage;
 import sdk.chat.micro.message.TypingState;
-import sdk.chat.micro.namespace.Fire;
 import sdk.chat.micro.namespace.Fly;
 import sdk.chat.micro.namespace.MicroUser;
-import sdk.chat.micro.rx.MultiQueueSubject;
+import sdk.chat.micro.firebase.rx.MultiQueueSubject;
 import sdk.chat.micro.types.DeliveryReceiptType;
 import sdk.chat.micro.types.InvitationType;
 import sdk.chat.micro.types.RoleType;
@@ -66,12 +57,15 @@ public class Chat extends AbstractChat {
 
         // If delivery receipts are enabled, send the delivery receipt
         if (config.deliveryReceiptsEnabled) {
-            dl.add(getEvents().getMessages().pastAndNewEvents().flatMapSingle(message -> sendDeliveryReceipt(DeliveryReceiptType.received(), message.id))
+            dl.add(getEvents()
+                    .getMessages()
+                    .pastAndNewEvents()
+                    .flatMapSingle(message -> sendDeliveryReceipt(DeliveryReceiptType.received(), message.id))
                     .doOnError(this)
                     .subscribe());
         }
 
-        dl.add(listChangeOn(Paths.groupChatUsersRef(id)).subscribe(listEvent -> {
+        dl.add(listChangeOn(Paths.groupChatUsersPath(id)).subscribe(listEvent -> {
             UserEvent userEvent = UserEvent.from(listEvent);
             if (userEvent.type == EventType.Added) {
                 users.add(userEvent.user);
@@ -83,42 +77,44 @@ public class Chat extends AbstractChat {
         }));
 
         // Handle name and image change
-        Paths.groupChatRef(id).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    events.impl_throwablePublishSubject().onNext(e);
+        dl.add(Fly.y.getFirebaseService().chat
+                .metaOn(Paths.groupChatPath(id))
+                .subscribeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(meta -> {
+            if (meta != null) {
+                Object nameObject = meta.get(Keys.Name);
+                if (nameObject instanceof String) {
+                    String newName = (String) nameObject;
+                    if (!newName.equals(name)) {
+                        name = newName;
+                        nameStream.onNext(name);
+                    }
                 }
-                else if (snapshot != null && snapshot.exists()) {
-                    HashMap<String, Object> meta = (HashMap<String, Object>) snapshot.getData().get(Keys.Meta);
-                    if (meta != null) {
-                        Object nameObject = meta.get(Keys.Name);
-                        if (nameObject instanceof String) {
-                            name = (String) nameObject;
-                        }
-                        Object avatarURLObject = meta.get(Keys.Avatar);
-                        if (avatarURLObject instanceof String) {
-                            avatarURL = (String) avatarURLObject;
-                        }
+                Object avatarURLObject = meta.get(Keys.Avatar);
+                if (avatarURLObject instanceof String) {
+                    String newAvatarURL = (String) avatarURLObject;
+                    if (!newAvatarURL.equals(avatarURL)) {
+                        avatarURL = newAvatarURL;
+                        avatarURLStream.onNext(avatarURL);
                     }
                 }
             }
-        });
+        }, this));
 
         super.connect();
     }
 
     @Override
-    protected CollectionReference messagesRef() {
-        return Paths.groupChatMessagesRef(id);
+    protected Path messagesPath() {
+        return Paths.groupChatMessagesPath(id);
     }
 
     public static Single<Chat> create(String name, String avatarURL, List<User> users) {
-        return Single.create((SingleOnSubscribe<Chat>) emitter -> {
-
+        return Single.create((SingleOnSubscribe<HashMap<String, Object>>) emitter -> {
             HashMap<String, Object> meta = new HashMap<>();
 
-            meta.put(Keys.Created, FieldValue.serverTimestamp());
+            meta.put(Keys.Created, Fly.y.getFirebaseService().core.timestamp());
             if (name != null) {
                 meta.put(Keys.Name, name);
             }
@@ -129,12 +125,10 @@ public class Chat extends AbstractChat {
             HashMap<String, Object> data = new HashMap<>();
             data.put(Paths.Meta, meta);
 
-            Paths.groupChatsRef().add(data).addOnSuccessListener(documentReference -> {
-                System.out.println("");
-                emitter.onSuccess(new Chat(documentReference.getId(), null));
-
-            }).addOnFailureListener(emitter::onError);
-        }).flatMap(groupChat -> {
+            emitter.onSuccess(data);
+        }).flatMap(data -> Fly.y.getFirebaseService().chat.add(Paths.chatsPath(), data).map(chatId -> {
+            return new Chat(chatId, null);
+        })).flatMap(groupChat -> {
             ArrayList<User> usersToAdd = new ArrayList<>();
 
             for (User user : users) {
@@ -162,43 +156,43 @@ public class Chat extends AbstractChat {
 
     @Override
     public Single<String> send(String toUserId, Sendable sendable) {
-        return send(Paths.groupChatMessagesRef(id), sendable);
+        return send(Paths.groupChatMessagesPath(id), sendable);
     }
 
     public Completable addUser(User user) {
-        return addUser(Paths.groupChatUsersRef(id), null, user);
+        return addUser(Paths.groupChatUsersPath(id), null, user);
     }
 
     public Completable addUsers(User... users) {
-        return addUsers(Paths.groupChatUsersRef(id), User.roleTypeDataProvider(), users);
+        return addUsers(Paths.groupChatUsersPath(id), User.roleTypeDataProvider(), users);
     }
 
     public Completable addUsers(List<User> users) {
-        return addUsers(Paths.groupChatUsersRef(id), User.roleTypeDataProvider(), users);
+        return addUsers(Paths.groupChatUsersPath(id), User.roleTypeDataProvider(), users);
     }
 
     public Completable updateUser(User user) {
-        return updateUser(Paths.groupChatUsersRef(id), User.roleTypeDataProvider(), user);
+        return updateUser(Paths.groupChatUsersPath(id), User.roleTypeDataProvider(), user);
     }
 
     public Completable updateUsers(List<User> users) {
-        return updateUsers(Paths.groupChatUsersRef(id), User.roleTypeDataProvider(), users);
+        return updateUsers(Paths.groupChatUsersPath(id), User.roleTypeDataProvider(), users);
     }
 
     public Completable updateUsers(User... users) {
-        return updateUsers(Paths.groupChatUsersRef(id), User.roleTypeDataProvider(), users);
+        return updateUsers(Paths.groupChatUsersPath(id), User.roleTypeDataProvider(), users);
     }
 
     public Completable removeUser(User user) {
-        return removeUser(Paths.groupChatUsersRef(id), user);
+        return removeUser(Paths.groupChatUsersPath(id), user);
     }
 
     public Completable removeUsers(User... user) {
-        return removeUsers(Paths.groupChatUsersRef(id), user);
+        return removeUsers(Paths.groupChatUsersPath(id), user);
     }
 
     public Completable removeUsers(List<User> user) {
-        return removeUsers(Paths.groupChatUsersRef(id), user);
+        return removeUsers(Paths.groupChatUsersPath(id), user);
     }
 
     public String getId() {
@@ -206,7 +200,7 @@ public class Chat extends AbstractChat {
     }
 
     public Single<String> send(Sendable sendable) {
-        return this.send(Paths.groupChatMessagesRef(id), sendable);
+        return this.send(Paths.groupChatMessagesPath(id), sendable);
     }
 
     public Completable leave() {

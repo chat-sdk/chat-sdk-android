@@ -1,7 +1,6 @@
 package sdk.chat.micro.chat;
 
 import io.reactivex.Observable;
-import io.reactivex.functions.Function;
 import io.reactivex.subjects.PublishSubject;
 import sdk.chat.micro.message.DeliveryReceipt;
 import sdk.chat.micro.message.Invitation;
@@ -10,7 +9,7 @@ import sdk.chat.micro.message.Presence;
 import sdk.chat.micro.message.Sendable;
 import sdk.chat.micro.message.TypingState;
 import sdk.chat.micro.namespace.MicroMessage;
-import sdk.chat.micro.rx.MultiQueueSubject;
+import sdk.chat.micro.firebase.rx.MultiQueueSubject;
 
 public class Events {
 
@@ -33,9 +32,9 @@ public class Events {
     }
 
     /**
-     * A Micro Message is no different from a Message. The reason this method
-     * exists is because Message is a very common class name. If for any reason
-     * your project already has a Message object, you can use the MicroMessage
+     * A Micro BaseMessage is no different from a BaseMessage. The reason this method
+     * exists is because BaseMessage is a very common class name. If for any reason
+     * your project already has a BaseMessage object, you can use the MicroMessage
      * to avoid a naming clash
      * @return events of messages
      */
@@ -63,7 +62,7 @@ public class Events {
         return invitations;
     }
 
-    public PublishSubject<Throwable> impl_throwablePublishSubject() {
+    public PublishSubject<Throwable> publishThrowable() {
         return errors;
     }
 

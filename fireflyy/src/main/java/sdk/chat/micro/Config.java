@@ -25,4 +25,18 @@ public class Config {
      * How many historic messages should we retrieve?
      */
     public int messageHistoryLimit = 100;
+
+    /**
+     * This will be the root of the Fireflyy Firebase database i.e.
+     * /root/[sandbox]/users
+     */
+    public String root = "fireflyy";
+
+    /**
+     * This will be the sandbox of the Fireflyy Firebase database i.e.
+     * /root/[sandbox]/users
+     */
+    public String sandbox = null;
+
+
 }

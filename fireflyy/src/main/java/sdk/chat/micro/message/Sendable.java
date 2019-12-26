@@ -6,15 +6,12 @@ import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Date;
 import java.util.HashMap;
 
-import sdk.chat.micro.Fireflyy;
-import sdk.chat.micro.firestore.Keys;
-import sdk.chat.micro.firestore.Message;
-import sdk.chat.micro.namespace.Fire;
+import sdk.chat.micro.firebase.service.Keys;
 import sdk.chat.micro.namespace.Fly;
 import sdk.chat.micro.types.BaseType;
 
 @IgnoreExtraProperties
-public class Sendable extends Message {
+public class Sendable extends BaseMessage {
 
     @Exclude
     public String id;
@@ -63,4 +60,10 @@ public class Sendable extends Message {
         throw new Exception("Body doesn't contain key: " + key);
     }
 
+    public void copyTo(Sendable sendable) {
+        sendable.id = id;
+        sendable.from = from;
+        sendable.body = body;
+        sendable.date = date;
+    }
 }

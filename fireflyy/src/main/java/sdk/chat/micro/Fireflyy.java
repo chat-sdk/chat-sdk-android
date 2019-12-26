@@ -1,15 +1,18 @@
 package sdk.chat.micro;
 
+import android.content.Context;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FieldValue;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -18,12 +21,14 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import sdk.chat.micro.chat.AbstractChat;
 import sdk.chat.micro.chat.Chat;
+import sdk.chat.micro.chat.User;
 import sdk.chat.micro.events.ChatEvent;
 import sdk.chat.micro.events.EventType;
 import sdk.chat.micro.events.UserEvent;
 import sdk.chat.micro.filter.MessageStreamFilter;
-import sdk.chat.micro.firestore.Keys;
-import sdk.chat.micro.firestore.Paths;
+import sdk.chat.micro.firebase.service.Paths;
+import sdk.chat.micro.firebase.service.FirebaseService;
+import sdk.chat.micro.firebase.service.Path;
 import sdk.chat.micro.message.DeliveryReceipt;
 import sdk.chat.micro.message.Invitation;
 import sdk.chat.micro.message.Message;
@@ -31,7 +36,7 @@ import sdk.chat.micro.message.Presence;
 import sdk.chat.micro.message.Sendable;
 import sdk.chat.micro.message.TextMessage;
 import sdk.chat.micro.message.TypingState;
-import sdk.chat.micro.rx.MultiQueueSubject;
+import sdk.chat.micro.firebase.rx.MultiQueueSubject;
 import sdk.chat.micro.types.ContactType;
 import sdk.chat.micro.types.DeliveryReceiptType;
 import sdk.chat.micro.types.InvitationType;
@@ -52,6 +57,9 @@ public class Fireflyy extends AbstractChat {
     protected MultiQueueSubject<UserEvent> contactEvents = MultiQueueSubject.create();
     protected MultiQueueSubject<UserEvent> blockedEvents = MultiQueueSubject.create();
 
+    protected FirebaseService firebaseService = new FirebaseService();
+    protected WeakReference<Context> context;
+
     public static Fireflyy shared () {
         return instance;
     }
@@ -66,7 +74,7 @@ public class Fireflyy extends AbstractChat {
                 try {
                     connect();
                 } catch (Exception e) {
-                    events.impl_throwablePublishSubject().onNext(e);
+                    events.publishThrowable().onNext(e);
                 }
             } else {
                 disconnect();
@@ -74,18 +82,27 @@ public class Fireflyy extends AbstractChat {
         });
     }
 
-    public void initialize() {
+    public void initialize(Context context, @Nullable Config config) {
+        this.context = new WeakReference<>(context);
+        if (config == null) {
+            this.config = new Config();
+        } else {
+            this.config = config;
+        }
     }
 
-    public void initialize(Config config) {
-        this.config = config;
+    public void initialize(Context context) {
+        initialize(context, null);
     }
 
     public void connect () throws Exception {
         disconnect();
 
+        if (this.config == null) {
+            throw new Exception(context().getString(R.string.error_initialize_not_run));
+        }
         if (this.user == null) {
-            throw new Exception("A user must be authenticated to connect");
+            throw new Exception(context().getString(R.string.error_no_authenticated_user));
         }
 
         // MESSAGE DELETION
@@ -127,7 +144,7 @@ public class Fireflyy extends AbstractChat {
 
         // BLOCKED USERS
 
-        dl.add(listChangeOn(Paths.blockedRef()).subscribe(listEvent -> {
+        dl.add(listChangeOn(Paths.blockedPath()).subscribe(listEvent -> {
             UserEvent ue = UserEvent.from(listEvent);
             if (ue.type == EventType.Added) {
                 blocked.add(ue.user);
@@ -140,7 +157,7 @@ public class Fireflyy extends AbstractChat {
 
         // CONTACTS
 
-        dl.add(listChangeOn(Paths.contactsRef()).subscribe(listEvent -> {
+        dl.add(listChangeOn(Paths.contactsPath()).subscribe(listEvent -> {
             UserEvent ue = UserEvent.from(listEvent);
             if (ue.type == EventType.Added) {
                 contacts.add(ue.user);
@@ -153,7 +170,7 @@ public class Fireflyy extends AbstractChat {
 
         // CONNECT TO EXISTING GROUP CHATS
 
-        dl.add(listChangeOn(Paths.userGroupChatsRef()).subscribe(listEvent -> {
+        dl.add(listChangeOn(Paths.userGroupChatsPath()).subscribe(listEvent -> {
             ChatEvent chatEvent = ChatEvent.from(listEvent);
             Chat chat = chatEvent.chat;
             if (chatEvent.type == EventType.Added) {
@@ -184,7 +201,7 @@ public class Fireflyy extends AbstractChat {
     //
 
     public Completable deleteSendable (Sendable sendable) {
-        return deleteSendable(Paths.messageRef(sendable.id));
+        return deleteSendable(Paths.messagePath(sendable.id));
     }
 
     public Single<String> sendPresence(String userId, PresenceType type) {
@@ -196,7 +213,7 @@ public class Fireflyy extends AbstractChat {
     }
 
     public Single<String> send(String toUserId, Sendable sendable) {
-        return this.send(Paths.messagesRef(toUserId), sendable);
+        return this.send(Paths.messagesPath(toUserId), sendable);
     }
 
     /**
@@ -236,11 +253,11 @@ public class Fireflyy extends AbstractChat {
     //
 
     public Completable block(User user) {
-        return addUser(Paths.blockedRef(), User.dateDataProvider(), user);
+        return addUser(Paths.blockedPath(), User.dateDataProvider(), user);
     }
 
     public Completable unblock(User user) {
-        return removeUser(Paths.blockedRef(), user);
+        return removeUser(Paths.blockedPath(), user);
     }
 
     public ArrayList<User> getBlocked() {
@@ -257,11 +274,11 @@ public class Fireflyy extends AbstractChat {
 
     public Completable addContact(User user, ContactType type) {
         user.contactType = type;
-        return addUser(Paths.contactsRef(), User.contactTypeDataProvider(), user);
+        return addUser(Paths.contactsPath(), User.contactTypeDataProvider(), user);
     }
 
     public Completable removeContact(User user) {
-        return removeUser(Paths.contactsRef(), user);
+        return removeUser(Paths.contactsPath(), user);
     }
 
     public ArrayList<User> getContacts() {
@@ -292,17 +309,17 @@ public class Fireflyy extends AbstractChat {
     }
 
     public Completable leaveChat(String chatId) {
-        return Completable.create(emitter -> {
-            Paths.userGroupChatsRef().document(chatId).delete().addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        return getFirebaseService().chat
+                .leaveChat(chatId)
+                .subscribeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public Completable joinChat(String chatId) {
-        return Completable.create(emitter -> {
-            HashMap<String, Object> data = new HashMap<>();
-            data.put(Keys.Date, FieldValue.serverTimestamp());
-            Paths.userGroupChatsRef().document(chatId).set(data).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        return getFirebaseService().chat
+                .joinChat(chatId)
+                .subscribeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public List<Chat> getChats() {
@@ -339,7 +356,19 @@ public class Fireflyy extends AbstractChat {
     }
 
     @Override
-    protected CollectionReference messagesRef() {
-        return Paths.messagesRef();
+    protected Path messagesPath() {
+        return Paths.messagesPath();
+    }
+
+    public Config getConfig() {
+        return config;
+    }
+
+    public FirebaseService getFirebaseService() {
+        return firebaseService;
+    }
+
+    public Context context() {
+        return context.get();
     }
 }

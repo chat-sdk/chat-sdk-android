@@ -17,12 +17,10 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
-import sdk.chat.micro.Fireflyy;
 import sdk.chat.micro.chat.Chat;
-import sdk.chat.micro.namespace.Fire;
 import sdk.chat.micro.namespace.Fly;
 import sdk.chat.micro.namespace.MicroUser;
-import sdk.chat.micro.rx.DisposableList;
+import sdk.chat.micro.firebase.rx.DisposableList;
 import sdk.chat.micro.types.RoleType;
 
 public class FirestoreThreadHandler extends FirebaseThreadHandler {

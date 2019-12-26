@@ -23,4 +23,10 @@ public class Presence extends Sendable {
         return new PresenceType(super.getBodyType());
     }
 
+    public static Presence fromSendable(Sendable sendable) {
+        Presence presence = new Presence();
+        sendable.copyTo(presence);
+        return presence;
+    }
+
 }

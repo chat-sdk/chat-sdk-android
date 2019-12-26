@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Micro Chat SDK for Firestore</string>
+    <string name="error_null_snapshot">Snapshot is null</string>
+    <string name="error_no_authenticated_user">Firebase must be authenticated to connect</string>
+    <string name="error_initialize_not_run">You need to call Fly.y.initialize(…)</string>
+    <string name="error_null_data">Null data returned</string>
 </resources>

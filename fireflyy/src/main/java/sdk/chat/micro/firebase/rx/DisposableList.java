@@ -1,4 +1,4 @@
-package sdk.chat.micro.rx;
+package sdk.chat.micro.firebase.rx;
 
 import java.util.ArrayList;
 import java.util.Collections;

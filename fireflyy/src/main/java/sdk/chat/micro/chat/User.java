@@ -1,11 +1,10 @@
-package sdk.chat.micro;
+package sdk.chat.micro.chat;
 
 import com.google.firebase.firestore.FieldValue;
 
 import java.util.HashMap;
 
-import sdk.chat.micro.firestore.Keys;
-import sdk.chat.micro.namespace.Fire;
+import sdk.chat.micro.firebase.service.Keys;
 import sdk.chat.micro.namespace.Fly;
 import sdk.chat.micro.types.ContactType;
 import sdk.chat.micro.types.RoleType;

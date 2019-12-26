@@ -20,4 +20,11 @@ public class TypingState extends Sendable {
     public TypingStateType getBodyType() {
         return new TypingStateType(super.getBodyType());
     }
+
+    public static TypingState fromSendable(Sendable sendable) {
+        TypingState typingState = new TypingState();
+        sendable.copyTo(typingState);
+        return typingState;
+    }
+
 }

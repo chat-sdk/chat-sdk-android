@@ -62,7 +62,7 @@ public class AppObj extends MultiDexApplication {
             // Uncomment this to enable Firebase UI
                     // FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
 
-//            ChatSDK.ui().addChatOption(new MessageTestChatOption("Message Burst"));
+//            ChatSDK.ui().addChatOption(new MessageTestChatOption("BaseMessage Burst"));
 
 
         }

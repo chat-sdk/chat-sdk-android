@@ -1,19 +1,29 @@
 package sdk.chat.micro.examples;
 
+import android.content.Context;
+
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.BiConsumer;
-import io.reactivex.functions.Consumer;
-import sdk.chat.micro.User;
-import sdk.chat.micro.chat.Chat;
+import sdk.chat.micro.Config;
+import sdk.chat.micro.chat.User;
 import sdk.chat.micro.namespace.Fly;
 import sdk.chat.micro.types.RoleType;
 
 public class API {
 
-    public API() {
+    public API(Context context) {
+
+        // Configure the chat
+        Config config = new Config();
+
+        config.root = "messenger";
+        config.sandbox = "dev";
+        config.messageHistoryLimit = 100;
+        config.autoAcceptChatInvite = false;
+
+        // etc...
 
         // Initialize
-        Fly.y.initialize();
+        Fly.y.initialize(context, config);
 
         // Send a message with text
         Disposable d1 = Fly.y.sendMessageWithText("user-id", "Hello").subscribe(s -> {

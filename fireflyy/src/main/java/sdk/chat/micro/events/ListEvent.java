@@ -1,9 +1,6 @@
 package sdk.chat.micro.events;
 
-import java.util.HashMap;
 import java.util.Map;
-
-import sdk.chat.micro.User;
 
 public class ListEvent extends Event {
 

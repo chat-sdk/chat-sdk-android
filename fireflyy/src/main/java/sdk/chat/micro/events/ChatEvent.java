@@ -3,7 +3,7 @@ package sdk.chat.micro.events;
 import java.util.Date;
 
 import sdk.chat.micro.chat.Chat;
-import sdk.chat.micro.firestore.Keys;
+import sdk.chat.micro.firebase.service.Keys;
 
 public class ChatEvent extends Event {
 

@@ -2,7 +2,7 @@ package sdk.chat.micro.types;
 
 import java.util.HashMap;
 
-import sdk.chat.micro.firestore.Keys;
+import sdk.chat.micro.firebase.service.Keys;
 
 public class RoleType extends BaseType {
 

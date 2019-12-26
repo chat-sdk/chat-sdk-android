@@ -15,4 +15,15 @@ public class Message extends Sendable {
         this.body = body;
     }
 
+    public Message (String id, HashMap<String, Object> body) {
+        this(body);
+        this.id = id;
+    }
+
+    public static Message fromSendable(Sendable sendable) {
+        Message message = new Message();
+        sendable.copyTo(message);
+        return message;
+    }
+
 }

@@ -162,10 +162,10 @@ public class ApiExamples {
         ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageSendStatusChanged)).subscribe(networkEvent -> {
             MessageSendProgress progress = (MessageSendProgress) networkEvent.data.get(NetworkEvent.MessageSendProgress);
             if (progress.getStatus() == MessageSendStatus.Uploading) {
-                // Message is uploading
+                // BaseMessage is uploading
             }
             if (progress.getStatus() == MessageSendStatus.Sent) {
-                // Message has finished uploading
+                // BaseMessage has finished uploading
             }
         });
     }
@@ -230,7 +230,7 @@ public class ApiExamples {
 
     public void deleteMessage (Message message) {
         ChatSDK.thread().deleteMessage(message).subscribe(() -> {
-            // Message has been deleted
+            // BaseMessage has been deleted
         });
 
     }

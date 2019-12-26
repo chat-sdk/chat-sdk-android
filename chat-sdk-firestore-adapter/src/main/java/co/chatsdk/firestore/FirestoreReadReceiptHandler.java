@@ -11,9 +11,8 @@ import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ReadStatus;
-import sdk.chat.micro.namespace.Fire;
 import sdk.chat.micro.namespace.Fly;
-import sdk.chat.micro.rx.DisposableList;
+import sdk.chat.micro.firebase.rx.DisposableList;
 import sdk.chat.micro.types.DeliveryReceiptType;
 
 public class FirestoreReadReceiptHandler implements ReadReceiptHandler {
