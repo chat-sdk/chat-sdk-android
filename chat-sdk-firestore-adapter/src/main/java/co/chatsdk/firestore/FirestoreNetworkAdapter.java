@@ -2,15 +2,19 @@ package co.chatsdk.firestore;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
-import sdk.chat.micro.Fireflyy;
-import sdk.chat.micro.namespace.Fire;
-import sdk.chat.micro.namespace.Fly;
+import firefly.sdk.chat.Config;
+import firefly.sdk.chat.namespace.Fl;
 
 public class FirestoreNetworkAdapter extends FirebaseNetworkAdapter {
 
     public FirestoreNetworkAdapter () {
 
-        Fly.y.initialize(ChatSDK.shared().context());
+        Config config = new Config();
+        config.database = Config.DatabaseType.Realtime;
+        config.root = ChatSDK.config().firebaseRootPath;
+        config.sandbox = "firefly";
+
+        Fl.y.initialize(ChatSDK.shared().context(), config);
 
         events = new FirestoreEventHandler();
         thread = new FirestoreThreadHandler();

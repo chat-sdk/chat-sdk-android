@@ -11,16 +11,16 @@ import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ReadStatus;
-import sdk.chat.micro.namespace.Fly;
+import firefly.sdk.chat.namespace.Fl;
 import sdk.chat.micro.firebase.rx.DisposableList;
-import sdk.chat.micro.types.DeliveryReceiptType;
+import firefly.sdk.chat.types.DeliveryReceiptType;
 
 public class FirestoreReadReceiptHandler implements ReadReceiptHandler {
 
     private DisposableList disposableList = new DisposableList();
 
     public FirestoreReadReceiptHandler () {
-        disposableList.add(Fly.y.getEvents().getDeliveryReceipts().subscribe(deliveryReceipt -> {
+        disposableList.add(Fl.y.getEvents().getDeliveryReceipts().subscribe(deliveryReceipt -> {
 
             // Get the sender
             String senderId = deliveryReceipt.from;
@@ -68,7 +68,7 @@ public class FirestoreReadReceiptHandler implements ReadReceiptHandler {
                         // Send the read status
 
                         User otherUser = thread.otherUser();
-                        Fly.y.sendDeliveryReceipt(otherUser.getEntityID(), DeliveryReceiptType.read(), m.getEntityID())
+                        Fl.y.sendDeliveryReceipt(otherUser.getEntityID(), DeliveryReceiptType.read(), m.getEntityID())
                                 .doOnError(Throwable::printStackTrace)
                                 .subscribe();
                     }

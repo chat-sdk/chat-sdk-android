@@ -18,6 +18,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':fireflyy')
+    implementation project(':firefly')
     implementation project(':chat-sdk-firebase-adapter')
 }

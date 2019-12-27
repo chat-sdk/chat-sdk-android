@@ -18,10 +18,10 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
 import sdk.chat.micro.chat.Chat;
-import sdk.chat.micro.namespace.Fly;
-import sdk.chat.micro.namespace.MicroUser;
+import firefly.sdk.chat.namespace.Fl;
+import firefly.sdk.chat.namespace.FireflyUser;
 import sdk.chat.micro.firebase.rx.DisposableList;
-import sdk.chat.micro.types.RoleType;
+import firefly.sdk.chat.types.RoleType;
 
 public class FirestoreThreadHandler extends FirebaseThreadHandler {
 
@@ -36,11 +36,11 @@ public class FirestoreThreadHandler extends FirebaseThreadHandler {
 
         if (message.getThread().getType() == ThreadType.Private1to1) {
             User otherUser = message.getThread().otherUser();
-            return Fly.y.sendMessageWithBody(otherUser.getEntityID(), messageBody)
+            return Fl.y.sendMessageWithBody(otherUser.getEntityID(), messageBody)
                     .doOnSuccess(message::setEntityID)
                     .ignoreElement();
         } else {
-            Chat chat = Fly.y.getChat(message.getThread().getEntityID());
+            Chat chat = Fl.y.getChat(message.getThread().getEntityID());
             if (chat != null) {
                 return chat.sendMessageWithBody(messageBody)
                         .doOnSuccess(message::setEntityID)
@@ -122,15 +122,15 @@ public class FirestoreThreadHandler extends FirebaseThreadHandler {
                 }
             } else {
 
-                ArrayList<MicroUser> usersToAdd = new ArrayList<>();
+                ArrayList<FireflyUser> usersToAdd = new ArrayList<>();
                 for (User u : allUsers) {
                     if (!u.isMe()) {
-                        usersToAdd.add(new MicroUser(u.getEntityID(), RoleType.member()));
+                        usersToAdd.add(new FireflyUser(u.getEntityID(), RoleType.member()));
                     }
                 }
 
                 // We need to actually create the chat
-                disposableList.add(Fly.y.createChat(name, imageURL, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
+                disposableList.add(Fl.y.createChat(name, imageURL, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
                     if (throwable == null) {
                         finalThread.setEntityID(groupChat.getId());
                         e.onSuccess(finalThread);
