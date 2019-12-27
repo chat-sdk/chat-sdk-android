@@ -15,6 +15,8 @@ import javax.annotation.Nullable;
 
 import firefly.sdk.chat.R;
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
@@ -35,13 +37,15 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
 
     @Override
     public Observable<ListEvent> listChangeOn(Path path) {
-        return new RXFirestore().on(Ref.collection(path)).map(change -> {
+        return new RXFirestore().on(Ref.collection(path)).flatMapMaybe(change -> {
             DocumentSnapshot d = change.getDocument();
             if (d.exists()) {
                 EventType type = FirestoreCoreHandler.typeForDocumentChange(change);
-                return new ListEvent(d.getId(), d.getData(), type);
+                if (type != null) {
+                    return Maybe.just(new ListEvent(d.getId(), d.getData(), type));
+                }
             }
-            throw new Exception(Fire.fly.context().getString(R.string.error_null_data));
+            return Maybe.empty();
         });
     }
 
@@ -52,7 +56,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
 
     @Override
     public Single<String> send(Path messagesPath, Sendable sendable) {
-        return new RXFirestore().add(Ref.collection(messagesPath), sendable).map(DocumentReference::getId);
+        return new RXFirestore().add(Ref.collection(messagesPath), sendable.toData()).map(DocumentReference::getId);
     }
 
     @Override
@@ -131,17 +135,16 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
     }
 
     @Override
-    public Single<Date> dateOfLastDeliveryReceipt(Path messagesPath) {
+    public Single<Date> dateOfLastSendMessage(Path messagesPath) {
         return Single.create((SingleOnSubscribe<Query>) emitter -> {
             Query query = Ref.collection(messagesPath);
 
-            query = query.whereEqualTo(Keys.Type, SendableType.DeliveryReceipt);
             query = query.whereEqualTo(Keys.From, Fl.y.currentUserId());
             query = query.orderBy(Keys.Date, Query.Direction.DESCENDING);
             query = query.limit(1);
-            emitter.onSuccess(query);
 
-        }).flatMap((Function<Query, SingleSource<Date>>) query -> new RXFirestore().get(query).map(snapshots -> {
+            emitter.onSuccess(query);
+        }).flatMap(query -> new RXFirestore().get(query).map(snapshots -> {
            if (snapshots.getDocumentChanges().size() > 0) {
                 DocumentChange change = snapshots.getDocumentChanges().get(0);
                 if (change.getDocument().exists()) {
@@ -169,16 +172,16 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             query.limit(limit);
 
             emitter.onSuccess(query);
-        }).flatMapObservable(query -> new RXFirestore().on(query).map(change -> {
+        }).flatMapObservable(query -> new RXFirestore().on(query).flatMapMaybe(change -> {
             DocumentSnapshot ds = change.getDocument();
             if (change.getType() == DocumentChange.Type.ADDED) {
                 if (ds.exists()) {
                     Sendable sendable = ds.toObject(Sendable.class);
                     sendable.id = ds.getId();
-                    return sendable;
+                    return Maybe.just(sendable);
                 }
             }
-            return null;
+            return Maybe.empty();
         }));
     }
 

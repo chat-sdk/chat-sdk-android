@@ -17,10 +17,10 @@ import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.FirebaseEventHandler;
+import firefly.sdk.chat.chat.Chat;
+import firefly.sdk.chat.events.EventType;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.core.dao.Thread;
-import sdk.chat.micro.chat.Chat;
-import sdk.chat.micro.events.EventType;
 import firefly.sdk.chat.namespace.FireflyMessage;
 import firefly.sdk.chat.namespace.Fl;
 import firefly.sdk.chat.types.RoleType;
@@ -67,7 +67,7 @@ public class FirestoreEventHandler extends FirebaseEventHandler implements Consu
                 disposableList.add(chat.getUserEventStream().subscribe(userEvent -> {
                     if (userEvent.type == EventType.Added) {
                         disposableList.add(APIHelper.fetchRemoteUser(userEvent.user.id).subscribe(user -> {
-                            if (userEvent.getMicroUser().roleType.equals(RoleType.owner())) {
+                            if (userEvent.getFireflyUser().roleType.equals(RoleType.owner())) {
                                 finalThread.setCreator(user);
                             }
                             finalThread.addUser(user);
@@ -82,7 +82,7 @@ public class FirestoreEventHandler extends FirebaseEventHandler implements Consu
                     }
                 }));
 
-                disposableList.add(chat.getEvents().getMicroMessages().subscribe(message -> {
+                disposableList.add(chat.getEvents().getFireflyMessages().subscribe(message -> {
                     handleMessageForThread(message, finalThread);
                 }));
             }
@@ -113,36 +113,36 @@ public class FirestoreEventHandler extends FirebaseEventHandler implements Consu
 
     protected void handleMessageForThread(FireflyMessage mm, Thread thread) {
         disposableList.add(APIHelper.fetchRemoteUser(mm.from).subscribe(user -> {
+            if (!thread.containsMessageWithID(mm.id)) {
+                Message message = ChatSDK.db().createEntity(Message.class);
 
-            Message message = ChatSDK.db().createEntity(Message.class);
+                message.setSender(user);
+                message.setMessageStatus(MessageSendStatus.Delivered);
+                message.setDate(new DateTime(mm.date));
+                message.setEntityID(mm.id);
 
-            message.setSender(user);
-            message.setMessageStatus(MessageSendStatus.Delivered);
-            message.setDate(new DateTime(mm.date));
-            message.setEntityID(mm.id);
+                HashMap<String, Object> body = mm.getBody();
 
-            HashMap<String, Object> body = mm.getBody();
+                Object metaObject = body.get(Keys.Meta);
+                if (metaObject instanceof HashMap) {
+                    HashMap<String, Object> meta = new HashMap<>((HashMap) metaObject);
+                    message.setMetaValues(meta);
+                }
 
-            Object metaObject = body.get(Keys.Meta);
-            if (metaObject instanceof HashMap) {
-                HashMap<String, Object> meta = new HashMap<>((HashMap) metaObject);
-                message.setMetaValues(meta);
-            }
+                Object typeObject = body.get(Keys.Type);
 
-            Object typeObject = body.get(Keys.Type);
+                if (typeObject instanceof Long) {
+                    Integer type = ((Long) typeObject).intValue();
+                    message.setType(type);
+                }
+                if (typeObject instanceof Integer) {
+                    Integer type = (Integer) typeObject;
+                    message.setType(type);
+                }
 
-            if (typeObject instanceof Long) {
-                Integer type = ((Long) typeObject).intValue();
-                message.setType(type);
-            }
-            if (typeObject instanceof Integer) {
-                Integer type = (Integer) typeObject;
-                message.setType(type);
-            }
+                thread.addMessage(message);
 
-            thread.addMessage(message);
-
-            eventSource.onNext(NetworkEvent.messageAdded(thread, message));
+                eventSource.onNext(NetworkEvent.messageAdded(thread, message));            }
             }, this));
     }
 

@@ -1,5 +1,6 @@
 package firefly.sdk.chat.firebase.service;
 
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.firestore.FieldValue;
 
 import java.util.Date;

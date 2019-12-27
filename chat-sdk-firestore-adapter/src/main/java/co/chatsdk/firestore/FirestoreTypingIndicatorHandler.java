@@ -7,10 +7,10 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
+import firefly.sdk.chat.chat.Chat;
+import firefly.sdk.chat.firebase.rx.DisposableList;
 import io.reactivex.Completable;
-import sdk.chat.micro.chat.Chat;
 import firefly.sdk.chat.namespace.Fl;
-import sdk.chat.micro.firebase.rx.DisposableList;
 import firefly.sdk.chat.types.TypingStateType;
 
 public class FirestoreTypingIndicatorHandler implements TypingIndicatorHandler {

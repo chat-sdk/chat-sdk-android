@@ -13,14 +13,14 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.firebase.FirebaseThreadHandler;
+import firefly.sdk.chat.chat.Chat;
+import firefly.sdk.chat.firebase.rx.DisposableList;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
-import sdk.chat.micro.chat.Chat;
 import firefly.sdk.chat.namespace.Fl;
 import firefly.sdk.chat.namespace.FireflyUser;
-import sdk.chat.micro.firebase.rx.DisposableList;
 import firefly.sdk.chat.types.RoleType;
 
 public class FirestoreThreadHandler extends FirebaseThreadHandler {

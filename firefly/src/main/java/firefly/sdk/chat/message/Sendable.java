@@ -1,8 +1,5 @@
 package firefly.sdk.chat.message;
 
-import com.google.firebase.firestore.Exclude;
-import com.google.firebase.firestore.IgnoreExtraProperties;
-
 import java.util.Date;
 import java.util.HashMap;
 
@@ -10,10 +7,8 @@ import firefly.sdk.chat.firebase.service.Keys;
 import firefly.sdk.chat.namespace.Fl;
 import firefly.sdk.chat.types.BaseType;
 
-@IgnoreExtraProperties
 public class Sendable extends BaseMessage {
 
-    @Exclude
     public String id;
 
     public Sendable() {
@@ -38,12 +33,10 @@ public class Sendable extends BaseMessage {
         }
     }
 
-    @Exclude
     public void setBodyType(BaseType type) {
         body.put(Keys.Type, type.get());
     }
 
-    @Exclude
     public BaseType getBodyType() {
         if (body.get(Keys.Type) instanceof String) {
             String type = (String) body.get(Keys.Type);
@@ -52,7 +45,6 @@ public class Sendable extends BaseMessage {
         return BaseType.none();
     }
 
-    @Exclude
     public String getBodyString(String key) throws Exception {
         if (body.get(key) instanceof String) {
             return (String) body.get(key);
@@ -66,4 +58,23 @@ public class Sendable extends BaseMessage {
         sendable.body = body;
         sendable.date = date;
     }
+
+    public BaseMessage toBaseMessage() {
+        BaseMessage message = new BaseMessage();
+        message.from = from;
+        message.body = body;
+        message.date = date;
+        message.type = type;
+        return message;
+    }
+
+    public HashMap<String, Object> toData() {
+        HashMap<String, Object> data = new HashMap<>();
+        data.put(Keys.From, from);
+        data.put(Keys.Body, body);
+        data.put(Keys.Date, Fl.y.getFirebaseService().core.timestamp());
+        data.put(Keys.Type, type);
+        return data;
+    }
+
 }

@@ -15,8 +15,9 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.functions.Action;
 import firefly.sdk.chat.events.EventType;
+import io.reactivex.functions.Consumer;
 
-public class RXRealtime implements Action {
+public class RXRealtime implements Action, Consumer<Throwable> {
 
     protected ChildEventListener listener;
     protected Query ref;
@@ -56,7 +57,7 @@ public class RXRealtime implements Action {
 //                    emitter.onError(new Exception(Fl.y.context().getString(R.string.error_null_snapshot)));
 //                }
             }).onCancelled(error -> emitter.onError(error.toException())));
-        }).doOnDispose(this);
+        }).doOnDispose(this).doOnError(this);
     }
 
     public Single<String> add(DatabaseReference ref, Object data) {
@@ -88,6 +89,7 @@ public class RXRealtime implements Action {
     }
 
     public Single<DataSnapshot> get(Query ref) {
+        ref.keepSynced(true);
         return Single.create(emitter -> ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -105,5 +107,10 @@ public class RXRealtime implements Action {
         if (listener != null && ref != null) {
             ref.removeEventListener(listener);
         }
+    }
+
+    @Override
+    public void accept(Throwable throwable) throws Exception {
+        throwable.printStackTrace();
     }
 }

@@ -1,8 +1,8 @@
 package co.chatsdk.firestore;
 
 import co.chatsdk.core.handlers.BlockingHandler;
+import firefly.sdk.chat.chat.User;
 import io.reactivex.Completable;
-import sdk.chat.micro.chat.User;
 import firefly.sdk.chat.namespace.Fl;
 
 public class FirestoreBlockingHandler implements BlockingHandler {

@@ -1,7 +1,5 @@
 package firefly.sdk.chat.message;
 
-import com.google.firebase.firestore.Exclude;
-
 import io.reactivex.Completable;
 import firefly.sdk.chat.namespace.Fl;
 import firefly.sdk.chat.types.InvitationType;
@@ -21,12 +19,10 @@ public class Invitation extends Sendable {
         body.put(ChatId, chatId);
     }
 
-    @Exclude
     public InvitationType getBodyType() {
         return new InvitationType(super.getBodyType());
     }
 
-    @Exclude
     public String getChatId() throws Exception {
         return getBodyString(ChatId);
     }

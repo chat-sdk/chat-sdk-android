@@ -1,5 +1,8 @@
 package firefly.sdk.chat.events;
 
+import com.google.firebase.database.GenericTypeIndicator;
+
+import java.util.HashMap;
 import java.util.Map;
 
 public class ListEvent extends Event {

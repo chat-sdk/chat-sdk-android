@@ -1,7 +1,5 @@
 package firefly.sdk.chat.message;
 
-import com.google.firebase.firestore.Exclude;
-
 import firefly.sdk.chat.types.SendableType;
 import firefly.sdk.chat.types.TypingStateType;
 
@@ -16,7 +14,6 @@ public class TypingState extends Sendable {
         setBodyType(type);
     }
 
-    @Exclude
     public TypingStateType getBodyType() {
         return new TypingStateType(super.getBodyType());
     }

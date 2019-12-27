@@ -1,7 +1,5 @@
 package firefly.sdk.chat.message;
 
-import com.google.firebase.firestore.Exclude;
-
 import firefly.sdk.chat.types.PresenceType;
 import firefly.sdk.chat.types.SendableType;
 
@@ -18,7 +16,6 @@ public class Presence extends Sendable {
         super.setBodyType(type);
     }
 
-    @Exclude
     public PresenceType getBodyType() {
         return new PresenceType(super.getBodyType());
     }

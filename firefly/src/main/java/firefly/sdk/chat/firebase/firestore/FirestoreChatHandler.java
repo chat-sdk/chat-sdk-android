@@ -3,9 +3,10 @@ package firefly.sdk.chat.firebase.firestore;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.util.HashMap;
-import java.util.Map;
 
+import firefly.sdk.chat.firebase.generic.Generic;
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import firefly.sdk.chat.R;
@@ -30,15 +31,17 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
 
     @Override
     public Observable<HashMap<String, Object>> metaOn(Path path) {
-        return new RXFirestore().on(Ref.document(path)).map(snapshot -> {
-            Map<String, Object> map = snapshot.getData();
-            if (map != null) {
-                Object metaObject = map.get(Keys.Meta);
-                if (metaObject instanceof HashMap) {
-                    return (HashMap<String, Object>) metaObject;
+        return new RXFirestore().on(Ref.document(path)).flatMapMaybe(snapshot -> {
+            if (snapshot.getData() != null) {
+                HashMap<String, HashMap<String, Object>> data = snapshot.toObject(Generic.UserMetaData.class);
+                if (data != null) {
+                    HashMap<String, Object> meta = data.get(Keys.Meta);
+                    if (meta != null) {
+                        return Maybe.just(meta);
+                    }
                 }
             }
-            throw new Exception(Fl.y.context().getString(R.string.error_null_data));
+            return Maybe.empty();
         });
     }
 

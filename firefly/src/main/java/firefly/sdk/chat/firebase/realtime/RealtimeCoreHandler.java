@@ -12,12 +12,13 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import firefly.sdk.chat.firebase.generic.GenericTypes;
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Function;
 import firefly.sdk.chat.R;
 import firefly.sdk.chat.chat.User;
 import firefly.sdk.chat.events.EventType;
@@ -27,19 +28,19 @@ import firefly.sdk.chat.firebase.service.Keys;
 import firefly.sdk.chat.firebase.service.Path;
 import firefly.sdk.chat.message.Sendable;
 import firefly.sdk.chat.namespace.Fl;
-import firefly.sdk.chat.types.SendableType;
+import io.reactivex.functions.Function;
 
 public class RealtimeCoreHandler extends FirebaseCoreHandler {
 
     @Override
     public Observable<ListEvent> listChangeOn(Path path) {
-        return new RXRealtime().on(Ref.get(path)).map(change -> {
+        return new RXRealtime().on(Ref.get(path)).flatMapMaybe(change -> {
             DataSnapshot snapshot = change.snapshot;
-            HashMap<String, Object> data = snapshot.getValue (HashMap.class);
+            HashMap<String, Object> data = snapshot.getValue(GenericTypes.listEvent());
             if (data != null) {
-                return new ListEvent(change.snapshot.getKey(), data, change.type);
+                return Maybe.just(new ListEvent(change.snapshot.getKey(), data, change.type));
             }
-            throw new Exception(Fl.y.context().getString(R.string.error_null_data));
+            return Maybe.never();
         });
     }
 
@@ -50,7 +51,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
 
     @Override
     public Single<String> send(Path messagesPath, Sendable sendable) {
-        return new RXRealtime().add(Ref.get(messagesPath), sendable);
+        return new RXRealtime().add(Ref.get(messagesPath), sendable.toData());
     }
 
     @Override
@@ -96,20 +97,22 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
     }
 
     @Override
-    public Single<Date> dateOfLastDeliveryReceipt(Path messagesPath) {
+    public Single<Date> dateOfLastSendMessage(Path messagesPath) {
         return Single.create((SingleOnSubscribe<Query>) emitter -> {
-
             Query query = Ref.get(messagesPath);
 
-            query = query.equalTo(SendableType.DeliveryReceipt, Keys.Type);
             query = query.equalTo(Fl.y.currentUserId(), Keys.From);
             query = query.orderByChild(Keys.Date);
-            query = query.limitToFirst(1);
+            query = query.limitToLast(1);
 
             emitter.onSuccess(query);
         }).flatMap(query -> new RXRealtime().get(query).map(snapshot -> {
             Sendable sendable = sendableFromSnapshot(snapshot);
-            return sendable.getDate();
+            if (sendable != null) {
+                return sendable.getDate();
+            } else {
+                return new Date(0);
+            }
         }));
     }
 
@@ -119,19 +122,21 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
             Sendable sendable = new Sendable();
             sendable.id = snapshot.getKey();
 
-            if (snapshot.hasChild(Keys.Body)) {
-                sendable.from = snapshot.child(Keys.Body).getValue(String.class);
+            if (snapshot.hasChild(Keys.From)) {
+                sendable.from = snapshot.child(Keys.From).getValue(String.class);
             }
             if (snapshot.hasChild(Keys.Date)) {
-                sendable.date = snapshot.child(Keys.Date).getValue(Date.class);
+                Long timestamp = snapshot.child(Keys.Date).getValue(Long.class);
+                if (timestamp != null) {
+                    sendable.date = new Date(timestamp);
+                }
             }
             if (snapshot.hasChild(Keys.Type)) {
                 sendable.type = snapshot.child(Keys.Type).getValue(String.class);
             }
             if (snapshot.hasChild(Keys.Body)) {
-                sendable.body = snapshot.child(Keys.Body).getValue(HashMap.class);
+                sendable.body = snapshot.child(Keys.Body).getValue(GenericTypes.messageBody());
             }
-
             return sendable;
         }
         return null;
@@ -148,11 +153,14 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
             }
             query = query.limitToLast(limit);
             emitter.onSuccess(query);
-        }).flatMapObservable((Function<Query, ObservableSource<Sendable>>) query -> new RXRealtime().on(query).map(change -> {
+        }).flatMapObservable(query -> new RXRealtime().on(query).flatMapMaybe(change -> {
             if (change.type == EventType.Added) {
-                return sendableFromSnapshot(change.snapshot);
+                Sendable sendable = sendableFromSnapshot(change.snapshot);
+                if (sendable != null) {
+                    return Maybe.just(sendable);
+                }
             }
-            return null;
+            return Maybe.empty();
         }));
     }
 

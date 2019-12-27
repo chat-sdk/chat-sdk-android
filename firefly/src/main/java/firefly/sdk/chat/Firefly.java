@@ -115,10 +115,10 @@ public class Firefly extends AbstractChat {
 
         // MESSAGE DELETION
 
-        // We always delete typing state and delivery receipt messages
+        // We always delete typing state and presence messages
         Observable<Sendable> stream = getEvents().getSendables().pastAndNewEvents();
         if (!config.deleteMessagesOnReceipt) {
-            stream = stream.filter(MessageStreamFilter.bySendableType(SendableType.typingState(), SendableType.deliveryReceipt()));
+            stream = stream.filter(MessageStreamFilter.bySendableType(SendableType.typingState(), SendableType.presence()));
         }
         // If deletion is enabled, we don't filter so we delete all the message types
         dl.add(stream.flatMapCompletable(this::deleteSendable).subscribe());

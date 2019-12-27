@@ -107,7 +107,7 @@ public abstract class AbstractChat implements Consumer<Throwable> {
      */
     protected Single<Date> dateOfLastDeliveryReceipt() {
         return Fl.y.getFirebaseService().core
-                .dateOfLastDeliveryReceipt(messagesPath())
+                .dateOfLastSendMessage(messagesPath())
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
     }
