@@ -151,14 +151,10 @@ public class FirestoreEventHandler extends FirebaseEventHandler implements Consu
         disposableList.add(Fl.y.getContactEvents().subscribe(userEvent -> {
             User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEvent.user.id);
             if (userEvent.type == EventType.Added) {
-                disposableList.add(ChatSDK.core().userOn(contact).subscribe(() -> {
-                    ChatSDK.contact().addContactLocal(contact, ConnectionType.Contact);
-                    eventSource.onNext(NetworkEvent.contactAdded(contact));
-                }, this));
+                disposableList.add(ChatSDK.contact().addContactLocal(contact, ConnectionType.Contact).doOnError(this).subscribe());
             }
             if (userEvent.type == EventType.Removed) {
                 ChatSDK.contact().deleteContactLocal(contact, ConnectionType.Contact);
-                eventSource.onNext(NetworkEvent.contactDeleted(contact));
             }
         }, this));
     }

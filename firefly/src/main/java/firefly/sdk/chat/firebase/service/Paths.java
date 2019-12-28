@@ -64,6 +64,10 @@ public class Paths extends Keys {
         return chatsPath().child(chatId);
     }
 
+    public static Path groupChatMetaPath(String chatId) {
+        return chatsPath().child(chatId).child(Meta);
+    }
+
     public static Path groupChatMessagesPath(String chatId) {
         return groupChatPath(chatId).child(Messages);
     }

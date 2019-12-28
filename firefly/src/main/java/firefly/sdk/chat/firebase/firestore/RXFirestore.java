@@ -1,5 +1,6 @@
 package firefly.sdk.chat.firebase.firestore;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -8,6 +9,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import firefly.sdk.chat.firebase.rx.Optional;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
@@ -26,9 +28,7 @@ public class RXFirestore implements Action {
             lr = ref.addSnapshotListener((snapshot, e) -> {
                 if (e != null) {
                     emitter.onError(e);
-                } else if (snapshot == null || !snapshot.exists()) {
-                    emitter.onError(new Throwable(Fl.y.context().getString(R.string.error_null_snapshot)));
-                } else {
+                } else if (snapshot != null) {
                     emitter.onNext(snapshot);
                 }
             });
@@ -61,12 +61,24 @@ public class RXFirestore implements Action {
         return Completable.create(emitter -> ref.set(data).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError));
     }
 
-    public Single<QuerySnapshot> get(Query ref) {
-        return Single.create(emitter -> ref.get().addOnSuccessListener(emitter::onSuccess).addOnFailureListener(emitter::onError));
+    public Single<Optional<QuerySnapshot>> get(Query ref) {
+        return Single.create(emitter -> ref.get().addOnSuccessListener(snapshots -> {
+            if (snapshots != null) {
+                emitter.onSuccess(new Optional<>(snapshots));
+            } else {
+                emitter.onSuccess(new Optional<>());
+            }
+        }).addOnFailureListener(emitter::onError));
     }
 
-    public Single<DocumentSnapshot> get(DocumentReference ref) {
-        return Single.create(emitter -> ref.get().addOnSuccessListener(emitter::onSuccess).addOnFailureListener(emitter::onError));
+    public Single<Optional<DocumentSnapshot>> get(DocumentReference ref) {
+        return Single.create(emitter -> ref.get().addOnSuccessListener(snapshot -> {
+            if (snapshot != null && snapshot.exists() && snapshot.getData() != null) {
+                emitter.onSuccess(new Optional<>(snapshot));
+            } else {
+                emitter.onSuccess(new Optional<>());
+            }
+        }).addOnFailureListener(emitter::onError));
     }
 
     @Override

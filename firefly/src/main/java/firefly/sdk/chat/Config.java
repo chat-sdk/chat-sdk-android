@@ -20,7 +20,7 @@ public class Config {
 
     /**
      * If this is enabled, each time a message is received, it will be
-     * deleted from our inbound message queue on Firestore. Even if this
+     * deleted from our inbound message queue childOn Firestore. Even if this
      * is set to false, typing indicator messages and presence messages will
      * always be deleted as they don't have any use in the message archive
      */
@@ -35,7 +35,7 @@ public class Config {
      * This will be the root of the Firefly Firebase database i.e.
      * /root/[sandbox]/users
      */
-    public String root = "fireflyy";
+    public String root = "firefly";
 
     /**
      * This will be the sandbox of the Firefly Firebase database i.e.

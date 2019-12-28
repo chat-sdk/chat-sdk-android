@@ -86,7 +86,7 @@ public class Firefly extends AbstractChat {
 
     public void initialize(Context context, @Nullable Config config) {
         this.context = new WeakReference<>(context);
-        if (config == null) {
+        if (!isInitialized()) {
             config = new Config();
         }
         this.config = config;
@@ -97,6 +97,10 @@ public class Firefly extends AbstractChat {
         if (config.database == Config.DatabaseType.Realtime) {
             firebaseService = new RealtimeService();
         }
+    }
+
+    public boolean isInitialized() {
+        return config != null;
     }
 
     public void initialize(Context context) {
@@ -133,7 +137,7 @@ public class Firefly extends AbstractChat {
                         .subscribe());
             }
             // If message deletion is disabled, instead mark the message as received. This means
-            // that when we add a listener, we only get new messages
+            // that when we add a childListener, we only get new messages
             if (!config.deleteMessagesOnReceipt) {
                 dl.add(sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), message.id)
                         .doOnError(Firefly.this)

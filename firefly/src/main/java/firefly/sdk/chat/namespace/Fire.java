@@ -10,4 +10,5 @@ import firefly.sdk.chat.Firefly;
  */
 public class Fire {
     public static final Firefly fly = Firefly.shared();
+    public static final Firefly Stream = Firefly.shared();
 }

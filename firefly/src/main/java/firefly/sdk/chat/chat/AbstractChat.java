@@ -107,7 +107,7 @@ public abstract class AbstractChat implements Consumer<Throwable> {
      */
     protected Single<Date> dateOfLastDeliveryReceipt() {
         return Fl.y.getFirebaseService().core
-                .dateOfLastSendMessage(messagesPath())
+                .dateOfLastSentMessage(messagesPath())
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
     }
@@ -290,6 +290,8 @@ public abstract class AbstractChat implements Consumer<Throwable> {
      * @param sendable the base sendable
      */
     protected void passMessageResultToStream(Sendable sendable) {
+
+        System.out.println("Sendable: " + sendable.type + " " + sendable.id);
 
         if (sendable.type.equals(SendableType.Message)) {
             events.getMessages().onNext(Message.fromSendable(sendable));

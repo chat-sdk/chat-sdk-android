@@ -4,4 +4,5 @@
     <string name="error_no_authenticated_user">Firebase must be authenticated to connect</string>
     <string name="error_initialize_not_run">You need to call Fly.y.initialize(…)</string>
     <string name="error_null_data">Null data returned</string>
+    <string name="error_no_value">No value present</string>
 </resources>

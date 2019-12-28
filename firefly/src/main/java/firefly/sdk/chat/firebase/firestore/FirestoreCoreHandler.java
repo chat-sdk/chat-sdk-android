@@ -119,8 +119,8 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
 
             emitter.onSuccess(query);
         }).flatMap(query -> new RXFirestore().get(query)).flatMapObservable(snapshots -> Observable.create(emitter -> {
-            if (snapshots != null) {
-                for (DocumentChange c : snapshots.getDocumentChanges()) {
+            if (!snapshots.isEmpty()) {
+                for (DocumentChange c : snapshots.get().getDocumentChanges()) {
                     DocumentSnapshot s = c.getDocument();
                     // Add the message
                     if (s.exists() && c.getType() == DocumentChange.Type.ADDED) {
@@ -135,7 +135,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
     }
 
     @Override
-    public Single<Date> dateOfLastSendMessage(Path messagesPath) {
+    public Single<Date> dateOfLastSentMessage(Path messagesPath) {
         return Single.create((SingleOnSubscribe<Query>) emitter -> {
             Query query = Ref.collection(messagesPath);
 
@@ -145,11 +145,13 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
 
             emitter.onSuccess(query);
         }).flatMap(query -> new RXFirestore().get(query).map(snapshots -> {
-           if (snapshots.getDocumentChanges().size() > 0) {
-                DocumentChange change = snapshots.getDocumentChanges().get(0);
-                if (change.getDocument().exists()) {
-                    Sendable sendable = change.getDocument().toObject(Sendable.class);
-                    return sendable.getDate();
+            if (!snapshots.isEmpty()) {
+                if (snapshots.get().getDocumentChanges().size() > 0) {
+                    DocumentChange change = snapshots.get().getDocumentChanges().get(0);
+                    if (change.getDocument().exists()) {
+                        Sendable sendable = change.getDocument().toObject(Sendable.class);
+                        return sendable.getDate();
+                    }
                 }
             }
             return new Date(0);

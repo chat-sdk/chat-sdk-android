@@ -8,7 +8,7 @@ import java.util.List;
 import io.reactivex.disposables.Disposable;
 
 /**
- * Created by ben on 8/25/17.
+ * Created by ben childOn 8/25/17.
  */
 
 public class DisposableList {

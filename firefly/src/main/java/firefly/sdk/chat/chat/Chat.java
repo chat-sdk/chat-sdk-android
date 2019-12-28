@@ -7,6 +7,7 @@ import java.util.List;
 
 import firefly.sdk.chat.events.EventType;
 import firefly.sdk.chat.events.UserEvent;
+import firefly.sdk.chat.filter.MessageStreamFilter;
 import firefly.sdk.chat.firebase.rx.MultiQueueSubject;
 import firefly.sdk.chat.firebase.service.Keys;
 import firefly.sdk.chat.firebase.service.Path;
@@ -32,8 +33,15 @@ import firefly.sdk.chat.types.TypingStateType;
 
 public class Chat extends AbstractChat {
 
+    public static class Meta {
+        public String name;
+        public String avatarURL;
+        public Date created;
+    }
+
     protected String id;
     protected Date joined;
+    protected Date created;
     protected String name;
     protected String avatarURL;
 
@@ -55,11 +63,14 @@ public class Chat extends AbstractChat {
     public void connect() throws Exception {
         disconnect();
 
+        System.out.println("Connect to chat: " + id);
+
         // If delivery receipts are enabled, send the delivery receipt
         if (config.deliveryReceiptsEnabled) {
             dl.add(getEvents()
                     .getMessages()
                     .pastAndNewEvents()
+                    .filter(MessageStreamFilter.notFromMe())
                     .flatMapSingle(message -> sendDeliveryReceipt(DeliveryReceiptType.received(), message.id))
                     .doOnError(this)
                     .subscribe());
@@ -78,26 +89,23 @@ public class Chat extends AbstractChat {
 
         // Handle name and image change
         dl.add(Fl.y.getFirebaseService().chat
-                .metaOn(Paths.groupChatPath(id))
+                .metaOn(Paths.groupChatMetaPath(id))
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(meta -> {
             if (meta != null) {
-                Object nameObject = meta.get(Keys.Name);
-                if (nameObject instanceof String) {
-                    String newName = (String) nameObject;
-                    if (!newName.equals(name)) {
-                        name = newName;
-                        nameStream.onNext(name);
-                    }
+                String newName = meta.name;
+                if (newName != null && !newName.equals(name)) {
+                    name = newName;
+                    nameStream.onNext(name);
                 }
-                Object avatarURLObject = meta.get(Keys.Avatar);
-                if (avatarURLObject instanceof String) {
-                    String newAvatarURL = (String) avatarURLObject;
-                    if (!newAvatarURL.equals(avatarURL)) {
-                        avatarURL = newAvatarURL;
-                        avatarURLStream.onNext(avatarURL);
-                    }
+                String newAvatarURL = meta.avatarURL;
+                if (newAvatarURL != null && !newAvatarURL.equals(avatarURL)) {
+                    avatarURL = newAvatarURL;
+                    avatarURLStream.onNext(avatarURL);
+                }
+                if (meta.created != null) {
+                    created = meta.created;
                 }
             }
         }, this));
@@ -151,7 +159,7 @@ public class Chat extends AbstractChat {
                 completables.add(Fl.y.sendInvitation(user.id, InvitationType.chat(), id).ignoreElement());
             }
         }
-        return Completable.merge(completables);
+        return Completable.merge(completables).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
@@ -258,7 +266,7 @@ public class Chat extends AbstractChat {
 
     /**
      * Update the role for a user - whether you can do this will
-     * depend on your admin level
+     * depend childOn your admin level
      * @param user to change role
      * @param roleType new role
      * @return completion

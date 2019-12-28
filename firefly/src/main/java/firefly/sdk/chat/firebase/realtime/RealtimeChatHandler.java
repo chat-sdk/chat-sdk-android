@@ -2,22 +2,19 @@ package firefly.sdk.chat.firebase.realtime;
 
 import com.google.firebase.database.DataSnapshot;
 
+import java.util.Date;
 import java.util.HashMap;
 
-import firefly.sdk.chat.firebase.generic.GenericTypes;
+import firefly.sdk.chat.chat.Chat;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import firefly.sdk.chat.R;
 import firefly.sdk.chat.chat.User;
 import firefly.sdk.chat.firebase.service.FirebaseChatHandler;
 import firefly.sdk.chat.firebase.service.Keys;
 import firefly.sdk.chat.firebase.service.Path;
 import firefly.sdk.chat.firebase.service.Paths;
-import firefly.sdk.chat.namespace.Fl;
-import io.reactivex.functions.Function;
 
 public class RealtimeChatHandler extends FirebaseChatHandler {
 
@@ -32,16 +29,26 @@ public class RealtimeChatHandler extends FirebaseChatHandler {
     }
 
     @Override
-    public Observable<HashMap<String, Object>> metaOn(Path path) {
+    public Observable<Chat.Meta> metaOn(Path path) {
         return new RXRealtime().on(Ref.get(path)).flatMapMaybe(change -> {
             DataSnapshot snapshot = change.snapshot;
-            if (snapshot != null && snapshot.hasChild(Keys.Meta)) {
-                HashMap<String, Object> meta = snapshot.child(Keys.Meta).getValue(GenericTypes.meta());
-                if (meta != null) {
-                    return Maybe.just(meta);
+
+            Chat.Meta meta = new Chat.Meta();
+
+            if (snapshot.hasChild(Keys.Name)) {
+                meta.name = snapshot.child(Keys.Name).getValue(String.class);
+            }
+            if (snapshot.hasChild(Keys.Created)) {
+                Long date = snapshot.child(Keys.Created).getValue(Long.class);
+                if (date != null) {
+                    meta.created = new Date(date);
                 }
             }
-            return Maybe.empty();
+            if (snapshot.hasChild(Keys.Avatar)) {
+                meta.avatarURL = snapshot.child(Keys.Avatar).getValue(String.class);
+            }
+
+            return Maybe.just(meta);
         });
     }
 

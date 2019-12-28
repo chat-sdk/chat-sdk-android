@@ -85,7 +85,7 @@ public abstract class FirebaseCoreHandler {
      * @param messagesPath
      * @return single date
      */
-    public abstract Single<Date> dateOfLastSendMessage(Path messagesPath);
+    public abstract Single<Date> dateOfLastSentMessage(Path messagesPath);
 
     /**
      * Start listening to the current message reference and pass the messages to the events
