@@ -50,18 +50,20 @@ public class FirebaseEventHandler extends AbstractEventHandler implements Consum
 
         final User user = DaoCore.fetchEntityWithEntityID(User.class, entityID);
 
-        if(ChatSDK.hook() != null) {
-            HashMap<String, Object> data = new HashMap<>();
-            data.put(HookEvent.User, user);
-            ChatSDK.hook().executeHook(HookEvent.UserOn, data).subscribe(new CrashReportingCompletableObserver());;
-        }
+        if (user != null) {
+            if(ChatSDK.hook() != null) {
+                HashMap<String, Object> data = new HashMap<>();
+                data.put(HookEvent.User, user);
+                ChatSDK.hook().executeHook(HookEvent.UserOn, data).doOnError(this).subscribe();
+            }
 
-        threadsOn(user);
-        publicThreadsOn(user);
-        contactsOn(user);
+            threadsOn(user);
+            publicThreadsOn(user);
+            contactsOn(user);
 
-        if (ChatSDK.push() != null) {
-            ChatSDK.push().subscribeToPushChannel(user.getPushChannel());
+            if (ChatSDK.push() != null) {
+                ChatSDK.push().subscribeToPushChannel(user.getPushChannel());
+            }
         }
     }
 
@@ -207,7 +209,6 @@ public class FirebaseEventHandler extends AbstractEventHandler implements Consum
     }
 
     protected void publicThreadsOff (User user) {
-        String entityID = user.getEntityID();
         FirebaseReferenceManager.shared().removeListeners(FirebasePaths.publicThreadsRef());
         for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
             ThreadWrapper wrapper = new ThreadWrapper(thread);
@@ -218,7 +219,6 @@ public class FirebaseEventHandler extends AbstractEventHandler implements Consum
     }
 
     protected void contactsOff (User user) {
-        String entityID = user.getEntityID();
         for (User contact : ChatSDK.contact().contacts()) {
             UserWrapper.initWithModel(contact).metaOff();
         }

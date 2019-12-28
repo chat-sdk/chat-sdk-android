@@ -74,7 +74,7 @@ dependencies {
     implementation project(path: ':chat-sdk-firebase-ui')
     implementation project(path: ':chat-sdk-profile-pictures')
     compile project(path: ':firefly')
-    compile project(path: ':chat-sdk-firestore-adapter')
+    compile project(path: ':chat-sdk-firefly-adapter')
 }
 
 apply plugin: 'com.google.gms.google-services'

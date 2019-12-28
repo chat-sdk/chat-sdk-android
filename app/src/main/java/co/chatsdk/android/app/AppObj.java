@@ -9,12 +9,14 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
-import co.chatsdk.firestore.FirestoreNetworkAdapter;
+import co.chatsdk.firefly.FireflyNetworkAdapter;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import firefly.sdk.chat.Config;
+import firefly.sdk.chat.namespace.Fl;
 
 /**
- * Created by itzik on 6/8/2014.
+ * Created by itzik childOn 6/8/2014.
  */
 public class AppObj extends MultiDexApplication {
 
@@ -33,8 +35,6 @@ public class AppObj extends MultiDexApplication {
             config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
             config.publicRoomCreationEnabled(true);
             config.pushNotificationSound("default");
-            config.pushNotificationsForPublicChatRoomsEnabled(false);
-//            config.messagesToLoadPerBatch(10);
 
             config.twitterLogin("Kqprq5b6bVeEfcMAGoHzUmB3I", "hPd9HCt3PLnifQFrGHJWi6pSZ5jF7kcHKXuoqB8GJpSDAlVcLq");
             config.googleLogin("1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com");
@@ -44,7 +44,16 @@ public class AppObj extends MultiDexApplication {
 //            config.remoteConfigEnabled(true);
 
 //            ChatSDK.initialize(context, config.build(), FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
-            ChatSDK.initialize(context, config.build(), FirestoreNetworkAdapter.class, BaseInterfaceAdapter.class);
+
+            // Firefly configuration
+            Config fireflyConfig = new Config();
+            fireflyConfig.root = config.build().firebaseRootPath;
+            fireflyConfig.sandbox = "firefly";
+            fireflyConfig.database = Config.DatabaseType.Realtime;
+
+            Fl.y.initialize(context, fireflyConfig);
+
+            ChatSDK.initialize(context, config.build(), FireflyNetworkAdapter.class, BaseInterfaceAdapter.class);
 
 
 //            AConfigurator.configure();
