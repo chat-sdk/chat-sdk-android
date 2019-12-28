@@ -63,6 +63,13 @@ public class Path {
         return this;
     }
 
+    public Path removeLast() {
+        if (components.size() > 0) {
+            components.remove(components.size() - 1);
+        }
+        return this;
+    }
+
     public List<String> getComponents() {
         return components;
     }

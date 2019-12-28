@@ -124,15 +124,20 @@ public abstract class AbstractChat implements Consumer<Throwable> {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    /**
-     * Send a message to a messages ref
-     * @param messagesPath
-     * @param sendable item to be sent
-     * @return single containing message id
-     */
-    public Single<String> send(Path messagesPath, Sendable sendable) {
+    public Completable send(Path messagesPath, Sendable sendable) {
+        return send(messagesPath, sendable, null);
+    }
+
+        /**
+         * Send a message to a messages ref
+         * @param messagesPath
+         * @param sendable item to be sent
+         * @param newId the ID of the new message
+         * @return single containing message id
+         */
+    public Completable send(Path messagesPath, Sendable sendable, @Nullable Consumer<String> newId) {
         return Fl.y.getFirebaseService().core
-                .send(messagesPath, sendable)
+                .send(messagesPath, sendable, newId)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
     }
@@ -259,14 +264,6 @@ public abstract class AbstractChat implements Consumer<Throwable> {
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
     }
-
-    /**
-     * Send a sendable
-     * @param toUserId user to send the message to
-     * @param sendable item to send
-     * @return single with message Id
-     */
-    public abstract Single<String> send(String toUserId, Sendable sendable);
 
     /**
      * Connect to the chat

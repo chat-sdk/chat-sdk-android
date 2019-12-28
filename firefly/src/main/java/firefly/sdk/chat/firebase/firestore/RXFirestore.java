@@ -1,5 +1,7 @@
 package firefly.sdk.chat.firebase.firestore;
 
+import androidx.annotation.Nullable;
+
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
@@ -11,13 +13,17 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import firefly.sdk.chat.firebase.rx.Optional;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Action;
 import firefly.sdk.chat.R;
 import firefly.sdk.chat.namespace.Fl;
+import io.reactivex.functions.Consumer;
 
 public class RXFirestore implements Action {
 
@@ -47,10 +53,18 @@ public class RXFirestore implements Action {
         }).doOnDispose(this);
     }
 
-    public Single<DocumentReference> add(CollectionReference ref, Object data) {
-        return Single.create((SingleOnSubscribe<DocumentReference>) emitter -> ref.add(data)
-                .addOnSuccessListener(emitter::onSuccess)
-                .addOnFailureListener(emitter::onError)).doOnDispose(this);
+    public Single<String> add(CollectionReference ref, Object data) {
+        return add(ref, data, null);
+    }
+
+    public Single<String> add(CollectionReference ref, Object data, @Nullable Consumer<String> newId) {
+        return Single.create(emitter -> {
+            final DocumentReference docRef = ref.document();
+            if (newId != null) {
+                newId.accept(docRef.getId());
+            }
+            docRef.set(data).addOnSuccessListener(aVoid -> emitter.onSuccess(docRef.getId())).addOnFailureListener(emitter::onError);
+        });
     }
 
     public Completable delete(DocumentReference ref) {

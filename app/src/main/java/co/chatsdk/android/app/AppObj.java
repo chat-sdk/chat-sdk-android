@@ -49,7 +49,7 @@ public class AppObj extends MultiDexApplication {
             Config fireflyConfig = new Config();
             fireflyConfig.root = config.build().firebaseRootPath;
             fireflyConfig.sandbox = "firefly";
-            fireflyConfig.database = Config.DatabaseType.Realtime;
+            fireflyConfig.database = Config.DatabaseType.Firestore;
 
             Fl.y.initialize(context, fireflyConfig);
 

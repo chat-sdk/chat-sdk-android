@@ -21,6 +21,7 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import firefly.sdk.chat.chat.User;
 import firefly.sdk.chat.events.EventType;
@@ -55,8 +56,8 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
     }
 
     @Override
-    public Single<String> send(Path messagesPath, Sendable sendable) {
-        return new RXFirestore().add(Ref.collection(messagesPath), sendable.toData()).map(DocumentReference::getId);
+    public Completable send(Path messagesPath, Sendable sendable, Consumer<String> newId) {
+        return new RXFirestore().add(Ref.collection(messagesPath), sendable.toData(), newId).ignoreElement();
     }
 
     @Override

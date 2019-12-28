@@ -5,6 +5,8 @@ import com.google.firebase.firestore.DocumentReference;
 import java.util.Date;
 import java.util.HashMap;
 
+import javax.annotation.Nullable;
+
 import firefly.sdk.chat.chat.Chat;
 import firefly.sdk.chat.firebase.generic.Generic;
 import io.reactivex.Completable;
@@ -18,6 +20,7 @@ import firefly.sdk.chat.firebase.service.Paths;
 import firefly.sdk.chat.firebase.service.Path;
 import firefly.sdk.chat.firebase.service.FirebaseChatHandler;
 import firefly.sdk.chat.namespace.Fl;
+import io.reactivex.functions.Consumer;
 
 public class FirestoreChatHandler extends FirebaseChatHandler {
 
@@ -33,6 +36,7 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
 
     @Override
     public Observable<Chat.Meta> metaOn(Path path) {
+        // Remove the last path because in this case, the document ref does not include the "meta keyword"
         return new RXFirestore().on(Ref.document(path)).flatMapMaybe(snapshot -> {
             Chat.Meta meta = new Chat.Meta();
 
@@ -44,8 +48,9 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
         });
     }
 
-    public Single<String> add(Path path, HashMap<String, Object> data) {
-        return new RXFirestore().add(Ref.collection(path), data).map(DocumentReference::getId);
+    @Override
+    public Single<String> add(Path path, HashMap<String, Object> data, @Nullable Consumer<String> newId) {
+        return new RXFirestore().add(Ref.collection(path), data, newId);
     }
 
 }

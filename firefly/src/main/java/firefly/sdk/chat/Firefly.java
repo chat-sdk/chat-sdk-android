@@ -18,6 +18,7 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import firefly.sdk.chat.chat.AbstractChat;
 import firefly.sdk.chat.chat.Chat;
@@ -216,16 +217,27 @@ public class Firefly extends AbstractChat {
         return deleteSendable(Paths.messagePath(sendable.id));
     }
 
-    public Single<String> sendPresence(String userId, PresenceType type) {
-        return send(userId, new Presence(type));
+    public Completable sendPresence(String userId, PresenceType type) {
+        return sendPresence(userId, type, null);
     }
 
-    public Single<String> sendInvitation(String userId, InvitationType type, String groupId) {
-        return send(userId, new Invitation(type, groupId));
+    public Completable sendPresence(String userId, PresenceType type, @Nullable Consumer<String> newId) {
+        return send(userId, new Presence(type), newId);
     }
 
-    public Single<String> send(String toUserId, Sendable sendable) {
-        return this.send(Paths.messagesPath(toUserId), sendable);
+
+    public Completable sendInvitation(String userId, InvitationType type, String id) {
+        return sendInvitation(userId, type, id, null);
+    }
+    public Completable sendInvitation(String userId, InvitationType type, String groupId, @Nullable Consumer<String> newId) {
+        return send(userId, new Invitation(type, groupId), newId);
+    }
+
+    public Completable send(String toUserId, Sendable sendable) {
+        return send(toUserId, sendable, null);
+    }
+    public Completable send(String toUserId, Sendable sendable, @Nullable Consumer<String> newId) {
+        return send(Paths.messagesPath(toUserId), sendable, newId);
     }
 
     /**
@@ -237,8 +249,11 @@ public class Firefly extends AbstractChat {
      * @param type - the status getBodyType
      * @return - subscribe to get a completion, error update from the method
      */
-    public Single<String> sendDeliveryReceipt(String userId, DeliveryReceiptType type, String messageId) {
-        return send(userId, new DeliveryReceipt(type, messageId));
+    public Completable sendDeliveryReceipt(String userId, DeliveryReceiptType type, String messageId) {
+        return sendDeliveryReceipt(userId, type, messageId, null);
+    }
+    public Completable sendDeliveryReceipt(String userId, DeliveryReceiptType type, String messageId, @Nullable Consumer<String> newId) {
+        return send(userId, new DeliveryReceipt(type, messageId), newId);
     }
 
     /**
@@ -248,16 +263,26 @@ public class Firefly extends AbstractChat {
      * @param type - the status getBodyType
      * @return - subscribe to get a completion, error update from the method
      */
-    public Single<String> sendTypingIndicator(String userId, TypingStateType type) {
-        return send(userId, new TypingState(type));
+    public Completable sendTypingIndicator(String userId, TypingStateType type) {
+        return sendTypingIndicator(userId, type, null);
+    }
+    public Completable sendTypingIndicator(String userId, TypingStateType type, @Nullable Consumer<String> newId) {
+        return send(userId, new TypingState(type), newId);
     }
 
-    public Single<String> sendMessageWithText(String userId, String text) {
-        return send(userId, new TextMessage(text));
+
+    public Completable sendMessageWithText(String userId, String text) {
+        return sendMessageWithText(userId, text, null);
+    }
+    public Completable sendMessageWithText(String userId, String text, @Nullable Consumer<String> newId) {
+        return send(userId, new TextMessage(text), newId);
     }
 
-    public Single<String> sendMessageWithBody(String userId, HashMap<String, Object> body) {
-        return send(userId, new Message(body));
+    public Completable sendMessageWithBody(String userId, HashMap<String, Object> body) {
+        return sendMessageWithBody(userId, body, null);
+    }
+    public Completable sendMessageWithBody(String userId, HashMap<String, Object> body, @Nullable Consumer<String> newId) {
+        return send(userId, new Message(body), newId);
     }
 
     //

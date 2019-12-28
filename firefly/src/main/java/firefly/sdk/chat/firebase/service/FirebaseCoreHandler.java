@@ -11,6 +11,7 @@ import io.reactivex.Single;
 import firefly.sdk.chat.chat.User;
 import firefly.sdk.chat.events.ListEvent;
 import firefly.sdk.chat.message.Sendable;
+import io.reactivex.functions.Consumer;
 
 public abstract class FirebaseCoreHandler {
 
@@ -34,10 +35,11 @@ public abstract class FirebaseCoreHandler {
      * Send a message to a messages ref
      *
      * @param messagesPath Firestore reference for message collection
-     * @param sendable     item to be sent
-     * @return single containing message id
+     * @param sendable item to be sent
+     * @param newId get the id of the new message before it's sent
+     * @return completion
      */
-    public abstract Single<String> send(Path messagesPath, Sendable sendable);
+    public abstract Completable send(Path messagesPath, Sendable sendable, Consumer<String> newId);
 
     /**
      * Add users to a reference

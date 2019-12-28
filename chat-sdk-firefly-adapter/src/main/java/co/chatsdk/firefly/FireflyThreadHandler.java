@@ -18,6 +18,7 @@ import firefly.sdk.chat.firebase.rx.DisposableList;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import firefly.sdk.chat.namespace.Fl;
 import firefly.sdk.chat.namespace.FireflyUser;
@@ -36,15 +37,11 @@ public class FireflyThreadHandler extends FirebaseThreadHandler {
 
         if (message.getThread().getType() == ThreadType.Private1to1) {
             User otherUser = message.getThread().otherUser();
-            return Fl.y.sendMessageWithBody(otherUser.getEntityID(), messageBody)
-                    .doOnSuccess(message::setEntityID)
-                    .ignoreElement();
+            return Fl.y.sendMessageWithBody(otherUser.getEntityID(), messageBody, message::setEntityID);
         } else {
             Chat chat = Fl.y.getChat(message.getThread().getEntityID());
             if (chat != null) {
-                return chat.sendMessageWithBody(messageBody)
-                        .doOnSuccess(message::setEntityID)
-                        .ignoreElement();
+                return chat.sendMessageWithBody(messageBody, message::setEntityID);
             } else {
                 return Completable.error(new Throwable("Chat chat doesn't exist"));
             }

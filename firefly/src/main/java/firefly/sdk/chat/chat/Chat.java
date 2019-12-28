@@ -1,5 +1,7 @@
 package firefly.sdk.chat.chat;
 
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +19,7 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 import firefly.sdk.chat.message.DeliveryReceipt;
@@ -71,7 +74,7 @@ public class Chat extends AbstractChat {
                     .getMessages()
                     .pastAndNewEvents()
                     .filter(MessageStreamFilter.notFromMe())
-                    .flatMapSingle(message -> sendDeliveryReceipt(DeliveryReceiptType.received(), message.id))
+                    .flatMapCompletable(message -> sendDeliveryReceipt(DeliveryReceiptType.received(), message.id))
                     .doOnError(this)
                     .subscribe());
         }
@@ -156,15 +159,10 @@ public class Chat extends AbstractChat {
         ArrayList<Completable> completables = new ArrayList<>();
         for (User user : users) {
             if (!user.isMe()) {
-                completables.add(Fl.y.sendInvitation(user.id, InvitationType.chat(), id).ignoreElement());
+                completables.add(Fl.y.sendInvitation(user.id, InvitationType.chat(), id));
             }
         }
         return Completable.merge(completables).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
-    }
-
-    @Override
-    public Single<String> send(String toUserId, Sendable sendable) {
-        return send(Paths.groupChatMessagesPath(id), sendable);
     }
 
     public Completable addUser(User user) {
@@ -207,8 +205,12 @@ public class Chat extends AbstractChat {
         return id;
     }
 
-    public Single<String> send(Sendable sendable) {
-        return this.send(Paths.groupChatMessagesPath(id), sendable);
+    public Completable send(Sendable sendable) {
+        return send(sendable, null);
+    }
+
+    public Completable send(Sendable sendable, @Nullable Consumer<String> newId) {
+        return this.send(Paths.groupChatMessagesPath(id), sendable, newId);
     }
 
     public Completable leave() {
@@ -223,8 +225,12 @@ public class Chat extends AbstractChat {
      * @param type - the status getBodyType
      * @return - subscribe to get a completion, error update from the method
      */
-    public Single<String> sendDeliveryReceipt(DeliveryReceiptType type, String messageId) {
-        return send(new DeliveryReceipt(type, messageId));
+    public Completable sendDeliveryReceipt(DeliveryReceiptType type, String messageId) {
+        return sendDeliveryReceipt(type, messageId, null);
+    }
+
+    public Completable sendDeliveryReceipt(DeliveryReceiptType type, String messageId, @Nullable Consumer<String> newId) {
+        return send(new DeliveryReceipt(type, messageId), newId);
     }
 
     /**
@@ -233,16 +239,28 @@ public class Chat extends AbstractChat {
      * @param type - the status getBodyType
      * @return - subscribe to get a completion, error update from the method
      */
-    public Single<String> sendTypingIndicator(TypingStateType type) {
-        return send(new TypingState(type));
+    public Completable sendTypingIndicator(TypingStateType type) {
+        return sendTypingIndicator(type, null);
     }
 
-    public Single<String> sendMessageWithText(String text) {
-        return send(new TextMessage(text));
+    public Completable sendTypingIndicator(TypingStateType type, @Nullable Consumer<String> newId) {
+        return send(new TypingState(type), newId);
     }
 
-    public Single<String> sendMessageWithBody(HashMap<String, Object> body) {
-        return send(new Message(body));
+    public Completable sendMessageWithText(String text) {
+        return sendMessageWithText(text, null);
+    }
+
+    public Completable sendMessageWithText(String text, @Nullable Consumer<String> newId) {
+        return send(new TextMessage(text), newId);
+    }
+
+    public Completable sendMessageWithBody(HashMap<String, Object> body) {
+        return sendMessageWithBody(body, null);
+    }
+
+    public Completable sendMessageWithBody(HashMap<String, Object> body, @Nullable Consumer<String> newId) {
+        return send(new Message(body), newId);
     }
 
     public RoleType getRoleTypeForUser(String userId) {

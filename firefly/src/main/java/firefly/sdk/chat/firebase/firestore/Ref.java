@@ -22,7 +22,7 @@ public class Ref {
 
     public static DocumentReference document(Path path) {
         CollectionReference ref = db().collection(path.first());
-        for (int i = 1; i < path.size(); i=i+2) {
+        for (int i = 1; i < path.size(); i = i+2) {
             String c1 = path.get(i);
             String c2 = path.get(i+1);
             if (c1 != null && c2 != null) {

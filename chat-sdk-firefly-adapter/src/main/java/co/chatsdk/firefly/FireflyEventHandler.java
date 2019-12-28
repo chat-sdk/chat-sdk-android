@@ -34,6 +34,10 @@ public class FireflyEventHandler extends FirebaseEventHandler implements Consume
 
     protected void threadsOn(User chatSDKUser) {
 
+        disposableList.add(Fl.y.getEvents().getErrors().subscribe(throwable -> {
+            throwable.printStackTrace();
+        }));
+
         disposableList.add(Fl.y.getChatEvents().subscribe(chatEvent -> {
             if (chatEvent.type == EventType.Added) {
                 Chat chat = chatEvent.chat;

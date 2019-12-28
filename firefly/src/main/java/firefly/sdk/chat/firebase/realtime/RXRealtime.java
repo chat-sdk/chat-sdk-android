@@ -3,6 +3,8 @@ package firefly.sdk.chat.firebase.realtime;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -15,6 +17,9 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Action;
 import firefly.sdk.chat.events.EventType;
 import io.reactivex.functions.Consumer;
@@ -82,14 +87,23 @@ public class RXRealtime implements Action, Consumer<Throwable> {
     }
 
     public Single<String> add(DatabaseReference ref, Object data, @Nullable Object priority) {
+        return add(ref, data, priority, null);
+    }
+
+    public Single<String> add(DatabaseReference ref, Object data, @Nullable Object priority, @Nullable Consumer<String> newId) {
         return Single.create(emitter -> {
             DatabaseReference childRef = ref.push();
             final String id = childRef.getKey();
-            if (priority != null) {
-                childRef.setValue(data, priority).addOnSuccessListener(aVoid -> emitter.onSuccess(id)).addOnFailureListener(emitter::onError);
-            } else {
-                childRef.setValue(data).addOnSuccessListener(aVoid -> emitter.onSuccess(id)).addOnFailureListener(emitter::onError);
+            if (newId != null) {
+                newId.accept(id);
             }
+            Task<Void> task;
+            if (priority != null) {
+                task = childRef.setValue(data, priority);
+            } else {
+                task = childRef.setValue(data);
+            }
+            task.addOnSuccessListener(aVoid -> emitter.onSuccess(id)).addOnFailureListener(emitter::onError);
         });
     }
 

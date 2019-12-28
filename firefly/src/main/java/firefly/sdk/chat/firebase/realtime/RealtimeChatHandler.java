@@ -5,6 +5,8 @@ import com.google.firebase.database.DataSnapshot;
 import java.util.Date;
 import java.util.HashMap;
 
+import javax.annotation.Nullable;
+
 import firefly.sdk.chat.chat.Chat;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -15,6 +17,7 @@ import firefly.sdk.chat.firebase.service.FirebaseChatHandler;
 import firefly.sdk.chat.firebase.service.Keys;
 import firefly.sdk.chat.firebase.service.Path;
 import firefly.sdk.chat.firebase.service.Paths;
+import io.reactivex.functions.Consumer;
 
 public class RealtimeChatHandler extends FirebaseChatHandler {
 
@@ -53,7 +56,7 @@ public class RealtimeChatHandler extends FirebaseChatHandler {
     }
 
     @Override
-    public Single<String> add(Path path, HashMap<String, Object> data) {
-        return new RXRealtime().add(Ref.get(path), data);
+    public Single<String> add(Path path, HashMap<String, Object> data, @Nullable Consumer<String> newId) {
+        return new RXRealtime().add(Ref.get(path), data, newId);
     }
 }

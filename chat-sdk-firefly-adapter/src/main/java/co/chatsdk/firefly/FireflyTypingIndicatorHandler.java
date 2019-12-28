@@ -59,11 +59,11 @@ public class FireflyTypingIndicatorHandler implements TypingIndicatorHandler {
 
         if (thread.typeIs(ThreadType.Private1to1)) {
             User otherUser = thread.otherUser();
-            return Fl.y.sendTypingIndicator(otherUser.getEntityID(), typingStateType).ignoreElement();
+            return Fl.y.sendTypingIndicator(otherUser.getEntityID(), typingStateType);
         } else {
             Chat chat = Fl.y.getChat(thread.getEntityID());
             if (chat != null) {
-                return chat.sendTypingIndicator(typingStateType).ignoreElement();
+                return chat.sendTypingIndicator(typingStateType);
             } else {
                 return Completable.complete();
             }

@@ -7,6 +7,8 @@ import firefly.sdk.chat.Config;
 import firefly.sdk.chat.chat.User;
 import firefly.sdk.chat.namespace.Fl;
 import firefly.sdk.chat.types.RoleType;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 
 public class API {
 
@@ -26,10 +28,12 @@ public class API {
         Fl.y.initialize(context, config);
 
         // Send a message with text
-        Disposable d1 = Fl.y.sendMessageWithText("user-id", "Hello").subscribe(s -> {
-            // Success
+        Disposable d1 = Fl.y.sendMessageWithText("user-id", "Hello", messageId -> {
+            // Handle Message ID
+        }).subscribe(() -> {
+            // Complete
         }, throwable -> {
-            // Failure
+            // Error
         });
 
         // Receive message events

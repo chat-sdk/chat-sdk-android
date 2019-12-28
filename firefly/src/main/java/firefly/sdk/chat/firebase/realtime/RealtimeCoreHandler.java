@@ -17,6 +17,7 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import firefly.sdk.chat.chat.User;
 import firefly.sdk.chat.events.EventType;
@@ -26,6 +27,8 @@ import firefly.sdk.chat.firebase.service.Keys;
 import firefly.sdk.chat.firebase.service.Path;
 import firefly.sdk.chat.message.Sendable;
 import firefly.sdk.chat.namespace.Fl;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Cancellable;
 import io.reactivex.functions.Consumer;
 
 public class RealtimeCoreHandler extends FirebaseCoreHandler {
@@ -48,8 +51,8 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
     }
 
     @Override
-    public Single<String> send(Path messagesPath, Sendable sendable) {
-        return new RXRealtime().add(Ref.get(messagesPath), sendable.toData(), timestamp());
+    public Completable send(Path messagesPath, Sendable sendable, Consumer<String> newId) {
+        return new RXRealtime().add(Ref.get(messagesPath), sendable.toData(), timestamp(), newId).ignoreElement();
     }
 
     @Override
