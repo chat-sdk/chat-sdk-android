@@ -75,13 +75,7 @@ public class FirebaseEventHandler extends AbstractEventHandler implements Consum
                 if (!thread.getModel().typeIs(ThreadType.Public)) {
                     thread.getModel().addUser(user);
 
-                    // Starting to listen to thread changes.
-                    thread.on().doOnNext(thread14 -> eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread14))).subscribe(new CrashReportingObserver<>(disposableList));
-                    thread.lastMessageOn().doOnNext(thread13 -> eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread13))).subscribe(new CrashReportingObserver<>(disposableList));
-                    thread.messagesOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message))).subscribe(new CrashReportingObserver<>(disposableList));
-                    thread.messageRemovedOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageRemoved(message.getThread(), message))).subscribe(new CrashReportingObserver<>(disposableList));
-                    thread.usersOn().doOnNext(user12 -> eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user12))).subscribe(new CrashReportingObserver<>(disposableList));
-                    thread.metaOn().doOnNext(thread1 -> eventSource.onNext(NetworkEvent.threadMetaUpdated(thread.getModel()))).subscribe(new CrashReportingObserver<>(disposableList));
+                    threadWrapperOn(thread);
 
                     eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
                 }
@@ -109,26 +103,7 @@ public class FirebaseEventHandler extends AbstractEventHandler implements Consum
                 disposableList.add(ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).doOnError(this).subscribe());
             }
 
-            // Starting to listen to thread changes.
-            disposableList.add(thread.on().subscribe(thread1 -> {
-                eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread1));
-            }, this));
-
-            disposableList.add(thread.lastMessageOn().subscribe(thread1 -> {
-                eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread1));
-            }, this));
-
-            disposableList.add(thread.messagesOn().subscribe(message -> {
-                eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message));
-            }, this));
-
-            disposableList.add(thread.messageRemovedOn().subscribe(message -> {
-                eventSource.onNext(NetworkEvent.messageRemoved(message.getThread(), message));
-            }, this));
-
-            disposableList.add(thread.usersOn().subscribe(user1 -> {
-                eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user1));
-            }, this));
+            threadWrapperOn(thread);
 
             eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
 
@@ -138,6 +113,33 @@ public class FirebaseEventHandler extends AbstractEventHandler implements Consum
             eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
         }));
         FirebaseReferenceManager.shared().addRef(publicThreadsRef, publicThreadsListener);
+    }
+
+    protected void threadWrapperOn(ThreadWrapper thread) {
+        // Starting to listen to thread changes.
+        disposableList.add(thread.on().subscribe(thread1 -> {
+            eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread1));
+        }, this));
+
+        disposableList.add(thread.metaOn().subscribe(thread1 -> {
+            eventSource.onNext(NetworkEvent.threadMetaUpdated(thread1));
+        }, this));
+
+        disposableList.add(thread.lastMessageOn().subscribe(thread1 -> {
+            eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread1));
+        }, this));
+
+        disposableList.add(thread.messagesOn().subscribe(message -> {
+            eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message));
+        }, this));
+
+        disposableList.add(thread.messageRemovedOn().subscribe(message -> {
+            eventSource.onNext(NetworkEvent.messageRemoved(message.getThread(), message));
+        }, this));
+
+        disposableList.add(thread.usersOn().subscribe(user1 -> {
+            eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user1));
+        }, this));
     }
 
     protected void contactsOn (User user) {
@@ -181,12 +183,13 @@ public class FirebaseEventHandler extends AbstractEventHandler implements Consum
 
         final User user = DaoCore.fetchEntityWithEntityID(User.class, entityID);
 
-        threadsOff(user);
-        publicThreadsOff(user);
-        contactsOff(user);
-
-        if (ChatSDK.push() != null) {
-            ChatSDK.push().unsubscribeToPushChannel(user.getPushChannel());
+        if (user != null) {
+            threadsOff(user);
+            publicThreadsOff(user);
+            contactsOff(user);
+            if (ChatSDK.push() != null) {
+                ChatSDK.push().unsubscribeToPushChannel(user.getPushChannel());
+            }
         }
 
         disposableList.dispose();
