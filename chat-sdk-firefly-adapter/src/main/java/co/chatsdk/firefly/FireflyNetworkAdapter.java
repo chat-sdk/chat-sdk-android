@@ -5,10 +5,9 @@ import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import firefly.sdk.chat.Config;
 import firefly.sdk.chat.namespace.Fl;
 
-public class FireflyFirestoreNetworkAdapter extends FirebaseNetworkAdapter {
+public class FireflyNetworkAdapter extends FirebaseNetworkAdapter {
 
-    public FireflyFirestoreNetworkAdapter() {
-
+    public FireflyNetworkAdapter() {
 
         if (!Fl.y.isInitialized()) {
             Config config = new Config();

@@ -1,4 +1,4 @@
-package co.chatsdk.firestore;
+package co.chatsdk.firefly;
 
 import co.chatsdk.core.base.BaseContactHandler;
 import co.chatsdk.core.dao.User;
@@ -8,7 +8,7 @@ import firefly.sdk.chat.namespace.Fl;
 import firefly.sdk.chat.namespace.FireflyUser;
 import firefly.sdk.chat.types.ContactType;
 
-public class FirestoreContactHandler extends BaseContactHandler {
+public class FireflyContactHandler extends BaseContactHandler {
 
     @Override
     public Completable addContact(User user, ConnectionType type) {

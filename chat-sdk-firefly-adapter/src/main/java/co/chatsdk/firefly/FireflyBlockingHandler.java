@@ -1,11 +1,11 @@
-package co.chatsdk.firestore;
+package co.chatsdk.firefly;
 
 import co.chatsdk.core.handlers.BlockingHandler;
 import firefly.sdk.chat.chat.User;
 import io.reactivex.Completable;
 import firefly.sdk.chat.namespace.Fl;
 
-public class FirestoreBlockingHandler implements BlockingHandler {
+public class FireflyBlockingHandler implements BlockingHandler {
 
     @Override
     public Completable blockUser(String userEntityID) {

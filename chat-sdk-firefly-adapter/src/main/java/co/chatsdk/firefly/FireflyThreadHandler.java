@@ -1,4 +1,4 @@
-package co.chatsdk.firestore;
+package co.chatsdk.firefly;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,7 +23,7 @@ import firefly.sdk.chat.namespace.Fl;
 import firefly.sdk.chat.namespace.FireflyUser;
 import firefly.sdk.chat.types.RoleType;
 
-public class FirestoreThreadHandler extends FirebaseThreadHandler {
+public class FireflyThreadHandler extends FirebaseThreadHandler {
 
     DisposableList disposableList = new DisposableList();
 

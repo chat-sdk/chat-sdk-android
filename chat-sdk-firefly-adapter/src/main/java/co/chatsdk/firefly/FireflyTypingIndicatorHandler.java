@@ -1,4 +1,4 @@
-package co.chatsdk.firestore;
+package co.chatsdk.firefly;
 
 import co.chatsdk.core.api.APIHelper;
 import co.chatsdk.core.dao.Thread;
@@ -13,11 +13,11 @@ import io.reactivex.Completable;
 import firefly.sdk.chat.namespace.Fl;
 import firefly.sdk.chat.types.TypingStateType;
 
-public class FirestoreTypingIndicatorHandler implements TypingIndicatorHandler {
+public class FireflyTypingIndicatorHandler implements TypingIndicatorHandler {
 
     private DisposableList disposableList = new DisposableList();
 
-    public FirestoreTypingIndicatorHandler () {
+    public FireflyTypingIndicatorHandler() {
         disposableList.add(Fl.y.getEvents().getTypingStates().subscribe(typingState -> {
             // Get the sender
             String senderId = typingState.from;

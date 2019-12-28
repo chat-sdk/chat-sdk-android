@@ -1,4 +1,4 @@
-package co.chatsdk.firestore;
+package co.chatsdk.firefly;
 
 import org.joda.time.DateTime;
 
@@ -25,7 +25,7 @@ import firefly.sdk.chat.namespace.FireflyMessage;
 import firefly.sdk.chat.namespace.Fl;
 import firefly.sdk.chat.types.RoleType;
 
-public class FirestoreEventHandler extends FirebaseEventHandler implements Consumer<Throwable> {
+public class FireflyEventHandler extends FirebaseEventHandler implements Consumer<Throwable> {
 
     @Override
     public void impl_currentUserOn(final String entityID) {

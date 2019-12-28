@@ -1,4 +1,4 @@
-package co.chatsdk.firestore;
+package co.chatsdk.firefly;
 
 import org.joda.time.DateTime;
 
@@ -15,11 +15,11 @@ import firefly.sdk.chat.firebase.rx.DisposableList;
 import firefly.sdk.chat.namespace.Fl;
 import firefly.sdk.chat.types.DeliveryReceiptType;
 
-public class FirestoreReadReceiptHandler implements ReadReceiptHandler {
+public class FireflyReadReceiptHandler implements ReadReceiptHandler {
 
     private DisposableList disposableList = new DisposableList();
 
-    public FirestoreReadReceiptHandler () {
+    public FireflyReadReceiptHandler() {
         disposableList.add(Fl.y.getEvents().getDeliveryReceipts().subscribe(deliveryReceipt -> {
 
             // Get the sender
