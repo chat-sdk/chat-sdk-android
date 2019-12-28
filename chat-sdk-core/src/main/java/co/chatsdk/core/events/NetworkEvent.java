@@ -23,6 +23,7 @@ public class NetworkEvent {
     public User user;
     public String text;
     public HashMap<String, Object> data;
+    public Throwable error;
 
     public static String MessageSendProgress = "MessageSendProgress";
     public Location location;
@@ -37,6 +38,11 @@ public class NetworkEvent {
 
     public NetworkEvent(EventType type, Thread thread, Message message) {
         this(type, thread, message, null);
+    }
+
+    public NetworkEvent(EventType type, Throwable throwable) {
+        this(type);
+        this.error = throwable;
     }
 
     public NetworkEvent(EventType type, Thread thread, Message message, User user) {
@@ -75,8 +81,8 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.FollowerRemoved);
     }
 
-    public static NetworkEvent followingAdded () {
-        return new NetworkEvent(EventType.FollowingAdded);
+    public static NetworkEvent error (Throwable throwable) {
+        return new NetworkEvent(EventType.Error, throwable);
     }
 
     public static NetworkEvent followingRemoved () {
@@ -106,7 +112,6 @@ public class NetworkEvent {
     public static NetworkEvent threadUsersChanged (Thread thread, User user) {
         return new NetworkEvent(EventType.ThreadUsersChanged, thread, null, user);
     }
-
 
     public static NetworkEvent userMetaUpdated (User user) {
         return new NetworkEvent(EventType.UserMetaUpdated, null, null, user);

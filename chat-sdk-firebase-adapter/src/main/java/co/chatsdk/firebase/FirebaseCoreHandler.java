@@ -25,7 +25,6 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.DisposableList;
-import co.chatsdk.firebase.utils.EntityIsOn;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import io.reactivex.Observer;
@@ -33,7 +32,6 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -157,30 +155,11 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public Completable userOn(final User user) {
-        return Completable.create(e -> {
-            boolean on = EntityIsOn.shared().contains(user);
-            if (on) {
-                e.onComplete();
-            }
-            EntityIsOn.shared().add(user);
-
-            final UserWrapper wrapper = new UserWrapper(user);
-            disposableList.add(wrapper.onlineOn().doOnDispose(wrapper::onlineOff).subscribe(aBoolean -> {
-                ChatSDK.events().source().onNext(NetworkEvent.userPresenceUpdated(user));
-            }, e::onError));
-            disposableList.add(wrapper.metaOn().doOnDispose(wrapper::metaOff).subscribe(user1 -> {
-                ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(user1));
-                e.onComplete();
-            }, e::onError));
-        });
+        return new UserWrapper(user).on();
     }
 
     public void userOff(final User user) {
-        EntityIsOn.shared().remove(user);
-
-        UserWrapper wrapper = new UserWrapper(user);
-        wrapper.onlineOff();
-        wrapper.metaOff();
+        new UserWrapper(user).off();
     }
 
     public void save() {

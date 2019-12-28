@@ -5,11 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.functions.Action;
 
 /**
  * Created by benjaminsmiley-andrews on 24/05/2017.
@@ -50,17 +54,22 @@ public class BaseContactHandler implements ContactHandler {
     }
 
     @Override
-    public void addContactLocal(User user, ConnectionType type) {
-        if (ChatSDK.currentUser() != null && !user.isMe()) {
+    public Completable addContactLocal(User user, ConnectionType type) {
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(CompletableEmitter emitter) throws Exception {
+                if (ChatSDK.currentUser() != null && !user.isMe()) {
 
-            ChatSDK.hook().executeHook(HookEvent.ContactWillBeAdded, HookEvent.userData(user));
+                    ChatSDK.hook().executeHook(HookEvent.ContactWillBeAdded, HookEvent.userData(user));
 
-            ChatSDK.currentUser().addContact(user, type);
+                    ChatSDK.currentUser().addContact(user, type);
 
-            ChatSDK.hook().executeHook(HookEvent.ContactWasAdded, HookEvent.userData(user));
-
-            ChatSDK.core().userOn(user);
-        }
+                    ChatSDK.hook().executeHook(HookEvent.ContactWasAdded, HookEvent.userData(user));
+                }
+            }
+        }).andThen(ChatSDK.core().userOn(user)).andThen(Completable.create(emitter -> {
+            ChatSDK.events().source().onNext(NetworkEvent.contactAdded(user));
+        }));
     }
 
     @Override
@@ -72,6 +81,7 @@ public class BaseContactHandler implements ContactHandler {
             ChatSDK.currentUser().deleteContact(user, type);
 
             ChatSDK.hook().executeHook(HookEvent.ContactWasDeleted, HookEvent.userData(user));
+            ChatSDK.events().source().onNext(NetworkEvent.contactDeleted(user));
 
             ChatSDK.core().userOff(user);
         }

@@ -34,7 +34,7 @@ public interface ContactHandler {
     Completable addContact (User user, ConnectionType type);
     Completable deleteContact (User user, ConnectionType type);
 
-    void addContactLocal(User user, ConnectionType type);
+    Completable addContactLocal(User user, ConnectionType type);
     void deleteContactLocal(User user, ConnectionType type);
 
     Completable addContacts(ArrayList<User> users, ConnectionType type);

@@ -41,6 +41,8 @@ import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.FirebaseReferenceManager;
 import co.chatsdk.firebase.utils.FirebaseRX;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
@@ -146,30 +148,25 @@ public class UserWrapper {
         }).subscribeOn(Schedulers.single());
     }
 
-    public Observable<User> metaOn() {
-        return Observable.create((ObservableOnSubscribe<User>) e -> {
-
-            metaOff();
-
+    public Completable metaOn() {
+        return Completable.create(emitter -> {
             final DatabaseReference userMetaRef = FirebasePaths.userMetaRef(model.getEntityID());
-
-            if(FirebaseReferenceManager.shared().isOn(userMetaRef)) {
-                e.onNext(model);
+            if (FirebaseReferenceManager.shared().isOn(userMetaRef)) {
+                emitter.onComplete();
+            } else {
+                ValueEventListener listener = userMetaRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                    if (hasValue && snapshot.getValue() instanceof Map) {
+                        deserializeMeta((Map<String, Object>) snapshot.getValue());
+                        ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(model));
+                        emitter.onComplete();
+                    } else {
+                        emitter.onError(new Throwable("User doesn't exist"));
+                    }
+                }).onCancelled(error -> {
+                    emitter.onError(error.toException());
+                }));
+                FirebaseReferenceManager.shared().addRef(userMetaRef, listener);
             }
-
-            ValueEventListener listener = userMetaRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-                if (hasValue && snapshot.getValue() instanceof Map) {
-                    deserializeMeta((Map<String, Object>) snapshot.getValue());
-                    e.onNext(model);
-                } else {
-                    e.onError(new Throwable("User doesn't exist"));
-                }
-            }));
-
-            FirebaseReferenceManager.shared().addRef(userMetaRef, listener);
-
-
-
         }).subscribeOn(Schedulers.single());
     }
 
@@ -179,8 +176,7 @@ public class UserWrapper {
         FirebaseReferenceManager.shared().removeListeners(userMetaRef);
     }
 
-
-    void deserialize(Map<String, Object> value){
+    protected void deserialize(Map<String, Object> value){
 
         if (value != null)
         {
@@ -194,7 +190,7 @@ public class UserWrapper {
         }
     }
 
-    void deserializeMeta(Map<String, Object> value){
+    protected void deserializeMeta(Map<String, Object> value){
         if (value != null) {
             Map<String, String> oldData = model.metaMap();
 
@@ -214,22 +210,41 @@ public class UserWrapper {
         }
     }
 
-    public Observable<Boolean> onlineOn () {
-        onlineOff();
-        return Observable.create((ObservableOnSubscribe<Boolean>) e -> {
+    public Completable on() {
+        return Completable.merge(Arrays.asList(metaOn(), onlineOn()));
+    }
+
+    public Completable onlineOn () {
+        return Completable.create(emitter -> {
             DatabaseReference ref = FirebasePaths.userOnlineRef(model.getEntityID());
+            if (FirebaseReferenceManager.shared().isOn(ref)) {
+                emitter.onComplete();
+            } else {
+                ValueEventListener listener = ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
 
-            ValueEventListener listener = ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                    Boolean available = false;
+                    if(hasValue) {
+                        Boolean value = snapshot.getValue(Boolean.class);
+                        if (value != null) {
+                            available = value;
+                        }
+                    }
 
-                Boolean available = false;
-                if(hasValue) {
-                    available = (boolean) snapshot.getValue();
-                }
-                model.setIsOnline(available);
-                e.onNext(available);
-            }));
-            FirebaseReferenceManager.shared().addRef(ref, listener);
+                    model.setIsOnline(available);
+                    ChatSDK.events().source().onNext(NetworkEvent.userPresenceUpdated(model));
+                    emitter.onComplete();
+                }).onCancelled(error -> {
+                    emitter.onError(error.toException());
+                }));
+
+                FirebaseReferenceManager.shared().addRef(ref, listener);
+            }
         }).subscribeOn(Schedulers.single());
+    }
+
+    public void off() {
+        metaOff();
+        onlineOff();
     }
 
     public void onlineOff () {

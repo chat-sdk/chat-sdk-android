@@ -31,6 +31,6 @@ public enum EventType {
     NearbyUserAdded,
     NearbyUserMoved,
     NearbyUserRemoved,
-    NearbyUsersUpdated
-
+    NearbyUsersUpdated,
+    Error
 }
