@@ -22,6 +22,7 @@ import firefly.sdk.chat.chat.Chat;
 import firefly.sdk.chat.events.EventType;
 import firefly.sdk.chat.firebase.rx.DisposableMap;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.core.dao.Thread;
 import firefly.sdk.chat.namespace.FireflyMessage;

@@ -79,20 +79,4 @@ public class Sendable extends BaseMessage {
         return data;
     }
 
-    /**
-     * Send a read receipt
-     * @return completion
-     */
-    public Completable markRead() {
-        return Fl.y.sendDeliveryReceipt(from, DeliveryReceiptType.read(), id);
-    }
-
-    /**
-     * Send a received receipt
-     * @return completion
-     */
-    public Completable markReceived() {
-        return Fl.y.sendDeliveryReceipt(from, DeliveryReceiptType.received(), id);
-    }
-
 }

@@ -14,32 +14,44 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ReadStatus;
 import firefly.sdk.chat.chat.Chat;
+import firefly.sdk.chat.events.ConnectionEvent;
 import firefly.sdk.chat.events.EventType;
 import firefly.sdk.chat.firebase.rx.DisposableMap;
 import firefly.sdk.chat.message.DeliveryReceipt;
 import firefly.sdk.chat.namespace.Fl;
 import firefly.sdk.chat.types.DeliveryReceiptType;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 public class FireflyReadReceiptHandler implements ReadReceiptHandler {
 
-    private DisposableMap dm = Fl.y.getDisposableMap();
+    private DisposableMap dm = new DisposableMap();
 
     public FireflyReadReceiptHandler() {
 
-        dm.add(Fl.y.getEvents().getDeliveryReceipts().subscribe(receipt -> {
-            handleReceipt(receipt.from, receipt);
-        }));
+        // We want to add these listeners when we connect and remove them when we disconnect
+        Disposable d = Fl.y.getConnectionEvents().subscribe(connectionEvent -> {
+            if (connectionEvent.getType() == ConnectionEvent.Type.DidConnect) {
 
-        dm.add(Fl.y.getChatEvents().pastAndNewEvents().subscribe(chatEvent -> {
-            Chat chat = chatEvent.chat;
-            if (chatEvent.type == EventType.Added) {
-
-                chat.getDisposableMap().add(chat.getEvents().getDeliveryReceipts().subscribe(receipt -> {
+                dm.add(Fl.y.getEvents().getDeliveryReceipts().subscribe(receipt -> {
                     handleReceipt(receipt.from, receipt);
                 }));
+
+                dm.add(Fl.y.getChatEvents().pastAndNewEvents().subscribe(chatEvent -> {
+                    Chat chat = chatEvent.chat;
+                    if (chatEvent.type == EventType.Added) {
+
+                        chat.getDisposableMap().add(chat.getEvents().getDeliveryReceipts().subscribe(receipt -> {
+                            handleReceipt(receipt.from, receipt);
+                        }));
+                    }
+                }));
             }
-        }));
+            if (connectionEvent.getType() == ConnectionEvent.Type.WillDisconnect) {
+                dm.disposeAll();
+            }
+        });
+
     }
 
     protected void handleReceipt(String threadEntityID, DeliveryReceipt receipt) {

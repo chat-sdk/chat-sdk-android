@@ -13,7 +13,9 @@ import co.chatsdk.core.types.ConnectionType;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by benjaminsmiley-andrews on 24/05/2017.
@@ -55,21 +57,19 @@ public class BaseContactHandler implements ContactHandler {
 
     @Override
     public Completable addContactLocal(User user, ConnectionType type) {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(CompletableEmitter emitter) throws Exception {
-                if (ChatSDK.currentUser() != null && !user.isMe()) {
+        return Completable.create(emitter -> {
+            if (ChatSDK.currentUser() != null && !user.isMe()) {
 
-                    ChatSDK.hook().executeHook(HookEvent.ContactWillBeAdded, HookEvent.userData(user));
+                ChatSDK.hook().executeHook(HookEvent.ContactWillBeAdded, HookEvent.userData(user));
 
-                    ChatSDK.currentUser().addContact(user, type);
+                ChatSDK.currentUser().addContact(user, type);
 
-                    ChatSDK.hook().executeHook(HookEvent.ContactWasAdded, HookEvent.userData(user));
-                }
+                ChatSDK.hook().executeHook(HookEvent.ContactWasAdded, HookEvent.userData(user));
             }
-        }).andThen(ChatSDK.core().userOn(user)).andThen(Completable.create(emitter -> {
+            emitter.onComplete();
+        }).concatWith(ChatSDK.core().userOn(user)).doOnComplete(() -> {
             ChatSDK.events().source().onNext(NetworkEvent.contactAdded(user));
-        }));
+        });
     }
 
     @Override

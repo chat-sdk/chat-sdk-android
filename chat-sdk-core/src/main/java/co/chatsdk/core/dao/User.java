@@ -35,6 +35,7 @@ public class User extends AbstractEntity implements UserListItem {
     private String entityID;
     private Integer authenticationType;
     private Date lastOnline;
+    private Boolean isOnline;
 
     @ToMany(referencedJoinProperty = "userId")
     private List<UserMetaValue> metaValues;
@@ -50,12 +51,13 @@ public class User extends AbstractEntity implements UserListItem {
     private transient UserDao myDao;
 
 
-    @Generated(hash = 41386694)
-    public User(Long id, String entityID, Integer authenticationType, Date lastOnline) {
+    @Generated(hash = 1863692680)
+    public User(Long id, String entityID, Integer authenticationType, Date lastOnline, Boolean isOnline) {
         this.id = id;
         this.entityID = entityID;
         this.authenticationType = authenticationType;
         this.lastOnline = lastOnline;
+        this.isOnline = isOnline;
     }
 
     @Generated(hash = 586692638)
@@ -221,13 +223,8 @@ public class User extends AbstractEntity implements UserListItem {
         setMetaString(Keys.Availability, availability);
     }
 
-    public boolean getIsOnline () {
-        return getAvailability().equals(Availability.Available);
-    }
-
-    public void setIsOnline (boolean isOnline) {
-        setAvailability(isOnline ? Availability.Available : Availability.Unavailable);
-        update();
+    public Boolean getIsOnline () {
+        return this.isOnline;
     }
 
     public String getState () {
@@ -239,6 +236,9 @@ public class User extends AbstractEntity implements UserListItem {
     }
 
     public String getAvailability () {
+        if (isOnline == null || !isOnline) {
+            return Availability.Unavailable;
+        }
         return metaStringForKey(Keys.Availability);
     }
 
@@ -472,6 +472,10 @@ public class User extends AbstractEntity implements UserListItem {
     @Generated(hash = 365870950)
     public synchronized void resetMetaValues() {
         metaValues = null;
+    }
+
+    public void setIsOnline(Boolean isOnline) {
+        this.isOnline = isOnline;
     }
 
 

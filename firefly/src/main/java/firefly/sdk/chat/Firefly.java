@@ -14,11 +14,15 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import firefly.sdk.chat.events.ConnectionEvent;
+import firefly.sdk.chat.namespace.Fl;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import firefly.sdk.chat.chat.AbstractChat;
 import firefly.sdk.chat.chat.Chat;
@@ -46,6 +50,7 @@ import firefly.sdk.chat.types.InvitationType;
 import firefly.sdk.chat.types.PresenceType;
 import firefly.sdk.chat.types.SendableType;
 import firefly.sdk.chat.types.TypingStateType;
+import io.reactivex.subjects.BehaviorSubject;
 
 public class Firefly extends AbstractChat {
 
@@ -60,6 +65,8 @@ public class Firefly extends AbstractChat {
     protected MultiQueueSubject<UserEvent> contactEvents = MultiQueueSubject.create();
     protected MultiQueueSubject<UserEvent> blockedEvents = MultiQueueSubject.create();
 
+    protected BehaviorSubject<ConnectionEvent> connectionEvents = BehaviorSubject.create();
+
     protected FirebaseService firebaseService = null;
     protected WeakReference<Context> context;
 
@@ -72,14 +79,17 @@ public class Firefly extends AbstractChat {
     public Firefly() {
 
         FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
-            this.user = firebaseAuth.getCurrentUser();
-            if (this.user != null) {
+            // We are connecting for the first time
+            if (this.user == null && firebaseAuth.getCurrentUser() != null) {
+                this.user = firebaseAuth.getCurrentUser();
                 try {
                     connect();
                 } catch (Exception e) {
                     events.publishThrowable().onNext(e);
                 }
-            } else {
+            }
+            if(this.user != null && firebaseAuth.getCurrentUser() == null) {
+                this.user = null;
                 disconnect();
             }
         });
@@ -117,6 +127,8 @@ public class Firefly extends AbstractChat {
             throw new Exception(context().getString(R.string.error_no_authenticated_user));
         }
 
+        connectionEvents.onNext(ConnectionEvent.willConnect());
+
         // MESSAGE DELETION
 
         // We always delete typing state and presence messages
@@ -129,19 +141,21 @@ public class Firefly extends AbstractChat {
 
         // DELIVERY RECEIPTS
 
-        dm.add(getEvents().getMessages().pastAndNewEvents().subscribe(message -> {
+        dm.add(getEvents().getMessages().pastAndNewEvents().flatMapCompletable(message -> {
+            ArrayList<Completable> completables = new ArrayList<>();
+
             // If delivery receipts are enabled, send the delivery receipt
             if (config.deliveryReceiptsEnabled) {
-                dm.add(message.markReceived().doOnError(Firefly.this).subscribe());
+                completables.add(markReceived(message));
             }
             // If message deletion is disabled, instead mark the message as received. This means
             // that when we add a childListener, we only get new messages
             if (!config.deleteMessagesOnReceipt) {
-                dm.add(sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), message.id)
-                        .doOnError(Firefly.this)
-                        .subscribe());
+                completables.add(sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), message.id));
             }
-        }));
+
+            return Completable.merge(completables);
+        }).doOnError(this).subscribe());
 
         // INVITATIONS
 
@@ -200,6 +214,15 @@ public class Firefly extends AbstractChat {
 
         // Connect to the message events AFTER we have added our events listeners
         super.connect();
+
+        connectionEvents.onNext(ConnectionEvent.didConnect());
+    }
+
+    @Override
+    public void disconnect() {
+        connectionEvents.onNext(ConnectionEvent.willDisconnect());
+        super.disconnect();
+        connectionEvents.onNext(ConnectionEvent.didDisconnect());
     }
 
     public String currentUserId() {
@@ -360,6 +383,22 @@ public class Firefly extends AbstractChat {
         return chats;
     }
 
+    /**
+     * Send a read receipt
+     * @return completion
+     */
+    public Completable markRead(Message message) {
+        return Fl.y.sendDeliveryReceipt(message.from, DeliveryReceiptType.read(), message.id);
+    }
+
+    /**
+     * Send a received receipt
+     * @return completion
+     */
+    public Completable markReceived(Message message) {
+        return Fl.y.sendDeliveryReceipt(message.from, DeliveryReceiptType.received(), message.id);
+    }
+
     //
     // Events
     //
@@ -404,5 +443,9 @@ public class Firefly extends AbstractChat {
 
     public Context context() {
         return context.get();
+    }
+
+    public Observable<ConnectionEvent> getConnectionEvents() {
+        return connectionEvents.hide();
     }
 }

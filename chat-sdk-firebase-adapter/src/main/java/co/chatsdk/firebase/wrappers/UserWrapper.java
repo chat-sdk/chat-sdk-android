@@ -45,6 +45,9 @@ import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -180,11 +183,6 @@ public class UserWrapper {
 
         if (value != null)
         {
-            if (value.containsKey(Keys.Online) && !value.get(Keys.Online).equals("")) {
-                Boolean online = (Boolean) value.get(Keys.Online);
-                model.setAvailability(online ? Availability.Available : Availability.Unavailable);
-            }
-
             // The entity update is called in the deserializeMeta.
             deserializeMeta((Map<String, Object>) value.get(FirebasePaths.MetaPath));
         }
@@ -211,7 +209,7 @@ public class UserWrapper {
     }
 
     public Completable on() {
-        return Completable.merge(Arrays.asList(metaOn(), onlineOn()));
+        return Completable.mergeArray(onlineOn(), metaOn());
     }
 
     public Completable onlineOn () {

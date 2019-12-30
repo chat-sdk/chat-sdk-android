@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.AvailabilityHelper;
@@ -271,16 +272,20 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      * * */
     protected void sortList(List<UserListItem> list) {
         Comparator comparator = (Comparator<UserListItem>) (u1, u2) -> {
-            String s1 = "";
-            if (u1 != null && u1.getName() != null) {
-                s1 = u1.getName();
-            }
-            String s2 = "";
-            if (u2 != null && u2.getName() != null) {
-                s2 = u2.getName();
-            }
+            boolean u1online = u1.getAvailability().equals(Availability.Available);
+            boolean u2online = u2.getAvailability().equals(Availability.Available);
+            if (u1online != u2online) {
+                if (u1online) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            } else {
+                String s1 = u1.getName() != null ? u1.getName() : "";
+                String s2 = u2.getName() != null ? u2.getName() : "";
 
-            return s1.compareToIgnoreCase(s2);
+                return s1.compareToIgnoreCase(s2);
+            }
         };
         Collections.sort(list, comparator);
     }

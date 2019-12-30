@@ -46,6 +46,8 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         migrations.add(new MigrationV7());
         migrations.add(new MigrationV8());
         migrations.add(new MigrationV9());
+        migrations.add(new MigrationV10());
+        migrations.add(new MigrationV11());
 
         // Sorting just to be safe, in case other people add migrations in the wrong order.
         Comparator<Migration> migrationComparator = (m1, m2) -> m1.getVersion().compareTo(m2.getVersion());
@@ -172,6 +174,18 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         @Override
         public void runMigration(Database db) {
             db.execSQL("ALTER TABLE " + MessageDao.TABLENAME + " ADD COLUMN " + MessageDao.Properties.PreviousMessageId.columnName + " LONG");
+        }
+    }
+
+    private static class MigrationV11 implements Migration {
+        @Override
+        public Integer getVersion() {
+            return 11;
+        }
+
+        @Override
+        public void runMigration(Database db) {
+            db.execSQL("ALTER TABLE " + UserDao.TABLENAME + " ADD COLUMN " + UserDao.Properties.IsOnline.columnName + " BOOLEAN");
         }
     }
 

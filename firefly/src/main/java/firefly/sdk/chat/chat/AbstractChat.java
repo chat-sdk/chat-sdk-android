@@ -8,6 +8,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import firefly.sdk.chat.firebase.rx.DisposableMap;
+import firefly.sdk.chat.types.DeliveryReceiptType;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -335,5 +336,8 @@ public abstract class AbstractChat implements Consumer<Throwable> {
     public void manage(Disposable disposable) {
         getDisposableMap().add(disposable);
     }
+
+    public abstract Completable markRead(Message message);
+    public abstract Completable markReceived(Message message);
 
 }

@@ -15,11 +15,13 @@ import firefly.sdk.chat.firebase.service.Keys;
 import firefly.sdk.chat.firebase.service.Path;
 import firefly.sdk.chat.firebase.service.Paths;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 import firefly.sdk.chat.message.DeliveryReceipt;
@@ -64,7 +66,6 @@ public class Chat extends AbstractChat {
     }
 
     public void connect() throws Exception {
-        disconnect();
 
         System.out.println("Connect to chat: " + id);
 
@@ -74,7 +75,7 @@ public class Chat extends AbstractChat {
                     .getMessages()
                     .pastAndNewEvents()
                     .filter(MessageStreamFilter.notFromMe())
-                    .flatMapCompletable(Sendable::markReceived)
+                    .flatMapCompletable(this::markReceived)
                     .doOnError(this)
                     .subscribe());
         }
@@ -231,6 +232,14 @@ public class Chat extends AbstractChat {
 
     public Completable sendDeliveryReceipt(DeliveryReceiptType type, String messageId, @Nullable Consumer<String> newId) {
         return send(new DeliveryReceipt(type, messageId), newId);
+    }
+
+    public Completable markReceived(Message message) {
+        return sendDeliveryReceipt(DeliveryReceiptType.received(), message.id);
+    }
+
+    public Completable readReceived(Message message) {
+        return sendDeliveryReceipt(DeliveryReceiptType.read(), message.id);
     }
 
     /**

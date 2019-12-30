@@ -92,13 +92,15 @@ public class FireflyThreadHandler extends FirebaseThreadHandler {
             }
 
             if (threadType == ThreadType.Private1to1) {
-                thread.setEntityID(ChatSDK.currentUserID());
+                thread.addUsers(allUsers);
+                thread.setEntityID(thread.otherUser().getEntityID());
             }
 
             thread.setCreator(ChatSDK.currentUser());
+
             thread.setCreationDate(new Date());
             thread.setType(threadType);
-            thread.addUsers(allUsers);
+//            thread.addUsers(allUsers);
 
             if (name != null && !name.isEmpty()) {
                 thread.setName(name);
@@ -106,6 +108,8 @@ public class FireflyThreadHandler extends FirebaseThreadHandler {
             if(imageURL != null && !imageURL.isEmpty()) {
                 thread.setImageUrl(imageURL);
             }
+
+            thread.update();
 
             Thread finalThread = thread;
 
