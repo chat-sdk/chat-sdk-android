@@ -40,9 +40,11 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
         return new RXFirestore().on(Ref.document(path)).flatMapMaybe(snapshot -> {
             Chat.Meta meta = new Chat.Meta();
 
-            meta.name = snapshot.get(Keys.Name, String.class);
-            meta.created = snapshot.get(Keys.Created, Date.class);
-            meta.avatarURL = snapshot.get(Keys.Avatar, String.class);
+            String base = Keys.Meta + ".";
+
+            meta.name = snapshot.get(base + Keys.Name, String.class);
+            meta.created = snapshot.get(base + Keys.Created, Date.class);
+            meta.avatarURL = snapshot.get(base + Keys.Avatar, String.class);
 
             return Maybe.just(meta);
         });

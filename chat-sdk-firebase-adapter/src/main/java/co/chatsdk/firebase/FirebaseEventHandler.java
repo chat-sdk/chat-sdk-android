@@ -3,35 +3,22 @@ package co.chatsdk.firebase;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import co.chatsdk.core.base.AbstractEventHandler;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.types.ConnectionType;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
-import co.chatsdk.core.utils.CrashReportingObserver;
-import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.firebase.utils.Generic;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firebase.wrappers.UserWrapper;
-import io.reactivex.Completable;
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subjects.PublishSubject;
 
 /**
  * Created by benjaminsmiley-andrews on 10/05/2017.
@@ -102,7 +89,7 @@ public class FirebaseEventHandler extends AbstractEventHandler implements Consum
             // there's an edge case where the user could kill the app and remain
             // a member of a public thread
             if (!ChatSDK.config().publicChatAutoSubscriptionEnabled) {
-                disposableList.add(ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).doOnError(this).subscribe());
+                dm.add(ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).doOnError(this).subscribe());
             }
 
             threadWrapperOn(thread);
@@ -119,27 +106,27 @@ public class FirebaseEventHandler extends AbstractEventHandler implements Consum
 
     protected void threadWrapperOn(ThreadWrapper thread) {
         // Starting to listen to thread changes.
-        disposableList.add(thread.on().subscribe(thread1 -> {
+        dm.add(thread.on().subscribe(thread1 -> {
             eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread1));
         }, this));
 
-        disposableList.add(thread.metaOn().subscribe(thread1 -> {
+        dm.add(thread.metaOn().subscribe(thread1 -> {
             eventSource.onNext(NetworkEvent.threadMetaUpdated(thread1));
         }, this));
 
-        disposableList.add(thread.lastMessageOn().subscribe(thread1 -> {
+        dm.add(thread.lastMessageOn().subscribe(thread1 -> {
             eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread1));
         }, this));
 
-        disposableList.add(thread.messagesOn().subscribe(message -> {
+        dm.add(thread.messagesOn().subscribe(message -> {
             eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message));
         }, this));
 
-        disposableList.add(thread.messageRemovedOn().subscribe(message -> {
+        dm.add(thread.messageRemovedOn().subscribe(message -> {
             eventSource.onNext(NetworkEvent.messageRemoved(message.getThread(), message));
         }, this));
 
-        disposableList.add(thread.usersOn().subscribe(user1 -> {
+        dm.add(thread.usersOn().subscribe(user1 -> {
             eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user1));
         }, this));
     }
@@ -157,7 +144,7 @@ public class FirebaseEventHandler extends AbstractEventHandler implements Consum
                     Long type = data.get(Keys.Type);
                     if (type != null) {
                         ConnectionType connectionType = ConnectionType.values()[type.intValue()];
-                        disposableList.add(ChatSDK.contact().addContactLocal(contact, connectionType).doOnError(this).subscribe());
+                        dm.add(ChatSDK.contact().addContactLocal(contact, connectionType).doOnError(this).subscribe());
                     }
                 }
             }
@@ -194,7 +181,7 @@ public class FirebaseEventHandler extends AbstractEventHandler implements Consum
             }
         }
 
-        disposableList.dispose();
+        dm.disposeAll();
     }
 
     protected void threadsOff (User user) {

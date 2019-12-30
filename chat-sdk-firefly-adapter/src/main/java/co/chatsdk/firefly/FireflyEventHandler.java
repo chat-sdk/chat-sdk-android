@@ -16,9 +16,12 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.firebase.FirebaseEventHandler;
 import firefly.sdk.chat.chat.Chat;
 import firefly.sdk.chat.events.EventType;
+import firefly.sdk.chat.firebase.rx.DisposableMap;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.core.dao.Thread;
 import firefly.sdk.chat.namespace.FireflyMessage;
@@ -27,6 +30,8 @@ import firefly.sdk.chat.types.RoleType;
 
 public class FireflyEventHandler extends FirebaseEventHandler implements Consumer<Throwable> {
 
+    protected DisposableMap dm = Fl.y.getDisposableMap();
+
     @Override
     public void impl_currentUserOn(final String entityID) {
         super.impl_currentUserOn(entityID);
@@ -34,13 +39,16 @@ public class FireflyEventHandler extends FirebaseEventHandler implements Consume
 
     protected void threadsOn(User chatSDKUser) {
 
-        disposableList.add(Fl.y.getEvents().getErrors().subscribe(throwable -> {
+        dm.add(Fl.y.getEvents().getErrors().subscribe(throwable -> {
             throwable.printStackTrace();
         }));
 
-        disposableList.add(Fl.y.getChatEvents().subscribe(chatEvent -> {
+        dm.add(Fl.y.getChatEvents().subscribe(chatEvent -> {
+            Chat chat = chatEvent.chat;
+
+            DisposableMap cdm = chat.getDisposableMap();
+
             if (chatEvent.type == EventType.Added) {
-                Chat chat = chatEvent.chat;
 
                 // Get the thread
                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(chat.getId());
@@ -52,25 +60,24 @@ public class FireflyEventHandler extends FirebaseEventHandler implements Consume
                     thread.setCreationDate(new Date());
 
                     eventSource.onNext(NetworkEvent.threadAdded(thread));
-
                 }
 
                 final Thread finalThread = thread;
 
                 // TODO: handle name image change
-                disposableList.add(chat.getNameStream().subscribe(s -> {
+                cdm.add(chat.getNameStream().subscribe(s -> {
                     finalThread.setName(s);
                     eventSource.onNext(NetworkEvent.threadDetailsUpdated(finalThread));
                 }));
 
-                disposableList.add(chat.getAvatarURLStream().subscribe(s -> {
+                cdm.add(chat.getAvatarURLStream().subscribe(s -> {
                     finalThread.setImageUrl(s);
                     eventSource.onNext(NetworkEvent.threadDetailsUpdated(finalThread));
                 }));
 
-                disposableList.add(chat.getUserEventStream().subscribe(userEvent -> {
+                cdm.add(chat.getUserEventStream().subscribe(userEvent -> {
                     if (userEvent.type == EventType.Added) {
-                        disposableList.add(APIHelper.fetchRemoteUser(userEvent.user.id).subscribe(user -> {
+                        dm.put(chat.getId(), APIHelper.fetchRemoteUser(userEvent.user.id).subscribe(user -> {
                             if (userEvent.getFireflyUser().roleType.equals(RoleType.owner())) {
                                 finalThread.setCreator(user);
                             }
@@ -86,15 +93,16 @@ public class FireflyEventHandler extends FirebaseEventHandler implements Consume
                     }
                 }));
 
-                disposableList.add(chat.getEvents().getFireflyMessages().subscribe(message -> {
-                    handleMessageForThread(message, finalThread);
+                cdm.add(chat.getEvents().getFireflyMessages().subscribe(message -> {
+                    cdm.add(handleMessageForThread(message, finalThread));
                 }));
             }
         }));
 
-        disposableList.add(Fl.y.getEvents().getFireflyMessages().subscribe(message -> {
+        dm.add(Fl.y.getEvents().getFireflyMessages().subscribe(message -> {
+
             // Get the user
-            disposableList.add(APIHelper.fetchRemoteUser(message.from).subscribe(user -> {
+            dm.add(APIHelper.fetchRemoteUser(message.from).subscribe(user -> {
 
                 // Get the thread
                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(message.from);
@@ -110,13 +118,13 @@ public class FireflyEventHandler extends FirebaseEventHandler implements Consume
                     thread.addUsers(user, ChatSDK.currentUser());
                 }
 
-                handleMessageForThread(message, thread);
+                dm.add(handleMessageForThread(message, thread));
             }));
         }));
     }
 
-    protected void handleMessageForThread(FireflyMessage mm, Thread thread) {
-        disposableList.add(APIHelper.fetchRemoteUser(mm.from).subscribe(user -> {
+    protected Disposable handleMessageForThread(FireflyMessage mm, Thread thread) {
+        return APIHelper.fetchRemoteUser(mm.from).subscribe(user -> {
             if (!thread.containsMessageWithID(mm.id)) {
                 Message message = ChatSDK.db().createEntity(Message.class);
 
@@ -146,16 +154,17 @@ public class FireflyEventHandler extends FirebaseEventHandler implements Consume
 
                 thread.addMessage(message);
 
-                eventSource.onNext(NetworkEvent.messageAdded(thread, message));            }
-            }, this));
+                eventSource.onNext(NetworkEvent.messageAdded(thread, message));
+            }
+        }, this);
     }
 
     @Override
     protected void contactsOn (User chatSDKUser) {
-        disposableList.add(Fl.y.getContactEvents().subscribe(userEvent -> {
+        dm.add(Fl.y.getContactEvents().subscribe(userEvent -> {
             User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEvent.user.id);
             if (userEvent.type == EventType.Added) {
-                disposableList.add(ChatSDK.contact().addContactLocal(contact, ConnectionType.Contact).doOnError(this).subscribe());
+                dm.add(ChatSDK.contact().addContactLocal(contact, ConnectionType.Contact).doOnError(this).subscribe());
             }
             if (userEvent.type == EventType.Removed) {
                 ChatSDK.contact().deleteContactLocal(contact, ConnectionType.Contact);
@@ -183,7 +192,6 @@ public class FireflyEventHandler extends FirebaseEventHandler implements Consume
     protected void contactsOff (User user) {
 
     }
-
 
     @Override
     public void accept(Throwable throwable) throws Exception {

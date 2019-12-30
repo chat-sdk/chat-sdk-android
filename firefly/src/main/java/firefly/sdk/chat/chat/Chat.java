@@ -70,16 +70,16 @@ public class Chat extends AbstractChat {
 
         // If delivery receipts are enabled, send the delivery receipt
         if (config.deliveryReceiptsEnabled) {
-            dl.add(getEvents()
+            dm.add(getEvents()
                     .getMessages()
                     .pastAndNewEvents()
                     .filter(MessageStreamFilter.notFromMe())
-                    .flatMapCompletable(message -> sendDeliveryReceipt(DeliveryReceiptType.received(), message.id))
+                    .flatMapCompletable(Sendable::markReceived)
                     .doOnError(this)
                     .subscribe());
         }
 
-        dl.add(listChangeOn(Paths.groupChatUsersPath(id)).subscribe(listEvent -> {
+        dm.add(listChangeOn(Paths.groupChatUsersPath(id)).subscribe(listEvent -> {
             UserEvent userEvent = UserEvent.from(listEvent);
             if (userEvent.type == EventType.Added) {
                 users.add(userEvent.user);
@@ -91,8 +91,8 @@ public class Chat extends AbstractChat {
         }));
 
         // Handle name and image change
-        dl.add(Fl.y.getFirebaseService().chat
-                .metaOn(Paths.groupChatMetaPath(id))
+        dm.add(Fl.y.getFirebaseService().chat
+                .metaOn(Paths.groupChatPath(id))
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(meta -> {

@@ -35,23 +35,26 @@ public class RealtimeChatHandler extends FirebaseChatHandler {
     public Observable<Chat.Meta> metaOn(Path path) {
         return new RXRealtime().on(Ref.get(path)).flatMapMaybe(change -> {
             DataSnapshot snapshot = change.snapshot;
+            if (snapshot.hasChild(Keys.Meta)) {
+                snapshot = snapshot.child(Keys.Meta);
 
-            Chat.Meta meta = new Chat.Meta();
+                Chat.Meta meta = new Chat.Meta();
 
-            if (snapshot.hasChild(Keys.Name)) {
-                meta.name = snapshot.child(Keys.Name).getValue(String.class);
-            }
-            if (snapshot.hasChild(Keys.Created)) {
-                Long date = snapshot.child(Keys.Created).getValue(Long.class);
-                if (date != null) {
-                    meta.created = new Date(date);
+                if (snapshot.hasChild(Keys.Name)) {
+                    meta.name = snapshot.child(Keys.Name).getValue(String.class);
                 }
+                if (snapshot.hasChild(Keys.Created)) {
+                    Long date = snapshot.child(Keys.Created).getValue(Long.class);
+                    if (date != null) {
+                        meta.created = new Date(date);
+                    }
+                }
+                if (snapshot.hasChild(Keys.Avatar)) {
+                    meta.avatarURL = snapshot.child(Keys.Avatar).getValue(String.class);
+                }
+                return Maybe.just(meta);
             }
-            if (snapshot.hasChild(Keys.Avatar)) {
-                meta.avatarURL = snapshot.child(Keys.Avatar).getValue(String.class);
-            }
-
-            return Maybe.just(meta);
+            return Maybe.empty();
         });
     }
 

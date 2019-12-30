@@ -109,7 +109,6 @@ public class Firefly extends AbstractChat {
     }
 
     public void connect () throws Exception {
-        disconnect();
 
         if (this.config == null) {
             throw new Exception(context().getString(R.string.error_initialize_not_run));
@@ -126,21 +125,19 @@ public class Firefly extends AbstractChat {
             stream = stream.filter(MessageStreamFilter.bySendableType(SendableType.typingState(), SendableType.presence()));
         }
         // If deletion is enabled, we don't filter so we delete all the message types
-        dl.add(stream.flatMapCompletable(this::deleteSendable).subscribe());
+        dm.add(stream.flatMapCompletable(this::deleteSendable).subscribe());
 
         // DELIVERY RECEIPTS
 
-        dl.add(getEvents().getMessages().pastAndNewEvents().subscribe(message -> {
+        dm.add(getEvents().getMessages().pastAndNewEvents().subscribe(message -> {
             // If delivery receipts are enabled, send the delivery receipt
             if (config.deliveryReceiptsEnabled) {
-                dl.add(sendDeliveryReceipt(message.from, DeliveryReceiptType.received(), message.id)
-                        .doOnError(Firefly.this)
-                        .subscribe());
+                dm.add(message.markReceived().doOnError(Firefly.this).subscribe());
             }
             // If message deletion is disabled, instead mark the message as received. This means
             // that when we add a childListener, we only get new messages
             if (!config.deleteMessagesOnReceipt) {
-                dl.add(sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), message.id)
+                dm.add(sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), message.id)
                         .doOnError(Firefly.this)
                         .subscribe());
             }
@@ -148,7 +145,7 @@ public class Firefly extends AbstractChat {
 
         // INVITATIONS
 
-        dl.add(getEvents().getInvitations().pastAndNewEvents().flatMapCompletable(invitation -> {
+        dm.add(getEvents().getInvitations().pastAndNewEvents().flatMapCompletable(invitation -> {
             if (config.autoAcceptChatInvite) {
                 return invitation.accept();
             }
@@ -157,7 +154,7 @@ public class Firefly extends AbstractChat {
 
         // BLOCKED USERS
 
-        dl.add(listChangeOn(Paths.blockedPath()).subscribe(listEvent -> {
+        dm.add(listChangeOn(Paths.blockedPath()).subscribe(listEvent -> {
             UserEvent ue = UserEvent.from(listEvent);
             if (ue.type == EventType.Added) {
                 blocked.add(ue.user);
@@ -170,7 +167,7 @@ public class Firefly extends AbstractChat {
 
         // CONTACTS
 
-        dl.add(listChangeOn(Paths.contactsPath()).subscribe(listEvent -> {
+        dm.add(listChangeOn(Paths.contactsPath()).subscribe(listEvent -> {
             UserEvent ue = UserEvent.from(listEvent);
             if (ue.type == EventType.Added) {
                 contacts.add(ue.user);
@@ -183,7 +180,7 @@ public class Firefly extends AbstractChat {
 
         // CONNECT TO EXISTING GROUP CHATS
 
-        dl.add(listChangeOn(Paths.userGroupChatsPath()).subscribe(listEvent -> {
+        dm.add(listChangeOn(Paths.userGroupChatsPath()).subscribe(listEvent -> {
             ChatEvent chatEvent = ChatEvent.from(listEvent);
             Chat chat = chatEvent.chat;
             if (chatEvent.type == EventType.Added) {
@@ -192,7 +189,7 @@ public class Firefly extends AbstractChat {
                 chatEvents.onNext(chatEvent);
             }
             else if (chatEvent.type == EventType.Removed) {
-                dl.add(chat.leave().subscribe(() -> {
+                dm.add(chat.leave().subscribe(() -> {
                     chats.remove(chat);
                     chatEvents.onNext(chatEvent);
                 }, this));
@@ -367,16 +364,16 @@ public class Firefly extends AbstractChat {
     // Events
     //
 
-    public Observable<ChatEvent> getChatEvents() {
-        return chatEvents.hide();
+    public MultiQueueSubject<ChatEvent> getChatEvents() {
+        return chatEvents;
     }
 
-    public Observable<UserEvent> getBlockedEvents() {
-        return blockedEvents.hide();
+    public MultiQueueSubject<UserEvent> getBlockedEvents() {
+        return blockedEvents;
     }
 
-    public Observable<UserEvent> getContactEvents() {
-        return contactEvents.hide();
+    public MultiQueueSubject<UserEvent> getContactEvents() {
+        return contactEvents;
     }
 
     //

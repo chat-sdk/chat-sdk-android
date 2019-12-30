@@ -91,7 +91,7 @@ public class MessageActionHandler {
 //    }
 
     public void hide () {
-//        disposableList.dispose();
+//        dm.dispose();
         view.setVisibility(View.INVISIBLE);
     }
 }

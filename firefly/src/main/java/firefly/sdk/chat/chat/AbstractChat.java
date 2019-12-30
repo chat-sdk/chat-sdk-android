@@ -7,10 +7,12 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import firefly.sdk.chat.firebase.rx.DisposableMap;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import firefly.sdk.chat.Config;
@@ -23,7 +25,6 @@ import firefly.sdk.chat.message.Presence;
 import firefly.sdk.chat.message.Sendable;
 import firefly.sdk.chat.message.TypingState;
 import firefly.sdk.chat.namespace.Fl;
-import firefly.sdk.chat.firebase.rx.DisposableList;
 import firefly.sdk.chat.types.SendableType;
 
 /**
@@ -35,7 +36,7 @@ public abstract class AbstractChat implements Consumer<Throwable> {
     /**
      * Store the disposables so we can dispose of all of them when the user logs out
      */
-    protected DisposableList dl = new DisposableList();
+    protected DisposableMap dm = new DisposableMap();
 
     /**
      * Event events
@@ -270,7 +271,7 @@ public abstract class AbstractChat implements Consumer<Throwable> {
      * @throws Exception error if we are not connected
      */
     public void connect() throws Exception {
-        dl.add(dateOfLastDeliveryReceipt()
+        dm.add(dateOfLastDeliveryReceipt()
                 .flatMapObservable(this::messagesOn)
                 .subscribe(this::passMessageResultToStream, this));
     }
@@ -279,7 +280,7 @@ public abstract class AbstractChat implements Consumer<Throwable> {
      * Disconnect from a chat
      */
     public void disconnect () {
-        dl.dispose();
+        dm.dispose();
     }
 
     /**
@@ -321,5 +322,18 @@ public abstract class AbstractChat implements Consumer<Throwable> {
      * @return Firestore messages reference
      */
     protected abstract Path messagesPath();
+
+    /**
+     * The disposable map for any room is disposed of on disconnect. Use this
+     * to store any disposables that you want to be disposed of then
+     * @return disposable bucket that is cleared on disconnect
+     */
+    public DisposableMap getDisposableMap() {
+        return dm;
+    }
+
+    public void manage(Disposable disposable) {
+        getDisposableMap().add(disposable);
+    }
 
 }

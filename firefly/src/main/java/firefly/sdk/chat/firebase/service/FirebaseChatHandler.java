@@ -19,7 +19,18 @@ public abstract class FirebaseChatHandler {
 
     public abstract Completable leaveChat(String chatId);
     public abstract Completable joinChat(String chatId);
-    public abstract Observable<Chat.Meta> metaOn(Path path);
+
+    /**
+     * Note in this case, we don't provide the path to the chat/meta
+     * we provide it to the chat. This is because of differences between
+     * Realtime and Firestore. The realtime database stores the data at
+     *  - chat/meta/...
+     * But in Firestore meta/... is stored as a field on the chat document
+     * So we need to link to the chat document in both cases
+     * @param chatPath path to chat document / entity
+     * @return stream of data when chat meta changes
+     */
+    public abstract Observable<Chat.Meta> metaOn(Path chatPath);
 
     public abstract Single<String> add(Path path, HashMap<String, Object> data, @Nullable Consumer<String> newId);
 

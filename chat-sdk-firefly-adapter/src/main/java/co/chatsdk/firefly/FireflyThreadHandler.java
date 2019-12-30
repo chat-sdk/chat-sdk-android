@@ -26,8 +26,6 @@ import firefly.sdk.chat.types.RoleType;
 
 public class FireflyThreadHandler extends FirebaseThreadHandler {
 
-    DisposableList disposableList = new DisposableList();
-
     public Completable sendMessage(final Message message) {
 
         HashMap<String, Object> messageBody = new HashMap<>();
@@ -127,7 +125,7 @@ public class FireflyThreadHandler extends FirebaseThreadHandler {
                 }
 
                 // We need to actually create the chat
-                disposableList.add(Fl.y.createChat(name, imageURL, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
+                Fl.y.manage(Fl.y.createChat(name, imageURL, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
                     if (throwable == null) {
                         finalThread.setEntityID(groupChat.getId());
                         e.onSuccess(finalThread);
@@ -135,6 +133,7 @@ public class FireflyThreadHandler extends FirebaseThreadHandler {
                         e.onError(throwable);
                     }
                 }));
+
             }
         }
 

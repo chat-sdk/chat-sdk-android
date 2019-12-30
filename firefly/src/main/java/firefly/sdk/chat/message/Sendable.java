@@ -6,6 +6,8 @@ import java.util.HashMap;
 import firefly.sdk.chat.firebase.service.Keys;
 import firefly.sdk.chat.namespace.Fl;
 import firefly.sdk.chat.types.BaseType;
+import firefly.sdk.chat.types.DeliveryReceiptType;
+import io.reactivex.Completable;
 
 public class Sendable extends BaseMessage {
 
@@ -75,6 +77,22 @@ public class Sendable extends BaseMessage {
         data.put(Keys.Date, Fl.y.getFirebaseService().core.timestamp());
         data.put(Keys.Type, type);
         return data;
+    }
+
+    /**
+     * Send a read receipt
+     * @return completion
+     */
+    public Completable markRead() {
+        return Fl.y.sendDeliveryReceipt(from, DeliveryReceiptType.read(), id);
+    }
+
+    /**
+     * Send a received receipt
+     * @return completion
+     */
+    public Completable markReceived() {
+        return Fl.y.sendDeliveryReceipt(from, DeliveryReceiptType.received(), id);
     }
 
 }

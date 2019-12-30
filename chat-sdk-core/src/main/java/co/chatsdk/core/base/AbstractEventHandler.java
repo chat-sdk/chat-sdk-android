@@ -12,7 +12,7 @@ import io.reactivex.subjects.PublishSubject;
 public abstract class AbstractEventHandler implements EventHandler {
 
     final protected PublishSubject<NetworkEvent> eventSource = PublishSubject.create();
-    protected DisposableList disposableList = new DisposableList();
+    protected DisposableList dm = new DisposableList();
 
     public PublishSubject<NetworkEvent> source () {
         return eventSource;

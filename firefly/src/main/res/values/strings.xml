@@ -5,4 +5,6 @@
     <string name="error_initialize_not_run">You need to call Fly.y.initialize(…)</string>
     <string name="error_null_data">Null data returned</string>
     <string name="error_no_value">No value present</string>
+    <string name="error_mismatched_doc_reference">DocumentReference expected but path points to collection</string>
+    <string name="error_mismatched_col_reference">CollectionReference expected but path points to document</string>
 </resources>

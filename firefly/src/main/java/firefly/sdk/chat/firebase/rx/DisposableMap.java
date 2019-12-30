@@ -1,4 +1,4 @@
-package co.chatsdk.core.utils;
+package firefly.sdk.chat.firebase.rx;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,10 +41,6 @@ public class DisposableMap {
         get(key).add(disposable);
     }
 
-    /**
-     * Dispose of the disposables associated with a key
-     * @param key for the disposables
-     */
     public void dispose(Object key) {
         get(key).dispose();
     }
@@ -67,20 +63,13 @@ public class DisposableMap {
         get(DefaultKey).add(disposable);
     }
 
-    /**
-     * Dispose of the default list - accessed when you call add()
-     */
     public void dispose() {
         get(DefaultKey).dispose();
     }
 
-    /**
-     * Dispose of all disposables
-     */
     public void disposeAll() {
         for (Object key: map.keySet()) {
             get(key).dispose();
         }
     }
 }
-
