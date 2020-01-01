@@ -252,7 +252,7 @@ try {
     builder.firebaseRootPath("prod");
 
     // Initialize the Chat SDK
-    ChatSDK.initialize(context, config.build(), FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
+    ChatSDK.initialize(context, builder.build(), FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
     
     // File storage is needed for profile image upload and image messages
     FirebaseFileStorageModule.activate();
