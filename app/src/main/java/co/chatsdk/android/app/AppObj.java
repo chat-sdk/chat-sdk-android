@@ -9,11 +9,13 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
-import co.chatsdk.firefly.FireflyNetworkAdapter;
+import co.chatsdk.firestream.FirestreamNetworkAdapter;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
-import firefly.sdk.chat.Config;
-import firefly.sdk.chat.namespace.Fl;
+import firestream.chat.Config;
+import firestream.chat.namespace.F;
+import firestream.chat.namespace.Fire;
+import firestream.chat.test.TestScript;
 
 /**
  * Created by itzik childOn 6/8/2014.
@@ -45,15 +47,15 @@ public class AppObj extends MultiDexApplication {
 
 //            ChatSDK.initialize(context, config.build(), FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
 
-            // Firefly configuration
-            Config fireflyConfig = new Config();
-            fireflyConfig.root = config.build().firebaseRootPath;
-            fireflyConfig.sandbox = "firefly";
-            fireflyConfig.database = Config.DatabaseType.Realtime;
+            // FireStream configuration
+            Config streamConfig = new Config();
+            streamConfig.root = config.build().firebaseRootPath;
+            streamConfig.sandbox = "firestream";
+            streamConfig.database = Config.DatabaseType.Realtime;
 
-            Fl.y.initialize(context, fireflyConfig);
+            Fire.api().initialize(context, streamConfig);
 
-            ChatSDK.initialize(context, config.build(), FireflyNetworkAdapter.class, BaseInterfaceAdapter.class);
+            ChatSDK.initialize(context, config.build(), FirestreamNetworkAdapter.class, BaseInterfaceAdapter.class);
 
 
 //            AConfigurator.configure();
@@ -61,6 +63,8 @@ public class AppObj extends MultiDexApplication {
             FirebaseFileStorageModule.activate();
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
+
+            new TestScript();
 
 
             // Uncomment this to enable Firebase UI

@@ -145,19 +145,18 @@ FireStream has a number of advantages over the old Firebase Network Adapter code
 3. FireStream can work seamlessly with your own user management system
 4. FireStream supports both Firestore and the Realtime database
 5. FireStream has improved security
-
-The Chat SDK is designed to be modular. FireStream takes this a stage further. In the original Chat SDK, there are essentially two layers - the UI layer and the Firebase layer. With FireStream we increase this to three layers - the UI layer, the network adapter layer and the Firebase layer. 
-
-FireStream has a number of advantages over the   
+6. The old system will be deprecated so for new installations, FireStream is highly recommended
   
 ### Setup
 
 Micro Chat SDK is simple and easy to setup:
 
+
+
 Initialize the SDK
 
 ```
-Fly.y.initialize();
+Fire.api().initialize();
 ```
 
 The SDK will automatically add and remove listeners when your Firebase user logs in and out. 
@@ -165,7 +164,7 @@ The SDK will automatically add and remove listeners when your Firebase user logs
 When a user is authenticated you can send a message:
 
 ```
-Fly.y.sendMessageWithText("toUid", "text").subscribe((messageId, throwable) -> {
+Fire.api().sendMessageWithText("toUid", "text").subscribe((messageId, throwable) -> {
             
 });
 ```
@@ -176,7 +175,7 @@ Fly.y.sendMessageWithText("toUid", "text").subscribe((messageId, throwable) -> {
 To receive a message add a listener:
 
 ```
-Fly.y.messageStream.subscribe(message -> {
+Fire.api().messageStream.subscribe(message -> {
     String fromUid = message.getFromUid();
     HashMap<String, Object> body = message.getBody();
 });
@@ -191,7 +190,7 @@ FireStream has two helpful facilities to handles this:
 1. Let the framework manage them for you:
 
 ```
-Fly.y.manage(disposable);
+Fire.api().manage(disposable);
 ``` 
 
 ```
@@ -219,6 +218,27 @@ dm.dispose(key);
 
 // Dispose of all disposables
 dm.disposeAll();
+```
+
+### Calling the library
+
+There are multiple ways you can invoke FireStream. They are provided for convenience and all do the same thing:
+
+```
+// Standard
+FireStream.shared().sendMessage(...)
+
+// Shorter
+Fire.Stream.sendMessage(...)
+
+// Maybe you prefer this
+Fire.api().sendMessage(...)
+
+// Compact
+F.ire.sendMessage(...)
+
+// Very short
+F.S.sendMessage(...)
 ```
 
 
