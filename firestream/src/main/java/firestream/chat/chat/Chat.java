@@ -175,7 +175,12 @@ public class Chat extends AbstractChat {
         } else {
             Meta newMeta = meta.copy();
             newMeta.name = name;
-            return Fire.Stream.getFirebaseService().chat.updateMeta(path(), newMeta.toData(false));
+            return Fire.Stream.getFirebaseService().chat.updateMeta(path(), newMeta.toData(false)).doOnComplete(new Action() {
+                @Override
+                public void run() throws Exception {
+                    meta.name = name;
+                }
+            });
         }
     }
 

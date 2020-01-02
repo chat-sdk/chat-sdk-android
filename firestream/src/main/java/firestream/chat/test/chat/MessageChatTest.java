@@ -78,6 +78,7 @@ public class MessageChatTest extends Test {
                         failure("Chat doesn't contain message");
                     }
 
+                    complete();
                 }));
 
             }
