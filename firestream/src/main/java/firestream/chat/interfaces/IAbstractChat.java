@@ -41,7 +41,7 @@ public interface IAbstractChat {
      * Get the managed disposable map. This map will be disposed of when we leave / disconnect
      * from the chat or when we log out. Use this to store any disposables that you want to be
      * disposed of then. This is slightly more flexible than the manage method because it allows
-     * you to store and retrieve disposables with an ID.
+     * you to store and retrieve disposables from an ID.
      * @return a pointer to the managed disposable map
      */
     DisposableMap getDisposableMap();

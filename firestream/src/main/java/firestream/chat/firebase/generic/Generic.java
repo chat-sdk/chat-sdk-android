@@ -1,7 +1,14 @@
 package firestream.chat.firebase.generic;
 
+import com.google.firebase.database.GenericTypeIndicator;
+
 import java.util.HashMap;
 
 public class Generic {
-    public class UserMetaData extends HashMap<String, HashMap<String, Object>> {}
+
+    public static class HashMapStringObject extends HashMap<String, Object> {}
+
+    public static GenericTypeIndicator<HashMap<String, Object>> hashMapStringObject() {
+        return new GenericTypeIndicator<HashMap<String, Object>>() {};
+    }
 }

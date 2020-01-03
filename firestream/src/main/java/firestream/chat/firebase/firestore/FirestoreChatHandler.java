@@ -1,12 +1,16 @@
 package firestream.chat.firebase.firestore;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
 import javax.annotation.Nullable;
 
-import firestream.chat.chat.Chat;
+import firestream.chat.chat.Meta;
+import firestream.chat.firebase.generic.Generic;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -30,21 +34,38 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
     }
 
     @Override
-    public Completable updateMeta(Path chatPath, HashMap<String, Object> meta) {
-        return new RXFirestore().update(Ref.document(chatPath), meta);
+    public Completable updateMeta(Path chatMetaPath, final HashMap<String, Object> meta) {
+        chatMetaPath.normalizeForDocument();
+
+        ArrayList<String> keys = new ArrayList<>(meta.keySet());
+
+        HashMap<String, Object> toWrite = meta;
+        if (chatMetaPath.getRemainder() != null) {
+            toWrite = wrap(chatMetaPath.getRemainder(), meta);
+            keys.add(chatMetaPath.getRemainder());
+        }
+        return new RXFirestore().update(Ref.document(chatMetaPath), toWrite, keys);
+    }
+
+    protected HashMap<String, Object> wrap(String key, HashMap<String, Object> map) {
+        return new HashMap<String, Object>() {{
+            put(key, map);
+        }};
     }
 
     @Override
-    public Observable<Chat.Meta> metaOn(Path path) {
-        // Remove the last path because in this case, the document ref does not include the "meta keyword"
+    public Observable<Meta> metaOn(Path path) {
         return new RXFirestore().on(Ref.document(path)).flatMapMaybe(snapshot -> {
-            Chat.Meta meta = new Chat.Meta();
+            Meta meta = new Meta();
 
             String base = Keys.Meta + ".";
 
-            meta.name = snapshot.get(base + Keys.Name, String.class);
-            meta.created = snapshot.get(base + Keys.Created, Date.class);
-            meta.imageURL = snapshot.get(base + Keys.ImageURL, String.class);
+            meta.setName(snapshot.get(base + Keys.Name, String.class));
+            meta.setCreated(snapshot.get(base + Keys.Created, Date.class));
+            meta.setImageURL(snapshot.get(base + Keys.ImageURL, String.class));
+
+            HashMap<String, Object> data = snapshot.get(base + Keys.Data, Generic.HashMapStringObject.class);
+            meta.setData(data);
 
             return Maybe.just(meta);
         });
@@ -54,5 +75,4 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
     public Single<String> add(Path path, HashMap<String, Object> data, @Nullable Consumer<String> newId) {
         return new RXFirestore().add(Ref.collection(path), data, newId);
     }
-
 }

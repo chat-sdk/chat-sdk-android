@@ -8,6 +8,8 @@ import java.util.HashMap;
 import javax.annotation.Nullable;
 
 import firestream.chat.chat.Chat;
+import firestream.chat.chat.Meta;
+import firestream.chat.firebase.generic.Generic;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -37,25 +39,29 @@ public class RealtimeChatHandler extends FirebaseChatHandler {
     }
 
     @Override
-    public Observable<Chat.Meta> metaOn(Path path) {
+    public Observable<Meta> metaOn(Path path) {
         return new RXRealtime().on(Ref.get(path)).flatMapMaybe(change -> {
             DataSnapshot snapshot = change.snapshot;
             if (snapshot.hasChild(Keys.Meta)) {
                 snapshot = snapshot.child(Keys.Meta);
 
-                Chat.Meta meta = new Chat.Meta();
+                Meta meta = new Meta();
 
                 if (snapshot.hasChild(Keys.Name)) {
-                    meta.name = snapshot.child(Keys.Name).getValue(String.class);
+                    meta.setName(snapshot.child(Keys.Name).getValue(String.class));
                 }
                 if (snapshot.hasChild(Keys.Created)) {
                     Long date = snapshot.child(Keys.Created).getValue(Long.class);
                     if (date != null) {
-                        meta.created = new Date(date);
+                        meta.setCreated(new Date(date));
                     }
                 }
                 if (snapshot.hasChild(Keys.ImageURL)) {
-                    meta.imageURL = snapshot.child(Keys.ImageURL).getValue(String.class);
+                    meta.setImageURL(snapshot.child(Keys.ImageURL).getValue(String.class));
+                }
+                if (snapshot.hasChild(Keys.Data)) {
+                    HashMap<String, Object> data = snapshot.child(Keys.Data).getValue(Generic.hashMapStringObject());
+                    meta.setData(data);
                 }
                 return Maybe.just(meta);
             }

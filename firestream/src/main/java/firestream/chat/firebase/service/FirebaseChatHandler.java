@@ -28,7 +28,7 @@ public abstract class FirebaseChatHandler {
      */
     public abstract Observable<Meta> metaOn(Path chatPath);
 
-    public abstract Completable updateMeta(Path chatPath, HashMap<String, Object> meta);
+    public abstract Completable updateMeta(Path chatMetaPath, HashMap<String, Object> meta);
 
     public abstract Single<String> add(Path path, HashMap<String, Object> data, @Nullable Consumer<String> newId);
 

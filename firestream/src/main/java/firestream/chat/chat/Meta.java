@@ -12,6 +12,8 @@ public class Meta {
     protected String imageURL = "";
     protected Date created;
     protected HashMap<String, Object> data;
+    protected Object timestamp;
+    protected boolean wrap = false;
 
     public Meta() {
     }
@@ -20,34 +22,52 @@ public class Meta {
         this(name, imageURL, null);
     }
 
-    public Meta(String name, String imageURL, Date created) {
+    public Meta(String name, String imageURL, HashMap<String, Object> data) {
+        this(name, imageURL, null, data);
+    }
+
+    public Meta(String name, String imageURL, Date created, HashMap<String, Object> data) {
         this.name = name;
         this.imageURL = imageURL;
         this.created = created;
+        this.data = data;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public Meta setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getImageURL() {
         return imageURL;
     }
 
-    public void setImageURL(String imageURL) {
+    public Meta setImageURL(String imageURL) {
         this.imageURL = imageURL;
+        return this;
     }
 
-    public void setData(HashMap<String, Object> data) {
+    public Meta setData(HashMap<String, Object> data) {
         this.data = data;
+        return this;
     }
 
     public HashMap<String, Object> getData() {
         return data;
+    }
+
+    public Meta addTimestamp() {
+        timestamp = Fire.Stream.getFirebaseService().core.timestamp();
+        return this;
+    }
+
+    public Meta wrap() {
+        wrap = true;
+        return this;
     }
 
     public Date getCreated() {
@@ -58,25 +78,49 @@ public class Meta {
         this.created = created;
     }
 
-    public HashMap<String, Object> toData() {
-        return toData(false);
+    public static HashMap<String, Object> nameData(String name) {
+        return new HashMap<String, Object>(){{
+            put(Keys.Name, name);
+        }};
     }
 
-    public HashMap<String, Object> toData(boolean includeTimestamp) {
-        HashMap<String, Object> toWrite = new HashMap<>();
+    public static HashMap<String, Object> imageURLData(String imageURL) {
+        return new HashMap<String, Object>(){{
+            put(Keys.ImageURL, imageURL);
+        }};
+    }
 
-        toWrite.put(Keys.Name, name);
-        toWrite.put(Keys.ImageURL, imageURL);
-        toWrite.put(Keys.Data, data);
+    public static HashMap<String, Object> dataData(HashMap<String, Object> data) {
+        return new HashMap<String, Object>(){{
+            put(Keys.Data, data);
+        }};
+    }
 
-        if (includeTimestamp) {
-            toWrite.put(Keys.Created, Fire.Stream.getFirebaseService().core.timestamp());
+    public HashMap<String, Object> toData() {
+        HashMap<String, Object> data = new HashMap<>();
+
+        if (name != null) {
+            data.put(Keys.Name, name);
         }
+        if (imageURL != null) {
+            data.put(Keys.ImageURL, imageURL);
+        }
+        if (this.data != null) {
+            data.put(Keys.Data, this.data);
+        }
+        if (timestamp != null) {
+            data.put(Keys.Created, timestamp);
+        }
+        if (wrap) {
+            return wrap(data);
+        }
+        return data;
+    }
 
-        HashMap<String, Object> meta = new HashMap<>();
-        meta.put(Keys.Meta, toWrite);
-
-        return meta;
+    protected static HashMap<String, Object> wrap(HashMap<String, Object> map) {
+        return new HashMap<String, Object>() {{
+            put(Keys.Meta, map);
+        }};
     }
 
     public Meta copy() {
@@ -86,8 +130,12 @@ public class Meta {
         return meta;
     }
 
-    public static Meta with(String name, String imageURL) {
+    public static Meta from(String name, String imageURL) {
         return new Meta(name, imageURL);
+    }
+
+    public static Meta from(String name, String imageURL, HashMap<String, Object> data) {
+        return new Meta(name, imageURL, data);
     }
 
 

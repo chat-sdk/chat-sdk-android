@@ -128,7 +128,7 @@ public class FirestreamThreadHandler extends FirebaseThreadHandler {
                 }
 
                 // We need to actually create the chat
-                Fire.Stream.manage(Fire.Stream.createChat(name, imageURL, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
+                Fire.Stream.manage(Fire.Stream.createChat(name, imageURL, null, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
                     if (throwable == null) {
                         finalThread.setEntityID(groupChat.getId());
                         e.onSuccess(finalThread);

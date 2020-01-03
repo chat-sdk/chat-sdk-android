@@ -22,6 +22,11 @@ public class MessageChatTest extends Test {
         super("MessageChat");
     }
 
+    /**
+     * Test:
+     * -
+     */
+
     @Override
     public Observable<Result> run() {
         return Observable.create(emitter -> {
@@ -49,8 +54,13 @@ public class MessageChatTest extends Test {
                 // Send a message
                 dm.add(chat.send(message()).subscribe(() -> {
                     // The chat should not yet contain the message - messages are only received via events
-                    if(chat.getSendables(SendableType.message()).size() != 0) {
-                        failure("Chat should contain no messages so far");
+                    if(chat.getSendables(SendableType.message()).size() != 1) {
+                        failure("Message not in sendables when it should be");
+                    } else {
+                        TextMessage message = TextMessage.fromSendable(chat.getSendables(SendableType.message()).get(0));
+                        if (!message.getText().equals(messageText())) {
+                            failure("Message text mismatch");
+                        }
                     }
                 }, this));
 

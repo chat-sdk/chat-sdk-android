@@ -51,7 +51,7 @@ public class AppObj extends MultiDexApplication {
             Config streamConfig = new Config();
             streamConfig.root = config.build().firebaseRootPath;
             streamConfig.sandbox = "firestream";
-            streamConfig.database = Config.DatabaseType.Realtime;
+            streamConfig.database = Config.DatabaseType.Firestore;
 
             Fire.api().initialize(context, streamConfig);
 

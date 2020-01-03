@@ -44,7 +44,7 @@ public interface IChat extends IAbstractChat {
     String getName();
 
     /**
-     * Set the chat name
+     * Set the chat name.
      * @param name new name
      * @return completion
      */
@@ -64,13 +64,13 @@ public interface IChat extends IAbstractChat {
     Completable setImageURL(String url);
 
     /**
-     * Get any custom data associated with the chat
+     * Get any custom data associated from the chat
      * @return custom data
      */
     HashMap<String, Object> getCustomData();
 
     /**
-     * Associate custom data with the chat - you can add your own
+     * Associate custom data from the chat - you can add your own
      * data to a chat - topic, extra links etc...
      * @param data custom data to write
      * @return completion
@@ -84,7 +84,7 @@ public interface IChat extends IAbstractChat {
     ArrayList<User> getUsers();
 
     /**
-     * Get a list of users with the FireStreamUser namespace
+     * Get a list of users from the FireStreamUser namespace
      * These are exactly the same users but may be useful if
      * your project already has a User class to avoid a clash
      * @return list of FireStreamUsers
@@ -185,7 +185,7 @@ public interface IChat extends IAbstractChat {
     Observable<String> getImageURLChangeEvents();
 
     /**
-     * Get an observable which is called when the custom data associated with the
+     * Get an observable which is called when the custom data associated from the
      * chat is updated
      * @return observable
      */

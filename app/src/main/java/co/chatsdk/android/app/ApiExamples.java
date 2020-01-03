@@ -85,13 +85,13 @@ public class ApiExamples {
     /**
      * An example of how to create a thread between the current user an another user
      * @param name - Thread name
-     * @param user - User to chat with
+     * @param user - User to chat from
      */
     public void createThread (String name, User user) {
         Disposable d = ChatSDK.thread().createThread(name, user, ChatSDK.currentUser())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
-                    // Runs when process completed with error or success
+                    // Runs when process completed from error or success
                 })
                 .subscribe(thread -> {
                     // When the thread is created
@@ -208,7 +208,7 @@ public class ApiExamples {
     }
 
     /**
-     * Get a user with a given entity ID
+     * Get a user from a given entity ID
      * @param entityID
      */
     public void getUserWithEntityID(String entityID) {
@@ -222,7 +222,7 @@ public class ApiExamples {
     }
 
     /**
-     * Add extra meta data to a text
+     * Add extra hashMapStringObject data to a text
      */
     public void addMetaDataToMessage (Message message) {
         message.setValueForKey("Value", "Key");

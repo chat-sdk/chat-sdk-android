@@ -21,6 +21,7 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
@@ -138,35 +139,13 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     @Override
-    public HashMap<String, Object> getCustomData() {
-        return meta.getData();
-    }
-
-    @Override
-    public Completable setCustomData(final HashMap<String, Object> data) {
-        if (!RoleType.admin().test(Fire.Stream.currentUser())) {
-            return Completable.error(this::adminPermissionRequired);
-        } else {
-            Meta newMeta = meta.copy();
-            newMeta.setData(data);
-            return Fire.Stream.getFirebaseService().chat.updateMeta(path(), newMeta.toData()).doOnComplete(() -> {
-                meta.setData(data);
-            });
-        }
-    }
-
-    @Override
     public Completable setName(String name) {
-        if (!RoleType.admin().test(Fire.Stream.currentUser())) {
+        if (!testPermission(RoleType.admin())) {
             return Completable.error(this::adminPermissionRequired);
         } else if(this.meta.getName().equals(name)) {
             return Completable.complete();
         } else {
-            Meta newMeta = meta.copy();
-            newMeta.setName(name);
-            return Fire.Stream.getFirebaseService().chat.updateMeta(path(), newMeta.toData()).doOnComplete(() -> {
-                meta.setName(name);
-            });
+            return Fire.Stream.getFirebaseService().chat.updateMeta(metaPath(), Meta.nameData(name)).doOnComplete(() -> meta.name = name);
         }
     }
 
@@ -177,15 +156,29 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Completable setImageURL(final String url) {
-        if (!RoleType.admin().test(Fire.Stream.currentUser())) {
+        if (!testPermission(RoleType.admin())) {
             return Completable.error(this::adminPermissionRequired);
         } else if (this.meta.getImageURL().equals(url)) {
             return Completable.complete();
         } else {
-            Meta newMeta = meta.copy();
-            newMeta.setImageURL(url);
-            return Fire.Stream.getFirebaseService().chat.updateMeta(path(), newMeta.toData()).doOnComplete(() -> {
+            return Fire.Stream.getFirebaseService().chat.updateMeta(metaPath(), Meta.imageURLData(url)).doOnComplete(() -> {
                 meta.setImageURL(url);
+            });
+        }
+    }
+
+    @Override
+    public HashMap<String, Object> getCustomData() {
+        return meta.getData();
+    }
+
+    @Override
+    public Completable setCustomData(final HashMap<String, Object> data) {
+        if (!testPermission(RoleType.admin())) {
+            return Completable.error(this::adminPermissionRequired);
+        } else {
+            return Fire.Stream.getFirebaseService().chat.updateMeta(metaPath(), Meta.dataData(data)).doOnComplete(() -> {
+                meta.setData(data);
             });
         }
     }
@@ -275,9 +268,9 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Completable setRole(User user, RoleType roleType) {
-        if (roleType.equals(RoleType.owner()) && !RoleType.owner().test(Fire.Stream.currentUser())) {
+        if (roleType.equals(RoleType.owner()) && !testPermission(RoleType.owner())) {
             return Completable.error(this::ownerPermissionRequired);
-        } else if(!RoleType.admin().test(Fire.Stream.currentUser())) {
+        } else if(!testPermission(RoleType.admin())) {
             return Completable.error(this::adminPermissionRequired);
         }
         user.roleType = roleType;
@@ -356,7 +349,7 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Completable send(Sendable sendable, @Nullable Consumer<String> newId) {
-        if (!RoleType.member().test(Fire.Stream.currentUser())) {
+        if (!testPermission(RoleType.member())) {
             return Completable.error(this::memberPermissionRequired);
         }
         return this.send(Paths.chatMessagesPath(id), sendable, newId);
@@ -393,8 +386,16 @@ public class Chat extends AbstractChat implements IChat {
         this.meta = meta;
     }
 
+    protected boolean testPermission(RoleType required) {
+        return required.test(getRoleTypeForUser(Fire.Stream.currentUser()));
+    }
+
     public Path path() {
         return Paths.chatPath(id);
+    }
+
+    public Path metaPath() {
+        return Paths.chatMetaPath(id);
     }
 
     @Override
@@ -414,9 +415,9 @@ public class Chat extends AbstractChat implements IChat {
         return new Exception(Fire.Stream.context().getString(R.string.error_member_permission_required));
     }
 
-    public static Single<Chat> create(final String name, final String imageURL, final List<User> users) {
-        return Fire.Stream.getFirebaseService().chat.add(Paths.chatsPath(), Meta.with(name, imageURL).toData(true)).flatMap(chatId -> {
-            Chat chat = new Chat(chatId, null, new Meta(name, imageURL));
+    public static Single<Chat> create(final String name, final String imageURL, final HashMap<String, Object> data, final List<User> users) {
+        return Fire.Stream.getFirebaseService().chat.add(Paths.chatsPath(), Meta.from(name, imageURL, data).addTimestamp().wrap().toData()).flatMap(chatId -> {
+            Chat chat = new Chat(chatId, null, new Meta(name, imageURL, data));
 
             ArrayList<User> usersToAdd = new ArrayList<>(users);
 

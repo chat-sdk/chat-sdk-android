@@ -30,6 +30,7 @@ public class RoleType extends BaseType {
     /**
      * Cannot access the chat, cannot be added
      */
+
     public static String Banned = "banned";
 
     public RoleType(String type) {
@@ -67,24 +68,33 @@ public class RoleType extends BaseType {
     }
 
     public boolean test(User user) {
-        return user.roleType.toLevel() <= toLevel();
+        if (user != null && user.roleType != null) {
+            return test(user.roleType);
+        }
+        return false;
+    }
+
+    public boolean test(RoleType permission) {
+        return permission.toLevel() <= toLevel();
     }
 
     protected int toLevel() {
-        if (type.equals(Owner)) {
-            return 0;
-        }
-        if (type.equals(Admin)) {
-            return 1;
-        }
-        if (type.equals(Member)) {
-            return 2;
-        }
-        if (type.equals(Watcher)) {
-            return 3;
-        }
-        if (type.equals(Banned)) {
-            return 4;
+        if (type != null) {
+            if (type.equals(Owner)) {
+                return 0;
+            }
+            if (type.equals(Admin)) {
+                return 1;
+            }
+            if (type.equals(Member)) {
+                return 2;
+            }
+            if (type.equals(Watcher)) {
+                return 3;
+            }
+            if (type.equals(Banned)) {
+                return 4;
+            }
         }
         return 5;
     }

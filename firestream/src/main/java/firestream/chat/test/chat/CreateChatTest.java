@@ -1,6 +1,7 @@
 package firestream.chat.test.chat;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -24,19 +25,40 @@ public class CreateChatTest extends Test {
         super("CreateChat");
     }
 
+    /**
+     * We test:
+     * - Creating a chat
+     * - Name correct
+     * - Image URL correct
+     * - Custom data correct
+     * - Users and roles correct
+     */
     @Override
     public Observable<Result> run() {
         return Observable.create(emitter -> {
             manage(emitter);
             final List<User> users = users();
-            dm.add(Fire.Stream.createChat(chatName(), chatImageURL(), users).subscribe(chat -> {
+            dm.add(Fire.Stream.createChat(chatName(), chatImageURL(), customData(), users).subscribe(chat -> {
                 // Check the name matches
                 if (!chat.getName().equals(chatName())) {
                     failure("Name mismatch");
                 }
 
                 if (!chat.getImageURL().equals(chatImageURL())) {
-                    failure("Image URL mismatch");
+                    failure("Image url mismatch");
+                }
+
+                // Check the ID is set
+                if (chat.getId() == null || chat.getId().isEmpty()) {
+                    failure("Chat id not set");
+                }
+
+                if (chat.getCustomData() != null) {
+                    if (!chat.getCustomData().equals(customData())) {
+                        failure("Custom data value mismatch");
+                    }
+                } else {
+                    failure("Custom data is null");
                 }
 
                 // Check the users
@@ -65,6 +87,15 @@ public class CreateChatTest extends Test {
 
     public static String chatImageURL() {
         return "https://chatsdk.co/wp-content/uploads/2017/01/image_message-407x389.jpg";
+    }
+
+    public static HashMap<String, Object> customData() {
+        HashMap<String, Object> data = new HashMap<>();
+
+        data.put("TestKey", "TestValue");
+        data.put("Key2", 999L);
+
+        return data;
     }
 
     public static List<User> users() {

@@ -348,12 +348,20 @@ public class FireStream extends AbstractChat implements IFireStream {
     // Chats
     //
 
-    public Single<Chat> createChat(String name, String imageURL, User... users) {
-        return createChat(name, imageURL, Arrays.asList(users));
+    public Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, User... users) {
+        return createChat(name, imageURL, null, Arrays.asList(users));
     }
 
-    public Single<Chat> createChat(String name, String imageURL, List<User> users) {
-        return Chat.create(name, imageURL, users).flatMap(chat -> {
+    public Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, @Nullable HashMap<String, Object> customData, User... users) {
+        return createChat(name, imageURL, customData, Arrays.asList(users));
+    }
+
+    public Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, List<User> users) {
+        return createChat(name, imageURL, null, users);
+    }
+
+    public Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, @Nullable HashMap<String, Object> customData, List<User> users) {
+        return Chat.create(name, imageURL, customData, users).flatMap(chat -> {
             return joinChat(chat).toSingle(() -> chat);
         });
     }

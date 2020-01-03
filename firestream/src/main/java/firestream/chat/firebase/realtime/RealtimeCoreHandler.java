@@ -12,7 +12,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import firestream.chat.firebase.generic.GenericTypes;
+import firestream.chat.firebase.generic.Generic;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -35,7 +35,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
     public Observable<ListEvent> listChangeOn(Path path) {
         return new RXRealtime().childOn(Ref.get(path)).flatMapMaybe(change -> {
             DataSnapshot snapshot = change.snapshot;
-            HashMap<String, Object> data = snapshot.getValue(GenericTypes.listEvent());
+            HashMap<String, Object> data = snapshot.getValue(Generic.hashMapStringObject());
             if (data != null) {
                 return Maybe.just(new ListEvent(change.snapshot.getKey(), data, change.type));
             }
@@ -132,7 +132,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
             sendable.type = snapshot.child(Keys.Type).getValue(String.class);
         }
         if (snapshot.hasChild(Keys.Body)) {
-            sendable.body = snapshot.child(Keys.Body).getValue(GenericTypes.messageBody());
+            sendable.body = snapshot.child(Keys.Body).getValue(Generic.hashMapStringObject());
         }
         return sendable;
 

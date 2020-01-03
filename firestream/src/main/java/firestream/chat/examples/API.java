@@ -28,7 +28,7 @@ public class API {
         // Initialize
         Fire.Stream.initialize(context, config);
 
-        // Send a errorMessage with text
+        // Send a errorMessage from text
         Disposable d1 = Fire.Stream.sendMessageWithText("user-id", "Hello", messageId -> {
             // Handle Message ID
         }).subscribe(() -> {
