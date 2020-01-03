@@ -2,6 +2,7 @@ package firestream.chat.types;
 
 import java.util.HashMap;
 
+import firestream.chat.chat.User;
 import firestream.chat.firebase.service.Keys;
 
 public class RoleType extends BaseType {
@@ -12,7 +13,7 @@ public class RoleType extends BaseType {
     public static String Owner = "owner";
 
     /**
-     * An admin can change the status of any lower member
+     * An admin can change the status of any lower member, also update the name, image and custom data
      */
     public static String Admin = "admin";
 
@@ -63,5 +64,28 @@ public class RoleType extends BaseType {
         HashMap<String, Object> data = new HashMap<>();
         data.put(Keys.Role, get());
         return data;
+    }
+
+    public boolean test(User user) {
+        return user.roleType.toLevel() <= toLevel();
+    }
+
+    protected int toLevel() {
+        if (type.equals(Owner)) {
+            return 0;
+        }
+        if (type.equals(Admin)) {
+            return 1;
+        }
+        if (type.equals(Member)) {
+            return 2;
+        }
+        if (type.equals(Watcher)) {
+            return 3;
+        }
+        if (type.equals(Banned)) {
+            return 4;
+        }
+        return 5;
     }
 }

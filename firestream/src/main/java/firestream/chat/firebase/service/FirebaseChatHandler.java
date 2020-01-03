@@ -5,6 +5,7 @@ import java.util.HashMap;
 import javax.annotation.Nullable;
 
 import firestream.chat.chat.Chat;
+import firestream.chat.chat.Meta;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -25,7 +26,7 @@ public abstract class FirebaseChatHandler {
      * @param chatPath path to chat document / entity
      * @return stream of data when chat meta changes
      */
-    public abstract Observable<Chat.Meta> metaOn(Path chatPath);
+    public abstract Observable<Meta> metaOn(Path chatPath);
 
     public abstract Completable updateMeta(Path chatPath, HashMap<String, Object> meta);
 

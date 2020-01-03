@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import firestream.chat.chat.Chat;
+import firestream.chat.interfaces.IChat;
 import firestream.chat.message.DeliveryReceipt;
 import firestream.chat.message.Message;
 import firestream.chat.message.Sendable;
@@ -15,9 +15,6 @@ import firestream.chat.test.Test;
 import firestream.chat.types.SendableType;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.functions.Action;
 
 public class MessageChatTest extends Test {
 
@@ -31,21 +28,21 @@ public class MessageChatTest extends Test {
             manage(emitter);
 
             // Modify the chat
-            List<Chat> chats = Fire.Stream.getChats();
+            List<IChat> chats = Fire.Stream.getChats();
 
             if (chats.size() == 0) {
                 failure("Chat doesn't exist");
             } else {
-                Chat chat = chats.get(0);
+                IChat chat = chats.get(0);
 
                 ArrayList<Message> messages = new ArrayList<>();
                 ArrayList<DeliveryReceipt> receipts = new ArrayList<>();
 
-                dm.add(chat.getEvents().getMessages().pastAndNewEvents().subscribe(message -> {
+                dm.add(chat.getSendableEvents().getMessages().pastAndNewEvents().subscribe(message -> {
                     messages.add(message);
                 }, this));
 
-                dm.add(chat.getEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(deliveryReceipt -> {
+                dm.add(chat.getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(deliveryReceipt -> {
                     receipts.add(deliveryReceipt);
                 }, this));
 

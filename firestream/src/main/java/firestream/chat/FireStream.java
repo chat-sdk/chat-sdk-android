@@ -15,7 +15,9 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import firefly.sdk.chat.R;
+import firestream.chat.interfaces.IChat;
 import firestream.chat.events.ConnectionEvent;
+import firestream.chat.interfaces.IFireStream;
 import firestream.chat.namespace.Fire;
 
 import io.reactivex.Completable;
@@ -52,7 +54,7 @@ import firestream.chat.types.SendableType;
 import firestream.chat.types.TypingStateType;
 import io.reactivex.subjects.BehaviorSubject;
 
-public class FireStream extends AbstractChat {
+public class FireStream extends AbstractChat implements IFireStream {
 
     public static final FireStream instance = new FireStream();
 
@@ -74,7 +76,7 @@ public class FireStream extends AbstractChat {
         return instance;
     }
 
-    protected ArrayList<Chat> chats = new ArrayList<>();
+    protected ArrayList<IChat> chats = new ArrayList<>();
 
     public FireStream() {
 
@@ -132,7 +134,7 @@ public class FireStream extends AbstractChat {
         // MESSAGE DELETION
 
         // We always delete typing state and presence messages
-        Observable<Sendable> stream = getEvents().getSendables().pastAndNewEvents();
+        Observable<Sendable> stream = getSendableEvents().getSendables().pastAndNewEvents();
         if (!config.deleteMessagesOnReceipt) {
             stream = stream.filter(MessageStreamFilter.bySendableType(SendableType.typingState(), SendableType.presence()));
         }
@@ -141,7 +143,7 @@ public class FireStream extends AbstractChat {
 
         // DELIVERY RECEIPTS
 
-        dm.add(getEvents().getMessages().pastAndNewEvents().flatMapCompletable(message -> {
+        dm.add(getSendableEvents().getMessages().pastAndNewEvents().flatMapCompletable(message -> {
             ArrayList<Completable> completables = new ArrayList<>();
 
             // If delivery receipts are enabled, send the delivery receipt
@@ -159,7 +161,7 @@ public class FireStream extends AbstractChat {
 
         // INVITATIONS
 
-        dm.add(getEvents().getInvitations().pastAndNewEvents().flatMapCompletable(invitation -> {
+        dm.add(getSendableEvents().getInvitations().pastAndNewEvents().flatMapCompletable(invitation -> {
             if (config.autoAcceptChatInvite) {
                 return invitation.accept();
             }
@@ -196,7 +198,7 @@ public class FireStream extends AbstractChat {
 
         dm.add(listChangeOn(Paths.userChatsPath()).subscribe(listEvent -> {
             ChatEvent chatEvent = ChatEvent.from(listEvent);
-            Chat chat = chatEvent.chat;
+            IChat chat = chatEvent.getChat();
             if (chatEvent.type == EventType.Added) {
                 chat.connect();
                 chats.add(chat);
@@ -351,13 +353,13 @@ public class FireStream extends AbstractChat {
     }
 
     public Single<Chat> createChat(String name, String imageURL, List<User> users) {
-        return Chat.create(name, imageURL, users).flatMap(groupChat -> {
-            return joinChat(groupChat.getId()).toSingle(() -> groupChat);
+        return Chat.create(name, imageURL, users).flatMap(chat -> {
+            return joinChat(chat).toSingle(() -> chat);
         });
     }
 
-    public Chat getChat(String chatId) {
-        for (Chat chat : chats) {
+    public IChat getChat(String chatId) {
+        for (IChat chat : chats) {
             if (chat.getId().equals(chatId)) {
                 return chat;
             }
@@ -365,21 +367,24 @@ public class FireStream extends AbstractChat {
         return null;
     }
 
-    public Completable leaveChat(String chatId) {
-        return getFirebaseService().chat
-                .leaveChat(chatId)
+    @Override
+    public Completable leaveChat(IChat chat) {
+        // We remove the chat from our list of chats, when that completes,
+        // we will remove our self from the chat roster
+        return getFirebaseService().chat.leaveChat(chat.getId())
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Completable joinChat(String chatId) {
+    @Override
+    public Completable joinChat(IChat chat) {
         return getFirebaseService().chat
-                .joinChat(chatId)
+                .joinChat(chat.getId())
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public List<Chat> getChats() {
+    public List<IChat> getChats() {
         return chats;
     }
 
@@ -428,6 +433,10 @@ public class FireStream extends AbstractChat {
         }
     }
 
+    public User currentUser() {
+        return new User(currentUserId());
+    }
+
     @Override
     protected Path messagesPath() {
         return Paths.messagesPath();
@@ -448,4 +457,5 @@ public class FireStream extends AbstractChat {
     public Observable<ConnectionEvent> getConnectionEvents() {
         return connectionEvents.hide();
     }
+
 }

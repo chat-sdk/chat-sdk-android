@@ -17,7 +17,7 @@ import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.FirebaseEventHandler;
-import firestream.chat.chat.Chat;
+import firestream.chat.interfaces.IChat;
 import firestream.chat.events.EventType;
 import firestream.chat.firebase.rx.DisposableMap;
 import firestream.chat.namespace.Fire;
@@ -38,12 +38,12 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
 
     protected void threadsOn(User chatSDKUser) {
 
-        dm.add(Fire.Stream.getEvents().getErrors().subscribe(throwable -> {
+        dm.add(Fire.Stream.getSendableEvents().getErrors().subscribe(throwable -> {
             throwable.printStackTrace();
         }));
 
         dm.add(Fire.Stream.getChatEvents().subscribe(chatEvent -> {
-            Chat chat = chatEvent.chat;
+            IChat chat = chatEvent.getChat();
 
             DisposableMap cdm = chat.getDisposableMap();
 
@@ -64,17 +64,17 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                 final Thread finalThread = thread;
 
                 // TODO: manage name image change
-                cdm.add(chat.getNameStream().subscribe(s -> {
+                cdm.add(chat.getNameChangeEvents().subscribe(s -> {
                     finalThread.setName(s);
                     eventSource.onNext(NetworkEvent.threadDetailsUpdated(finalThread));
                 }));
 
-                cdm.add(chat.getImageURLStream().subscribe(s -> {
+                cdm.add(chat.getImageURLChangeEvents().subscribe(s -> {
                     finalThread.setImageUrl(s);
                     eventSource.onNext(NetworkEvent.threadDetailsUpdated(finalThread));
                 }));
 
-                cdm.add(chat.getUserEventStream().subscribe(userEvent -> {
+                cdm.add(chat.getUserEvents().subscribe(userEvent -> {
                     if (userEvent.type == EventType.Added) {
                         dm.put(chat.getId(), APIHelper.fetchRemoteUser(userEvent.user.id).subscribe(user -> {
                             if (userEvent.getFireStreamUser().roleType.equals(RoleType.owner())) {
@@ -92,13 +92,13 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                     }
                 }));
 
-                cdm.add(chat.getEvents().getFireStreamMessages().subscribe(message -> {
+                cdm.add(chat.getSendableEvents().getFireStreamMessages().subscribe(message -> {
                     cdm.add(handleMessageForThread(message, finalThread));
                 }));
             }
         }));
 
-        dm.add(Fire.Stream.getEvents().getFireStreamMessages().subscribe(message -> {
+        dm.add(Fire.Stream.getSendableEvents().getFireStreamMessages().subscribe(message -> {
 
             // Get the user
             dm.add(APIHelper.fetchRemoteUser(message.from).subscribe(user -> {

@@ -3,11 +3,12 @@ package firestream.chat.events;
 import java.util.Date;
 
 import firestream.chat.chat.Chat;
+import firestream.chat.interfaces.IChat;
 import firestream.chat.firebase.service.Keys;
 
 public class ChatEvent extends Event {
 
-    public Chat chat;
+    protected Chat chat;
 
     public ChatEvent(Chat chat, EventType type) {
         super(type);
@@ -31,5 +32,9 @@ public class ChatEvent extends Event {
             return new ChatEvent(new Chat(listEvent.id, (Date) listEvent.get(Keys.Date)), listEvent.type);
         }
         return new ChatEvent(new Chat(listEvent.id), listEvent.type);
+    }
+
+    public IChat getChat() {
+        return chat;
     }
 }

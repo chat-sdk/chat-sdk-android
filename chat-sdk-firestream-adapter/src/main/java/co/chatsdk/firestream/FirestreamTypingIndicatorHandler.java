@@ -7,9 +7,8 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import firestream.chat.chat.Chat;
+import firestream.chat.interfaces.IChat;
 import firestream.chat.events.ConnectionEvent;
-import firestream.chat.events.EventType;
 import firestream.chat.firebase.rx.DisposableList;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
@@ -26,7 +25,7 @@ public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler 
         Disposable d = Fire.Stream.getConnectionEvents().subscribe(connectionEvent -> {
             if (connectionEvent.getType() == ConnectionEvent.Type.DidConnect) {
 
-                dm.add(Fire.Stream.getEvents().getTypingStates().subscribe(typingState -> {
+                dm.add(Fire.Stream.getSendableEvents().getTypingStates().subscribe(typingState -> {
                     // Get the sender
                     String senderId = typingState.from;
 
@@ -76,7 +75,7 @@ public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler 
             User otherUser = thread.otherUser();
             return Fire.Stream.sendTypingIndicator(otherUser.getEntityID(), typingStateType);
         } else {
-            Chat chat = Fire.Stream.getChat(thread.getEntityID());
+            IChat chat = Fire.Stream.getChat(thread.getEntityID());
             if (chat != null) {
                 return chat.sendTypingIndicator(typingStateType);
             } else {

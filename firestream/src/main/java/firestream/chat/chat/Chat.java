@@ -3,27 +3,25 @@ package firestream.chat.chat;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import firefly.sdk.chat.R;
 import firestream.chat.events.EventType;
 import firestream.chat.events.UserEvent;
 import firestream.chat.filter.MessageStreamFilter;
 import firestream.chat.firebase.rx.MultiQueueSubject;
-import firestream.chat.firebase.service.Keys;
 import firestream.chat.firebase.service.Path;
 import firestream.chat.firebase.service.Paths;
+import firestream.chat.interfaces.IChat;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 import firestream.chat.message.DeliveryReceipt;
@@ -38,53 +36,7 @@ import firestream.chat.types.InvitationType;
 import firestream.chat.types.RoleType;
 import firestream.chat.types.TypingStateType;
 
-public class Chat extends AbstractChat {
-
-    public static class Meta {
-        public String name = "";
-        public String imageURL = "";
-        public Date created;
-
-        public Meta() {
-        }
-
-        public Meta(String name, String imageURL) {
-            this(name, imageURL, null);
-        }
-
-        public Meta(String name, String imageURL, Date created) {
-            this.name = name;
-            this.imageURL = imageURL;
-            this.created = created;
-        }
-
-        public HashMap<String, Object> toData(boolean includeTimestamp) {
-            HashMap<String, Object> data = new HashMap<>();
-
-            data.put(Keys.Name, name);
-            data.put(Keys.ImageURL, imageURL);
-
-            if (includeTimestamp) {
-                data.put(Keys.Created, Fire.Stream.getFirebaseService().core.timestamp());
-            }
-
-            HashMap<String, Object> meta = new HashMap<>();
-            meta.put(Keys.Meta, data);
-
-            return meta;
-        }
-
-        public Meta copy() {
-            Meta meta = new Meta(name, imageURL);
-            meta.created = created;
-            return meta;
-        }
-
-        public static Meta with(String name, String imageURL) {
-            return new Meta(name, imageURL);
-        }
-
-    }
+public class Chat extends AbstractChat implements IChat {
 
     protected String id;
     protected Date joined;
@@ -93,8 +45,9 @@ public class Chat extends AbstractChat {
     protected ArrayList<User> users = new ArrayList<>();
     protected MultiQueueSubject<UserEvent> userEvents = MultiQueueSubject.create();
 
-    protected BehaviorSubject<String> nameStream = BehaviorSubject.create();
-    protected BehaviorSubject<String> imageURLStream = BehaviorSubject.create();
+    protected BehaviorSubject<String> nameChangedEvents = BehaviorSubject.create();
+    protected BehaviorSubject<String> imageURLChangedEvents = BehaviorSubject.create();
+    protected BehaviorSubject<HashMap<String, Object>> customDataChangedEvents = BehaviorSubject.create();
 
     public Chat(String id) {
         this.id = id;
@@ -110,13 +63,19 @@ public class Chat extends AbstractChat {
         this.joined = joined;
     }
 
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
     public void connect() throws Exception {
 
         System.out.println("Connect to chat: " + id);
 
         // If delivery receipts are enabled, send the delivery receipt
         if (config.deliveryReceiptsEnabled) {
-            dm.add(getEvents()
+            dm.add(getSendableEvents()
                     .getMessages()
                     .pastAndNewEvents()
                     .filter(MessageStreamFilter.notFromMe())
@@ -145,71 +104,154 @@ public class Chat extends AbstractChat {
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(newMeta -> {
-            if (newMeta != null) {
+                    if (newMeta != null) {
 
-                if (newMeta.name != null && !newMeta.name.equals(meta.name)) {
-                    meta.name = newMeta.name;
-                    nameStream.onNext(meta.name);
-                }
-                if (newMeta.imageURL != null && !newMeta.imageURL.equals(meta.imageURL)) {
-                    meta.imageURL = newMeta.imageURL;
-                    imageURLStream.onNext(meta.imageURL);
-                }
-                if (newMeta.created != null) {
-                    meta.created = newMeta.created;
-                }
-            }
-        }, this));
+                        if (newMeta.getName() != null && !newMeta.getName().equals(meta.getName())) {
+                            meta.setName(newMeta.name);
+                            nameChangedEvents.onNext(meta.getName());
+                        }
+                        if (newMeta.getImageURL() != null && !newMeta.getImageURL().equals(meta.getImageURL())) {
+                            meta.setImageURL(newMeta.imageURL);
+                            imageURLChangedEvents.onNext(meta.getImageURL());
+                        }
+                        if (newMeta.getData() != null) {
+                            meta.setData(newMeta.getData());
+                            customDataChangedEvents.onNext(meta.getData());
+                        }
+                        if (newMeta.getCreated() != null) {
+                            meta.setCreated(newMeta.getCreated());
+                        }
+                    }
+                }, this));
 
         super.connect();
     }
 
     @Override
-    protected Path messagesPath() {
-        return Paths.chatMessagesPath(id);
+    public Completable leave() {
+        return removeUser(User.currentUser()).doOnComplete(this::disconnect);
     }
 
-    public Completable setName(String name) {
-        if (this.meta.name.equals(name)) {
-            return Completable.complete();
+    @Override
+    public String getName() {
+        return meta.getName();
+    }
+
+    @Override
+    public HashMap<String, Object> getCustomData() {
+        return meta.getData();
+    }
+
+    @Override
+    public Completable setCustomData(final HashMap<String, Object> data) {
+        if (!RoleType.admin().test(Fire.Stream.currentUser())) {
+            return Completable.error(this::adminPermissionRequired);
         } else {
             Meta newMeta = meta.copy();
-            newMeta.name = name;
-            return Fire.Stream.getFirebaseService().chat.updateMeta(path(), newMeta.toData(false)).doOnComplete(new Action() {
-                @Override
-                public void run() throws Exception {
-                    meta.name = name;
-                }
+            newMeta.setData(data);
+            return Fire.Stream.getFirebaseService().chat.updateMeta(path(), newMeta.toData()).doOnComplete(() -> {
+                meta.setData(data);
             });
         }
     }
 
-    public Completable setImageURL(String url) {
-        if (this.meta.imageURL.equals(url)) {
+    @Override
+    public Completable setName(String name) {
+        if (!RoleType.admin().test(Fire.Stream.currentUser())) {
+            return Completable.error(this::adminPermissionRequired);
+        } else if(this.meta.getName().equals(name)) {
             return Completable.complete();
         } else {
             Meta newMeta = meta.copy();
-            newMeta.imageURL = url;
-            return Fire.Stream.getFirebaseService().chat.updateMeta(path(), newMeta.toData(false));
+            newMeta.setName(name);
+            return Fire.Stream.getFirebaseService().chat.updateMeta(path(), newMeta.toData()).doOnComplete(() -> {
+                meta.setName(name);
+            });
         }
     }
-    public static Single<Chat> create(final String name, final String imageURL, final List<User> users) {
-        return Fire.Stream.getFirebaseService().chat.add(Paths.chatsPath(), Meta.with(name, imageURL).toData(true)).flatMap(chatId -> {
-            Chat chat = new Chat(chatId, null, new Meta(name, imageURL));
 
-            ArrayList<User> usersToAdd = new ArrayList<>(users);
-
-            // Make sure the current user is the owner
-            usersToAdd.remove(User.currentUser());
-            usersToAdd.add(User.currentUser(RoleType.owner()));
-
-            return chat.addUsers(usersToAdd)
-                    .andThen(chat.inviteUsers(users))
-                    .toSingle(() -> chat);
-
-        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+    @Override
+    public String getImageURL() {
+        return meta.getImageURL();
     }
 
+    @Override
+    public Completable setImageURL(final String url) {
+        if (!RoleType.admin().test(Fire.Stream.currentUser())) {
+            return Completable.error(this::adminPermissionRequired);
+        } else if (this.meta.getImageURL().equals(url)) {
+            return Completable.complete();
+        } else {
+            Meta newMeta = meta.copy();
+            newMeta.setImageURL(url);
+            return Fire.Stream.getFirebaseService().chat.updateMeta(path(), newMeta.toData()).doOnComplete(() -> {
+                meta.setImageURL(url);
+            });
+        }
+    }
+
+    @Override
+    public ArrayList<User> getUsers() {
+        return users;
+    }
+
+    @Override
+    public ArrayList<FireStreamUser> getFireStreamUsers() {
+        ArrayList<FireStreamUser> fireStreamUsers = new ArrayList<>();
+        for (User u : users) {
+            fireStreamUsers.add(FireStreamUser.fromUser(u));
+        }
+        return fireStreamUsers;
+    }
+
+    @Override
+    public Completable addUser(Boolean sendInvite, User user) {
+        return addUsers(sendInvite, user);
+    }
+
+    @Override
+    public Completable addUsers(Boolean sendInvite, User... users) {
+        return addUsers(sendInvite, Arrays.asList(users));
+    }
+
+    @Override
+    public Completable addUsers(Boolean sendInvite, List<User> users) {
+        return addUsers(Paths.chatUsersPath(id), User.roleTypeDataProvider(), users).concatWith(sendInvite ? inviteUsers(users) : Completable.complete()).doOnComplete(() -> {
+            this.users.addAll(users);
+        });
+    }
+
+    @Override
+    public Completable updateUser(User user) {
+        return updateUser(Paths.chatUsersPath(id), User.roleTypeDataProvider(), user);
+    }
+
+    @Override
+    public Completable updateUsers(List<User> users) {
+        return updateUsers(Paths.chatUsersPath(id), User.roleTypeDataProvider(), users);
+    }
+
+    @Override
+    public Completable updateUsers(User... users) {
+        return updateUsers(Paths.chatUsersPath(id), User.roleTypeDataProvider(), users);
+    }
+
+    @Override
+    public Completable removeUser(User user) {
+        return removeUser(Paths.chatUsersPath(id), user);
+    }
+
+    @Override
+    public Completable removeUsers(User... user) {
+        return removeUsers(Paths.chatUsersPath(id), user);
+    }
+
+    @Override
+    public Completable removeUsers(List<User> user) {
+        return removeUsers(Paths.chatUsersPath(id), user);
+    }
+
+    @Override
     public Completable inviteUsers(List<User> users) {
         ArrayList<Completable> completables = new ArrayList<>();
         for (User user : users) {
@@ -220,124 +262,7 @@ public class Chat extends AbstractChat {
         return Completable.merge(completables).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Completable addUser(User user) {
-        return addUser(Paths.chatUsersPath(id), null, user);
-    }
-
-    public Completable addUsers(User... users) {
-        return addUsers(Paths.chatUsersPath(id), User.roleTypeDataProvider(), users);
-    }
-
-    public Completable addUsers(List<User> users) {
-        return addUsers(Paths.chatUsersPath(id), User.roleTypeDataProvider(), users).doOnComplete(() -> {
-            this.users.addAll(users);
-        });
-    }
-
-    public Completable updateUser(User user) {
-        return updateUser(Paths.chatUsersPath(id), User.roleTypeDataProvider(), user);
-    }
-
-    public Completable updateUsers(List<User> users) {
-        return updateUsers(Paths.chatUsersPath(id), User.roleTypeDataProvider(), users);
-    }
-
-    public Completable updateUsers(User... users) {
-        return updateUsers(Paths.chatUsersPath(id), User.roleTypeDataProvider(), users);
-    }
-
-    public Completable removeUser(User user) {
-        return removeUser(Paths.chatUsersPath(id), user);
-    }
-
-    public Completable removeUsers(User... user) {
-        return removeUsers(Paths.chatUsersPath(id), user);
-    }
-
-    public Completable removeUsers(List<User> user) {
-        return removeUsers(Paths.chatUsersPath(id), user);
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public Completable send(Sendable sendable) {
-        return send(sendable, null);
-    }
-
-    public Completable send(Sendable sendable, @Nullable Consumer<String> newId) {
-        return this.send(Paths.chatMessagesPath(id), sendable, newId);
-    }
-
-    public Completable leave() {
-        return removeUser(User.currentUser()).doOnComplete(this::disconnect);
-    }
-
-    /**
-     * Send a delivery receipt to a user. If delivery receipts are enabled,
-     * a 'received' status will be returned as soon as a errorMessage is delivered
-     * and then you can then manually send a 'read' status when the user
-     * actually reads the errorMessage
-     * @param type - the status getBodyType
-     * @return - subscribe to get a completion, error update from the method
-     */
-    public Completable sendDeliveryReceipt(DeliveryReceiptType type, String messageId) {
-        return sendDeliveryReceipt(type, messageId, null);
-    }
-
-    public Completable sendDeliveryReceipt(DeliveryReceiptType type, String messageId, @Nullable Consumer<String> newId) {
-        return send(new DeliveryReceipt(type, messageId), newId);
-    }
-
-    public Completable markReceived(Message message) {
-        return sendDeliveryReceipt(DeliveryReceiptType.received(), message.id);
-    }
-
     @Override
-    public Completable markRead(Message message) {
-        return sendDeliveryReceipt(DeliveryReceiptType.read(), message.id);
-    }
-
-    /**
-     * Send a typing indicator update to a user. This should be sent when the user
-     * starts or stops typing
-     * @param type - the status getBodyType
-     * @return - subscribe to get a completion, error update from the method
-     */
-    public Completable sendTypingIndicator(TypingStateType type) {
-        return sendTypingIndicator(type, null);
-    }
-
-    public Completable sendTypingIndicator(TypingStateType type, @Nullable Consumer<String> newId) {
-        return send(new TypingState(type), newId);
-    }
-
-    public Completable sendMessageWithText(String text) {
-        return sendMessageWithText(text, null);
-    }
-
-    public Completable sendMessageWithText(String text, @Nullable Consumer<String> newId) {
-        return send(new TextMessage(text), newId);
-    }
-
-    public Completable sendMessageWithBody(HashMap<String, Object> body) {
-        return sendMessageWithBody(body, null);
-    }
-
-    public Completable sendMessageWithBody(HashMap<String, Object> body, @Nullable Consumer<String> newId) {
-        return send(new Message(body), newId);
-    }
-
-    public RoleType getRoleTypeForUser(User theUser) {
-        for (User user: users) {
-            if (user.equals(theUser)) {
-                return user.roleType;
-            }
-        }
-        return null;
-    }
-
     public List<User> getUsersForRoleType(RoleType roleType) {
         ArrayList<User> result = new ArrayList<>();
         for (User user: users) {
@@ -348,16 +273,112 @@ public class Chat extends AbstractChat {
         return result;
     }
 
-    /**
-     * Update the role for a user - whether you can do this will
-     * depend childOn your admin level
-     * @param user to change role
-     * @param roleType new role
-     * @return completion
-     */
+    @Override
     public Completable setRole(User user, RoleType roleType) {
+        if (roleType.equals(RoleType.owner()) && !RoleType.owner().test(Fire.Stream.currentUser())) {
+            return Completable.error(this::ownerPermissionRequired);
+        } else if(!RoleType.admin().test(Fire.Stream.currentUser())) {
+            return Completable.error(this::adminPermissionRequired);
+        }
         user.roleType = roleType;
         return updateUser(user);
+    }
+
+    @Override
+    public RoleType getRoleTypeForUser(User theUser) {
+        for (User user: users) {
+            if (user.equals(theUser)) {
+                return user.roleType;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Observable<String> getNameChangeEvents() {
+        return nameChangedEvents.hide();
+    }
+
+    @Override
+    public Observable<String> getImageURLChangeEvents() {
+        return imageURLChangedEvents.hide();
+    }
+
+    @Override
+    public Observable<HashMap<String, Object>> getCustomDataChangedEvents() {
+        return customDataChangedEvents.hide();
+    }
+
+    @Override
+    public MultiQueueSubject<UserEvent> getUserEvents() {
+        return userEvents;
+    }
+
+    @Override
+    public Completable sendMessageWithBody(HashMap<String, Object> body) {
+        return sendMessageWithBody(body, null);
+    }
+
+    @Override
+    public Completable sendMessageWithBody(HashMap<String, Object> body, @Nullable Consumer<String> newId) {
+        return send(new Message(body), newId);
+    }
+
+    @Override
+    public Completable sendMessageWithText(String text) {
+        return sendMessageWithText(text, null);
+    }
+
+    @Override
+    public Completable sendMessageWithText(String text, @Nullable Consumer<String> newId) {
+        return send(new TextMessage(text), newId);
+    }
+
+    @Override
+    public Completable sendTypingIndicator(TypingStateType type) {
+        return sendTypingIndicator(type, null);
+    }
+
+    @Override
+    public Completable sendTypingIndicator(TypingStateType type, @Nullable Consumer<String> newId) {
+        return send(new TypingState(type), newId);
+    }
+
+    @Override
+    public Completable sendDeliveryReceipt(DeliveryReceiptType type, String messageId) {
+        return sendDeliveryReceipt(type, messageId, null);
+    }
+
+    @Override
+    public Completable sendDeliveryReceipt(DeliveryReceiptType type, String messageId, @Nullable Consumer<String> newId) {
+        return send(new DeliveryReceipt(type, messageId), newId);
+    }
+
+    @Override
+    public Completable send(Sendable sendable, @Nullable Consumer<String> newId) {
+        if (!RoleType.member().test(Fire.Stream.currentUser())) {
+            return Completable.error(this::memberPermissionRequired);
+        }
+        return this.send(Paths.chatMessagesPath(id), sendable, newId);
+    }
+
+    @Override
+    public Completable send(Sendable sendable) {
+        return send(sendable, null);
+    }
+
+    @Override
+    public Completable markReceived(Message message) {
+        return sendDeliveryReceipt(DeliveryReceiptType.received(), message.id);
+    }
+
+    @Override
+    public Completable markRead(Message message) {
+        return sendDeliveryReceipt(DeliveryReceiptType.read(), message.id);
+    }
+
+    protected RoleType getMyRoleType() {
+        return getRoleTypeForUser(Fire.Stream.currentUser());
     }
 
     @Override
@@ -368,45 +389,44 @@ public class Chat extends AbstractChat {
         return false;
     }
 
-    public MultiQueueSubject<UserEvent> getUserEventStream() {
-        return userEvents;
+    protected void setMeta(Meta meta) {
+        this.meta = meta;
     }
-
-    public ArrayList<User> getUsers() {
-        return users;
-    }
-
-    public Observable<String> getNameStream() {
-        return nameStream.hide();
-    }
-
-    public Observable<String> getImageURLStream() {
-        return imageURLStream.hide();
-    }
-
-    public ArrayList<FireStreamUser> getFireflyUsers() {
-        ArrayList<FireStreamUser> fireStreamUsers = new ArrayList<>();
-        for (User u : users) {
-            fireStreamUsers.add(FireStreamUser.fromUser(u));
-        }
-        return fireStreamUsers;
-    }
-
-    public String getName() {
-        return meta.name;
-    }
-
-    public String getImageURL() {
-        return meta.imageURL;
-    }
-
 
     public Path path() {
         return Paths.chatPath(id);
     }
 
-    protected void setMeta(Meta meta) {
-        this.meta = meta;
+    @Override
+    protected Path messagesPath() {
+        return Paths.chatMessagesPath(id);
     }
 
+    protected Exception ownerPermissionRequired() {
+        return new Exception(Fire.Stream.context().getString(R.string.error_owner_permission_required));
+    }
+
+    protected Exception adminPermissionRequired() {
+        return new Exception(Fire.Stream.context().getString(R.string.error_admin_permission_required));
+    }
+
+    protected Exception memberPermissionRequired() {
+        return new Exception(Fire.Stream.context().getString(R.string.error_member_permission_required));
+    }
+
+    public static Single<Chat> create(final String name, final String imageURL, final List<User> users) {
+        return Fire.Stream.getFirebaseService().chat.add(Paths.chatsPath(), Meta.with(name, imageURL).toData(true)).flatMap(chatId -> {
+            Chat chat = new Chat(chatId, null, new Meta(name, imageURL));
+
+            ArrayList<User> usersToAdd = new ArrayList<>(users);
+
+            // Make sure the current user is the owner
+            usersToAdd.remove(User.currentUser());
+            usersToAdd.add(User.currentUser(RoleType.owner()));
+
+            return chat.addUsers(true, usersToAdd)
+                    .toSingle(() -> chat);
+
+        }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+    }
 }

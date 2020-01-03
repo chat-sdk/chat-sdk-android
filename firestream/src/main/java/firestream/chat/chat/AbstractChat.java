@@ -1,10 +1,7 @@
 package firestream.chat.chat;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-
-import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +11,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import firestream.chat.firebase.rx.DisposableMap;
+import firestream.chat.interfaces.IAbstractChat;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -38,7 +36,7 @@ import firestream.chat.types.SendableType;
  * This class handles common elements of a conversation bit it 1-to-1 or group.
  * Mainly sending and receiving messages.
  */
-public abstract class AbstractChat implements Consumer<Throwable> {
+public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat {
 
     /**
      * Store the disposables so we can dispose of all of them when the user logs out
@@ -86,7 +84,7 @@ public abstract class AbstractChat implements Consumer<Throwable> {
     protected Observable<Sendable> messagesOn(Date newerThan) {
         return Fire.Stream.getFirebaseService().core.messagesOn(messagesPath(), newerThan, config.messageHistoryLimit).doOnNext(sendable -> {
             if (sendable != null) {
-                getEvents().getSendables().onNext(sendable);
+                getSendableEvents().getSendables().onNext(sendable);
                 sendables.add(sendable);
             }
         }).doOnError(throwable -> {
@@ -273,19 +271,14 @@ public abstract class AbstractChat implements Consumer<Throwable> {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    /**
-     * Connect to the chat
-     * @throws Exception error if we are not connected
-     */
+    @Override
     public void connect() throws Exception {
         dm.add(dateOfLastDeliveryReceipt()
                 .flatMapObservable(this::messagesOn)
                 .subscribe(this::passMessageResultToStream, this));
     }
 
-    /**
-     * Disconnect from a chat
-     */
+    @Override
     public void disconnect () {
         dm.dispose();
     }
@@ -315,10 +308,12 @@ public abstract class AbstractChat implements Consumer<Throwable> {
         }
     }
 
+    @Override
     public ArrayList<Sendable> getSendables() {
         return sendables;
     }
 
+    @Override
     public ArrayList<Sendable> getSendables(SendableType type) {
         return Lists.newArrayList(Collections2.filter(sendables, input -> input != null && input.type.equals(type.get())));
     }
@@ -327,7 +322,7 @@ public abstract class AbstractChat implements Consumer<Throwable> {
      * returns the events object which exposes the different sendable streams
      * @return events
      */
-    public Events getEvents() {
+    public Events getSendableEvents() {
         return events;
     }
 
@@ -337,15 +332,12 @@ public abstract class AbstractChat implements Consumer<Throwable> {
      */
     protected abstract Path messagesPath();
 
-    /**
-     * The disposable map for any room is disposed of on disconnect. Use this
-     * to store any disposables that you want to be disposed of then
-     * @return disposable bucket that is cleared on disconnect
-     */
+    @Override
     public DisposableMap getDisposableMap() {
         return dm;
     }
 
+    @Override
     public void manage(Disposable disposable) {
         getDisposableMap().add(disposable);
     }

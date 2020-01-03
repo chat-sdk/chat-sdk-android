@@ -2,7 +2,7 @@ package firestream.chat.examples;
 
 import android.content.Context;
 
-import firestream.chat.chat.Chat;
+import firestream.chat.interfaces.IChat;
 import firestream.chat.events.EventType;
 import firestream.chat.namespace.Fire;
 import io.reactivex.disposables.Disposable;
@@ -38,7 +38,7 @@ public class API {
         });
 
         // Receive errorMessage events
-        Disposable d2 = Fire.Stream.getEvents().getMessages().subscribe(message -> {
+        Disposable d2 = Fire.Stream.getSendableEvents().getMessages().subscribe(message -> {
             // Handle errorMessage
         });
 
@@ -59,12 +59,12 @@ public class API {
         });
 
         Disposable d4 = Fire.Stream.getChatEvents().subscribe(chatEvent -> {
-            Chat chat = chatEvent.chat;
+            IChat chat = chatEvent.getChat();
             if (chatEvent.type == EventType.Added) {
                 // A chat was added!
 
                 // Get the chat to dispose of the disposable when we log out or leave
-                chat.manage(chat.getUserEventStream().subscribe(userEvent -> {
+                chat.manage(chat.getUserEvents().subscribe(userEvent -> {
                     User user = userEvent.user;
                     if (userEvent.type == EventType.Added) {
                         // Get the role of the user
@@ -77,10 +77,10 @@ public class API {
                 }));
 
                 // Get the name
-                chat.manage(chat.getNameStream().subscribe(s -> {
+                chat.manage(chat.getNameChangeEvents().subscribe(s -> {
                     // The name changed!
                 }));
-                chat.manage(chat.getImageURLStream().subscribe(s -> {
+                chat.manage(chat.getImageURLChangeEvents().subscribe(s -> {
                     // The image url changed!
                 }));
 

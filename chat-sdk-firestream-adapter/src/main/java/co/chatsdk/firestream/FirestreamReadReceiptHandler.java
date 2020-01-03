@@ -11,7 +11,7 @@ import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ReadStatus;
-import firestream.chat.chat.Chat;
+import firestream.chat.interfaces.IChat;
 import firestream.chat.events.ConnectionEvent;
 import firestream.chat.events.EventType;
 import firestream.chat.firebase.rx.DisposableMap;
@@ -30,15 +30,15 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler {
         Disposable d = Fire.Stream.getConnectionEvents().subscribe(connectionEvent -> {
             if (connectionEvent.getType() == ConnectionEvent.Type.DidConnect) {
 
-                dm.add(Fire.Stream.getEvents().getDeliveryReceipts().subscribe(receipt -> {
+                dm.add(Fire.Stream.getSendableEvents().getDeliveryReceipts().subscribe(receipt -> {
                     handleReceipt(receipt.from, receipt);
                 }));
 
                 dm.add(Fire.Stream.getChatEvents().pastAndNewEvents().subscribe(chatEvent -> {
-                    Chat chat = chatEvent.chat;
+                    IChat chat = chatEvent.getChat();
                     if (chatEvent.type == EventType.Added) {
 
-                        chat.getDisposableMap().add(chat.getEvents().getDeliveryReceipts().subscribe(receipt -> {
+                        chat.getDisposableMap().add(chat.getSendableEvents().getDeliveryReceipts().subscribe(receipt -> {
                             handleReceipt(receipt.from, receipt);
                         }));
                     }

@@ -4,13 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import firestream.chat.chat.Chat;
+import firestream.chat.interfaces.IChat;
 import firestream.chat.chat.User;
 import firestream.chat.events.EventType;
 import firestream.chat.events.UserEvent;
-import firestream.chat.message.DeliveryReceipt;
-import firestream.chat.message.Message;
-import firestream.chat.message.TextMessage;
 import firestream.chat.namespace.Fire;
 import firestream.chat.test.Result;
 import firestream.chat.test.Test;
@@ -18,10 +15,6 @@ import firestream.chat.test.TestScript;
 import firestream.chat.types.RoleType;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 public class ModifyChatTest extends Test {
 
@@ -35,26 +28,26 @@ public class ModifyChatTest extends Test {
             manage(emitter);
 
             // Modify the chat
-            List<Chat> chats = Fire.Stream.getChats();
+            List<IChat> chats = Fire.Stream.getChats();
 
             if (chats.size() == 0) {
                 failure("Chat doesn't exist");
             } else {
-                Chat chat = chats.get(0);
+                IChat chat = chats.get(0);
 
                 ArrayList<String> nameEvents = new ArrayList<>();
                 ArrayList<String> imageURLEvents = new ArrayList<>();
                 ArrayList<UserEvent> userEvents = new ArrayList<>();
 
-                dm.add(chat.getNameStream().subscribe(s -> {
+                dm.add(chat.getNameChangeEvents().subscribe(s -> {
                     nameEvents.add(s);
                 }, this));
 
-                dm.add(chat.getNameStream().subscribe(s -> {
+                dm.add(chat.getNameChangeEvents().subscribe(s -> {
                     imageURLEvents.add(s);
                 }, this));
 
-                dm.add(chat.getUserEventStream().subscribe(userEvent -> {
+                dm.add(chat.getUserEvents().subscribe(userEvent -> {
                     if (userEvent.type == EventType.Modified) {
                         userEvents.add(userEvent);
                     } else {

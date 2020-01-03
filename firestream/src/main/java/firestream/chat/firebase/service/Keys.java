@@ -11,6 +11,7 @@ public class Keys {
     public static String ImageURL = "image-url";
     public static String Created = "created";
     public static String Role = "role";
+    public static String Data = "data";
 
     public static String Users = "users";
     public static String Messages = "messages";

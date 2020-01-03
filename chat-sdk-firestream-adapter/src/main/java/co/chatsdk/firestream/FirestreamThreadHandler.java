@@ -13,7 +13,8 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.firebase.FirebaseThreadHandler;
-import firestream.chat.chat.Chat;
+import co.chatsdk.firefly.R;
+import firestream.chat.interfaces.IChat;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -35,7 +36,7 @@ public class FirestreamThreadHandler extends FirebaseThreadHandler {
             User otherUser = message.getThread().otherUser();
             return Fire.Stream.sendMessageWithBody(otherUser.getEntityID(), messageBody, message::setEntityID);
         } else {
-            Chat chat = Fire.Stream.getChat(message.getThread().getEntityID());
+            IChat chat = Fire.Stream.getChat(message.getThread().getEntityID());
             if (chat != null) {
                 return chat.sendMessageWithBody(messageBody, message::setEntityID);
             } else {
@@ -113,7 +114,7 @@ public class FirestreamThreadHandler extends FirebaseThreadHandler {
 
             if(threadType == ThreadType.Private1to1) {
                 if (allUsers.size() != 2) {
-                    e.onError(new Throwable("Private chat needs two members"));
+                    e.onError(new Throwable(Fire.Stream.context().getString(R.string.error_private_chat_needs_two_members)));
                 } else {
                     e.onSuccess(thread);
                 }
