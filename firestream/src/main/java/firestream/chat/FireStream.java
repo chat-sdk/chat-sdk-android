@@ -268,7 +268,7 @@ public class FireStream extends AbstractChat implements IFireStream {
      * and then you can then manually send a 'read' status when the user
      * actually reads the errorMessage
      * @param userId - the recipient user id
-     * @param type - the status getBodyType
+     * @param type - the status getTypingStateType
      * @return - subscribe to get a completion, error update from the method
      */
     public Completable sendDeliveryReceipt(String userId, DeliveryReceiptType type, String messageId) {
@@ -282,7 +282,7 @@ public class FireStream extends AbstractChat implements IFireStream {
      * Send a typing indicator update to a user. This should be sent when the user
      * starts or stops typing
      * @param userId - the recipient user id
-     * @param type - the status getBodyType
+     * @param type - the status getTypingStateType
      * @return - subscribe to get a completion, error update from the method
      */
     public Completable sendTypingIndicator(String userId, TypingStateType type) {

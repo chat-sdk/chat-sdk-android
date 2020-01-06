@@ -14,7 +14,7 @@ public class TypingState extends Sendable {
         setBodyType(type);
     }
 
-    public TypingStateType getBodyType() {
+    public TypingStateType getTypingStateType() {
         return new TypingStateType(super.getBodyType());
     }
 

@@ -21,7 +21,7 @@ public class DeliveryReceipt extends Sendable {
         return getBodyString(MessageId);
     }
 
-    public DeliveryReceiptType getBodyType() {
+    public DeliveryReceiptType getDeliveryReceiptType() {
         return new DeliveryReceiptType(super.getBodyType());
     }
 

@@ -11,6 +11,8 @@ import firestream.chat.chat.Chat;
 import firestream.chat.chat.Meta;
 import firestream.chat.firebase.generic.Generic;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -33,9 +35,14 @@ public class RealtimeChatHandler extends FirebaseChatHandler {
         return new RXRealtime().set(Ref.get(Paths.userGroupChatPath(chatId)), User.dateDataProvider().data(null));
     }
 
+//    @Override
+//    public Completable updateMeta(Path chatPath, HashMap<String, Object> meta) {
+//        return new RXRealtime().update(Ref.get(chatPath), meta);
+//    }
+
     @Override
-    public Completable updateMeta(Path chatPath, HashMap<String, Object> meta) {
-        return new RXRealtime().update(Ref.get(chatPath), meta);
+    public Completable setMetaField(Path chatMetaPath, String key, Object value) {
+        return new RXRealtime().set(Ref.get(chatMetaPath.child(key)), value);
     }
 
     @Override

@@ -13,6 +13,7 @@ import firestream.chat.events.EventType;
 import firestream.chat.events.UserEvent;
 import firestream.chat.filter.MessageStreamFilter;
 import firestream.chat.firebase.rx.MultiQueueSubject;
+import firestream.chat.firebase.service.Keys;
 import firestream.chat.firebase.service.Path;
 import firestream.chat.firebase.service.Paths;
 import firestream.chat.interfaces.IChat;
@@ -21,7 +22,6 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
@@ -145,7 +145,9 @@ public class Chat extends AbstractChat implements IChat {
         } else if(this.meta.getName().equals(name)) {
             return Completable.complete();
         } else {
-            return Fire.Stream.getFirebaseService().chat.updateMeta(metaPath(), Meta.nameData(name)).doOnComplete(() -> meta.name = name);
+            return Fire.Stream.getFirebaseService().chat.setMetaField(metaPath(), Keys.Name, name).doOnComplete(() -> {
+                meta.setName(name);
+            });
         }
     }
 
@@ -161,7 +163,7 @@ public class Chat extends AbstractChat implements IChat {
         } else if (this.meta.getImageURL().equals(url)) {
             return Completable.complete();
         } else {
-            return Fire.Stream.getFirebaseService().chat.updateMeta(metaPath(), Meta.imageURLData(url)).doOnComplete(() -> {
+            return Fire.Stream.getFirebaseService().chat.setMetaField(metaPath(), Keys.ImageURL, url).doOnComplete(() -> {
                 meta.setImageURL(url);
             });
         }
@@ -177,7 +179,7 @@ public class Chat extends AbstractChat implements IChat {
         if (!testPermission(RoleType.admin())) {
             return Completable.error(this::adminPermissionRequired);
         } else {
-            return Fire.Stream.getFirebaseService().chat.updateMeta(metaPath(), Meta.dataData(data)).doOnComplete(() -> {
+            return Fire.Stream.getFirebaseService().chat.setMetaField(metaPath(), Paths.Data, data).doOnComplete(() -> {
                 meta.setData(data);
             });
         }
@@ -386,10 +388,6 @@ public class Chat extends AbstractChat implements IChat {
         this.meta = meta;
     }
 
-    protected boolean testPermission(RoleType required) {
-        return required.test(getRoleTypeForUser(Fire.Stream.currentUser()));
-    }
-
     public Path path() {
         return Paths.chatPath(id);
     }
@@ -416,6 +414,9 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     public static Single<Chat> create(final String name, final String imageURL, final HashMap<String, Object> data, final List<User> users) {
+
+        System.out.println("Create chat");
+
         return Fire.Stream.getFirebaseService().chat.add(Paths.chatsPath(), Meta.from(name, imageURL, data).addTimestamp().wrap().toData()).flatMap(chatId -> {
             Chat chat = new Chat(chatId, null, new Meta(name, imageURL, data));
 
@@ -429,5 +430,14 @@ public class Chat extends AbstractChat implements IChat {
                     .toSingle(() -> chat);
 
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+    }
+
+    protected boolean testPermission(RoleType required) {
+        RoleType myRoleType = getMyRoleType();
+        if (myRoleType == null) {
+            System.out.println("Role type null");
+            return false;
+        }
+        return getMyRoleType().ge(required);
     }
 }

@@ -58,7 +58,7 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler {
                 // Get the text
                 Message message = thread.getMessageWithEntityID(receipt.getMessageId());
                 if (message != null) {
-                    if (receipt.getBodyType().equals(DeliveryReceiptType.read())) {
+                    if (receipt.getDeliveryReceiptType().equals(DeliveryReceiptType.read())) {
                         message.setUserReadStatus(user, ReadStatus.read(), new DateTime());
                     } else {
                         message.setUserReadStatus(user, ReadStatus.delivered(), new DateTime());

@@ -183,7 +183,7 @@ public class ApiExamples {
                 // Cast it as a text
                 Message message = (Message) data.get(HookEvent.Message);
 
-                // Check the text getBodyType
+                // Check the text getTypingStateType
                 if (message.getMessageType().is(MessageType.Image)) {
 
                 }

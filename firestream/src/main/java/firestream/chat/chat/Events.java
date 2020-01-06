@@ -1,6 +1,9 @@
 package firestream.chat.chat;
 
+import firestream.chat.filter.MessageStreamFilter;
+import firestream.chat.types.SendableType;
 import io.reactivex.Observable;
+import io.reactivex.functions.Function;
 import io.reactivex.subjects.PublishSubject;
 import firestream.chat.message.DeliveryReceipt;
 import firestream.chat.message.Invitation;

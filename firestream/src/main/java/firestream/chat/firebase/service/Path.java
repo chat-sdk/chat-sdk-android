@@ -107,4 +107,20 @@ public class Path {
         }
     }
 
+    /**
+     * For Firestore to update nested fields on a document, you need to use a
+     * dot notation. This method returns the remainder if it exists plus a
+     * dotted path component
+     * @param component path to extend
+     * @return dotted components
+     */
+    public String dotPath(String component) {
+        if (remainder == null) {
+            return component;
+        } else {
+            return remainder + "." + component;
+        }
+    }
+
+
 }

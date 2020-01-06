@@ -73,8 +73,8 @@ public class RXFirestore implements Action {
         return Completable.create(emitter -> ref.set(data).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError));
     }
 
-    public Completable update(DocumentReference ref, HashMap<String, Object> data, List<String> mergeKeys) {
-        return Completable.create(emitter -> ref.set(data, SetOptions.mergeFields(mergeKeys)).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError));
+    public Completable update(DocumentReference ref, HashMap<String, Object> data) {
+        return Completable.create(emitter -> ref.update(data).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError));
     }
 
     public Single<Optional<QuerySnapshot>> get(Query ref) {

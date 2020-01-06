@@ -35,7 +35,7 @@ public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler 
                                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(senderId);
                                 if (thread != null) {
                                     NetworkEvent networkEvent = NetworkEvent.typingStateChanged(null, thread);
-                                    if (typingState.getBodyType().equals(TypingStateType.typing())) {
+                                    if (typingState.getTypingStateType().equals(TypingStateType.typing())) {
                                         networkEvent = NetworkEvent.typingStateChanged(user.getName(), thread);
                                     }
                                     ChatSDK.events().source().onNext(networkEvent);

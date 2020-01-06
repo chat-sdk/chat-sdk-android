@@ -6,13 +6,16 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
+import firestream.chat.firebase.rx.Optional;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -27,6 +30,7 @@ import firestream.chat.firebase.service.Keys;
 import firestream.chat.firebase.service.FirebaseCoreHandler;
 import firestream.chat.firebase.service.Path;
 import firestream.chat.message.Sendable;
+import io.reactivex.functions.Function;
 
 
 public class FirestoreCoreHandler extends FirebaseCoreHandler {
@@ -98,7 +102,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
     }
 
     @Override
-    public Observable<Sendable> messagesOnce(Path messagesPath, @Nullable Date fromDate, @Nullable Date toDate, @Nullable Integer limit) {
+    public Single<List<Sendable>> loadMoreMessages(Path messagesPath, @Nullable Date fromDate, @Nullable Date toDate, @Nullable Integer limit) {
         return Single.create((SingleOnSubscribe<Query>) emitter -> {
             Query query = Ref.collection(messagesPath);
 
@@ -114,20 +118,24 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             }
 
             emitter.onSuccess(query);
-        }).flatMap(query -> new RXFirestore().get(query)).flatMapObservable(snapshots -> Observable.create(emitter -> {
-            if (!snapshots.isEmpty()) {
-                for (DocumentChange c : snapshots.get().getDocumentChanges()) {
-                    DocumentSnapshot s = c.getDocument();
-                    // Add the message
-                    if (s.exists() && c.getType() == DocumentChange.Type.ADDED) {
-                        Sendable sendable = s.toObject(Sendable.class);
-                        sendable.id = s.getId();
-                        emitter.onNext(sendable);
+        }).flatMap(query -> new RXFirestore().get(query)).map(optional -> {
+            ArrayList<Sendable> sendables = new ArrayList<>();
+            if (!optional.isEmpty()) {
+                QuerySnapshot snapshots = optional.get();
+                if (!snapshots.isEmpty()) {
+                    for (DocumentChange c : snapshots.getDocumentChanges()) {
+                        DocumentSnapshot s = c.getDocument();
+                        // Add the message
+                        if (s.exists() && c.getType() == DocumentChange.Type.ADDED) {
+                            Sendable sendable = s.toObject(Sendable.class);
+                            sendable.id = s.getId();
+                            sendables.add(sendable);
+                        }
                     }
                 }
             }
-            emitter.onComplete();
-        }));
+            return sendables;
+        });
     }
 
     @Override
@@ -175,10 +183,12 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             if (change.getType() == DocumentChange.Type.ADDED) {
                 if (ds.exists()) {
                     Sendable sendable = ds.toObject(Sendable.class);
+                    System.out.println("Add message: " + sendable.type);
                     sendable.id = ds.getId();
                     return Maybe.just(sendable);
                 }
             }
+            System.out.println("Return empty");
             return Maybe.empty();
         }));
     }

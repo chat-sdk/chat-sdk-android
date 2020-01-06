@@ -99,11 +99,23 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @param limit limit the maximum number of messages
      * @return a events of errorMessage results
      */
-    public Observable<Sendable> messagesOnce(@Nullable Date fromDate, @Nullable Date toDate, @Nullable Integer limit) {
+    protected Single<List<Sendable>> loadMoreMessages(@Nullable Date fromDate, @Nullable Date toDate, @Nullable Integer limit) {
         return Fire.Stream.getFirebaseService().core
-                .messagesOnce(messagesPath(), fromDate, toDate, limit)
+                .loadMoreMessages(messagesPath(), fromDate, toDate, limit)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public Single<List<Sendable>> loadMoreMessages(Date fromDate, Date toDate) {
+        return loadMoreMessages(fromDate, toDate, null);
+    }
+
+    public Single<List<Sendable>> loadMoreMessagesFrom(Date fromDate, Integer limit) {
+        return loadMoreMessages(fromDate, null, limit);
+    }
+
+    public Single<List<Sendable>> loadMoreMessagesTo(Date toDate, Integer limit) {
+        return loadMoreMessages(null, toDate, limit);
     }
 
     /**
@@ -289,7 +301,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      */
     protected void passMessageResultToStream(Sendable sendable) {
 
-        System.out.println("Sendable: " + sendable.type + " " + sendable.id);
+        System.out.println("Sendable: " + sendable.type + " " + sendable.id + ", date: " + sendable.date.getTime());
 
         if (sendable.type.equals(SendableType.Message)) {
             events.getMessages().onNext(Message.fromSendable(sendable));

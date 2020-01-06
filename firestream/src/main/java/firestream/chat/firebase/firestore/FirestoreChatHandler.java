@@ -1,5 +1,7 @@
 package firestream.chat.firebase.firestore;
 
+import com.google.firebase.database.GenericTypeIndicator;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,18 +35,23 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
         return new RXFirestore().set(Ref.document(Paths.userGroupChatPath(chatId)), User.dateDataProvider().data(null));
     }
 
-    @Override
-    public Completable updateMeta(Path chatMetaPath, final HashMap<String, Object> meta) {
+//    @Override
+//    public Completable updateMeta(Path chatMetaPath, final HashMap<String, Object> meta) {
+//        chatMetaPath.normalizeForDocument();
+//
+//        HashMap<String, Object> toWrite = meta;
+//        if (chatMetaPath.getRemainder() != null) {
+//            toWrite = wrap(chatMetaPath.getRemainder(), meta);
+//        }
+//        return new RXFirestore().update(Ref.document(chatMetaPath), toWrite);
+//    }
+
+    public Completable setMetaField(Path chatMetaPath, String key, Object value) {
         chatMetaPath.normalizeForDocument();
 
-        ArrayList<String> keys = new ArrayList<>(meta.keySet());
-
-        HashMap<String, Object> toWrite = meta;
-        if (chatMetaPath.getRemainder() != null) {
-            toWrite = wrap(chatMetaPath.getRemainder(), meta);
-            keys.add(chatMetaPath.getRemainder());
-        }
-        return new RXFirestore().update(Ref.document(chatMetaPath), toWrite, keys);
+        return new RXFirestore().update(Ref.document(chatMetaPath), new HashMap<String, Object>() {{
+            put(chatMetaPath.dotPath(key), value);
+        }});
     }
 
     protected HashMap<String, Object> wrap(String key, HashMap<String, Object> map) {
@@ -64,7 +71,19 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
             meta.setCreated(snapshot.get(base + Keys.Created, Date.class));
             meta.setImageURL(snapshot.get(base + Keys.ImageURL, String.class));
 
-            HashMap<String, Object> data = snapshot.get(base + Keys.Data, Generic.HashMapStringObject.class);
+            HashMap<String, Object> data = new HashMap<>();
+
+            Object dataObject = snapshot.get(base + Keys.Data);
+            if (dataObject instanceof HashMap) {
+                HashMap dataMap = (HashMap) dataObject;
+                for (Object key: dataMap.keySet()) {
+                    if (key instanceof String) {
+                        data.put((String) key, dataMap.get(key));
+                    }
+                }
+            }
+
+//            HashMap<String, Object> data = snapshot.get(base + Keys.Data, StringObjectHashMap.class);
             meta.setData(data);
 
             return Maybe.just(meta);
@@ -75,4 +94,5 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
     public Single<String> add(Path path, HashMap<String, Object> data, @Nullable Consumer<String> newId) {
         return new RXFirestore().add(Ref.collection(path), data, newId);
     }
+
 }

@@ -26,7 +26,7 @@ public class CreateChatTest extends Test {
     }
 
     /**
-     * We test:
+     * We ge:
      * - Creating a chat
      * - Name correct
      * - Image URL correct

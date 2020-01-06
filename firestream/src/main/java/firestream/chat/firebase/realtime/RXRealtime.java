@@ -3,6 +3,9 @@ package firestream.chat.firebase.realtime;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.tasks.OnCanceledListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -13,8 +16,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 
+import firefly.sdk.chat.R;
 import firestream.chat.firebase.rx.Optional;
+import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
@@ -116,12 +123,12 @@ public class RXRealtime implements Action, Consumer<Throwable> {
     }
 
     public Completable set(DatabaseReference ref, Object data) {
-        return Completable.create(emitter -> ref.setValue(data, (databaseError, databaseReference) -> {
-            if (databaseError != null) {
-                emitter.onError(databaseError.toException());
-            } else {
-                emitter.onComplete();
-            }
+        return Completable.create(emitter -> ref.setValue(data).addOnSuccessListener(aVoid -> {
+            emitter.onComplete();
+        }).addOnFailureListener(e -> {
+            emitter.onError(e);
+        }).addOnCanceledListener(() -> {
+            emitter.onError(new Exception(Fire.Stream.context().getString(R.string.error_write_cancelled)));
         }));
     }
 

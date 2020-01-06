@@ -1,9 +1,11 @@
 package firestream.chat.interfaces;
 
-import androidx.annotation.Nullable;
-
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.Nullable;
 
 import firestream.chat.chat.Events;
 import firestream.chat.firebase.rx.DisposableMap;
@@ -13,6 +15,8 @@ import firestream.chat.types.DeliveryReceiptType;
 import firestream.chat.types.SendableType;
 import firestream.chat.types.TypingStateType;
 import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
@@ -64,5 +68,33 @@ public interface IAbstractChat {
      * @return events holder
      */
     Events getSendableEvents();
+
+    /**
+     * Load a batch of historic messages
+     *
+     * @param fromDate load messages AFTER this date
+     * @param toDate load message TO AND INCLUDING this date
+     * @return a stream of messages
+     */
+    Single<List<Sendable>> loadMoreMessages(Date fromDate, Date toDate);
+
+    /**
+     * Load a batch of historic messages
+     *
+     * @param fromDate load messages AFTER this date
+     * @param limit the number of messages returned
+     * @return a stream of messages
+     */
+    Single<List<Sendable>> loadMoreMessagesFrom(Date fromDate, Integer limit);
+
+    /**
+     * Load a batch of historic messages
+     *
+     * @param toDate load message TO AND INCLUDING this date
+     * @param limit the number of messages returned
+     * @return a stream of messages
+     */
+    Single<List<Sendable>> loadMoreMessagesTo(Date toDate, Integer limit);
+
 
 }

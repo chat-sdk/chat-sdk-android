@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import firestream.chat.chat.User;
 import firestream.chat.firebase.service.Keys;
+import firestream.chat.namespace.Fire;
 
 public class RoleType extends BaseType {
 
@@ -67,15 +68,8 @@ public class RoleType extends BaseType {
         return data;
     }
 
-    public boolean test(User user) {
-        if (user != null && user.roleType != null) {
-            return test(user.roleType);
-        }
-        return false;
-    }
-
-    public boolean test(RoleType permission) {
-        return permission.toLevel() <= toLevel();
+    public boolean ge(RoleType permission) {
+        return toLevel() <= permission.toLevel();
     }
 
     protected int toLevel() {
@@ -98,4 +92,5 @@ public class RoleType extends BaseType {
         }
         return 5;
     }
+
 }

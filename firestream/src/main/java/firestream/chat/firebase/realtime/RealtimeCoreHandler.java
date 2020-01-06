@@ -13,6 +13,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import firestream.chat.firebase.generic.Generic;
+import firestream.chat.firebase.rx.Optional;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -28,6 +29,7 @@ import firestream.chat.firebase.service.Path;
 import firestream.chat.message.Sendable;
 
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 
 public class RealtimeCoreHandler extends FirebaseCoreHandler {
 
@@ -69,29 +71,45 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
     }
 
     @Override
-    public Observable<Sendable> messagesOnce(Path messagesPath, @Nullable Date fromDate, @Nullable Date toDate, @Nullable Integer limit) {
+    public Single<List<Sendable>> loadMoreMessages(Path messagesPath, @Nullable Date fromDate, @Nullable Date toDate, @Nullable Integer limit) {
         return Single.create((SingleOnSubscribe<Query>) emitter -> {
             Query query = Ref.get(messagesPath);
             query = query.orderByChild(Keys.Date);
 
             if (fromDate != null) {
                 query = query.startAt(fromDate.getTime(), Keys.Date);
+                System.out.println("From: " + fromDate.getTime());
             }
 
             if(toDate != null) {
                 query = query.endAt(toDate.getTime(), Keys.Date);
+                System.out.println("To: " + toDate.getTime());
             }
 
             if (limit != null) {
-                // TODO: Check this...
-                query = query.limitToLast(limit);
+                if (fromDate != null) {
+                    query = query.limitToFirst(limit);
+                }
+                if (toDate != null) {
+                    query = query.limitToLast(limit);
+                }
             }
 
             emitter.onSuccess(query);
-        }).flatMap(query -> new RXRealtime().get(query)).flatMapObservable(snapshot -> {
-            System.out.println("TestThis");
-
-            return null;
+        }).flatMap(query -> new RXRealtime().get(query)).map(optional -> {
+            ArrayList<Sendable> sendables = new ArrayList<>();
+            if (!optional.isEmpty()) {
+                DataSnapshot snapshot = optional.get();
+                if (snapshot.exists()) {
+                    for (DataSnapshot child: snapshot.getChildren()) {
+                        Sendable sendable = sendableFromSnapshot(child);
+                        if (sendable != null) {
+                            sendables.add(sendable);
+                        }
+                    }
+                }
+            }
+            return sendables;
         });
     }
 

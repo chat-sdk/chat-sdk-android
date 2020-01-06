@@ -26,7 +26,7 @@ public class ModifyChatTest extends Test {
     }
 
     /**
-     * We test:
+     * We ge:
      * - We can get the chat that has been created
      * - Name change events correct
      * - Image url change events correct

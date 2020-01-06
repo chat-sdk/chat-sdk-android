@@ -1,5 +1,6 @@
 package firestream.chat.firebase.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -79,7 +80,7 @@ public abstract class FirebaseCoreHandler {
      * @param limit limit the maximum number of messages
      * @return a events of errorMessage results
      */
-    public abstract Observable<Sendable> messagesOnce(Path messagesPath, @Nullable Date fromDate, @Nullable Date toDate, @Nullable Integer limit);
+    public abstract Single<List<Sendable>> loadMoreMessages(Path messagesPath, @Nullable Date fromDate, @Nullable Date toDate, @Nullable Integer limit);
 
     /**
      * This method gets the date of the last delivery receipt that we sent - i.e. the
