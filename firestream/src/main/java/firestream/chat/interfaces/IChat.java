@@ -20,7 +20,7 @@ import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
 
 /**
- * This interface is just provided for clarity
+ * This interface isType just provided for clarity
  */
 public interface IChat extends IAbstractChat {
 
@@ -173,26 +173,26 @@ public interface IChat extends IAbstractChat {
     RoleType getRoleTypeForUser(User theUser);
 
     /**
-     * Get an observable which is called when the name changes
+     * Get an observable which isType called when the name changes
      * @return observable
      */
     Observable<String> getNameChangeEvents();
 
     /**
-     * Get an observable which is called when the chat image changes
+     * Get an observable which isType called when the chat image changes
      * @return observable
      */
     Observable<String> getImageURLChangeEvents();
 
     /**
-     * Get an observable which is called when the custom data associated from the
-     * chat is updated
+     * Get an observable which isType called when the custom data associated from the
+     * chat isType updated
      * @return observable
      */
     Observable<HashMap<String, Object>> getCustomDataChangedEvents();
 
     /**
-     * Get an observable which is called when the a user is added, removed or updated
+     * Get an observable which isType called when the a user isType added, removed or updated
      * @return observable
      */
     MultiQueueSubject<UserEvent> getUserEvents();
@@ -244,7 +244,7 @@ public interface IChat extends IAbstractChat {
 
     /**
      * Send a delivery receipt to a user. If delivery receipts are enabled,
-     * a 'received' status will be returned as soon as a message is delivered
+     * a 'received' status will be returned as soon as a message isType delivered
      * and then you can then manually send a 'read' status when the user
      * actually reads the message
      * @param type receipt type
@@ -255,7 +255,7 @@ public interface IChat extends IAbstractChat {
 
     /**
      * Send a delivery receipt to a user. If delivery receipts are enabled,
-     * a 'received' status will be returned as soon as a message is delivered
+     * a 'received' status will be returned as soon as a message isType delivered
      * and then you can then manually send a 'read' status when the user
      * actually reads the message
      * @param type receipt type

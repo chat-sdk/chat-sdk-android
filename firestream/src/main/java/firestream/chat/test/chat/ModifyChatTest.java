@@ -71,8 +71,8 @@ public class ModifyChatTest extends Test {
                     customDataEvents.add(map);
                 }, this));
 
-                final Disposable userEventsDisposable = chat.getUserEvents().subscribe(userEvent -> {
-                    if (userEvent.type == EventType.Modified) {
+                final Disposable userEventsDisposable = chat.getUserEvents().newEvents().subscribe(userEvent -> {
+                    if (userEvent.typeIs(EventType.Modified)) {
                         userEvents.add(userEvent);
                     } else {
                         failure("Add or Remove User event when modify expected");
@@ -110,7 +110,7 @@ public class ModifyChatTest extends Test {
 
                 dm.add(Completable.timer(4, TimeUnit.SECONDS).subscribe(() -> {
 
-                    // Check the chat is correct
+                    // Check the chat isType correct
                     // Check the name matches
                     if (!chat.getName().equals(chatName())) {
                         failure("Name mismatch");
@@ -176,11 +176,11 @@ public class ModifyChatTest extends Test {
 
                     userEventsDisposable.dispose();
 
-                    dm.add(chat.getUserEvents().subscribe(userEvent -> {
-                        if (userEvent.type == EventType.Added) {
+                    dm.add(chat.getUserEvents().newEvents().subscribe(userEvent -> {
+                        if (userEvent.typeIs(EventType.Added)) {
                             addedUsers.add(userEvent.user);
                         }
-                        else if (userEvent.type == EventType.Removed) {
+                        else if (userEvent.typeIs(EventType.Removed)) {
                             removedUsers.add(userEvent.user);
                         }
                         else {

@@ -1,6 +1,7 @@
 package firestream.chat.firebase.firestore;
 
 import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,6 +23,7 @@ import firestream.chat.firebase.service.Paths;
 import firestream.chat.firebase.service.Path;
 import firestream.chat.firebase.service.FirebaseChatHandler;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 
 public class FirestoreChatHandler extends FirebaseChatHandler {
 
@@ -35,17 +37,6 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
         return new RXFirestore().set(Ref.document(Paths.userGroupChatPath(chatId)), User.dateDataProvider().data(null));
     }
 
-//    @Override
-//    public Completable updateMeta(Path chatMetaPath, final HashMap<String, Object> meta) {
-//        chatMetaPath.normalizeForDocument();
-//
-//        HashMap<String, Object> toWrite = meta;
-//        if (chatMetaPath.getRemainder() != null) {
-//            toWrite = wrap(chatMetaPath.getRemainder(), meta);
-//        }
-//        return new RXFirestore().update(Ref.document(chatMetaPath), toWrite);
-//    }
-
     public Completable setMetaField(Path chatMetaPath, String key, Object value) {
         chatMetaPath.normalizeForDocument();
 
@@ -54,21 +45,15 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
         }});
     }
 
-    protected HashMap<String, Object> wrap(String key, HashMap<String, Object> map) {
-        return new HashMap<String, Object>() {{
-            put(key, map);
-        }};
-    }
-
     @Override
     public Observable<Meta> metaOn(Path path) {
-        return new RXFirestore().on(Ref.document(path)).flatMapMaybe(snapshot -> {
+        return new RXFirestore().on(Ref.document(path)).map(snapshot -> {
             Meta meta = new Meta();
 
             String base = Keys.Meta + ".";
 
             meta.setName(snapshot.get(base + Keys.Name, String.class));
-            meta.setCreated(snapshot.get(base + Keys.Created, Date.class));
+            meta.setCreated(snapshot.get(base + Keys.Created, Date.class, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE));
             meta.setImageURL(snapshot.get(base + Keys.ImageURL, String.class));
 
             HashMap<String, Object> data = new HashMap<>();
@@ -82,11 +67,9 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
                     }
                 }
             }
-
-//            HashMap<String, Object> data = snapshot.get(base + Keys.Data, StringObjectHashMap.class);
             meta.setData(data);
 
-            return Maybe.just(meta);
+            return meta;
         });
     }
 

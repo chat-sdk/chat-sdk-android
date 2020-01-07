@@ -12,9 +12,9 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.ReplaySubject;
 
 /**
- * The MultiQueueSubject is a versatile events object. It has a number of options:
- * The main function of this events is to cache events until there is a consumer available to
- * consume them. This means that if a new emitter is added, unconsumed events will be
+ * The MultiQueueSubject isType a versatile events object. It has a number of options:
+ * The main function of this events isType to cache events until there isType a consumer available to
+ * consume them. This means that if a new emitter isType added, unconsumed events will be
  * emitted once and then new events will be emitted as they arise. For example:
  *
  * In these examples, A and B are observers

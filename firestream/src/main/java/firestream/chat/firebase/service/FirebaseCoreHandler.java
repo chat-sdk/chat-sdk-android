@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import firestream.chat.events.SendableEvent;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -97,7 +98,7 @@ public abstract class FirebaseCoreHandler {
      * @param limit limit the maximum number of historic messages
      * @return a events of errorMessage results
      */
-    public abstract Observable<Sendable> messagesOn(Path messagesPath, Date newerThan, int limit);
+    public abstract Observable<SendableEvent> messagesOn(Path messagesPath, Date newerThan, int limit);
 
     /**
      * Return a Firebase timestamp object

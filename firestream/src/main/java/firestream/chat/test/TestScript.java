@@ -1,8 +1,11 @@
 package firestream.chat.test;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import firestream.chat.Config;
 import firestream.chat.chat.User;
 import firestream.chat.events.ConnectionEvent;
 import firestream.chat.firebase.rx.DisposableMap;
@@ -25,7 +28,16 @@ public class TestScript {
 
     public ArrayList<Result> results = new ArrayList<>();
 
-    public TestScript() {
+    public TestScript(Context context, String rootPath) {
+
+        Config config = new Config();
+        config.root = rootPath;
+        config.sandbox = "firestream";
+        config.deleteMessagesOnReceipt = false;
+        config.debugEnabled = true;
+        config.database = Config.DatabaseType.Realtime;
+
+        Fire.privateApi().initialize(context, config);
 
         tests.add(new AddContactTest());
         tests.add(new GetContactAddedTest());
@@ -111,4 +123,7 @@ public class TestScript {
     }
 
 
+    public static void run(Context context, String rootPath) {
+        new TestScript(context, rootPath);
+    }
 }

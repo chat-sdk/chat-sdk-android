@@ -48,12 +48,6 @@ public class AppObj extends MultiDexApplication {
 //            ChatSDK.initialize(context, config.build(), FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
 
             // FireStream configuration
-            Config streamConfig = new Config();
-            streamConfig.root = config.build().firebaseRootPath;
-            streamConfig.sandbox = "firestream";
-            streamConfig.database = Config.DatabaseType.Firestore;
-
-            Fire.api().initialize(context, streamConfig);
 
             ChatSDK.initialize(context, config.build(), FirestreamNetworkAdapter.class, BaseInterfaceAdapter.class);
 
@@ -64,8 +58,7 @@ public class AppObj extends MultiDexApplication {
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
 
-            new TestScript();
-
+            TestScript.run(context, config.build().firebaseRootPath);
 
             // Uncomment this to enable Firebase UI
                     // FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);

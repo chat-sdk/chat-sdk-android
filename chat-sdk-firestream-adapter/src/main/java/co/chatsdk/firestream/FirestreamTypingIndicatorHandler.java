@@ -27,7 +27,7 @@ public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler 
 
                 dm.add(Fire.Stream.getSendableEvents().getTypingStates().subscribe(typingState -> {
                     // Get the sender
-                    String senderId = typingState.from;
+                    String senderId = typingState.getFrom();
 
                     if (!senderId.equals(ChatSDK.currentUserID())) {
                         dm.add(APIHelper.fetchRemoteUser(senderId).subscribe((user, throwable) -> {

@@ -15,6 +15,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import firefly.sdk.chat.R;
+import firestream.chat.events.SendableEvent;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.events.ConnectionEvent;
 import firestream.chat.interfaces.IFireStream;
@@ -25,6 +26,7 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import firestream.chat.chat.AbstractChat;
 import firestream.chat.chat.Chat;
@@ -97,6 +99,7 @@ public class FireStream extends AbstractChat implements IFireStream {
         });
     }
 
+    @Override
     public void initialize(Context context, @Nullable Config config) {
         this.context = new WeakReference<>(context);
         if (!isInitialized()) {
@@ -112,12 +115,14 @@ public class FireStream extends AbstractChat implements IFireStream {
         }
     }
 
-    public boolean isInitialized() {
-        return config != null;
-    }
-
+    @Override
     public void initialize(Context context) {
         initialize(context, null);
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return config != null;
     }
 
     public void connect () throws Exception {
@@ -134,12 +139,12 @@ public class FireStream extends AbstractChat implements IFireStream {
         // MESSAGE DELETION
 
         // We always delete typing state and presence messages
-        Observable<Sendable> stream = getSendableEvents().getSendables().pastAndNewEvents();
+        Observable<SendableEvent> stream = getSendableEvents().getSendables().pastAndNewEvents();
         if (!config.deleteMessagesOnReceipt) {
-            stream = stream.filter(MessageStreamFilter.bySendableType(SendableType.typingState(), SendableType.presence()));
+            stream = stream.filter(MessageStreamFilter.eventBySendableType(SendableType.typingState(), SendableType.presence()));
         }
-        // If deletion is enabled, we don't filter so we delete all the errorMessage types
-        dm.add(stream.flatMapCompletable(this::deleteSendable).subscribe());
+        // If deletion isType enabled, we don't filter so we delete all the errorMessage types
+        dm.add(stream.map(SendableEvent::getSendable).flatMapCompletable(this::deleteSendable).subscribe());
 
         // DELIVERY RECEIPTS
 
@@ -150,10 +155,10 @@ public class FireStream extends AbstractChat implements IFireStream {
             if (config.deliveryReceiptsEnabled) {
                 completables.add(markReceived(message));
             }
-            // If errorMessage deletion is disabled, instead mark the errorMessage as received. This means
+            // If errorMessage deletion isType disabled, instead mark the errorMessage as received. This means
             // that when we add a childListener, we only get new messages
             if (!config.deleteMessagesOnReceipt) {
-                completables.add(sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), message.id));
+                completables.add(sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), message.getId()));
             }
 
             return Completable.merge(completables);
@@ -172,10 +177,10 @@ public class FireStream extends AbstractChat implements IFireStream {
 
         dm.add(listChangeOn(Paths.blockedPath()).subscribe(listEvent -> {
             UserEvent ue = UserEvent.from(listEvent);
-            if (ue.type == EventType.Added) {
+            if (ue.typeIs(EventType.Added)) {
                 blocked.add(ue.user);
             }
-            if (ue.type == EventType.Removed) {
+            if (ue.typeIs(EventType.Removed)) {
                 blocked.remove(ue.user);
             }
             blockedEvents.onNext(ue);
@@ -185,10 +190,10 @@ public class FireStream extends AbstractChat implements IFireStream {
 
         dm.add(listChangeOn(Paths.contactsPath()).subscribe(listEvent -> {
             UserEvent ue = UserEvent.from(listEvent);
-            if (ue.type == EventType.Added) {
+            if (ue.typeIs(EventType.Added)) {
                 contacts.add(ue.user);
             }
-            else if (ue.type == EventType.Removed) {
+            else if (ue.typeIs(EventType.Removed)) {
                 contacts.remove(ue.user);
             }
             contactEvents.onNext(ue);
@@ -199,12 +204,12 @@ public class FireStream extends AbstractChat implements IFireStream {
         dm.add(listChangeOn(Paths.userChatsPath()).subscribe(listEvent -> {
             ChatEvent chatEvent = ChatEvent.from(listEvent);
             IChat chat = chatEvent.getChat();
-            if (chatEvent.type == EventType.Added) {
+            if (chatEvent.typeIs(EventType.Added)) {
                 chat.connect();
                 chats.add(chat);
                 chatEvents.onNext(chatEvent);
             }
-            else if (chatEvent.type == EventType.Removed) {
+            else if (chatEvent.typeIs(EventType.Removed)) {
                 dm.add(chat.leave().subscribe(() -> {
                     chats.remove(chat);
                     chatEvents.onNext(chatEvent);
@@ -227,6 +232,7 @@ public class FireStream extends AbstractChat implements IFireStream {
         connectionEvents.onNext(ConnectionEvent.didDisconnect());
     }
 
+    @Override
     public String currentUserId() {
         return user.getUid();
     }
@@ -235,74 +241,78 @@ public class FireStream extends AbstractChat implements IFireStream {
     // Messages
     //
 
+    @Override
     public Completable deleteSendable (Sendable sendable) {
-        return deleteSendable(Paths.messagePath(sendable.id));
+        return deleteSendable(Paths.messagePath(sendable.getId()));
     }
 
+    @Override
     public Completable sendPresence(String userId, PresenceType type) {
         return sendPresence(userId, type, null);
     }
 
+    @Override
     public Completable sendPresence(String userId, PresenceType type, @Nullable Consumer<String> newId) {
         return send(userId, new Presence(type), newId);
     }
 
 
+    @Override
     public Completable sendInvitation(String userId, InvitationType type, String id) {
         return sendInvitation(userId, type, id, null);
     }
+
+    @Override
     public Completable sendInvitation(String userId, InvitationType type, String groupId, @Nullable Consumer<String> newId) {
         return send(userId, new Invitation(type, groupId), newId);
     }
 
+    @Override
     public Completable send(String toUserId, Sendable sendable) {
         return send(toUserId, sendable, null);
     }
+
+    @Override
     public Completable send(String toUserId, Sendable sendable, @Nullable Consumer<String> newId) {
         return send(Paths.messagesPath(toUserId), sendable, newId);
     }
 
-    /**
-     * Send a delivery receipt to a user. If delivery receipts are enabled,
-     * a 'received' status will be returned as soon as a errorMessage is delivered
-     * and then you can then manually send a 'read' status when the user
-     * actually reads the errorMessage
-     * @param userId - the recipient user id
-     * @param type - the status getTypingStateType
-     * @return - subscribe to get a completion, error update from the method
-     */
+    @Override
     public Completable sendDeliveryReceipt(String userId, DeliveryReceiptType type, String messageId) {
         return sendDeliveryReceipt(userId, type, messageId, null);
     }
+
+    @Override
     public Completable sendDeliveryReceipt(String userId, DeliveryReceiptType type, String messageId, @Nullable Consumer<String> newId) {
         return send(userId, new DeliveryReceipt(type, messageId), newId);
     }
 
-    /**
-     * Send a typing indicator update to a user. This should be sent when the user
-     * starts or stops typing
-     * @param userId - the recipient user id
-     * @param type - the status getTypingStateType
-     * @return - subscribe to get a completion, error update from the method
-     */
+    @Override
     public Completable sendTypingIndicator(String userId, TypingStateType type) {
         return sendTypingIndicator(userId, type, null);
     }
+
+    @Override
     public Completable sendTypingIndicator(String userId, TypingStateType type, @Nullable Consumer<String> newId) {
         return send(userId, new TypingState(type), newId);
     }
 
-
+    @Override
     public Completable sendMessageWithText(String userId, String text) {
         return sendMessageWithText(userId, text, null);
     }
+
+    @Override
     public Completable sendMessageWithText(String userId, String text, @Nullable Consumer<String> newId) {
         return send(userId, new TextMessage(text), newId);
     }
 
+    @Override
     public Completable sendMessageWithBody(String userId, HashMap<String, Object> body) {
         return sendMessageWithBody(userId, body, null);
     }
+
+    @Override
     public Completable sendMessageWithBody(String userId, HashMap<String, Object> body, @Nullable Consumer<String> newId) {
         return send(userId, new Message(body), newId);
     }
@@ -311,18 +321,22 @@ public class FireStream extends AbstractChat implements IFireStream {
     // Blocking
     //
 
+    @Override
     public Completable block(User user) {
         return addUser(Paths.blockedPath(), User.dateDataProvider(), user);
     }
 
+    @Override
     public Completable unblock(User user) {
         return removeUser(Paths.blockedPath(), user);
     }
 
+    @Override
     public ArrayList<User> getBlocked() {
         return blocked;
     }
 
+    @Override
     public boolean isBlocked(User user) {
         return blocked.contains(user);
     }
@@ -331,15 +345,18 @@ public class FireStream extends AbstractChat implements IFireStream {
     // Contacts
     //
 
+    @Override
     public Completable addContact(User user, ContactType type) {
         user.contactType = type;
         return addUser(Paths.contactsPath(), User.contactTypeDataProvider(), user);
     }
 
+    @Override
     public Completable removeContact(User user) {
         return removeUser(Paths.contactsPath(), user);
     }
 
+    @Override
     public ArrayList<User> getContacts() {
         return contacts;
     }
@@ -348,24 +365,29 @@ public class FireStream extends AbstractChat implements IFireStream {
     // Chats
     //
 
+    @Override
     public Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, User... users) {
         return createChat(name, imageURL, null, Arrays.asList(users));
     }
 
+    @Override
     public Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, @Nullable HashMap<String, Object> customData, User... users) {
         return createChat(name, imageURL, customData, Arrays.asList(users));
     }
 
+    @Override
     public Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, List<User> users) {
         return createChat(name, imageURL, null, users);
     }
 
+    @Override
     public Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, @Nullable HashMap<String, Object> customData, List<User> users) {
         return Chat.create(name, imageURL, customData, users).flatMap(chat -> {
             return joinChat(chat).toSingle(() -> chat);
         });
     }
 
+    @Override
     public IChat getChat(String chatId) {
         for (IChat chat : chats) {
             if (chat.getId().equals(chatId)) {
@@ -392,6 +414,7 @@ public class FireStream extends AbstractChat implements IFireStream {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
+    @Override
     public List<IChat> getChats() {
         return chats;
     }
@@ -400,32 +423,42 @@ public class FireStream extends AbstractChat implements IFireStream {
      * Send a read receipt
      * @return completion
      */
+    @Override
     public Completable markRead(Message message) {
-        return Fire.Stream.sendDeliveryReceipt(message.from, DeliveryReceiptType.read(), message.id);
+        return Fire.Stream.sendDeliveryReceipt(message.getFrom(), DeliveryReceiptType.read(), message.getId());
     }
 
     /**
      * Send a received receipt
      * @return completion
      */
+    @Override
     public Completable markReceived(Message message) {
-        return Fire.Stream.sendDeliveryReceipt(message.from, DeliveryReceiptType.received(), message.id);
+        return Fire.Stream.sendDeliveryReceipt(message.getFrom(), DeliveryReceiptType.received(), message.getId());
     }
 
     //
     // Events
     //
 
+    @Override
     public MultiQueueSubject<ChatEvent> getChatEvents() {
         return chatEvents;
     }
 
+    @Override
     public MultiQueueSubject<UserEvent> getBlockedEvents() {
         return blockedEvents;
     }
 
+    @Override
     public MultiQueueSubject<UserEvent> getContactEvents() {
         return contactEvents;
+    }
+
+    @Override
+    public Observable<ConnectionEvent> getConnectionEvents() {
+        return connectionEvents.hide();
     }
 
     //
@@ -441,6 +474,7 @@ public class FireStream extends AbstractChat implements IFireStream {
         }
     }
 
+    @Override
     public User currentUser() {
         return new User(currentUserId());
     }
@@ -454,16 +488,13 @@ public class FireStream extends AbstractChat implements IFireStream {
         return config;
     }
 
+    @Override
     public FirebaseService getFirebaseService() {
         return firebaseService;
     }
 
     public Context context() {
         return context.get();
-    }
-
-    public Observable<ConnectionEvent> getConnectionEvents() {
-        return connectionEvents.hide();
     }
 
 }

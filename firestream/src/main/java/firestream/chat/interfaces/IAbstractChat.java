@@ -44,7 +44,7 @@ public interface IAbstractChat {
     /**
      * Get the managed disposable map. This map will be disposed of when we leave / disconnect
      * from the chat or when we log out. Use this to store any disposables that you want to be
-     * disposed of then. This is slightly more flexible than the manage method because it allows
+     * disposed of then. This isType slightly more flexible than the manage method because it allows
      * you to store and retrieve disposables from an ID.
      * @return a pointer to the managed disposable map
      */
@@ -62,6 +62,13 @@ public interface IAbstractChat {
      * @return a filtered list of sendables
      */
     ArrayList<Sendable> getSendables(SendableType type);
+
+    /**
+     * Get a sendable for a particular ID
+     * @param id of sendable
+     * @return sendable or null
+     */
+    Sendable getSendable(String id);
 
     /**
      * Get access to the events object which provides access to observables for sendable events

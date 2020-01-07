@@ -47,7 +47,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
 
             DisposableMap cdm = chat.getDisposableMap();
 
-            if (chatEvent.type == EventType.Added) {
+            if (chatEvent.typeIs(EventType.Added)) {
 
                 // Get the thread
                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(chat.getId());
@@ -75,7 +75,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                 }));
 
                 cdm.add(chat.getUserEvents().subscribe(userEvent -> {
-                    if (userEvent.type == EventType.Added) {
+                    if (userEvent.typeIs(EventType.Added)) {
                         dm.put(chat.getId(), APIHelper.fetchRemoteUser(userEvent.user.id).subscribe(user -> {
                             if (userEvent.getFireStreamUser().roleType.equals(RoleType.owner())) {
                                 finalThread.setCreator(user);
@@ -85,7 +85,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                             eventSource.onNext(NetworkEvent.threadUsersChanged(finalThread, user));
                         }, this));
                     }
-                    if (userEvent.type == EventType.Removed) {
+                    if (userEvent.typeIs(EventType.Removed)) {
                         User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEvent.user.id);
                         finalThread.removeUser(user);
                         eventSource.onNext(NetworkEvent.threadUsersChanged(finalThread, user));
@@ -101,14 +101,14 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
         dm.add(Fire.Stream.getSendableEvents().getFireStreamMessages().subscribe(message -> {
 
             // Get the user
-            dm.add(APIHelper.fetchRemoteUser(message.from).subscribe(user -> {
+            dm.add(APIHelper.fetchRemoteUser(message.getFrom()).subscribe(user -> {
 
                 // Get the thread
-                Thread thread = ChatSDK.db().fetchThreadWithEntityID(message.from);
+                Thread thread = ChatSDK.db().fetchThreadWithEntityID(message.getFrom());
                 if (thread == null) {
                     thread = DaoCore.getEntityForClass(Thread.class);
                     DaoCore.createEntity(thread);
-                    thread.setEntityID(message.from);
+                    thread.setEntityID(message.getFrom());
                     thread.setType(ThreadType.Private1to1);
                     thread.setCreationDate(new Date());
                     thread.setCreator(user);
@@ -123,14 +123,14 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
     }
 
     protected Disposable handleMessageForThread(FirestreamMessage mm, Thread thread) {
-        return APIHelper.fetchRemoteUser(mm.from).subscribe(user -> {
-            if (!thread.containsMessageWithID(mm.id)) {
+        return APIHelper.fetchRemoteUser(mm.getFrom()).subscribe(user -> {
+            if (!thread.containsMessageWithID(mm.getId())) {
                 Message message = ChatSDK.db().createEntity(Message.class);
 
                 message.setSender(user);
                 message.setMessageStatus(MessageSendStatus.Delivered);
-                message.setDate(new DateTime(mm.date));
-                message.setEntityID(mm.id);
+                message.setDate(new DateTime(mm.getDate()));
+                message.setEntityID(mm.getId());
 
                 HashMap<String, Object> body = mm.getBody();
 
@@ -162,10 +162,10 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
     protected void contactsOn (User chatSDKUser) {
         dm.add(Fire.Stream.getContactEvents().subscribe(userEvent -> {
             User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEvent.user.id);
-            if (userEvent.type == EventType.Added) {
+            if (userEvent.typeIs(EventType.Added)) {
                 dm.add(ChatSDK.contact().addContactLocal(contact, ConnectionType.Contact).doOnError(this).subscribe());
             }
-            if (userEvent.type == EventType.Removed) {
+            if (userEvent.typeIs(EventType.Removed)) {
                 ChatSDK.contact().deleteContactLocal(contact, ConnectionType.Contact);
             }
         }, this));

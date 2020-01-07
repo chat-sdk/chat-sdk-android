@@ -12,12 +12,15 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import firestream.chat.events.SendableEvent;
 import firestream.chat.firebase.generic.Generic;
 import firestream.chat.firebase.rx.Optional;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import firestream.chat.chat.User;
@@ -78,12 +81,10 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
 
             if (fromDate != null) {
                 query = query.startAt(fromDate.getTime(), Keys.Date);
-                System.out.println("From: " + fromDate.getTime());
             }
 
             if(toDate != null) {
                 query = query.endAt(toDate.getTime(), Keys.Date);
-                System.out.println("To: " + toDate.getTime());
             }
 
             if (limit != null) {
@@ -125,39 +126,41 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
             emitter.onSuccess(query);
         }).flatMap(query -> new RXRealtime().get(query).map(snapshot -> {
             if (!snapshot.isEmpty()) {
-                return sendableFromSnapshot(snapshot.get()).date;
-            } else {
-                return new Date(0);
+                Sendable sendable = sendableFromSnapshot(snapshot.get());
+                if (sendable.getDate() != null) {
+                    return sendable.getDate();
+                }
             }
+            return new Date(0);
         }));
     }
 
     public Sendable sendableFromSnapshot(DataSnapshot snapshot) {
 
         Sendable sendable = new Sendable();
-        sendable.id = snapshot.getKey();
+        sendable.setId(snapshot.getKey());
 
         if (snapshot.hasChild(Keys.From)) {
-            sendable.from = snapshot.child(Keys.From).getValue(String.class);
+            sendable.setFrom(snapshot.child(Keys.From).getValue(String.class));
         }
         if (snapshot.hasChild(Keys.Date)) {
             Long timestamp = snapshot.child(Keys.Date).getValue(Long.class);
             if (timestamp != null) {
-                sendable.date = new Date(timestamp);
+                sendable.setDate(new Date(timestamp));
             }
         }
         if (snapshot.hasChild(Keys.Type)) {
-            sendable.type = snapshot.child(Keys.Type).getValue(String.class);
+            sendable.setType(snapshot.child(Keys.Type).getValue(String.class));
         }
         if (snapshot.hasChild(Keys.Body)) {
-            sendable.body = snapshot.child(Keys.Body).getValue(Generic.hashMapStringObject());
+            sendable.setBody(snapshot.child(Keys.Body).getValue(Generic.hashMapStringObject()));
         }
         return sendable;
 
     }
 
     @Override
-    public Observable<Sendable> messagesOn(Path messagesPath, Date newerThan, int limit) {
+    public Observable<SendableEvent> messagesOn(Path messagesPath, Date newerThan, int limit) {
         return Single.create((SingleOnSubscribe<Query>) emitter -> {
             Query query = Ref.get(messagesPath);
 
@@ -168,8 +171,9 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
             query = query.limitToLast(limit);
             emitter.onSuccess(query);
         }).flatMapObservable(query -> new RXRealtime().childOn(query).flatMapMaybe(change -> {
-            if (change.type == EventType.Added) {
-                return Maybe.just(sendableFromSnapshot(change.snapshot));
+            Sendable sendable = sendableFromSnapshot(change.snapshot);
+            if (sendable != null) {
+                return Maybe.just(new SendableEvent(sendable, change.type));
             }
             return Maybe.empty();
         }));

@@ -64,7 +64,7 @@ public class FirestreamThreadHandler extends FirebaseThreadHandler {
     public Single<Thread> createThread(String name, List<User> users, final int type, String entityID, String imageURL) {
         return Single.create((SingleOnSubscribe<Thread>) e -> {
 
-        // Make sure that the current user is in the list and
+        // Make sure that the current user isType in the list and
         // that they are not the first item
         ArrayList<User> allUsers = new ArrayList<>();
         allUsers.addAll(users);
@@ -114,7 +114,7 @@ public class FirestreamThreadHandler extends FirebaseThreadHandler {
 
             if(threadType == ThreadType.Private1to1) {
                 if (allUsers.size() != 2) {
-                    e.onError(new Throwable(Fire.Stream.context().getString(R.string.error_private_chat_needs_two_members)));
+                    e.onError(new Throwable(Fire.privateApi().context().getString(R.string.error_private_chat_needs_two_members)));
                 } else {
                     e.onSuccess(thread);
                 }

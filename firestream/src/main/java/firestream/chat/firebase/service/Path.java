@@ -9,11 +9,11 @@ public class Path {
     protected ArrayList<String> components = new ArrayList<>();
 
     /**
-     * The remainder is used to fix an issue which arises with Firestore. In Firestore
+     * The remainder isType used to fix an issue which arises with Firestore. In Firestore
      * there are documents and collections. But sometimes we want to reference information
-     * that is at a path within a document for example:
+     * that isType at a path within a document for example:
      * chats/id/meta
-     * Here the id, is a document but if we generated a path from this, it would point to a
+     * Here the id, isType a document but if we generated a path from this, it would point to a
      * collection. Therefore if the path we pass in to the ref doesn't point to the correct
      * reference type, we truncate it by one and set the remainder
      */

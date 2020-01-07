@@ -31,15 +31,15 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler {
             if (connectionEvent.getType() == ConnectionEvent.Type.DidConnect) {
 
                 dm.add(Fire.Stream.getSendableEvents().getDeliveryReceipts().subscribe(receipt -> {
-                    handleReceipt(receipt.from, receipt);
+                    handleReceipt(receipt.getFrom(), receipt);
                 }));
 
                 dm.add(Fire.Stream.getChatEvents().pastAndNewEvents().subscribe(chatEvent -> {
                     IChat chat = chatEvent.getChat();
-                    if (chatEvent.type == EventType.Added) {
+                    if (chatEvent.typeIs(EventType.Added)) {
 
                         chat.getDisposableMap().add(chat.getSendableEvents().getDeliveryReceipts().subscribe(receipt -> {
-                            handleReceipt(receipt.from, receipt);
+                            handleReceipt(receipt.getFrom(), receipt);
                         }));
                     }
                 }));
@@ -52,7 +52,7 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler {
     }
 
     protected void handleReceipt(String threadEntityID, DeliveryReceipt receipt) {
-        dm.add(APIHelper.fetchRemoteUser(receipt.from).subscribe(user -> {
+        dm.add(APIHelper.fetchRemoteUser(receipt.getFrom()).subscribe(user -> {
             Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
             if (thread != null) {
                 // Get the text

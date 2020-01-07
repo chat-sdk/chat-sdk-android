@@ -1,8 +1,10 @@
 package firestream.chat.chat;
 
+import firestream.chat.events.SendableEvent;
 import firestream.chat.filter.MessageStreamFilter;
 import firestream.chat.types.SendableType;
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
 import io.reactivex.subjects.PublishSubject;
 import firestream.chat.message.DeliveryReceipt;
@@ -22,7 +24,11 @@ public class Events {
     protected MultiQueueSubject<Presence> presences = MultiQueueSubject.create();
     protected MultiQueueSubject<Invitation> invitations = MultiQueueSubject.create();
 
-    protected MultiQueueSubject<Sendable> sendables = MultiQueueSubject.create();
+    /**
+     * The sendable event stream provides the most information. It passes a sendable event
+     * when will include the kind of action that has been performed.
+     */
+    protected MultiQueueSubject<SendableEvent> sendables = MultiQueueSubject.create();
 
     protected PublishSubject<Throwable> errors = PublishSubject.create();
 
@@ -32,14 +38,16 @@ public class Events {
     }
 
     /**
-     * A FireStream Message is no different from a Message. The reason this method
-     * exists is because Message is a very common class name. If for any reason
+     * A FireStream Message isType no different from a Message. The reason this method
+     * exists isType because Message isType a very common class name. If for any reason
      * your project already has a Message object, you can use the FirestreamMessage
      * to avoid a naming clash
      * @return events of messages
      */
     public Observable<FirestreamMessage> getFireStreamMessages() {
-        return messages.map(FirestreamMessage::fromMessage).hide();
+        return messages
+                .map(FirestreamMessage::fromMessage)
+                .hide();
     }
 
     /**
@@ -58,7 +66,7 @@ public class Events {
         return typingStates;
     }
 
-    public MultiQueueSubject<Sendable> getSendables() {
+    public MultiQueueSubject<SendableEvent> getSendables() {
         return sendables;
     }
 

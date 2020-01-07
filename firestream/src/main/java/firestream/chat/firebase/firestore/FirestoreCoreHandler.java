@@ -15,6 +15,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import firestream.chat.events.SendableEvent;
 import firestream.chat.firebase.rx.Optional;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
@@ -22,6 +23,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import firestream.chat.chat.User;
 import firestream.chat.events.EventType;
@@ -42,7 +44,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             if (d.exists()) {
                 EventType type = FirestoreCoreHandler.typeForDocumentChange(change);
                 if (type != null) {
-                    return Maybe.just(new ListEvent(d.getId(), d.getData(), type));
+                    return Maybe.just(new ListEvent(d.getId(), d.getData(DocumentSnapshot.ServerTimestampBehavior.ESTIMATE), type));
                 }
             }
             return Maybe.empty();
@@ -111,10 +113,16 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
                 query = query.whereGreaterThan(Keys.Date, fromDate);
             }
             if (toDate != null) {
-                query = query.whereLessThan(Keys.Date, toDate);
+                query = query.whereLessThanOrEqualTo(Keys.Date, toDate);
             }
+
             if (limit != null) {
-                query = query.limit(limit);
+                if (fromDate != null) {
+                    query = query.limit(limit);
+                }
+                if (toDate != null) {
+                    query = query.limitToLast(limit);
+                }
             }
 
             emitter.onSuccess(query);
@@ -124,11 +132,11 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
                 QuerySnapshot snapshots = optional.get();
                 if (!snapshots.isEmpty()) {
                     for (DocumentChange c : snapshots.getDocumentChanges()) {
-                        DocumentSnapshot s = c.getDocument();
+                        DocumentSnapshot snapshot = c.getDocument();
                         // Add the message
-                        if (s.exists() && c.getType() == DocumentChange.Type.ADDED) {
-                            Sendable sendable = s.toObject(Sendable.class);
-                            sendable.id = s.getId();
+                        if (snapshot.exists() && c.getType() == DocumentChange.Type.ADDED) {
+                            Sendable sendable = snapshot.toObject(Sendable.class);
+                            sendable.setId(snapshot.getId());
                             sendables.add(sendable);
                         }
                     }
@@ -154,7 +162,9 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
                     DocumentChange change = snapshots.get().getDocumentChanges().get(0);
                     if (change.getDocument().exists()) {
                         Sendable sendable = change.getDocument().toObject(Sendable.class);
-                        return sendable.getDate();
+                        if (sendable.getDate() != null) {
+                            return sendable.getDate();
+                        }
                     }
                 }
             }
@@ -167,7 +177,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
      * @param newerThan only listen for messages after this date
      * @return a events of errorMessage results
      */
-    public Observable<Sendable> messagesOn(Path messagesPath, Date newerThan, int limit) {
+    public Observable<SendableEvent> messagesOn(Path messagesPath, Date newerThan, int limit) {
         return Single.create((SingleOnSubscribe<Query>) emitter -> {
             Query query = Ref.collection(messagesPath);
 
@@ -180,15 +190,12 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             emitter.onSuccess(query);
         }).flatMapObservable(query -> new RXFirestore().on(query).flatMapMaybe(change -> {
             DocumentSnapshot ds = change.getDocument();
-            if (change.getType() == DocumentChange.Type.ADDED) {
-                if (ds.exists()) {
-                    Sendable sendable = ds.toObject(Sendable.class);
-                    System.out.println("Add message: " + sendable.type);
-                    sendable.id = ds.getId();
-                    return Maybe.just(sendable);
-                }
+            if (ds.exists()) {
+                Sendable sendable = ds.toObject(Sendable.class, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE);
+                sendable.setId(ds.getId());
+
+                return Maybe.just(new SendableEvent(sendable, typeForDocumentChange(change)));
             }
-            System.out.println("Return empty");
             return Maybe.empty();
         }));
     }

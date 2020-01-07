@@ -48,7 +48,7 @@ public class CreateChatTest extends Test {
                     failure("Image url mismatch");
                 }
 
-                // Check the ID is set
+                // Check the ID isType set
                 if (chat.getId() == null || chat.getId().isEmpty()) {
                     failure("Chat id not set");
                 }
@@ -58,7 +58,7 @@ public class CreateChatTest extends Test {
                         failure("Custom data value mismatch");
                     }
                 } else {
-                    failure("Custom data is null");
+                    failure("Custom data isType null");
                 }
 
                 // Check the users

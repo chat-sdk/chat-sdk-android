@@ -60,18 +60,18 @@ public class API {
 
         Disposable d4 = Fire.Stream.getChatEvents().subscribe(chatEvent -> {
             IChat chat = chatEvent.getChat();
-            if (chatEvent.type == EventType.Added) {
+            if (chatEvent.typeIs(EventType.Added)) {
                 // A chat was added!
 
                 // Get the chat to dispose of the disposable when we log out or leave
                 chat.manage(chat.getUserEvents().subscribe(userEvent -> {
                     User user = userEvent.user;
-                    if (userEvent.type == EventType.Added) {
+                    if (userEvent.typeIs(EventType.Added)) {
                         // Get the role of the user
                         RoleType role = user.roleType;
 
                     }
-                    if (userEvent.type == EventType.Removed) {
+                    if (userEvent.typeIs(EventType.Removed)) {
 
                     }
                 }));
@@ -85,7 +85,7 @@ public class API {
                 }));
 
             }
-            if (chatEvent.type == EventType.Removed) {
+            if (chatEvent.typeIs(EventType.Removed)) {
                 // A chat was removed
             }
         });

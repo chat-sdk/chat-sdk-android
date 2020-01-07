@@ -39,7 +39,6 @@ public abstract class Test implements Consumer<Throwable> {
 
     public void dispose() {
         dm.dispose();
-        System.out.println("Dispose + " + name);
     }
 
     public void manage(Emitter<Result> emitter) {

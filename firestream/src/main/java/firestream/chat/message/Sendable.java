@@ -7,10 +7,11 @@ import firestream.chat.firebase.service.Keys;
 import firestream.chat.namespace.Fire;
 
 import firestream.chat.types.BaseType;
+import firestream.chat.types.SendableType;
 
 public class Sendable extends BaseMessage {
 
-    public String id;
+    protected String id;
 
     public Sendable() {
         from = Fire.Stream.currentUserId();
@@ -34,6 +35,10 @@ public class Sendable extends BaseMessage {
         }
     }
 
+    public boolean valid() {
+        return from != null && date != null && body != null && type != null;
+    }
+
     public void setBodyType(BaseType type) {
         body.put(Keys.Type, type.get());
     }
@@ -54,10 +59,10 @@ public class Sendable extends BaseMessage {
     }
 
     public void copyTo(Sendable sendable) {
-        sendable.id = id;
-        sendable.from = from;
-        sendable.body = body;
-        sendable.date = date;
+        sendable.setId(id);
+        sendable.setFrom(from);
+        sendable.setBody(body);
+        sendable.setDate(date);
     }
 
     public BaseMessage toBaseMessage() {
@@ -78,5 +83,59 @@ public class Sendable extends BaseMessage {
         return data;
     }
 
+    public static class Converter<T extends Sendable> {
+
+        protected Class<T> clazz;
+
+        public Converter(Class<T> clazz) {
+            this.clazz = clazz;
+        }
+
+        public T convert(Sendable s) {
+            try {
+                T instance = clazz.newInstance();
+                s.copyTo(instance);
+                return instance;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+    }
+
+    public Message toMessage() {
+        return new Converter<>(Message.class).convert(this);
+    }
+
+    public TypingState toTypingState() {
+        return new Converter<>(TypingState.class).convert(this);
+    }
+
+    public DeliveryReceipt toDeliveryReceipt() {
+        return new Converter<>(DeliveryReceipt.class).convert(this);
+    }
+
+    public Invitation toInvitation() {
+        return new Converter<>(Invitation.class).convert(this);
+    }
+
+    public Presence toPresence() {
+        return new Converter<>(Presence.class).convert(this);
+    }
+
+    public TextMessage toTextMessage() {
+        return new Converter<>(TextMessage.class).convert(this);
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public boolean equals(Sendable message) {
+        return getId().equals(message.getId());
+    }
 
 }

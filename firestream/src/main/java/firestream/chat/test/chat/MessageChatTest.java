@@ -52,6 +52,11 @@ public class MessageChatTest extends Test {
             } else {
                 IChat chat = chats.get(0);
 
+                dm.add(chat.getSendableEvents().getErrors().subscribe(throwable -> {
+                    //
+                    MessageChatTest.this.accept(throwable);
+                }));
+
                 ArrayList<Message> messages = new ArrayList<>();
                 ArrayList<DeliveryReceipt> receipts = new ArrayList<>();
                 ArrayList<TypingState> typingStates = new ArrayList<>();
@@ -88,23 +93,20 @@ public class MessageChatTest extends Test {
                             failure("Typing state type mismatch");
                         }
                     }
-                })).concatWith(chat.sendDeliveryReceipt(DeliveryReceiptType.received(), messageReceiptId()).doOnComplete(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        if(chat.getSendables(SendableType.deliveryReceipt()).size() != 1) {
-                            failure("delivery receipt not in sendables when it should be");
-                        } else {
-                            DeliveryReceipt receipt = DeliveryReceipt.fromSendable((chat.getSendables(SendableType.deliveryReceipt()).get(0)));
-                            if (!receipt.getDeliveryReceiptType().equals(DeliveryReceiptType.received())) {
-                                failure("Delivery receipt type mismatch");
-                            }
-                            if (!receipt.getMessageId().equals(messageReceiptId())) {
-                                failure("Delivery receipt message id incorrect");
-                            }
+                })).concatWith(chat.sendDeliveryReceipt(DeliveryReceiptType.received(), messageReceiptId()).doOnComplete(() -> {
+                    if(chat.getSendables(SendableType.deliveryReceipt()).size() != 1) {
+                        failure("delivery receipt not in sendables when it should be");
+                    } else {
+                        DeliveryReceipt receipt = DeliveryReceipt.fromSendable((chat.getSendables(SendableType.deliveryReceipt()).get(0)));
+                        if (!receipt.getDeliveryReceiptType().equals(DeliveryReceiptType.received())) {
+                            failure("Delivery receipt type mismatch");
+                        }
+                        if (!receipt.getMessageId().equals(messageReceiptId())) {
+                            failure("Delivery receipt message id incorrect");
                         }
                     }
-                })).subscribe(() -> {}, this));
-
+                })).subscribe(() -> {
+                }, this));
                 dm.add(Completable.timer(5, TimeUnit.SECONDS).subscribe(() -> {
                     // Check that the chat now has the message
 
@@ -161,10 +163,10 @@ public class MessageChatTest extends Test {
                                 Sendable allLast = sendablesAll.get(sendablesAll.size() - 1);
 
                                 // Check first and last messages
-                                if (!allFirst.id.equals(sendables.get(0).id)) {
+                                if (!allFirst.equals(sendables.get(0))) {
                                     failure("All first message incorrect");
                                 }
-                                if (!allLast.id.equals(sendables.get(sendables.size()-1).id)) {
+                                if (!allLast.equals(sendables.get(sendables.size()-1))) {
                                     failure("All last message incorrect");
                                 }
                                 if (sendablesAll.size() != sendables.size()) {
@@ -179,13 +181,13 @@ public class MessageChatTest extends Test {
                                 Sendable toSendable = sendablesAll.get(indexOfLast);
 
                                 // Get the date of the second and penultimate
-                                Date from = fromSendable.date;
-                                Date to = toSendable.date;
+                                Date from = fromSendable.getDate();
+                                Date to = toSendable.getDate();
 
                                 ArrayList<Completable> completables1 = new ArrayList<>();
 
 
-                                // There is a timing issue here in that the date of the sendable
+                                // There isType a timing issue here in that the date of the sendable
                                 // will actually be a Firebase prediction rather than the actual time recorded on the server
                                 completables1.add(chat.loadMoreMessages(from, to).doOnSuccess(sendablesFromTo -> {
                                     if (sendablesFromTo.size() != 12) {
@@ -197,20 +199,20 @@ public class MessageChatTest extends Test {
                                     Sendable last = sendablesFromTo.get(sendablesFromTo.size() - 1);
 
                                     // First message should be the same as the second overall message
-                                    if (!first.id.equals(allSecond.id)) {
+                                    if (!first.equals(allSecond)) {
                                         failure("From/To First message incorrect");
                                     }
-                                    if (!last.id.equals(toSendable.id)) {
+                                    if (!last.equals(toSendable)) {
                                         failure("From/To Last message incorrect");
                                     }
-                                    // Check the first message is on or after the from date
-                                    if (first.date.getTime() <= from.getTime()) {
-                                        failure("From/To First message is before from time");
+                                    // Check the first message isType on or after the from date
+                                    if (first.getDate().getTime() <= from.getTime()) {
+                                        failure("From/To First message isType before from time");
                                     }
-                                    if (last.date.getTime() > to.getTime()) {
-                                        failure("From/To Last message is after to time");
+                                    if (last.getDate().getTime() > to.getTime()) {
+                                        failure("From/To Last message isType after to time");
                                     }
-                                    if (second.date.getTime() < first.date.getTime()) {
+                                    if (second.getDate().getTime() < first.getDate().getTime()) {
                                         failure("From/To Messages order incorrect");
                                     }
                                 }).ignoreElement().concatWith(chat.loadMoreMessagesFrom(from, limit).doOnSuccess(sendablesFrom -> {
@@ -222,18 +224,18 @@ public class MessageChatTest extends Test {
                                     Sendable second = sendablesFrom.get(1);
                                     Sendable last = sendablesFrom.get(sendablesFrom.size() - 1);
 
-                                    if (!allSecond.id.equals(first.id)) {
+                                    if (!allSecond.equals(first)) {
                                         failure("From First message incorrect");
                                     }
-                                    if (!sendablesAll.get(limit).id.equals(last.id)) {
+                                    if (!sendablesAll.get(limit).equals(last)) {
                                         failure("From Last message incorrect");
                                     }
 
-                                    // Check the first message is on or after the from date
-                                    if (first.date.getTime() <= from.getTime()) {
-                                        failure("From First message is before from time");
+                                    // Check the first message isType on or after the from date
+                                    if (first.getDate().getTime() <= from.getTime()) {
+                                        failure("From First message isType before from time");
                                     }
-                                    if (second.date.getTime() < first.date.getTime()) {
+                                    if (second.getDate().getTime() < first.getDate().getTime()) {
                                         failure("From Messages order incorrect");
                                     }
 
@@ -246,16 +248,16 @@ public class MessageChatTest extends Test {
                                     if (sendablesTo.size() != limit) {
                                         failure("To Sendable size incorrect");
                                     }
-                                    if (!first.id.equals(sendablesAll.get(sendablesAll.size() - limit).id)) {
+                                    if (!first.equals(sendablesAll.get(sendablesAll.size() - limit))) {
                                         failure("To First message incorrect");
                                     }
-                                    if (!toSendable.id.equals(last.id)) {
+                                    if (!toSendable.equals(last)) {
                                         failure("To Last message incorrect");
                                     }
-                                    if (last.date.getTime() > to.getTime()) {
-                                        failure("To Last message is after to time");
+                                    if (last.getDate().getTime() > to.getTime()) {
+                                        failure("To Last message isType after to time");
                                     }
-                                    if (second.date.getTime() < first.date.getTime()) {
+                                    if (second.getDate().getTime() < first.getDate().getTime()) {
                                         failure("To Messages order incorrect");
                                     }
 

@@ -72,7 +72,7 @@ public class Chat extends AbstractChat implements IChat {
     @Override
     public void connect() throws Exception {
 
-        System.out.println("Connect to chat: " + id);
+        debug("Connect to chat: " + id);
 
         // If delivery receipts are enabled, send the delivery receipt
         if (config.deliveryReceiptsEnabled) {
@@ -89,10 +89,10 @@ public class Chat extends AbstractChat implements IChat {
             UserEvent userEvent = UserEvent.from(listEvent);
             User user = userEvent.user;
 
-            // If we start by removing the user. If it is a remove event
+            // If we start by removing the user. If it isType a remove event
             // we leave it at that. Otherwise we add that user back in
             users.remove(user);
-            if (userEvent.type != EventType.Removed) {
+            if (!userEvent.typeIs(EventType.Removed)) {
                 users.add(user);
             }
 
@@ -364,12 +364,12 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Completable markReceived(Message message) {
-        return sendDeliveryReceipt(DeliveryReceiptType.received(), message.id);
+        return sendDeliveryReceipt(DeliveryReceiptType.received(), message.getId());
     }
 
     @Override
     public Completable markRead(Message message) {
-        return sendDeliveryReceipt(DeliveryReceiptType.read(), message.id);
+        return sendDeliveryReceipt(DeliveryReceiptType.read(), message.getId());
     }
 
     protected RoleType getMyRoleType() {
@@ -402,27 +402,25 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     protected Exception ownerPermissionRequired() {
-        return new Exception(Fire.Stream.context().getString(R.string.error_owner_permission_required));
+        return new Exception(Fire.privateApi().context().getString(R.string.error_owner_permission_required));
     }
 
     protected Exception adminPermissionRequired() {
-        return new Exception(Fire.Stream.context().getString(R.string.error_admin_permission_required));
+        return new Exception(Fire.privateApi().context().getString(R.string.error_admin_permission_required));
     }
 
     protected Exception memberPermissionRequired() {
-        return new Exception(Fire.Stream.context().getString(R.string.error_member_permission_required));
+        return new Exception(Fire.privateApi().context().getString(R.string.error_member_permission_required));
     }
 
     public static Single<Chat> create(final String name, final String imageURL, final HashMap<String, Object> data, final List<User> users) {
-
-        System.out.println("Create chat");
 
         return Fire.Stream.getFirebaseService().chat.add(Paths.chatsPath(), Meta.from(name, imageURL, data).addTimestamp().wrap().toData()).flatMap(chatId -> {
             Chat chat = new Chat(chatId, null, new Meta(name, imageURL, data));
 
             ArrayList<User> usersToAdd = new ArrayList<>(users);
 
-            // Make sure the current user is the owner
+            // Make sure the current user isType the owner
             usersToAdd.remove(User.currentUser());
             usersToAdd.add(User.currentUser(RoleType.owner()));
 
@@ -435,7 +433,6 @@ public class Chat extends AbstractChat implements IChat {
     protected boolean testPermission(RoleType required) {
         RoleType myRoleType = getMyRoleType();
         if (myRoleType == null) {
-            System.out.println("Role type null");
             return false;
         }
         return getMyRoleType().ge(required);

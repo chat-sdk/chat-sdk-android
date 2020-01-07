@@ -18,7 +18,7 @@ public class GetContactRemovedTest extends Test {
         return Observable.create(emitter -> {
             manage(emitter);
             dm.add(Fire.Stream.getContactEvents().currentAndNewEvents().subscribe(userEvent -> {
-                if (userEvent.type == EventType.Removed) {
+                if (userEvent.typeIs(EventType.Removed)) {
                     if (userEvent.user.equals(TestScript.testUser1())) {
                         complete();
                     } else {

@@ -24,7 +24,7 @@ public class Optional<T> {
 
     public T get() {
         if (optional == null) {
-            throw new NoSuchElementException(Fire.Stream.context().getString(R.string.error_no_value));
+            throw new NoSuchElementException(Fire.privateApi().context().getString(R.string.error_no_value));
         }
         return optional;
     }

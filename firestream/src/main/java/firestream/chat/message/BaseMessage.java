@@ -3,12 +3,14 @@ package firestream.chat.message;
 import java.util.Date;
 import java.util.HashMap;
 
+import firestream.chat.types.SendableType;
+
 public class BaseMessage {
 
-    public String from;
-    public Date date = new Date();
-    public HashMap<String, Object> body = new HashMap<>();
-    public String type;
+    protected String from;
+    protected Date date = new Date();
+    protected HashMap<String, Object> body = new HashMap<>();
+    protected String type;
 
     public BaseMessage() {
 
@@ -44,6 +46,10 @@ public class BaseMessage {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public boolean isType(SendableType type) {
+        return getType().equals(type.get());
     }
 
 }
