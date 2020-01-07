@@ -55,7 +55,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
     /**
      * Current configuration
      */
-    protected Config config = new Config();
+    protected Config config;
 
     /**
      * Error handler method so we can redirect all errors to the error events

@@ -9,11 +9,15 @@ public class FirestreamNetworkAdapter extends FirebaseNetworkAdapter {
 
     public FirestreamNetworkAdapter() {
 
-        if (!Fire.Stream.isInitialized()) {
+        if (!Fire.stream().isInitialized()) {
             Config config = new Config();
-            config.root = ChatSDK.config().firebaseRootPath;
-            config.sandbox = "firefly";
-            Fire.Stream.initialize(ChatSDK.shared().context(), config);
+            try {
+                config.setRoot(ChatSDK.config().firebaseRootPath);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            Fire.stream().initialize(ChatSDK.shared().context(), config);
         }
 
         events = new FirestreamEventHandler();

@@ -34,8 +34,10 @@ FireStream has many benefits over competing solutions, here is a brief summary:
 
 To support the project, we offer optional extras for FireStream. 
 
-1. Location, Audio, Video, Image, Sticker, File messages
+1. Location, Audio, Video, Image, Sticker, File, Contact messages
 2. Self-destructing messages
+3. Message forwarding
+4. Message replies
 3. REST API
 
 - 1 app: $2.49 per month

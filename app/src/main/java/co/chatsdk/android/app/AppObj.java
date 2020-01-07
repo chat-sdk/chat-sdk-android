@@ -28,28 +28,32 @@ public class AppObj extends MultiDexApplication {
 
         Context context = getApplicationContext();
 
+        String rootPath = "micro_test";
+
         try {
-
-            Configuration.Builder config = new Configuration.Builder();
-
-            config.firebaseRootPath("micro_test");
-//            config.firebaseRootPath("live_01_20");
-            config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
-            config.publicRoomCreationEnabled(true);
-            config.pushNotificationSound("default");
-
-            config.twitterLogin("Kqprq5b6bVeEfcMAGoHzUmB3I", "hPd9HCt3PLnifQFrGHJWi6pSZ5jF7kcHKXuoqB8GJpSDAlVcLq");
-            config.googleLogin("1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com");
-
-            // For the demo version of the client expire rooms after 24 hours
-            config.publicChatRoomLifetimeMinutes(60 * 24);
-//            config.remoteConfigEnabled(true);
-
-//            ChatSDK.initialize(context, config.build(), FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
+            Configuration config = new Configuration.Builder()
+                    .firebaseRootPath(rootPath)
+                    .publicRoomCreationEnabled(true)
+                    .publicChatRoomLifetimeMinutes(60 * 24)
+                    .twitterLogin("Kqprq5b6bVeEfcMAGoHzUmB3I", "hPd9HCt3PLnifQFrGHJWi6pSZ5jF7kcHKXuoqB8GJpSDAlVcLq")
+                    .googleLogin("1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com")
+                    .googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
+                    .build();
 
             // FireStream configuration
 
-            ChatSDK.initialize(context, config.build(), FirestreamNetworkAdapter.class, BaseInterfaceAdapter.class);
+            Config firestreamConfig = new Config();
+            try {
+                firestreamConfig.setRoot(rootPath);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            firestreamConfig.database = Config.DatabaseType.Realtime;
+
+            Fire.stream().initialize(context, firestreamConfig);
+
+
+            ChatSDK.initialize(context, config, FirestreamNetworkAdapter.class, BaseInterfaceAdapter.class);
 
 
 //            AConfigurator.configure();
@@ -58,7 +62,7 @@ public class AppObj extends MultiDexApplication {
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
 
-            TestScript.run(context, config.build().firebaseRootPath);
+//            TestScript.run(context, config.build().firebaseRootPath);
 
             // Uncomment this to enable Firebase UI
                     // FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);

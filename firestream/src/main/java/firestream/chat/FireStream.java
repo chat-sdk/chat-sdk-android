@@ -102,7 +102,7 @@ public class FireStream extends AbstractChat implements IFireStream {
     @Override
     public void initialize(Context context, @Nullable Config config) {
         this.context = new WeakReference<>(context);
-        if (!isInitialized()) {
+        if (config == null) {
             config = new Config();
         }
         this.config = config;

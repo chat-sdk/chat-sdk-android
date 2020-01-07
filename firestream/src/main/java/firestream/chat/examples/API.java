@@ -18,8 +18,16 @@ public class API {
         // Configure the chat
         Config config = new Config();
 
-        config.root = "messenger";
-        config.sandbox = "dev";
+        try {
+            // Set the root path
+            config.setRoot("messenger");
+
+            // Set the sandbox
+            config.setSandbox("dev");
+        } catch (Exception e) {
+            // Handle Exception
+        }
+
         config.messageHistoryLimit = 100;
         config.autoAcceptChatInvite = false;
 

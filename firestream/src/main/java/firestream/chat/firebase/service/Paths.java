@@ -6,7 +6,7 @@ import firestream.chat.namespace.Fire;
 public class Paths extends Keys {
 
     public static Path root() {
-        return new Path(Fire.privateApi().getConfig().root, Fire.privateApi().getConfig().sandbox);
+        return new Path(Fire.privateApi().getConfig().getRoot(), Fire.privateApi().getConfig().getSandbox());
     }
 
     public static Path usersPath() {

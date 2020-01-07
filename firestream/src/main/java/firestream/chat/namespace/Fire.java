@@ -17,4 +17,7 @@ public class Fire {
     public static IFireStream api() {
         return FireStream.shared();
     }
+    public static IFireStream stream() {
+        return FireStream.shared();
+    }
 }

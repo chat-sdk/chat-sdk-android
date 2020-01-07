@@ -31,8 +31,11 @@ public class TestScript {
     public TestScript(Context context, String rootPath) {
 
         Config config = new Config();
-        config.root = rootPath;
-        config.sandbox = "firestream";
+        try {
+            config.setRoot(rootPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         config.deleteMessagesOnReceipt = false;
         config.debugEnabled = true;
         config.database = Config.DatabaseType.Realtime;

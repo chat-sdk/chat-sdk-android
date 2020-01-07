@@ -2,6 +2,7 @@ package firestream.chat.firebase.firestore;
 
 import androidx.annotation.Nullable;
 
+import com.google.firebase.database.annotations.NotNull;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -39,7 +40,7 @@ public class RXFirestore implements Action {
         }).doOnDispose(this);
     }
 
-    public Observable<DocumentChange> on(Query ref) {
+    public Observable<DocumentChange> on(@NotNull Query ref) {
         return Observable.create((ObservableOnSubscribe<DocumentChange>) emitter -> {
             lr = ref.addSnapshotListener((snapshot, e) -> {
                 if (snapshot != null) {
