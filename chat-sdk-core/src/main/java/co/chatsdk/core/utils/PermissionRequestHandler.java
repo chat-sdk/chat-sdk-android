@@ -22,6 +22,9 @@ import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
  * Created by ben on 9/28/17.
  */
 
+
+// TODO: Implement https://github.com/Karumi/Dexter
+@Deprecated
 public class PermissionRequestHandler {
 
     private static final PermissionRequestHandler instance = new PermissionRequestHandler();

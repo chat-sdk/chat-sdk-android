@@ -1,19 +1,14 @@
 package firestream.chat.chat;
 
 import firestream.chat.events.SendableEvent;
-import firestream.chat.filter.MessageStreamFilter;
-import firestream.chat.types.SendableType;
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Function;
 import io.reactivex.subjects.PublishSubject;
 import firestream.chat.message.DeliveryReceipt;
 import firestream.chat.message.Invitation;
 import firestream.chat.message.Message;
 import firestream.chat.message.Presence;
-import firestream.chat.message.Sendable;
 import firestream.chat.message.TypingState;
-import firestream.chat.namespace.FirestreamMessage;
+import firestream.chat.namespace.FireStreamMessage;
 import firestream.chat.firebase.rx.MultiQueueSubject;
 
 public class Events {
@@ -40,13 +35,13 @@ public class Events {
     /**
      * A FireStream Message isType no different from a Message. The reason this method
      * exists isType because Message isType a very common class name. If for any reason
-     * your project already has a Message object, you can use the FirestreamMessage
+     * your project already has a Message object, you can use the FireStreamMessage
      * to avoid a naming clash
      * @return events of messages
      */
-    public Observable<FirestreamMessage> getFireStreamMessages() {
+    public Observable<FireStreamMessage> getFireStreamMessages() {
         return messages
-                .map(FirestreamMessage::fromMessage)
+                .map(FireStreamMessage::fromMessage)
                 .hide();
     }
 

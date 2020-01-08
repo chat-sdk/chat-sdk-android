@@ -13,12 +13,10 @@ import co.chatsdk.firestream.FirestreamNetworkAdapter;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import firestream.chat.Config;
-import firestream.chat.namespace.F;
 import firestream.chat.namespace.Fire;
-import firestream.chat.test.TestScript;
 
 /**
- * Created by itzik childOn 6/8/2014.
+ * Created by itzik on 6/8/2014.
  */
 public class AppObj extends MultiDexApplication {
 
@@ -49,6 +47,7 @@ public class AppObj extends MultiDexApplication {
                 e.printStackTrace();
             }
             firestreamConfig.database = Config.DatabaseType.Realtime;
+            firestreamConfig.deleteMessagesOnReceipt = false;
 
             Fire.stream().initialize(context, firestreamConfig);
 

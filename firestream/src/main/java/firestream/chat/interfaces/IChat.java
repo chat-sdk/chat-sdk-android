@@ -279,6 +279,13 @@ public interface IChat extends IAbstractChat {
     Completable send(Sendable sendable);
 
     /**
+     * Delete a sendable
+     * @param sendable to delete
+     * @return completion
+     */
+    Completable deleteSendable(Sendable sendable);
+
+    /**
      * Mark a message as received
      * @param message to mark as received
      * @return completion

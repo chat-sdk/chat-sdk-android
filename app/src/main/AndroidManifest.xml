@@ -3,14 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="co.chatsdk.android.app">
 
-    <uses-permission
-        android:name="android.permission.ACCESS_FINE_LOCATION"
-        tools:node="remove" />
+<!--    If you wanted to remove permissions --><!--    <uses-permission-->
+<!--        android:name="android.permission.ACCESS_FINE_LOCATION"-->
+<!--        tools:node="remove" />-->
 
-    <uses-permission
-        android:name="android.permission.ACCESS_COARSE_LOCATION"
-        tools:node="remove" />
-
+<!--    <uses-permission-->
+<!--        android:name="android.permission.ACCESS_COARSE_LOCATION"-->
+<!--        tools:node="remove" />-->
 
     <application
         android:allowBackup="false"

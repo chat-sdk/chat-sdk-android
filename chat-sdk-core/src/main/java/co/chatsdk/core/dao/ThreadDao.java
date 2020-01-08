@@ -32,11 +32,10 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
         public final static Property Deleted = new Property(4, Boolean.class, "deleted", false, "DELETED");
         public final static Property Name = new Property(5, String.class, "name", false, "NAME");
         public final static Property Type = new Property(6, Integer.class, "type", false, "TYPE");
-        public final static Property CreatorEntityId = new Property(7, String.class, "creatorEntityId", false, "CREATOR_ENTITY_ID");
-        public final static Property ImageUrl = new Property(8, String.class, "imageUrl", false, "IMAGE_URL");
-        public final static Property RootKey = new Property(9, String.class, "rootKey", false, "ROOT_KEY");
-        public final static Property ApiKey = new Property(10, String.class, "apiKey", false, "API_KEY");
-        public final static Property CreatorId = new Property(11, Long.class, "creatorId", false, "CREATOR_ID");
+        public final static Property ImageUrl = new Property(7, String.class, "imageUrl", false, "IMAGE_URL");
+        public final static Property RootKey = new Property(8, String.class, "rootKey", false, "ROOT_KEY");
+        public final static Property ApiKey = new Property(9, String.class, "apiKey", false, "API_KEY");
+        public final static Property CreatorId = new Property(10, Long.class, "creatorId", false, "CREATOR_ID");
     }
 
     private DaoSession daoSession;
@@ -62,11 +61,10 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
                 "\"DELETED\" INTEGER," + // 4: deleted
                 "\"NAME\" TEXT," + // 5: name
                 "\"TYPE\" INTEGER," + // 6: type
-                "\"CREATOR_ENTITY_ID\" TEXT," + // 7: creatorEntityId
-                "\"IMAGE_URL\" TEXT," + // 8: imageUrl
-                "\"ROOT_KEY\" TEXT," + // 9: rootKey
-                "\"API_KEY\" TEXT," + // 10: apiKey
-                "\"CREATOR_ID\" INTEGER);"); // 11: creatorId
+                "\"IMAGE_URL\" TEXT," + // 7: imageUrl
+                "\"ROOT_KEY\" TEXT," + // 8: rootKey
+                "\"API_KEY\" TEXT," + // 9: apiKey
+                "\"CREATOR_ID\" INTEGER);"); // 10: creatorId
     }
 
     /** Drops the underlying database table. */
@@ -114,29 +112,24 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
             stmt.bindLong(7, type);
         }
  
-        String creatorEntityId = entity.getCreatorEntityId();
-        if (creatorEntityId != null) {
-            stmt.bindString(8, creatorEntityId);
-        }
- 
         String imageUrl = entity.getImageUrl();
         if (imageUrl != null) {
-            stmt.bindString(9, imageUrl);
+            stmt.bindString(8, imageUrl);
         }
  
         String rootKey = entity.getRootKey();
         if (rootKey != null) {
-            stmt.bindString(10, rootKey);
+            stmt.bindString(9, rootKey);
         }
  
         String apiKey = entity.getApiKey();
         if (apiKey != null) {
-            stmt.bindString(11, apiKey);
+            stmt.bindString(10, apiKey);
         }
  
         Long creatorId = entity.getCreatorId();
         if (creatorId != null) {
-            stmt.bindLong(12, creatorId);
+            stmt.bindLong(11, creatorId);
         }
     }
 
@@ -179,29 +172,24 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
             stmt.bindLong(7, type);
         }
  
-        String creatorEntityId = entity.getCreatorEntityId();
-        if (creatorEntityId != null) {
-            stmt.bindString(8, creatorEntityId);
-        }
- 
         String imageUrl = entity.getImageUrl();
         if (imageUrl != null) {
-            stmt.bindString(9, imageUrl);
+            stmt.bindString(8, imageUrl);
         }
  
         String rootKey = entity.getRootKey();
         if (rootKey != null) {
-            stmt.bindString(10, rootKey);
+            stmt.bindString(9, rootKey);
         }
  
         String apiKey = entity.getApiKey();
         if (apiKey != null) {
-            stmt.bindString(11, apiKey);
+            stmt.bindString(10, apiKey);
         }
  
         Long creatorId = entity.getCreatorId();
         if (creatorId != null) {
-            stmt.bindLong(12, creatorId);
+            stmt.bindLong(11, creatorId);
         }
     }
 
@@ -226,11 +214,10 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
             cursor.isNull(offset + 4) ? null : cursor.getShort(offset + 4) != 0, // deleted
             cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // name
             cursor.isNull(offset + 6) ? null : cursor.getInt(offset + 6), // type
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // creatorEntityId
-            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // imageUrl
-            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // rootKey
-            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // apiKey
-            cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11) // creatorId
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // imageUrl
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // rootKey
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // apiKey
+            cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10) // creatorId
         );
         return entity;
     }
@@ -244,11 +231,10 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
         entity.setDeleted(cursor.isNull(offset + 4) ? null : cursor.getShort(offset + 4) != 0);
         entity.setName(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
         entity.setType(cursor.isNull(offset + 6) ? null : cursor.getInt(offset + 6));
-        entity.setCreatorEntityId(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
-        entity.setImageUrl(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
-        entity.setRootKey(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
-        entity.setApiKey(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
-        entity.setCreatorId(cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11));
+        entity.setImageUrl(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setRootKey(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setApiKey(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setCreatorId(cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10));
      }
     
     @Override

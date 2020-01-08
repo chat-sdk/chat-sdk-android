@@ -19,8 +19,10 @@ import firestream.chat.message.DeliveryReceipt;
 import firestream.chat.namespace.Fire;
 import firestream.chat.types.DeliveryReceiptType;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 
-public class FirestreamReadReceiptHandler implements ReadReceiptHandler {
+public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consumer<Throwable> {
 
     private DisposableMap dm = new DisposableMap();
 
@@ -30,16 +32,15 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler {
         Disposable d = Fire.Stream.getConnectionEvents().subscribe(connectionEvent -> {
             if (connectionEvent.getType() == ConnectionEvent.Type.DidConnect) {
 
-                dm.add(Fire.Stream.getSendableEvents().getDeliveryReceipts().subscribe(receipt -> {
+                dm.add(Fire.Stream.getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(receipt -> {
                     handleReceipt(receipt.getFrom(), receipt);
                 }));
 
                 dm.add(Fire.Stream.getChatEvents().pastAndNewEvents().subscribe(chatEvent -> {
                     IChat chat = chatEvent.getChat();
                     if (chatEvent.typeIs(EventType.Added)) {
-
-                        chat.getDisposableMap().add(chat.getSendableEvents().getDeliveryReceipts().subscribe(receipt -> {
-                            handleReceipt(receipt.getFrom(), receipt);
+                        chat.manage(chat.getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(receipt -> {
+                            handleReceipt(chat.getId(), receipt);
                         }));
                     }
                 }));
@@ -81,23 +82,32 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler {
 
     @Override
     public void markRead(Thread thread) {
-        if (thread.typeIs(ThreadType.Private1to1)) {
+        for (Message m : thread.getMessages()) {
+            if (!m.getSender().isMe()) {
+                ReadStatus status = m.readStatusForUser(ChatSDK.currentUserID());
+                if (!status.is(ReadStatus.read())) {
 
-            for (Message m : thread.getMessages()) {
-                if (!m.getSender().isMe()) {
-                    ReadStatus status = m.readStatusForUser(ChatSDK.currentUserID());
-                    if (!status.is(ReadStatus.read())) {
+                    m.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new DateTime());
+                    // Send the read status
 
-                        m.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new DateTime());
-                        // Send the read status
-
+                    if (thread.typeIs(ThreadType.Private1to1)) {
                         User otherUser = thread.otherUser();
-                        Fire.Stream.sendDeliveryReceipt(otherUser.getEntityID(), DeliveryReceiptType.read(), m.getEntityID())
-                                .doOnError(Throwable::printStackTrace)
-                                .subscribe();
+                        dm.add(Fire.Stream.sendDeliveryReceipt(otherUser.getEntityID(), DeliveryReceiptType.read(), m.getEntityID())
+                                .subscribe(() -> {}, this));
+                    }
+                    if (thread.typeIs(ThreadType.PrivateGroup)) {
+                        IChat chat = Fire.stream().getChat(thread.getEntityID());
+                        if (chat != null) {
+                            chat.manage(chat.sendDeliveryReceipt(DeliveryReceiptType.read(), m.getEntityID()).subscribe(() -> {}, this));
+                        }
                     }
                 }
             }
         }
+    }
+
+    @Override
+    public void accept(Throwable throwable) throws Exception {
+        throwable.printStackTrace();
     }
 }

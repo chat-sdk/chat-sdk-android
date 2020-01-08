@@ -5,7 +5,7 @@ import firestream.chat.namespace.Fire;
 
 public class Config {
 
-    public static enum DatabaseType {
+    public enum DatabaseType {
         Firestore,
         Realtime
     }

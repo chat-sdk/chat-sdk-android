@@ -40,7 +40,6 @@ public class Thread extends AbstractEntity {
     private Boolean deleted;
     private String name;
     private Integer type;
-    private String creatorEntityId;
     private String imageUrl;
     private String rootKey;
     private String apiKey; // TODO: Delete this
@@ -78,9 +77,9 @@ public class Thread extends AbstractEntity {
         this.id = id;
     }
 
-    @Generated(hash = 713986075)
+    @Generated(hash = 1046537177)
     public Thread(Long id, String entityID, Date creationDate, Boolean hasUnreadMessages, Boolean deleted, String name, Integer type,
-            String creatorEntityId, String imageUrl, String rootKey, String apiKey, Long creatorId) {
+            String imageUrl, String rootKey, String apiKey, Long creatorId) {
         this.id = id;
         this.entityID = entityID;
         this.creationDate = creationDate;
@@ -88,7 +87,6 @@ public class Thread extends AbstractEntity {
         this.deleted = deleted;
         this.name = name;
         this.type = type;
-        this.creatorEntityId = creatorEntityId;
         this.imageUrl = imageUrl;
         this.rootKey = rootKey;
         this.apiKey = apiKey;
@@ -449,12 +447,20 @@ public class Thread extends AbstractEntity {
         this.type = type;
     }
 
+    @Deprecated // Use getCreator instead
     public String getCreatorEntityId() {
-        return this.creatorEntityId;
+        if (creator != null) {
+            return creator.getEntityID();
+        }
+        return null;
     }
 
+    @Deprecated // User setCreator instead
     public void setCreatorEntityId(String creatorEntityId) {
-        this.creatorEntityId = creatorEntityId;
+        User creator = ChatSDK.db().fetchUserWithEntityID(creatorEntityId);
+        if (creator != null) {
+            this.creator = creator;
+        }
     }
 
     public String getRootKey() {

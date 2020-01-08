@@ -75,7 +75,7 @@ public class Chat extends AbstractChat implements IChat {
         debug("Connect to chat: " + id);
 
         // If delivery receipts are enabled, send the delivery receipt
-        if (config.deliveryReceiptsEnabled) {
+        if (Fire.privateApi().getConfig().deliveryReceiptsEnabled) {
             dm.add(getSendableEvents()
                     .getMessages()
                     .pastAndNewEvents()
@@ -436,5 +436,9 @@ public class Chat extends AbstractChat implements IChat {
             return false;
         }
         return getMyRoleType().ge(required);
+    }
+
+    public Completable deleteSendable(Sendable sendable) {
+        return deleteSendable(messagesPath().child(sendable.getId()));
     }
 }

@@ -74,6 +74,11 @@ public class FireStream extends AbstractChat implements IFireStream {
     protected FirebaseService firebaseService = null;
     protected WeakReference<Context> context;
 
+    /**
+     * Current configuration
+     */
+    protected Config config;
+
     public static FireStream shared () {
         return instance;
     }

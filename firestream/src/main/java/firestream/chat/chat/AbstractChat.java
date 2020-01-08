@@ -53,11 +53,6 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
     protected ArrayList<Sendable> sendables = new ArrayList<>();
 
     /**
-     * Current configuration
-     */
-    protected Config config;
-
-    /**
      * Error handler method so we can redirect all errors to the error events
      * @param throwable - the events error
      * @throws Exception
@@ -81,7 +76,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @return a events of errorMessage results
      */
     protected Observable<SendableEvent> messagesOn(Date newerThan) {
-        return Fire.Stream.getFirebaseService().core.messagesOn(messagesPath(), newerThan, config.messageHistoryLimit).doOnNext(event -> {
+        return Fire.Stream.getFirebaseService().core.messagesOn(messagesPath(), newerThan, Fire.privateApi().getConfig().messageHistoryLimit).doOnNext(event -> {
             Sendable sendable = event.getSendable();
             Sendable previous = getSendable(sendable.getId());
             if (event.typeIs(EventType.Added)) {
@@ -382,7 +377,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
     public abstract Completable markReceived(Message message);
 
     public void debug(String text) {
-        if (Fire.privateApi().config.debugEnabled) {
+        if (Fire.privateApi().getConfig().debugEnabled) {
             System.out.println(text);
         }
     }

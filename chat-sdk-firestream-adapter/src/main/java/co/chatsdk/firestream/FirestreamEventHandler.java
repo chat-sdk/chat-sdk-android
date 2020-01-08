@@ -17,6 +17,7 @@ import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.FirebaseEventHandler;
+import firestream.chat.filter.MessageStreamFilter;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.events.EventType;
 import firestream.chat.firebase.rx.DisposableMap;
@@ -24,7 +25,7 @@ import firestream.chat.namespace.Fire;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.core.dao.Thread;
-import firestream.chat.namespace.FirestreamMessage;
+import firestream.chat.namespace.FireStreamMessage;
 import firestream.chat.types.RoleType;
 
 public class FirestreamEventHandler extends FirebaseEventHandler implements Consumer<Throwable> {
@@ -67,12 +68,12 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                 cdm.add(chat.getNameChangeEvents().subscribe(s -> {
                     finalThread.setName(s);
                     eventSource.onNext(NetworkEvent.threadDetailsUpdated(finalThread));
-                }));
+                }, this));
 
                 cdm.add(chat.getImageURLChangeEvents().subscribe(s -> {
                     finalThread.setImageUrl(s);
                     eventSource.onNext(NetworkEvent.threadDetailsUpdated(finalThread));
-                }));
+                }, this));
 
                 cdm.add(chat.getUserEvents().subscribe(userEvent -> {
                     if (userEvent.typeIs(EventType.Added)) {
@@ -90,14 +91,30 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                         finalThread.removeUser(user);
                         eventSource.onNext(NetworkEvent.threadUsersChanged(finalThread, user));
                     }
-                }));
+                }, this));
 
+                // Handle new messages
                 cdm.add(chat.getSendableEvents().getFireStreamMessages().subscribe(message -> {
-                    cdm.add(handleMessageForThread(message, finalThread));
-                }));
-            }
-        }));
+                    cdm.add(addMessage(message, finalThread));
+                }, this));
 
+                // Handle message deletion
+                cdm.add(chat.getSendableEvents()
+                        .getSendables()
+                        .filter(MessageStreamFilter.byEventType(EventType.Removed))
+                        .subscribe(sendableEvent -> {
+                            removeMessage(sendableEvent.getSendable().getId(), finalThread.getEntityID());
+                }, this));
+            }
+            if (chatEvent.typeIs(EventType.Removed)) {
+                Thread thread = ChatSDK.db().fetchThreadWithEntityID(chat.getId());
+                if (thread != null) {
+                    eventSource.onNext(NetworkEvent.threadRemoved(thread));
+                }
+            }
+        }, this));
+
+        // Handle 1-to-1 messages
         dm.add(Fire.Stream.getSendableEvents().getFireStreamMessages().subscribe(message -> {
 
             // Get the user
@@ -117,12 +134,37 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                     thread.addUsers(user, ChatSDK.currentUser());
                 }
 
-                dm.add(handleMessageForThread(message, thread));
-            }));
+                dm.add(addMessage(message, thread));
+            }, this));
         }));
+
+        // Handle message deletion
+        // We only do this if we are not deleting messages upon receipt, otherwise
+        // the messages would just be deleted
+        if (!Fire.privateApi().getConfig().deleteMessagesOnReceipt) {
+            dm.add(Fire.Stream.getSendableEvents()
+                    .getSendables()
+                    .filter(MessageStreamFilter.byEventType(EventType.Removed))
+                    .subscribe(sendableEvent -> {
+                String from = sendableEvent.getSendable().getFrom();
+                removeMessage(from, from);
+            }, this));
+        }
+
     }
 
-    protected Disposable handleMessageForThread(FirestreamMessage mm, Thread thread) {
+    protected void removeMessage(String messageId, String threadId) {
+        Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadId);
+        if (thread != null) {
+            Message message = thread.getMessageWithEntityID(messageId);
+            if (message != null) {
+                thread.removeMessage(message);
+                eventSource.onNext(NetworkEvent.messageRemoved(message.getThread(), message));
+            }
+        }
+    }
+
+    protected Disposable addMessage(FireStreamMessage mm, Thread thread) {
         return APIHelper.fetchRemoteUser(mm.getFrom()).subscribe(user -> {
             if (!thread.containsMessageWithID(mm.getId())) {
                 Message message = ChatSDK.db().createEntity(Message.class);

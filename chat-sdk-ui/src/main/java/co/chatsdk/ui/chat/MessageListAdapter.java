@@ -162,7 +162,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
 
     public void notifyMessageChanged (Message message) {
         int index = indexOf(message);
-        if (index > 0) {
+        if (index >= 0) {
             notifyItemChanged(index);
         }
     }

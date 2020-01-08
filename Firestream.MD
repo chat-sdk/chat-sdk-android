@@ -22,13 +22,19 @@
 
 FireStream supports both **Firestore** and the **Realtime** database. You pay the hosting cost directly to Firebase and have sole access to your data. 
 
-FireStream has many benefits over competing solutions, here is a brief summary:
+There are many chat systems available, here are the benefits of FireStream:
 
-1. Open source - you can review and fork, optimise or fix the source code
-2. Powered by Firebase:
-  1. Low cost, excellent performance and reliability 
-  2. Google isn't going out of business any time soon
-  3. You have full control over YOUR users' data
+1. Open Souce - you can review, fork, optimize and audit the code
+2. Transparent - all the "server" code is included in the client
+3. Full Control - you control the source, you have sole access to the data
+4. Powered by Firebase - for a managed solution, it's the best
+
+Firebase benefits:
+
+1. Low cost, excellent performance and reliability 
+2. Reasonable data usage policy
+3. Google isn't going out of business any time soon
+4q. You have full control over YOUR users' data
 
 ### FireStream+
 
@@ -231,18 +237,23 @@ There are multiple ways you can invoke FireStream. They are provided for conveni
 FireStream.shared().sendMessage(...)
 
 // Shorter
-Fire.Stream.sendMessage(...)
+Fire.stream().sendMessage(...)
 
-// Maybe you prefer this
-Fire.api().sendMessage(...)
-
-// Compact
-F.ire.sendMessage(...)
-
-// Very short
-F.S.sendMessage(...)
+// To access non-public methods
+Fire.privateApi().getConfig()...
 ```
 
+### FAQ
+
+#### Is FireStream compatible with Chat SDK
+
+Yes, if you enable the FireStreamNetworkAdapter your app will simply start to use FireStream for message delivery. FireStream doesn't manage users so it continues to rely on the FirebaseNetworkAdapter for user profiles and search. 
+
+#### My app is already live, can I switch over without disruption?
+
+#### I have purchased modules for Chat SDK, do they work with FireStream?
+
+Yes, the modules will continue to work as before. 
 
 
 

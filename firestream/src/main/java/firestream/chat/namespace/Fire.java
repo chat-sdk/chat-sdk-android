@@ -11,12 +11,11 @@ import firestream.chat.interfaces.IFireStream;
  */
 public class Fire {
     public static final IFireStream Stream = FireStream.shared();
+
     public static FireStream privateApi() {
         return FireStream.shared();
     }
-    public static IFireStream api() {
-        return FireStream.shared();
-    }
+
     public static IFireStream stream() {
         return FireStream.shared();
     }

@@ -15,9 +15,15 @@ import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.utils.DisposableList;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
@@ -85,7 +91,7 @@ public class MessageSendRig {
                 uploadables.addAll(compressedUploadables);
 
                 return Completable.complete();
-            }).concatWith(uploadFiles()).andThen(send()).subscribeOn(Schedulers.single());
+            }).concatWith(uploadFiles()).concatWith(send()).subscribeOn(Schedulers.single());
         }
     }
 
@@ -111,36 +117,38 @@ public class MessageSendRig {
     }
 
     protected Completable uploadFiles () {
-        ArrayList<Completable> completables = new ArrayList<>();
+        return Single.create((SingleOnSubscribe<List<Completable>>) emitter -> {
+            ArrayList<Completable> completables = new ArrayList<>();
 
-        message.setMessageStatus(MessageSendStatus.WillUpload);
-        ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+            message.setMessageStatus(MessageSendStatus.WillUpload);
+            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
 
-        message.setMessageStatus(MessageSendStatus.Uploading);
-        ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+            message.setMessageStatus(MessageSendStatus.Uploading);
+            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
 
-        for (Uploadable item : uploadables) {
-            completables.add(ChatSDK.upload().uploadFile(item.getBytes(), item.name, item.mimeType).flatMapMaybe((Function<FileUploadResult, MaybeSource<Message>>) result -> {
+            for (Uploadable item : uploadables) {
+                completables.add(ChatSDK.upload().uploadFile(item.getBytes(), item.name, item.mimeType).flatMapMaybe(result -> {
 
-                ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+                    ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
 
-                if (result.urlValid() && messageDidUploadUpdateAction != null) {
-                    messageDidUploadUpdateAction.update(message, result);
+                    if (result.urlValid() && messageDidUploadUpdateAction != null) {
+                        messageDidUploadUpdateAction.update(message, result);
 
-                    // Add the meta from file upload result to text
-                    for (String key : result.meta.keySet()) {
-                        message.setValueForKey(result.meta.get(key), key);
+                        // Add the meta from file upload result to text
+                        for (String key : result.meta.keySet()) {
+                            message.setValueForKey(result.meta.get(key), key);
+                        }
+
+                        message.update();
+
+                        return Maybe.just(message);
+                    } else {
+                        return Maybe.empty();
                     }
-
-                    message.update();
-
-                    return Maybe.just(message);
-                } else {
-                    return Maybe.empty();
-                }
-            }).firstElement().ignoreElement());
-        }
-        return Completable.merge(completables).doOnComplete(() -> {
+                }).firstElement().ignoreElement());
+            }
+            emitter.onSuccess(completables);
+        }).flatMapCompletable(Completable::merge).doOnComplete(() -> {
             message.setMessageStatus(MessageSendStatus.DidUpload);
             ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
         });
