@@ -138,14 +138,14 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         }).subscribeOn(Schedulers.single());
     }
 
-    public Completable muteThread(Thread thread) {
+    public Completable mute(Thread thread) {
         return Completable.create(emitter -> {
             DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(ChatSDK.currentUserID()).child(Keys.Mute);
             threadUsersRef.setValue(true).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
         });
     }
 
-    public Completable unmuteThread(Thread thread) {
+    public Completable unmute(Thread thread) {
         return Completable.create(emitter -> {
             DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(ChatSDK.currentUserID()).child(Keys.Mute);
             threadUsersRef.setValue(false).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
@@ -164,6 +164,11 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return new ThreadWrapper(thread).pushMeta();
     }
 
+    @Override
+    public boolean muteEnabled(Thread thread) {
+        return true;
+    }
+
     /**
      * Send a text,
      * The text need to have a owner thread attached to it or it cant be added.
@@ -180,35 +185,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         });
     }
 
-    /**
-     * Create thread for given users.
-     * When the thread is added to the server the "onMainFinished" will be invoked,
-     * If an error occurred the error object would not be null.
-     * For each user that was successfully added the "onItem" method will be called,
-     * For any item adding failure the "onItemFailed will be called.
-     * If the main task will fail the error object in the "onMainFinished" method will be called."
-     **/
-    public Single<Thread> createThread(final List<User> users) {
-        return createThread(null, users);
-    }
-
-    public Single<Thread> createThread(final String name, final List<User> users) {
-        return createThread(name, users, -1);
-    }
-
-    public Single<Thread> createThread(final String name, final List<User> users, final int type) {
-        return createThread(name, users, type, null);
-    }
-
-    public Single<Thread> createThread(String name, List<User> users, int type, String entityID) {
-        return createThread(name, users, type, entityID, null);
-    }
-
-    public Single<Thread> createThread(String name, List<User> users, int type, String entityID, String imageURL) {
-        return createThread(name, users, type, entityID, imageURL, ChatSDK.config().reuseDeleted1to1Threads);
-    }
-
-    public Single<Thread> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL, boolean reuseDeletedThreads) {
+    public Single<Thread> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL) {
         return Single.create((SingleOnSubscribe<ThreadPusher>) e -> {
             ArrayList<User> users = new ArrayList<>(theUsers);
 
@@ -241,7 +218,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
                 // Check to see if a thread already exists with these
                 // two users
-                for(Thread thread : getThreads(ThreadType.Private1to1, reuseDeletedThreads, true)) {
+                for(Thread thread : getThreads(ThreadType.Private1to1, ChatSDK.config().reuseDeleted1to1Threads, true)) {
                     if(thread.getUsers().size() == 2 &&
                             thread.containsUser(currentUser) &&
                             thread.containsUser(otherUser))

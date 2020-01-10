@@ -62,7 +62,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
     }
 
     @Override
-    public Completable addUsers(Path path, User.DataProvider dataProvider, List<User> users) {
+    public Completable addUsers(Path path, User.DataProvider dataProvider, List<? extends User> users) {
         return Single.create((SingleOnSubscribe<WriteBatch>) emitter -> {
             CollectionReference ref = Ref.collection(path);
             WriteBatch batch = Ref.db().batch();
@@ -76,7 +76,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
     }
 
     @Override
-    public Completable updateUsers(Path path, User.DataProvider dataProvider, List<User> users) {
+    public Completable updateUsers(Path path, User.DataProvider dataProvider, List<? extends User> users) {
         return Single.create((SingleOnSubscribe<WriteBatch>) emitter -> {
             CollectionReference ref = Ref.collection(path);
             WriteBatch batch = Ref.db().batch();
@@ -90,7 +90,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
     }
 
     @Override
-    public Completable removeUsers(Path path, List<User> users) {
+    public Completable removeUsers(Path path, List<? extends User> users) {
         return Single.create((SingleOnSubscribe<WriteBatch>) emitter -> {
             CollectionReference ref = Ref.collection(path);
             WriteBatch batch = Ref.db().batch();

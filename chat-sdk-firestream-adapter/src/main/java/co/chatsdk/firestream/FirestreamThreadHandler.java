@@ -1,11 +1,16 @@
 package co.chatsdk.firestream;
 
+import com.google.firebase.database.DatabaseReference;
+
+import org.reactivestreams.Publisher;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import co.chatsdk.core.base.AbstractThreadHandler;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
@@ -14,6 +19,7 @@ import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.FirebaseThreadHandler;
 import co.chatsdk.firebase.wrappers.MessageWrapper;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
@@ -25,12 +31,16 @@ import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import firestream.chat.namespace.FireStreamUser;
 import firestream.chat.types.RoleType;
 
-public class FirestreamThreadHandler extends FirebaseThreadHandler {
+public class FirestreamThreadHandler extends AbstractThreadHandler {
 
     public Completable sendMessage(final Message message) {
         return Completable.defer(() -> {
@@ -51,21 +61,6 @@ public class FirestreamThreadHandler extends FirebaseThreadHandler {
                 }
             }
         });
-    }
-
-    @Override
-    public Single<Thread> createThread(final String name, final List<User> users) {
-        return createThread(name, users, ThreadType.None);
-    }
-
-    @Override
-    public Single<Thread> createThread(final String name, final List<User> users, final int type) {
-        return createThread(name, users, type, null);
-    }
-
-    @Override
-    public Single<Thread> createThread(String name, List<User> users, int type, String entityID) {
-        return createThread(name, users,type, entityID, null);
     }
 
     @Override
@@ -211,5 +206,130 @@ public class FirestreamThreadHandler extends FirebaseThreadHandler {
         });
     }
 
+    public boolean rolesEnabled(Thread thread) {
+        return thread.typeIs(ThreadType.PrivateGroup);
+    }
+
+    public String roleForUser(Thread thread, User user) {
+        if (rolesEnabled(thread)) {
+            IChat chat = Fire.stream().getChat(thread.getEntityID());
+            if (chat != null) {
+                return chat.getRoleTypeForUser(new FireStreamUser(user.getEntityID())).stringValue();
+            }
+        }
+        return null;
+    }
+
+    public List<String> availableRoles(Thread thread) {
+        if (rolesEnabled(thread)) {
+            return RoleType.allStringValuesExcluding(RoleType.owner());
+        }
+        return new ArrayList<>();
+    }
+
+    public Completable setRole(String role, Thread thread, User user) {
+        return Completable.defer(() -> {
+            if (rolesEnabled(thread)) {
+                IChat chat = Fire.stream().getChat(thread.getEntityID());
+                if (chat != null) {
+                    return chat.setRole(new FireStreamUser(user.getEntityID()), RoleType.reverseMap().get(role));
+                }
+            }
+            return Completable.error(new Throwable(ChatSDK.shared().context().getString(R.string.feature_not_supported)));
+        });
+    }
+
+    @Override
+    public boolean muteEnabled(Thread thread) {
+        return false;
+    }
+
+    public Completable mute(Thread thread) {
+        return Completable.complete();
+    }
+
+    public Completable unmute(Thread thread) {
+        return Completable.complete();
+    }
+
+    public Completable removeUsersFromThread(final Thread thread, List<User> users) {
+        return Completable.defer(() -> {
+            if (thread.typeIs(ThreadType.PrivateGroup)) {
+                IChat chat = Fire.stream().getChat(thread.getEntityID());
+                if (chat != null) {
+                    ArrayList<FireStreamUser> usersToRemove = new ArrayList<>();
+                    for (User user: users) {
+                        usersToRemove.add(new FireStreamUser(user.getEntityID()));
+                    }
+                    return chat.removeUsers(usersToRemove);
+                }
+            }
+            return Completable.complete();
+        });
+    }
+
+    public Completable addUsersToThread(final Thread thread, final List<User> users) {
+        return Completable.defer(() -> {
+            if (thread.typeIs(ThreadType.PrivateGroup)) {
+
+            }
+            return Completable.complete();
+        });
+    }
+
+    @Override
+    public Completable deleteThread(Thread thread) {
+        return null;
+    }
+
+    @Override
+    public Completable leaveThread(Thread thread) {
+        return null;
+    }
+
+    @Override
+    public Completable joinThread(Thread thread) {
+        return null;
+    }
+
+    public Single<List<Message>> loadMoreMessagesForThread(final Date fromDate, final Thread thread, boolean loadFromServer) {
+        return super.loadMoreMessagesForThread(fromDate, thread, loadFromServer).flatMap(localMessages -> {
+
+            // This function converts a list of sendables to a list of messages
+            Function<List<Sendable>, SingleSource<List<Message>>> sendableToMessage = sendables -> Single.defer(() -> {
+                // Convert the sendables to messages
+                ArrayList<Single<Message>> singles = new ArrayList<>();
+                for (Sendable sendable: sendables) {
+                    singles.add(FirestreamHelper.sendableToMessage(sendable));
+                }
+                final ArrayList<Message> messages = new ArrayList<>();
+
+                return Single.merge(singles).doOnNext(messages::add).ignoreElements().toSingle((Callable<List<Message>>) () -> {
+
+                    ArrayList<Message> mergedMessages = new ArrayList<>(localMessages);
+                    mergedMessages.addAll(messages);
+
+                    if (ChatSDK.encryption() != null) {
+                        for (Message m : mergedMessages) {
+                            ChatSDK.encryption().decrypt(m);
+                        }
+                    }
+
+                    return mergedMessages;
+                });
+            });
+
+            if (thread.typeIs(ThreadType.Private1to1)) {
+                return Fire.stream().loadMoreMessagesTo(fromDate, ChatSDK.config().messagesToLoadPerBatch).flatMap(sendableToMessage);
+            }
+            if (thread.typeIs(ThreadType.PrivateGroup)) {
+                IChat chat = Fire.stream().getChat(thread.getEntityID());
+                if (chat != null) {
+                    return chat.loadMoreMessagesTo(fromDate, ChatSDK.config().messagesToLoadPerBatch).flatMap(sendableToMessage);
+                }
+            }
+            return Single.just(localMessages);
+        });
+    }
 
 }

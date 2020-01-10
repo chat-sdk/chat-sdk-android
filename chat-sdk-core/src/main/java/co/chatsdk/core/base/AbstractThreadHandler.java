@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import co.chatsdk.core.R;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -52,6 +53,18 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
      */
     public Completable sendMessageWithText(final String text, final Thread thread) {
         return new MessageSendRig(new MessageType(MessageType.Text), thread, message -> message.setText(text)).run();
+    }
+
+    public Single<Thread> createThread(final String name, final List<User> users) {
+        return createThread(name, users, -1);
+    }
+
+    public Single<Thread> createThread(final String name, final List<User> users, final int type) {
+        return createThread(name, users, type, null);
+    }
+
+    public Single<Thread> createThread(String name, List<User> users, int type, String entityID) {
+        return createThread(name, users, type, entityID, null);
     }
 
     public static Message newMessage (int type, Thread thread) {
@@ -166,13 +179,28 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
     }
 
-    public Completable muteThread(Thread thread) {
+    public Completable mute(Thread thread) {
         return Completable.complete();
     }
 
-    public Completable unmuteThread(Thread thread) {
+    public Completable unmute(Thread thread) {
         return Completable.complete();
     }
 
+    public boolean rolesEnabled(Thread thread) {
+        return false;
+    }
+
+    public String roleForUser(Thread thread, User user) {
+        return null;
+    }
+
+    public Completable setRole(String role, Thread thread, User user) {
+        return Completable.error(new Throwable(ChatSDK.shared().context().getString(R.string.feature_not_supported)));
+    }
+
+    public List<String> availableRoles(Thread thread) {
+        return null;
+    }
 
 }

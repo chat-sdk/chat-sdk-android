@@ -52,7 +52,7 @@ public abstract class FirebaseCoreHandler {
      * @param users        to add
      * @return completion
      */
-    public abstract Completable addUsers(Path path, User.DataProvider dataProvider, List<User> users);
+    public abstract Completable addUsers(Path path, User.DataProvider dataProvider, List<? extends User> users);
 
     /**
      * Remove users from a reference
@@ -61,7 +61,7 @@ public abstract class FirebaseCoreHandler {
      * @param users to remove
      * @return completion
      */
-    public abstract Completable removeUsers(Path path, List<User> users);
+    public abstract Completable removeUsers(Path path, List<? extends User> users);
 
     /**
      * Update users for a reference
@@ -71,7 +71,7 @@ public abstract class FirebaseCoreHandler {
      * @param users to update
      * @return completion
      */
-    public abstract Completable updateUsers(Path path, User.DataProvider dataProvider, List<User> users);
+    public abstract Completable updateUsers(Path path, User.DataProvider dataProvider, List<? extends User> users);
 
     /**
      * Get a updateBatch of messages once

@@ -102,7 +102,7 @@ public interface IChat extends IAbstractChat {
     /**
      * @see IChat#addUsers(Boolean, User...)
      */
-    Completable addUsers(Boolean sendInvite, List<User> users);
+    Completable addUsers(Boolean sendInvite, List<? extends User> users);
 
     /**
      * @see IChat#addUsers(Boolean, User...)
@@ -119,7 +119,7 @@ public interface IChat extends IAbstractChat {
     /**
      * @see IChat#updateUsers(User...)
      */
-    Completable updateUsers(List<User> users);
+    Completable updateUsers(List<? extends User> users);
 
     /**
      * @see IChat#updateUsers(User...)
@@ -136,7 +136,7 @@ public interface IChat extends IAbstractChat {
     /**
      * @see IChat#removeUsers(User...)
      */
-    Completable removeUsers(List<User> users);
+    Completable removeUsers(List<? extends User> users);
 
     /**
      * @see IChat#removeUsers(User...)
@@ -148,7 +148,7 @@ public interface IChat extends IAbstractChat {
      * @param users to invite
      * @return completion
      */
-    Completable inviteUsers(List<User> users);
+    Completable inviteUsers(List<? extends User> users);
 
     /**
      * Set the role of a user

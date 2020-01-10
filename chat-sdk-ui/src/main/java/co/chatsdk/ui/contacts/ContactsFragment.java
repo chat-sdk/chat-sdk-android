@@ -8,7 +8,6 @@
 package co.chatsdk.ui.contacts;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.LayoutRes;
@@ -33,17 +32,13 @@ import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.SearchActivityType;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
-import co.chatsdk.ui.search.SearchActivity;
 import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import timber.log.Timber;
 
@@ -179,11 +174,11 @@ public class ContactsFragment extends BaseFragment {
             setRetainInstance(true);
         }
 
-        disposableList.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterContactsChanged())
                 .subscribe(networkEvent -> loadData(true)));
 
-        disposableList.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
                 .subscribe(networkEvent -> loadData(true)));
 
@@ -327,7 +322,7 @@ public class ContactsFragment extends BaseFragment {
                         }
 
                         if (thread != null) {
-                            disposableList.add(ChatSDK.thread().addUsersToThread(thread, clickedUser)
+                            dm.add(ChatSDK.thread().addUsersToThread(thread, clickedUser)
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(() -> {
                                         ToastHelper.show(getContext(), getString(R.string.abstract_contact_fragment_user_added_to_thread_toast_success) + clickedUser.getName());

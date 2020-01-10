@@ -139,7 +139,7 @@ public class FirebaseEventHandler extends AbstractEventHandler implements Consum
             if (hasValue) {
                 User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
 
-                HashMap<String, Long> data = snapshot.getValue(Generic.ContactHashMap.class);
+                HashMap<String, Long> data = snapshot.getValue(Generic.contactType());
                 if (data != null) {
                     Long type = data.get(Keys.Type);
                     if (type != null) {
@@ -154,7 +154,7 @@ public class FirebaseEventHandler extends AbstractEventHandler implements Consum
             if (hasValue) {
                 User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
 
-                HashMap<String, Long> data = snapshot.getValue(Generic.ContactHashMap.class);
+                HashMap<String, Long> data = snapshot.getValue(Generic.contactType());
                 if (data != null) {
                     Long type = data.get(Keys.Type);
                     if (type != null) {

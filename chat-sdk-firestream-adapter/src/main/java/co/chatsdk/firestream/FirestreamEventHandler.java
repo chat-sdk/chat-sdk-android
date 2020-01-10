@@ -165,39 +165,13 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
     }
 
     protected Disposable addMessage(FireStreamMessage mm, Thread thread) {
-        return APIHelper.fetchRemoteUser(mm.getFrom()).subscribe(user -> {
-            if (!thread.containsMessageWithID(mm.getId())) {
-                Message message = ChatSDK.db().createEntity(Message.class);
-
-                message.setSender(user);
-                message.setMessageStatus(MessageSendStatus.Delivered);
-                message.setDate(new DateTime(mm.getDate()));
-                message.setEntityID(mm.getId());
-
-                HashMap<String, Object> body = mm.getBody();
-
-                Object metaObject = body.get(Keys.Meta);
-                if (metaObject instanceof HashMap) {
-                    HashMap<String, Object> meta = new HashMap<>((HashMap) metaObject);
-                    message.setMetaValues(meta);
-                }
-
-                Object typeObject = body.get(Keys.Type);
-
-                if (typeObject instanceof Long) {
-                    Integer type = ((Long) typeObject).intValue();
-                    message.setType(type);
-                }
-                if (typeObject instanceof Integer) {
-                    Integer type = (Integer) typeObject;
-                    message.setType(type);
-                }
-
+        if (!thread.containsMessageWithID(mm.getId())) {
+            return FirestreamHelper.sendableToMessage(mm).subscribe(message -> {
                 thread.addMessage(message);
-
                 eventSource.onNext(NetworkEvent.messageAdded(thread, message));
-            }
-        }, this);
+            }, this);
+        }
+        return null;
     }
 
     @Override

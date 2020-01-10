@@ -109,8 +109,8 @@ public interface IFireStream extends IAbstractChat {
 
     Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, User... users);
     Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, @Nullable HashMap<String, Object> customData, User... users);
-    Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, List<User> users);
-    Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, @Nullable HashMap<String, Object> customData, List<User> users);
+    Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, List<? extends User> users);
+    Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, @Nullable HashMap<String, Object> customData, List<? extends User> users);
 
     /**
      * Leave the chat. When you leave, you will be removed from the

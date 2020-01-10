@@ -202,7 +202,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @param users to remove
      * @return completion
      */
-    protected Completable removeUsers(Path path, List<User> users) {
+    protected Completable removeUsers(Path path, List<? extends User> users) {
         return Fire.Stream.getFirebaseService().core
                 .removeUsers(path, users)
                 .subscribeOn(Schedulers.single())
@@ -241,7 +241,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @param users to add
      * @return completion
      */
-    public Completable addUsers(Path path, User.DataProvider dataProvider, List<User> users) {
+    public Completable addUsers(Path path, User.DataProvider dataProvider, List<? extends User> users) {
         return Fire.Stream.getFirebaseService().core
                 .addUsers(path, dataProvider, users)
                 .subscribeOn(Schedulers.single())
@@ -280,7 +280,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @param users to update
      * @return completion
      */
-    public Completable updateUsers(Path path, User.DataProvider dataProvider, List<User> users) {
+    public Completable updateUsers(Path path, User.DataProvider dataProvider, List<? extends User> users) {
         return Fire.Stream.getFirebaseService().core
                 .updateUsers(path, dataProvider, users)
                 .subscribeOn(Schedulers.single())

@@ -45,7 +45,7 @@ public abstract class ThreadsFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        disposableList.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().sourceOnMain()
                 .filter(mainEventFilter())
                 .subscribe(networkEvent -> {
                     if (tabIsVisible) {
@@ -53,7 +53,7 @@ public abstract class ThreadsFragment extends BaseFragment {
                     }
                 }));
 
-        disposableList.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.TypingStateChanged))
                 .subscribe(networkEvent -> {
                     if (tabIsVisible) {

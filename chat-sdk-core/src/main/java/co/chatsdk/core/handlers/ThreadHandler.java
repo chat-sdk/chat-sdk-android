@@ -84,7 +84,13 @@ public interface ThreadHandler {
     Completable pushThread(Thread thread);
     Completable pushThreadMeta(Thread thread);
 
-    Completable muteThread(Thread thread);
-    Completable unmuteThread(Thread thread);
+    boolean muteEnabled(Thread thread);
+    Completable mute(Thread thread);
+    Completable unmute(Thread thread);
+
+    boolean rolesEnabled(Thread thread);
+    String roleForUser(Thread thread, User user);
+    Completable setRole(String role, Thread thread, User user);
+    List<String> availableRoles(Thread thread);
 
 }

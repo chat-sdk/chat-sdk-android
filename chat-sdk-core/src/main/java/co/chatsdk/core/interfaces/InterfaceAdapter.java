@@ -101,6 +101,7 @@ public interface InterfaceAdapter {
 //  void startLoginActivity (Context context, HashMap<String, Object> extras);
     void startProfileActivity(Context context, String userEntityID);
     void startEditProfileActivity(Context context, String userEntityID);
+
     void startMainActivity (Context context);
     void startMainActivity (Context context, HashMap<String, Object> extras);
     void startSearchActivity (Context context);

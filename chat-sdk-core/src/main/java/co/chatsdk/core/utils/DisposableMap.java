@@ -59,12 +59,14 @@ public class DisposableMap {
     }
 
     public void add(Disposable disposable) {
-        DisposableList list = get(DefaultKey);
-        if (list == null) {
-            list = new DisposableList();
-            this.map.put(DefaultKey, list);
+        if (disposable != null) {
+            DisposableList list = get(DefaultKey);
+            if (list == null) {
+                list = new DisposableList();
+                this.map.put(DefaultKey, list);
+            }
+            get(DefaultKey).add(disposable);
         }
-        get(DefaultKey).add(disposable);
     }
 
     /**

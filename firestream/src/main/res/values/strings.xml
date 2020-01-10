@@ -12,4 +12,11 @@
     <string name="error_member_permission_required">You must be a group member to perform this action</string>
     <string name="error_write_cancelled">Write cancelled</string>
     <string name="error_invalid_path">Invalid path, path can only contain letters, numbers and underscores</string>
+
+    <string name="owner">Owner</string>
+    <string name="admin">Admin</string>
+    <string name="member">Member</string>
+    <string name="watcher">Watcher</string>
+    <string name="banned">Banned</string>
+
 </resources>

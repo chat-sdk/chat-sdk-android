@@ -15,7 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.DisposableList;
+import co.chatsdk.core.utils.DisposableMap;
+import co.chatsdk.ui.utils.ToastHelper;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -26,7 +28,7 @@ public abstract class BaseFragment extends DialogFragment {
 
     protected View mainView;
     protected boolean tabIsVisible;
-    protected DisposableList disposableList = new DisposableList();
+    protected DisposableMap dm = new DisposableMap();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -95,8 +97,17 @@ public abstract class BaseFragment extends DialogFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        disposableList.dispose();
+        dm.dispose();
     }
+
+    protected Consumer<? super Throwable> toastOnErrorConsumer() {
+        return (Consumer<Throwable>) throwable -> {
+            if (getActivity() != null) {
+                ToastHelper.show(getActivity(), throwable.getLocalizedMessage());
+            }
+        };
+    }
+
 
 }
 

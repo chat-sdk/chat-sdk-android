@@ -86,7 +86,7 @@ public class ProfileFragment extends BaseFragment {
             user = ChatSDK.db().fetchUserWithEntityID(savedInstanceState.getString(Keys.UserId));
         }
 
-        disposableList.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
+        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(networkEvent -> {
                     if (networkEvent.user.equals(getUser())) {
@@ -144,7 +144,7 @@ public class ProfileFragment extends BaseFragment {
     }
 
     protected void addUserMetaUpdatedEventListener() {
-        disposableList.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(networkEvent -> {
@@ -196,7 +196,7 @@ public class ProfileFragment extends BaseFragment {
     protected void block() {
         if (getUser().isMe()) return;
 
-        disposableList.add(ChatSDK.blocking().blockUser(getUser().getEntityID())
+        dm.add(ChatSDK.blocking().blockUser(getUser().getEntityID())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> {
                     updateBlockedButton(true);
@@ -211,7 +211,7 @@ public class ProfileFragment extends BaseFragment {
     protected void unblock() {
         if (getUser().isMe()) return;
 
-        disposableList.add(ChatSDK.blocking().unblockUser(getUser().getEntityID())
+        dm.add(ChatSDK.blocking().unblockUser(getUser().getEntityID())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> {
                     updateBlockedButton(false);
@@ -234,7 +234,7 @@ public class ProfileFragment extends BaseFragment {
     protected void add() {
         if (getUser().isMe()) return;
 
-        disposableList.add(ChatSDK.contact().addContact(getUser(), ConnectionType.Contact)
+        dm.add(ChatSDK.contact().addContact(getUser(), ConnectionType.Contact)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> {
                     updateFriendsButton(true);
@@ -248,7 +248,7 @@ public class ProfileFragment extends BaseFragment {
     protected void delete() {
         if (getUser().isMe()) return;
 
-        disposableList.add(ChatSDK.contact().deleteContact(getUser(), ConnectionType.Contact)
+        dm.add(ChatSDK.contact().deleteContact(getUser(), ConnectionType.Contact)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> {
                     updateFriendsButton(false);

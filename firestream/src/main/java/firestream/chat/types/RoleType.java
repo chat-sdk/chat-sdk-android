@@ -1,7 +1,11 @@
 package firestream.chat.types;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import firefly.sdk.chat.R;
 import firestream.chat.chat.User;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.namespace.Fire;
@@ -93,4 +97,70 @@ public class RoleType extends BaseType {
         return 5;
     }
 
+    public String stringValue() {
+        int resId = -1;
+
+        if (equals(RoleType.owner())) {
+            resId = R.string.owner;
+        }
+        if (equals(RoleType.admin())) {
+            resId = R.string.admin;
+        }
+        if (equals(RoleType.member())) {
+            resId = R.string.member;
+        }
+        if (equals(RoleType.watcher())) {
+            resId = R.string.watcher;
+        }
+        if (equals(RoleType.banned())) {
+            resId = R.string.banned;
+        }
+
+        if (resId != -1) {
+            return Fire.privateApi().context().getString(resId);
+        }
+        return null;
+    }
+
+    public static List<String> allStringValues() {
+        return allStringValuesExcluding();
+    }
+
+    public static List<String> allStringValuesExcluding(RoleType... excluding) {
+        ArrayList<String> strings = new ArrayList<>();
+        for (RoleType rt: allExcluding(excluding)) {
+            strings.add(rt.stringValue());
+        }
+        return strings;
+    }
+
+    public static List<RoleType> all() {
+        return allExcluding();
+    }
+
+    public static List<RoleType> allExcluding(RoleType... excluding) {
+        ArrayList<RoleType> list = new ArrayList<RoleType>() {{
+            add(RoleType.owner());
+            add(RoleType.admin());
+            add(RoleType.member());
+            add(RoleType.watcher());
+            add(RoleType.banned());
+        }};
+        for (RoleType rt: excluding) {
+            list.remove(rt);
+        }
+        return list;
+    }
+
+    public static Map<String, RoleType> reverseMap() {
+        HashMap<String, RoleType> map = new HashMap<>();
+        for (RoleType rt: all()) {
+            map.put(rt.stringValue(), rt);
+        }
+        return map;
+    }
+
+    public boolean equals(RoleType roleType) {
+        return roleType != null && get().equals(roleType.get());
+    }
 }

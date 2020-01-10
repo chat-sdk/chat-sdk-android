@@ -28,8 +28,7 @@ import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.chat.ChatActivity;
-import co.chatsdk.ui.contacts.ContactsFragment;
+import co.chatsdk.ui.users.ThreadUsersFragment;
 import co.chatsdk.ui.utils.ImagePreviewActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 
@@ -45,7 +44,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     protected SimpleDraweeView threadImageView;
     protected TextView threadNameTextView;
 
-    protected ContactsFragment contactsFragment;
+    protected ThreadUsersFragment usersFragment;
 
     protected ActionBar actionBar;
     protected MenuItem settingsItem;
@@ -116,15 +115,11 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         }
 
         // CoreThread users bundle
-        if (contactsFragment == null) {
-            contactsFragment = new ContactsFragment();
-            contactsFragment.setInflateMenu(false);
-            contactsFragment.setLoadingMode(ContactsFragment.MODE_LOAD_THREAD_USERS);
-            contactsFragment.setExtraData(thread.getEntityID());
-            contactsFragment.setClickMode(ContactsFragment.CLICK_MODE_SHOW_PROFILE);
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame_thread_users, contactsFragment).commit();
+        if (usersFragment == null) {
+            usersFragment = new ThreadUsersFragment(thread);
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame_thread_users, usersFragment).commit();
         } else {
-            contactsFragment.loadData(false);
+            usersFragment.loadData(false);
         }
     }
 
@@ -207,9 +202,9 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         }
         if (item.getItemId() == R.id.action_mute) {
             if (thread.metaValueForKey(Keys.Mute) != null) {
-                ChatSDK.thread().unmuteThread(thread).subscribe(new CrashReportingCompletableObserver());
+                ChatSDK.thread().unmute(thread).subscribe(new CrashReportingCompletableObserver());
             } else {
-                ChatSDK.thread().muteThread(thread).subscribe(new CrashReportingCompletableObserver());
+                ChatSDK.thread().mute(thread).subscribe(new CrashReportingCompletableObserver());
             }
             invalidateOptionsMenu();
         }
@@ -231,7 +226,5 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
 
         return super.onPrepareOptionsMenu(menu);
     }
-
-
 
 }

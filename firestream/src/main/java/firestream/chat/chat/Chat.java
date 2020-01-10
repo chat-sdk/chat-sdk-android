@@ -210,7 +210,7 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     @Override
-    public Completable addUsers(Boolean sendInvite, List<User> users) {
+    public Completable addUsers(Boolean sendInvite, List<? extends User> users) {
         return addUsers(Paths.chatUsersPath(id), User.roleTypeDataProvider(), users).concatWith(sendInvite ? inviteUsers(users) : Completable.complete()).doOnComplete(() -> {
             this.users.addAll(users);
         });
@@ -222,7 +222,7 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     @Override
-    public Completable updateUsers(List<User> users) {
+    public Completable updateUsers(List<? extends User> users) {
         return updateUsers(Paths.chatUsersPath(id), User.roleTypeDataProvider(), users);
     }
 
@@ -242,12 +242,12 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     @Override
-    public Completable removeUsers(List<User> user) {
-        return removeUsers(Paths.chatUsersPath(id), user);
+    public Completable removeUsers(List<? extends User> users) {
+        return removeUsers(Paths.chatUsersPath(id), users);
     }
 
     @Override
-    public Completable inviteUsers(List<User> users) {
+    public Completable inviteUsers(List<? extends User> users) {
         ArrayList<Completable> completables = new ArrayList<>();
         for (User user : users) {
             if (!user.isMe()) {
@@ -413,7 +413,7 @@ public class Chat extends AbstractChat implements IChat {
         return new Exception(Fire.privateApi().context().getString(R.string.error_member_permission_required));
     }
 
-    public static Single<Chat> create(final String name, final String imageURL, final HashMap<String, Object> data, final List<User> users) {
+    public static Single<Chat> create(final String name, final String imageURL, final HashMap<String, Object> data, final List<? extends User> users) {
 
         return Fire.Stream.getFirebaseService().chat.add(Paths.chatsPath(), Meta.from(name, imageURL, data).addTimestamp().wrap().toData()).flatMap(chatId -> {
             Chat chat = new Chat(chatId, null, new Meta(name, imageURL, data));

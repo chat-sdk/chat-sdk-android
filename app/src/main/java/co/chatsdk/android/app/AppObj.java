@@ -7,6 +7,7 @@ import androidx.multidex.MultiDexApplication;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
+import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firestream.FirestreamNetworkAdapter;
@@ -26,7 +27,7 @@ public class AppObj extends MultiDexApplication {
 
         Context context = getApplicationContext();
 
-        String rootPath = "micro_test";
+        String rootPath = "micro_test_2";
 
         try {
             Configuration config = new Configuration.Builder()
@@ -40,20 +41,21 @@ public class AppObj extends MultiDexApplication {
 
             // FireStream configuration
 
-            Config firestreamConfig = new Config();
-            try {
-                firestreamConfig.setRoot(rootPath);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            firestreamConfig.database = Config.DatabaseType.Realtime;
-            firestreamConfig.deleteMessagesOnReceipt = false;
+//            Config firestreamConfig = new Config();
+//            try {
+//                firestreamConfig.setRoot(rootPath);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            firestreamConfig.database = Config.DatabaseType.Realtime;
+//            firestreamConfig.deleteMessagesOnReceipt = false;
+//
+//            Fire.stream().initialize(context, firestreamConfig);
 
-            Fire.stream().initialize(context, firestreamConfig);
+//            ChatSDK.initialize(context, config, FirestreamNetworkAdapter.class, BaseInterfaceAdapter.class);
 
 
-            ChatSDK.initialize(context, config, FirestreamNetworkAdapter.class, BaseInterfaceAdapter.class);
-
+            ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
 
 //            AConfigurator.configure();
 

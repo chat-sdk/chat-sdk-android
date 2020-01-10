@@ -59,17 +59,17 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
     }
 
     @Override
-    public Completable addUsers(Path path, User.DataProvider dataProvider, List<User> users) {
+    public Completable addUsers(Path path, User.DataProvider dataProvider, List<? extends User> users) {
         return addBatch(path, idsForUsers(users), dataForUsers(users, dataProvider));
     }
 
     @Override
-    public Completable removeUsers(Path path, List<User> users) {
+    public Completable removeUsers(Path path, List<? extends User> users) {
         return removeBatch(path, idsForUsers(users));
     }
 
     @Override
-    public Completable updateUsers(Path path, User.DataProvider dataProvider, List<User> users) {
+    public Completable updateUsers(Path path, User.DataProvider dataProvider, List<? extends User> users) {
         return updateBatch(path, idsForUsers(users), dataForUsers(users, dataProvider));
     }
 
@@ -208,7 +208,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
         });
     }
 
-    protected List<String> idsForUsers(List<User> users) {
+    protected List<String> idsForUsers(List<? extends User> users) {
         ArrayList<String> ids = new ArrayList<>();
         for (User u: users) {
             ids.add(u.id);
@@ -216,7 +216,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
         return ids;
     }
 
-    protected List<HashMap<String, Object>> dataForUsers(List<User> users, User.DataProvider provider) {
+    protected List<HashMap<String, Object>> dataForUsers(List<? extends User> users, User.DataProvider provider) {
         ArrayList<HashMap<String, Object>> data = new ArrayList<>();
         for (User u: users) {
             data.add(provider.data(u));
