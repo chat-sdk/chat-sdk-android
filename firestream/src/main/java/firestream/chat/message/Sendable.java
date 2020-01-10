@@ -78,7 +78,7 @@ public class Sendable extends BaseMessage {
         HashMap<String, Object> data = new HashMap<>();
         data.put(Keys.From, from);
         data.put(Keys.Body, body);
-        data.put(Keys.Date, Fire.Stream.getFirebaseService().core.timestamp());
+        data.put(Keys.Date, Fire.privateApi().getFirebaseService().core.timestamp());
         data.put(Keys.Type, type);
         return data;
     }

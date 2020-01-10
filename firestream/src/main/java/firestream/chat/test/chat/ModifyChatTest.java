@@ -17,7 +17,6 @@ import firestream.chat.types.RoleType;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
 
 public class ModifyChatTest extends Test {
 
@@ -101,7 +100,7 @@ public class ModifyChatTest extends Test {
                     if (!u.isMe()) {
                         dm.add(chat.setRole(u, u.roleType).subscribe(() -> {
                             // Check the user's role
-                            if (!u.roleType.equals(chat.getRoleTypeForUser(u))) {
+                            if (!u.roleType.equals(chat.getRoleType(u))) {
                                 failure("User role updated not correct");
                             }
                         }, this));
@@ -192,7 +191,7 @@ public class ModifyChatTest extends Test {
                     User u1 = usersNotMe().get(0);
 
                     dm.add(chat.removeUser(u1).subscribe(() -> {
-                        RoleType role = chat.getRoleTypeForUser(u1);
+                        RoleType role = chat.getRoleType(u1);
                         if (role != null) {
                             failure("User removed but still exists in chat");
                         }
@@ -208,7 +207,7 @@ public class ModifyChatTest extends Test {
                         }
 
                         dm.add(chat.addUser(false, u1).subscribe(() -> {
-                            RoleType role = chat.getRoleTypeForUser(u1);
+                            RoleType role = chat.getRoleType(u1);
                             if (!role.equals(u1.roleType)) {
                                 failure("Added user has wrong role");
                             }

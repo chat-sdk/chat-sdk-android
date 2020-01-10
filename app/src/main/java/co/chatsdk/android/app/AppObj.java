@@ -27,7 +27,7 @@ public class AppObj extends MultiDexApplication {
 
         Context context = getApplicationContext();
 
-        String rootPath = "micro_test_2";
+        String rootPath = "micro_test";
 
         try {
             Configuration config = new Configuration.Builder()
@@ -41,21 +41,21 @@ public class AppObj extends MultiDexApplication {
 
             // FireStream configuration
 
-//            Config firestreamConfig = new Config();
-//            try {
-//                firestreamConfig.setRoot(rootPath);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//            firestreamConfig.database = Config.DatabaseType.Realtime;
-//            firestreamConfig.deleteMessagesOnReceipt = false;
-//
-//            Fire.stream().initialize(context, firestreamConfig);
+            Config firestreamConfig = new Config();
+            try {
+                firestreamConfig.setRoot(rootPath);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            firestreamConfig.database = Config.DatabaseType.Realtime;
+            firestreamConfig.deleteMessagesOnReceipt = false;
 
-//            ChatSDK.initialize(context, config, FirestreamNetworkAdapter.class, BaseInterfaceAdapter.class);
+            Fire.stream().initialize(context, firestreamConfig);
+
+            ChatSDK.initialize(context, config, FirestreamNetworkAdapter.class, BaseInterfaceAdapter.class);
 
 
-            ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
+//            ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
 
 //            AConfigurator.configure();
 

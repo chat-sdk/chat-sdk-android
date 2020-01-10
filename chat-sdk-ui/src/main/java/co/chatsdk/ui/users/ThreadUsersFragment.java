@@ -64,8 +64,6 @@ public class ThreadUsersFragment extends BaseFragment {
         }
     }
 
-    protected ArrayList<Option> options = new ArrayList<>();
-
     public ThreadUsersFragment(Thread thread) {
         this.thread = thread;
     }
@@ -87,18 +85,7 @@ public class ThreadUsersFragment extends BaseFragment {
                 .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
                 .subscribe(networkEvent -> loadData(true)));
 
-        // Add the click options
-        options.add(new Option(R.string.info, this::showProfile));
 
-        if (ChatSDK.thread().rolesEnabled(thread)) {
-            options.add(new Option(R.string.change_role, this::showRoleListDialog));
-        }
-
-        options.add(new Option(R.string.remove_from_group, user -> {
-            dm.add(ChatSDK.thread().removeUsersFromThread(thread, user).subscribe(() -> {
-                ToastHelper.show(getActivity(), R.string.success);
-            }, toastOnErrorConsumer()));
-        }));
 
     }
 
@@ -111,11 +98,11 @@ public class ThreadUsersFragment extends BaseFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.change_role);
 
-        final List<String> roles = ChatSDK.thread().availableRoles(thread);
+        final List<String> roles = ChatSDK.thread().availableRoles(thread, user);
         final String currentRole = ChatSDK.thread().roleForUser(thread, user);
         int checked = roles.indexOf(currentRole);
 
-        builder.setSingleChoiceItems(ChatSDK.thread().availableRoles(thread).toArray(new String[0]), checked, (dialog, which) -> {
+        builder.setSingleChoiceItems(ChatSDK.thread().availableRoles(thread, user).toArray(new String[0]), checked, (dialog, which) -> {
             String newRole = roles.get(which);
             if (!newRole.equals(currentRole)) {
                 dm.add(ChatSDK.thread().setRole(newRole, thread, user).subscribe(() -> {
@@ -128,7 +115,7 @@ public class ThreadUsersFragment extends BaseFragment {
         rolesDialog = builder.show();
     }
 
-    protected void showUserDialog(User u) {
+    protected void showUserDialog(User user) {
 
         if (userDialog != null) {
             userDialog.dismiss();
@@ -137,6 +124,8 @@ public class ThreadUsersFragment extends BaseFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if (getActivity() != null) {
 
+            List<Option> options = getOptionsForUser(user);
+
             ArrayList<String> optionStrings = new ArrayList<>();
             for (Option o: options) {
                 optionStrings.add(o.getText(getActivity()));
@@ -144,13 +133,34 @@ public class ThreadUsersFragment extends BaseFragment {
 
             builder.setTitle(getActivity().getString(R.string.actions)).setItems(optionStrings.toArray(new String[0]), (dialog, which) -> {
                 try {
-                    options.get(which).action.accept(u);
+                    options.get(which).action.accept(user);
                 } catch (Exception e) {
                     ToastHelper.show(getActivity(), e.getLocalizedMessage());
                 }
             });
         }
         userDialog = builder.show();
+    }
+
+    protected List<Option> getOptionsForUser(User user) {
+        ArrayList<Option> options = new ArrayList<>();
+
+        // Add the click options
+        options.add(new Option(R.string.info, this::showProfile));
+
+        if (ChatSDK.thread().rolesEnabled(thread) && ChatSDK.thread().availableRoles(thread, user).size() > 0) {
+            options.add(new Option(R.string.change_role, this::showRoleListDialog));
+        }
+
+        if (thread.getCreator().isMe()) {
+            options.add(new Option(R.string.remove_from_group, u -> {
+                dm.add(ChatSDK.thread().removeUsersFromThread(thread, u).subscribe(() -> {
+                    ToastHelper.show(getActivity(), R.string.success);
+                }, toastOnErrorConsumer()));
+            }));
+        }
+
+        return options;
     }
 
     protected void showProfile(User user) {
@@ -197,6 +207,9 @@ public class ThreadUsersFragment extends BaseFragment {
             if (o instanceof User) {
                 User user = (User) o;
                 onClickSubject.onNext(user);
+
+
+                List<Option> options = getOptionsForUser(user);
 
                 if (options.size() == 1) {
                     options.get(0).action.accept(user);

@@ -12,6 +12,7 @@
     <string name="error_member_permission_required">You must be a group member to perform this action</string>
     <string name="error_write_cancelled">Write cancelled</string>
     <string name="error_invalid_path">Invalid path, path can only contain letters, numbers and underscores</string>
+    <string name="error_group_must_be_empty_to_close">Remove the other users before you can delete the group</string>
 
     <string name="owner">Owner</string>
     <string name="admin">Admin</string>

@@ -127,11 +127,7 @@ public class RoleType extends BaseType {
     }
 
     public static List<String> allStringValuesExcluding(RoleType... excluding) {
-        ArrayList<String> strings = new ArrayList<>();
-        for (RoleType rt: allExcluding(excluding)) {
-            strings.add(rt.stringValue());
-        }
-        return strings;
+        return rolesToStringValues(allExcluding(excluding));
     }
 
     public static List<RoleType> all() {
@@ -152,6 +148,16 @@ public class RoleType extends BaseType {
         return list;
     }
 
+    public static List<String> rolesToStringValues(List<RoleType> roleTypes) {
+        ArrayList<String> stringValues = new ArrayList<>();
+
+        for (RoleType rt: roleTypes) {
+            stringValues.add(rt.stringValue());
+        }
+
+        return stringValues;
+    }
+
     public static Map<String, RoleType> reverseMap() {
         HashMap<String, RoleType> map = new HashMap<>();
         for (RoleType rt: all()) {
@@ -160,7 +166,8 @@ public class RoleType extends BaseType {
         return map;
     }
 
-    public boolean equals(RoleType roleType) {
-        return roleType != null && get().equals(roleType.get());
+    @Override
+    public boolean equals(Object roleType) {
+        return roleType instanceof RoleType && get().equals(((RoleType)roleType).get());
     }
 }

@@ -76,7 +76,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @return a events of errorMessage results
      */
     protected Observable<SendableEvent> messagesOn(Date newerThan) {
-        return Fire.Stream.getFirebaseService().core.messagesOn(messagesPath(), newerThan, Fire.privateApi().getConfig().messageHistoryLimit).doOnNext(event -> {
+        return Fire.privateApi().getFirebaseService().core.messagesOn(messagesPath(), newerThan, Fire.privateApi().getConfig().messageHistoryLimit).doOnNext(event -> {
             Sendable sendable = event.getSendable();
             Sendable previous = getSendable(sendable.getId());
             if (event.typeIs(EventType.Added)) {
@@ -104,7 +104,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @return a events of errorMessage results
      */
     protected Single<List<Sendable>> loadMoreMessages(@Nullable Date fromDate, @Nullable Date toDate, @Nullable Integer limit) {
-        return Fire.Stream.getFirebaseService().core
+        return Fire.privateApi().getFirebaseService().core
                 .loadMoreMessages(messagesPath(), fromDate, toDate, limit)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -128,7 +128,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @return single date
      */
     protected Single<Date> dateOfLastDeliveryReceipt() {
-        return Fire.Stream.getFirebaseService().core
+        return Fire.privateApi().getFirebaseService().core
                 .dateOfLastSentMessage(messagesPath())
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -140,7 +140,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @return events of list events
      */
     protected Observable<ListEvent> listChangeOn(Path path) {
-        return Fire.Stream.getFirebaseService().core
+        return Fire.privateApi().getFirebaseService().core
                 .listChangeOn(path)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -158,7 +158,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
          * @return single containing errorMessage id
          */
     public Completable send(Path messagesPath, Sendable sendable, @Nullable Consumer<String> newId) {
-        return Fire.Stream.getFirebaseService().core
+        return Fire.privateApi().getFirebaseService().core
                 .send(messagesPath, sendable, newId)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -170,7 +170,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @return completion
      */
     protected Completable deleteSendable (Path messagesPath) {
-        return Fire.Stream.getFirebaseService().core
+        return Fire.privateApi().getFirebaseService().core
                 .deleteSendable(messagesPath)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -203,7 +203,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @return completion
      */
     protected Completable removeUsers(Path path, List<? extends User> users) {
-        return Fire.Stream.getFirebaseService().core
+        return Fire.privateApi().getFirebaseService().core
                 .removeUsers(path, users)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -242,7 +242,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @return completion
      */
     public Completable addUsers(Path path, User.DataProvider dataProvider, List<? extends User> users) {
-        return Fire.Stream.getFirebaseService().core
+        return Fire.privateApi().getFirebaseService().core
                 .addUsers(path, dataProvider, users)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -281,7 +281,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @return completion
      */
     public Completable updateUsers(Path path, User.DataProvider dataProvider, List<? extends User> users) {
-        return Fire.Stream.getFirebaseService().core
+        return Fire.privateApi().getFirebaseService().core
                 .updateUsers(path, dataProvider, users)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());

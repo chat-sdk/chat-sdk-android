@@ -61,7 +61,7 @@ public class Meta {
     }
 
     public Meta addTimestamp() {
-        timestamp = Fire.Stream.getFirebaseService().core.timestamp();
+        timestamp = Fire.privateApi().getFirebaseService().core.timestamp();
         return this;
     }
 

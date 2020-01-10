@@ -37,7 +37,8 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
         return new RXFirestore().set(Ref.document(Paths.userGroupChatPath(chatId)), User.dateDataProvider().data(null));
     }
 
-    public Completable setMetaField(Path chatMetaPath, String key, Object value) {
+    public Completable setMetaField(String chatId, String key, Object value) {
+        Path chatMetaPath = Paths.chatMetaPath(chatId);
         chatMetaPath.normalizeForDocument();
 
         return new RXFirestore().update(Ref.document(chatMetaPath), new HashMap<String, Object>() {{
@@ -46,8 +47,8 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
     }
 
     @Override
-    public Observable<Meta> metaOn(Path path) {
-        return new RXFirestore().on(Ref.document(path)).map(snapshot -> {
+    public Observable<Meta> metaOn(String chatId) {
+        return new RXFirestore().on(Ref.document(Paths.chatPath(chatId))).map(snapshot -> {
             Meta meta = new Meta();
 
             String base = Keys.Meta + ".";
@@ -74,8 +75,13 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
     }
 
     @Override
-    public Single<String> add(Path path, HashMap<String, Object> data, @Nullable Consumer<String> newId) {
-        return new RXFirestore().add(Ref.collection(path), data, newId);
+    public Single<String> add(HashMap<String, Object> data, @Nullable Consumer<String> newId) {
+        return new RXFirestore().add(Ref.collection(Paths.chatsPath()), data, newId);
+    }
+
+    @Override
+    public Completable delete(String chatId) {
+        return new RXFirestore().delete(Ref.document(Paths.chatPath(chatId)));
     }
 
 }

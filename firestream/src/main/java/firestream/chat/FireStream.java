@@ -2,6 +2,9 @@ package firestream.chat;
 
 import android.content.Context;
 
+import androidx.annotation.IntegerRes;
+import androidx.annotation.StringRes;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -493,13 +496,16 @@ public class FireStream extends AbstractChat implements IFireStream {
         return config;
     }
 
-    @Override
     public FirebaseService getFirebaseService() {
         return firebaseService;
     }
 
     public Context context() {
         return context.get();
+    }
+
+    public Throwable getError(@StringRes int resId) {
+        return new Throwable(context().getString(resId));
     }
 
 }

@@ -35,19 +35,14 @@ public class RealtimeChatHandler extends FirebaseChatHandler {
         return new RXRealtime().set(Ref.get(Paths.userGroupChatPath(chatId)), User.dateDataProvider().data(null));
     }
 
-//    @Override
-//    public Completable updateMeta(Path chatPath, HashMap<String, Object> meta) {
-//        return new RXRealtime().update(Ref.get(chatPath), meta);
-//    }
-
     @Override
-    public Completable setMetaField(Path chatMetaPath, String key, Object value) {
-        return new RXRealtime().set(Ref.get(chatMetaPath.child(key)), value);
+    public Completable setMetaField(String chatId, String key, Object value) {
+        return new RXRealtime().set(Ref.get(Paths.chatMetaPath(chatId).child(key)), value);
     }
 
     @Override
-    public Observable<Meta> metaOn(Path path) {
-        return new RXRealtime().on(Ref.get(path)).flatMapMaybe(change -> {
+    public Observable<Meta> metaOn(String chatId) {
+        return new RXRealtime().on(Ref.get(Paths.chatPath(chatId))).flatMapMaybe(change -> {
             DataSnapshot snapshot = change.snapshot;
             if (snapshot.hasChild(Keys.Meta)) {
                 snapshot = snapshot.child(Keys.Meta);
@@ -77,7 +72,12 @@ public class RealtimeChatHandler extends FirebaseChatHandler {
     }
 
     @Override
-    public Single<String> add(Path path, HashMap<String, Object> data, @Nullable Consumer<String> newId) {
-        return new RXRealtime().add(Ref.get(path), data, newId);
+    public Single<String> add(HashMap<String, Object> data, @Nullable Consumer<String> newId) {
+        return new RXRealtime().add(Ref.get(Paths.chatsPath()), data, newId);
+    }
+
+    @Override
+    public Completable delete(String chatId) {
+        return new RXRealtime().delete(Ref.get(Paths.chatPath(chatId)));
     }
 }

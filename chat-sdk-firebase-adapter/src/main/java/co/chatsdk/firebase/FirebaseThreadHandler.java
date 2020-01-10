@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.AbstractThreadHandler;
 import co.chatsdk.core.dao.DaoCore;
@@ -29,6 +30,7 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
@@ -262,9 +264,9 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     public Completable deleteThread(Thread thread) {
-        return Single.just(thread)
-                .flatMapCompletable(theThread -> new ThreadWrapper(theThread).deleteThread())
-                .subscribeOn(Schedulers.single());
+        return Completable.defer(() -> {
+            return new ThreadWrapper(thread).deleteThread();
+        }).subscribeOn(Schedulers.single());
     }
 
     protected void pushForMessage(final Message message) {

@@ -7,12 +7,10 @@ import java.util.HashMap;
 import co.chatsdk.core.api.APIHelper;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendStatus;
 import firestream.chat.message.Sendable;
 import io.reactivex.Single;
-import io.reactivex.functions.Function;
 
 public class FirestreamHelper {
 
@@ -43,7 +41,8 @@ public class FirestreamHelper {
                 Integer type = (Integer) typeObject;
                 message.setType(type);
             }
-            return message;            });
+            return message;
+        });
     }
 
 }

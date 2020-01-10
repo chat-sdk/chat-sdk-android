@@ -23,18 +23,19 @@ public abstract class FirebaseChatHandler {
      *  - chat/meta/...
      * But in Firestore meta/... isType stored as a field on the chat document
      * So we need to link to the chat document in both cases
-     * @param chatPath path to chat document / entity
+     * @param chatId chat room id
      * @return stream of data when chat meta changes
      */
-    public abstract Observable<Meta> metaOn(Path chatPath);
+    public abstract Observable<Meta> metaOn(String chatId);
 
-//    public abstract Completable updateMeta(Path chatMetaPath, HashMap<String, Object> meta);
-    public abstract Completable setMetaField(Path chatMetaPath, String key, Object value);
+    public abstract Completable setMetaField(String chatId, String key, Object value);
 
-    public abstract Single<String> add(Path path, HashMap<String, Object> data, @Nullable Consumer<String> newId);
+    public abstract Single<String> add(HashMap<String, Object> data, @Nullable Consumer<String> newId);
 
-    public Single<String> add(Path path, HashMap<String, Object> data) {
-        return add(path, data, null);
+    public Single<String> add(HashMap<String, Object> data) {
+        return add(data, null);
     }
+
+    public abstract Completable delete(String chatId);
 
 }

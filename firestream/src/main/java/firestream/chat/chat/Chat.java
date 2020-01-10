@@ -100,8 +100,8 @@ public class Chat extends AbstractChat implements IChat {
         }));
 
         // Handle name and image change
-        dm.add(Fire.Stream.getFirebaseService().chat
-                .metaOn(path())
+        dm.add(Fire.privateApi().getFirebaseService().chat
+                .metaOn(getId())
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(newMeta -> {
@@ -130,7 +130,20 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Completable leave() {
-        return removeUser(User.currentUser()).doOnComplete(this::disconnect);
+        return Completable.defer(() -> {
+            if (getMyRoleType().equals(RoleType.owner()) && getUsers().size() > 1) {
+                if (getUsers().size() > 1) {
+                    return Completable.error(Fire.privateApi().getError(R.string.error_group_must_be_empty_to_close));
+                } else {
+                    return delete().doOnComplete(this::disconnect);
+                }
+            }
+            return removeUser(User.currentUser()).doOnComplete(this::disconnect);
+        });
+    }
+
+    protected Completable delete() {
+        return Fire.privateApi().getFirebaseService().chat.delete(getId());
     }
 
     @Override
@@ -145,7 +158,7 @@ public class Chat extends AbstractChat implements IChat {
         } else if(this.meta.getName().equals(name)) {
             return Completable.complete();
         } else {
-            return Fire.Stream.getFirebaseService().chat.setMetaField(metaPath(), Keys.Name, name).doOnComplete(() -> {
+            return Fire.privateApi().getFirebaseService().chat.setMetaField(getId(), Keys.Name, name).doOnComplete(() -> {
                 meta.setName(name);
             });
         }
@@ -163,7 +176,7 @@ public class Chat extends AbstractChat implements IChat {
         } else if (this.meta.getImageURL().equals(url)) {
             return Completable.complete();
         } else {
-            return Fire.Stream.getFirebaseService().chat.setMetaField(metaPath(), Keys.ImageURL, url).doOnComplete(() -> {
+            return Fire.privateApi().getFirebaseService().chat.setMetaField(getId(), Keys.ImageURL, url).doOnComplete(() -> {
                 meta.setImageURL(url);
             });
         }
@@ -179,7 +192,7 @@ public class Chat extends AbstractChat implements IChat {
         if (!testPermission(RoleType.admin())) {
             return Completable.error(this::adminPermissionRequired);
         } else {
-            return Fire.Stream.getFirebaseService().chat.setMetaField(metaPath(), Paths.Data, data).doOnComplete(() -> {
+            return Fire.privateApi().getFirebaseService().chat.setMetaField(getId(), Paths.Data, data).doOnComplete(() -> {
                 meta.setData(data);
             });
         }
@@ -280,13 +293,30 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     @Override
-    public RoleType getRoleTypeForUser(User theUser) {
+    public RoleType getRoleType(User theUser) {
         for (User user: users) {
             if (user.equals(theUser)) {
                 return user.roleType;
             }
         }
         return null;
+    }
+
+    @Override
+    public List<RoleType> getAvailableRoles(User user) {
+        // We can't set our own role and only admins and higher can set a role
+        if (!user.isMe() && testPermission(RoleType.admin())) {
+            // The owner can set users to any role apart from owner
+            if (testPermission(RoleType.owner())) {
+                return RoleType.allExcluding(RoleType.owner());
+            }
+            // Admins can set the role type of non-admin users. They can't create or
+            // destroy admins, only the owner can do that
+            if (!user.roleType.equals(RoleType.admin())) {
+                return RoleType.allExcluding(RoleType.owner(), RoleType.admin());
+            }
+        }
+        return new ArrayList<>();
     }
 
     @Override
@@ -373,7 +403,7 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     protected RoleType getMyRoleType() {
-        return getRoleTypeForUser(Fire.Stream.currentUser());
+        return getRoleType(Fire.Stream.currentUser());
     }
 
     @Override
@@ -415,7 +445,7 @@ public class Chat extends AbstractChat implements IChat {
 
     public static Single<Chat> create(final String name, final String imageURL, final HashMap<String, Object> data, final List<? extends User> users) {
 
-        return Fire.Stream.getFirebaseService().chat.add(Paths.chatsPath(), Meta.from(name, imageURL, data).addTimestamp().wrap().toData()).flatMap(chatId -> {
+        return Fire.privateApi().getFirebaseService().chat.add(Meta.from(name, imageURL, data).addTimestamp().wrap().toData()).flatMap(chatId -> {
             Chat chat = new Chat(chatId, null, new Meta(name, imageURL, data));
 
             ArrayList<User> usersToAdd = new ArrayList<>(users);

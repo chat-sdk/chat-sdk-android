@@ -1,9 +1,5 @@
 package co.chatsdk.firestream;
 
-import com.google.firebase.database.DatabaseReference;
-
-import org.reactivestreams.Publisher;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,22 +15,14 @@ import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.firebase.FirebasePaths;
-import co.chatsdk.firebase.FirebaseThreadHandler;
-import co.chatsdk.firebase.wrappers.MessageWrapper;
-import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firefly.R;
-import firestream.chat.chat.Chat;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.message.Sendable;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import firestream.chat.namespace.FireStreamUser;
@@ -214,15 +202,18 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         if (rolesEnabled(thread)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
-                return chat.getRoleTypeForUser(new FireStreamUser(user.getEntityID())).stringValue();
+                return chat.getRoleType(new FireStreamUser(user.getEntityID())).stringValue();
             }
         }
         return null;
     }
 
-    public List<String> availableRoles(Thread thread) {
+    public List<String> availableRoles(Thread thread, User user) {
         if (rolesEnabled(thread)) {
-            return RoleType.allStringValuesExcluding(RoleType.owner());
+            IChat chat = Fire.stream().getChat(thread.getEntityID());
+            if (chat != null) {
+                return RoleType.rolesToStringValues(chat.getAvailableRoles(new FireStreamUser(user.getEntityID())));
+            }
         }
         return new ArrayList<>();
     }
@@ -271,7 +262,14 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     public Completable addUsersToThread(final Thread thread, final List<User> users) {
         return Completable.defer(() -> {
             if (thread.typeIs(ThreadType.PrivateGroup)) {
-
+                IChat chat = Fire.stream().getChat(thread.getEntityID());
+                if (chat != null) {
+                    ArrayList<FireStreamUser> usersToAdd = new ArrayList<>();
+                    for (User user: users) {
+                        usersToAdd.add(new FireStreamUser(user.getEntityID(), RoleType.member()));
+                    }
+                    return chat.addUsers(true, usersToAdd);
+                }
             }
             return Completable.complete();
         });
@@ -279,7 +277,18 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
 
     @Override
     public Completable deleteThread(Thread thread) {
-        return null;
+        return Completable.defer(() -> {
+            if (thread.typeIs(ThreadType.Private1to1)) {
+                return super.deleteThread(thread);
+            }
+            if (thread.typeIs(ThreadType.PrivateGroup)) {
+                IChat chat = Fire.stream().getChat(thread.getEntityID());
+                if (chat != null) {
+                    return chat.leave().concatWith(super.deleteThread(thread));
+                }
+            }
+            return Completable.complete();
+        });
     }
 
     @Override

@@ -55,7 +55,7 @@ public class User {
     public static DataProvider dateDataProvider() {
         return user -> {
             HashMap<String, Object> data = new HashMap<>();
-            data.put(Keys.Date, Fire.Stream.getFirebaseService().core.timestamp());
+            data.put(Keys.Date, Fire.privateApi().getFirebaseService().core.timestamp());
             return data;
         };
     }

@@ -47,7 +47,6 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     protected ThreadUsersFragment usersFragment;
 
     protected ActionBar actionBar;
-    protected MenuItem settingsItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,6 +188,11 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         if (!thread.getCreatorEntityId().equals(ChatSDK.currentUserID()) || thread.typeIs(ThreadType.Private1to1)) {
             menu.removeItem(R.id.action_edit);
         }
+
+        if (!ChatSDK.thread().muteEnabled(thread)) {
+            menu.removeItem(R.id.action_mute);
+        }
+
         return true;
     }
 
@@ -215,13 +219,15 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.findItem(R.id.action_mute);
 
-        String muteText = getApplicationContext().getString(R.string.mute_notifications);
-        String unmuteText = getApplicationContext().getString(R.string.unmute_notifications);
+        if (item != null) {
+            String muteText = getApplicationContext().getString(R.string.mute_notifications);
+            String unmuteText = getApplicationContext().getString(R.string.unmute_notifications);
 
-        if (thread.metaValueForKey(Keys.Mute) != null) {
-            item.setTitle(unmuteText);
-        } else {
-            item.setTitle(muteText);
+            if (thread.metaValueForKey(Keys.Mute) != null) {
+                item.setTitle(unmuteText);
+            } else {
+                item.setTitle(muteText);
+            }
         }
 
         return super.onPrepareOptionsMenu(menu);

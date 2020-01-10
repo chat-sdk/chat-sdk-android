@@ -44,13 +44,6 @@ public interface IFireStream extends IAbstractChat {
      */
     String currentUserId();
 
-    /**
-     * Get the Firebase service that will handle read and write operations
-     * this could either be Firestore or the Realtime database
-     * @return firebase service
-     */
-    FirebaseService getFirebaseService();
-
     // Messages
 
     /**
