@@ -50,6 +50,8 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.notifications.NotificationDisplayHandler;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.AppBackgroundMonitor;
+import co.chatsdk.core.utils.CrashReporter;
+import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
@@ -69,6 +71,8 @@ public class ChatSDK {
     protected InterfaceAdapter interfaceAdapter;
     protected StorageManager storageManager;
     protected BaseNetworkAdapter networkAdapter;
+
+    protected CrashReportingCompletableObserver crashReporter = ChatSDK.shared().getCrashReporter();
 
     protected LocationProvider locationProvider;
 
@@ -322,6 +326,14 @@ public class ChatSDK {
 
     public static StorageManager db () {
         return shared().storageManager;
+    }
+
+    public void setCrashReporter(CrashReportingCompletableObserver crashReporter) {
+        this.crashReporter = crashReporter;
+    }
+
+    public CrashReportingCompletableObserver getCrashReporter() {
+        return crashReporter;
     }
 
 }

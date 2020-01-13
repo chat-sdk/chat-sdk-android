@@ -148,10 +148,10 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             if (ChatSDK.hook() != null) {
                 HashMap<String, Object> data = new HashMap<>();
                 data.put(HookEvent.User, userWrapper.getModel());
-                ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(new CrashReportingCompletableObserver());
+                ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(ChatSDK.shared().getCrashReporter());
             }
 
-            ChatSDK.core().setUserOnline().subscribe(new CrashReportingCompletableObserver());
+            ChatSDK.core().setUserOnline().subscribe(ChatSDK.shared().getCrashReporter());
 
             authenticatedThisSession = true;
 

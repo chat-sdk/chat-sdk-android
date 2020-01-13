@@ -41,7 +41,7 @@ public class MessagingService extends IntentService {
 
             if (results != null) {
                 String message = results.getString(REMOTE_INPUT_RESULT_KEY);
-                ChatSDK.thread().sendMessageWithText(message, thread).subscribe(new CrashReportingCompletableObserver());
+                ChatSDK.thread().sendMessageWithText(message, thread).subscribe(ChatSDK.shared().getCrashReporter());
             }
         }
         if (action != null && action.equals(ActionKeys.MARK_AS_READ)) {

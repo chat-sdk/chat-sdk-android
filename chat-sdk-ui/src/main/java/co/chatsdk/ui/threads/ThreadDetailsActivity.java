@@ -206,9 +206,9 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         }
         if (item.getItemId() == R.id.action_mute) {
             if (thread.metaValueForKey(Keys.Mute) != null) {
-                ChatSDK.thread().unmute(thread).subscribe(new CrashReportingCompletableObserver());
+                ChatSDK.thread().unmuteThread(thread).subscribe(ChatSDK.shared().getCrashReporter());
             } else {
-                ChatSDK.thread().mute(thread).subscribe(new CrashReportingCompletableObserver());
+                ChatSDK.thread().muteThread(thread).subscribe(ChatSDK.shared().getCrashReporter());
             }
             invalidateOptionsMenu();
         }

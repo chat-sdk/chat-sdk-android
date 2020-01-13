@@ -163,7 +163,7 @@ public class ThreadWrapper  {
                 if(hasValue) {
                     MessageWrapper message = new MessageWrapper(snapshot);
                     this.model.removeMessage(message.getModel());
-//                    updateLastMessage().subscribe(new CrashReportingCompletableObserver());
+//                    updateLastMessage().subscribe(ChatSDK.shared().getCrashReporter());
                     e.onNext(message.getModel());
                 }
             }));
@@ -230,7 +230,7 @@ public class ThreadWrapper  {
                         HashMap<String, Object> data = new HashMap<>();
                         data.put(HookEvent.Message, message.getModel());
                         data.put(HookEvent.IsNew_Boolean, newMessage);
-                        ChatSDK.hook().executeHook(HookEvent.MessageReceived, data).subscribe(new CrashReportingCompletableObserver());;
+                        ChatSDK.hook().executeHook(HookEvent.MessageReceived, data).subscribe(ChatSDK.shared().getCrashReporter());;
                     }
 
                     // If we remove this, then the thread will update twice for each text.
@@ -241,7 +241,7 @@ public class ThreadWrapper  {
                         emitter.onNext(message.getModel());
                     }
 
-                    message.markAsReceived().subscribe(new CrashReportingCompletableObserver());
+                    message.markAsReceived().subscribe(ChatSDK.shared().getCrashReporter());
                     updateReadReceipts(message.getModel());
                 }
             }));
@@ -529,7 +529,7 @@ public class ThreadWrapper  {
 
             ref.updateChildren(serialize(), (databaseError, databaseReference) -> {
                 if (databaseError == null) {
-                    FirebaseEntity.pushThreadDetailsUpdated(model.getEntityID()).subscribe(new CrashReportingCompletableObserver());
+                    FirebaseEntity.pushThreadDetailsUpdated(model.getEntityID()).subscribe(ChatSDK.shared().getCrashReporter());
                     e.onComplete();
                 }
                 else {

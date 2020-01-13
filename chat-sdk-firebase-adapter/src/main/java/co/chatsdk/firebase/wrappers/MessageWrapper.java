@@ -225,7 +225,7 @@ public class MessageWrapper  {
                 if (firebaseError == null) {
                     HashMap<String, Object> data = new HashMap<>();
                     data.put(HookEvent.Message, model);
-                    ChatSDK.hook().executeHook(HookEvent.MessageSent, data).subscribe(new CrashReportingCompletableObserver());;
+                    ChatSDK.hook().executeHook(HookEvent.MessageSent, data).subscribe(ChatSDK.shared().getCrashReporter());;
                     e.onComplete();
                 } else {
                     e.onError(firebaseError.toException());
