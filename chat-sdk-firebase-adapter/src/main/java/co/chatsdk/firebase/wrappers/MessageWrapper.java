@@ -15,7 +15,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -279,7 +278,7 @@ public class MessageWrapper  {
     }
     
     private DatabaseReference ref() {
-        if (StringUtils.isNotEmpty(model.getEntityID())) {
+        if (model.getEntityID() != null && !model.getEntityID().isEmpty()) {
             return FirebasePaths.threadMessagesRef(model.getThread().getEntityID()).child(model.getEntityID());
         }
         else {

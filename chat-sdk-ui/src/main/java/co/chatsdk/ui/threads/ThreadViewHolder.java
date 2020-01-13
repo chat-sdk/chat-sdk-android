@@ -42,6 +42,4 @@ public class ThreadViewHolder extends RecyclerView.ViewHolder {
     }
 
 
-
-
 }

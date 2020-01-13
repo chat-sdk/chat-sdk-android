@@ -2,8 +2,6 @@ package co.chatsdk.core.utils;
 
 import android.content.Context;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -49,7 +47,7 @@ public class Strings {
         if (thread == null) return null;
 
         String displayName = thread.getDisplayName();
-        if (StringUtils.isNotEmpty(displayName)) {
+        if (displayName != null && !displayName.isEmpty()) {
             return displayName;
         }
 
@@ -63,7 +61,7 @@ public class Strings {
                 if (!user.getId().equals(currentUser.getId())) {
                     String n = user.getName();
 
-                    if (StringUtils.isNotEmpty(n)) {
+                    if (n != null && !n.isEmpty()) {
                         name += (!name.equals("") ? ", " : "") + n;
                     }
                 }

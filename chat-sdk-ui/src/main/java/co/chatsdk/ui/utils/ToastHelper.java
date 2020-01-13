@@ -4,8 +4,6 @@ import android.content.Context;
 import androidx.annotation.StringRes;
 import android.widget.Toast;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * Created by ben on 9/8/17.
  */
@@ -13,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 public class ToastHelper {
 
     public static void show(Context context, String text) {
-        if(!StringUtils.isEmpty(text)) {
+        if(text != null && !text.isEmpty()) {
             Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
         }
     }

@@ -25,7 +25,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class ImageBuilder {
 
-    // TODO: Localize
     public static Single<Bitmap> bitmapForURL (final Context context, final String url) {
         return Single.create((SingleOnSubscribe<Bitmap>) e -> {
             if(!StringChecker.isNullOrEmpty(url)) {
@@ -33,6 +32,7 @@ public class ImageBuilder {
                 ImageRequest request = ImageRequestBuilder
                         .newBuilderWithSource(uri)
                         .build();
+
                 ImagePipeline pipeline = Fresco.getImagePipeline();
                 DataSource dataSource = pipeline.fetchDecodedImage(request, context);
                 dataSource.subscribe(new BaseBitmapDataSubscriber() {
@@ -50,7 +50,7 @@ public class ImageBuilder {
                 }, CallerThreadExecutor.getInstance());
             }
             else {
-                e.onError(new Throwable("Unable to load image"));
+                e.onError(new Throwable(context.getString(R.string.unable_to_load_image)));
             }
         }).subscribeOn(AndroidSchedulers.mainThread());
     }

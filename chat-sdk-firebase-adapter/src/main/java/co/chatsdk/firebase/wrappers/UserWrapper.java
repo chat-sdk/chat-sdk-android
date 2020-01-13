@@ -18,8 +18,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -339,10 +337,6 @@ public class UserWrapper {
         Completable c2 = FirebaseRX.set(FirebasePaths.onlineRef(model.getEntityID()), map, true);
 
         return Completable.merge(Arrays.asList(c1, c2));
-    }
-
-    public static String processForQuery(String query){
-        return StringUtils.isBlank(query) ? "" : query.replace(" ", "").toLowerCase();
     }
 
     public User getModel () {

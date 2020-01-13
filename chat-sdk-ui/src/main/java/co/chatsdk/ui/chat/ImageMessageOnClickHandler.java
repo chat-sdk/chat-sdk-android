@@ -14,8 +14,6 @@ import android.widget.ProgressBar;
 
 import com.github.chrisbanes.photoview.PhotoView;
 
-import org.apache.commons.lang3.StringUtils;
-
 import co.chatsdk.core.utils.ImageBuilder;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
@@ -34,7 +32,7 @@ public class ImageMessageOnClickHandler {
     public static void onClick (Activity activity, View view, String url) {
         BaseActivity.hideKeyboard(activity);
 
-        if (StringUtils.isNotBlank(url)) {
+        if (!url.replace(" ", "").isEmpty()) {
 
             LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View popupView = inflater.inflate(R.layout.popup_image, null);

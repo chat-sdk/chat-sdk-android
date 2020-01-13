@@ -14,7 +14,7 @@ public class CrashReporter {
     private WeakReference<DisposableList> list;
 
     public CrashReporter (DisposableList list) {
-        this.list = new WeakReference<DisposableList>(list);
+        this.list = new WeakReference<>(list);
     }
 
     public CrashReporter () {}

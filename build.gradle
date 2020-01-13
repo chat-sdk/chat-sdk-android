@@ -46,7 +46,6 @@ ext {
     gsonVersion = "2.8.5"
     jodaTimeVersion = "2.10.1"
     jodaConvertVersion = "2.2.0"
-    apacheCommonsVersion = "3.8.1"
     compressorVersion = "2.1.0"
     okHttpVersion = "3.11.0"
     facebookLoginVersion = "4.38.1"

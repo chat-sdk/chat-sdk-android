@@ -114,7 +114,7 @@ public class ThreadImageBuilder {
         }
     }
 
-    public static Uri defaultBitmapUri (Context context, Thread thread) {
+    public static Uri defaultBitmapUri (Thread thread) {
         return new Uri.Builder()
                 .scheme(UriUtil.LOCAL_RESOURCE_SCHEME) // "res"
                 .path(String.valueOf(defaultBitmapResId(thread)))

@@ -56,7 +56,6 @@ dependencies {
     api "com.jakewharton.timber:timber:$timberVersion"
     api "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
     api "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-    api "org.apache.commons:commons-lang3:$apacheCommonsVersion"
     api "com.facebook.fresco:fresco:$frescoVersion"
     api "id.zelory:compressor:$compressorVersion"
 

@@ -13,6 +13,7 @@ import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firestream.FirestreamNetworkAdapter;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import co.chatsdk.ui.threads.chatkit.PrivateChatKitThreadsFragment;
 import firestream.chat.Config;
 import firestream.chat.namespace.Fire;
 
@@ -53,6 +54,8 @@ public class AppObj extends MultiDexApplication {
             Fire.stream().initialize(context, firestreamConfig);
 
             ChatSDK.initialize(context, config, FirestreamNetworkAdapter.class, BaseInterfaceAdapter.class);
+
+            ChatSDK.ui().setPrivateThreadsFragment(new PrivateChatKitThreadsFragment());
 
 
 //            ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);

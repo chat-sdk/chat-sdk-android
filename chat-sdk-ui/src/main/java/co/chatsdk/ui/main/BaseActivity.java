@@ -30,8 +30,6 @@ import android.widget.EditText;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

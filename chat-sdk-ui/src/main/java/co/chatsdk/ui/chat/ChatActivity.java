@@ -28,7 +28,6 @@ import android.widget.TextView;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.leinardi.android.speeddial.SpeedDialView;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ocpsoft.prettytime.PrettyTime;
 
 import java.util.Date;
@@ -423,7 +422,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
      */
     public void sendMessage(String text, boolean clearEditText) {
 
-        if (StringUtils.isEmpty(text) || StringUtils.isBlank(text)) {
+        if (text == null || text.isEmpty() || text.replace(" ", "").isEmpty()) {
             return;
         }
 

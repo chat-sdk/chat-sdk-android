@@ -15,8 +15,6 @@ import android.widget.Toast;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.mukesh.countrypicker.CountryPicker;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.Locale;
@@ -148,14 +146,14 @@ public class EditProfileActivity extends BaseActivity {
 
         avatarImageView.setImageURI(currentUser.getAvatarURL());
 
-        if (StringUtils.isNotEmpty(countryCode)) {
+        if (countryCode != null && !countryCode.isEmpty()) {
             Locale l = new Locale("", countryCode);
             countryButton.setText(l.getDisplayCountry());
         }
 
         statusEditText.setText(status);
 
-        if (!StringUtils.isEmpty(availability)) {
+        if (availability != null && !availability.isEmpty()) {
             setAvailability(availability);
         }
 

@@ -1,7 +1,5 @@
 package co.chatsdk.core.base;
 
-import org.apache.commons.lang3.StringUtils;
-
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.CoreHandler;
@@ -19,7 +17,7 @@ public abstract class AbstractCoreHandler implements CoreHandler {
         String entityID = ChatSDK.auth().getCurrentUserEntityID();
 
         if(cachedUser == null || !cachedUser.equalsEntityID(entityID)) {
-            if (StringUtils.isNotEmpty(entityID)) {
+            if (entityID != null && !entityID.isEmpty()) {
                 cachedUser = DaoCore.fetchEntityWithEntityID(User.class, entityID);
             }
             else {

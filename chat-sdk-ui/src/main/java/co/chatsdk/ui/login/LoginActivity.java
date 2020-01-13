@@ -26,8 +26,6 @@ import android.widget.Toast;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
-import org.apache.commons.lang3.StringUtils;
-
 import androidx.constraintlayout.widget.ConstraintLayout;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.AccountDetails;
@@ -298,7 +296,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     public void toastErrorMessage(Throwable error, boolean login){
         String errorMessage = "";
 
-        if (StringUtils.isNotBlank(error.getMessage())) {
+        if (!error.getMessage().replace(" ", "").isEmpty()) {
             errorMessage = error.getMessage();
         }
         else if (login) {

@@ -8,8 +8,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
@@ -101,7 +99,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     public Completable setUserOnline() {
 
         User current = ChatSDK.currentUser();
-        if (current != null && StringUtils.isNotEmpty(current.getEntityID())) {
+        if (current != null && !current.getEntityID().isEmpty()) {
             return UserWrapper.initWithModel(currentUserModel()).goOnline();
         }
         if (ChatSDK.hook() != null) {
@@ -119,7 +117,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             completable = ChatSDK.hook().executeHook(HookEvent.UserWillDisconnect, null);
         }
 
-        if (current != null && StringUtils.isNotEmpty(current.getEntityID())) {
+        if (current != null && !current.getEntityID().isEmpty()) {
             // Update the last online figure then go offline
             return completable.concatWith(updateLastOnline()
                     .concatWith(UserWrapper.initWithModel(currentUserModel()).goOffline()));
