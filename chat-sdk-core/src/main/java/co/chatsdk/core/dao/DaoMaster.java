@@ -24,14 +24,14 @@ public class DaoMaster extends AbstractDaoMaster {
         MessageDao.createTable(db, ifNotExists);
         UserThreadLinkDao.createTable(db, ifNotExists);
         UserDao.createTable(db, ifNotExists);
-        LinkedAccountDao.createTable(db, ifNotExists);
         ThreadMetaValueDao.createTable(db, ifNotExists);
-        FollowerLinkDao.createTable(db, ifNotExists);
         MessageMetaValueDao.createTable(db, ifNotExists);
         ContactLinkDao.createTable(db, ifNotExists);
         ThreadDao.createTable(db, ifNotExists);
         UserMetaValueDao.createTable(db, ifNotExists);
         ReadReceiptUserLinkDao.createTable(db, ifNotExists);
+        FollowerLinkDao.createTable(db, ifNotExists);
+        LinkedAccountDao.createTable(db, ifNotExists);
     }
 
     /** Drops underlying database table using DAOs. */
@@ -39,14 +39,14 @@ public class DaoMaster extends AbstractDaoMaster {
         MessageDao.dropTable(db, ifExists);
         UserThreadLinkDao.dropTable(db, ifExists);
         UserDao.dropTable(db, ifExists);
-        LinkedAccountDao.dropTable(db, ifExists);
         ThreadMetaValueDao.dropTable(db, ifExists);
-        FollowerLinkDao.dropTable(db, ifExists);
         MessageMetaValueDao.dropTable(db, ifExists);
         ContactLinkDao.dropTable(db, ifExists);
         ThreadDao.dropTable(db, ifExists);
         UserMetaValueDao.dropTable(db, ifExists);
         ReadReceiptUserLinkDao.dropTable(db, ifExists);
+        FollowerLinkDao.dropTable(db, ifExists);
+        LinkedAccountDao.dropTable(db, ifExists);
     }
 
     /**
@@ -68,14 +68,14 @@ public class DaoMaster extends AbstractDaoMaster {
         registerDaoClass(MessageDao.class);
         registerDaoClass(UserThreadLinkDao.class);
         registerDaoClass(UserDao.class);
-        registerDaoClass(LinkedAccountDao.class);
         registerDaoClass(ThreadMetaValueDao.class);
-        registerDaoClass(FollowerLinkDao.class);
         registerDaoClass(MessageMetaValueDao.class);
         registerDaoClass(ContactLinkDao.class);
         registerDaoClass(ThreadDao.class);
         registerDaoClass(UserMetaValueDao.class);
         registerDaoClass(ReadReceiptUserLinkDao.class);
+        registerDaoClass(FollowerLinkDao.class);
+        registerDaoClass(LinkedAccountDao.class);
     }
 
     public DaoSession newSession() {

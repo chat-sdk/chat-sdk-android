@@ -28,7 +28,6 @@ import android.widget.TextView;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.leinardi.android.speeddial.SpeedDialView;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ocpsoft.prettytime.PrettyTime;
 
 import java.util.Date;
@@ -310,7 +309,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                         .doFinally(() -> mSwipeRefresh.setRefreshing(false))
                         .subscribeOn(AndroidSchedulers.mainThread())
                         .doOnError(toastOnErrorConsumer())
-                        .subscribe(new CrashReportingCompletableObserver());
+                        .subscribe(ChatSDK.shared().getCrashReporter());
             } else {
                 mSwipeRefresh.setRefreshing(false);
             }
@@ -352,7 +351,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 // Only load more messages if we are scrolling up
                 // Also only do this when we are scroling slowly...
 //                if (dy < 0 && Math.abs(dy) < 20 && firstVisible < 5) {
-//                    loadMoreMessages(false, true, true).subscribe(new CrashReportingCompletableObserver());
+//                    loadMoreMessages(false, true, true).subscribe(ChatSDK.shared().getCrashReporter());
 //                }
 
             }
@@ -423,7 +422,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
      */
     public void sendMessage(String text, boolean clearEditText) {
 
-        if (StringUtils.isEmpty(text) || StringUtils.isBlank(text)) {
+        if (text == null || text.isEmpty() || text.replace(" ", "").isEmpty()) {
             return;
         }
 
@@ -441,7 +440,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         completable.observeOn(AndroidSchedulers.mainThread()).doOnError(throwable -> {
             ChatSDK.logError(throwable);
             ToastHelper.show(getApplicationContext(), throwable.getLocalizedMessage());
-        }).subscribe(new CrashReportingCompletableObserver());
+        }).subscribe(ChatSDK.shared().getCrashReporter());
     }
 
     @Override
@@ -573,7 +572,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         markRead();
 
         if (thread != null && thread.typeIs(ThreadType.Public) && (removeUserFromChatOnExit || thread.metaValueForKey(Keys.Mute) != null)) {
-            ChatSDK.thread().removeUsersFromThread(thread, ChatSDK.currentUser()).observeOn(AndroidSchedulers.mainThread()).subscribe(new CrashReportingCompletableObserver());
+            ChatSDK.thread().removeUsersFromThread(thread, ChatSDK.currentUser()).observeOn(AndroidSchedulers.mainThread()).subscribe(ChatSDK.shared().getCrashReporter());
         }
     }
 

@@ -51,7 +51,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         if(ChatSDK.hook() != null) {
             HashMap<String, Object> data = new HashMap<>();
             data.put(HookEvent.User, user);
-            ChatSDK.hook().executeHook(HookEvent.UserOn, data).subscribe(new CrashReportingCompletableObserver());;
+            ChatSDK.hook().executeHook(HookEvent.UserOn, data).subscribe(ChatSDK.shared().getCrashReporter());;
         }
 
         threadsOn(user);
@@ -113,7 +113,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
             // there's an edge case where the user could kill the app and remain
             // a member of a public thread
             if (!ChatSDK.config().publicChatAutoSubscriptionEnabled) {
-                ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).subscribe(new CrashReportingCompletableObserver());
+                ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).subscribe(ChatSDK.shared().getCrashReporter());
             }
 
             // Starting to listen to thread changes.

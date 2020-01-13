@@ -107,7 +107,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             return UserWrapper.initWithModel(currentUserModel()).goOnline();
         }
         if (ChatSDK.hook() != null) {
-            ChatSDK.hook().executeHook(HookEvent.UserDidConnect, null).subscribe(new CrashReportingCompletableObserver());;
+            ChatSDK.hook().executeHook(HookEvent.UserDidConnect, null).subscribe(ChatSDK.shared().getCrashReporter());;
         }
 
         return Completable.complete();

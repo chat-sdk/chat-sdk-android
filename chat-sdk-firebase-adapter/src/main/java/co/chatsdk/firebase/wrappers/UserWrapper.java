@@ -258,12 +258,12 @@ public class UserWrapper {
 
             final DatabaseReference ref = ref();
 
-            updateFirebaseUser().subscribe(new CrashReportingCompletableObserver());
+            updateFirebaseUser().subscribe(ChatSDK.shared().getCrashReporter());
 
             ref.updateChildren(serialize(), (firebaseError, firebase) -> {
                 if (firebaseError == null) {
                     // index should be updated whenever the user is pushed
-                    FirebaseEntity.pushUserMetaUpdated(model.getEntityID()).subscribe(new CrashReportingCompletableObserver());
+                    FirebaseEntity.pushUserMetaUpdated(model.getEntityID()).subscribe(ChatSDK.shared().getCrashReporter());
 
                     ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(model));
 

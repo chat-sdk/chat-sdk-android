@@ -78,7 +78,7 @@ public class FirestoreEventHandler extends FirebaseEventHandler implements Consu
                                 finalThread.setCreator(user);
                             }
                             finalThread.addUser(user);
-                            ChatSDK.core().userOn(user).subscribe(new CrashReportingCompletableObserver());
+                            ChatSDK.core().userOn(user).subscribe(ChatSDK.shared().getCrashReporter());
                             eventSource.onNext(NetworkEvent.threadUsersChanged(finalThread, user));
                         }, this));
                     }
