@@ -45,11 +45,6 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
             thread.setEntityID(entityID);
             thread.setImageUrl(imageURL);
 
-            // Add the path and API key
-            // This allows you to restrict public threads to a particular
-            // API key or root key
-            thread.setRootKey(ChatSDK.config().firebaseRootPath);
-
             ChatSDK.db().insertOrReplaceEntity(thread);
 
             if (meta != null) {

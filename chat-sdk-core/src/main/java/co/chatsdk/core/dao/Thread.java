@@ -41,8 +41,6 @@ public class Thread extends AbstractEntity {
     private String name;
     private Integer type;
     private String imageUrl;
-    private String rootKey;
-    private String apiKey; // TODO: Delete this
     private Long creatorId;
     
     @ToOne(joinProperty = "creatorId")
@@ -77,9 +75,9 @@ public class Thread extends AbstractEntity {
         this.id = id;
     }
 
-    @Generated(hash = 1046537177)
+    @Generated(hash = 156020701)
     public Thread(Long id, String entityID, Date creationDate, Boolean hasUnreadMessages, Boolean deleted, String name, Integer type,
-            String imageUrl, String rootKey, String apiKey, Long creatorId) {
+            String imageUrl, Long creatorId) {
         this.id = id;
         this.entityID = entityID;
         this.creationDate = creationDate;
@@ -88,8 +86,6 @@ public class Thread extends AbstractEntity {
         this.name = name;
         this.type = type;
         this.imageUrl = imageUrl;
-        this.rootKey = rootKey;
-        this.apiKey = apiKey;
         this.creatorId = creatorId;
     }
 
@@ -461,22 +457,6 @@ public class Thread extends AbstractEntity {
         if (creator != null) {
             this.creator = creator;
         }
-    }
-
-    public String getRootKey() {
-        return this.rootKey;
-    }
-
-    public void setRootKey(String rootKey) {
-        this.rootKey = rootKey;
-    }
-
-    public String getApiKey() {
-        return this.apiKey;
-    }
-
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
     }
 
     public Message lastMessage () {

@@ -52,6 +52,8 @@ dependencies {
     implementation "com.zhihu.android:matisse:$matisseVersion"
     implementation "com.leinardi.android:speed-dial:$speedDial"
 
+    implementation "com.github.stfalcon:chatkit:$chatKit"
+
     // Dependencies required by other Chat SDK libraries
     api "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
     api "com.google.android.material:material:$materialVersion"
