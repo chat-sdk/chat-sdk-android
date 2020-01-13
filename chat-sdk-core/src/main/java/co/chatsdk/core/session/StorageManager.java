@@ -15,7 +15,6 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.UserThreadLink;
 import co.chatsdk.core.dao.UserThreadLinkDao;
 import co.chatsdk.core.interfaces.CoreEntity;
-import timber.log.Timber;
 
 import static co.chatsdk.core.dao.DaoCore.daoSession;
 import static co.chatsdk.core.dao.DaoCore.fetchEntityWithProperty;
@@ -26,7 +25,7 @@ import static co.chatsdk.core.dao.DaoCore.fetchEntityWithProperty;
 
 public class StorageManager {
 
-    public List<Thread> fetchThreadsForUserWithID (Long userId) {
+    public List<Thread> fetchThreadsForCurrentUser() {
         List<Thread> threads = new ArrayList<>();
 
         List<UserThreadLink> links = DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.UserId, ChatSDK.currentUser().getId());
@@ -48,18 +47,9 @@ public class StorageManager {
 
         T entity = DaoCore.fetchEntityWithEntityID(c, entityId);
 //
-        if (entity == null)
-        {
+        if (entity == null) {
             entity = DaoCore.getEntityForClass(c);
-
-            if(entityId instanceof String) {
-                entity.setEntityID(entityId);
-            }
-            else {
-                entity.setEntityID(entityId.toString());
-                Timber.v("ERROR!!! The entity must always be a string");
-            }
-
+            entity.setEntityID(entityId);
             entity = DaoCore.createEntity(entity);
         }
 
@@ -68,6 +58,11 @@ public class StorageManager {
 
     public <T extends CoreEntity> T createEntity (Class<T> c) {
         T entity = DaoCore.getEntityForClass(c);
+        DaoCore.createEntity(entity);
+        return entity;
+    }
+
+    public <T extends CoreEntity> T insertOrReplaceEntity (T entity) {
         DaoCore.createEntity(entity);
         return entity;
     }
@@ -114,10 +109,9 @@ public class StorageManager {
         return threads;
     }
 
-
-    public List<Message> fetchMessagesForThreadWithID (long threadID, int limit) {
-        return fetchMessagesForThreadWithID(threadID, limit, null);
-    }
+//    public List<Message> fetchMessagesForThreadWithID (long threadID, int limit) {
+//        return fetchMessagesForThreadWithID(threadID, limit, null);
+//    }
 
     public List<Message> fetchMessagesForThreadWithID (long threadID, int limit, Date olderThan) {
 

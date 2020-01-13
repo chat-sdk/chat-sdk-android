@@ -53,11 +53,12 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                 // Get the thread
                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(chat.getId());
                 if (thread == null) {
-                    thread = DaoCore.getEntityForClass(Thread.class);
-                    DaoCore.createEntity(thread);
+                    thread = new Thread();
                     thread.setEntityID(chat.getId());
                     thread.setType(ThreadType.PrivateGroup);
                     thread.setCreationDate(new Date());
+
+                    ChatSDK.db().insertOrReplaceEntity(thread);
 
                     eventSource.onNext(NetworkEvent.threadAdded(thread));
                 }
@@ -123,12 +124,14 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                 // Get the thread
                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(message.getFrom());
                 if (thread == null) {
-                    thread = DaoCore.getEntityForClass(Thread.class);
-                    DaoCore.createEntity(thread);
+                    thread = new Thread();
+
                     thread.setEntityID(message.getFrom());
                     thread.setType(ThreadType.Private1to1);
                     thread.setCreationDate(new Date());
                     thread.setCreator(user);
+
+                    ChatSDK.db().insertOrReplaceEntity(thread);
 
                     // Add the sender
                     thread.addUsers(user, ChatSDK.currentUser());

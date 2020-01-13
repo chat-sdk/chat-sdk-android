@@ -29,8 +29,7 @@ import timber.log.Timber;
  * Manage all creation, deletion and updating Entities.
  */
 public class DaoCore {
-    private static final String TAG = DaoCore.class.getSimpleName();
-    //private static final boolean DEBUG = Debug.DaoCore;
+
     private static final String DB_NAME = "andorid-chatsdk-database";
     private static String dbName;
 
@@ -214,8 +213,7 @@ public class DaoCore {
     public static  <T extends CoreEntity> T createEntity(T entity){
         if (DEBUG) Timber.v("createEntity");
 
-        if (entity == null)
-        {
+        if (entity == null) {
             return null;
         }
 
@@ -224,33 +222,32 @@ public class DaoCore {
         return entity;
     }
 
-    public static <T extends CoreEntity> T deleteEntity(T entity){
-        if (DEBUG) Timber.v("deleteEntity");
+//    public static <T extends CoreEntity> T deleteEntity(T entity){
+//        if (DEBUG) Timber.v("deleteEntity");
+//
+//        if (entity == null)
+//        {
+//            if (DEBUG) Timber.e("CoreEntity is null");
+//            return null;
+//        }
+//
+//        daoSession.delete(entity);
+//
+//        daoSession.clear();
+//
+//        return entity;
+//    }
 
-        if (entity == null)
-        {
-            if (DEBUG) Timber.e("CoreEntity is null");
-            return null;
-        }
-
-        daoSession.delete(entity);
-
-        daoSession.clear();
-
-        return entity;
-    }
-
-    public static <T extends CoreEntity> T updateEntity(T entity){
-        if (DEBUG) Timber.v("updateEntity");
-
-        if (entity==null)
-            return null;
-
-        daoSession.update(entity);
-
-        return entity;
-    }
-
+//    public static <T extends CoreEntity> T updateEntity(T entity){
+//        if (DEBUG) Timber.v("updateEntity");
+//
+//        if (entity==null)
+//            return null;
+//
+//        daoSession.update(entity);
+//
+//        return entity;
+//    }
 
     public static void connectUserAndThread(User user, Thread thread){
         if (DEBUG) Timber.v("connectUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
@@ -300,15 +297,15 @@ public class DaoCore {
         return o;
     }
 
-    public static <T extends Object> T createOrReplace(T entity){
-
-        if (entity==null)
-            return null;
-
-        asyncSession.insertOrReplace(entity);
-
-        return entity;
-    }
+//    public static <T extends Object> T createOrReplace(T entity){
+//
+//        if (entity==null)
+//            return null;
+//
+//        asyncSession.insertOrReplace(entity);
+//
+//        return entity;
+//    }
 
 
 }

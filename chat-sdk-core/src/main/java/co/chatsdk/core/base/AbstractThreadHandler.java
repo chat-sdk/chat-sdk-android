@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.UUID;
 
 import co.chatsdk.core.R;
-import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -25,8 +24,6 @@ import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 
@@ -156,7 +153,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         if(ThreadType.isPublic(type)) {
             threads =  ChatSDK.db().fetchThreadsWithType(ThreadType.PublicGroup);
         } else {
-            threads = ChatSDK.db().fetchThreadsForUserWithID(ChatSDK.currentUser().getId());
+            threads = ChatSDK.db().fetchThreadsForCurrentUser();
         }
 
         List<Thread> filteredThreads = new ArrayList<>();

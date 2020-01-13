@@ -232,14 +232,14 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
                 if(jointThread != null) {
                     jointThread.setDeleted(false);
-                    DaoCore.updateEntity(jointThread);
+                    jointThread.update();
                     e.onSuccess(new ThreadPusher(jointThread, false));
                     return;
                 }
             }
 
-            final Thread thread = DaoCore.getEntityForClass(Thread.class);
-            DaoCore.createEntity(thread);
+            final Thread thread = ChatSDK.db().createEntity(Thread.class);
+
             thread.setEntityID(entityID);
             thread.setCreator(currentUser);
             thread.setCreatorEntityId(currentUser.getEntityID());

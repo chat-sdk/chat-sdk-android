@@ -50,8 +50,7 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
             // API key or root key
             thread.setRootKey(ChatSDK.config().firebaseRootPath);
 
-            // Save the entity to the local db.
-            DaoCore.createEntity(thread);
+            ChatSDK.db().insertOrReplaceEntity(thread);
 
             if (meta != null) {
                 thread.updateValues(meta);

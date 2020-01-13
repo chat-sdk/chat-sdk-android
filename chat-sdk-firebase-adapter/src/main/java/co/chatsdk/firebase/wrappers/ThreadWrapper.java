@@ -508,8 +508,8 @@ public class ThreadWrapper  {
 
         this.model.setImageUrl((String) value.get(Keys.ImageUrl));
         this.model.setCreatorEntityId((String) value.get(Keys.CreatorEntityId));
-        
-        DaoCore.updateEntity(this.model);
+        this.model.update();
+
     }
 
     /**

@@ -67,9 +67,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         if(thread != null) {
             e.onSuccess(thread);
         } else {
-
-            thread = DaoCore.getEntityForClass(Thread.class);
-            DaoCore.createEntity(thread);
+            thread = new Thread();
 
             int threadType = type;
 
@@ -99,9 +97,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 thread.setImageUrl(imageURL);
             }
 
-            thread.update();
-
-            Thread finalThread = thread;
+            final Thread finalThread = ChatSDK.db().insertOrReplaceEntity(thread);
 
             if(threadType == ThreadType.Private1to1) {
                 if (allUsers.size() != 2) {
