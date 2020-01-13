@@ -39,10 +39,7 @@ public class User extends AbstractEntity implements UserListItem {
 
     @ToMany(referencedJoinProperty = "userId")
     private List<UserMetaValue> metaValues;
-
-    @ToMany(referencedJoinProperty = "userId")
-    private List<LinkedAccount> linkedAccounts;
-
+    
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
@@ -131,7 +128,7 @@ public class User extends AbstractEntity implements UserListItem {
                 properties, this.getId(), user.getId(), type.ordinal());
 
         for(ContactLink link : contactLinks) {
-            DaoCore.deleteEntity(link);
+            link.delete();
         }
 
 //        this.refresh();
@@ -373,34 +370,6 @@ public class User extends AbstractEntity implements UserListItem {
 
     public void setLastOnline(java.util.Date lastOnline) {
         this.lastOnline = lastOnline;
-    }
-
-    /**
-     * To-many relationship, resolved on first access (and after reset).
-     * Changes to to-many relations are not persisted, make changes to the target entity.
-     */
-    @Generated(hash = 2037294643)
-    public List<LinkedAccount> getLinkedAccounts() {
-        if (linkedAccounts == null) {
-            final DaoSession daoSession = this.daoSession;
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            LinkedAccountDao targetDao = daoSession.getLinkedAccountDao();
-            List<LinkedAccount> linkedAccountsNew = targetDao._queryUser_LinkedAccounts(id);
-            synchronized (this) {
-                if (linkedAccounts == null) {
-                    linkedAccounts = linkedAccountsNew;
-                }
-            }
-        }
-        return linkedAccounts;
-    }
-
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    @Generated(hash = 1903600659)
-    public synchronized void resetLinkedAccounts() {
-        linkedAccounts = null;
     }
 
     /**

@@ -94,7 +94,6 @@ public class DaoCore {
         return new BigInteger(130, new Random()).toString(32);
     }
 
-
     /**
      * Fetch entity for given entity ID, If more then one found the first will be returned.
      */
@@ -268,7 +267,9 @@ public class DaoCore {
     public static void breakUserAndThread(User user, Thread thread){
         if (DEBUG) Timber.v("breakUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
         UserThreadLink linkData = fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, thread.getId(), user.getId());
-        DaoCore.deleteEntity(linkData);
+        if(linkData != null) {
+            linkData.delete();
+        }
     }
 
     @SuppressWarnings("unchecked") public static <T extends CoreEntity> T getEntityForClass(Class<T> c){

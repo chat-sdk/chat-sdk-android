@@ -44,7 +44,7 @@ public class ThreadDeleter {
 
             for (Message m : messages) {
                 thread.removeMessage(m);
-                DaoCore.deleteEntity(m);
+                m.delete();
             }
             thread.update();
             thread.refresh();

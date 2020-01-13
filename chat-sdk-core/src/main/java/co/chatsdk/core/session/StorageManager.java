@@ -38,7 +38,7 @@ public class StorageManager {
             }
             else {
                 // Delete the link - it's obviously corrupted
-                DaoCore.deleteEntity(link);
+                link.delete();
             }
         }
         return threads;

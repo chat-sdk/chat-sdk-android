@@ -35,7 +35,9 @@ public class ThreadPusher {
         if (push) {
             if (thread.typeIs(ThreadType.Public)) {
                 return new ThreadWrapper(thread).push()
-                        .doOnError(throwable -> DaoCore.deleteEntity(thread))
+                        .doOnError(throwable -> {
+                            thread.delete();
+                        })
                         .andThen((SingleSource<Thread>) observer -> {
                             thread.update();
                             // Add the thread to the list of public threads
@@ -49,14 +51,16 @@ public class ThreadPusher {
                                 if (databaseError == null) {
                                     observer.onSuccess(thread);
                                 } else {
-                                    DaoCore.deleteEntity(thread);
+                                    thread.delete();
                                     observer.onError(databaseError.toException());
                                 }
                             });
                         });
             } else {
                 return new ThreadWrapper(thread).push()
-                        .doOnError(throwable -> DaoCore.deleteEntity(thread))
+                        .doOnError(throwable -> {
+                            thread.delete();
+                        })
                         .concatWith(ChatSDK.thread().addUsersToThread(thread, thread.getUsers()))
                         .toSingle(() -> thread);
             }

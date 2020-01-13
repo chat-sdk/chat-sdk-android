@@ -211,11 +211,11 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             thread.setDeleted(true);
             for (Message m: thread.getMessages()) {
                 thread.removeMessage(m);
-                DaoCore.deleteEntity(m);
+                m.delete();
             }
             thread.update();
             ChatSDK.events().source().onNext(NetworkEvent.threadRemoved(thread));
-            DaoCore.deleteEntity(thread);
+            thread.delete();
 
             emitter.onComplete();
         });
