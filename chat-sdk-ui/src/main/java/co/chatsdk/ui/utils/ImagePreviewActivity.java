@@ -14,12 +14,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-
-import com.facebook.drawee.drawable.ScalingUtils;
-import com.facebook.drawee.view.SimpleDraweeView;
+import android.widget.ImageView;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
+
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 
@@ -34,7 +34,7 @@ public class ImagePreviewActivity extends BaseActivity {
 
     protected ViewGroup mainView;
     protected View backgroundView;
-    protected SimpleDraweeView expandedImageView;
+    protected ImageView expandedImageView;
 
     protected View currentThumbnailView;
     protected float currentStartScale;
@@ -77,8 +77,8 @@ public class ImagePreviewActivity extends BaseActivity {
     }
 
     protected void addExpandedImageView() {
-        expandedImageView = new SimpleDraweeView(this);
-        expandedImageView.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.FIT_CENTER);
+        expandedImageView = new ImageView(this);
+        expandedImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         expandedImageView.setVisibility(View.INVISIBLE);
         backgroundView.setClickable(false);
         mainView.addView(expandedImageView);
@@ -116,7 +116,7 @@ public class ImagePreviewActivity extends BaseActivity {
     }
 
     protected void zoomImageFromThumbnail(final View thumbnailView, String uri) {
-        expandedImageView.setImageURI(uri);
+        Picasso.get().load(uri).into(expandedImageView);
         zoomImageFromThumbnail(thumbnailView);
     }
 

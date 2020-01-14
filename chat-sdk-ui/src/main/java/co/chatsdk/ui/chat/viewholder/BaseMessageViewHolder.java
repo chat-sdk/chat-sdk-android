@@ -12,8 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,8 +19,12 @@ import java.util.List;
 import java.util.Locale;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+
+import com.squareup.picasso.Picasso;
+
 import co.chatsdk.core.base.AbstractMessageViewHolder;
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
@@ -41,12 +43,12 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     public static final String WeekToYearFormat = "dd/MM";
     public static final String DayToWeekFormat = "EEE";
 
-    protected SimpleDraweeView avatarImageView;
+    protected ImageView avatarImageView;
     protected TextView timeTextView;
-    protected SimpleDraweeView messageImageView;
+    protected ImageView messageImageView;
     protected ConstraintLayout messageBubble;
     protected TextView messageTextView;
-    protected SimpleDraweeView messageIconView;
+    protected ImageView messageIconView;
     protected LinearLayout extraLayout;
     protected ImageView readReceiptImageView;
     protected ProgressBar progressBar;
@@ -115,7 +117,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         String time = String.valueOf(getTimeFormat(message).format(message.getDate().toDate()));
         timeTextView.setText(time);
 
-        avatarImageView.setImageURI(message.getSender().getAvatarURL());
+        message.getSender().loadAvatar(avatarImageView);
 
         if (message.getSender().isMe()) {
             messageBubble.getBackground().setColorFilter(ChatSDK.config().messageColorMe, PorterDuff.Mode.MULTIPLY);

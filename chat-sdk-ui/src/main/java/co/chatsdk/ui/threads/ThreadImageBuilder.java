@@ -4,13 +4,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.widget.ImageView;
 
-import com.facebook.common.util.UriUtil;
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -19,9 +20,13 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
+import io.reactivex.CompletableSource;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 
 import static co.chatsdk.core.utils.ImageBuilder.bitmapForURL;
 
@@ -31,16 +36,24 @@ import static co.chatsdk.core.utils.ImageBuilder.bitmapForURL;
 
 public class ThreadImageBuilder {
 
-    public static void load (final SimpleDraweeView imageView, final Thread thread) {
-        getImageUriForThread(imageView.getContext(), thread).subscribe(uri -> imageView.setImageURI(uri), throwable -> imageView.setImageURI(defaultBitmapUri(imageView.getContext(), thread)));
+    public static Disposable load(final ImageView imageView, final Thread thread) {
+        return load(imageView, thread);
     }
 
-    public static Single<Uri> getImageUriForThread(final Context context, final Thread thread) {
-        return Single.create(e -> {
+    public static Disposable load (final ImageView imageView, final Thread thread, int size) {
+        return getImageUriForThread(imageView.getContext(), thread, size).subscribe(uri -> Picasso.get().load(uri).into(imageView), throwable -> imageView.setImageURI(defaultBitmapUri(thread)));
+    }
+
+    public static Single<Uri> getImageUriForThread(Context context, final Thread thread) {
+        int size = context.getResources().getDimensionPixelSize(R.dimen.action_bar_avatar_max_size);
+        return getImageUriForThread(context, thread, size);
+    }
+
+    public static Single<Uri> getImageUriForThread(Context context, final Thread thread, int size) {
+        return Single.defer((Callable<SingleSource<Uri>>) () -> {
 
             if(!StringChecker.isNullOrEmpty(thread.getImageUrl())) {
-                e.onSuccess(Uri.parse(thread.getImageUrl()));
-                return;
+                return Single.just(Uri.parse(thread.getImageUrl()));
             }
 
             List<User> users = thread.getUsers();
@@ -54,59 +67,44 @@ public class ThreadImageBuilder {
 
             // If the URL is empty
             if (urls.size() == 0) {
-                e.onError(new Throwable(context.getString(R.string.thread_users_have_no_valid_avatar_urls)));
+                return Single.error(new Throwable(context.getString(R.string.thread_users_have_no_valid_avatar_urls)));
             }
             else if (urls.size() == 1) {
-                e.onSuccess(Uri.parse(urls.get(0)));
+                return Single.just(Uri.parse(urls.get(0)));
             }
             else {
-                combineBitmaps(context, urls).subscribe(bitmap -> {
+                return combineBitmaps(urls, size).map(bitmap -> {
                     File file = ImageUtils.compressImageToFile(context, bitmap, "avatar", ".png");
-                    if(file != null) {
-                        e.onSuccess(Uri.fromFile(file));
-                    }
-                    else {
-                        e.onError(new Throwable(context.getString(R.string.could_not_save_composite_thread_image_to_file)));
-                    }
-                }, throwable -> e.onError(throwable));
+                    return Uri.fromFile(file);
+                });
             }
         });
     }
 
-    public static Single<Bitmap> combineBitmaps (final Context context, final List<String> urls) {
-        return Single.create(e -> {
+    public static Single<Bitmap> combineBitmaps (final List<String> urls, final int size) {
+        return Single.defer(() -> {
 
             final ArrayList<Bitmap> bitmaps = new ArrayList<>();
-            ArrayList<Single<Bitmap>> singles = new ArrayList<>();
+            final ArrayList<Single<Bitmap>> singles = new ArrayList<>();
 
             for(String url : urls) {
                 if(singles.size() >= 4) {
                     break;
                 }
-                singles.add(bitmapForURL(context, url).onErrorResumeNext(throwable -> null));
+                singles.add(bitmapForURL(url).doOnSuccess(bitmaps::add).onErrorResumeNext(throwable -> null));
             }
 
-            Single.merge(singles).observeOn(AndroidSchedulers.mainThread())
-                    .doOnComplete(() -> {
-                        int size = context.getResources().getDimensionPixelSize(R.dimen.action_bar_avatar_max_size);
-                        Bitmap bitmap = ImageUtils.getMixImagesBitmap(size, size, bitmaps);
-
-                        if(bitmap == null) {
-                            e.onError(new Throwable(context.getString(R.string.thread_image_could_not_be_created)));
-                        }
-                        else {
-                            e.onSuccess(bitmap);
-                        }
-                    })
-                    .subscribe(bitmaps::add, throwable -> {
-                        e.onError(throwable);
-                        ChatSDK.logError(throwable);
-                    });
+            return Single.merge(singles).ignoreElements().toSingle(() -> {
+                return ImageUtils.getMixImagesBitmap(size, size, bitmaps);
+            });
         });
     }
 
     public static int defaultBitmapResId (Thread thread) {
-        if (thread.typeIs(ThreadType.Private1to1)) {
+        if (thread == null) {
+            return defaultBitmapResId();
+        }
+        else if (thread.typeIs(ThreadType.Private1to1)) {
             return R.drawable.icn_100_private_thread;
         }
         else {
@@ -116,13 +114,17 @@ public class ThreadImageBuilder {
 
     public static Uri defaultBitmapUri (Thread thread) {
         return new Uri.Builder()
-                .scheme(UriUtil.LOCAL_RESOURCE_SCHEME) // "res"
+                .scheme("res")
                 .path(String.valueOf(defaultBitmapResId(thread)))
                 .build();
     }
 
     public static Bitmap defaultBitmap (Context context, Thread thread) {
         return BitmapFactory.decodeResource(context.getResources(), defaultBitmapResId(thread));
+    }
+
+    public static int defaultBitmapResId() {
+        return R.drawable.icn_100_private_thread;
     }
 
 

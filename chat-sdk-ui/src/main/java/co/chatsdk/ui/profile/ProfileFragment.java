@@ -15,8 +15,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.drawee.view.SimpleDraweeView;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -43,7 +41,7 @@ public class ProfileFragment extends BaseFragment {
     public static int ProfileDetailRowHeight = 25;
     public static int ProfileDetailMargin = 8;
 
-    protected SimpleDraweeView avatarImageView;
+    protected ImageView avatarImageView;
     protected ImageView flagImageView;
     protected ImageView availabilityImageView;
     protected TextView nameTextView;
@@ -321,7 +319,9 @@ public class ProfileFragment extends BaseFragment {
         }
 
         // Profile Image
-        if (avatarImageView != null) avatarImageView.setImageURI(getUser().getAvatarURL());
+        if (avatarImageView != null) {
+            getUser().loadAvatar(avatarImageView);
+        }
 
         String status = getUser().getStatus();
         if (!StringChecker.isNullOrEmpty(status)) {

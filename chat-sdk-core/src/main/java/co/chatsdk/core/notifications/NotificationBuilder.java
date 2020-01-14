@@ -241,7 +241,7 @@ public class NotificationBuilder {
 
     public Single<NotificationCompat.Builder> loadLargeIconFromURL(final NotificationCompat.Builder builder) {
         if (largeIconUrl != null) {
-            return ImageBuilder.bitmapForURL(context.get(), largeIconUrl).map(bitmap -> {
+            return ImageBuilder.bitmapForURL(largeIconUrl).map(bitmap -> {
                 if (bitmap != null) {
                     builder.setLargeIcon(scaleLargeIcon(bitmap));
                 }

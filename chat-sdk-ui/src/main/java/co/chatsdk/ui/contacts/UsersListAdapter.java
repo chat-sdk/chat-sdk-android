@@ -16,13 +16,14 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.ui.R;
@@ -58,7 +59,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     protected class UserViewHolder extends RecyclerView.ViewHolder {
 
-        protected SimpleDraweeView avatarImageView;
+        protected ImageView avatarImageView;
         protected TextView nameTextView;
         protected CheckBox checkBox;
         protected TextView statusTextView;
@@ -159,8 +160,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             Timber.v("User: " + userListItem.getName() + " Availability: " + userListItem.getAvailability());
 
-            userViewHolder.avatarImageView.setImageURI(userListItem.getAvatarURL());
-
+            User.loadAvatar(userListItem.getAvatarURL(), userViewHolder.avatarImageView);
 
             userViewHolder.setMultiSelectEnabled(multiSelectEnabled);
 

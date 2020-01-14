@@ -6,12 +6,6 @@ import android.content.Intent;
 
 import androidx.fragment.app.Fragment;
 
-import com.facebook.cache.disk.DiskCacheConfig;
-import com.facebook.common.util.ByteConstants;
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.imagepipeline.core.ImagePipelineConfig;
-import com.facebook.imagepipeline.listener.RequestListener;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -108,25 +102,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     public BaseInterfaceAdapter (Context context) {
         this.context = new WeakReference<>(context);
-
-        DiskCacheConfig diskCacheConfig = DiskCacheConfig
-                .newBuilder(context)
-                .setMaxCacheSizeOnVeryLowDiskSpace(10 * ByteConstants.MB)
-                .setMaxCacheSizeOnLowDiskSpace(20 * ByteConstants.MB)
-                .setMaxCacheSize(40 * ByteConstants.MB)
-                .build();
-
-        Set<RequestListener> requestListeners = new HashSet<>();
-
-//        requestListeners.add(new RequestLoggingListener());
-
-        ImagePipelineConfig config = ImagePipelineConfig.newBuilder(context)
-                // other setters
-                .setRequestListeners(requestListeners)
-                .setMainDiskCacheConfig(diskCacheConfig)
-                .build();
-        Fresco.initialize(context, config);
-//        FLog.setMinimumLoggingLevel(FLog.VERBOSE);
 
         setMessageHandler(new TextMessageDisplayHandler(), new MessageType(MessageType.Text));
         setMessageHandler(new ImageMessageDisplayHandler(), new MessageType(MessageType.Image));

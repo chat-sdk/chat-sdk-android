@@ -12,11 +12,12 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.squareup.picasso.Picasso;
 
 import androidx.appcompat.app.ActionBar;
 
@@ -57,7 +58,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
 
     protected TextInputEditText nameInput;
     protected MaterialButton saveButton;
-    protected SimpleDraweeView threadImageView;
+    protected ImageView threadImageView;
     protected String threadImageURL;
     protected ImagePickerUploader pickerUploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
 
@@ -148,9 +149,9 @@ public class ThreadEditDetailsActivity extends BaseActivity {
             saveButton.setEnabled(false);
         }
         if (threadImageURL != null) {
-            threadImageView.setImageURI(threadImageURL);
+            Picasso.get().load(threadImageURL).into(threadImageView);
         } else if (thread != null) {
-            threadImageView.setImageURI(thread.getImageUrl());
+            Picasso.get().load(thread.getImageUrl()).into(threadImageView);
         }
         updateSaveButtonState();
     }

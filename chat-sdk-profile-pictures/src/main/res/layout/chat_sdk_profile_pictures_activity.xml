@@ -23,14 +23,13 @@
                 android:layout_gravity="fill_horizontal"
                 android:layout_margin="8dp">
 
-                <com.facebook.drawee.view.SimpleDraweeView
+                <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_margin="8dp"
                     android:src="@drawable/icn_100_profile"
-                    android:visibility="visible"
-                    fresco:fadeDuration="0" />
+                    android:visibility="visible" />
 
             </androidx.cardview.widget.CardView>
 
@@ -41,15 +40,14 @@
                 android:layout_gravity="fill_horizontal"
                 android:layout_margin="8dp">
 
-                <com.facebook.drawee.view.SimpleDraweeView
+                <ImageView
                     android:id="@+id/imageView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_margin="8dp"
                     android:src="@drawable/icn_100_profile"
-                    android:visibility="visible"
-                    fresco:fadeDuration="0" />
+                    android:visibility="visible" />
 
             </androidx.cardview.widget.CardView>
 
@@ -60,14 +58,13 @@
                 android:layout_gravity="fill_horizontal"
                 android:layout_margin="8dp">
 
-                <com.facebook.drawee.view.SimpleDraweeView
+                <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_margin="8dp"
                     android:src="@drawable/icn_100_profile"
-                    android:visibility="visible"
-                    fresco:fadeDuration="0" />
+                    android:visibility="visible" />
 
             </androidx.cardview.widget.CardView>
 

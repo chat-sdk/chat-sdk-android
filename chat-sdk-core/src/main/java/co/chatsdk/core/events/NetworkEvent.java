@@ -273,4 +273,13 @@ public class NetworkEvent {
         return null;
     }
 
+    public boolean typeIs(EventType... types) {
+        for (EventType type: types) {
+            if (this.type == type) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

@@ -1,7 +1,6 @@
-package co.chatsdk.ui.threads.chatkit;
+package co.chatsdk.ui.chatkit.model;
 
 import com.stfalcon.chatkit.commons.models.IDialog;
-import com.stfalcon.chatkit.commons.models.IMessage;
 import com.stfalcon.chatkit.commons.models.IUser;
 
 import java.util.ArrayList;
@@ -10,11 +9,11 @@ import java.util.List;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 
-public class ThreadView implements IDialog {
+public class ThreadHolder implements IDialog<MessageHolder> {
 
     Thread thread;
 
-    public ThreadView(Thread thread) {
+    public ThreadHolder(Thread thread) {
         this.thread = thread;
     }
 
@@ -35,20 +34,23 @@ public class ThreadView implements IDialog {
 
     @Override
     public List<? extends IUser> getUsers() {
-        ArrayList<UserView> users = new ArrayList<>();
+        ArrayList<UserHolder> users = new ArrayList<>();
         for (User user: thread.getUsers()) {
-            users.add(new UserView(user));
+            users.add(new UserHolder(user));
         }
         return users;
     }
 
     @Override
-    public IMessage getLastMessage() {
-        return new MessageView(thread.lastMessage());
+    public MessageHolder getLastMessage() {
+        if (thread.getMessages().isEmpty()) {
+            return null;
+        }
+        return new MessageHolder(thread.lastMessage());
     }
 
     @Override
-    public void setLastMessage(IMessage message) {
+    public void setLastMessage(MessageHolder message) {
         System.out.println("Implement this");
     }
 
@@ -56,4 +58,18 @@ public class ThreadView implements IDialog {
     public int getUnreadCount() {
         return thread.getUnreadMessagesCount();
     }
+
+    @Override
+    public boolean equals(Object object) {
+        return object instanceof ThreadHolder && getId().equals(((ThreadHolder)object).getId());
+    }
+
+    public Thread getThread() {
+        return thread;
+    }
+
+    public UserHolder getOtherUser() {
+        return new UserHolder(thread.otherUser());
+    }
+
 }

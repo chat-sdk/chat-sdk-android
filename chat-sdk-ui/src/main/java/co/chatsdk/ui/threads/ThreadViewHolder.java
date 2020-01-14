@@ -2,9 +2,8 @@ package co.chatsdk.ui.threads;
 
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.facebook.drawee.view.SimpleDraweeView;
 
 import co.chatsdk.ui.R;
 
@@ -18,7 +17,7 @@ public class ThreadViewHolder extends RecyclerView.ViewHolder {
     public TextView dateTextView;
     public TextView lastMessageTextView;
     public TextView unreadMessageCountTextView;
-    public SimpleDraweeView imageView;
+    public ImageView imageView;
     public View indicator;
 
     public ThreadViewHolder(View itemView) {

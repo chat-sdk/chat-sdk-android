@@ -153,7 +153,7 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Completable setName(String name) {
-        if (!testPermission(RoleType.admin())) {
+        if (!hasPermission(RoleType.admin())) {
             return Completable.error(this::adminPermissionRequired);
         } else if(this.meta.getName().equals(name)) {
             return Completable.complete();
@@ -171,7 +171,7 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Completable setImageURL(final String url) {
-        if (!testPermission(RoleType.admin())) {
+        if (!hasPermission(RoleType.admin())) {
             return Completable.error(this::adminPermissionRequired);
         } else if (this.meta.getImageURL().equals(url)) {
             return Completable.complete();
@@ -189,7 +189,7 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Completable setCustomData(final HashMap<String, Object> data) {
-        if (!testPermission(RoleType.admin())) {
+        if (!hasPermission(RoleType.admin())) {
             return Completable.error(this::adminPermissionRequired);
         } else {
             return Fire.privateApi().getFirebaseService().chat.setMetaField(getId(), Paths.Data, data).doOnComplete(() -> {
@@ -283,9 +283,9 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Completable setRole(User user, RoleType roleType) {
-        if (roleType.equals(RoleType.owner()) && !testPermission(RoleType.owner())) {
+        if (roleType.equals(RoleType.owner()) && !hasPermission(RoleType.owner())) {
             return Completable.error(this::ownerPermissionRequired);
-        } else if(!testPermission(RoleType.admin())) {
+        } else if(!hasPermission(RoleType.admin())) {
             return Completable.error(this::adminPermissionRequired);
         }
         user.roleType = roleType;
@@ -305,9 +305,9 @@ public class Chat extends AbstractChat implements IChat {
     @Override
     public List<RoleType> getAvailableRoles(User user) {
         // We can't set our own role and only admins and higher can set a role
-        if (!user.isMe() && testPermission(RoleType.admin())) {
+        if (!user.isMe() && hasPermission(RoleType.admin())) {
             // The owner can set users to any role apart from owner
-            if (testPermission(RoleType.owner())) {
+            if (hasPermission(RoleType.owner())) {
                 return RoleType.allExcluding(RoleType.owner());
             }
             // Admins can set the role type of non-admin users. They can't create or
@@ -381,7 +381,7 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Completable send(Sendable sendable, @Nullable Consumer<String> newId) {
-        if (!testPermission(RoleType.member())) {
+        if (!hasPermission(RoleType.member())) {
             return Completable.error(this::memberPermissionRequired);
         }
         return this.send(Paths.chatMessagesPath(id), sendable, newId);
@@ -460,7 +460,7 @@ public class Chat extends AbstractChat implements IChat {
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    protected boolean testPermission(RoleType required) {
+    protected boolean hasPermission(RoleType required) {
         RoleType myRoleType = getMyRoleType();
         if (myRoleType == null) {
             return false;

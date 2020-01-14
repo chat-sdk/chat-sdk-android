@@ -2,6 +2,9 @@ package co.chatsdk.core.session;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.widget.ImageView;
+
+import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -11,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
+import co.chatsdk.core.R;
 import co.chatsdk.core.base.LocationProvider;
 import co.chatsdk.core.base.BaseNetworkAdapter;
 import co.chatsdk.core.dao.DaoCore;
@@ -72,7 +76,7 @@ public class ChatSDK {
     protected StorageManager storageManager;
     protected BaseNetworkAdapter networkAdapter;
 
-    protected CrashReportingCompletableObserver crashReporter = ChatSDK.shared().getCrashReporter();
+    protected CrashReportingCompletableObserver crashReporter = new CrashReportingCompletableObserver();
 
     protected LocationProvider locationProvider;
 

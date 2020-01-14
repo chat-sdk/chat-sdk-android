@@ -1,5 +1,9 @@
 package co.chatsdk.core.dao;
 
+import android.widget.ImageView;
+
+import com.squareup.picasso.Picasso;
+
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.annotation.Entity;
@@ -15,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import co.chatsdk.core.R;
 import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.interfaces.CoreEntity;
@@ -220,7 +225,10 @@ public class User extends AbstractEntity implements UserListItem {
     }
 
     public Boolean getIsOnline () {
-        return this.isOnline;
+        if (this.isOnline != null) {
+            return this.isOnline;
+        }
+        return false;
     }
 
     public String getState () {
@@ -232,10 +240,15 @@ public class User extends AbstractEntity implements UserListItem {
     }
 
     public String getAvailability () {
-        if (isOnline == null || !isOnline) {
+        if (!getIsOnline()) {
             return Availability.Unavailable;
         }
-        return metaStringForKey(Keys.Availability);
+        String availability = metaStringForKey(Keys.Availability);
+        if (availability != null) {
+            return availability;
+        } else {
+            return Availability.Available;
+        }
     }
 
     public String getLocation () {
@@ -446,5 +459,15 @@ public class User extends AbstractEntity implements UserListItem {
         this.isOnline = isOnline;
     }
 
+    public void loadAvatar(ImageView imageView) {
+        loadAvatar(getAvatarURL(), imageView);
+    }
+
+    public static void loadAvatar(String url, ImageView imageView) {
+        Picasso.get().load(url)
+                .placeholder(R.drawable.icn_32_profile_placeholder)
+                .error(R.drawable.icn_32_profile_placeholder)
+                .into(imageView);
+    }
 
 }

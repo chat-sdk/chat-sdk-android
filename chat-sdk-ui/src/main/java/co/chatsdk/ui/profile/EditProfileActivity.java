@@ -9,10 +9,10 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.mukesh.countrypicker.CountryPicker;
 
 import java.io.File;
@@ -40,7 +40,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class EditProfileActivity extends BaseActivity {
 
-    protected SimpleDraweeView avatarImageView;
+    protected ImageView avatarImageView;
     protected String avatarImageURL = null;
 
     protected EditText statusEditText;
@@ -144,7 +144,7 @@ public class EditProfileActivity extends BaseActivity {
         String email = currentUser.getEmail();
         String countryCode = currentUser.getCountryCode();
 
-        avatarImageView.setImageURI(currentUser.getAvatarURL());
+        currentUser.loadAvatar(avatarImageView);
 
         if (countryCode != null && !countryCode.isEmpty()) {
             Locale l = new Locale("", countryCode);

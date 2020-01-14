@@ -6,14 +6,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.Toast;
-
-import com.facebook.drawee.view.SimpleDraweeView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.LayoutRes;
+
+import com.squareup.picasso.Picasso;
+
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
@@ -81,8 +83,9 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
     }
 
     protected View createCellView(String url) {
-        SimpleDraweeView cell = new SimpleDraweeView(this);
-        cell.setImageURI(url);
+        ImageView cell = new ImageView(this);
+        Picasso.get().load(url).into(cell);
+
         cell.setOnClickListener(v -> {
             zoomImageFromThumbnail(cell, url);
         });

@@ -5,19 +5,12 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.ui.chat;
+package co.chatsdk.ui.chatkit;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.appcompat.app.ActionBar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,12 +18,21 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.LayoutRes;
+import androidx.appcompat.app.ActionBar;
 
 import com.leinardi.android.speeddial.SpeedDialView;
+import com.squareup.picasso.Picasso;
+import com.stfalcon.chatkit.messages.MessageHolders;
+import com.stfalcon.chatkit.messages.MessageInput;
+import com.stfalcon.chatkit.messages.MessagesList;
+import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
 import org.ocpsoft.prettytime.PrettyTime;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -47,33 +49,34 @@ import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.interfaces.ChatOptionsDelegate;
 import co.chatsdk.core.interfaces.ChatOptionsHandler;
 import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
-import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+import co.chatsdk.core.utils.ImageBuilder;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.chat.TextInputDelegate;
 import co.chatsdk.ui.chat.message_action.MessageActionHandler;
+import co.chatsdk.ui.chatkit.custom.IncomingImageMessageViewHolder;
+import co.chatsdk.ui.chatkit.custom.IncomingTextMessageViewHolder;
+import co.chatsdk.ui.chatkit.custom.OutcomingImageMessageViewHolder;
+import co.chatsdk.ui.chatkit.custom.OutcomingTextMessageViewHolder;
 import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.threads.ThreadImageBuilder;
+import co.chatsdk.ui.chatkit.model.MessageHolder;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.MaybeOnSubscribe;
 import io.reactivex.Observable;
-import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
-public class ChatActivity extends BaseActivity implements TextInputDelegate, ChatOptionsDelegate {
+public class CKChatActivity extends BaseActivity implements TextInputDelegate, ChatOptionsDelegate, MessagesListAdapter.SelectionListener,
+        MessagesListAdapter.OnLoadMoreListener {
 
     public static final int ADD_USERS = 103;
     public static final int SHOW_DETAILS = 200;
@@ -85,17 +88,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     // this should be set to no
     protected boolean removeUserFromChatOnExit = !ChatSDK.config().publicChatAutoSubscriptionEnabled;
 
-    protected enum ListPosition {
-        Top, Current, Bottom
-    }
-
     protected static boolean enableTrace = false;
 
     protected View actionBarView;
 
-    protected TextInputView textInputView;
-    protected RecyclerView recyclerView;
-    protected MessageListAdapter messageListAdapter;
     protected Thread thread;
     protected TextView titleTextView;
     protected TextView subtitleTextView;
@@ -111,6 +107,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected SpeedDialView messageActionsSpeedDialView;
     protected MessageActionHandler messageActionHandler;
 
+    protected MessagesList messagesList;
+    protected MessagesListAdapter<MessageHolder> messageListAdapter;
+
+    protected MessageInput messageInput;
+
     /**
      * If set to false in onCreate the menu threads wont be inflated in the menu.
      * This can be useful if you want to customize the action bar.
@@ -125,7 +126,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
         setContentView(activityLayout());
 
@@ -160,18 +160,18 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
                     message.setRead(true);
 
-                    boolean isAdded = messageListAdapter.addRow(message, false, true);
+                    messageListAdapter.addToStart(new MessageHolder(message), true);
 
                     // Check if the text from the current user, If so return so we wont vibrate for the user messages.
-                    if (message.getSender().isMe() && isAdded) {
-                        scrollListTo(ListPosition.Bottom, layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 2);
-                    }
-                    else {
-                        // If the user is near the bottom, then we scroll down when a text comes in
-                        if(layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 5) {
-                            scrollListTo(ListPosition.Bottom, true);
-                        }
-                    }
+//                    if (message.getSender().isMe() && isAdded) {
+//                        scrollListTo(ListPosition.Bottom, layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 2);
+//                    }
+//                    else {
+//                        // If the user is near the bottom, then we scroll down when a text comes in
+//                        if(layoutManager().findLastVisibleItemPosition() > messageListAdapter.size() - 5) {
+//                            scrollListTo(ListPosition.Bottom, true);
+//                        }
+//                    }
                     if(ChatSDK.readReceipts() != null) {
                         ChatSDK.readReceipts().markRead(thread);
                     }
@@ -193,7 +193,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 .filter(NetworkEvent.filterType(EventType.MessageRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> {
-                    messageListAdapter.removeRow(networkEvent.message, true);
+//                    messageListAdapter.removeRow(networkEvent.message, true);
                 }));
 
         disposableList.add(ChatSDK.events().sourceOnMain()
@@ -233,15 +233,18 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     if (status == MessageSendStatus.Sending || status == MessageSendStatus.Created) {
                         // Add this so that the message only appears after it's been sent
                         if (ChatSDK.encryption() == null) {
-                            if(messageListAdapter.addRow(progress.message, false, true, progress.uploadProgress, true)) {
-                                scrollListTo(ListPosition.Bottom, false);
-                            }
+//                            if(messageListAdapter.addRow(progress.message, false, true, progress.uploadProgress, true)) {
+//                                scrollListTo(ListPosition.Bottom, false);
+//                            }
                         }
                     }
                     if (status == MessageSendStatus.Uploading || status == MessageSendStatus.Sent) {
                         reloadDataForMessage(progress.message);
                     }
         }));
+
+        // Load the messages
+        messageListAdapter.addToEnd(messageViewsFromMessages(thread.getMessages()), false);
 
     }
 
@@ -290,70 +293,66 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     }
 
     protected @LayoutRes int activityLayout() {
-        return R.layout.activity_chat;
+        return R.layout.activity_chatkit_chat;
     }
 
     protected void initViews () {
         // Set up the text box - this is the box that sits above the keyboard
-        textInputView = findViewById(R.id.view_message_text_input);
-        textInputView.setDelegate(this);
-        textInputView.setAudioModeEnabled(ChatSDK.audioMessage() != null);
 
         progressBar = findViewById(R.id.progress_bar);
 
-        final SwipeRefreshLayout mSwipeRefresh = findViewById(R.id.layout_swipe_to_refresh);
+//        final SwipeRefreshLayout mSwipeRefresh = findViewById(R.id.layout_swipe_to_refresh);
+//
+//        mSwipeRefresh.setOnRefreshListener(() -> {
+//            if (!loadingMoreMessages) {
+//                loadMoreMessages(true, true, true)
+//                        .doFinally(() -> mSwipeRefresh.setRefreshing(false))
+//                        .subscribeOn(AndroidSchedulers.mainThread())
+//                        .doOnError(toastOnErrorConsumer())
+//                        .subscribe(ChatSDK.shared().getCrashReporter());
+//            } else {
+//                mSwipeRefresh.setRefreshing(false);
+//            }
+//        });
 
-        mSwipeRefresh.setOnRefreshListener(() -> {
-            if (!loadingMoreMessages) {
-                loadMoreMessages(true, true, true)
-                        .doFinally(() -> mSwipeRefresh.setRefreshing(false))
-                        .subscribeOn(AndroidSchedulers.mainThread())
-                        .doOnError(toastOnErrorConsumer())
-                        .subscribe(ChatSDK.shared().getCrashReporter());
-            } else {
-                mSwipeRefresh.setRefreshing(false);
-            }
+        messagesList = findViewById(R.id.messagesList);
+
+        IncomingTextMessageViewHolder.Payload holderPayload = new IncomingTextMessageViewHolder.Payload();
+
+        holderPayload.avatarClickListener = () -> Toast.makeText(this,
+                "Text message avatar clicked", Toast.LENGTH_SHORT).show();
+
+        MessageHolders holders = new MessageHolders()
+                .setIncomingTextConfig(IncomingTextMessageViewHolder.class, R.layout.chatkit_item_incoming_text_message, holderPayload)
+                .setOutcomingTextConfig(OutcomingTextMessageViewHolder.class, R.layout.chatkit_item_outcoming_text_message)
+                .setIncomingImageConfig(IncomingImageMessageViewHolder.class, R.layout.chatkit_item_incoming_image_message)
+                .setOutcomingImageConfig(OutcomingImageMessageViewHolder.class, R.layout.chatkit_item_outcoming_image_message);
+
+        messageListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, (imageView, url, payload) -> {
+            Picasso.get().load(url).into(imageView);
         });
 
-        recyclerView = findViewById(R.id.recycler_messages);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        messagesList.setAdapter(messageListAdapter);
 
-        // Optimization
-        recyclerView.setItemViewCacheSize(50);
-
-        recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                scrollListTo(ListPosition.Bottom, false);
-            }
+        messageInput = findViewById(R.id.input);
+        messageInput.setInputListener(input -> {
+            sendMessage(String.valueOf(input), true);
+            return true;
         });
 
-        if (messageListAdapter == null) {
-            messageListAdapter = new MessageListAdapter(ChatActivity.this);
-        }
+        messageInput.setAttachmentsListener(() -> {
+            showOptions();
+        });
 
-        recyclerView.setAdapter(messageListAdapter);
-
-        // Disable this for now until it works better
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        messageInput.setTypingListener(new MessageInput.TypingListener() {
             @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
+            public void onStartTyping() {
+                startTyping();
             }
 
             @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                int firstVisible = layoutManager().findFirstVisibleItemPosition();
-                int lastVisible = layoutManager().findLastVisibleItemPosition();
-                int items = messageListAdapter.getItemCount();
-
-                // Only load more messages if we are scrolling up
-                // Also only do this when we are scroling slowly...
-//                if (dy < 0 && Math.abs(dy) < 20 && firstVisible < 5) {
-//                    loadMoreMessages(false, true, true).subscribe(ChatSDK.shared().getCrashReporter());
-//                }
-
+            public void onStopTyping() {
+                stopTyping();
             }
         });
 
@@ -364,54 +363,86 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         messageActionsSpeedDialView = findViewById(R.id.speed_dial_message_actions);
         messageActionHandler = new MessageActionHandler(messageActionsSpeedDialView);
 
-        disposableList.add(messageListAdapter.getMessageActionObservable()
-                .flatMapSingle((Function<List<MessageAction>, SingleSource<String>>) messageActions -> {
-                    // Open the text action sheet
-                    hideKeyboard();
-                    return messageActionHandler.open(messageActions, ChatActivity.this);
-        }).subscribe(this::showSnackbar, snackbarOnErrorConsumer()));
+        messageListAdapter.setOnMessageLongClickListener(message -> {
+            // TODO:
+        });
+
+//        disposableList.add(messageListAdapter.getMessageActionObservable()
+//                .flatMapSingle((Function<List<MessageAction>, SingleSource<String>>) messageActions -> {
+//                    // Open the text action sheet
+//                    hideKeyboard();
+//                    return messageActionHandler.open(messageActions, CKChatActivity.this);
+//        }).subscribe(this::showSnackbar, snackbarOnErrorConsumer()));
     }
 
-    public Completable loadMoreMessages (boolean loadFromServer, boolean saveScrollPosition, boolean notify) {
-        return Maybe.create((MaybeOnSubscribe<Date>) emitter -> {
-            if (loadingMoreMessages) {
-                emitter.onComplete();
-            } else {
-                loadingMoreMessages = true;
+//    public Completable loadMoreMessages (boolean loadFromServer, boolean saveScrollPosition, boolean notify) {
+//        return Maybe.create((MaybeOnSubscribe<Date>) emitter -> {
+//            if (loadingMoreMessages) {
+//                emitter.onComplete();
+//            } else {
+//                loadingMoreMessages = true;
+//
+//                List<MessageListItem> items = messageListAdapter.getMessageItems();
+//                if(items.size() > 0) {
+//                    emitter.onSuccess(items.get(0).message.getDate().toDate());
+//                } else {
+//                    emitter.onSuccess(new Date(0));
+//                }
+//            }
+//        }).flatMapCompletable(date -> ChatSDK.thread().loadMoreMessagesForThread(date, thread, loadFromServer)
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .doOnSuccess(messages -> {
+//
+//                    int addedCount = 0;
+//                    for(Message m : messages) {
+//                        if(messageListAdapter.addRow(m, false, false, false)) {
+//                            addedCount++;
+//                        }
+//                    }
+//                    if (notify) {
+//                        reloadDataInRange(0, messages.size());
+//                    }
+//
+//                    int firstVisible = layoutManager().findFirstVisibleItemPosition();
+//                    int lastVisible = layoutManager().findLastVisibleItemPosition();
+//
+//                    if (addedCount > 0 && saveScrollPosition) {
+//                        scrollListTo(messages.size() + lastVisible - firstVisible, false);
+//                    }
+//
+//                    firstVisible = layoutManager().findFirstVisibleItemPosition();
+//                    System.out.println(firstVisible);
+//
+//                    loadingMoreMessages = false;
+//                }).ignoreElement());
+//    }
 
-                List<MessageListItem> items = messageListAdapter.getMessageItems();
-                if(items.size() > 0) {
-                    emitter.onSuccess(items.get(0).message.getDate().toDate());
-                } else {
-                    emitter.onSuccess(new Date(0));
-                }
-            }
-        }).flatMapCompletable(date -> ChatSDK.thread().loadMoreMessagesForThread(date, thread, loadFromServer)
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSuccess(messages -> {
+    @Override
+    public void onLoadMore(int page, int totalItemsCount) {
+        Message firstMessage = null;
+        if (!thread.getMessages().isEmpty()) {
+            firstMessage = thread.getMessages().get(0);
+        }
+        if (!loadingMoreMessages) {
+            loadingMoreMessages = true;
+            disposableList.add(ChatSDK.thread().loadMoreMessagesForThread(firstMessage != null ? firstMessage.getDate().toDate() : null, thread, true).subscribe(messages -> {
+                messageListAdapter.addToEnd(messageViewsFromMessages(messages), true);
+                loadingMoreMessages = false;
+            }));
+        }
+    }
 
-                    int addedCount = 0;
-                    for(Message m : messages) {
-                        if(messageListAdapter.addRow(m, false, false, false)) {
-                            addedCount++;
-                        }
-                    }
-                    if (notify) {
-                        reloadDataInRange(0, messages.size());
-                    }
+    @Override
+    public void onSelectionChanged(int count) {
 
-                    int firstVisible = layoutManager().findFirstVisibleItemPosition();
-                    int lastVisible = layoutManager().findLastVisibleItemPosition();
+    }
 
-                    if (addedCount > 0 && saveScrollPosition) {
-                        scrollListTo(messages.size() + lastVisible - firstVisible, false);
-                    }
-
-                    firstVisible = layoutManager().findFirstVisibleItemPosition();
-                    System.out.println(firstVisible);
-
-                    loadingMoreMessages = false;
-                }).ignoreElement());
+    public ArrayList<MessageHolder> messageViewsFromMessages(List<Message> messages) {
+        ArrayList<MessageHolder> messageHolders = new ArrayList<>();
+        for (Message m: messages) {
+            messageHolders.add(new MessageHolder(m));
+        }
+        return messageHolders;
     }
 
     /**
@@ -428,12 +459,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         handleMessageSend(ChatSDK.thread().sendMessageWithText(text.trim(), thread));
 
-        if (clearEditText && textInputView != null) {
-            textInputView.clearText();
+        if (clearEditText && messageInput != null) {
+//            textInputView.clearText();
         }
 
         stopTyping(false);
-        scrollListTo(ListPosition.Bottom, false);
+//        scrollListTo(ListPosition.Bottom, false);
     }
 
     protected void handleMessageSend (Completable completable) {
@@ -452,13 +483,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             outState.putString(Keys.IntentKeyThreadEntityID, thread.getEntityID());
         }
 
-        // Save the list position
-        outState.putInt(Keys.IntentKeyListPosSelectEnabled, layoutManager().findFirstVisibleItemPosition());
-    }
-
-    protected LinearLayoutManager layoutManager () {
-        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-        return layoutManager;
     }
 
     @Override
@@ -486,12 +510,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         messageListAdapter.notifyItemRangeChanged(startingIndex, itemCount);
     }
 
-    protected void sortAndReloadData () {
-        messageListAdapter.sortAndNotify();
-    }
-
     protected void reloadDataForMessage (Message message) {
-        messageListAdapter.notifyMessageChanged(message);
+        messageListAdapter.update(new MessageHolder(message));
     }
 
     @Override
@@ -519,7 +539,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                             Locale current = getResources().getConfiguration().locale;
                             PrettyTime pt = new PrettyTime(current);
                             if (thread.otherUser().getIsOnline()) {
-                                setSubtitleText(ChatActivity.this.getString(R.string.online));
+                                setSubtitleText(CKChatActivity.this.getString(R.string.online));
                             } else {
                                 setSubtitleText(String.format(getString(R.string.last_seen__), pt.format(date)));
                             }
@@ -547,10 +567,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         // We have to do this because otherwise if we background the app
         // we will miss any messages that came through while we were in
         // the background
-        loadMessages(messageListAdapter.getItemCount() == 0, -1, ListPosition.Bottom);
+//        loadMessages(messageListAdapter.getItemCount() == 0, -1, ListPosition.Bottom);
 
         // Show a local notification if the text is from a different thread
-        ChatSDK.ui().setLocalNotificationHandler(thread -> !thread.equals(ChatActivity.this.thread));
+        ChatSDK.ui().setLocalNotificationHandler(thread -> !thread.getEntityID().equals(this.thread.getEntityID()));
 
     }
 
@@ -737,7 +757,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
         if (this.bundle.containsKey(Keys.IntentKeyListPosSelectEnabled)) {
             listPos = (Integer) this.bundle.get(Keys.IntentKeyListPosSelectEnabled);
-            scrollListTo(ListPosition.Current, false);
+//            scrollListTo(ListPosition.Current, false);
         }
 
         if (thread == null) {
@@ -749,7 +769,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     }
 
     /**
-     * Update chat current thread using the {@link ChatActivity#bundle} bundle saved.
+     * Update chat current thread using the {@link CKChatActivity#bundle} bundle saved.
      * Also calling the option menu to update it self. Used for showing the thread users icon if thread users amount is bigger then 2.
      * Finally update the action bar for thread messageImageView and name, The update will occur only if needed so free to call.
      */
@@ -780,12 +800,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     @Override
     public void onKeyboardShow() {
-        scrollListTo(ListPosition.Bottom, false);
+//        scrollListTo(ListPosition.Bottom, false);
     }
 
     @Override
     public void onKeyboardHide() {
-        scrollListTo(ListPosition.Bottom, false);
+//        scrollListTo(ListPosition.Bottom, false);
     }
 
     protected void stopTyping (boolean inactive) {
@@ -822,14 +842,14 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         return super.onKeyDown(keyCode, event);
     }
 
-    public void loadMessages(final boolean showLoadingIndicator, final int amountToLoad, final ListPosition toPosition) {
-        progressBar.setVisibility(showLoadingIndicator ? View.VISIBLE : View.INVISIBLE);
-
-        disposableList.add(loadMoreMessages(false, false, true)
-                .observeOn(AndroidSchedulers.mainThread())
-                .doFinally(() -> progressBar.setVisibility(View.INVISIBLE))
-                .subscribe(() -> scrollListTo(toPosition, !showLoadingIndicator), toastOnErrorConsumer()));
-    }
+//    public void loadMessages(final boolean showLoadingIndicator, final int amountToLoad, final ListPosition toPosition) {
+//        progressBar.setVisibility(showLoadingIndicator ? View.VISIBLE : View.INVISIBLE);
+//
+//        disposableList.add(loadMoreMessages(false, false, true)
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .doFinally(() -> progressBar.setVisibility(View.INVISIBLE))
+//                .subscribe(() -> scrollListTo(toPosition, !showLoadingIndicator), toastOnErrorConsumer()));
+//    }
 
     public void markAsDelivered(List<Message> messages){
         for (Message m : messages) {
@@ -841,35 +861,35 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         message.setMessageStatus(MessageSendStatus.Delivered);
     }
 
-    public void scrollListTo(final int position, final boolean animated) {
-        listPos = position;
-
-        if (animated) {
-            recyclerView.smoothScrollToPosition(listPos);
-        }
-        else {
-            recyclerView.getLayoutManager().scrollToPosition(listPos);
-        }
-    }
-
-    public void scrollListTo(final ListPosition position, final boolean animated) {
-
-        int pos = 0;
-
-        switch (position) {
-            case Top:
-                pos = 0;
-                break;
-            case Current:
-                pos = listPos == -1 ? messageListAdapter.size() - 1 : listPos;
-                break;
-            case Bottom:
-                pos = messageListAdapter.size() - 1;
-                break;
-        }
-
-        scrollListTo(pos, animated);
-    }
+//    public void scrollListTo(final int position, final boolean animated) {
+//        listPos = position;
+//
+//        if (animated) {
+//            recyclerView.smoothScrollToPosition(listPos);
+//        }
+//        else {
+//            recyclerView.getLayoutManager().scrollToPosition(listPos);
+//        }
+//    }
+//
+//    public void scrollListTo(final ListPosition position, final boolean animated) {
+//
+//        int pos = 0;
+//
+//        switch (position) {
+//            case Top:
+//                pos = 0;
+//                break;
+//            case Current:
+//                pos = listPos == -1 ? messageListAdapter.size() - 1 : listPos;
+//                break;
+//            case Bottom:
+//                pos = messageListAdapter.size() - 1;
+//                break;
+//        }
+//
+//        scrollListTo(pos, animated);
+//    }
 
     @Override
     public void showOptions() {

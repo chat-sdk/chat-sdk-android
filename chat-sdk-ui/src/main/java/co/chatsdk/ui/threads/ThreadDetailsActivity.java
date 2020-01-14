@@ -15,9 +15,10 @@ import androidx.appcompat.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.squareup.picasso.Picasso;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
@@ -41,7 +42,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     protected boolean animateExit = false;
 
     protected Thread thread;
-    protected SimpleDraweeView threadImageView;
+    protected ImageView threadImageView;
     protected TextView threadNameTextView;
 
     protected ThreadUsersFragment usersFragment;
@@ -107,7 +108,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
 
         if (!StringChecker.isNullOrEmpty(thread.getImageUrl())) {
             threadImageView.setOnClickListener(v -> zoomImageFromThumbnail(threadImageView, thread.getImageUrl()));
-            threadImageView.setImageURI(thread.getImageUrl());
+            Picasso.get().load(thread.getImageUrl()).into(threadImageView);
         } else {
             ThreadImageBuilder.load(threadImageView, thread);
             threadImageView.setOnClickListener(null);
@@ -206,9 +207,9 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         }
         if (item.getItemId() == R.id.action_mute) {
             if (thread.metaValueForKey(Keys.Mute) != null) {
-                ChatSDK.thread().unmuteThread(thread).subscribe(ChatSDK.shared().getCrashReporter());
+                ChatSDK.thread().unmute(thread).subscribe(ChatSDK.shared().getCrashReporter());
             } else {
-                ChatSDK.thread().muteThread(thread).subscribe(ChatSDK.shared().getCrashReporter());
+                ChatSDK.thread().mute(thread).subscribe(ChatSDK.shared().getCrashReporter());
             }
             invalidateOptionsMenu();
         }

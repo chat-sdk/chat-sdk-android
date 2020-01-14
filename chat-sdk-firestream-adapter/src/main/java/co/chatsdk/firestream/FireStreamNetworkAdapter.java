@@ -5,9 +5,9 @@ import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import firestream.chat.Config;
 import firestream.chat.namespace.Fire;
 
-public class FirestreamNetworkAdapter extends FirebaseNetworkAdapter {
+public class FireStreamNetworkAdapter extends FirebaseNetworkAdapter {
 
-    public FirestreamNetworkAdapter() {
+    public FireStreamNetworkAdapter() {
 
         if (!Fire.stream().isInitialized()) {
             Config config = new Config();

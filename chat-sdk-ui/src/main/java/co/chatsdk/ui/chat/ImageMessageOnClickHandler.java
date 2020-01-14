@@ -52,7 +52,7 @@ public class ImageMessageOnClickHandler {
 
             progressBar.setVisibility(View.VISIBLE);
 
-            Disposable d = ImageBuilder.bitmapForURL(activity, url)
+            Disposable d = ImageBuilder.bitmapForURL(url)
                     .observeOn(AndroidSchedulers.mainThread())
                     .doFinally(() -> progressBar.setVisibility(View.INVISIBLE))
                     .subscribe(bitmap -> {

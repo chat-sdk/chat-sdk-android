@@ -7,13 +7,13 @@ import androidx.multidex.MultiDexApplication;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
-import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
-import co.chatsdk.firestream.FirestreamNetworkAdapter;
+import co.chatsdk.firestream.FireStreamNetworkAdapter;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
+import co.chatsdk.ui.chatkit.CKChatActivity;
+import co.chatsdk.ui.chatkit.CKPrivateThreadsFragment;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
-import co.chatsdk.ui.threads.chatkit.PrivateChatKitThreadsFragment;
 import firestream.chat.Config;
 import firestream.chat.namespace.Fire;
 
@@ -28,7 +28,7 @@ public class AppObj extends MultiDexApplication {
 
         Context context = getApplicationContext();
 
-        String rootPath = "micro_test";
+        String rootPath = "micro_test_99";
 
         try {
             Configuration config = new Configuration.Builder()
@@ -53,10 +53,10 @@ public class AppObj extends MultiDexApplication {
 
             Fire.stream().initialize(context, firestreamConfig);
 
-            ChatSDK.initialize(context, config, FirestreamNetworkAdapter.class, BaseInterfaceAdapter.class);
+            ChatSDK.initialize(context, config, FireStreamNetworkAdapter.class, BaseInterfaceAdapter.class);
 
-            ChatSDK.ui().setPrivateThreadsFragment(new PrivateChatKitThreadsFragment());
-
+            ChatSDK.ui().setPrivateThreadsFragment(new CKPrivateThreadsFragment());
+            ChatSDK.ui().setChatActivity(CKChatActivity.class);
 
 //            ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
 

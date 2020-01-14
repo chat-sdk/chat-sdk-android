@@ -58,7 +58,10 @@ ext {
     androidDatabaseSQLCipher = "4.1.3@aar"
     matisseVersion = "0.5.2-beta4"
     speedDial = "2.0.1"
-    chatKit = "0.3.3"
+    chatKit = "0.3.3b2"
+    shapeImageViewVersion = "0.9.+@aar"
+    picassoVersion = "2.71828"
+    circleImageViewVersion = "3.0.1"
 }
 
 allprojects {
@@ -68,6 +71,7 @@ allprojects {
     repositories {
         google()
         maven { url "https://jitpack.io" }
+        maven { url "http://dl.bintray.com/chat-sdk/chatkit" }
         jcenter()
     }
 }

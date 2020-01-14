@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.view.View;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -29,7 +30,8 @@ public class LocationMessageViewHolder extends BaseMessageViewHolder {
         int viewHeight = maxHeight();
 
         LatLng latLng = getLatLng();
-        messageImageView.setImageURI(GoogleUtils.getMapImageURL(latLng, viewWidth, viewHeight));
+
+        Picasso.get().load(GoogleUtils.getMapImageURL(latLng, viewWidth, viewHeight)).into(messageImageView);
 
     }
 

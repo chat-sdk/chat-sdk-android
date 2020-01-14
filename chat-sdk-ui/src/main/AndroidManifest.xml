@@ -54,9 +54,15 @@
             android:parentActivityName=".main.MainAppBarActivity"
             android:launchMode = "singleTop"
             android:windowSoftInputMode="stateHidden|adjustResize"
+            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
+
+        <activity android:name=".chatkit.CKChatActivity"
+            android:parentActivityName=".main.MainAppBarActivity"
+            android:launchMode = "singleTop"
+            android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@style/ChatSDKSlidingTransactionTheme">
 
-            <!--<intent-filter>-->
+        <!--<intent-filter>-->
                 <!--<action android:name="co.chatsdk.QuickReply" />-->
                 <!--<category android:name="android.intent.category.DEFAULT" />-->
             <!--</intent-filter>-->

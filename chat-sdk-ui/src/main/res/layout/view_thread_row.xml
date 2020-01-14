@@ -2,7 +2,6 @@
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:fresco="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:orientation="horizontal"
     android:layout_height="wrap_content"
@@ -22,16 +21,12 @@
         android:gravity="center_vertical"
         android:orientation="horizontal" >
 
-        <com.facebook.drawee.view.SimpleDraweeView
+        <de.hdodenhof.circleimageview.CircleImageView
             style="@style/ThreadListCircleIconStyle"
             android:layout_alignParentLeft="true"
             android:id="@+id/img_thread_image"
             android:layout_height="50dp"
-            android:layout_width="50dp"
-            fresco:placeholderImage="@drawable/icn_100_public_thread"
-            fresco:failureImage="@drawable/icn_100_public_thread"
-            fresco:roundAsCircle="true"
-            fresco:fadeDuration="0" />
+            android:layout_width="50dp" />
 
         <LinearLayout
             android:layout_toRightOf="@id/img_thread_image"

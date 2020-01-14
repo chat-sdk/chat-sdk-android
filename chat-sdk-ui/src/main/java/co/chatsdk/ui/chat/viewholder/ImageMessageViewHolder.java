@@ -4,10 +4,7 @@ import android.app.Activity;
 import android.net.Uri;
 import android.view.View;
 
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.imagepipeline.common.ResizeOptions;
-import com.facebook.imagepipeline.request.ImageRequest;
-import com.facebook.imagepipeline.request.ImageRequestBuilder;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -35,18 +32,13 @@ public class ImageMessageViewHolder extends BaseMessageViewHolder {
         String url = getImageURL();
 
         if (url != null && url.length() > 0) {
-            ImageRequest request = ImageRequestBuilder.newBuilderWithSource(Uri.parse(url))
-                    .setResizeOptions(new ResizeOptions(viewWidth, viewHeight))
-                    .build();
-
-            messageImageView.setController(
-                    Fresco.newDraweeControllerBuilder()
-                            .setOldController(messageImageView.getController())
-                            .setImageRequest(request)
-                            .build());
+            Picasso.get()
+                    .load(url)
+                    .placeholder(R.drawable.icn_200_image_message_loading)
+                    .error(R.drawable.icn_200_image_message_error)
+                    .into(messageImageView);
         } else {
-            // Loads the placeholder
-            messageImageView.setActualImageResource(R.drawable.icn_200_image_message_loading);
+            messageImageView.setImageResource(R.drawable.icn_200_image_message_loading);
         }
     }
 
