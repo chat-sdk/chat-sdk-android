@@ -100,7 +100,6 @@ public class MessageSendRig {
         if (messageDidCreateUpdateAction != null) {
             messageDidCreateUpdateAction.update(message);
         }
-        message.update();
         // Message has been created and added to the thread
         ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
         return message;
@@ -135,11 +134,11 @@ public class MessageSendRig {
                         messageDidUploadUpdateAction.update(message, result);
 
                         // Add the meta from file upload result to text
-                        for (String key : result.meta.keySet()) {
-                            message.setValueForKey(result.meta.get(key), key);
-                        }
-
-                        message.update();
+                        message.update(message -> {
+                            for (String key : result.meta.keySet()) {
+                                message.setValueForKey(result.meta.get(key), key);
+                            }
+                        });
 
                         return Maybe.just(message);
                     } else {

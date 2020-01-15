@@ -4,6 +4,7 @@ import android.view.View;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
+import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.ui.chatkit.model.MessageHolder;
 
 public class OutcomingTextMessageViewHolder
@@ -17,6 +18,6 @@ public class OutcomingTextMessageViewHolder
     public void onBind(MessageHolder message) {
         super.onBind(message);
 
-        time.setText(message.getStatus() + " " + time.getText());
+        time.setText(message.getStatus().toString() + " " + time.getText());
     }
 }

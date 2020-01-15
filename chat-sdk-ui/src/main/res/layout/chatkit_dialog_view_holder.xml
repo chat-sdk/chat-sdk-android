@@ -48,8 +48,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/dialogName"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginRight="12dp"
             android:layout_marginTop="7dp"
             android:layout_toEndOf="@id/dialogAvatar"
             android:layout_toLeftOf="@+id/dialogUnreadBubble"
@@ -63,7 +63,6 @@
                 android:layout_marginEnd="7dp"
                 android:layout_marginRight="7dp"/>
 
-
             <TextView
                 android:id="@id/dialogLastMessage"
                 android:layout_width="match_parent"
@@ -71,9 +70,19 @@
                 android:layout_centerVertical="true"
                 android:layout_toEndOf="@id/dialogLastMessageUserAvatar"
                 android:layout_toRightOf="@id/dialogLastMessageUserAvatar"
+                android:layout_toStartOf="@id/image_read_receipt"
+                android:layout_toLeftOf="@id/image_read_receipt"
                 android:ellipsize="end"
                 android:gravity="top"
-                android:maxLines="1"/>
+                android:maxLines="2"/>
+
+            <ImageView
+                android:id="@id/image_read_receipt"
+                android:layout_width="34dp"
+                android:layout_height="26dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/ic_message_received" />
 
         </RelativeLayout>
 

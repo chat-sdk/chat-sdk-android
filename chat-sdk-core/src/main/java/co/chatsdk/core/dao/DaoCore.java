@@ -176,43 +176,41 @@ public class DaoCore {
         return qb.list();
     }
 
-    public static <T extends CoreEntity> List<T>  fetchEntitiesWithPropertiesAndOrderAndLimit(Class<T> c, int limit, Property whereOrder, int order, Property properties[], Object... values){
-
-        if (values == null || properties == null)
-            throw new NullPointerException("You must have at least one value and one property");
-
-        if (values.length != properties.length)
-            throw new IllegalArgumentException("Values size should match properties size");
-
-        QueryBuilder<T> qb = daoSession.queryBuilder(c);
-        qb.where(properties[0].eq(values[0]));
-
-        if (values.length > 1)
-            for (int i = 0 ; i < values.length ; i++)
-                qb.where(properties[i].eq(values[i]));
-
-        if (whereOrder != null && order != -1)
-            switch (order)
-            {
-                case ORDER_ASC:
-                    qb.orderAsc(whereOrder);
-                    break;
-
-                case ORDER_DESC:
-                    qb.orderDesc(whereOrder);
-                    break;
-            }
-
-        if (limit != -1)
-            qb.limit(limit);
-
-        return qb.listLazy();
-    }
+//    public static <T extends CoreEntity> List<T>  fetchEntitiesWithPropertiesAndOrderAndLimit(Class<T> c, int limit, Property whereOrder, int order, Property properties[], Object... values){
+//
+//        if (values == null || properties == null)
+//            throw new NullPointerException("You must have at least one value and one property");
+//
+//        if (values.length != properties.length)
+//            throw new IllegalArgumentException("Values size should match properties size");
+//
+//        QueryBuilder<T> qb = daoSession.queryBuilder(c);
+//        qb.where(properties[0].eq(values[0]));
+//
+//        if (values.length > 1)
+//            for (int i = 0 ; i < values.length ; i++)
+//                qb.where(properties[i].eq(values[i]));
+//
+//        if (whereOrder != null && order != -1)
+//            switch (order)
+//            {
+//                case ORDER_ASC:
+//                    qb.orderAsc(whereOrder);
+//                    break;
+//
+//                case ORDER_DESC:
+//                    qb.orderDesc(whereOrder);
+//                    break;
+//            }
+//
+//        if (limit != -1)
+//            qb.limit(limit);
+//
+//        return qb.listLazy();
+//    }
 
     /* Update, Create and Delete*/
     public static  <T extends CoreEntity> T createEntity(T entity){
-        if (DEBUG) Timber.v("createEntity");
-
         if (entity == null) {
             return null;
         }
@@ -222,32 +220,26 @@ public class DaoCore {
         return entity;
     }
 
-//    public static <T extends CoreEntity> T deleteEntity(T entity){
-//        if (DEBUG) Timber.v("deleteEntity");
-//
-//        if (entity == null)
-//        {
-//            if (DEBUG) Timber.e("CoreEntity is null");
-//            return null;
-//        }
-//
-//        daoSession.delete(entity);
-//
-//        daoSession.clear();
-//
-//        return entity;
-//    }
+    public static <T extends CoreEntity> T deleteEntity(T entity){
+        if (entity == null) {
+            return null;
+        }
 
-//    public static <T extends CoreEntity> T updateEntity(T entity){
-//        if (DEBUG) Timber.v("updateEntity");
-//
-//        if (entity==null)
-//            return null;
-//
-//        daoSession.update(entity);
-//
-//        return entity;
-//    }
+        daoSession.delete(entity);
+        daoSession.clear();
+
+        System.out.println("Update Entity: " + entity.toString());
+        return entity;
+    }
+
+    public static <T extends CoreEntity> T updateEntity(T entity){
+        if (entity==null) {
+            return null;
+        }
+        asyncSession.update(entity);
+        System.out.println("Update Entity: " + entity.toString());
+        return entity;
+    }
 
     public static void connectUserAndThread(User user, Thread thread){
         if (DEBUG) Timber.v("connectUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
@@ -265,7 +257,7 @@ public class DaoCore {
         if (DEBUG) Timber.v("breakUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
         UserThreadLink linkData = fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, thread.getId(), user.getId());
         if(linkData != null) {
-            linkData.delete();
+            deleteEntity(linkData);
         }
     }
 

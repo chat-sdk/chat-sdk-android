@@ -31,6 +31,7 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.DaoDateTimeConverter;
+import io.reactivex.functions.Consumer;
 
 @Entity
 public class Message extends AbstractEntity {
@@ -190,8 +191,8 @@ public class Message extends AbstractEntity {
         }
         metaValue.setValue(MetaValueHelper.toString(value));
         metaValue.setKey(key);
-        metaValue.update();
-        update();
+        ChatSDK.db().update(metaValue);
+        ChatSDK.db().update(this);
     }
 
     protected MetaValue metaValue (String key) {
@@ -251,8 +252,8 @@ public class Message extends AbstractEntity {
         link.setStatus(status.getValue());
         link.setDate(date);
 
-        link.update();
-        update();
+        ChatSDK.db().update(link);
+        ChatSDK.db().update(this);
     }
 
     public LatLng getLocation () {
@@ -303,7 +304,7 @@ public class Message extends AbstractEntity {
 
     public void setMessageStatus(MessageSendStatus status) {
         this.status = status.ordinal();
-        update();
+        ChatSDK.db().update(this);
     }
     public void setStatus(Integer status) {
         this.status = status;
@@ -395,7 +396,6 @@ public class Message extends AbstractEntity {
 
     public void setRead(Boolean read) {
         this.read = read;
-        update();
     }
 
     public void cascadeDelete () {
@@ -638,6 +638,15 @@ public class Message extends AbstractEntity {
             previousMessageId = previousMessage == null ? null : previousMessage.getId();
             previousMessage__resolvedKey = previousMessageId;
         }
+    }
+
+    public void update(Action<Message> action) {
+        update(action, false);
+    }
+
+    public void update(Action<Message> action, boolean notify) {
+        action.run(this);
+        ChatSDK.db().update(this);
     }
 
 }

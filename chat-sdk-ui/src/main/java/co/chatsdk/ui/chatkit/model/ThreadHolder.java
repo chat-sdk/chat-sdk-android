@@ -33,10 +33,12 @@ public class ThreadHolder implements IDialog<MessageHolder> {
     }
 
     @Override
-    public List<? extends IUser> getUsers() {
+    public List<UserHolder> getUsers() {
         ArrayList<UserHolder> users = new ArrayList<>();
         for (User user: thread.getUsers()) {
-            users.add(new UserHolder(user));
+            if (!user.isMe()) {
+                users.add(new UserHolder(user));
+            }
         }
         return users;
     }
@@ -66,10 +68,6 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     public Thread getThread() {
         return thread;
-    }
-
-    public UserHolder getOtherUser() {
-        return new UserHolder(thread.otherUser());
     }
 
 }

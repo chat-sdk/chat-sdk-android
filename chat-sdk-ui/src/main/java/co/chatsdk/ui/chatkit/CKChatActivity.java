@@ -96,10 +96,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     protected TextView titleTextView;
     protected TextView subtitleTextView;
     protected ImageView threadImageView;
-    protected Disposable typingTimerDisposable;
-
-    protected ProgressBar progressBar;
-    protected int listPos = -1;
 
     protected Bundle bundle;
     protected boolean loadingMoreMessages;
@@ -118,11 +114,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
      */
     protected boolean inflateMenuItems = true;
 
-    /**
-     * Save the scroll state of the messages list.
-     */
-    protected boolean scrolling = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,11 +124,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
         if (!updateThreadFromBundle(savedInstanceState)) {
             return;
-        }
-
-        if (savedInstanceState != null) {
-            listPos = savedInstanceState.getInt(Keys.IntentKeyListPosSelectEnabled, -1);
-            savedInstanceState.remove(Keys.IntentKeyListPosSelectEnabled);
         }
 
         initActionBar();
@@ -299,21 +285,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     protected void initViews () {
         // Set up the text box - this is the box that sits above the keyboard
 
-        progressBar = findViewById(R.id.progress_bar);
 
-//        final SwipeRefreshLayout mSwipeRefresh = findViewById(R.id.layout_swipe_to_refresh);
-//
-//        mSwipeRefresh.setOnRefreshListener(() -> {
-//            if (!loadingMoreMessages) {
-//                loadMoreMessages(true, true, true)
-//                        .doFinally(() -> mSwipeRefresh.setRefreshing(false))
-//                        .subscribeOn(AndroidSchedulers.mainThread())
-//                        .doOnError(toastOnErrorConsumer())
-//                        .subscribe(ChatSDK.shared().getCrashReporter());
-//            } else {
-//                mSwipeRefresh.setRefreshing(false);
-//            }
-//        });
 
         messagesList = findViewById(R.id.messagesList);
 
@@ -324,9 +296,9 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
         MessageHolders holders = new MessageHolders()
                 .setIncomingTextConfig(IncomingTextMessageViewHolder.class, R.layout.chatkit_item_incoming_text_message, holderPayload)
-                .setOutcomingTextConfig(OutcomingTextMessageViewHolder.class, R.layout.chatkit_item_outcoming_text_message)
-                .setIncomingImageConfig(IncomingImageMessageViewHolder.class, R.layout.chatkit_item_incoming_image_message)
-                .setOutcomingImageConfig(OutcomingImageMessageViewHolder.class, R.layout.chatkit_item_outcoming_image_message);
+                .setOutcomingTextConfig(OutcomingTextMessageViewHolder.class, R.layout.chatkit_item_outcoming_text_message);
+//                .setIncomingImageConfig(IncomingImageMessageViewHolder.class, R.layout.chatkit_item_incoming_image_message)
+//                .setOutcomingImageConfig(OutcomingImageMessageViewHolder.class, R.layout.chatkit_item_outcoming_image_message);
 
         messageListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, (imageView, url, payload) -> {
             Picasso.get().load(url).into(imageView);
@@ -336,7 +308,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
         messageInput = findViewById(R.id.input);
         messageInput.setInputListener(input -> {
-            sendMessage(String.valueOf(input), true);
+            sendMessage(String.valueOf(input));
             return true;
         });
 
@@ -449,22 +421,14 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
      * Send text text
      *
      * @param text to send.
-     * @param clearEditText if true clear the text edit text.
      */
-    public void sendMessage(String text, boolean clearEditText) {
+    public void sendMessage(String text) {
 
         if (text == null || text.isEmpty() || text.replace(" ", "").isEmpty()) {
             return;
         }
 
         handleMessageSend(ChatSDK.thread().sendMessageWithText(text.trim(), thread));
-
-        if (clearEditText && messageInput != null) {
-//            textInputView.clearText();
-        }
-
-        stopTyping(false);
-//        scrollListTo(ListPosition.Bottom, false);
     }
 
     protected void handleMessageSend (Completable completable) {
@@ -549,18 +513,18 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
         // Set up the UI to dismiss keyboard on touch event, Option and Send buttons are not included.
         // If list is scrolling we ignoring the touch event.
-        setupTouchUIToDismissKeyboard(findViewById(R.id.view_root), (v, event) -> {
-
-            // Using small delay for better accuracy in catching the scrolls.
-            v.postDelayed(() -> {
-                if (!scrolling) {
-                    hideKeyboard();
-                    stopTyping(false);
-                }
-            }, 300);
-
-            return false;
-        }, R.id.button_send, R.id.button_options);
+//        setupTouchUIToDismissKeyboard(findViewById(R.id.view_root), (v, event) -> {
+//
+//            // Using small delay for better accuracy in catching the scrolls.
+//            v.postDelayed(() -> {
+//                if (!scrolling) {
+//                    hideKeyboard();
+//                    stopTyping(false);
+//                }
+//            }, 300);
+//
+//            return false;
+//        }, R.id.button_send, R.id.button_options);
 
         markRead();
 
@@ -588,7 +552,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     protected void onStop() {
         super.onStop();
 
-        stopTyping(true);
+        becomeInactive();
         markRead();
 
         if (thread != null && thread.typeIs(ThreadType.Public) && (removeUserFromChatOnExit || thread.metaValueForKey(Keys.Mute) != null)) {
@@ -702,7 +666,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     protected void startAddUsersActivity() {
         Intent intent = new Intent(this, ChatSDK.ui().getAddUsersToThreadActivity());
         intent.putExtra(Keys.IntentKeyThreadEntityID, thread.getEntityID());
-        intent.putExtra(Keys.IntentKeyListPosSelectEnabled, listPos);
         intent.putExtra(Keys.IntentKeyAnimateExit, true);
 
         startActivityForResult(intent, ADD_USERS);
@@ -725,7 +688,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
         // Showing the pick friends context.
         Intent intent = new Intent(this, ChatSDK.ui().getThreadDetailsActivity());
         intent.putExtra(Keys.IntentKeyThreadEntityID, thread.getEntityID());
-        intent.putExtra(Keys.IntentKeyListPosSelectEnabled, listPos);
         intent.putExtra(Keys.IntentKeyAnimateExit, true);
 
         startActivityForResult(intent, SHOW_DETAILS);
@@ -755,10 +717,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                 thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
             }
         }
-        if (this.bundle.containsKey(Keys.IntentKeyListPosSelectEnabled)) {
-            listPos = (Integer) this.bundle.get(Keys.IntentKeyListPosSelectEnabled);
-//            scrollListTo(ListPosition.Current, false);
-        }
 
         if (thread == null) {
             finish();
@@ -779,12 +737,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
         initActionBar();
     }
 
-    public void startTyping () {
-        setChatState(TypingIndicatorHandler.State.composing);
-        typingTimerDisposable = Observable.just(true).delay(5000, TimeUnit.MILLISECONDS)
-                .subscribeOn(Schedulers.io())
-                .subscribe(aBoolean -> setChatState(TypingIndicatorHandler.State.active));
-    }
 
     @Override
     public void sendAudio(Recording recording) {
@@ -793,9 +745,17 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
         }
     }
 
+    public void startTyping () {
+        setChatState(TypingIndicatorHandler.State.composing);
+    }
+
+    public void becomeInactive () {
+        setChatState(TypingIndicatorHandler.State.inactive);
+    }
+
     @Override
     public void stopTyping() {
-        stopTyping(false);
+        setChatState(TypingIndicatorHandler.State.active);
     }
 
     @Override
@@ -806,19 +766,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     @Override
     public void onKeyboardHide() {
 //        scrollListTo(ListPosition.Bottom, false);
-    }
-
-    protected void stopTyping (boolean inactive) {
-        if (typingTimerDisposable != null) {
-            typingTimerDisposable.dispose();
-            typingTimerDisposable = null;
-        }
-        if(inactive) {
-            setChatState(TypingIndicatorHandler.State.inactive);
-        }
-        else {
-            setChatState(TypingIndicatorHandler.State.active);
-        }
     }
 
     protected void setChatState (TypingIndicatorHandler.State state) {
@@ -842,15 +789,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
         return super.onKeyDown(keyCode, event);
     }
 
-//    public void loadMessages(final boolean showLoadingIndicator, final int amountToLoad, final ListPosition toPosition) {
-//        progressBar.setVisibility(showLoadingIndicator ? View.VISIBLE : View.INVISIBLE);
-//
-//        disposableList.add(loadMoreMessages(false, false, true)
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .doFinally(() -> progressBar.setVisibility(View.INVISIBLE))
-//                .subscribe(() -> scrollListTo(toPosition, !showLoadingIndicator), toastOnErrorConsumer()));
-//    }
-
     public void markAsDelivered(List<Message> messages){
         for (Message m : messages) {
             markAsDelivered(m);
@@ -860,36 +798,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     public void markAsDelivered(Message message){
         message.setMessageStatus(MessageSendStatus.Delivered);
     }
-
-//    public void scrollListTo(final int position, final boolean animated) {
-//        listPos = position;
-//
-//        if (animated) {
-//            recyclerView.smoothScrollToPosition(listPos);
-//        }
-//        else {
-//            recyclerView.getLayoutManager().scrollToPosition(listPos);
-//        }
-//    }
-//
-//    public void scrollListTo(final ListPosition position, final boolean animated) {
-//
-//        int pos = 0;
-//
-//        switch (position) {
-//            case Top:
-//                pos = 0;
-//                break;
-//            case Current:
-//                pos = listPos == -1 ? messageListAdapter.size() - 1 : listPos;
-//                break;
-//            case Bottom:
-//                pos = messageListAdapter.size() - 1;
-//                break;
-//        }
-//
-//        scrollListTo(pos, animated);
-//    }
 
     @Override
     public void showOptions() {
@@ -911,7 +819,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
     @Override
     public void onSendPressed(String text) {
-        sendMessage(text, true);
+        sendMessage(text);
     }
 
     @Override

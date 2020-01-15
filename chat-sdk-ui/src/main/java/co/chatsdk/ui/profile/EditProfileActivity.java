@@ -21,11 +21,15 @@ import java.util.Locale;
 import java.util.Map;
 
 import androidx.annotation.LayoutRes;
+
+import co.chatsdk.core.dao.Action;
+import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.MediaSelector;
@@ -213,7 +217,6 @@ public class EditProfileActivity extends BaseActivity {
         currentUser.setEmail(email);
 
         boolean changed = !userMeta.entrySet().equals(currentUser.metaMap().entrySet());
-//        boolean imageChanged = false;
         boolean presenceChanged = false;
 
         Map<String, Object> metaMap = new HashMap<>(currentUser.metaMap());
@@ -233,18 +236,10 @@ public class EditProfileActivity extends BaseActivity {
             currentUser.setAvatarURL(avatarImageURL);
         }
 
-        currentUser.update();
-
         if (presenceChanged && !changed) {
             // Send presence
             ChatSDK.core().goOnline();
         }
-
-        // TODO: Add this in for Firebase maybe move this to push user...
-//        if (imageChanged && avatarURL != null) {
-//            UserAvatarHelper.saveProfilePicToServer(avatarURL, this).subscribe();
-//        }
-//        else if (changed) {
 
         final Runnable finished = () -> {
             View v = getCurrentFocus();
@@ -252,12 +247,13 @@ public class EditProfileActivity extends BaseActivity {
                 InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (imm != null) imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
-
             finish();
         };
 
-
         if (changed) {
+
+            currentUser.update();
+
             showOrUpdateProgressDialog(getString(R.string.alert_save_contact));
             disposableList.add(ChatSDK.core().pushUser()
                     .observeOn(AndroidSchedulers.mainThread())
@@ -269,6 +265,15 @@ public class EditProfileActivity extends BaseActivity {
         else {
             finished.run();
         }
+
+
+        // TODO: Add this in for Firebase maybe move this to push user...
+//        if (imageChanged && avatarURL != null) {
+//            UserAvatarHelper.saveProfilePicToServer(avatarURL, this).subscribe();
+//        }
+//        else if (changed) {
+
+
     }
 
     protected boolean valueChanged (Map<String, Object> h1, Map<String, Object> h2, String key) {

@@ -1,6 +1,5 @@
 package co.chatsdk.ui.chatkit;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -27,16 +26,14 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.ImageBuilder;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
 import co.chatsdk.ui.threads.ThreadImageBuilder;
-import co.chatsdk.ui.chatkit.custom.DialogViewHolder;
+import co.chatsdk.ui.chatkit.custom.ThreadViewHolder;
 import co.chatsdk.ui.chatkit.model.MessageHolder;
 import co.chatsdk.ui.chatkit.model.ThreadHolder;
 import co.chatsdk.ui.chatkit.model.TypingThreadHolder;
 import io.reactivex.Observable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
 import io.reactivex.subjects.PublishSubject;
 
@@ -116,7 +113,7 @@ public abstract class CKThreadsFragment extends BaseFragment {
 
         dialogsList = mainView.findViewById(R.id.dialogsList);
 
-        dialogsListAdapter = new DialogsListAdapter<>(R.layout.chatkit_dialog_view_holder, DialogViewHolder.class, (imageView, url, payload) -> {
+        dialogsListAdapter = new DialogsListAdapter<>(R.layout.chatkit_dialog_view_holder, ThreadViewHolder.class, (imageView, url, payload) -> {
             if (getContext() != null) {
                 if (url != null) {
                     Picasso.get().load(url).placeholder(ThreadImageBuilder.defaultBitmapResId()).into(imageView);

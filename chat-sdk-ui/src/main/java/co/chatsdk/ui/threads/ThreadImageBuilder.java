@@ -37,7 +37,8 @@ import static co.chatsdk.core.utils.ImageBuilder.bitmapForURL;
 public class ThreadImageBuilder {
 
     public static Disposable load(final ImageView imageView, final Thread thread) {
-        return load(imageView, thread);
+        int size = imageView.getContext().getResources().getDimensionPixelSize(R.dimen.action_bar_avatar_max_size);
+        return load(imageView, thread, size);
     }
 
     public static Disposable load (final ImageView imageView, final Thread thread, int size) {

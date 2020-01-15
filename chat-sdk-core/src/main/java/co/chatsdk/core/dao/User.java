@@ -112,8 +112,6 @@ public class User extends AbstractEntity implements UserListItem {
         contactLink.setUserId(user.getId());
         // insert contact link entity into DB
         daoSession.insertOrReplace(contactLink);
-
-        this.update();
     }
 
     public void deleteContact (User user) {
@@ -132,11 +130,8 @@ public class User extends AbstractEntity implements UserListItem {
                 properties, this.getId(), user.getId(), type.ordinal());
 
         for(ContactLink link : contactLinks) {
-            link.delete();
+            ChatSDK.db().delete(link);
         }
-
-//        this.refresh();
-        this.update();
     }
 
     public void addContact(User user) {
@@ -304,8 +299,9 @@ public class User extends AbstractEntity implements UserListItem {
         }
         metaValue.setValue(value);
         metaValue.setKey(key);
-        metaValue.update();
-        update();
+
+        ChatSDK.db().update(metaValue);
+        ChatSDK.db().update(this);
     }
 
     @Keep
@@ -468,6 +464,20 @@ public class User extends AbstractEntity implements UserListItem {
                 .placeholder(R.drawable.icn_32_profile_placeholder)
                 .error(R.drawable.icn_32_profile_placeholder)
                 .into(imageView);
+    }
+
+    public void update(Action<User> action) {
+        update(action, false);
+    }
+
+    public void update(Action<User> action, boolean notify) {
+        action.run(this);
+        ChatSDK.db().update(this);
+    }
+
+    public void create(Action<User> action) {
+        action.run(this);
+        ChatSDK.db().insertOrReplaceEntity(this);
     }
 
 }

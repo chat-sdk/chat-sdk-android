@@ -139,16 +139,14 @@ public class Thread extends AbstractEntity {
 
     public void addUser (User user) {
         DaoCore.connectUserAndThread(user, this);
-        update();
-        user.update();
-//        resetUserThreadLinks();
+        ChatSDK.db().update(user);
+        ChatSDK.db().update(this);
     }
 
     public void removeUser (User user) {
         DaoCore.breakUserAndThread(user, this);
-        update();
-        user.update();
-//        resetUserThreadLinks();
+        ChatSDK.db().update(user);
+        ChatSDK.db().update(this);
     }
 
     public User otherUser () {
@@ -247,8 +245,8 @@ public class Thread extends AbstractEntity {
         }
         metaValue.setValue(value);
         metaValue.setKey(key);
-        metaValue.update();
-        update();
+        ChatSDK.db().update(metaValue);
+        ChatSDK.db().update(this);
     }
 
     @Keep
@@ -339,9 +337,8 @@ public class Thread extends AbstractEntity {
         ArrayList<Message> messages = new ArrayList<>(getMessages());
         for(Message m : messages) {
             m.setRead(true);
-            m.update();
+            ChatSDK.db().update(m);
         }
-        update();
     }
 
     public Long getId() {

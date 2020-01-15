@@ -26,15 +26,13 @@
         android:id="@+id/dialogsList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-
-        />
-
-<!--    <androidx.recyclerview.widget.RecyclerView-->
-<!--        android:id="@+id/list_threads"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="fill_parent"-->
-<!--        android:scrollbars="none"-->
-<!--        app:layout_behavior="@string/appbar_scrolling_view_behavior" />-->
+        app:dialogDividerLeftPadding="0dp"
+        app:dialogTitleTextStyle="bold"
+        app:dialogUnreadTitleTextStyle="bold"
+        app:dialogTitleTextSize="16dp"
+        app:dialogMessageTextSize="15dp"
+        app:dialogMessageTextColor="@color/gray"
+        app:dialogUnreadMessageTextColor="#00B7FF"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

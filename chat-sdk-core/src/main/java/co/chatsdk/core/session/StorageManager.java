@@ -141,4 +141,13 @@ public class StorageManager {
 
     }
 
+    public void update(CoreEntity entity) {
+        DaoCore.updateEntity(entity);
+    }
+
+    public void delete(CoreEntity entity) {
+        DaoCore.deleteEntity(entity);
+    }
+
+
 }

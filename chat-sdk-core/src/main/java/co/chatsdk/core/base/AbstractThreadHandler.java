@@ -210,9 +210,8 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 thread.removeMessage(m);
                 m.delete();
             }
-            thread.update();
             ChatSDK.events().source().onNext(NetworkEvent.threadRemoved(thread));
-            thread.delete();
+            ChatSDK.db().delete(thread);
 
             emitter.onComplete();
         });
