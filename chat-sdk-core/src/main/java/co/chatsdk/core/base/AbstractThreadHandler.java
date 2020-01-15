@@ -6,10 +6,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 import co.chatsdk.core.R;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -23,6 +25,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
+import co.chatsdk.core.types.ReadStatus;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
@@ -74,6 +77,15 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         message.setDate(new DateTime(System.currentTimeMillis()));
         message.setEntityID(UUID.randomUUID().toString());
         message.setType(type);
+
+        for (User user: thread.getUsers()) {
+            if (user.isMe()) {
+                message.setUserReadStatus(user, ReadStatus.read(), new DateTime());
+            } else {
+                message.setUserReadStatus(user, ReadStatus.none(), new DateTime());
+            }
+        }
+
         thread.addMessage(message);
         return message;
     }

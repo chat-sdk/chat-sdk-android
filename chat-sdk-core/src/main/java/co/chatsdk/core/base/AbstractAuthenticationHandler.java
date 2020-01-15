@@ -16,10 +16,11 @@ import io.reactivex.Completable;
 
 public abstract class AbstractAuthenticationHandler implements AuthenticationHandler {
 
-    public static String provider = "";
     protected boolean authenticatedThisSession = false;
 
-    private AuthStatus authStatus = AuthStatus.IDLE;
+    protected String currentUserID = null;
+
+    protected AuthStatus authStatus = AuthStatus.IDLE;
 
     public AuthStatus getAuthStatus () {
         return authStatus;
@@ -61,6 +62,8 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
      */
     public void setLoginInfo(Map<String, Object> values) {
 
+        currentUserID = null;
+
         SharedPreferences.Editor keyValuesEditor = ChatSDK.shared().getPreferences().edit();
 
         for (String s : values.keySet()) {
@@ -76,6 +79,9 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
     }
 
     public void addLoginInfoData (String key, Object value) {
+
+        currentUserID = null;
+
         SharedPreferences.Editor keyValuesEditor = ChatSDK.shared().getPreferences().edit();
         if (value instanceof Integer) {
             keyValuesEditor.putInt(key, (Integer) value);
@@ -88,6 +94,9 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
     }
 
     public void removeLoginInfo (String key) {
+
+        currentUserID = null;
+
         SharedPreferences.Editor keyValuesEditor = ChatSDK.shared().getPreferences().edit();
         keyValuesEditor.remove(key);
         keyValuesEditor.apply();
@@ -98,8 +107,12 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
      * The preference manager is initialized when the NetworkManager.Init(context) is called.
      */
     public String getCurrentUserEntityID() {
-        return (String) getLoginInfo().get(AuthKeys.CurrentUserID);
+        if (currentUserID == null || !isAuthenticated()) {
+            currentUserID = (String) getLoginInfo().get(AuthKeys.CurrentUserID);
+        }
+        return currentUserID;
     }
+
 
     public Map<String, ?> getLoginInfo() {
         return ChatSDK.shared().getPreferences().getAll();

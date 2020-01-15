@@ -67,7 +67,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         if(thread != null) {
             e.onSuccess(thread);
         } else {
-            thread = new Thread();
+            thread = ChatSDK.db().createEntity(Thread.class);
 
             int threadType = type;
 
@@ -91,8 +91,6 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 thread.setImageUrl(imageURL);
             }
 
-            final Thread finalThread = ChatSDK.db().insertOrReplaceEntity(thread);
-
             if (threadType == ThreadType.Private1to1) {
                 thread.addUsers(allUsers);
                 thread.setEntityID(thread.otherUser().getEntityID());
@@ -113,6 +111,8 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                         usersToAdd.add(new FireStreamUser(u.getEntityID(), RoleType.member()));
                     }
                 }
+
+                final Thread finalThread = thread;
 
                 // We need to actually create the chat
                 Fire.Stream.manage(Fire.Stream.createChat(name, imageURL, null, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {

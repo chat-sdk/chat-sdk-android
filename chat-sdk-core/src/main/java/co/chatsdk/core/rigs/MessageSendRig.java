@@ -133,12 +133,9 @@ public class MessageSendRig {
                     if (result.urlValid() && messageDidUploadUpdateAction != null) {
                         messageDidUploadUpdateAction.update(message, result);
 
-                        // Add the meta from file upload result to text
-                        message.update(message -> {
-                            for (String key : result.meta.keySet()) {
-                                message.setValueForKey(result.meta.get(key), key);
-                            }
-                        });
+                        for (String key : result.meta.keySet()) {
+                            message.setValueForKey(result.meta.get(key), key);
+                        }
 
                         return Maybe.just(message);
                     } else {

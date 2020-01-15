@@ -7,6 +7,7 @@ import androidx.multidex.MultiDexApplication;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
+import co.chatsdk.core.test.DummyData;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firestream.FireStreamNetworkAdapter;
@@ -65,6 +66,8 @@ public class AppObj extends MultiDexApplication {
             FirebaseFileStorageModule.activate();
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
+
+//            new DummyData();
 
 //            TestScript.run(context, config.build().firebaseRootPath);
 

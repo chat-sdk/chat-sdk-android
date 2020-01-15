@@ -80,32 +80,45 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
 
     }
 
+//    @Override
+//    public void markRead(Thread thread) {
+//        for (Message m : thread.getMessages()) {
+//            if (!m.isRead()) {
+//                User currentUser = ChatSDK.currentUser();
+//                m.setUserReadStatus(currentUser, ReadStatus.read(), new DateTime());
+//                // Send the read status
+//
+//                if (thread.typeIs(ThreadType.Private1to1)) {
+//                    User otherUser = thread.otherUser();
+//                    dm.add(Fire.Stream.sendDeliveryReceipt(otherUser.getEntityID(), DeliveryReceiptType.read(), m.getEntityID())
+//                            .subscribe(() -> {}, this));
+//                }
+//                if (thread.typeIs(ThreadType.PrivateGroup)) {
+//                    IChat chat = Fire.stream().getChat(thread.getEntityID());
+//                    if (chat != null) {
+//                        chat.manage(chat.sendDeliveryReceipt(DeliveryReceiptType.read(), m.getEntityID()).subscribe(() -> {}, this));
+//                    }
+//                }
+//            }
+//        }
+//    }
+
     @Override
-    public void markRead(Thread thread) {
-        for (Message m : thread.getMessages()) {
-            if (!m.getSender().isMe()) {
-                ReadStatus status = m.readStatusForUser(ChatSDK.currentUserID());
-                if (!status.is(ReadStatus.read())) {
+    public void markRead(Message message) {
+        Thread thread = message.getThread();
 
-                    m.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new DateTime());
-                    // Send the read status
-
-                    if (thread.typeIs(ThreadType.Private1to1)) {
-                        User otherUser = thread.otherUser();
-                        dm.add(Fire.Stream.sendDeliveryReceipt(otherUser.getEntityID(), DeliveryReceiptType.read(), m.getEntityID())
-                                .subscribe(() -> {}, this));
-                    }
-                    if (thread.typeIs(ThreadType.PrivateGroup)) {
-                        IChat chat = Fire.stream().getChat(thread.getEntityID());
-                        if (chat != null) {
-                            chat.manage(chat.sendDeliveryReceipt(DeliveryReceiptType.read(), m.getEntityID()).subscribe(() -> {}, this));
-                        }
-                    }
-                }
+        if (thread.typeIs(ThreadType.Private1to1)) {
+            User otherUser = thread.otherUser();
+            dm.add(Fire.Stream.sendDeliveryReceipt(otherUser.getEntityID(), DeliveryReceiptType.read(), message.getEntityID())
+                    .subscribe(() -> {}, this));
+        }
+        if (thread.typeIs(ThreadType.PrivateGroup)) {
+            IChat chat = Fire.stream().getChat(thread.getEntityID());
+            if (chat != null) {
+                chat.manage(chat.sendDeliveryReceipt(DeliveryReceiptType.read(), message.getEntityID()).subscribe(() -> {}, this));
             }
         }
     }
-
     @Override
     public void accept(Throwable throwable) throws Exception {
         throwable.printStackTrace();

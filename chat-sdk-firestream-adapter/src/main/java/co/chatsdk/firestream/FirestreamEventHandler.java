@@ -53,12 +53,11 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                 // Get the thread
                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(chat.getId());
                 if (thread == null) {
-                    thread = new Thread();
+                    thread = ChatSDK.db().createEntity(Thread.class);
                     thread.setEntityID(chat.getId());
                     thread.setType(ThreadType.PrivateGroup);
                     thread.setCreationDate(new Date());
-
-                    ChatSDK.db().insertOrReplaceEntity(thread);
+                    thread.update();
 
                     eventSource.onNext(NetworkEvent.threadAdded(thread));
                 }
@@ -124,14 +123,13 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                 // Get the thread
                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(message.getFrom());
                 if (thread == null) {
-                    thread = new Thread();
+                    thread = ChatSDK.db().createEntity(Thread.class);
 
                     thread.setEntityID(message.getFrom());
                     thread.setType(ThreadType.Private1to1);
                     thread.setCreationDate(new Date());
                     thread.setCreator(user);
-
-                    ChatSDK.db().insertOrReplaceEntity(thread);
+                    thread.update();
 
                     // Add the sender
                     thread.addUsers(user, ChatSDK.currentUser());

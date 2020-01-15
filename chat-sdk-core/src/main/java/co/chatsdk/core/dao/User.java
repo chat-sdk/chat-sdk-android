@@ -300,8 +300,8 @@ public class User extends AbstractEntity implements UserListItem {
         metaValue.setValue(value);
         metaValue.setKey(key);
 
-        ChatSDK.db().update(metaValue);
-        ChatSDK.db().update(this);
+        metaValue.update();
+        update();
     }
 
     @Keep
@@ -465,19 +465,4 @@ public class User extends AbstractEntity implements UserListItem {
                 .error(R.drawable.icn_32_profile_placeholder)
                 .into(imageView);
     }
-
-    public void update(Action<User> action) {
-        update(action, false);
-    }
-
-    public void update(Action<User> action, boolean notify) {
-        action.run(this);
-        ChatSDK.db().update(this);
-    }
-
-    public void create(Action<User> action) {
-        action.run(this);
-        ChatSDK.db().insertOrReplaceEntity(this);
-    }
-
 }

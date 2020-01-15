@@ -26,6 +26,7 @@ import java.util.concurrent.Callable;
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.ReadReceiptUserLink;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.hook.HookEvent;
@@ -70,7 +71,18 @@ public class MessageWrapper  {
         values.put(Keys.Date, ServerValue.TIMESTAMP);
         values.put(Keys.Type, model.getType());
         values.put(Keys.UserFirebaseId, model.getSender().getEntityID());
-        values.put(FirebasePaths.ReadPath, initialReadReceipts());
+
+        // TODO: Check this
+        HashMap<String, Map<String, Integer>> map = new HashMap<>();
+        for (ReadReceiptUserLink link: getModel().getReadReceiptLinks()) {
+
+            HashMap<String, Integer> status = new HashMap<>();
+            status.put(Keys.Status, link.getStatus());
+            map.put(link.getUser().getEntityID(), status);
+        }
+
+        values.put(FirebasePaths.ReadPath, map);
+
         values.put(Keys.To, getTo());
         values.put(Keys.From, ChatSDK.currentUserID());
 
@@ -87,19 +99,19 @@ public class MessageWrapper  {
         return users;
     }
 
-    private HashMap<String, HashMap<String, Integer>> initialReadReceipts () {
-        HashMap<String, HashMap<String, Integer>> map = new HashMap<>();
-
-        for(User u : getModel().getThread().getUsers()) {
-            ReadStatus readStatus = u.isMe() ? ReadStatus.read() : ReadStatus.none();
-
-            HashMap<String, Integer> status = new HashMap<>();
-            status.put(Keys.Status, readStatus.getValue());
-            map.put(u.getEntityID(), status);
-        }
-
-        return map;
-    }
+//    private HashMap<String, HashMap<String, Integer>> initialReadReceipts () {
+//        HashMap<String, HashMap<String, Integer>> map = new HashMap<>();
+//
+//        for(User u : getModel().getThread().getUsers()) {
+//            ReadStatus readStatus = u.isMe() ? ReadStatus.read() : ReadStatus.none();
+//
+//            HashMap<String, Integer> status = new HashMap<>();
+//            status.put(Keys.Status, readStatus.getValue());
+//            map.put(u.getEntityID(), status);
+//        }
+//
+//        return map;
+//    }
 
     private boolean contains (Map<String, Object> value, String key) {
         return value.containsKey(key) && !value.get(key).equals("");

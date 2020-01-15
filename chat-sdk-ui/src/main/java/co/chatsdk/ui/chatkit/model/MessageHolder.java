@@ -21,6 +21,8 @@ import co.chatsdk.ui.R;
 public class MessageHolder implements IMessage, MessageContentType.Image {
 
     public Message message;
+    protected ReadStatus readStatus = null;
+    protected UserHolder userHolder = null;
 
     public MessageHolder(Message message) {
         this.message = message;
@@ -38,7 +40,10 @@ public class MessageHolder implements IMessage, MessageContentType.Image {
 
     @Override
     public UserHolder getUser() {
-        return new UserHolder(message.getSender());
+        if (userHolder == null) {
+            userHolder = new UserHolder(message.getSender());
+        }
+        return userHolder;
     }
 
     @Override

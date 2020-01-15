@@ -1,20 +1,27 @@
 package co.chatsdk.core.session;
 
+import org.greenrobot.greendao.Property;
+import org.greenrobot.greendao.query.Join;
 import org.greenrobot.greendao.query.QueryBuilder;
+import org.greenrobot.greendao.query.WhereCondition;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.MessageDao;
+import co.chatsdk.core.dao.ReadReceiptUserLink;
+import co.chatsdk.core.dao.ReadReceiptUserLinkDao;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.ThreadDao;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.UserThreadLink;
 import co.chatsdk.core.dao.UserThreadLinkDao;
 import co.chatsdk.core.interfaces.CoreEntity;
+import co.chatsdk.core.types.ReadStatus;
 
 import static co.chatsdk.core.dao.DaoCore.daoSession;
 import static co.chatsdk.core.dao.DaoCore.fetchEntityWithProperty;
@@ -41,6 +48,16 @@ public class StorageManager {
             }
         }
         return threads;
+    }
+
+    public ReadReceiptUserLink readReceipt(Long messageId, Long userId) {
+        QueryBuilder<ReadReceiptUserLink> queryBuilder = daoSession.queryBuilder(ReadReceiptUserLink.class);
+        queryBuilder.where(ReadReceiptUserLinkDao.Properties.UserId.eq(userId)).where(ReadReceiptUserLinkDao.Properties.MessageId.eq(messageId));
+        List<ReadReceiptUserLink> links = queryBuilder.list();
+        if (!links.isEmpty()) {
+            return links.get(0);
+        }
+        return null;
     }
 
     public <T extends CoreEntity> T fetchOrCreateEntityWithEntityID(Class<T> c, String entityId){
@@ -78,6 +95,18 @@ public class StorageManager {
 
     public List<Thread> fetchThreadsWithType (int type) {
         return DaoCore.fetchEntitiesWithProperty(Thread.class, ThreadDao.Properties.Type, type);
+    }
+
+    public List<Message> fetchUnreadMessagesForThread (Long threadId) {
+        Long currentUserId = ChatSDK.currentUser().getId();
+
+        QueryBuilder<Message> qb = daoSession.queryBuilder(Message.class);
+        Join<Message, ReadReceiptUserLink> join = qb.where(qb.and(MessageDao.Properties.ThreadId.eq(threadId), MessageDao.Properties.SenderId.notEq(currentUserId)))
+                .join(ReadReceiptUserLink.class, ReadReceiptUserLinkDao.Properties.MessageId);
+
+        join.where(join.and(ReadReceiptUserLinkDao.Properties.UserId.eq(currentUserId), ReadReceiptUserLinkDao.Properties.Status.notEq(ReadStatus.Read)));
+
+        return qb.list();
     }
 
     public Thread fetchThreadWithID (long threadID) {

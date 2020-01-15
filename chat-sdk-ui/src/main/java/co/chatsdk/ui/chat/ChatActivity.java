@@ -157,8 +157,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> {
                     Message message = networkEvent.message;
-
-                    message.setRead(true);
+                    message.markRead();
 
                     boolean isAdded = messageListAdapter.addRow(message, false, true);
 
@@ -172,9 +171,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                             scrollListTo(ListPosition.Bottom, true);
                         }
                     }
-                    if(ChatSDK.readReceipts() != null) {
-                        ChatSDK.readReceipts().markRead(thread);
-                    }
+
+
                 }));
 
         disposableList.add(ChatSDK.events().sourceOnMain()
@@ -542,7 +540,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             return false;
         }, R.id.button_send, R.id.button_options);
 
-        markRead();
+        thread.markRead();
 
         // We have to do this because otherwise if we background the app
         // we will miss any messages that came through while we were in
@@ -569,7 +567,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         super.onStop();
 
         stopTyping(true);
-        markRead();
 
         if (thread != null && thread.typeIs(ThreadType.Public) && (removeUserFromChatOnExit || thread.metaValueForKey(Keys.Mute) != null)) {
             ChatSDK.thread().removeUsersFromThread(thread, ChatSDK.currentUser()).observeOn(AndroidSchedulers.mainThread()).subscribe(ChatSDK.shared().getCrashReporter());
@@ -664,15 +661,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    protected void markRead () {
-        if(ChatSDK.readReceipts() != null) {
-            ChatSDK.readReceipts().markRead(thread);
-        }
-        else {
-            thread.markRead();
-        }
     }
 
     /**

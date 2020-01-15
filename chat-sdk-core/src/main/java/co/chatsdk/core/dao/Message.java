@@ -44,7 +44,6 @@ public class Message extends AbstractEntity {
 
     @Convert(converter = DaoDateTimeConverter.class, columnType = Long.class)
     private DateTime date;
-    private Boolean read;
     private Integer type;
     private Integer status;
     private Long senderId;
@@ -78,13 +77,12 @@ public class Message extends AbstractEntity {
     @Generated(hash = 859287859)
     private transient MessageDao myDao;
 
-    @Generated(hash = 683389848)
-    public Message(Long id, String entityID, DateTime date, Boolean read, Integer type, Integer status,
-            Long senderId, Long threadId, Long nextMessageId, Long previousMessageId) {
+    @Generated(hash = 405082643)
+    public Message(Long id, String entityID, DateTime date, Integer type, Integer status, Long senderId,
+            Long threadId, Long nextMessageId, Long previousMessageId) {
         this.id = id;
         this.entityID = entityID;
         this.date = date;
-        this.read = read;
         this.type = type;
         this.status = status;
         this.senderId = senderId;
@@ -117,11 +115,22 @@ public class Message extends AbstractEntity {
             if (status != null && status.is(ReadStatus.read())) {
                 return true;
             }
-            else if (read == null) {
-                return false;
+        }
+        return false;
+    }
+
+    public void markRead() {
+        System.out.println("Mark Read: " + getId());
+        if (!isRead()) {
+            if (ChatSDK.readReceipts() != null) {
+                ChatSDK.readReceipts().markRead(this);
             }
-            else {
-                return read;
+            setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new DateTime());
+
+            if (isRead()) {
+                System.out.println("YES");
+            } else {
+                System.out.println("NO");
             }
         }
     }
@@ -191,8 +200,8 @@ public class Message extends AbstractEntity {
         }
         metaValue.setValue(MetaValueHelper.toString(value));
         metaValue.setKey(key);
-        ChatSDK.db().update(metaValue);
-        ChatSDK.db().update(this);
+        metaValue.update();
+        this.update();
     }
 
     protected MetaValue metaValue (String key) {
@@ -252,8 +261,8 @@ public class Message extends AbstractEntity {
         link.setStatus(status.getValue());
         link.setDate(date);
 
-        ChatSDK.db().update(link);
-        ChatSDK.db().update(this);
+        link.update();
+        this.update();
     }
 
     public LatLng getLocation () {
@@ -304,7 +313,7 @@ public class Message extends AbstractEntity {
 
     public void setMessageStatus(MessageSendStatus status) {
         this.status = status.ordinal();
-        ChatSDK.db().update(this);
+        this.update();
     }
     public void setStatus(Integer status) {
         this.status = status;
@@ -321,7 +330,7 @@ public class Message extends AbstractEntity {
     }
 
     public ReadStatus readStatusForUser (User user) {
-        return readStatusForUser(user.getEntityID());
+        return readStatusForUser(user.getId());
     }
 
     public String getTextRepresentation () {
@@ -346,11 +355,10 @@ public class Message extends AbstractEntity {
         return null;
     }
 
-    public ReadStatus readStatusForUser (String userEntityID) {
-        for(ReadReceiptUserLink link : getReadReceiptLinks()) {
-            if(link.getUser() != null && link.getUser().equalsEntityID(userEntityID)) {
-                return new ReadStatus(link.getStatus());
-            }
+    public ReadStatus readStatusForUser (Long userId) {
+        ReadReceiptUserLink link = ChatSDK.db().readReceipt(getId(), userId);
+        if (link != null) {
+            return new ReadStatus(link.getStatus());
         }
         return ReadStatus.none();
     }
@@ -388,14 +396,6 @@ public class Message extends AbstractEntity {
 
     public void setSenderId(Long senderId) {
         this.senderId = senderId;
-    }
-
-    public Boolean getRead() {
-        return this.read;
-    }
-
-    public void setRead(Boolean read) {
-        this.read = read;
     }
 
     public void cascadeDelete () {
@@ -638,15 +638,6 @@ public class Message extends AbstractEntity {
             previousMessageId = previousMessage == null ? null : previousMessage.getId();
             previousMessage__resolvedKey = previousMessageId;
         }
-    }
-
-    public void update(Action<Message> action) {
-        update(action, false);
-    }
-
-    public void update(Action<Message> action, boolean notify) {
-        action.run(this);
-        ChatSDK.db().update(this);
     }
 
 }

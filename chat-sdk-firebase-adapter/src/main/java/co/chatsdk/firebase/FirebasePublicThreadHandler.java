@@ -35,7 +35,7 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
 
             // Creating the new thread.
             // This thread would not be saved to the local db until it is successfully uploaded to the firebase server.
-            final Thread thread = new Thread();
+            final Thread thread = ChatSDK.db().createEntity(Thread.class);
 
             User currentUser = ChatSDK.currentUser();
             thread.setCreator(currentUser);
@@ -45,7 +45,7 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
             thread.setEntityID(entityID);
             thread.setImageUrl(imageURL);
 
-            ChatSDK.db().insertOrReplaceEntity(thread);
+            thread.update();
 
             if (meta != null) {
                 thread.updateValues(meta);

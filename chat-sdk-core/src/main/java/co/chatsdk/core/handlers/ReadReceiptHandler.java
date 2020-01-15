@@ -11,6 +11,6 @@ public interface ReadReceiptHandler {
 
     void updateReadReceipts(Thread thread);
     void updateReadReceipts(Message message);
-    void markRead (Thread thread);
+    void markRead (Message message);
 
 }

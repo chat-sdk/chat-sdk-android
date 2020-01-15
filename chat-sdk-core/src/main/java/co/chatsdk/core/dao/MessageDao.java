@@ -33,13 +33,12 @@ public class MessageDao extends AbstractDao<Message, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
         public final static Property Date = new Property(2, Long.class, "date", false, "DATE");
-        public final static Property Read = new Property(3, Boolean.class, "read", false, "READ");
-        public final static Property Type = new Property(4, Integer.class, "type", false, "TYPE");
-        public final static Property Status = new Property(5, Integer.class, "status", false, "STATUS");
-        public final static Property SenderId = new Property(6, Long.class, "senderId", false, "SENDER_ID");
-        public final static Property ThreadId = new Property(7, Long.class, "threadId", false, "THREAD_ID");
-        public final static Property NextMessageId = new Property(8, Long.class, "nextMessageId", false, "NEXT_MESSAGE_ID");
-        public final static Property PreviousMessageId = new Property(9, Long.class, "previousMessageId", false, "PREVIOUS_MESSAGE_ID");
+        public final static Property Type = new Property(3, Integer.class, "type", false, "TYPE");
+        public final static Property Status = new Property(4, Integer.class, "status", false, "STATUS");
+        public final static Property SenderId = new Property(5, Long.class, "senderId", false, "SENDER_ID");
+        public final static Property ThreadId = new Property(6, Long.class, "threadId", false, "THREAD_ID");
+        public final static Property NextMessageId = new Property(7, Long.class, "nextMessageId", false, "NEXT_MESSAGE_ID");
+        public final static Property PreviousMessageId = new Property(8, Long.class, "previousMessageId", false, "PREVIOUS_MESSAGE_ID");
     }
 
     private DaoSession daoSession;
@@ -63,13 +62,12 @@ public class MessageDao extends AbstractDao<Message, Long> {
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"ENTITY_ID\" TEXT UNIQUE ," + // 1: entityID
                 "\"DATE\" INTEGER," + // 2: date
-                "\"READ\" INTEGER," + // 3: read
-                "\"TYPE\" INTEGER," + // 4: type
-                "\"STATUS\" INTEGER," + // 5: status
-                "\"SENDER_ID\" INTEGER," + // 6: senderId
-                "\"THREAD_ID\" INTEGER," + // 7: threadId
-                "\"NEXT_MESSAGE_ID\" INTEGER," + // 8: nextMessageId
-                "\"PREVIOUS_MESSAGE_ID\" INTEGER);"); // 9: previousMessageId
+                "\"TYPE\" INTEGER," + // 3: type
+                "\"STATUS\" INTEGER," + // 4: status
+                "\"SENDER_ID\" INTEGER," + // 5: senderId
+                "\"THREAD_ID\" INTEGER," + // 6: threadId
+                "\"NEXT_MESSAGE_ID\" INTEGER," + // 7: nextMessageId
+                "\"PREVIOUS_MESSAGE_ID\" INTEGER);"); // 8: previousMessageId
     }
 
     /** Drops the underlying database table. */
@@ -97,39 +95,34 @@ public class MessageDao extends AbstractDao<Message, Long> {
             stmt.bindLong(3, dateConverter.convertToDatabaseValue(date));
         }
  
-        Boolean read = entity.getRead();
-        if (read != null) {
-            stmt.bindLong(4, read ? 1L: 0L);
-        }
- 
         Integer type = entity.getType();
         if (type != null) {
-            stmt.bindLong(5, type);
+            stmt.bindLong(4, type);
         }
  
         Integer status = entity.getStatus();
         if (status != null) {
-            stmt.bindLong(6, status);
+            stmt.bindLong(5, status);
         }
  
         Long senderId = entity.getSenderId();
         if (senderId != null) {
-            stmt.bindLong(7, senderId);
+            stmt.bindLong(6, senderId);
         }
  
         Long threadId = entity.getThreadId();
         if (threadId != null) {
-            stmt.bindLong(8, threadId);
+            stmt.bindLong(7, threadId);
         }
  
         Long nextMessageId = entity.getNextMessageId();
         if (nextMessageId != null) {
-            stmt.bindLong(9, nextMessageId);
+            stmt.bindLong(8, nextMessageId);
         }
  
         Long previousMessageId = entity.getPreviousMessageId();
         if (previousMessageId != null) {
-            stmt.bindLong(10, previousMessageId);
+            stmt.bindLong(9, previousMessageId);
         }
     }
 
@@ -152,39 +145,34 @@ public class MessageDao extends AbstractDao<Message, Long> {
             stmt.bindLong(3, dateConverter.convertToDatabaseValue(date));
         }
  
-        Boolean read = entity.getRead();
-        if (read != null) {
-            stmt.bindLong(4, read ? 1L: 0L);
-        }
- 
         Integer type = entity.getType();
         if (type != null) {
-            stmt.bindLong(5, type);
+            stmt.bindLong(4, type);
         }
  
         Integer status = entity.getStatus();
         if (status != null) {
-            stmt.bindLong(6, status);
+            stmt.bindLong(5, status);
         }
  
         Long senderId = entity.getSenderId();
         if (senderId != null) {
-            stmt.bindLong(7, senderId);
+            stmt.bindLong(6, senderId);
         }
  
         Long threadId = entity.getThreadId();
         if (threadId != null) {
-            stmt.bindLong(8, threadId);
+            stmt.bindLong(7, threadId);
         }
  
         Long nextMessageId = entity.getNextMessageId();
         if (nextMessageId != null) {
-            stmt.bindLong(9, nextMessageId);
+            stmt.bindLong(8, nextMessageId);
         }
  
         Long previousMessageId = entity.getPreviousMessageId();
         if (previousMessageId != null) {
-            stmt.bindLong(10, previousMessageId);
+            stmt.bindLong(9, previousMessageId);
         }
     }
 
@@ -205,13 +193,12 @@ public class MessageDao extends AbstractDao<Message, Long> {
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // entityID
             cursor.isNull(offset + 2) ? null : dateConverter.convertToEntityProperty(cursor.getLong(offset + 2)), // date
-            cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0, // read
-            cursor.isNull(offset + 4) ? null : cursor.getInt(offset + 4), // type
-            cursor.isNull(offset + 5) ? null : cursor.getInt(offset + 5), // status
-            cursor.isNull(offset + 6) ? null : cursor.getLong(offset + 6), // senderId
-            cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7), // threadId
-            cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8), // nextMessageId
-            cursor.isNull(offset + 9) ? null : cursor.getLong(offset + 9) // previousMessageId
+            cursor.isNull(offset + 3) ? null : cursor.getInt(offset + 3), // type
+            cursor.isNull(offset + 4) ? null : cursor.getInt(offset + 4), // status
+            cursor.isNull(offset + 5) ? null : cursor.getLong(offset + 5), // senderId
+            cursor.isNull(offset + 6) ? null : cursor.getLong(offset + 6), // threadId
+            cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7), // nextMessageId
+            cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8) // previousMessageId
         );
         return entity;
     }
@@ -221,13 +208,12 @@ public class MessageDao extends AbstractDao<Message, Long> {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setEntityID(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setDate(cursor.isNull(offset + 2) ? null : dateConverter.convertToEntityProperty(cursor.getLong(offset + 2)));
-        entity.setRead(cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0);
-        entity.setType(cursor.isNull(offset + 4) ? null : cursor.getInt(offset + 4));
-        entity.setStatus(cursor.isNull(offset + 5) ? null : cursor.getInt(offset + 5));
-        entity.setSenderId(cursor.isNull(offset + 6) ? null : cursor.getLong(offset + 6));
-        entity.setThreadId(cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7));
-        entity.setNextMessageId(cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8));
-        entity.setPreviousMessageId(cursor.isNull(offset + 9) ? null : cursor.getLong(offset + 9));
+        entity.setType(cursor.isNull(offset + 3) ? null : cursor.getInt(offset + 3));
+        entity.setStatus(cursor.isNull(offset + 4) ? null : cursor.getInt(offset + 4));
+        entity.setSenderId(cursor.isNull(offset + 5) ? null : cursor.getLong(offset + 5));
+        entity.setThreadId(cursor.isNull(offset + 6) ? null : cursor.getLong(offset + 6));
+        entity.setNextMessageId(cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7));
+        entity.setPreviousMessageId(cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8));
      }
     
     @Override

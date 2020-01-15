@@ -5,7 +5,9 @@ import android.widget.ImageView;
 
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 
+import co.chatsdk.core.dao.Message;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.chatkit.model.MessageHolder;
 import co.chatsdk.ui.chatkit.model.ThreadHolder;
 
 public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<ThreadHolder> {
@@ -23,9 +25,7 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
     public void onBind(ThreadHolder dialog) {
         super.onBind(dialog);
 
-        if (dialog.getUsers().size() > 1) {
-            onlineIndicator.setVisibility(View.GONE);
-        } else {
+        if (dialog.getUsers().size() == 1) {
             boolean isOnline = dialog.getUsers().get(0).isOnline();
             onlineIndicator.setVisibility(View.VISIBLE);
             if (isOnline) {
@@ -33,14 +33,16 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
             } else {
                 onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_offline);
             }
+        } else {
+            onlineIndicator.setVisibility(View.GONE);
         }
 
-        Integer readStatusResourceId = dialog.getLastMessage().getReadStatusResourceId();
-        if (readStatusResourceId == null) {
+        MessageHolder lastMessageHolder = dialog.getLastMessage();
+        if (lastMessageHolder == null || lastMessageHolder.getReadStatusResourceId() == null) {
             readReceipt.setVisibility(View.GONE);
         } else {
             readReceipt.setVisibility(View.VISIBLE);
-            readReceipt.setImageResource(readStatusResourceId);
+            readReceipt.setImageResource(lastMessageHolder.getReadStatusResourceId());
         }
     }
 

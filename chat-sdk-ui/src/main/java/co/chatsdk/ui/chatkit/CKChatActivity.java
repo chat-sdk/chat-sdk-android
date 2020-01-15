@@ -144,8 +144,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                 .subscribe(networkEvent -> {
                     Message message = networkEvent.message;
 
-                    message.setRead(true);
-
                     messageListAdapter.addToStart(new MessageHolder(message), true);
 
                     // Check if the text from the current user, If so return so we wont vibrate for the user messages.
@@ -158,9 +156,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 //                            scrollListTo(ListPosition.Bottom, true);
 //                        }
 //                    }
-                    if(ChatSDK.readReceipts() != null) {
-                        ChatSDK.readReceipts().markRead(thread);
-                    }
+                    message.markRead();
                 }));
 
         disposableList.add(ChatSDK.events().sourceOnMain()
@@ -231,6 +227,8 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
         // Load the messages
         messageListAdapter.addToEnd(messageViewsFromMessages(thread.getMessages()), false);
+
+        thread.markRead();
 
     }
 
@@ -526,7 +524,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 //            return false;
 //        }, R.id.button_send, R.id.button_options);
 
-        markRead();
 
         // We have to do this because otherwise if we background the app
         // we will miss any messages that came through while we were in
@@ -553,7 +550,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
         super.onStop();
 
         becomeInactive();
-        markRead();
 
         if (thread != null && thread.typeIs(ThreadType.Public) && (removeUserFromChatOnExit || thread.metaValueForKey(Keys.Mute) != null)) {
             ChatSDK.thread().removeUsersFromThread(thread, ChatSDK.currentUser()).observeOn(AndroidSchedulers.mainThread()).subscribe(ChatSDK.shared().getCrashReporter());
@@ -648,15 +644,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    protected void markRead () {
-        if(ChatSDK.readReceipts() != null) {
-            ChatSDK.readReceipts().markRead(thread);
-        }
-        else {
-            thread.markRead();
-        }
     }
 
     /**

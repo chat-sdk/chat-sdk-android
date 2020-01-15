@@ -139,14 +139,14 @@ public class Thread extends AbstractEntity {
 
     public void addUser (User user) {
         DaoCore.connectUserAndThread(user, this);
-        ChatSDK.db().update(user);
-        ChatSDK.db().update(this);
+        user.update();
+        this.update();
     }
 
     public void removeUser (User user) {
         DaoCore.breakUserAndThread(user, this);
-        ChatSDK.db().update(user);
-        ChatSDK.db().update(this);
+        user.update();
+        this.update();
     }
 
     public User otherUser () {
@@ -245,8 +245,8 @@ public class Thread extends AbstractEntity {
         }
         metaValue.setValue(value);
         metaValue.setKey(key);
-        ChatSDK.db().update(metaValue);
-        ChatSDK.db().update(this);
+        metaValue.update();
+        update();
     }
 
     @Keep
@@ -312,16 +312,18 @@ public class Thread extends AbstractEntity {
     }
 
     public int getUnreadMessagesCount() {
-        int count = 0;
-        List<Message> messages = getMessagesWithOrder(DaoCore.ORDER_DESC);
-        for (Message m : messages)
-        {
-            if(!m.isRead())
-                count++;
-            else break;
-        }
-
-        return count;
+        return ChatSDK.db().fetchUnreadMessagesForThread(getId()).size();
+//
+//        int count = 0;
+//        List<Message> messages = getMessagesWithOrder(DaoCore.ORDER_DESC);
+//        for (Message m : messages)
+//        {
+//            if(!m.isRead())
+//                count++;
+//            else break;
+//        }
+//
+//        return count;
     }
 
     public boolean isLastMessageWasRead(){
@@ -334,10 +336,9 @@ public class Thread extends AbstractEntity {
     }
 
     public void markRead () {
-        ArrayList<Message> messages = new ArrayList<>(getMessages());
-        for(Message m : messages) {
-            m.setRead(true);
-            ChatSDK.db().update(m);
+        List<Message> unreadMessages = ChatSDK.db().fetchUnreadMessagesForThread(getId());
+        for(Message m : unreadMessages) {
+            m.markRead();
         }
     }
 

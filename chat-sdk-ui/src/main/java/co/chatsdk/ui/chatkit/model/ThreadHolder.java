@@ -6,12 +6,15 @@ import com.stfalcon.chatkit.commons.models.IUser;
 import java.util.ArrayList;
 import java.util.List;
 
+import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.session.ChatSDK;
 
 public class ThreadHolder implements IDialog<MessageHolder> {
 
-    Thread thread;
+    protected Thread thread;
+    protected ArrayList<UserHolder> users = null;
 
     public ThreadHolder(Thread thread) {
         this.thread = thread;
@@ -34,10 +37,12 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     @Override
     public List<UserHolder> getUsers() {
-        ArrayList<UserHolder> users = new ArrayList<>();
-        for (User user: thread.getUsers()) {
-            if (!user.isMe()) {
-                users.add(new UserHolder(user));
+        if (users == null) {
+            users = new ArrayList<>();
+            for (User user: thread.getUsers()) {
+                if (!user.isMe()) {
+                    users.add(new UserHolder(user));
+                }
             }
         }
         return users;
@@ -45,10 +50,11 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     @Override
     public MessageHolder getLastMessage() {
-        if (thread.getMessages().isEmpty()) {
-            return null;
+        Message message = thread.lastMessage();
+        if (message != null) {
+            return new MessageHolder(message);
         }
-        return new MessageHolder(thread.lastMessage());
+        return null;
     }
 
     @Override
