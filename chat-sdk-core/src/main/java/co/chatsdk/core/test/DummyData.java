@@ -4,13 +4,9 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import co.chatsdk.core.base.AbstractCoreHandler;
-import co.chatsdk.core.base.AbstractThreadHandler;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -23,17 +19,34 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 
 public class DummyData {
-    
+
+    int threadCount = 1;
+    int messageCount = 100;
+
     public DummyData() {
-        ChatSDK.hook().addHook(new Hook(data -> Completable.create(emitter -> createDummyMessages())), HookEvent.DidAuthenticate);
+
     }
 
-    public void createDummyMessages() {
+    public DummyData(int messageCount) {
+        this.messageCount = messageCount;
+    }
 
+    public DummyData(int threadCount, int messageCount) {
+        this.threadCount = threadCount;
+        this.messageCount = messageCount;
+
+        ChatSDK.hook().addHook(new Hook(data -> Completable.create(emitter -> create())), HookEvent.DidAuthenticate);
+    }
+
+    public void create() {
+        for (int i = 0; i < threadCount; i++) {
+            createThread();
+        }
+    }
+
+    public void createThread() {
         final Thread thread = ChatSDK.db().createEntity(Thread.class);
 
         User currentUser = ChatSDK.currentUser();
@@ -50,15 +63,14 @@ public class DummyData {
         }
 
         // Add the messages
-        for (int i = 0; i < 300; i++) {
-            addMessage(thread);
+        for (int i = 0; i < messageCount; i++) {
+            addMessage(thread, String.valueOf(i));
         }
 
         ChatSDK.events().source().onNext(NetworkEvent.threadAdded(thread));
-
     }
 
-    public void addMessage(Thread thread) {
+    public void addMessage(Thread thread, String text) {
 
         Message message = ChatSDK.db().createEntity(Message.class);
 
@@ -74,7 +86,7 @@ public class DummyData {
         message.setDate(new DateTime());
         message.setType(MessageType.Text);
 
-        message.setText(UUID.randomUUID().toString());
+        message.setText(text + " - " + message.getDate().toString());
 
         for (User user: thread.getUsers()) {
             if (user.isMe() && sender.isMe()) {

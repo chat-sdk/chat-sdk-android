@@ -7,6 +7,7 @@
     <color name="button_success">#78b737</color>
     <color name="message_input_border">#E7E7E7</color>
 
+    <color name="primary_green">@android:color/holo_green_light</color>
     <color name="primary">@android:color/holo_blue_light</color>
     <color name="primary_dark">@android:color/holo_blue_dark</color>
     <color name="accent">@android:color/holo_blue_light</color>
@@ -18,5 +19,7 @@
     <color name="anonymous_button_color">#aaaaaa</color>
     <color name="reset_password_button_color">#ffffff</color>
     <color name="logout_button_color">#ae2020</color>
+    <color name="gray_light">#e8e8e8</color>
+    <color name="message_time">#BEBEBE</color>
 
 </resources>

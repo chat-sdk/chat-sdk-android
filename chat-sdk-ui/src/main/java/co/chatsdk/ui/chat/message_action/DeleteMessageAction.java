@@ -14,7 +14,7 @@ public class DeleteMessageAction extends MessageAction {
         super(message);
         type = Type.Delete;
         titleResourceId = R.string.delete;
-        iconResourceId = R.drawable.ic_delete_white_24dp;
+        iconResourceId = R.drawable.ic_action_delete_24;
         colorId = R.color.primary;
     }
 

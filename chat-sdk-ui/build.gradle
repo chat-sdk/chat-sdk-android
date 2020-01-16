@@ -51,6 +51,8 @@ dependencies {
     implementation "com.mikepenz:materialdrawer:$materialDrawerVersion"
     implementation "com.zhihu.android:matisse:$matisseVersion"
     implementation "com.leinardi.android:speed-dial:$speedDial"
+    implementation "com.jakewharton.picasso:picasso2-okhttp3-downloader:$okHttpDownloaderVersion"
+    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
 
     // Dependencies required by other Chat SDK libraries
     api "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"

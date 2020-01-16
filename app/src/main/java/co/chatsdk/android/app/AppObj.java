@@ -67,7 +67,7 @@ public class AppObj extends MultiDexApplication {
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
 
-//            new DummyData();
+//            new DummyData(1, 1000);
 
 //            TestScript.run(context, config.build().firebaseRootPath);
 

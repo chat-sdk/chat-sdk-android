@@ -19,7 +19,6 @@ import com.squareup.picasso.Picasso;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.utils.ImagePickerUploader;
 import co.chatsdk.ui.utils.ImagePreviewActivity;
@@ -98,7 +97,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
                     builder.setPositiveButton(getString(R.string.set_as_default), (dialog, which) -> {
                         showOrUpdateProgressDialog(getString(R.string.updating_pictures));
                         ChatSDK.profilePictures().setDefaultPicture(user, url);
-                        disposableList.add(ChatSDK.core().pushUser().subscribe(() -> {
+                        dm.add(ChatSDK.core().pushUser().subscribe(() -> {
                             dismissProgressDialog();
                             updateGallery();
                         }));
@@ -109,7 +108,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
                 builder.setNegativeButton(getString(R.string.delete), (dialog, which) -> {
                     showOrUpdateProgressDialog(getString(R.string.deleting_picture));
                     ChatSDK.profilePictures().removePicture(user, url);
-                    disposableList.add(ChatSDK.core().pushUser().subscribe(() -> {
+                    dm.add(ChatSDK.core().pushUser().subscribe(() -> {
                         dismissProgressDialog();
                         updateGallery();
                     }));
@@ -161,11 +160,11 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
             return;
         }
 
-        disposableList.add(imagePickerUploader.choosePhoto(this).subscribe((result, throwable) -> {
+        dm.add(imagePickerUploader.choosePhoto(this).subscribe((result, throwable) -> {
             if (throwable == null) {
                 ChatSDK.profilePictures().addPicture(getUser(), result.url);
                 updateGallery();
-                disposableList.add(ChatSDK.core().pushUser()
+                dm.add(ChatSDK.core().pushUser()
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(() -> {
                         }, throwable1 -> {

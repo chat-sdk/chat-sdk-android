@@ -25,7 +25,6 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
@@ -89,7 +88,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         threadImageView = findViewById(R.id.chat_sdk_thread_image_view);
         threadNameTextView = findViewById(R.id.name_text_view);
 
-        disposableList.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.threadDetailsUpdated())
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> reloadData()));

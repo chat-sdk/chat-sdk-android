@@ -96,6 +96,8 @@ public interface InterfaceAdapter {
     void startThreadEditDetailsActivity(Context context, String threadEntityID);
     void startThreadEditDetailsActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs);
 
+    void startThreadDetailsActivity(Context context, String threadEntityID);
+
     // @Deprecated use {@link #getLoginIntent(Context, HashMap)}
 //  void startLoginActivity(Context context, boolean attemptCachedLogin);
 //  void startLoginActivity (Context context, HashMap<String, Object> extras);
@@ -107,7 +109,7 @@ public interface InterfaceAdapter {
     void startSearchActivity (Context context);
     void startForwardMessageActivityForResult(Activity activity, Message message, int code);
 
-    void startAddUsersToThreadActivity(Context context);
+    void startAddUsersToThreadActivity(Context context, String threadEntityID);
     void startCreateThreadActivity(Context context);
 
     void startSplashScreenActivity (Context context);

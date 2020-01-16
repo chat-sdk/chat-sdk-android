@@ -1,6 +1,7 @@
 package co.chatsdk.firestream;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -188,6 +189,21 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
             }
             return Completable.complete();
         });
+    }
+
+    @Override
+    public boolean deleteMessageEnabled(Message message) {
+        if (message.getThread().typeIs(ThreadType.Private1to1)) {
+            return message.getSender().isMe();
+        }
+        if (message.getThread().typeIs(ThreadType.PrivateGroup)) {
+            IChat chat = Fire.stream().getChat(message.getThread().getEntityID());
+            if (chat != null) {
+                chat.getRoleType()
+            }
+            return message.getSender().isMe();
+        }
+        return message.getSender().isMe();
     }
 
     public boolean rolesEnabled(Thread thread) {

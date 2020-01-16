@@ -78,7 +78,7 @@ public class ProfileActivity extends BaseActivity {
         showProgressDialog(getString(R.string.creating_thread));
 
 
-        disposableList.add(ChatSDK.thread().createThread("", user, ChatSDK.currentUser())
+        dm.add(ChatSDK.thread().createThread("", user, ChatSDK.currentUser())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
                     dismissProgressDialog();

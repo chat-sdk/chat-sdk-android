@@ -19,7 +19,7 @@ public class MessageQueries {
      * @param to
      * @param limit
      * @param orderDesc
-     * @return List of messages for thread
+     * @return List of messageHolders for thread
      */
     public List<Message> fetchMessages (Thread thread, Date from, Date to, int limit, boolean orderDesc) {
         QueryBuilder<Message> qb = daoSession.queryBuilder(Message.class);

@@ -21,6 +21,7 @@ import io.reactivex.schedulers.Schedulers;
 public class ImageBuilder {
 
     public static Single<Bitmap> bitmapForURL (final String url) {
+        // Picasso needs to run on the main thread
         return Single.create((SingleOnSubscribe<Bitmap>) emitter -> {
             Picasso.get().load(url).into(new Target() {
                 @Override
@@ -38,6 +39,6 @@ public class ImageBuilder {
 
                 }
             });
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(AndroidSchedulers.mainThread());
     }
 }

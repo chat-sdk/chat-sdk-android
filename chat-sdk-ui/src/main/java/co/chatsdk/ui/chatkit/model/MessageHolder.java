@@ -7,7 +7,9 @@ import androidx.annotation.Nullable;
 import com.stfalcon.chatkit.commons.models.IMessage;
 import com.stfalcon.chatkit.commons.models.MessageContentType;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
@@ -96,4 +98,21 @@ public class MessageHolder implements IMessage, MessageContentType.Image {
 
         return resource;
     }
+
+    public static List<MessageHolder> toHolders(List<Message> messages) {
+        ArrayList<MessageHolder> messageHolders = new ArrayList<>();
+        for (Message m: messages) {
+            messageHolders.add(new MessageHolder(m));
+        }
+        return messageHolders;
+    }
+
+    public static List<Message> toMessages(List<MessageHolder> messageHolders) {
+        ArrayList<Message> messages = new ArrayList<>();
+        for (MessageHolder mh: messageHolders) {
+            messages.add(mh.getMessage());
+        }
+        return messages;
+    }
+
 }

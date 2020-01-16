@@ -50,7 +50,7 @@ public class BaseActivity extends AppCompatActivity {
 
     // This is a list of extras that are passed to the login view
     protected HashMap<String, Object> extras = new HashMap<>();
-    protected DisposableList disposableList = new DisposableList();
+    protected DisposableList dm = new DisposableList();
 
     public BaseActivity() {
     }
@@ -144,7 +144,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         dismissProgressDialog();
-        disposableList.dispose();
+        dm.dispose();
     }
 
     @Override

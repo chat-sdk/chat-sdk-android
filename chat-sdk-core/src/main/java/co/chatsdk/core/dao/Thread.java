@@ -121,20 +121,23 @@ public class Thread extends AbstractEntity {
         return false;
     }
 
-    public Date lastMessageAddedDate (){
-        Date date = creationDate;
-
-        List<Message> list = getMessagesWithOrder(DaoCore.ORDER_DESC);
-
-        if (list.size() > 0) {
-            date = list.get(0).getDate().toDate();
+    public Date orderDate() {
+        Date date = lastMessageAddedDate();
+        if (date == null) {
+            date = creationDate;
         }
-
         if (date == null) {
             date = new Date();
         }
-
         return date;
+    }
+
+    public Date lastMessageAddedDate(){
+        Message lastMessage = lastMessage();
+        if (lastMessage != null) {
+            return lastMessage.getDate().toDate();
+        }
+        return null;
     }
 
     public void addUser (User user) {

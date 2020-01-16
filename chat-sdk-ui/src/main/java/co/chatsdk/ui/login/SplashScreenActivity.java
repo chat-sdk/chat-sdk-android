@@ -52,7 +52,7 @@ public class SplashScreenActivity extends BaseActivity {
             startMainActivity();
         } else if (ChatSDK.auth().isAuthenticated()) {
             startProgressBar();
-            disposableList.add(ChatSDK.auth().authenticate()
+            dm.add(ChatSDK.auth().authenticate()
                     .doFinally(this::stopProgressBar)
                     .subscribe(this::startMainActivity, throwable -> startLoginActivity()));
         } else {

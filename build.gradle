@@ -48,6 +48,7 @@ ext {
     jodaConvertVersion = "2.2.0"
     compressorVersion = "2.1.0"
     okHttpVersion = "3.11.0"
+    okHttpDownloaderVersion = "1.1.0"
     facebookLoginVersion = "4.38.1"
     twitterVersion = "3.3.0"
     prettyTimeVersion = "4.0.1.Final"

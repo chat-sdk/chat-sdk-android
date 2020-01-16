@@ -232,7 +232,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
 
 
     /**
-     * Clear the messages list.
+     * Clear the messageHolders list.
      * */
     public void clear() {
         clear(true);

@@ -6,6 +6,9 @@ import android.content.Intent;
 
 import androidx.fragment.app.Fragment;
 
+import com.squareup.picasso.OkHttp3Downloader;
+import com.squareup.picasso.Picasso;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -103,6 +106,15 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public BaseInterfaceAdapter (Context context) {
         this.context = new WeakReference<>(context);
 
+        // Setup Picasso
+        Picasso.Builder builder = new Picasso.Builder(context);
+        builder.downloader(new OkHttp3Downloader(context, Long.MAX_VALUE));
+        Picasso built = builder.build();
+        built.setIndicatorsEnabled(true);
+        built.setLoggingEnabled(false);
+        Picasso.setSingletonInstance(built);
+
+        // TODO: Remove this
         setMessageHandler(new TextMessageDisplayHandler(), new MessageType(MessageType.Text));
         setMessageHandler(new ImageMessageDisplayHandler(), new MessageType(MessageType.Image));
         setMessageHandler(new LocationMessageDisplayHandler(), new MessageType(MessageType.Location));
@@ -474,8 +486,21 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public void startAddUsersToThreadActivity(Context context) {
-        startActivity(context, getAddUsersToThreadActivity());
+    public void startAddUsersToThreadActivity(Context context, String threadEntityID) {
+        Intent intent = new Intent(context, getAddUsersToThreadActivity());
+        if (threadEntityID != null) {
+            intent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
+        }
+        startActivity(context, intent);
+    }
+
+    @Override
+    public void startThreadDetailsActivity(Context context, String threadEntityID) {
+        Intent intent = new Intent(context, getThreadDetailsActivity());
+        if (threadEntityID != null) {
+            intent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
+        }
+        startActivity(context, intent);
     }
 
     @Override

@@ -10,13 +10,17 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.events.EventType;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.DisposableMap;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
@@ -35,6 +39,38 @@ import static co.chatsdk.core.utils.ImageBuilder.bitmapForURL;
  */
 
 public class ThreadImageBuilder {
+
+    public static class ImageCache {
+
+        public static final ImageCache instance = new ImageCache();
+
+        HashMap<String, String> threadImageURLMap = new HashMap<>();
+
+        public ImageCache() {
+            Disposable d = ChatSDK.events().source().filter(NetworkEvent.filterType(EventType.ThreadDetailsUpdated, EventType.ThreadUsersChanged)).subscribe(networkEvent -> {
+                if (networkEvent.thread != null) {
+                    clear(networkEvent.thread.getEntityID());
+                }
+            });
+        }
+
+        public static ImageCache shared() {
+            return instance;
+        }
+
+        public void put(String threadEntityID, String url) {
+            threadImageURLMap.put(threadEntityID, url);
+        }
+
+        public String get(String threadEntityID) {
+            return threadImageURLMap.get(threadEntityID);
+        }
+
+        public void clear(String threadEntityID) {
+            threadImageURLMap.remove(threadEntityID);
+        }
+
+    }
 
     public static Disposable load(final ImageView imageView, final Thread thread) {
         int size = imageView.getContext().getResources().getDimensionPixelSize(R.dimen.action_bar_avatar_max_size);
@@ -57,6 +93,11 @@ public class ThreadImageBuilder {
                 return Single.just(Uri.parse(thread.getImageUrl()));
             }
 
+            String uriString = ImageCache.shared().get(thread.getEntityID());
+            if (uriString != null) {
+                return Single.just(Uri.parse(uriString));
+            }
+
             List<User> users = thread.getUsers();
 
             List<String> urls = new ArrayList<>();
@@ -76,6 +117,10 @@ public class ThreadImageBuilder {
             else {
                 return combineBitmaps(urls, size).map(bitmap -> {
                     File file = ImageUtils.compressImageToFile(context, bitmap, "avatar", ".png");
+                    Uri uri = Uri.fromFile(file);
+
+                    ImageCache.shared().put(thread.getEntityID(), uri.toString());
+
                     return Uri.fromFile(file);
                 });
             }
@@ -92,10 +137,13 @@ public class ThreadImageBuilder {
                 if(singles.size() >= 4) {
                     break;
                 }
-                singles.add(bitmapForURL(url).doOnSuccess(bitmaps::add).onErrorResumeNext(throwable -> null));
+                singles.add(bitmapForURL(url));
             }
 
-            return Single.merge(singles).ignoreElements().toSingle(() -> {
+            return Single.merge(singles)
+                    .doOnNext(bitmaps::add).onErrorResumeNext(throwable -> null)
+                    .ignoreElements()
+                    .toSingle(() -> {
                 return ImageUtils.getMixImagesBitmap(size, size, bitmaps);
             });
         });

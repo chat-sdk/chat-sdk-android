@@ -201,7 +201,7 @@ public class Message extends AbstractEntity {
         metaValue.setValue(MetaValueHelper.toString(value));
         metaValue.setKey(key);
         metaValue.update();
-        this.update();
+//        this.update();
     }
 
     protected MetaValue metaValue (String key) {
@@ -239,15 +239,16 @@ public class Message extends AbstractEntity {
     }
 
     public ReadReceiptUserLink linkForUser (User user) {
-        for(ReadReceiptUserLink link : getReadReceiptLinks()) {
-            User linkUser = link.getUser();
-            if (linkUser != null && user != null) {
-                if(linkUser.equals(user)) {
-                    return link;
-                }
-            }
-        }
-        return null;
+        return ChatSDK.db().readReceipt(getId(), user.getId());
+//        for(ReadReceiptUserLink link : getReadReceiptLinks()) {
+//            User linkUser = link.getUser();
+//            if (linkUser != null && user != null) {
+//                if(linkUser.equals(user)) {
+//                    return link;
+//                }
+//            }
+//        }
+//        return null;
     }
 
     public void setUserReadStatus (User user, ReadStatus status, DateTime date) {
@@ -262,7 +263,7 @@ public class Message extends AbstractEntity {
         link.setDate(date);
 
         link.update();
-        this.update();
+//        this.update();
     }
 
     public LatLng getLocation () {
@@ -313,7 +314,7 @@ public class Message extends AbstractEntity {
 
     public void setMessageStatus(MessageSendStatus status) {
         this.status = status.ordinal();
-        this.update();
+//        this.update();
     }
     public void setStatus(Integer status) {
         this.status = status;
@@ -326,7 +327,7 @@ public class Message extends AbstractEntity {
 
     public void setThreadId(Long threadId) {
         this.threadId = threadId;
-        update();
+//        update();
     }
 
     public ReadStatus readStatusForUser (User user) {

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:id="@+id/view_root"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
+
+    <com.stfalcon.chatkit.messages.MessagesList
+        android:id="@+id/messagesList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/input"
+        app:incomingBubblePaddingBottom="9dp"
+        app:incomingBubblePaddingTop="9dp"
+        app:incomingBubblePaddingLeft="10dp"
+        app:incomingBubblePaddingRight="10dp"
+        app:incomingTextSize="14dp"
+        app:incomingTimeTextColor="@color/message_time"
+        app:incomingTimeTextStyle="italic"
+        app:incomingDefaultBubbleSelectedColor="@color/primary_green"
+        app:outcomingBubblePaddingBottom="9dp"
+        app:outcomingBubblePaddingTop="9dp"
+        app:outcomingBubblePaddingLeft="10dp"
+        app:outcomingBubblePaddingRight="10dp"
+        app:outcomingTextSize="14dp"
+        app:outcomingTimeTextColor="@color/message_time"
+        app:outcomingTimeTextStyle="italic"
+        app:outcomingDefaultBubbleSelectedColor="@color/primary_green"
+        app:outcomingDefaultBubbleColor="@color/primary"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@+id/input"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:background="@color/gray_light"/>
+
+    <com.stfalcon.chatkit.messages.MessageInput
+        android:id="@+id/input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:showAttachmentButton="true" />
+
+</RelativeLayout>

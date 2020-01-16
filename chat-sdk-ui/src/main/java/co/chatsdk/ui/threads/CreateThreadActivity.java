@@ -1,13 +1,8 @@
 package co.chatsdk.ui.threads;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
-import android.text.InputType;
-import android.view.View;
-import android.widget.EditText;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import co.chatsdk.core.dao.Keys;
@@ -74,7 +69,7 @@ public class CreateThreadActivity extends SelectContactActivity {
 
     protected void createAndOpenThread (String name, List<User> users) {
         showProgressDialog(getString(R.string.pick_friends_activity_prog_dialog_open_new_convo_message));
-        disposableList.add(ChatSDK.thread()
+        dm.add(ChatSDK.thread()
                 .createThread(name, users)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnEvent((thread, throwable) -> dismissProgressDialog())

@@ -275,7 +275,7 @@ public class TextInputView extends LinearLayout implements TextView.OnEditorActi
         }
     }
 
-    /** Show the text option popup, From here the user can send images and location messages.*/
+    /** Show the text option popup, From here the user can send images and location messageHolders.*/
     public void showOption () {
         if(delegate != null) {
             delegate.get().showOptions();

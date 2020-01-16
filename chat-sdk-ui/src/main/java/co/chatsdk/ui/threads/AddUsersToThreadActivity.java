@@ -65,7 +65,7 @@ public class AddUsersToThreadActivity extends SelectContactActivity {
 
         showProgressDialog( getString(R.string.pick_friends_activity_prog_dialog_add_to_convo_message));
 
-        disposableList.add(ChatSDK.thread().addUsersToThread(thread, users)
+        dm.add(ChatSDK.thread().addUsersToThread(thread, users)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
                     dismissProgressDialog();

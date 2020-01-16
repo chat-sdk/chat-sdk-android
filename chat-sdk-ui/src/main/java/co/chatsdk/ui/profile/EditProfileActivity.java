@@ -22,14 +22,11 @@ import java.util.Map;
 
 import androidx.annotation.LayoutRes;
 
-import co.chatsdk.core.dao.Action;
-import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.MediaSelector;
@@ -77,7 +74,7 @@ public class EditProfileActivity extends BaseActivity {
             userMeta = new HashMap<>(currentUser.metaMap());
         }
 
-        disposableList.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
+        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(networkEvent -> {
                     if (networkEvent.user.equals(currentUser)) {
@@ -111,7 +108,7 @@ public class EditProfileActivity extends BaseActivity {
                 ChatSDK.profilePictures().startProfilePicturesActivity(this, currentUser.getEntityID());
             } else {
                 ImagePickerUploader uploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
-                disposableList.add(uploader.choosePhoto(EditProfileActivity.this).subscribe((result, throwable) -> {
+                dm.add(uploader.choosePhoto(EditProfileActivity.this).subscribe((result, throwable) -> {
                     if (throwable == null) {
                         avatarImageView.setImageURI(Uri.fromFile(new File(result.uri)));
                         avatarImageURL = result.url;
@@ -168,7 +165,7 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     protected void logout () {
-        disposableList.add(ChatSDK.auth().logout()
+        dm.add(ChatSDK.auth().logout()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getApplicationContext()), throwable -> {
             ChatSDK.logError(throwable);
@@ -255,7 +252,7 @@ public class EditProfileActivity extends BaseActivity {
             currentUser.update();
 
             showOrUpdateProgressDialog(getString(R.string.alert_save_contact));
-            disposableList.add(ChatSDK.core().pushUser()
+            dm.add(ChatSDK.core().pushUser()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(() -> {
                         dismissProgressDialog();

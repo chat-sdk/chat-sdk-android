@@ -26,10 +26,10 @@ public class ThreadsSorter implements Comparator<Thread> {
     @Override
     public int compare(Thread t1, Thread t2) {
         if (order == ORDER_TYPE_ASC) {
-            return t1.lastMessageAddedDate().compareTo(t2.lastMessageAddedDate());
+            return t1.orderDate().compareTo(t2.orderDate());
         }
         else {
-            return t2.lastMessageAddedDate().compareTo(t1.lastMessageAddedDate());
+            return t2.orderDate().compareTo(t1.orderDate());
         }
     }
 }

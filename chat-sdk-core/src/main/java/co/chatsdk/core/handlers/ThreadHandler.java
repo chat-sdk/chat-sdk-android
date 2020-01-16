@@ -53,6 +53,9 @@ public interface ThreadHandler {
     Completable joinThread (Thread thread);
 
     Completable deleteMessage (Message message);
+    Completable deleteMessages (Message... messages);
+    Completable deleteMessages (List<Message> messages);
+    boolean deleteMessageEnabled (Message message);
 
     /**
      * Send different types of text to a particular thread

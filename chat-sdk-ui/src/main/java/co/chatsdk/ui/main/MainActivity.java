@@ -44,7 +44,7 @@ public abstract class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
-        disposableList.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.Logout))
                 .subscribe(networkEvent -> clearData()));
 

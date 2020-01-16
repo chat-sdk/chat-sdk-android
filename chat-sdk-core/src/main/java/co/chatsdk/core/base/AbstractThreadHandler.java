@@ -229,4 +229,23 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         });
     }
 
+    @Override
+    public Completable deleteMessages(Message... messages) {
+        return deleteMessages(Arrays.asList(messages));
+    }
+
+    @Override
+    public boolean deleteMessageEnabled(Message message) {
+        return message.getSender().isMe();
+    }
+
+    @Override
+    public Completable deleteMessages(List<Message> messages) {
+        ArrayList<Completable> completables = new ArrayList<>();
+        for (Message message: messages) {
+            completables.add(deleteMessage(message));
+        }
+        return Completable.merge(completables);
+    }
+
 }

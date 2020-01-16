@@ -27,10 +27,8 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.main.BaseActivity;
 import io.reactivex.functions.Predicate;
 
@@ -65,7 +63,7 @@ public abstract class SelectContactActivity extends BaseActivity {
         };
 
         // Refresh the list when the contacts change
-        disposableList.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().sourceOnMain()
                 .filter(contactChanged)
                 .subscribe(networkEvent -> loadData()));
 
@@ -124,7 +122,7 @@ public abstract class SelectContactActivity extends BaseActivity {
 
         loadData();
 
-        disposableList.add(adapter.onClickSubject.subscribe(item -> {
+        dm.add(adapter.onClickSubject.subscribe(item -> {
             if (item instanceof User) {
                 if (multiSelectEnabled) {
                     adapter.toggleSelection(item);

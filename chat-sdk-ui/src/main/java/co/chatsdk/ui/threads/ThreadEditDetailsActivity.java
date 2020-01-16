@@ -29,18 +29,13 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.ImagePickerUploader;
 import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.Single;
-import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.BiConsumer;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 
 /**
  * Created by Pepe Becker on 09/05/18.
@@ -88,7 +83,9 @@ public class ThreadEditDetailsActivity extends BaseActivity {
 
     protected void initViews() {
         actionBar = getSupportActionBar();
-        actionBar.setHomeButtonEnabled(true);
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(true);
+        }
 
         nameInput = findViewById(R.id.text_name);
         saveButton = findViewById(R.id.button_done);
@@ -117,7 +114,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
 
         threadImageView.setOnClickListener(view -> {
                     showProgressDialog(ThreadEditDetailsActivity.this.getString(R.string.uploading));
-                    disposableList.add(pickerUploader.choosePhoto(ThreadEditDetailsActivity.this).subscribe((url, throwable) -> {
+                    dm.add(pickerUploader.choosePhoto(ThreadEditDetailsActivity.this).subscribe((url, throwable) -> {
                         if (throwable == null) {
                             updateThreadImageURL(url.url);
                         } else {
@@ -151,7 +148,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
         if (threadImageURL != null) {
             Picasso.get().load(threadImageURL).into(threadImageView);
         } else if (thread != null) {
-            Picasso.get().load(thread.getImageUrl()).into(threadImageView);
+            ThreadImageBuilder.load(threadImageView, thread);
         }
         updateSaveButtonState();
     }
@@ -181,11 +178,11 @@ public class ThreadEditDetailsActivity extends BaseActivity {
 
             // If we aren't adding users then this is a public thread
             if (users.isEmpty()) {
-                disposableList.add(ChatSDK.publicThread().createPublicThreadWithName(threadName, null, null, threadImageURL)
+                dm.add(ChatSDK.publicThread().createPublicThreadWithName(threadName, null, null, threadImageURL)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(consumer));
             } else {
-                disposableList.add(ChatSDK.thread().createThread(threadName, users, ThreadType.PrivateGroup, null, threadImageURL)
+                dm.add(ChatSDK.thread().createThread(threadName, users, ThreadType.PrivateGroup, null, threadImageURL)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(consumer));
             }
@@ -195,7 +192,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
                 thread.setImageUrl(threadImageURL);
             }
             thread.update();
-            disposableList.add(ChatSDK.thread().pushThread(thread).subscribe(this::finish, toastOnErrorConsumer()));
+            dm.add(ChatSDK.thread().pushThread(thread).subscribe(this::finish, toastOnErrorConsumer()));
         }
     }
 

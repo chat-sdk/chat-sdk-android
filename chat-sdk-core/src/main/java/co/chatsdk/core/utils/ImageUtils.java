@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.media.ThumbnailUtils;
@@ -117,46 +118,55 @@ public class ImageUtils {
      * half will be shared equally by the two others.
      *
      * @param  bitmaps Array of bitmaps to use for the final image.
-     * @param  width width of the final image, A positive number.
-     * @param  height height of the final image, A positive number.
+     * @param  w width of the final image, A positive number.
+     * @param  h height of the final image, A positive number.
      *
      * @return A Bitmap containing the given images.
      * */
-    public static Bitmap getMixImagesBitmap(int width, int height, Bitmap...bitmaps){
+    public static Bitmap getMixImagesBitmap(int w, int h, Bitmap...bitmaps){
 
-        if (height == 0 || width == 0 || bitmaps.length == 0) {
+        if (h == 0 || w == 0 || bitmaps.length == 0) {
             return null;
         }
 
-        Bitmap finalImage = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Bitmap finalImage = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        finalImage.eraseColor(Color.WHITE);
         Canvas canvas = new Canvas(finalImage);
 
         Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG);
 
+        int margin = 1;
+
+        int w_2 = w/2 - margin;
+        int x_2 = w/2 + margin;
+
+        int h_2 = h/2 - margin;
+        int y_2 = h/2 + margin;
+
         if(bitmaps.length == 1) {
-            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], width, height), 0, 0, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], w, h), 0, 0, paint);
         }
         else if (bitmaps.length == 2) {
-            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], width/2, height), 0, 0, paint);
-            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[1], width/2, height), width/2, 0, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], w_2, h), 0, 0, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[1], w_2, h), x_2, 0, paint);
         }
         else if (bitmaps.length == 3) {
-            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], width/2, height), 0, 0, paint);
-            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[1], width/2, height/2), width/2, 0, paint);
-            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[2], width/2, height/2), width/2, height/2, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], w_2, h), 0, 0, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[1], w_2, h_2), x_2, 0, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[2], w_2, h_2), x_2, y_2, paint);
         }
         else {
-            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], width/2, height/2), 0, 0, paint);
-            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], width/2, height/2), 0, height/2, paint);
-            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[1], width/2, height/2), width/2, 0, paint);
-            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[2], width/2, height/2), width/2, height/2, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], w_2, h_2), 0, 0, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[0], w_2, h_2), 0, y_2, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[1], w_2, h_2), x_2, 0, paint);
+            canvas.drawBitmap(ThumbnailUtils.extractThumbnail(bitmaps[2], w_2, h_2), x_2, y_2, paint);
         }
 
         return finalImage;
     }
 
     public static Bitmap getMixImagesBitmap(int width, int height, List<Bitmap> bitmaps) {
-        return getMixImagesBitmap(width, height, bitmaps.toArray(new Bitmap[bitmaps.size()]));
+        return getMixImagesBitmap(width, height, bitmaps.toArray(new Bitmap[0]));
     }
 
     public static Bitmap scaleImage(Bitmap bitmap, int boxSize) {

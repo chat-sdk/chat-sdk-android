@@ -7,9 +7,7 @@
 
 package co.chatsdk.ui.search;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -33,7 +31,6 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
-import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.contacts.UsersListAdapter;
 import co.chatsdk.ui.main.BaseActivity;
@@ -41,8 +38,6 @@ import io.reactivex.Completable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL;
 
@@ -92,7 +87,7 @@ public class SearchActivity extends BaseActivity {
             }
         });
 
-        disposableList.add(adapter.onToggleObserver().subscribe(userListItem -> refreshDoneButton()));
+        dm.add(adapter.onToggleObserver().subscribe(userListItem -> refreshDoneButton()));
     }
 
     @Override
@@ -146,7 +141,7 @@ public class SearchActivity extends BaseActivity {
             return false;
         });
 
-        disposableList.add(adapter.onClickObservable().subscribe(item -> adapter.toggleSelection(item)));
+        dm.add(adapter.onClickObservable().subscribe(item -> adapter.toggleSelection(item)));
 
         floatingActionButton.setOnClickListener(v -> done());
 
@@ -217,7 +212,7 @@ public class SearchActivity extends BaseActivity {
 
         showProgressDialog(R.string.alert_save_contact);
 
-        disposableList.add(Completable.merge(completables)
+        dm.add(Completable.merge(completables)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(this::dismissProgressDialog)
                 .subscribe(this::finish, toastOnErrorConsumer()));
