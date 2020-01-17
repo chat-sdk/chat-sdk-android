@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import javax.annotation.Nullable;
 
@@ -19,6 +20,7 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
@@ -120,6 +122,13 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
 
     public Single<List<Sendable>> loadMoreMessagesTo(Date toDate, Integer limit) {
         return loadMoreMessages(null, toDate, limit);
+    }
+
+    public Single<List<Sendable>> loadMoreMessagesBefore(final Date toDate, Integer limit) {
+        return Single.defer(() -> {
+            Date before = toDate == null ? null : new Date(toDate.getTime() - 1);
+            return loadMoreMessagesTo(before, limit);
+        });
     }
 
     /**

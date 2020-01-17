@@ -98,16 +98,13 @@ public interface InterfaceAdapter {
 
     void startThreadDetailsActivity(Context context, String threadEntityID);
 
-    // @Deprecated use {@link #getLoginIntent(Context, HashMap)}
-//  void startLoginActivity(Context context, boolean attemptCachedLogin);
-//  void startLoginActivity (Context context, HashMap<String, Object> extras);
     void startProfileActivity(Context context, String userEntityID);
     void startEditProfileActivity(Context context, String userEntityID);
 
     void startMainActivity (Context context);
     void startMainActivity (Context context, HashMap<String, Object> extras);
     void startSearchActivity (Context context);
-    void startForwardMessageActivityForResult(Activity activity, Message message, int code);
+    void startForwardMessageActivityForResult(Activity activity, Thread thread, List<Message> message, int code);
 
     void startAddUsersToThreadActivity(Context context, String threadEntityID);
     void startCreateThreadActivity(Context context);

@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
 
@@ -11,6 +12,7 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.hook.Executor;
 import co.chatsdk.core.hook.Hook;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.ThreadType;
@@ -37,7 +39,8 @@ public class DummyData {
         this.threadCount = threadCount;
         this.messageCount = messageCount;
 
-        ChatSDK.hook().addHook(new Hook(data -> Completable.create(emitter -> create())), HookEvent.DidAuthenticate);
+        ChatSDK.hook().addHook(Hook.sync(data -> create()), HookEvent.DidAuthenticate);
+
     }
 
     public void create() {

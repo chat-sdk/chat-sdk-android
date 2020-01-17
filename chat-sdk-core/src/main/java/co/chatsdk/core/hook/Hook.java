@@ -1,30 +1,49 @@
 package co.chatsdk.core.hook;
 
 import java.util.HashMap;
+import java.util.concurrent.Callable;
 
+import co.chatsdk.core.events.NetworkEvent;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.CompletableSource;
 
 /**
  * Created by ben on 9/13/17.
  */
 
-public class Hook {
+public class Hook implements AsyncExecutor {
 
-    private Executor executor;
+    public Executor executor;
+    public AsyncExecutor asyncExecutor;
 
-    public Hook (Executor executor) {
+    protected Hook(Executor executor) {
         this.executor = executor;
     }
 
-    public Completable execute (HashMap<String, Object> data) {
-        if(executor != null) {
-            return executor.execute(data);
-        }
-        return Completable.complete();
+    protected Hook(AsyncExecutor executor) {
+        this.asyncExecutor = executor;
     }
 
-    public interface Executor {
-        Completable execute (HashMap<String, Object> data);
+    public Completable executeAsync (HashMap<String, Object> data) {
+        return Completable.defer(() -> {
+            if (asyncExecutor != null) {
+                return asyncExecutor.executeAsync(data);
+            }
+            if (executor != null) {
+                executor.execute(data);
+            }
+            return Completable.complete();
+        });
+    }
+
+    public static Hook sync(Executor executor) {
+        return new Hook(executor);
+    }
+
+    public static Hook async(AsyncExecutor executor) {
+        return new Hook(executor);
     }
 
 }

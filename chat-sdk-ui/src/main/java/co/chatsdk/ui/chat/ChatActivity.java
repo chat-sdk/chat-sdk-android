@@ -71,6 +71,10 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
+/**
+ * #use {@link co.chatsdk.ui.chatkit.CKChatActivity} instead
+ */
+@Deprecated
 public class ChatActivity extends BaseActivity implements TextInputDelegate, ChatOptionsDelegate {
 
     public static final int ADD_USERS = 103;
@@ -654,9 +658,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if (id == R.id.action_add) {
             startAddUsersActivity();
         }
-        else if (id == R.id.action_show) {
-            showUsersDialog();
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -674,14 +675,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         startActivityForResult(intent, ADD_USERS);
 
         overridePendingTransition(R.anim.slide_bottom_top, R.anim.dummy);
-    }
-
-    /**
-     * Show a dialog containing all the users in this chat.
-     */
-    protected void showUsersDialog() {
-        ContactsFragment contactsFragment = ContactsFragment.newThreadUsersDialogInstance(thread.getEntityID(), getString(R.string.thread_users));
-        contactsFragment.show(getSupportFragmentManager(), getString(R.string.contacts));
     }
 
     /**
@@ -817,15 +810,15 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 .subscribe(() -> scrollListTo(toPosition, !showLoadingIndicator), toastOnErrorConsumer()));
     }
 
-    public void markAsDelivered(List<Message> messages){
-        for (Message m : messages) {
-            markAsDelivered(m);
-        }
-    }
+//    public void markAsDelivered(List<Message> messages){
+//        for (Message m : messages) {
+//            markAsDelivered(m);
+//        }
+//    }
 
-    public void markAsDelivered(Message message){
-        message.setMessageStatus(MessageSendStatus.Delivered);
-    }
+//    public void markAsDelivered(Message message){
+//        message.setMessageStatus(MessageSendStatus.Delivered);
+//    }
 
     public void scrollListTo(final int position, final boolean animated) {
         listPos = position;

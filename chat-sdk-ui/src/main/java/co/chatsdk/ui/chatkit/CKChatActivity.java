@@ -7,6 +7,7 @@
 
 package co.chatsdk.ui.chatkit;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -17,6 +18,8 @@ import android.widget.Toast;
 
 import androidx.annotation.LayoutRes;
 import androidx.appcompat.app.ActionBar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.leinardi.android.speeddial.SpeedDialView;
 import com.squareup.picasso.Picasso;
@@ -31,6 +34,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -49,9 +54,11 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActionBar;
+import co.chatsdk.ui.chat.ReplyView;
 import co.chatsdk.ui.chat.TextInputDelegate;
 import co.chatsdk.ui.chat.message_action.MessageActionHandler;
 import co.chatsdk.ui.chatkit.custom.IncomingTextMessageViewHolder;
@@ -61,13 +68,14 @@ import co.chatsdk.ui.chatkit.model.MessageHolder;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
 import timber.log.Timber;
 
 public class CKChatActivity extends BaseActivity implements TextInputDelegate, ChatOptionsDelegate,
         MessagesListAdapter.OnLoadMoreListener {
 
-    public static final int ADD_USERS = 103;
-    public static final int SHOW_DETAILS = 200;
+
+    public static final int messageForwardActivityCode = 998;
 
     protected ChatOptionsHandler optionsHandler;
 
@@ -83,18 +91,18 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     protected Bundle bundle;
     protected boolean loadingMoreMessages;
 
-    protected SpeedDialView messageActionsSpeedDialView;
-    protected MessageActionHandler messageActionHandler;
-
     protected MessagesList messagesList;
     protected MessagesListAdapter<MessageHolder> messagesListAdapter;
 
     protected MessageInput messageInput;
 
+    protected HashMap<String, MessageHolder> messageHolderHashMap = new HashMap<>();
     protected ArrayList<MessageHolder> messageHolders = new ArrayList<>();
+
     protected PrettyTime prettyTime = new PrettyTime();
 
     protected ChatActionBar chatActionBar;
+    protected ReplyView replyView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,9 +118,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
         initActionBar();
 
-        // If the context is just been created we load regularly, else we load and retain position
-//        loadMessages(true, -1, ListPosition.Bottom);
-
         setChatState(TypingIndicatorHandler.State.active);
 
         if(enableTrace) {
@@ -125,19 +130,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> {
                     Message message = networkEvent.message;
-
-                    messagesListAdapter.addToStart(new MessageHolder(message), true);
-
-                    // Check if the text from the current user, If so return so we wont vibrate for the user messageHolders.
-//                    if (message.getSender().isMe() && isAdded) {
-//                        scrollListTo(ListPosition.Bottom, layoutManager().findLastVisibleItemPosition() > messagesListAdapter.size() - 2);
-//                    }
-//                    else {
-//                        // If the user is near the bottom, then we scroll down when a text comes in
-//                        if(layoutManager().findLastVisibleItemPosition() > messagesListAdapter.size() - 5) {
-//                            scrollListTo(ListPosition.Bottom, true);
-//                        }
-//                    }
+                    addMessageToStartOrUpdate(message);
                     message.markRead();
                 }));
 
@@ -149,7 +142,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                     Message message = networkEvent.message;
 
                     if (ChatSDK.readReceipts() != null && message.getSender().isMe()) {
-                        reloadDataForMessage(message);
+                        addMessageToStartOrUpdate(message);
                     }
                 }));
 
@@ -157,7 +150,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                 .filter(NetworkEvent.filterType(EventType.MessageRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> {
-//                    messagesListAdapter.removeRow(networkEvent.message, true);
+                    removeMessage(networkEvent.message);
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()
@@ -192,19 +185,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                 .subscribe(networkEvent -> {
 
                     MessageSendProgress progress = networkEvent.getMessageSendProgress();
-                    MessageSendStatus status = progress.getStatus();
-
-                    if (status == MessageSendStatus.Sending || status == MessageSendStatus.Created) {
-                        // Add this so that the message only appears after it's been sent
-                        if (ChatSDK.encryption() == null) {
-//                            if(messagesListAdapter.addRow(progress.message, false, true, progress.uploadProgress, true)) {
-//                                scrollListTo(ListPosition.Bottom, false);
-//                            }
-                        }
-                    }
-                    if (status == MessageSendStatus.Uploading || status == MessageSendStatus.Sent) {
-                        reloadDataForMessage(progress.message);
-                    }
+                    addMessageToStartOrUpdate(progress.message, progress.status);
         }));
 
         onLoadMore(0, 0);
@@ -267,6 +248,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
         messagesListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, (imageView, url, payload) -> {
             Picasso.get().load(url).into(imageView);
         });
+
         messagesListAdapter.setLoadMoreListener(this);
         messagesListAdapter.setDateHeadersFormatter(date -> prettyTime.format(date));
 
@@ -297,23 +279,8 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
             }
         });
 
-        setupChatActions();
-    }
+        replyView = findViewById(R.id.reply_view);
 
-    protected void setupChatActions() {
-//        messageActionsSpeedDialView = findViewById(R.id.speed_dial_message_actions);
-//        messageActionHandler = new MessageActionHandler(messageActionsSpeedDialView);
-
-//        messagesListAdapter.setOnMessageLongClickListener(message -> {
-//            // TODO:
-//        });
-
-//        dm.add(messagesListAdapter.getMessageActionObservable()
-//                .flatMapSingle((Function<List<MessageAction>, SingleSource<String>>) messageActions -> {
-//                    // Open the text action sheet
-//                    hideKeyboard();
-//                    return messageActionHandler.open(messageActions, CKChatActivity.this);
-//        }).subscribe(this::showSnackbar, snackbarOnErrorConsumer()));
     }
 
     @Override
@@ -330,13 +297,58 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                     .loadMoreMessagesForThread(loadFromDate, thread, true)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(messages -> {
-                        List<MessageHolder> holders = MessageHolder.toHolders(messages);
-                        messageHolders.addAll(holders);
-
-                        messagesListAdapter.addToEnd(holders, false);
+                        addMessagesToEnd(messages);
                         loadingMoreMessages = false;
             }));
         }
+    }
+
+    public void removeMessage(Message message) {
+        MessageHolder holder = messageHolderHashMap.get(message.getEntityID());
+        if (holder != null) {
+            asdf wrong one being deleted
+            int index = messageHolders.size() - 1 - messageHolders.indexOf(holder);
+            messagesListAdapter.notifyItemRemoved(index);
+            messageHolders.remove(holder);
+        }
+    }
+
+    public void addMessageToStartOrUpdate(Message message) {
+        addMessageToStartOrUpdate(message, null);
+    }
+
+    public void addMessageToStartOrUpdate(Message message, MessageSendStatus status) {
+        MessageHolder holder = messageHolderHashMap.get(message.getEntityID());
+
+        if (holder == null) {
+            holder = new MessageHolder(message);
+            messageHolders.add(0, holder);
+            messageHolderHashMap.put(holder.getId(), holder);
+
+            boolean scroll = message.getSender().isMe();
+
+            RecyclerView.LayoutManager layoutManager = messagesList.getLayoutManager();
+            if (layoutManager instanceof LinearLayoutManager) {
+                LinearLayoutManager llm = (LinearLayoutManager) layoutManager;
+
+                if (llm.findLastVisibleItemPosition() > messageHolders.size() - 5) {
+                    scroll = true;
+                }
+            }
+            messagesListAdapter.addToStart(holder, scroll);
+        } else {
+            holder.setSendStatus(status);
+            messagesListAdapter.update(holder);
+        }
+    }
+
+    public void addMessagesToEnd(List<Message> messages) {
+        List<MessageHolder> holders = MessageHolder.toHolders(messages);
+        messageHolders.addAll(holders);
+        for (MessageHolder mh: holders) {
+            messageHolderHashMap.put(mh.getId(), mh);
+        }
+        messagesListAdapter.addToEnd(holders, false);
     }
 
     /**
@@ -350,7 +362,15 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
             return;
         }
 
-        handleMessageSend(ChatSDK.thread().sendMessageWithText(text.trim(), thread));
+        if (replyView.isVisible()) {
+            Message message = MessageHolder.toMessages(messagesListAdapter.getSelectedMessages()).get(0);
+            handleMessageSend(ChatSDK.thread().replyToMessage(thread, message, text));
+            messagesListAdapter.unselectAllItems();
+            replyView.hide();
+        }
+        else {
+            handleMessageSend(ChatSDK.thread().sendMessageWithText(text.trim(), thread));
+        }
     }
 
     protected void handleMessageSend (Completable completable) {
@@ -378,14 +398,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
     protected void reloadData () {
         messagesListAdapter.notifyDataSetChanged();
-    }
-
-//    protected void reloadDataInRange (int startingIndex, int itemCount) {
-//        messagesListAdapter.notifyItemRangeChanged(startingIndex, itemCount);
-//    }
-
-    protected void reloadDataForMessage (Message message) {
-        messagesListAdapter.update(new MessageHolder(message));
     }
 
     @Override
@@ -420,27 +432,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                         }
                     }));
         }
-
-        // Set up the UI to dismiss keyboard on touch event, Option and Send buttons are not included.
-        // If list is scrolling we ignoring the touch event.
-//        setupTouchUIToDismissKeyboard(findViewById(R.id.view_root), (v, event) -> {
-//
-//            // Using small delay for better accuracy in catching the scrolls.
-//            v.postDelayed(() -> {
-//                if (!scrolling) {
-//                    hideKeyboard();
-//                    stopTyping(false);
-//                }
-//            }, 300);
-//
-//            return false;
-//        }, R.id.button_send, R.id.button_options);
-
-
-        // We have to do this because otherwise if we background the app
-        // we will miss any messageHolders that came through while we were in
-        // the background
-//        loadMessages(messagesListAdapter.getItemCount() == 0, -1, ListPosition.Bottom);
 
         // Show a local notification if the text is from a different thread
         ChatSDK.ui().setLocalNotificationHandler(thread -> !thread.getEntityID().equals(this.thread.getEntityID()));
@@ -494,36 +485,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == ADD_USERS) {
-            if (resultCode == RESULT_OK) {
-                updateChat();
-            }
-        }
-        else if (requestCode == SHOW_DETAILS) {
-
-            if (resultCode == RESULT_OK) {
-                // Updating the selected chat id.
-                if (data != null && data.getExtras() != null && data.getExtras().containsKey(Keys.IntentKeyThreadEntityID)) {
-                    if (!updateThreadFromBundle(data.getExtras())) {
-                        return;
-                    }
-
-                    if (messagesListAdapter != null) {
-                        messagesListAdapter.clear();
-                    }
-
-                    initActionBar();
-                } else {
-                    updateChat();
-                }
-            }
-        }
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
         if (messagesListAdapter != null && !messagesListAdapter.getSelectedMessages().isEmpty()) {
@@ -547,12 +508,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
             chatActionBar.hideText();
         } else {
             chatActionBar.showText();
-            // Adding the add user option only if group chat is enabled.
-            if (thread.typeIs(ThreadType.PrivateGroup) && thread.getCreator() != null && thread.getCreator().isMe()) {
-                MenuItem item = menu.add(Menu.NONE, R.id.action_add, 10, getString(R.string.chat_activity_show_users_item_text));
-                item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-                item.setIcon(R.drawable.ic_plus);
-            }
         }
 
         return super.onCreateOptionsMenu(menu);
@@ -576,22 +531,32 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
             showToast(R.string.copied_to_clipboard);
         }
         if (id == R.id.action_forward) {
-        }
+
+            List<Message> messages = MessageHolder.toMessages(messagesListAdapter.getSelectedMessages());
+
+            dm.put(messageForwardActivityCode, ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
+                if (activityResult.requestCode == messageForwardActivityCode) {
+                    if (activityResult.resultCode == Activity.RESULT_OK) {
+                        showToast(R.string.success);
+                    } else {
+                        if (activityResult.data != null) {
+                            String errorMessage = activityResult.data.getStringExtra(Keys.IntentKeyErrorMessage);
+                            showToast(errorMessage);
+                        }
+                    }
+                    dm.dispose(messageForwardActivityCode);
+                }
+            }));
+            ChatSDK.ui().startForwardMessageActivityForResult(this, thread, messages, messageForwardActivityCode);
+            messagesListAdapter.unselectAllItems();
+        };
+
         if (id == R.id.action_reply) {
-        }
-        if (id == R.id.action_add) {
-            startAddUsersActivity();
+            Message message = messagesListAdapter.getSelectedMessages().get(0).getMessage();
+            replyView.show(message.imageURL(), message.getText());
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * Open the add users context, Here you can see your contact list and add users to this chat.
-     * The default add users context will remove contacts that is already in this chat.
-     */
-    protected void startAddUsersActivity() {
-        ChatSDK.ui().startAddUsersToThreadActivity(this, thread.getEntityID());
     }
 
     /**
@@ -693,16 +658,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                 return true;
         }
         return super.onKeyDown(keyCode, event);
-    }
-
-    public void markAsDelivered(List<Message> messages){
-        for (Message m : messages) {
-            markAsDelivered(m);
-        }
-    }
-
-    public void markAsDelivered(Message message){
-        message.setMessageStatus(MessageSendStatus.Delivered);
     }
 
     @Override

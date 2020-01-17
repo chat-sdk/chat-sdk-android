@@ -12,6 +12,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.Date;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.AbstractCoreHandler;
 import co.chatsdk.core.dao.User;
@@ -28,6 +29,7 @@ import io.reactivex.Completable;
 import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -100,7 +102,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
         User current = ChatSDK.currentUser();
         if (current != null && !current.getEntityID().isEmpty()) {
-            return UserWrapper.initWithModel(currentUserModel()).goOnline();
+            return UserWrapper.initWithModel(currentUser()).goOnline();
         }
         if (ChatSDK.hook() != null) {
             ChatSDK.hook().executeHook(HookEvent.UserDidConnect, null).subscribe(ChatSDK.shared().getCrashReporter());;
@@ -120,7 +122,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         if (current != null && !current.getEntityID().isEmpty()) {
             // Update the last online figure then go offline
             return completable.concatWith(updateLastOnline()
-                    .concatWith(UserWrapper.initWithModel(currentUserModel()).goOffline()));
+                    .concatWith(UserWrapper.initWithModel(currentUser()).goOffline()));
         }
 
         return Completable.complete();
@@ -164,6 +166,14 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     }
 
+    @Override
+    public Single<User> getUserForEntityID(String entityID) {
+        return Single.defer(() -> {
+            final User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, entityID);
+            return userOn(user).toSingle(() -> user);
+        });
+    }
+
     public static FirebaseApp app () {
         if (ChatSDK.config().firebaseApp != null) {
             return FirebaseApp.getInstance(ChatSDK.config().firebaseApp);
@@ -183,5 +193,6 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             return FirebaseDatabase.getInstance(app());
         }
     }
+
 
 }

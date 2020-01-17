@@ -25,6 +25,7 @@ public class MessageHolder implements IMessage, MessageContentType.Image {
     public Message message;
     protected ReadStatus readStatus = null;
     protected UserHolder userHolder = null;
+    protected MessageSendStatus sendStatus = null;
 
     public MessageHolder(Message message) {
         this.message = message;
@@ -63,7 +64,14 @@ public class MessageHolder implements IMessage, MessageContentType.Image {
     }
 
     public MessageSendStatus getStatus() {
-        return message.getMessageStatus();
+        if (sendStatus == null) {
+            return message.getMessageStatus();
+        }
+        return sendStatus;
+    }
+
+    public void setSendStatus(MessageSendStatus sendStatus) {
+        this.sendStatus = sendStatus;
     }
 
     public ReadStatus getReadStatus() {

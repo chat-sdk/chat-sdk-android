@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.R;
 import co.chatsdk.core.dao.Keys;
@@ -27,7 +28,11 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -98,8 +103,9 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     /* Convenience method to save the text to the database then pass it to the token network adapter
      * send method so it can be sent via the network
      */
-    public Completable forwardMessage(Message message, Thread thread) {
-        return Single.just(newMessage(message.getType(), thread)).flatMapCompletable(newMessage -> {
+    public Completable forwardMessage(Thread thread, Message message) {
+        return Completable.defer(() -> {
+            Message newMessage = newMessage(message.getType(), thread);
             newMessage.setMetaValues(message.getMetaValuesAsMap());
 
             newMessage.setMessageStatus(MessageSendStatus.WillSend);
@@ -108,8 +114,19 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
 
             return sendMessage(newMessage);
-
         }).subscribeOn(Schedulers.single());
+    }
+
+    public Completable forwardMessages(Thread thread, Message... messages) {
+        return forwardMessages(thread, Arrays.asList(messages));
+    }
+
+    public Completable forwardMessages(Thread thread, List<Message> messages) {
+        ArrayList<Completable> completables = new ArrayList<>();
+        for (Message message: messages) {
+            completables.add(forwardMessage(thread, message));
+        }
+        return Completable.concat(completables);
     }
 
     public int getUnreadMessagesAmount(boolean onePerThread){
@@ -246,6 +263,32 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             completables.add(deleteMessage(message));
         }
         return Completable.merge(completables);
+    }
+
+    @Override
+    public boolean addUsersEnabled(Thread thread) {
+        return thread.typeIs(ThreadType.PrivateGroup) && thread.getCreator() != null && thread.getCreator().isMe();
+    }
+
+    @Override
+    public boolean removeUsersEnabled(Thread thread) {
+        return thread.typeIs(ThreadType.PrivateGroup) && thread.getCreator() != null && thread.getCreator().isMe();
+    }
+
+    @Override
+    public Completable replyToMessage(Thread thread, Message message, String reply) {
+        return Completable.defer(() -> {
+            Message newMessage = newMessage(message.getType(), thread);
+            newMessage.setMetaValues(message.getMetaValuesAsMap());
+            newMessage.setValueForKey(reply, Keys.Reply);
+
+            newMessage.setMessageStatus(MessageSendStatus.WillSend);
+            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+            newMessage.setMessageStatus(MessageSendStatus.Sending);
+            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+
+            return sendMessage(newMessage);
+        }).subscribeOn(Schedulers.single());
     }
 
 }

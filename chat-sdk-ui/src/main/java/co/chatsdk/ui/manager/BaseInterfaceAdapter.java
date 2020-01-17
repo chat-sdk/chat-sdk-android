@@ -479,9 +479,17 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public void startForwardMessageActivityForResult(Activity activity, Message message, int code) {
+    public void startForwardMessageActivityForResult(Activity activity, Thread thread, List<Message> messages, int code) {
         Intent intent = new Intent(activity, getForwardMessageActivity());
-        intent.putExtra(Keys.IntentKeyMessageEntityID, message.getEntityID());
+        intent.putExtra(Keys.IntentKeyThreadEntityID, thread.getEntityID());
+
+        ArrayList<String> messageEntityIDs = new ArrayList<>();
+
+        for (Message message: messages) {
+            messageEntityIDs.add(message.getEntityID());
+        }
+
+        intent.putExtra(Keys.IntentKeyMessageEntityIDs, messageEntityIDs);
         startActivityForResult(activity, intent, code);
     }
 

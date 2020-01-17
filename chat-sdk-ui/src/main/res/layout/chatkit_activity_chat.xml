@@ -12,7 +12,7 @@
         android:id="@+id/messagesList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/input"
+        android:layout_above="@id/divider"
         app:incomingBubblePaddingBottom="9dp"
         app:incomingBubblePaddingTop="9dp"
         app:incomingBubblePaddingLeft="10dp"
@@ -30,15 +30,23 @@
         app:outcomingTimeTextStyle="italic"
         app:outcomingDefaultBubbleSelectedColor="@color/primary_green"
         app:outcomingDefaultBubbleColor="@color/primary"
+        app:outcomingDefaultBubblePressedColor="@color/primary"
         />
 
     <View
+        android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_above="@+id/input"
+        android:layout_above="@+id/reply_view"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:background="@color/gray_light"/>
+
+    <co.chatsdk.ui.chat.ReplyView
+        android:id="@+id/reply_view"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_above="@+id/input"/>
 
     <com.stfalcon.chatkit.messages.MessageInput
         android:id="@+id/input"

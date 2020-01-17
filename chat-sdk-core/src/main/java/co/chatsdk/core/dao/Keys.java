@@ -45,6 +45,7 @@ public class Keys {
     public static final String Users = "users";
     public static final String UID = "uid";
     public static final String Read = "read";
+    public static final String Reply = "reply";
 
     public static final String Owner = "owner";
     public static final String Member = "member";
@@ -81,6 +82,7 @@ public class Keys {
     public static final String IntentKeyUserEntityID = "user-entity-id";
     public static final String IntentKeyUserEntityIDList = "user-entity-id-list";
     public static final String IntentKeyMessageEntityID = "text-entity-id";
+    public static final String IntentKeyMessageEntityIDs = "text-entity-ids";
     public static final String IntentKeyThreadEntityID = "thread-entity-id";
     public static final String IntentKeyAnimateExit = "animate-exit";
     public static final String IntentKeyMultiSelectEnabled = "multi-select-enabled";

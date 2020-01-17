@@ -29,11 +29,13 @@ public interface ThreadHandler {
     /**
      * Remove users from a thread
      */
+    boolean removeUsersEnabled(Thread thread);
     Completable removeUsersFromThread(Thread thread, List<User> users);
     Completable removeUsersFromThread(Thread thread, User... users);
     /**
      * Add users to a thread
      */
+    boolean addUsersEnabled(Thread thread);
     Completable addUsersToThread(Thread thread, List<User> users);
     Completable addUsersToThread(Thread thread, User... users);
     /**
@@ -65,7 +67,11 @@ public interface ThreadHandler {
      * Send a text object
      */
     Completable sendMessage(Message message);
-    Completable forwardMessage(Message message, Thread thread);
+    Completable forwardMessage(Thread thread, Message message);
+    Completable forwardMessages(Thread thread, Message... messages);
+    Completable forwardMessages(Thread thread, List<Message> messages);
+
+    Completable replyToMessage(Thread thread, Message message, String reply);
 
     int getUnreadMessagesAmount(boolean onePerThread);
 

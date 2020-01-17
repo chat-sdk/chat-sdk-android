@@ -8,6 +8,9 @@ import java.util.HashMap;
 
 public class AccountDetails {
 
+    /**
+     * For social login, user Firebase UI
+     */
     public enum Type {
         Username,
         Facebook,
@@ -24,6 +27,11 @@ public class AccountDetails {
     public String token;
     public HashMap<String, String> meta = new HashMap<>();
 
+    /**
+     * For Facebook login user Firebase UI
+     * @return
+     */
+    @Deprecated
     public static AccountDetails facebook () {
         AccountDetails a = new AccountDetails();
         a.type = Type.Facebook;
@@ -46,12 +54,22 @@ public class AccountDetails {
         return a;
     }
 
+    /**
+     * For Twitter login user Firebase UI
+     * @return
+     */
+    @Deprecated
     public static AccountDetails twitter () {
         AccountDetails a = new AccountDetails();
         a.type = Type.Twitter;
         return a;
     }
 
+    /**
+     * For Google login user Firebase UI
+     * @return
+     */
+    @Deprecated
     public static AccountDetails google () {
         AccountDetails a = new AccountDetails();
         a.type = Type.Google;

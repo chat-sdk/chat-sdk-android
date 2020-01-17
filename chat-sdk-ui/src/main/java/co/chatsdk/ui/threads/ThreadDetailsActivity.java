@@ -37,9 +37,6 @@ import co.chatsdk.ui.utils.ToastHelper;
  */
 public class ThreadDetailsActivity extends ImagePreviewActivity {
 
-    /** Set true if you want slide down animation for this context exit. */
-    protected boolean animateExit = false;
-
     protected Thread thread;
     protected ImageView threadImageView;
     protected TextView threadNameTextView;
@@ -136,11 +133,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     @Override
     public void onBackPressed() {
         setResult(Activity.RESULT_OK);
-
         finish(); // Finish needs to be called before animate exit
-        if (animateExit) {
-            overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
-        }
     }
 
     @Override
@@ -161,8 +154,6 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             return;
         }
 
-        animateExit = bundle.getBoolean(Keys.IntentKeyAnimateExit, animateExit);
-
         String threadEntityID = bundle.getString(Keys.IntentKeyThreadEntityID);
 
         if (threadEntityID != null && !threadEntityID.isEmpty()) {
@@ -177,7 +168,6 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(Keys.IntentKeyThreadEntityID, thread.getEntityID());
-        outState.putBoolean(Keys.IntentKeyAnimateExit, animateExit);
     }
 
     @Override
@@ -185,12 +175,16 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         getMenuInflater().inflate(R.menu.threads_menu, menu);
 
         // Only the creator can modify the group. Also, private 1-to-1 chats can't be edited
-        if (!thread.getCreatorEntityId().equals(ChatSDK.currentUserID()) || thread.typeIs(ThreadType.Private1to1)) {
+        if (!thread.getCreator().isMe() || thread.typeIs(ThreadType.Private1to1)) {
             menu.removeItem(R.id.action_edit);
         }
 
         if (!ChatSDK.thread().muteEnabled(thread)) {
             menu.removeItem(R.id.action_mute);
+        }
+
+        if (!ChatSDK.thread().addUsersEnabled(thread)) {
+            menu.removeItem(R.id.action_add_users);
         }
 
         return true;
@@ -211,6 +205,9 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
                 ChatSDK.thread().mute(thread).subscribe(ChatSDK.shared().getCrashReporter());
             }
             invalidateOptionsMenu();
+        }
+        if (item.getItemId() == R.id.action_add_users) {
+            ChatSDK.ui().startAddUsersToThreadActivity(this, thread.getEntityID());
         }
         return true;
     }

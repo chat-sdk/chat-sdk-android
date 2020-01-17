@@ -46,6 +46,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 if (chat != null) {
                     return chat.sendMessageWithBody(messageBody, message::setEntityID);
                 } else {
+                    // TODO: localise
                     return Completable.error(new Throwable("Chat chat doesn't exist"));
                 }
             }
@@ -193,15 +194,11 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean deleteMessageEnabled(Message message) {
-        if (message.getThread().typeIs(ThreadType.Private1to1)) {
-            return message.getSender().isMe();
-        }
-        if (message.getThread().typeIs(ThreadType.PrivateGroup)) {
+        if (message.getThread() != null && message.getThread().typeIs(ThreadType.PrivateGroup)) {
             IChat chat = Fire.stream().getChat(message.getThread().getEntityID());
-            if (chat != null) {
-                chat.getRoleType()
+            if (chat != null && chat.hasPermission(RoleType.admin())) {
+                return true;
             }
-            return message.getSender().isMe();
         }
         return message.getSender().isMe();
     }
@@ -340,17 +337,45 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 });
             });
 
+            Date lastMessageDate = fromDate;
+            if (localMessages.size() > 0) {
+                // Don't get a duplicate of the previous message - get messages before that
+                lastMessageDate = localMessages.get(localMessages.size() - 1).getDate().toDate();
+            }
+
             if (thread.typeIs(ThreadType.Private1to1)) {
-                return Fire.stream().loadMoreMessagesTo(fromDate, ChatSDK.config().messagesToLoadPerBatch).flatMap(sendableToMessage);
+                return Fire.stream().loadMoreMessagesBefore(lastMessageDate, ChatSDK.config().messagesToLoadPerBatch).flatMap(sendableToMessage);
             }
             if (thread.typeIs(ThreadType.PrivateGroup)) {
                 IChat chat = Fire.stream().getChat(thread.getEntityID());
                 if (chat != null) {
-                    return chat.loadMoreMessagesTo(fromDate, ChatSDK.config().messagesToLoadPerBatch).flatMap(sendableToMessage);
+                    return chat.loadMoreMessagesBefore(lastMessageDate, ChatSDK.config().messagesToLoadPerBatch).flatMap(sendableToMessage);
                 }
             }
             return Single.just(localMessages);
         });
+    }
+
+    @Override
+    public boolean addUsersEnabled(Thread thread) {
+        if (thread.typeIs(ThreadType.PrivateGroup)) {
+            IChat chat = Fire.stream().getChat(thread.getEntityID());
+            if (chat != null) {
+                return chat.hasPermission(RoleType.admin());
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean removeUsersEnabled(Thread thread) {
+        if (thread.typeIs(ThreadType.PrivateGroup)) {
+            IChat chat = Fire.stream().getChat(thread.getEntityID());
+            if (chat != null) {
+                return chat.hasPermission(RoleType.admin());
+            }
+        }
+        return false;
     }
 
 }

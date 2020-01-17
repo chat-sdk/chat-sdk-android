@@ -125,13 +125,11 @@ public class SearchActivity extends BaseActivity {
 
         // Listening to key press - if they click the ok button on the keyboard
         // we start the search
-        searchEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                search();
-                return false;
-            }
+        searchEditText.setOnEditorActionListener((v, actionId, event) -> {
+            search();
+            return false;
         });
+
         searchEditText.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 if (!searchText().isEmpty()) {

@@ -9,9 +9,9 @@ import android.content.Context;
 
 public interface ChatOptionsHandler {
 
-    boolean show (Activity activity);
-    boolean hide ();
-    void setDelegate (ChatOptionsDelegate delegate);
-    ChatOptionsDelegate getDelegate ();
+    boolean show(Activity activity);
+    boolean hide();
+    void setDelegate(ChatOptionsDelegate delegate);
+    ChatOptionsDelegate getDelegate();
 
 }

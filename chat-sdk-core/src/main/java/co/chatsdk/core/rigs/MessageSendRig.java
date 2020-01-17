@@ -112,7 +112,13 @@ public class MessageSendRig {
             message.setMessageStatus(MessageSendStatus.Sending);
             ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
             emitter.onComplete();
-        }).concatWith(ChatSDK.thread().sendMessage(message));
+        }).concatWith(ChatSDK.thread().sendMessage(message).doOnComplete(() -> {
+            message.setMessageStatus(MessageSendStatus.Sent);
+            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+        }).doOnError(throwable -> {
+            message.setMessageStatus(MessageSendStatus.Failed);
+            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+        }));
     }
 
     protected Completable uploadFiles () {

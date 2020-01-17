@@ -15,5 +15,4 @@ public interface HookHandler {
     void removeHook (Hook hook, String name);
     Completable executeHook (String name, HashMap<String, Object> data);
     Completable executeHook (String name);
-
 }

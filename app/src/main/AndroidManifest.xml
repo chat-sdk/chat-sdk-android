@@ -16,7 +16,8 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/SdkTheme"
-        android:name="co.chatsdk.android.app.AppObj">
+        android:name="co.chatsdk.android.app.AppObj"
+        android:hardwareAccelerated="true">
 
         <activity android:name="co.chatsdk.ui.login.SplashScreenActivity">
             <intent-filter>

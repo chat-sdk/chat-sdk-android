@@ -2,6 +2,7 @@ package co.chatsdk.core.handlers;
 
 import co.chatsdk.core.dao.User;
 import io.reactivex.Completable;
+import io.reactivex.Single;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
@@ -27,12 +28,15 @@ import io.reactivex.Completable;
     /**
      * Update the user on the server
      */
-    Completable pushUser ();
+    Completable pushUser();
 
     /**
     * Return the current user data
     */
+    @Deprecated
     User currentUserModel();
+
+    User currentUser();
 
     /**
     * Mark the user as online
@@ -55,5 +59,13 @@ import io.reactivex.Completable;
     void userOff (User user);
 
     void save();
+
+    /**
+     * Get a user from Firebase. Note that this will return even if the
+     * user doesn't exist on the server... The user will just be empty
+     * @param entityID of user
+     * @return user on completion
+     */
+    Single<User> getUserForEntityID(String entityID);
 
 }

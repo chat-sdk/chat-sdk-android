@@ -13,6 +13,7 @@ import io.reactivex.Completable;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 
+@Deprecated
 public class CopyMessageAction extends MessageAction {
 
     public CopyMessageAction(Message message) {

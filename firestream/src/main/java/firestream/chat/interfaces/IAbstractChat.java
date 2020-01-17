@@ -103,5 +103,14 @@ public interface IAbstractChat {
      */
     Single<List<Sendable>> loadMoreMessagesTo(Date toDate, Integer limit);
 
+    /**
+     * Load a batch of historic messages
+     *
+     * @param toDate load message TO  this date
+     * @param limit the number of messages returned
+     * @return a stream of messages
+     */
+    Single<List<Sendable>> loadMoreMessagesBefore(Date toDate, Integer limit);
+
 
 }

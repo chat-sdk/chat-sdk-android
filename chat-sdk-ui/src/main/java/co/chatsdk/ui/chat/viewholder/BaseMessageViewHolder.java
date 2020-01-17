@@ -111,7 +111,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         setIconHidden(true);
         setImageHidden(true);
 
-        float alpha = message.getMessageStatus() == MessageSendStatus.Sent || message.getMessageStatus() == MessageSendStatus.Delivered ? 1.0f : 0.7f;
+        float alpha = message.getMessageStatus() == MessageSendStatus.Sent || message.getMessageStatus() == MessageSendStatus.Sent ? 1.0f : 0.7f;
         setAlpha(alpha);
 
         String time = String.valueOf(getTimeFormat(message).format(message.getDate().toDate()));

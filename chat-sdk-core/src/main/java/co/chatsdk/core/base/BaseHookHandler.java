@@ -41,7 +41,7 @@ public class BaseHookHandler implements HookHandler {
         ArrayList<Completable> completables = new ArrayList<>();
         if(existingHooks != null) {
             for(Hook hook : existingHooks) {
-                completables.add(hook.execute(data));
+                completables.add(hook.executeAsync(data));
             }
         }
         return Completable.merge(completables);

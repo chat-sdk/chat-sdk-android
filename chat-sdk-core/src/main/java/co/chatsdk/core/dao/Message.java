@@ -314,7 +314,7 @@ public class Message extends AbstractEntity {
 
     public void setMessageStatus(MessageSendStatus status) {
         this.status = status.ordinal();
-//        this.update();
+        this.update();
     }
     public void setStatus(Integer status) {
         this.status = status;
@@ -327,7 +327,6 @@ public class Message extends AbstractEntity {
 
     public void setThreadId(Long threadId) {
         this.threadId = threadId;
-//        update();
     }
 
     public ReadStatus readStatusForUser (User user) {
@@ -639,6 +638,26 @@ public class Message extends AbstractEntity {
             previousMessageId = previousMessage == null ? null : previousMessage.getId();
             previousMessage__resolvedKey = previousMessageId;
         }
+    }
+
+    public boolean isReply() {
+        String reply = getReply();
+        if (reply != null && !reply.isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
+    public String getReply() {
+        Object replyObject = valueForKey(Keys.Reply);
+        if (replyObject instanceof String) {
+            return (String) replyObject;
+        }
+        return null;
+    }
+
+    public String imageURL() {
+        return stringForKey(Keys.MessageImageURL);
     }
 
 }

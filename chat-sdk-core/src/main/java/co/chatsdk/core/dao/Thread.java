@@ -198,7 +198,7 @@ public class Thread extends AbstractEntity {
 
     /** Fetch messages list from the db for current thread, Messages will be order Desc/Asc on demand.*/
     public List<Message> getMessagesWithOrder(int order){
-        return getMessagesWithOrder(order, -1);
+        return getMessagesWithOrder(order, 0);
     }
 
     /** Fetch messages list from the db for current thread, Messages will be order Desc/Asc on demand.*/
@@ -234,6 +234,7 @@ public class Thread extends AbstractEntity {
             message.setPreviousMessage(previousMessage);
         }
         getMessages().add(message);
+        message.update();
         update();
         refresh();
     }

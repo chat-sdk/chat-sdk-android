@@ -7,10 +7,10 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET"/>
 
-
     <application
         android:label="@string/app_name"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        android:hardwareAccelerated="true">
 
         <service android:name="co.chatsdk.core.notifications.MessagingService" />
 

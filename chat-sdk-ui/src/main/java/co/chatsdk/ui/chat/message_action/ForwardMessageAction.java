@@ -2,6 +2,9 @@ package co.chatsdk.ui.chat.message_action;
 
 import android.app.Activity;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.message_action.MessageAction;
@@ -17,7 +20,7 @@ import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 
-public class ForwardMessageAction extends MessageAction {
+public class               ForwardMessageAction extends MessageAction {
 
     protected int messageForwardActivityCode = 998;
 
@@ -48,7 +51,7 @@ public class ForwardMessageAction extends MessageAction {
                     disposableList.dispose();
                 }
             }));
-            ChatSDK.ui().startForwardMessageActivityForResult(activity, message.get(), messageForwardActivityCode);
+            ChatSDK.ui().startForwardMessageActivityForResult(activity, message.get().getThread(), Collections.singletonList(message.get()), messageForwardActivityCode);
         });
     }
 }

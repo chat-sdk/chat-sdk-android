@@ -28,9 +28,11 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.sorter.MessageSorter;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.FirebaseEntity;
@@ -219,7 +221,9 @@ public class ThreadWrapper  {
                     boolean newMessage = message.getModel().getMessageStatus() == MessageSendStatus.None;
 
                     model.addMessage(message.getModel());
-                    message.getModel().setMessageStatus(MessageSendStatus.Delivered);
+
+//                    message.getModel().setMessageStatus(MessageSendStatus.Delivered);
+//                    ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message.getModel())));
 
                     // Update the text and thread
                     message.getModel().update();
@@ -419,7 +423,7 @@ public class ThreadWrapper  {
                         message = new MessageWrapper(snapshot.child(key));
                         model.addMessage(message.getModel());
 
-                        message.getModel().setMessageStatus(MessageSendStatus.Delivered);
+//                        message.getModel().setMessageStatus(MessageSendStatus.Delivered);
                         messages.add(message.getModel());
 
                         message.getModel().update();
@@ -456,8 +460,8 @@ public class ThreadWrapper  {
         map.put(Keys.Type_v4, model.getType());
         map.put(Keys.Type, model.getType());
         // Deprecated in favour of creator
-        map.put(Keys.CreatorEntityId, this.model.getCreatorEntityId());
-        map.put(Keys.Creator, this.model.getCreatorEntityId());
+        map.put(Keys.CreatorEntityId, this.model.getCreator().getEntityID());
+        map.put(Keys.Creator, this.model.getCreator().getEntityID());
         map.put(Keys.ImageUrl, this.model.getImageUrl());
 
         return map;

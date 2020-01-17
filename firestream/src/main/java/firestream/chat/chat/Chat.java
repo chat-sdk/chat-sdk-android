@@ -402,7 +402,7 @@ public class Chat extends AbstractChat implements IChat {
         return sendDeliveryReceipt(DeliveryReceiptType.read(), message.getId());
     }
 
-    protected RoleType getMyRoleType() {
+    public RoleType getMyRoleType() {
         return getRoleType(Fire.Stream.currentUser());
     }
 
@@ -460,7 +460,7 @@ public class Chat extends AbstractChat implements IChat {
         }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    protected boolean hasPermission(RoleType required) {
+    public boolean hasPermission(RoleType required) {
         RoleType myRoleType = getMyRoleType();
         if (myRoleType == null) {
             return false;

@@ -13,7 +13,13 @@ public abstract class AbstractCoreHandler implements CoreHandler {
 
     private User cachedUser = null;
 
+    @Deprecated
     public User currentUserModel(){
+        return currentUser();
+    }
+
+    @Override
+    public User currentUser() {
         String entityID = ChatSDK.auth().getCurrentUserEntityID();
 
         if(cachedUser == null || !cachedUser.equalsEntityID(entityID)) {
@@ -24,13 +30,13 @@ public abstract class AbstractCoreHandler implements CoreHandler {
                 cachedUser = null;
             }
         }
-       return cachedUser;
+        return cachedUser;
     }
 
     @Override
     public void goOnline() {
         if (ChatSDK.lastOnline() != null) {
-            ChatSDK.lastOnline().setLastOnline(currentUserModel());
+            ChatSDK.lastOnline().setLastOnline(currentUser());
         }
     }
 }

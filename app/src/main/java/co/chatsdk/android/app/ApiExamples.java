@@ -14,6 +14,8 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.hook.AsyncExecutor;
+import co.chatsdk.core.hook.Executor;
 import co.chatsdk.core.hook.Hook;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.BroadcastHandler;
@@ -76,8 +78,15 @@ public class ApiExamples {
      * Example of how to listen for when a text isType received
      */
     public void listenForReceivedMessage () {
-        ChatSDK.hook().addHook(new Hook(data -> Completable.create(emitter -> {
+
+        // Synchronous code
+        ChatSDK.hook().addHook(Hook.sync(data -> {
             Message message = (Message) data.get(HookEvent.Message);
+        }), HookEvent.MessageReceived);
+
+        // Asynchronous code
+        ChatSDK.hook().addHook(Hook.async(data -> Completable.create(emitter -> {
+            // ... Async code here
             emitter.onComplete();
         })), HookEvent.MessageReceived);
     }
@@ -175,7 +184,7 @@ public class ApiExamples {
      * How to detect when a new text has been received
      */
     public void getMessageReceived () {
-        ChatSDK.hook().addHook(new Hook(data -> Completable.create(emitter -> {
+        ChatSDK.hook().addHook(Hook.sync(data -> {
 
             // Get the body from the notification
             if (data.get(HookEvent.Message) instanceof Message) {
@@ -188,12 +197,7 @@ public class ApiExamples {
 
                 }
             }
-
-            // Hooks return a completable which allows them to be asynchronous. When you've
-            // finished you need to register complete
-            emitter.onComplete();
-        })), HookEvent.MessageReceived);
-
+        }), HookEvent.MessageReceived);
     }
 
     /**

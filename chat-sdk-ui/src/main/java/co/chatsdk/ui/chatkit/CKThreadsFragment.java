@@ -52,7 +52,6 @@ public abstract class CKThreadsFragment extends BaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
 

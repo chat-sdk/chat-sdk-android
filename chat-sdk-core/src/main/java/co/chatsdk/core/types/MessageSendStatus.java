@@ -13,6 +13,6 @@ public enum MessageSendStatus {
     WillSend,
     Sending,
     Sent,
-    Delivered,
+//    Delivered,
     Failed,
 }

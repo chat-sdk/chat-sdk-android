@@ -11,7 +11,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        android:hardwareAccelerated="true">
 
         <!--<provider-->
             <!--android:name="android.support.v4.content.FileProvider"-->
