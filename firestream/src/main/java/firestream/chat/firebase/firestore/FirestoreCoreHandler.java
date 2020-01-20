@@ -15,36 +15,33 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import firestream.chat.events.SendableEvent;
-import firestream.chat.firebase.rx.Optional;
+import firestream.chat.events.Event;
+import firestream.chat.events.ListData;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import firestream.chat.chat.User;
 import firestream.chat.events.EventType;
-import firestream.chat.events.ListEvent;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.firebase.service.FirebaseCoreHandler;
 import firestream.chat.firebase.service.Path;
 import firestream.chat.message.Sendable;
-import io.reactivex.functions.Function;
 
 
 public class FirestoreCoreHandler extends FirebaseCoreHandler {
 
     @Override
-    public Observable<ListEvent> listChangeOn(Path path) {
+    public Observable<Event<ListData>> listChangeOn(Path path) {
         return new RXFirestore().on(Ref.collection(path)).flatMapMaybe(change -> {
             DocumentSnapshot d = change.getDocument();
             if (d.exists()) {
                 EventType type = FirestoreCoreHandler.typeForDocumentChange(change);
                 if (type != null) {
-                    return Maybe.just(new ListEvent(d.getId(), d.getData(DocumentSnapshot.ServerTimestampBehavior.ESTIMATE), type));
+                    return Maybe.just(new Event<>(new ListData(d.getId(), d.getData(DocumentSnapshot.ServerTimestampBehavior.ESTIMATE)), type));
                 }
             }
             return Maybe.empty();
@@ -68,7 +65,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             WriteBatch batch = Ref.db().batch();
 
             for (User u : users) {
-                DocumentReference docRef = ref.document(u.id);
+                DocumentReference docRef = ref.document(u.getId());
                 batch.set(docRef, dataProvider.data(u));
             }
             emitter.onSuccess(batch);
@@ -82,7 +79,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             WriteBatch batch = Ref.db().batch();
 
             for (User u : users) {
-                DocumentReference docRef = ref.document(u.id);
+                DocumentReference docRef = ref.document(u.getId());
                 batch.update(docRef, dataProvider.data(u));
             }
             emitter.onSuccess(batch);
@@ -96,7 +93,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             WriteBatch batch = Ref.db().batch();
 
             for (User u : users) {
-                DocumentReference docRef = ref.document(u.id);
+                DocumentReference docRef = ref.document(u.getId());
                 batch.delete(docRef);
             }
             emitter.onSuccess(batch);
@@ -177,7 +174,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
      * @param newerThan only listen for messages after this date
      * @return a events of errorMessage results
      */
-    public Observable<SendableEvent> messagesOn(Path messagesPath, Date newerThan, int limit) {
+    public Observable<Event<Sendable>> messagesOn(Path messagesPath, Date newerThan, int limit) {
         return Single.create((SingleOnSubscribe<Query>) emitter -> {
             Query query = Ref.collection(messagesPath);
 
@@ -194,7 +191,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
                 Sendable sendable = ds.toObject(Sendable.class, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE);
                 sendable.setId(ds.getId());
 
-                return Maybe.just(new SendableEvent(sendable, typeForDocumentChange(change)));
+                return Maybe.just(new Event<>(sendable, typeForDocumentChange(change)));
             }
             return Maybe.empty();
         }));

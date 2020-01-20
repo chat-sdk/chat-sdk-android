@@ -11,12 +11,9 @@ import javax.annotation.Nullable;
 import firestream.chat.Config;
 import firestream.chat.chat.Chat;
 import firestream.chat.chat.User;
-import firestream.chat.events.ChatEvent;
 import firestream.chat.events.ConnectionEvent;
-import firestream.chat.events.UserEvent;
+import firestream.chat.events.Event;
 import firestream.chat.firebase.rx.MultiQueueSubject;
-import firestream.chat.firebase.service.FirebaseService;
-import firestream.chat.message.Message;
 import firestream.chat.message.Sendable;
 import firestream.chat.types.ContactType;
 import firestream.chat.types.DeliveryReceiptType;
@@ -125,9 +122,9 @@ public interface IFireStream extends IAbstractChat {
 
     // Events
 
-    MultiQueueSubject<ChatEvent> getChatEvents();
-    MultiQueueSubject<UserEvent> getBlockedEvents();
-    MultiQueueSubject<UserEvent> getContactEvents();
+    MultiQueueSubject<Event<Chat>> getChatEvents();
+    MultiQueueSubject<Event<User>> getBlockedEvents();
+    MultiQueueSubject<Event<User>> getContactEvents();
     Observable<ConnectionEvent> getConnectionEvents();
 
 }

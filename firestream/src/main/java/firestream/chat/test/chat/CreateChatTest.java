@@ -65,12 +65,12 @@ public class CreateChatTest extends Test {
                 for (User user: chat.getUsers()) {
                     for (User u: users) {
                         if (user.equals(u) && !user.isMe()) {
-                            if (!user.roleType.equals(u.roleType)) {
+                            if (!user.equalsRoleType(u)) {
                                 failure("Role type mismatch");
                             }
                         }
                     }
-                    if (user.isMe() && !user.roleType.equals(RoleType.owner())) {
+                    if (user.isMe() && !user.equalsRoleType(RoleType.owner())) {
                         failure("Creator user not owner");
                     }
                 }
@@ -102,13 +102,13 @@ public class CreateChatTest extends Test {
         ArrayList<User> users = new ArrayList<>(TestScript.usersNotMe());
         for (User u: users) {
             if (u.equals(TestScript.testUser1())) {
-                u.roleType = RoleType.watcher();
+                u.setRoleType(RoleType.watcher());
             }
             if (u.equals(TestScript.testUser2())) {
-                u.roleType = RoleType.admin();
+                u.setRoleType(RoleType.admin());
             }
             if (u.equals(TestScript.testUser3())) {
-                u.roleType = RoleType.banned();
+                u.setRoleType(RoleType.banned());
             }
         }
         return users;

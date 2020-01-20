@@ -9,8 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import firefly.sdk.chat.R;
+import firestream.chat.events.Event;
 import firestream.chat.events.EventType;
-import firestream.chat.events.UserEvent;
+import firestream.chat.events.ListData;
 import firestream.chat.filter.MessageStreamFilter;
 import firestream.chat.firebase.rx.MultiQueueSubject;
 import firestream.chat.firebase.service.Keys;
@@ -44,7 +45,7 @@ public class Chat extends AbstractChat implements IChat {
     protected Meta meta = new Meta();
 
     protected ArrayList<User> users = new ArrayList<>();
-    protected MultiQueueSubject<UserEvent> userEvents = MultiQueueSubject.create();
+    protected MultiQueueSubject<Event<User>> userEvents = MultiQueueSubject.create();
 
     protected BehaviorSubject<String> nameChangedEvents = BehaviorSubject.create();
     protected BehaviorSubject<String> imageURLChangedEvents = BehaviorSubject.create();
@@ -80,14 +81,14 @@ public class Chat extends AbstractChat implements IChat {
                     .getMessages()
                     .pastAndNewEvents()
                     .filter(MessageStreamFilter.notFromMe())
-                    .flatMapCompletable(this::markReceived)
+                    .flatMapCompletable(messageEvent -> markReceived(messageEvent.get()))
                     .doOnError(this)
                     .subscribe());
         }
 
         dm.add(listChangeOn(Paths.chatUsersPath(id)).subscribe(listEvent -> {
-            UserEvent userEvent = UserEvent.from(listEvent);
-            User user = userEvent.user;
+            Event<User> userEvent = listEvent.to(User.from(listEvent));
+            User user = userEvent.get();
 
             // If we start by removing the user. If it isType a remove event
             // we leave it at that. Otherwise we add that user back in
@@ -335,7 +336,7 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     @Override
-    public MultiQueueSubject<UserEvent> getUserEvents() {
+    public MultiQueueSubject<Event<User>> getUserEvents() {
         return userEvents;
     }
 
@@ -393,13 +394,13 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     @Override
-    public Completable markReceived(Message message) {
-        return sendDeliveryReceipt(DeliveryReceiptType.received(), message.getId());
+    public Completable markReceived(Sendable sendable) {
+        return sendDeliveryReceipt(DeliveryReceiptType.received(), sendable.getId());
     }
 
     @Override
-    public Completable markRead(Message message) {
-        return sendDeliveryReceipt(DeliveryReceiptType.read(), message.getId());
+    public Completable markRead(Sendable sendable) {
+        return sendDeliveryReceipt(DeliveryReceiptType.read(), sendable.getId());
     }
 
     public RoleType getMyRoleType() {
@@ -471,4 +472,13 @@ public class Chat extends AbstractChat implements IChat {
     public Completable deleteSendable(Sendable sendable) {
         return deleteSendable(messagesPath().child(sendable.getId()));
     }
+
+    public static Chat from(Event<ListData> listEvent) {
+        ListData change = listEvent.get();
+        if (change.get(Keys.Date) instanceof Date) {
+            return new Chat(change.getId(), (Date) change.get(Keys.Date));
+        }
+        return new Chat(change.getId());
+    }
+
 }

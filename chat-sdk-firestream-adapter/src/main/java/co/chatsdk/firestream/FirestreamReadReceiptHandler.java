@@ -32,15 +32,15 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
         Disposable d = Fire.Stream.getConnectionEvents().subscribe(connectionEvent -> {
             if (connectionEvent.getType() == ConnectionEvent.Type.DidConnect) {
 
-                dm.add(Fire.Stream.getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(receipt -> {
-                    handleReceipt(receipt.getFrom(), receipt);
+                dm.add(Fire.Stream.getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(event -> {
+                    handleReceipt(event.get().getFrom(), event.get());
                 }));
 
                 dm.add(Fire.Stream.getChatEvents().pastAndNewEvents().subscribe(chatEvent -> {
-                    IChat chat = chatEvent.getChat();
+                    IChat chat = chatEvent.get();
                     if (chatEvent.typeIs(EventType.Added)) {
-                        chat.manage(chat.getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(receipt -> {
-                            handleReceipt(chat.getId(), receipt);
+                        chat.manage(chat.getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(event -> {
+                            handleReceipt(chat.getId(), event.get());
                         }));
                     }
                 }));

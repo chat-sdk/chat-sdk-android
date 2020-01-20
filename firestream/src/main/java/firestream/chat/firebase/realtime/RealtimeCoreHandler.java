@@ -12,37 +12,32 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import firestream.chat.events.SendableEvent;
+import firestream.chat.events.Event;
+import firestream.chat.events.ListData;
 import firestream.chat.firebase.generic.Generic;
-import firestream.chat.firebase.rx.Optional;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import firestream.chat.chat.User;
-import firestream.chat.events.EventType;
-import firestream.chat.events.ListEvent;
 import firestream.chat.firebase.service.FirebaseCoreHandler;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.firebase.service.Path;
 import firestream.chat.message.Sendable;
 
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 
 public class RealtimeCoreHandler extends FirebaseCoreHandler {
 
     @Override
-    public Observable<ListEvent> listChangeOn(Path path) {
+    public Observable<Event<ListData>> listChangeOn(Path path) {
         return new RXRealtime().childOn(Ref.get(path)).flatMapMaybe(change -> {
             DataSnapshot snapshot = change.snapshot;
             HashMap<String, Object> data = snapshot.getValue(Generic.hashMapStringObject());
             if (data != null) {
-                return Maybe.just(new ListEvent(change.snapshot.getKey(), data, change.type));
+                return Maybe.just(new Event<>(new ListData(change.snapshot.getKey(), data), change.type));
             }
             return Maybe.empty();
         });
@@ -160,7 +155,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
     }
 
     @Override
-    public Observable<SendableEvent> messagesOn(Path messagesPath, Date newerThan, int limit) {
+    public Observable<Event<Sendable>> messagesOn(Path messagesPath, Date newerThan, int limit) {
         return Single.create((SingleOnSubscribe<Query>) emitter -> {
             Query query = Ref.get(messagesPath);
 
@@ -173,7 +168,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
         }).flatMapObservable(query -> new RXRealtime().childOn(query).flatMapMaybe(change -> {
             Sendable sendable = sendableFromSnapshot(change.snapshot);
             if (sendable != null) {
-                return Maybe.just(new SendableEvent(sendable, change.type));
+                return Maybe.just(new Event<>(sendable, change.type));
             }
             return Maybe.empty();
         }));
@@ -211,7 +206,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
     protected List<String> idsForUsers(List<? extends User> users) {
         ArrayList<String> ids = new ArrayList<>();
         for (User u: users) {
-            ids.add(u.id);
+            ids.add(u.getId());
         }
         return ids;
     }

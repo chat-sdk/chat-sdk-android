@@ -513,7 +513,9 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public void startCreateThreadActivity(Context context) {
-        startActivity(context, getCreateThreadActivity());
+        Intent intent = new Intent(context, getCreateThreadActivity());
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        context.startActivity(intent);
     }
 
     @Override

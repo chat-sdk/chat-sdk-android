@@ -28,4 +28,7 @@ public class BaseType {
         return new BaseType("");
     }
 
+    public boolean is(BaseType type) {
+        return equals(type);
+    }
 }

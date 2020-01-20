@@ -1,6 +1,7 @@
 package firestream.chat.chat;
 
-import firestream.chat.events.SendableEvent;
+import firestream.chat.events.Event;
+import firestream.chat.message.Sendable;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import firestream.chat.message.DeliveryReceipt;
@@ -13,22 +14,22 @@ import firestream.chat.firebase.rx.MultiQueueSubject;
 
 public class Events {
 
-    protected MultiQueueSubject<Message> messages = MultiQueueSubject.create();
-    protected MultiQueueSubject<DeliveryReceipt> deliveryReceipts = MultiQueueSubject.create();
-    protected MultiQueueSubject<TypingState> typingStates = MultiQueueSubject.create();
-    protected MultiQueueSubject<Presence> presences = MultiQueueSubject.create();
-    protected MultiQueueSubject<Invitation> invitations = MultiQueueSubject.create();
+    protected MultiQueueSubject<Event<Message>> messages = MultiQueueSubject.create();
+    protected MultiQueueSubject<Event<DeliveryReceipt>> deliveryReceipts = MultiQueueSubject.create();
+    protected MultiQueueSubject<Event<TypingState>> typingStates = MultiQueueSubject.create();
+    protected MultiQueueSubject<Event<Presence>> presences = MultiQueueSubject.create();
+    protected MultiQueueSubject<Event<Invitation>> invitations = MultiQueueSubject.create();
 
     /**
      * The sendable event stream provides the most information. It passes a sendable event
      * when will include the kind of action that has been performed.
      */
-    protected MultiQueueSubject<SendableEvent> sendables = MultiQueueSubject.create();
+    protected MultiQueueSubject<Event<Sendable>> sendables = MultiQueueSubject.create();
 
     protected PublishSubject<Throwable> errors = PublishSubject.create();
 
 
-    public MultiQueueSubject<Message> getMessages() {
+    public MultiQueueSubject<Event<Message>> getMessages() {
         return messages;
     }
 
@@ -39,10 +40,8 @@ public class Events {
      * to avoid a naming clash
      * @return events of messages
      */
-    public Observable<FireStreamMessage> getFireStreamMessages() {
-        return messages
-                .map(FireStreamMessage::fromMessage)
-                .hide();
+    public Observable<Event<FireStreamMessage>> getFireStreamMessages() {
+        return messages.map(messageEvent -> messageEvent.to(FireStreamMessage.fromMessage(messageEvent.get()))).hide();
     }
 
     /**
@@ -53,23 +52,23 @@ public class Events {
         return errors.hide();
     }
 
-    public MultiQueueSubject<DeliveryReceipt> getDeliveryReceipts() {
+    public MultiQueueSubject<Event<DeliveryReceipt>> getDeliveryReceipts() {
         return deliveryReceipts;
     }
 
-    public MultiQueueSubject<TypingState> getTypingStates() {
+    public MultiQueueSubject<Event<TypingState>> getTypingStates() {
         return typingStates;
     }
 
-    public MultiQueueSubject<SendableEvent> getSendables() {
+    public MultiQueueSubject<Event<Sendable>> getSendables() {
         return sendables;
     }
 
 
-    public MultiQueueSubject<Presence> getPresences() {
+    public MultiQueueSubject<Event<Presence>> getPresences() {
         return presences;
     }
-    public MultiQueueSubject<Invitation> getInvitations() {
+    public MultiQueueSubject<Event<Invitation>> getInvitations() {
         return invitations;
     }
 

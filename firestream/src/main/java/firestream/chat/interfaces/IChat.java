@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import firestream.chat.chat.User;
+import firestream.chat.events.Event;
 import firestream.chat.events.UserEvent;
 import firestream.chat.firebase.rx.MultiQueueSubject;
 import firestream.chat.message.Message;
@@ -216,7 +217,7 @@ public interface IChat extends IAbstractChat {
      * Get an observable which isType called when the a user isType added, removed or updated
      * @return observable
      */
-    MultiQueueSubject<UserEvent> getUserEvents();
+    MultiQueueSubject<Event<User>> getUserEvents();
 
     /**
      * Send a custom message
@@ -308,16 +309,16 @@ public interface IChat extends IAbstractChat {
 
     /**
      * Mark a message as received
-     * @param message to mark as received
+     * @param sendable to mark as received
      * @return completion
      */
-    Completable markReceived(Message message);
+    Completable markReceived(Sendable sendable);
 
     /**
      * Mark a message as read
-     * @param message to mark as read
+     * @param sendable to mark as read
      * @return completion
      */
-    Completable markRead(Message message);
+    Completable markRead(Sendable sendable);
 
 }

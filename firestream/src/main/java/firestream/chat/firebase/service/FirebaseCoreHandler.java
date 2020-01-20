@@ -1,17 +1,16 @@
 package firestream.chat.firebase.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
-import firestream.chat.events.SendableEvent;
+import firestream.chat.events.Event;
+import firestream.chat.events.ListData;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import firestream.chat.chat.User;
-import firestream.chat.events.ListEvent;
 import firestream.chat.message.Sendable;
 import io.reactivex.functions.Consumer;
 
@@ -23,7 +22,7 @@ public abstract class FirebaseCoreHandler {
      * @param path to listen to
      * @return events of list events
      */
-    public abstract Observable<ListEvent> listChangeOn(Path path);
+    public abstract Observable<Event<ListData>> listChangeOn(Path path);
 
     /**
      * Delete a sendable from our queue
@@ -98,7 +97,7 @@ public abstract class FirebaseCoreHandler {
      * @param limit limit the maximum number of historic messages
      * @return a events of errorMessage results
      */
-    public abstract Observable<SendableEvent> messagesOn(Path messagesPath, Date newerThan, int limit);
+    public abstract Observable<Event<Sendable>> messagesOn(Path messagesPath, Date newerThan, int limit);
 
     /**
      * Return a Firebase timestamp object

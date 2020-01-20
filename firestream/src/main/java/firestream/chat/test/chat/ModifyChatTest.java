@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import firestream.chat.events.Event;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.chat.User;
 import firestream.chat.events.EventType;
@@ -53,7 +54,7 @@ public class ModifyChatTest extends Test {
                 ArrayList<String> nameEvents = new ArrayList<>();
                 ArrayList<String> imageURLEvents = new ArrayList<>();
                 ArrayList<HashMap<String, Object>> customDataEvents = new ArrayList<>();
-                ArrayList<UserEvent> userEvents = new ArrayList<>();
+                ArrayList<Event<User>> userEvents = new ArrayList<>();
 
                 ArrayList<User> removedUsers = new ArrayList<>();
                 ArrayList<User> addedUsers = new ArrayList<>();
@@ -98,9 +99,9 @@ public class ModifyChatTest extends Test {
 
                 for (User u: users()) {
                     if (!u.isMe()) {
-                        dm.add(chat.setRole(u, u.roleType).subscribe(() -> {
+                        dm.add(chat.setRole(u, u.getRoleType()).subscribe(() -> {
                             // Check the user's role
-                            if (!u.roleType.equals(chat.getRoleType(u))) {
+                            if (!u.getRoleType().equals(chat.getRoleType(u))) {
                                 failure("User role updated not correct");
                             }
                         }, this));
@@ -127,12 +128,12 @@ public class ModifyChatTest extends Test {
                     for (User user: chat.getUsers()) {
                         for (User u: users()) {
                             if (user.equals(u) && !user.isMe()) {
-                                if (!user.roleType.equals(u.roleType)) {
+                                if (!user.getRoleType().equals(u.getRoleType())) {
                                     failure("Role type mismatch");
                                 }
                             }
                         }
-                        if (user.isMe() && !user.roleType.equals(RoleType.owner())) {
+                        if (user.isMe() && !user.getRoleType().equals(RoleType.owner())) {
                             failure("Creator user not owner");
                         }
                     }
@@ -164,9 +165,9 @@ public class ModifyChatTest extends Test {
                     if (userEvents.size() == 0) {
                         failure("User events not received");
                     } else {
-                        for (UserEvent ue: userEvents) {
+                        for (Event<User> ue: userEvents) {
                             for (User u: users()) {
-                                if (ue.user.equals(u) && !ue.user.roleType.equals(u.roleType)) {
+                                if (ue.get().equals(u) && !ue.get().getRoleType().equals(u.getRoleType())) {
                                     failure("Role type not updated correctly");
                                 }
                             }
@@ -177,10 +178,10 @@ public class ModifyChatTest extends Test {
 
                     dm.add(chat.getUserEvents().newEvents().subscribe(userEvent -> {
                         if (userEvent.typeIs(EventType.Added)) {
-                            addedUsers.add(userEvent.user);
+                            addedUsers.add(userEvent.get());
                         }
                         else if (userEvent.typeIs(EventType.Removed)) {
-                            removedUsers.add(userEvent.user);
+                            removedUsers.add(userEvent.get());
                         }
                         else {
                             failure("Modify event when added or removed expected");
@@ -208,7 +209,7 @@ public class ModifyChatTest extends Test {
 
                         dm.add(chat.addUser(false, u1).subscribe(() -> {
                             RoleType role = chat.getRoleType(u1);
-                            if (!role.equals(u1.roleType)) {
+                            if (!role.equals(u1.getRoleType())) {
                                 failure("Added user has wrong role");
                             }
                         }));
@@ -238,13 +239,13 @@ public class ModifyChatTest extends Test {
         ArrayList<User> users = new ArrayList<>();
         for (User u: CreateChatTest.users()) {
             if (u.equals(TestScript.testUser1())) {
-                u.roleType = RoleType.banned();
+                u.setRoleType(RoleType.banned());
             }
             if (u.equals(TestScript.testUser2())) {
-                u.roleType = RoleType.watcher();
+                u.setRoleType(RoleType.watcher());
             }
             if (u.equals(TestScript.testUser3())) {
-                u.roleType = RoleType.admin();
+                u.setRoleType(RoleType.admin());
             }
             users.add(u);
         }

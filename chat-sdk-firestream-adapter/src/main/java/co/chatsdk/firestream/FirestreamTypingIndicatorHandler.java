@@ -25,9 +25,9 @@ public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler 
         Disposable d = Fire.Stream.getConnectionEvents().subscribe(connectionEvent -> {
             if (connectionEvent.getType() == ConnectionEvent.Type.DidConnect) {
 
-                dm.add(Fire.Stream.getSendableEvents().getTypingStates().subscribe(typingState -> {
+                dm.add(Fire.Stream.getSendableEvents().getTypingStates().subscribe(event -> {
                     // Get the sender
-                    String senderId = typingState.getFrom();
+                    String senderId = event.get().getFrom();
 
                     if (!senderId.equals(ChatSDK.currentUserID())) {
                         dm.add(APIHelper.fetchRemoteUser(senderId).subscribe((user, throwable) -> {
@@ -35,7 +35,7 @@ public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler 
                                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(senderId);
                                 if (thread != null) {
                                     NetworkEvent networkEvent = NetworkEvent.typingStateChanged(null, thread);
-                                    if (typingState.getTypingStateType().equals(TypingStateType.typing())) {
+                                    if (event.get().getTypingStateType().equals(TypingStateType.typing())) {
                                         networkEvent = NetworkEvent.typingStateChanged(user.getName(), thread);
                                     }
                                     ChatSDK.events().source().onNext(networkEvent);

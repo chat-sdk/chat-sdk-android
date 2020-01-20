@@ -1,17 +1,11 @@
 package co.chatsdk.ui.chatkit.model;
 
-import android.view.View;
-
-import androidx.annotation.Nullable;
-
 import com.stfalcon.chatkit.commons.models.IMessage;
-import com.stfalcon.chatkit.commons.models.MessageContentType;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
@@ -20,7 +14,7 @@ import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.ui.R;
 
-public class MessageHolder implements IMessage, MessageContentType.Image {
+public class MessageHolder implements IMessage {
 
     public Message message;
     protected ReadStatus readStatus = null;
@@ -78,15 +72,6 @@ public class MessageHolder implements IMessage, MessageContentType.Image {
         return message.getReadStatus();
     }
 
-    @Nullable
-    @Override
-    public String getImageUrl() {
-        if (message.getMessageType().is(MessageType.Image)) {
-            return message.stringForKey(Keys.MessageImageURL);
-        }
-        return null;
-    }
-
     public Integer getReadStatusResourceId() {
         ReadStatus status = message.getReadStatus();
 
@@ -107,12 +92,19 @@ public class MessageHolder implements IMessage, MessageContentType.Image {
         return resource;
     }
 
-    public static List<MessageHolder> toHolders(List<Message> messages) {
+    public static List<MessageHolder> fromMessages(List<Message> messages) {
         ArrayList<MessageHolder> messageHolders = new ArrayList<>();
         for (Message m: messages) {
-            messageHolders.add(new MessageHolder(m));
+            messageHolders.add(fromMessage(m));
         }
         return messageHolders;
+    }
+
+    public static MessageHolder fromMessage(Message message) {
+        if (message.getMessageType().is(MessageType.Image, MessageType.Location)) {
+            return new ImageMessageHolder(message);
+        }
+        return new MessageHolder(message);
     }
 
     public static List<Message> toMessages(List<MessageHolder> messageHolders) {

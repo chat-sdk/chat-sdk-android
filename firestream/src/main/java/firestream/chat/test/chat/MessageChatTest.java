@@ -61,16 +61,16 @@ public class MessageChatTest extends Test {
                 ArrayList<DeliveryReceipt> receipts = new ArrayList<>();
                 ArrayList<TypingState> typingStates = new ArrayList<>();
 
-                dm.add(chat.getSendableEvents().getMessages().pastAndNewEvents().subscribe(message -> {
-                    messages.add(message);
+                dm.add(chat.getSendableEvents().getMessages().pastAndNewEvents().subscribe(event -> {
+                    messages.add(event.get());
                 }, this));
 
-                dm.add(chat.getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(deliveryReceipt -> {
-                    receipts.add(deliveryReceipt);
+                dm.add(chat.getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(event -> {
+                    receipts.add(event.get());
                 }, this));
 
-                dm.add(chat.getSendableEvents().getTypingStates().pastAndNewEvents().subscribe(typingState -> {
-                    typingStates.add(typingState);
+                dm.add(chat.getSendableEvents().getTypingStates().pastAndNewEvents().subscribe(event -> {
+                    typingStates.add(event.get());
                 }, this));
 
                 // Send a message

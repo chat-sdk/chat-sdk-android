@@ -19,7 +19,7 @@ public class GetContactAddedTest extends Test {
             manage(emitter);
             dm.add(Fire.Stream.getContactEvents().currentAndNewEvents().subscribe(userEvent -> {
                 if (userEvent.typeIs(EventType.Added)) {
-                    if (userEvent.user.equals(TestScript.testUser1())) {
+                    if (userEvent.get().equals(TestScript.testUser1())) {
                         complete();
                     } else {
                         failure("Wrong user added");

@@ -14,9 +14,9 @@ public class FireStreamUser extends User {
     }
 
     public static FireStreamUser fromUser(User user) {
-        FireStreamUser mu = new FireStreamUser(user.id);
-        mu.contactType = user.contactType;
-        mu.roleType = user.roleType;
+        FireStreamUser mu = new FireStreamUser(user.getId());
+        mu.setContactType(user.getContactType());
+        mu.setRoleType(user.getRoleType());
         return mu;
     }
 }

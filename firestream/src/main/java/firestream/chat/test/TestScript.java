@@ -110,7 +110,7 @@ public class TestScript {
     public static List<User> usersNotMe() {
         ArrayList<User> users = new ArrayList<>();
         for (User u: users()) {
-            if (!u.id.equals(Fire.Stream.currentUserId())) {
+            if (!u.getId().equals(Fire.Stream.currentUserId())) {
                 users.add(u);
             }
         }

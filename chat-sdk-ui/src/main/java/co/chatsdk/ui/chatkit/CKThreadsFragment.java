@@ -227,7 +227,7 @@ public abstract class CKThreadsFragment extends BaseFragment {
     }
 
     protected void updateMessage(Message message) {
-        if(!dialogsListAdapter.updateDialogWithMessage(message.getThread().getEntityID(), new MessageHolder(message))) {
+        if(!dialogsListAdapter.updateDialogWithMessage(message.getThread().getEntityID(), MessageHolder.fromMessage(message))) {
             dialogsListAdapter.addItem(new ThreadHolder(message.getThread()));
         }
     }

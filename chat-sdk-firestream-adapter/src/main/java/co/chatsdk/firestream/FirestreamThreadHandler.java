@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Observable;
 import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.AbstractThreadHandler;
@@ -146,6 +147,23 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
                 if (!chat.getImageURL().equals(thread.getImageUrl())) {
                     changes.add(chat.setImageURL(thread.getImageUrl()));
+                }
+
+                boolean metaSame = true;
+
+                HashMap<String, Object> chatMeta = chat.getCustomData();
+
+                for (String key: chatMeta.keySet()) {
+                    Object chatValue = chatMeta.get(key);
+                    Object threadValue = thread.metaValueForKey(key);
+
+                    if (chatValue == null || !chatValue.equals(threadValue)) {
+                        chatMeta.put(key, threadValue);
+                        metaSame = false;
+                    }
+                }
+                if (!metaSame) {
+                    changes.add(chat.setCustomData(chatMeta));
                 }
                 return Completable.concat(changes);
             }

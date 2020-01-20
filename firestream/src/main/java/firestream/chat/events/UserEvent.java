@@ -27,16 +27,6 @@ public class UserEvent extends Event {
         return new UserEvent(user, EventType.Modified);
     }
 
-    public static UserEvent from(ListEvent listEvent) {
-        if (listEvent.get(Keys.Role) instanceof String) {
-            return new UserEvent(new User(listEvent.id, new RoleType((String) listEvent.get(Keys.Role))), listEvent.type);
-        }
-        if (listEvent.get(Keys.Type) instanceof String) {
-            return new UserEvent(new User(listEvent.id, new ContactType((String) listEvent.get(Keys.Type))), listEvent.type);
-        }
-        return new UserEvent(new User(listEvent.id), listEvent.type);
-    }
-
     public FireStreamUser getFireStreamUser() {
         return FireStreamUser.fromUser(user);
     }

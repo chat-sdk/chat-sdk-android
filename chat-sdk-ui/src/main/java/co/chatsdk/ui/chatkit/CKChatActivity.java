@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,8 +22,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.leinardi.android.speeddial.SpeedDialView;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
@@ -35,7 +36,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -60,15 +60,16 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActionBar;
 import co.chatsdk.ui.chat.ReplyView;
 import co.chatsdk.ui.chat.TextInputDelegate;
-import co.chatsdk.ui.chat.message_action.MessageActionHandler;
+import co.chatsdk.ui.chatkit.custom.IncomingImageMessageViewHolder;
 import co.chatsdk.ui.chatkit.custom.IncomingTextMessageViewHolder;
+import co.chatsdk.ui.chatkit.custom.OutcomingImageMessageViewHolder;
 import co.chatsdk.ui.chatkit.custom.OutcomingTextMessageViewHolder;
+import co.chatsdk.ui.chatkit.model.ImageMessageHolder;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.chatkit.model.MessageHolder;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
 import timber.log.Timber;
 
 public class CKChatActivity extends BaseActivity implements TextInputDelegate, ChatOptionsDelegate,
@@ -96,7 +97,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
     protected MessageInput messageInput;
 
-    protected HashMap<String, MessageHolder> messageHolderHashMap = new HashMap<>();
+    protected HashMap<Message, MessageHolder> messageHolderHashMap = new HashMap<>();
     protected ArrayList<MessageHolder> messageHolders = new ArrayList<>();
 
     protected PrettyTime prettyTime = new PrettyTime();
@@ -241,12 +242,26 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
         MessageHolders holders = new MessageHolders()
                 .setIncomingTextConfig(IncomingTextMessageViewHolder.class, R.layout.chatkit_item_incoming_text_message, holderPayload)
-                .setOutcomingTextConfig(OutcomingTextMessageViewHolder.class, R.layout.chatkit_item_outcoming_text_message);
-//                .setIncomingImageConfig(IncomingImageMessageViewHolder.class, R.layout.chatkit_item_incoming_image_message)
-//                .setOutcomingImageConfig(OutcomingImageMessageViewHolder.class, R.layout.chatkit_item_outcoming_image_message);
+                .setOutcomingTextConfig(OutcomingTextMessageViewHolder.class, R.layout.chatkit_item_outcoming_text_message)
+                .setIncomingImageConfig(IncomingImageMessageViewHolder.class, R.layout.chatkit_item_incoming_image_message)
+                .setOutcomingImageConfig(OutcomingImageMessageViewHolder.class, R.layout.chatkit_item_outcoming_image_message);
 
         messagesListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, (imageView, url, payload) -> {
-            Picasso.get().load(url).into(imageView);
+            if (url == null || url.isEmpty()) {
+                if (payload == null) {
+                    imageView.setImageResource(R.drawable.icn_100_profile);
+                } else if (payload instanceof ImageMessageHolder) {
+                    imageView.setImageResource(R.drawable.icn_200_image_message_placeholder);
+                }
+            } else {
+                RequestCreator request = Picasso.get().load(url);
+
+//                if (payload instanceof ImageMessageHolder) {
+//                    ImageMessageHolder holder = (ImageMessageHolder) payload;
+//                    request.resize(holder.width(), holder.height());
+//                }
+                request.into(imageView);
+            }
         });
 
         messagesListAdapter.setLoadMoreListener(this);
@@ -304,12 +319,11 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     }
 
     public void removeMessage(Message message) {
-        MessageHolder holder = messageHolderHashMap.get(message.getEntityID());
+        MessageHolder holder = messageHolderHashMap.get(message);
         if (holder != null) {
-            asdf wrong one being deleted
             int index = messageHolders.size() - 1 - messageHolders.indexOf(holder);
-            messagesListAdapter.notifyItemRemoved(index);
             messageHolders.remove(holder);
+            messagesListAdapter.delete(holder);
         }
     }
 
@@ -318,12 +332,13 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     }
 
     public void addMessageToStartOrUpdate(Message message, MessageSendStatus status) {
-        MessageHolder holder = messageHolderHashMap.get(message.getEntityID());
+        MessageHolder holder = messageHolderHashMap.get(message);
 
         if (holder == null) {
-            holder = new MessageHolder(message);
+            holder = MessageHolder.fromMessage(message);
+
             messageHolders.add(0, holder);
-            messageHolderHashMap.put(holder.getId(), holder);
+            messageHolderHashMap.put(holder.getMessage(), holder);
 
             boolean scroll = message.getSender().isMe();
 
@@ -343,10 +358,10 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     }
 
     public void addMessagesToEnd(List<Message> messages) {
-        List<MessageHolder> holders = MessageHolder.toHolders(messages);
+        List<MessageHolder> holders = MessageHolder.fromMessages(messages);
         messageHolders.addAll(holders);
         for (MessageHolder mh: holders) {
-            messageHolderHashMap.put(mh.getId(), mh);
+            messageHolderHashMap.put(mh.getMessage(), mh);
         }
         messagesListAdapter.addToEnd(holders, false);
     }

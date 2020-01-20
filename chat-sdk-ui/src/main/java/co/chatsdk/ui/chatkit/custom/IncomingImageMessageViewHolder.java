@@ -1,17 +1,19 @@
 package co.chatsdk.ui.chatkit.custom;
 
+import android.util.Pair;
 import android.view.View;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.chatkit.model.ImageMessageHolder;
 import co.chatsdk.ui.chatkit.model.MessageHolder;
 
 /*
  * Created by troy379 on 05.04.17.
  */
 public class IncomingImageMessageViewHolder
-        extends MessageHolders.IncomingImageMessageViewHolder<MessageHolder> {
+        extends MessageHolders.IncomingImageMessageViewHolder<ImageMessageHolder> {
 
     private View onlineIndicator;
 
@@ -21,7 +23,7 @@ public class IncomingImageMessageViewHolder
     }
 
     @Override
-    public void onBind(MessageHolder message) {
+    public void onBind(ImageMessageHolder message) {
         super.onBind(message);
 
         boolean isOnline = message.getUser().isOnline();
@@ -31,4 +33,10 @@ public class IncomingImageMessageViewHolder
             onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_offline);
         }
     }
+
+    @Override
+    protected Object getPayloadForImageLoader(ImageMessageHolder message) {
+        return message;
+    }
+
 }

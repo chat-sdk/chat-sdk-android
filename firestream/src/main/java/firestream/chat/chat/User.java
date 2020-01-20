@@ -2,6 +2,8 @@ package firestream.chat.chat;
 
 import java.util.HashMap;
 
+import firestream.chat.events.Event;
+import firestream.chat.events.ListData;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.namespace.Fire;
 
@@ -10,9 +12,9 @@ import firestream.chat.types.RoleType;
 
 public class User {
 
-    public String id;
-    public RoleType roleType;
-    public ContactType contactType;
+    protected String id;
+    protected RoleType roleType;
+    protected ContactType contactType;
 
     public User(String id) {
         this.id = id;
@@ -26,6 +28,46 @@ public class User {
     public User(String id, ContactType contactType) {
         this(id);
         this.contactType = contactType;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public RoleType getRoleType() {
+        return roleType;
+    }
+
+    public void setRoleType(RoleType roleType) {
+        this.roleType = roleType;
+    }
+
+    public ContactType getContactType() {
+        return contactType;
+    }
+
+    public void setContactType(ContactType contactType) {
+        this.contactType = contactType;
+    }
+
+    public boolean equalsRoleType(RoleType rt) {
+        return this.roleType.equals(rt);
+    }
+
+    public boolean equalsRoleType(User user) {
+        return this.roleType.equals(user.getRoleType());
+    }
+
+    public boolean equalsContactType(User user) {
+        return this.contactType.equals(user.getContactType());
+    }
+
+    public boolean equalsContactType(ContactType ct) {
+        return this.contactType.equals(ct);
     }
 
     @Override
@@ -66,6 +108,16 @@ public class User {
 
     public static DataProvider contactTypeDataProvider() {
         return user -> user.contactType.data();
+    }
+
+    public static User from(Event<ListData> event) {
+        if (event.get().get(Keys.Role) instanceof String) {
+            return new User(event.get().getId(), new RoleType((String) event.get().get(Keys.Role)));
+        }
+        if (event.get().get(Keys.Type) instanceof String) {
+            return new User(event.get().getId(), new ContactType((String) event.get().get(Keys.Type)));
+        }
+        return new User(event.get().getId());
     }
 
 }

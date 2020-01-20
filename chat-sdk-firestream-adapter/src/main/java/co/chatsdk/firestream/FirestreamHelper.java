@@ -27,38 +27,49 @@ public class FirestreamHelper {
                 return Single.just(existingMessage);
             }
             return APIHelper.fetchRemoteUser(sendable.getFrom()).map(user -> {
-                Message message = ChatSDK.db().createEntity(Message.class);
+
+                Message message = ChatSDK.db().fetchEntityWithEntityID(sendable.getId(), Message.class);
+                if (message != null) {
+                    return message;
+                }
+
+                message = ChatSDK.db().createEntity(Message.class);
 
                 message.setSender(user);
                 message.setMessageStatus(MessageSendStatus.Sent);
                 ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
 
-                message.setDate(new DateTime(sendable.getDate()));
-                message.setEntityID(sendable.getId());
-
-                HashMap<String, Object> body = sendable.getBody();
-
-                Object metaObject = body.get(Keys.Meta);
-                if (metaObject instanceof HashMap) {
-                    HashMap<String, Object> meta = new HashMap<>((HashMap) metaObject);
-                    message.setMetaValues(meta);
-                }
-
-                Object typeObject = body.get(Keys.Type);
-
-                if (typeObject instanceof Long) {
-                    Integer type = ((Long) typeObject).intValue();
-                    message.setType(type);
-                }
-                if (typeObject instanceof Integer) {
-                    Integer type = (Integer) typeObject;
-                    message.setType(type);
-                }
-
-                message.update();
+                copyToMessage(message, sendable);
 
                 return message;
             });
         });
+    }
+
+    public static void copyToMessage(Message message, Sendable sendable) {
+        message.setDate(new DateTime(sendable.getDate()));
+        message.setEntityID(sendable.getId());
+
+        HashMap<String, Object> body = sendable.getBody();
+
+        Object metaObject = body.get(Keys.Meta);
+        if (metaObject instanceof HashMap) {
+            HashMap<String, Object> meta = new HashMap<>((HashMap) metaObject);
+            message.setMetaValues(meta);
+        }
+
+        Object typeObject = body.get(Keys.Type);
+
+        if (typeObject instanceof Long) {
+            Integer type = ((Long) typeObject).intValue();
+            message.setType(type);
+        }
+        if (typeObject instanceof Integer) {
+            Integer type = (Integer) typeObject;
+            message.setType(type);
+        }
+
+        message.update();
+
     }
 }

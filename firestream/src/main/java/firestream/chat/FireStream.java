@@ -2,7 +2,6 @@ package firestream.chat;
 
 import android.content.Context;
 
-import androidx.annotation.IntegerRes;
 import androidx.annotation.StringRes;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,7 +17,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import firefly.sdk.chat.R;
-import firestream.chat.events.SendableEvent;
+import firestream.chat.events.Event;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.events.ConnectionEvent;
 import firestream.chat.interfaces.IFireStream;
@@ -29,14 +28,11 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import firestream.chat.chat.AbstractChat;
 import firestream.chat.chat.Chat;
 import firestream.chat.chat.User;
-import firestream.chat.events.ChatEvent;
 import firestream.chat.events.EventType;
-import firestream.chat.events.UserEvent;
 import firestream.chat.filter.MessageStreamFilter;
 import firestream.chat.firebase.firestore.FirestoreService;
 import firestream.chat.firebase.realtime.RealtimeService;
@@ -68,9 +64,9 @@ public class FireStream extends AbstractChat implements IFireStream {
     protected ArrayList<User> contacts = new ArrayList<>();
     protected ArrayList<User> blocked = new ArrayList<>();
 
-    protected MultiQueueSubject<ChatEvent> chatEvents = MultiQueueSubject.create();
-    protected MultiQueueSubject<UserEvent> contactEvents = MultiQueueSubject.create();
-    protected MultiQueueSubject<UserEvent> blockedEvents = MultiQueueSubject.create();
+    protected MultiQueueSubject<Event<Chat>> chatEvents = MultiQueueSubject.create();
+    protected MultiQueueSubject<Event<User>> contactEvents = MultiQueueSubject.create();
+    protected MultiQueueSubject<Event<User>> blockedEvents = MultiQueueSubject.create();
 
     protected BehaviorSubject<ConnectionEvent> connectionEvents = BehaviorSubject.create();
 
@@ -147,26 +143,26 @@ public class FireStream extends AbstractChat implements IFireStream {
         // MESSAGE DELETION
 
         // We always delete typing state and presence messages
-        Observable<SendableEvent> stream = getSendableEvents().getSendables().pastAndNewEvents();
+        Observable<Event<Sendable>> stream = getSendableEvents().getSendables().pastAndNewEvents();
         if (!config.deleteMessagesOnReceipt) {
             stream = stream.filter(MessageStreamFilter.eventBySendableType(SendableType.typingState(), SendableType.presence()));
         }
         // If deletion isType enabled, we don't filter so we delete all the errorMessage types
-        dm.add(stream.map(SendableEvent::getSendable).flatMapCompletable(this::deleteSendable).subscribe());
+        dm.add(stream.map(Event::get).flatMapCompletable(this::deleteSendable).subscribe());
 
         // DELIVERY RECEIPTS
 
-        dm.add(getSendableEvents().getMessages().pastAndNewEvents().flatMapCompletable(message -> {
+        dm.add(getSendableEvents().getMessages().pastAndNewEvents().flatMapCompletable(event -> {
             ArrayList<Completable> completables = new ArrayList<>();
 
             // If delivery receipts are enabled, send the delivery receipt
             if (config.deliveryReceiptsEnabled) {
-                completables.add(markReceived(message));
+                completables.add(markReceived(event.get()));
             }
             // If errorMessage deletion isType disabled, instead mark the errorMessage as received. This means
             // that when we add a childListener, we only get new messages
             if (!config.deleteMessagesOnReceipt) {
-                completables.add(sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), message.getId()));
+                completables.add(sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), event.get().getId()));
             }
 
             return Completable.merge(completables);
@@ -174,9 +170,9 @@ public class FireStream extends AbstractChat implements IFireStream {
 
         // INVITATIONS
 
-        dm.add(getSendableEvents().getInvitations().pastAndNewEvents().flatMapCompletable(invitation -> {
+        dm.add(getSendableEvents().getInvitations().pastAndNewEvents().flatMapCompletable(event -> {
             if (config.autoAcceptChatInvite) {
-                return invitation.accept();
+                return event.get().accept();
             }
             return Completable.complete();
         }).doOnError(this).subscribe());
@@ -184,12 +180,12 @@ public class FireStream extends AbstractChat implements IFireStream {
         // BLOCKED USERS
 
         dm.add(listChangeOn(Paths.blockedPath()).subscribe(listEvent -> {
-            UserEvent ue = UserEvent.from(listEvent);
+            Event<User> ue = listEvent.to(User.from(listEvent));
             if (ue.typeIs(EventType.Added)) {
-                blocked.add(ue.user);
+                blocked.add(ue.get());
             }
             if (ue.typeIs(EventType.Removed)) {
-                blocked.remove(ue.user);
+                blocked.remove(ue.get());
             }
             blockedEvents.onNext(ue);
         }));
@@ -197,12 +193,12 @@ public class FireStream extends AbstractChat implements IFireStream {
         // CONTACTS
 
         dm.add(listChangeOn(Paths.contactsPath()).subscribe(listEvent -> {
-            UserEvent ue = UserEvent.from(listEvent);
+            Event<User> ue = listEvent.to(User.from(listEvent));
             if (ue.typeIs(EventType.Added)) {
-                contacts.add(ue.user);
+                contacts.add(ue.get());
             }
             else if (ue.typeIs(EventType.Removed)) {
-                contacts.remove(ue.user);
+                contacts.remove(ue.get());
             }
             contactEvents.onNext(ue);
         }));
@@ -210,8 +206,8 @@ public class FireStream extends AbstractChat implements IFireStream {
         // CONNECT TO EXISTING GROUP CHATS
 
         dm.add(listChangeOn(Paths.userChatsPath()).subscribe(listEvent -> {
-            ChatEvent chatEvent = ChatEvent.from(listEvent);
-            IChat chat = chatEvent.getChat();
+            Event<Chat> chatEvent = listEvent.to(Chat.from(listEvent));
+            IChat chat = chatEvent.get();
             if (chatEvent.typeIs(EventType.Added)) {
                 chat.connect();
                 chats.add(chat);
@@ -355,7 +351,7 @@ public class FireStream extends AbstractChat implements IFireStream {
 
     @Override
     public Completable addContact(User user, ContactType type) {
-        user.contactType = type;
+        user.setContactType(type);
         return addUser(Paths.contactsPath(), User.contactTypeDataProvider(), user);
     }
 
@@ -432,8 +428,8 @@ public class FireStream extends AbstractChat implements IFireStream {
      * @return completion
      */
     @Override
-    public Completable markRead(Message message) {
-        return Fire.Stream.sendDeliveryReceipt(message.getFrom(), DeliveryReceiptType.read(), message.getId());
+    public Completable markRead(Sendable sendable) {
+        return Fire.Stream.sendDeliveryReceipt(sendable.getFrom(), DeliveryReceiptType.read(), sendable.getId());
     }
 
     /**
@@ -441,8 +437,8 @@ public class FireStream extends AbstractChat implements IFireStream {
      * @return completion
      */
     @Override
-    public Completable markReceived(Message message) {
-        return Fire.Stream.sendDeliveryReceipt(message.getFrom(), DeliveryReceiptType.received(), message.getId());
+    public Completable markReceived(Sendable sendable) {
+        return Fire.Stream.sendDeliveryReceipt(sendable.getFrom(), DeliveryReceiptType.received(), sendable.getId());
     }
 
     //
@@ -450,17 +446,17 @@ public class FireStream extends AbstractChat implements IFireStream {
     //
 
     @Override
-    public MultiQueueSubject<ChatEvent> getChatEvents() {
+    public MultiQueueSubject<Event<Chat>> getChatEvents() {
         return chatEvents;
     }
 
     @Override
-    public MultiQueueSubject<UserEvent> getBlockedEvents() {
+    public MultiQueueSubject<Event<User>> getBlockedEvents() {
         return blockedEvents;
     }
 
     @Override
-    public MultiQueueSubject<UserEvent> getContactEvents() {
+    public MultiQueueSubject<Event<User>> getContactEvents() {
         return contactEvents;
     }
 
