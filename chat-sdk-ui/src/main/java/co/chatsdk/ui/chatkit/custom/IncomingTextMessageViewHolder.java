@@ -4,6 +4,7 @@ import android.view.View;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
+import co.chatsdk.core.dao.User;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chatkit.model.MessageHolder;
 
@@ -32,7 +33,7 @@ public class IncomingTextMessageViewHolder
         final Payload payload = (Payload) this.payload;
         userAvatar.setOnClickListener(view -> {
             if (payload != null && payload.avatarClickListener != null) {
-                payload.avatarClickListener.onAvatarClick();
+                payload.avatarClickListener.onAvatarClick(message.getMessage().getSender());
             }
         });
     }
@@ -42,6 +43,6 @@ public class IncomingTextMessageViewHolder
     }
 
     public interface OnAvatarClickListener {
-        void onAvatarClick();
+        void onAvatarClick(User user);
     }
 }

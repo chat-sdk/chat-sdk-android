@@ -40,13 +40,7 @@ public class ImagePickerUploader {
     protected MediaSelector.CropType cropType;
     protected MediaSelector mediaSelector = new MediaSelector();
 
-    public enum Status {
-        Uploading,
-        Complete
-    }
-
-    public class Result {
-
+    public static class Result {
 
         public String url;
         public String uri;
@@ -55,38 +49,16 @@ public class ImagePickerUploader {
             this.url = url;
             this.uri = uri;
         }
-
     }
 
     public ImagePickerUploader(MediaSelector.CropType cropType) {
         this.cropType = cropType;
     }
 
-//    public Single<Result> takePhoto (Activity activity) {
-//        return mediaSelector.startTakePhotoActivity(activity, cropType).map(this::compressFile).flatMap(this::uploadImageFile);
-//    }
-
-    public Single<List<Result>> choosePhoto (Activity activity) {
-//        return PermissionRequestHandler.requestReadExternalStorage(activity).toSingle(() -> {
-//            return new Result(null, null);
-//        });
-//
-//        final int requestCode = 141;
-//        Single<Result> single = ActivityResultPushSubjectHolder.shared().filter(new Predicate<ActivityResult>() {
-//            @Override
-//            public boolean test(ActivityResult activityResult) throws Exception {
-//                return activityResult.requestCode == requestCode;
-//            }
-//        }).firstOrError().map(new Function<ActivityResult, Result>() {
-//            @Override
-//            public Result apply(ActivityResult activityResult) throws Exception {
-//                return new Result(null, null);
-//            }
-//        });
-//
-//        Matisse.from(activity).choose(MimeType.ofImage()).maxSelectable(1).imageEngine(new PicassoEngine()).forResult(requestCode);
-//        return single;
-        return mediaSelector.startChooseMediaActivity(activity, MimeType.ofImage(), cropType, false).map(this::compressFiles).flatMap(this::uploadImageFiles);
+    public Single<List<Result>> choosePhoto (Activity activity, boolean multiSelectEnabled) {
+        return mediaSelector.startChooseMediaActivity(activity, MimeType.ofImage(), cropType, multiSelectEnabled)
+                .map(this::compressFiles)
+                .flatMap(this::uploadImageFiles);
     }
 
     public List<File> compressFiles (List<File> files) throws Exception {

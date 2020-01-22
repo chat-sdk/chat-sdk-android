@@ -114,7 +114,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
 
         threadImageView.setOnClickListener(view -> {
                     showProgressDialog(ThreadEditDetailsActivity.this.getString(R.string.uploading));
-                    dm.add(pickerUploader.choosePhoto(ThreadEditDetailsActivity.this).subscribe((urls, throwable) -> {
+                    dm.add(pickerUploader.choosePhoto(ThreadEditDetailsActivity.this, false).subscribe((urls, throwable) -> {
                         if (throwable == null && !urls.isEmpty()) {
                             updateThreadImageURL(urls.get(0).url);
                         } else {
@@ -149,6 +149,9 @@ public class ThreadEditDetailsActivity extends BaseActivity {
             Picasso.get().load(threadImageURL).into(threadImageView);
         } else if (thread != null) {
             ThreadImageBuilder.load(threadImageView, thread);
+        }
+        else {
+            threadImageView.setImageResource(R.drawable.icn_100_public_thread);
         }
         updateSaveButtonState();
     }

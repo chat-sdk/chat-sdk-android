@@ -160,9 +160,11 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
             return;
         }
 
-        dm.add(imagePickerUploader.choosePhoto(this).subscribe((results, throwable) -> {
+        dm.add(imagePickerUploader.choosePhoto(this, true).subscribe((results, throwable) -> {
             if (throwable == null && !results.isEmpty()) {
-                ChatSDK.profilePictures().addPicture(getUser(), results.get(0).url);
+                for (ImagePickerUploader.Result result : results) {
+                    ChatSDK.profilePictures().addPicture(getUser(), result.url);
+                }
                 updateGallery();
                 dm.add(ChatSDK.core().pushUser()
                         .observeOn(AndroidSchedulers.mainThread())

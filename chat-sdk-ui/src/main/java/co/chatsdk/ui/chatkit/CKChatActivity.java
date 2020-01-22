@@ -25,6 +25,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
@@ -60,11 +61,13 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActionBar;
 import co.chatsdk.ui.chat.ImageMessageOnClickHandler;
+import co.chatsdk.ui.chat.LocationMessageOnClickHandler;
 import co.chatsdk.ui.chat.ReplyView;
 import co.chatsdk.ui.chat.TextInputDelegate;
 import co.chatsdk.ui.chatkit.custom.IncomingImageMessageViewHolder;
@@ -97,7 +100,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     protected Thread thread;
 
     protected Bundle bundle;
-    protected boolean loadingMoreMessages;
 
     protected MessagesList messagesList;
     protected MessagesListAdapter<MessageHolder> messagesListAdapter;
@@ -251,9 +253,9 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
         messagesList = findViewById(R.id.messagesList);
 
         IncomingTextMessageViewHolder.Payload holderPayload = new IncomingTextMessageViewHolder.Payload();
-
-        holderPayload.avatarClickListener = () -> Toast.makeText(this,
-                "Text message avatar clicked", Toast.LENGTH_SHORT).show();
+        holderPayload.avatarClickListener = user -> {
+            ChatSDK.ui().startProfileActivity(this, user.getEntityID());
+        };
 
         MessageHolders holders = new MessageHolders()
                 .setIncomingTextConfig(IncomingTextMessageViewHolder.class, R.layout.chatkit_item_incoming_text_message, holderPayload)
@@ -279,11 +281,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                     request.placeholder(R.drawable.icn_200_image_message_placeholder);
                 }
 
-//                if (payload instanceof ImageMessageHolder) {
-//                    ImageMessageHolder holder = (ImageMessageHolder) payload;
-//                    request.resize(holder.width(), holder.height());
-//                }
-
                 request.into(imageView);
             }
         });
@@ -293,10 +290,21 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
         messagesListAdapter.setOnMessageClickListener(message -> {
             if (message instanceof MessageContentType.Image) {
-                View rootView = findViewById(android.R.id.content);
+
                 MessageContentType.Image content = (MessageContentType.Image) message;
+
                 if (content.getImageUrl() != null) {
-                    ImageMessageOnClickHandler.onClick(this, rootView, content.getImageUrl());
+                    if (message.getMessage().getMessageType().is(MessageType.Image)) {
+                        View rootView = findViewById(android.R.id.content);
+                        ImageMessageOnClickHandler.onClick(this, rootView, content.getImageUrl());
+                    }
+                    if (message.getMessage().getMessageType().is(MessageType.Location)) {
+
+                        double longitude = message.getMessage().doubleForKey(Keys.MessageLongitude);
+                        double latitude = message.getMessage().doubleForKey(Keys.MessageLatitude);
+
+                        LocationMessageOnClickHandler.onClick(this, new LatLng(latitude, longitude));
+                    }
                 }
             }
         });
@@ -339,25 +347,18 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
             // This list has the newest first
             loadFromDate = messageHolders.get(messageHolders.size()-1).getCreatedAt();
         }
-
-        if (!loadingMoreMessages) {
-            loadingMoreMessages = true;
-            dm.add(ChatSDK.thread()
-                    .loadMoreMessagesForThread(loadFromDate, thread, true)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(messages -> {
-                        addMessagesToEnd(messages);
-                        loadingMoreMessages = false;
-            }));
-        }
+        dm.add(ChatSDK.thread()
+                .loadMoreMessagesForThread(loadFromDate, thread, true)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::addMessagesToEnd));
     }
 
     public void removeMessage(Message message) {
         MessageHolder holder = messageHolderHashMap.get(message);
         if (holder != null) {
-            int index = messageHolders.size() - 1 - messageHolders.indexOf(holder);
             messageHolders.remove(holder);
             messagesListAdapter.delete(holder);
+            messageHolderHashMap.remove(message);
         }
     }
 
@@ -392,11 +393,17 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     }
 
     public void addMessagesToEnd(List<Message> messages) {
-        List<MessageHolder> holders = MessageHolder.fromMessages(messages);
-        messageHolders.addAll(holders);
-        for (MessageHolder mh: holders) {
-            messageHolderHashMap.put(mh.getMessage(), mh);
+        // Check to see if the holders already exist
+        ArrayList<MessageHolder> holders = new ArrayList<>();
+        for (Message message: messages) {
+            MessageHolder holder = messageHolderHashMap.get(message);
+            if (holder == null) {
+                holder = MessageHolder.fromMessage(message);
+                messageHolderHashMap.put(message, holder);
+                holders.add(holder);
+            }
         }
+        messageHolders.addAll(holders);
         messagesListAdapter.addToEnd(holders, false);
     }
 
@@ -523,14 +530,19 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-
         if (!updateThreadFromBundle(intent.getExtras()))
             return;
 
-        if (messagesListAdapter != null)
-            messagesListAdapter.clear();
-
+        clear();
         initActionBar();
+    }
+
+    public void clear() {
+        if (messagesListAdapter != null) {
+            messageHolderHashMap.clear();
+            messageHolders.clear();
+            messagesListAdapter.clear();
+        }
     }
 
     @Override

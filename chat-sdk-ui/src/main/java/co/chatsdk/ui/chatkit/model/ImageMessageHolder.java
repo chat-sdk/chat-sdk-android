@@ -31,7 +31,7 @@ public class ImageMessageHolder extends MessageHolder implements MessageContentT
     @Nullable
     @Override
     public String getImageUrl() {
-        if (message.getMessageType().is(MessageType.Image)) {
+        if (message.getMessageType().is(MessageType.Image, MessageType.Location)) {
             return message.stringForKey(Keys.MessageImageURL);
         }
         return null;

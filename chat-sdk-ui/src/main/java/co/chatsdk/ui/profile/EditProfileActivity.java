@@ -108,7 +108,7 @@ public class EditProfileActivity extends BaseActivity {
                 ChatSDK.profilePictures().startProfilePicturesActivity(this, currentUser.getEntityID());
             } else {
                 ImagePickerUploader uploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
-                dm.add(uploader.choosePhoto(EditProfileActivity.this).subscribe((results, throwable) -> {
+                dm.add(uploader.choosePhoto(EditProfileActivity.this, false).subscribe((results, throwable) -> {
                     if (throwable == null && !results.isEmpty()) {
                         avatarImageView.setImageURI(Uri.fromFile(new File(results.get(0).uri)));
                         avatarImageURL = results.get(0).url;

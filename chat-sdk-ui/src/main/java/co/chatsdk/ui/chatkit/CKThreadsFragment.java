@@ -114,11 +114,11 @@ public abstract class CKThreadsFragment extends BaseFragment {
 
         dialogsListAdapter = new DialogsListAdapter<>(R.layout.chatkit_dialog_view_holder, ThreadViewHolder.class, (imageView, url, payload) -> {
             if (getContext() != null) {
+                int size = getContext().getResources().getDimensionPixelSize(R.dimen.action_bar_avatar_max_size);
                 if (url != null) {
-                    Picasso.get().load(url).placeholder(ThreadImageBuilder.defaultBitmapResId()).into(imageView);
+                    Picasso.get().load(url).resize(size, size).placeholder(ThreadImageBuilder.defaultBitmapResId()).into(imageView);
                 } else if (payload instanceof ThreadHolder) {
                     ThreadHolder threadHolder = (ThreadHolder) payload;
-                    int size = getContext().getResources().getDimensionPixelSize(R.dimen.action_bar_avatar_max_size);
                     dm.add(ThreadImageBuilder.load(imageView, threadHolder.getThread(), size));
                 } else {
                     imageView.setImageResource(ThreadImageBuilder.defaultBitmapResId());

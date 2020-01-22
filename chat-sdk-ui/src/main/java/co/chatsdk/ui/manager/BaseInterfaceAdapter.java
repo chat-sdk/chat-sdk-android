@@ -409,19 +409,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         startActivity(context, intent);
     }
 
-    /**
-     * @deprecated use {@link #getLoginIntent(Context, HashMap)} ()}
-     */
-    @Deprecated
-//    public void startLoginActivity(Context context, boolean attemptCachedLogin){
-//        Intent intent = new Intent(context, getSplashScreenActivity());
-//        startActivity(context, intent);
-//    }
-//
-//    public void startLoginActivity (Context context, HashMap<String, Object> extras) {
-//        startActivity(context, getLoginActivity(), extras);
-//    }
-
     @Override
     public Intent getLoginIntent(Context context, HashMap<String, Object> extras) {
         if (loginIntent != null) {
@@ -462,7 +449,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         if (userEntityIDs != null) {
             intent.putStringArrayListExtra(Keys.IntentKeyUserEntityIDList, userEntityIDs);
         }
-        startActivity(context, intent);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        context.startActivity(intent);
     }
 
     public void startMainActivity (Context context, HashMap<String, Object> extras) {
@@ -507,13 +495,15 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         if (threadEntityID != null) {
             intent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
         }
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+//        context.startActivity(intent);
         startActivity(context, intent);
     }
 
     @Override
     public void startCreateThreadActivity(Context context) {
         Intent intent = new Intent(context, getCreateThreadActivity());
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         context.startActivity(intent);
     }
 

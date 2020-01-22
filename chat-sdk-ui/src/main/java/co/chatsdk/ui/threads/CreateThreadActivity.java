@@ -60,6 +60,7 @@ public class CreateThreadActivity extends SelectContactActivity {
             for (User u : users) {
                 userEntityIDs.add(u.getEntityID());
             }
+            finish();
             ChatSDK.ui().startThreadEditDetailsActivity(this, null, userEntityIDs);
         }
         else {
