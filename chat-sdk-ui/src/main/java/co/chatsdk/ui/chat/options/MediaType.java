@@ -7,8 +7,7 @@ public class MediaType {
     public static int Photo = 0x4;
     public static int Video = 0x8;
 
-    public static int TakePhoto = Take | Photo;
-    public static int ChoosePhoto = Choose | Photo;
+    public static int ChoosePhoto = Take | Choose | Photo;
     public static int TakeVideo = Take | Video;
     public static int ChooseVideo = Choose | Video;
 
@@ -24,10 +23,6 @@ public class MediaType {
 
     public boolean isEqual (int type) {
         return this.type == type;
-    }
-
-    public static MediaType takePhoto () {
-        return new MediaType(TakePhoto);
     }
 
     public static MediaType takeVideo () {

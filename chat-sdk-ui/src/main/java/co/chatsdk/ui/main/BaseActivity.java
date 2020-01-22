@@ -262,12 +262,6 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        PermissionRequestHandler.shared().onRequestPermissionsResult(this, requestCode, permissions, grantResults);
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ActivityResultPushSubjectHolder.shared().onNext(new ActivityResult(requestCode, resultCode, data));

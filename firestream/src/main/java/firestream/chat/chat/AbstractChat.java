@@ -314,22 +314,20 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
         debug("Sendable: " + sendable.getType() + " " + sendable.getId() + ", date: " + sendable.getDate().getTime());
 
         // In general, we are mostly interested when messages are added
-        if (event.typeIs(EventType.Added)) {
-            if (sendable.isType(SendableType.message())) {
-                events.getMessages().onNext(event.to(sendable.toMessage()));
-            }
-            if (sendable.isType(SendableType.deliveryReceipt())) {
-                events.getDeliveryReceipts().onNext(event.to(sendable.toDeliveryReceipt()));
-            }
-            if (sendable.isType(SendableType.typingState())) {
-                events.getTypingStates().onNext(event.to(sendable.toTypingState()));
-            }
-            if (sendable.isType(SendableType.invitation())) {
-                events.getInvitations().onNext(event.to(sendable.toInvitation()));
-            }
-            if (sendable.isType(SendableType.presence())) {
-                events.getPresences().onNext(event.to(sendable.toPresence()));
-            }
+        if (sendable.isType(SendableType.message())) {
+            events.getMessages().onNext(event.to(sendable.toMessage()));
+        }
+        if (sendable.isType(SendableType.deliveryReceipt())) {
+            events.getDeliveryReceipts().onNext(event.to(sendable.toDeliveryReceipt()));
+        }
+        if (sendable.isType(SendableType.typingState())) {
+            events.getTypingStates().onNext(event.to(sendable.toTypingState()));
+        }
+        if (sendable.isType(SendableType.invitation())) {
+            events.getInvitations().onNext(event.to(sendable.toInvitation()));
+        }
+        if (sendable.isType(SendableType.presence())) {
+            events.getPresences().onNext(event.to(sendable.toPresence()));
         }
     }
 

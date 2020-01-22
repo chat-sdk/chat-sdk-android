@@ -58,7 +58,7 @@ public class ImageMessageOnClickHandler {
                     .subscribe(bitmap -> {
                         imageView.setImageBitmap(bitmap);
                         saveButton.setVisibility(View.VISIBLE);
-                        saveButton.setOnClickListener(v1 -> PermissionRequestHandler.shared().requestWriteExternalStorage(activity).subscribe(() -> {
+                        saveButton.setOnClickListener(v1 -> PermissionRequestHandler.requestWriteExternalStorage(activity).subscribe(() -> {
                             if (bitmap != null) {
                                 String bitmapURL = MediaStore.Images.Media.insertImage(activity.getContentResolver(), bitmap, "" , "");
                                 if (bitmapURL != null) {

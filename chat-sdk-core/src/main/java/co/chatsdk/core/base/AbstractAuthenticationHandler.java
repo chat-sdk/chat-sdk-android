@@ -20,7 +20,7 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
 
     protected String currentUserID = null;
 
-    protected AuthStatus authStatus = AuthStatus.IDLE;
+    protected AuthStatus authStatus = AuthStatus.Idle;
 
     public AuthStatus getAuthStatus () {
         return authStatus;
@@ -31,11 +31,11 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
     }
 
     public boolean isAuthenticating () {
-        return authStatus != AuthStatus.IDLE;
+        return authStatus != AuthStatus.Idle;
     }
 
     protected void setAuthStateToIdle() {
-        authStatus = AuthStatus.IDLE;
+        authStatus = AuthStatus.Idle;
     }
 
     @Deprecated

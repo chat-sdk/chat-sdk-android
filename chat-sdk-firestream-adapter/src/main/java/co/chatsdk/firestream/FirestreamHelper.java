@@ -22,10 +22,6 @@ public class FirestreamHelper {
 
     public static Single<Message> sendableToMessage(Sendable sendable) {
         return Single.defer(() -> {
-            Message existingMessage = ChatSDK.db().fetchEntityWithEntityID(sendable.getId(), Message.class);
-            if (existingMessage != null) {
-                return Single.just(existingMessage);
-            }
             return APIHelper.fetchRemoteUser(sendable.getFrom()).map(user -> {
 
                 Message message = ChatSDK.db().fetchEntityWithEntityID(sendable.getId(), Message.class);
@@ -37,9 +33,10 @@ public class FirestreamHelper {
 
                 message.setSender(user);
                 message.setMessageStatus(MessageSendStatus.Sent);
-                ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
 
                 copyToMessage(message, sendable);
+
+                ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
 
                 return message;
             });

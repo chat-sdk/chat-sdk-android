@@ -11,8 +11,6 @@ public enum MessageSendStatus {
     Uploading,
     DidUpload,
     WillSend,
-    Sending,
     Sent,
-//    Delivered,
     Failed,
 }

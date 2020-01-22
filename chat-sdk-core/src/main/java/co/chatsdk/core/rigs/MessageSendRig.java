@@ -109,8 +109,6 @@ public class MessageSendRig {
         return Completable.create(emitter -> {
             message.setMessageStatus(MessageSendStatus.WillSend);
             ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
-            message.setMessageStatus(MessageSendStatus.Sending);
-            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
             emitter.onComplete();
         }).concatWith(ChatSDK.thread().sendMessage(message).doOnComplete(() -> {
             message.setMessageStatus(MessageSendStatus.Sent);

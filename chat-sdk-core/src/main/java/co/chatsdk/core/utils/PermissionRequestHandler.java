@@ -7,14 +7,28 @@ import android.content.Context;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.DexterError;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.PermissionRequestErrorListener;
+import com.karumi.dexter.listener.multi.DialogOnAnyDeniedMultiplePermissionsListener;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener;
+import com.karumi.dexter.listener.single.PermissionListener;
+
 import co.chatsdk.core.R;
 import co.chatsdk.core.session.ChatSDK;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 
 import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
 
@@ -22,188 +36,71 @@ import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
  * Created by ben on 9/28/17.
  */
 
-
-// TODO: Implement https://github.com/Karumi/Dexter
-@Deprecated
 public class PermissionRequestHandler {
 
-    private static final PermissionRequestHandler instance = new PermissionRequestHandler();
-
-    public static PermissionRequestHandler shared () {
-        return instance;
+    public static boolean recordPermissionGranted() {
+        return permissionGranted(Manifest.permission.RECORD_AUDIO);
     }
 
-    Map<Integer, CompletableEmitter> completableMap = new HashMap<>();
-
-    private static int WRITE_EXTERNAL_STORAGE_REQUEST = 100;
-    private static int READ_EXTERNAL_STORAGE_REQUEST = 101;
-    private static int RECORD_AUDIO_REQUEST = 102;
-    private static int RECORD_VIDEO_REQUEST = 103;
-    private static int CAMERA_REQUEST = 104;
-    private static int READ_CONTACTS_REQUEST = 105;
-    private static int MANAGE_DOCUMENTS_REQUEST = 106;
-    private static int ACCESS_LOCATION_REQUEST = 107;
-    private static int TAKE_PHOTOS = 108;
-
-    public Permission recordAudio () {
-        return new Permission(Manifest.permission.RECORD_AUDIO, R.string.permission_record_audio_title, R.string.permission_record_audio_message);
+    public static boolean permissionGranted(String permission) {
+        return ContextCompat.checkSelfPermission(ChatSDK.shared().context(), permission) != PERMISSION_DENIED;
     }
 
-    public Permission writeExternalStorage () {
-        return new Permission(Manifest.permission.WRITE_EXTERNAL_STORAGE, R.string.permission_write_external_storage_title, R.string.permission_write_external_storage_message);
+    public static Completable requestRecordAudio(Activity activity) {
+        return requestPermissions(activity, Manifest.permission.RECORD_AUDIO);
     }
 
-    public Permission manageDocuments () {
-        return new Permission(Manifest.permission.MANAGE_DOCUMENTS, R.string.permission_manage_documents_storage_title, R.string.permission_manage_documents_message);
+    public static Completable requestWriteExternalStorage(Activity activity) {
+        return requestPermissions(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
-    public Permission readExternalStorage () {
-        return new Permission(Manifest.permission.READ_EXTERNAL_STORAGE, R.string.permission_read_external_storage_title, R.string.permission_read_external_storage_message);
+    public static Completable requestManageDocumentsStorage(Activity activity) {
+        return requestPermissions(activity, Manifest.permission.MANAGE_DOCUMENTS);
     }
 
-    public Permission camera () {
-        return new Permission(Manifest.permission.CAMERA, R.string.permission_camera_title, R.string.permission_camera_message);
+    public static Completable requestReadExternalStorage(Activity activity) {
+        return requestPermissions(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
     }
 
-    public Permission captureVideoOutput () {
-        return new Permission(Manifest.permission.CAPTURE_VIDEO_OUTPUT, R.string.permission_video_output_title, R.string.permission_video_output_message);
+    public static Completable requestImageMessage(Activity activity) {
+        return requestPermissions(activity, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA);
     }
 
-    public Permission readContacts () {
-        return new Permission(Manifest.permission.READ_CONTACTS, R.string.permission_read_contacts_title, R.string.permission_read_contacts_message);
+    public static Completable requestCameraAccess(Activity activity) {
+        return requestPermissions(activity, Manifest.permission.CAMERA);
     }
 
-    public Permission accessFineLocation () {
-        return new Permission(Manifest.permission.ACCESS_FINE_LOCATION, R.string.permission_location_title, R.string.permission_location_message);
+    public static Completable requestVideoAccess(Activity activity) {
+        return requestPermissions(activity, Manifest.permission.CAPTURE_VIDEO_OUTPUT);
     }
 
-    public Permission accessCoarseLocation () {
-        return new Permission(Manifest.permission.ACCESS_COARSE_LOCATION, R.string.permission_location_title, R.string.permission_location_message);
+    public static Completable requestReadContact(Activity activity) {
+        return requestPermissions(activity, Manifest.permission.READ_CONTACTS);
     }
 
-    public Completable requestRecordAudio(Activity activity) {
-        return requestPermissions(activity, RECORD_AUDIO_REQUEST, recordAudio(), writeExternalStorage());
+    public static Completable requestLocationAccess(Activity activity) {
+        return requestPermissions(activity, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION);
     }
 
-    public boolean recordPermissionGranted() {
-        return ContextCompat.checkSelfPermission(ChatSDK.shared().context(), Manifest.permission.RECORD_AUDIO) != PERMISSION_DENIED;
-    }
-
-    public Completable requestWriteExternalStorage(Activity activity) {
-        return requestPermission(activity, WRITE_EXTERNAL_STORAGE_REQUEST, writeExternalStorage());
-    }
-
-    public Completable requestManageDocumentsStorage(Activity activity) {
-        return requestPermission(activity, MANAGE_DOCUMENTS_REQUEST, manageDocuments());
-    }
-
-    public Completable requestReadExternalStorage(Activity activity) {
-        return requestPermission(activity, READ_EXTERNAL_STORAGE_REQUEST, readExternalStorage());
-    }
-
-    public Completable requestCameraAccess(Activity activity) {
-        return requestPermissions(activity, CAMERA_REQUEST, camera(), writeExternalStorage());
-    }
-
-    public Completable requestVideoAccess(Activity activity) {
-        return requestPermission(activity, RECORD_VIDEO_REQUEST, captureVideoOutput());
-    }
-
-    public Completable requestReadContact(Activity activity) {
-        return requestPermission(activity, READ_CONTACTS_REQUEST, readContacts());
-    }
-
-    public Completable requestLocationAccess(Activity activity) {
-        return requestPermissions(activity, ACCESS_LOCATION_REQUEST, accessFineLocation(), accessCoarseLocation());
-    }
-
-    public Completable requestPermission(final Activity activity, final String permission, final int result, final int dialogTitle, final int dialogMessage) {
-        return requestPermissions(activity, result, new Permission(permission, dialogTitle, dialogMessage));
-    }
-
-    public Completable requestPermission(final Activity activity, final int result, Permission permission) {
-        return requestPermissions(activity, result, permission);
-    }
-
-    public Completable requestPermissions(final Activity activity, final int result, Permission... permissions) {
-
-        // If the method is called twice, just return success...
-        if (completableMap.containsKey(result)) {
-            return Completable.complete();
-        }
-        return Completable.create(e -> {
-
-            // So we can handle multiple requests at the same time, we store the emitter and wait...
-            completableMap.put(result, e);
-
-            ArrayList<AlertDialog.Builder> dialogs = new ArrayList<>();
-            ArrayList<String> toRequest = new ArrayList<>();
-
-            boolean allGranted = true;
-            for (Permission permission : permissions) {
-                int permissionCheck = ContextCompat.checkSelfPermission(activity.getApplicationContext(), permission.name);
-                if (permissionCheck == PERMISSION_DENIED) {
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission.name)) {
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(activity)
-                                .setTitle(permission.title(activity))
-                                .setMessage(permission.description(activity))
-                                .setPositiveButton(R.string.ok, (dialog, which) -> {
-                                    ActivityCompat.requestPermissions(activity, permission.permissions(), result);
-                                })
-                                .setNegativeButton(R.string.cancel, (dialog, which) -> {
-                                    String message = String.format(activity.getString(R.string.__permission_not_granted), permission.description(activity));
-                                    completableMap.remove(result);
-                                    e.onError(new Throwable(message));
-                                });
-                        dialogs.add(builder);
-                    } else {
-                        toRequest.add(permission.name);
+    public static Completable requestPermissions(final Activity activity, String... permissions) {
+        return Completable.create(emitter -> Dexter.withActivity(activity)
+                .withPermissions(permissions)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        if (report.areAllPermissionsGranted()) {
+                            emitter.onComplete();
+                        } else {
+                            emitter.onError(new Throwable(activity.getString(R.string.permission_denied)));
+                        }
                     }
-                }
-                allGranted = allGranted && permissionCheck != PERMISSION_DENIED;
-            }
 
-            // If the name is denied, we request it
-            if (!allGranted) {
-                for (AlertDialog.Builder b : dialogs) {
-                    b.show();
-                }
-                ActivityCompat.requestPermissions(activity, toRequest.toArray(new String[toRequest.size()]),  result);
-            } else {
-                // If the name isn't denied, we remove the emitter and return success
-                completableMap.remove(result);
-                e.onComplete();
-            }
-        });
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions1, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                })
+                .check());
     }
-
-    public void onRequestPermissionsResult(Context context, int requestCode, String permissions[], int[] grantResults) {
-        CompletableEmitter e = completableMap.get(requestCode);
-        if (e != null) {
-            completableMap.remove(requestCode);
-
-            String errorCodes = "";
-            for (int i = 0; i < permissions.length; i++) {
-                if (grantResults[i] == PERMISSION_DENIED) {
-                    errorCodes += new Permission(permissions[i]).name + ", ";
-                }
-            }
-            if (!errorCodes.isEmpty()) {
-                errorCodes = errorCodes.substring(0, errorCodes.length() - 2);
-            }
-
-            if (errorCodes.isEmpty()) {
-                e.onComplete();
-            }
-            else {
-                // TODO: this is being called for the contact book (maybe it's better to request contacts
-                // from inside the contact book module
-                Throwable throwable = new Throwable(context.getString(R.string.error_permission_not_granted, errorCodes));
-                e.onError(throwable);
-            }
-        }
-    }
-
 
 }

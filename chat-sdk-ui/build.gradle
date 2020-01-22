@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 buildscript {
     repositories {
@@ -8,12 +9,8 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:$mavenGradleVersion"
     }
 }
-
-apply plugin: 'com.jfrog.bintray'
 
 android {
 
@@ -35,6 +32,27 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+ext {
+    libraryName = 'Chat SDK UI'
+    artifact = 'chat-sdk-ui'
+    libraryDescription = 'Chat SDK UI'
+}
+
+publish {
+    userOrg = BINTRAY_USER_ORG
+    groupId = CHAT_SDK_GROUP
+    artifactId = artifact
+    repoName = BINTRAY_REPO
+    publishVersion = CHAT_SDK_VERSION
+    desc = libraryDescription
+    licences = ["GPL-3.0"]
+    uploadName = libraryName
+    website = GIT_URL
 }
 
 dependencies {
@@ -49,7 +67,6 @@ dependencies {
     implementation "com.theartofdev.edmodo:android-image-cropper:$rootProject.ext.imageCropperVersion"
     implementation "com.github.chrisbanes:PhotoView:$rootProject.ext.photoViewVersion"
     implementation "com.mikepenz:materialdrawer:$materialDrawerVersion"
-    implementation "com.zhihu.android:matisse:$matisseVersion"
     implementation "com.leinardi.android:speed-dial:$speedDial"
     implementation "com.jakewharton.picasso:picasso2-okhttp3-downloader:$okHttpDownloaderVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
@@ -60,18 +77,9 @@ dependencies {
 
     implementation "com.github.siyamed:android-shape-imageview:$shapeImageViewVersion"
     implementation "co.chatsdk.chatsdk:chatkit:$chatKit"
+
     implementation "de.hdodenhof:circleimageview:$circleImageViewVersion"
 
-}
+    implementation "co.chatsdk:matisse:$matisseVersion"
 
-ext {
-    bintrayName = 'chat-sdk-ui'
-    libraryName = 'ChatSDKUI'
-    artifact = 'chat-sdk-ui'
-    libraryDescription = 'Chat SDK UI'
-}
-
-def bintrayGradleFile = file("$rootProject.rootDir/gradle/bintray.gradle")
-if (bintrayGradleFile.exists()) {
-    apply from: bintrayGradleFile
 }

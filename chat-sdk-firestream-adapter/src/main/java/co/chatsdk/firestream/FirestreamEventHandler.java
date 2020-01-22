@@ -222,7 +222,6 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
             }
         }
         if (event.typeIs(EventType.Removed)) {
-//            delete not working
             if(!Fire.privateApi().getConfig().deleteMessagesOnReceipt) {
                 removeMessage(event.get().getId(), thread.getEntityID());
             }

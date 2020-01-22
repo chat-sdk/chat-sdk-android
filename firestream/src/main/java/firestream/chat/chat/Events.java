@@ -29,6 +29,14 @@ public class Events {
     protected PublishSubject<Throwable> errors = PublishSubject.create();
 
 
+    /**
+     * Note: when you send a message, that will trigger both a message added event and a
+     * message updated event. As soon as the message is added to the Firebase cache, the
+     * message added event will be triggered and the message will have an estimated time
+     * stamp. Then when the message has been written to the server, it will be updated
+     * with the server timestamp.
+     * @return
+     */
     public MultiQueueSubject<Event<Message>> getMessages() {
         return messages;
     }

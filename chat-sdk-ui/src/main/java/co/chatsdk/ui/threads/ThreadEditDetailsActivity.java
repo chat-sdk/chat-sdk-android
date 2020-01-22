@@ -114,9 +114,9 @@ public class ThreadEditDetailsActivity extends BaseActivity {
 
         threadImageView.setOnClickListener(view -> {
                     showProgressDialog(ThreadEditDetailsActivity.this.getString(R.string.uploading));
-                    dm.add(pickerUploader.choosePhoto(ThreadEditDetailsActivity.this).subscribe((url, throwable) -> {
-                        if (throwable == null) {
-                            updateThreadImageURL(url.url);
+                    dm.add(pickerUploader.choosePhoto(ThreadEditDetailsActivity.this).subscribe((urls, throwable) -> {
+                        if (throwable == null && !urls.isEmpty()) {
+                            updateThreadImageURL(urls.get(0).url);
                         } else {
                             ToastHelper.show(ThreadEditDetailsActivity.this, throwable.getLocalizedMessage());
                         }

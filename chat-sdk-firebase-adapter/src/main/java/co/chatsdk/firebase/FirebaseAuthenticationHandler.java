@@ -4,11 +4,13 @@ import android.os.AsyncTask;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.AbstractAuthenticationHandler;
 import co.chatsdk.core.dao.User;
@@ -19,12 +21,15 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.AuthKeys;
 import co.chatsdk.core.types.ChatError;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+import co.chatsdk.core.utils.DisposableMap;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
@@ -36,26 +41,46 @@ import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
 
 public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler {
 
+    DisposableMap dm = new DisposableMap();
+
+    public FirebaseAuthenticationHandler() {
+
+        // Handle login and log out automatically
+        FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
+            // We are connecting for the first time
+            if (this.currentUserID == null && firebaseAuth.getCurrentUser() != null) {
+                dm.add(authenticate().subscribe(() -> {}, ChatSDK.events()));
+            }
+            if(this.currentUserID != null && firebaseAuth.getCurrentUser() == null) {
+                dm.add(logout().subscribe(() -> {}, ChatSDK.events()));
+            }
+        });
+
+    }
+
     public Completable authenticate() {
         return Single.create((SingleOnSubscribe<FirebaseUser>) emitter-> {
-                    if (isAuthenticating()) {
-                        emitter.onError(ChatError.getError(ChatError.Code.AUTH_IN_PROCESS, "Cant execute two auth in parallel"));
-                    } else {
-                        setAuthStatus(AuthStatus.CHECKING_IF_AUTH);
 
-                        FirebaseUser user = FirebaseCoreHandler.auth().getCurrentUser();
+            if (isAuthenticating()) {
+                emitter.onError(ChatError.getError(ChatError.Code.AUTH_IN_PROCESS, "Cant execute two auth in parallel"));
+            } else {
 
-                        if (user != null) {
-                            emitter.onSuccess(user);
+                setAuthStatus(AuthStatus.Authenticating);
 
-                        } else {
-                            emitter.onError(ChatError.getError(ChatError.Code.NO_AUTH_DATA, "No auth bundle found"));
-                        }
-                    }
-                })
-                .flatMapCompletable(this::authenticateWithUser)
-                .doOnTerminate(this::setAuthStateToIdle) // Whether we complete successfully or not, we set the status to idle
-                .subscribeOn(Schedulers.single());
+                FirebaseUser user = FirebaseCoreHandler.auth().getCurrentUser();
+
+                if (user != null) {
+                    emitter.onSuccess(user);
+
+                } else {
+                    emitter.onError(ChatError.getError(ChatError.Code.NO_AUTH_DATA, "No auth bundle found"));
+                }
+            }
+
+        })
+        .flatMapCompletable(this::authenticateWithUser)
+        .doOnTerminate(this::setAuthStateToIdle) // Whether we complete successfully or not, we set the status to Idle
+        .subscribeOn(Schedulers.single());
     }
 
     @Override
@@ -67,7 +92,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                         return;
                     }
 
-                    setAuthStatus(AuthStatus.AUTH_WITH_MAP);
+                    setAuthStatus(AuthStatus.Authenticating);
 
                     OnCompleteListener<AuthResult> resultHandler = task->AsyncTask.execute(()-> {
                         if (task.isComplete() && task.isSuccessful() && task.getResult() != null) {
@@ -120,7 +145,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     }
 
     public Completable authenticateWithUser(final FirebaseUser user) {
-        return Single.create((SingleOnSubscribe<UserWrapper>) emitter -> {
+        return Completable.defer(() -> {
+
             final Map<String, Object> loginInfoMap = new HashMap<>();
             // Save the authentication ID for the current user
             // Set the current user
@@ -131,32 +157,24 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
             setLoginInfo(loginInfoMap);
 
-            setAuthStatus(AuthStatus.HANDLING_F_USER);
-
             // Do a once() on the user to push its details to firebase.
             UserWrapper userWrapper = UserWrapper.initWithAuthData(user);
-            emitter.onSuccess(userWrapper);
+            return userWrapper.push().concatWith(userWrapper.on()).doOnComplete(() -> {
 
-        }).flatMap((Function<UserWrapper, SingleSource<UserWrapper>>) userWrapper -> userWrapper.once()
-                .toSingle(() -> userWrapper))
-                .flatMapCompletable(userWrapper -> {
+                ChatSDK.events().impl_currentUserOn(userWrapper.getModel().getEntityID());
 
-            userWrapper.getModel().update();
+                if (ChatSDK.hook() != null) {
+                    HashMap<String, Object> data = new HashMap<>();
+                    data.put(HookEvent.User, userWrapper.getModel());
+                    ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(ChatSDK.shared().getCrashReporter());
+                }
 
-            ChatSDK.events().impl_currentUserOn(userWrapper.getModel().getEntityID());
+                ChatSDK.core().setUserOnline().subscribe(ChatSDK.shared().getCrashReporter());
 
-            if (ChatSDK.hook() != null) {
-                HashMap<String, Object> data = new HashMap<>();
-                data.put(HookEvent.User, userWrapper.getModel());
-                ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(ChatSDK.shared().getCrashReporter());
-            }
-
-            ChatSDK.core().setUserOnline().subscribe(ChatSDK.shared().getCrashReporter());
-
-            authenticatedThisSession = true;
-
-            return userWrapper.push();
-        }).andThen(retrieveRemoteConfig());
+                authenticatedThisSession = true;
+            });
+        }).andThen(retrieveRemoteConfig()).subscribeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public Boolean isAuthenticated() {
@@ -179,8 +197,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                     user.updatePassword(newPassword).addOnCompleteListener(resultHandler);
                 })
-                .subscribeOn(Schedulers.single());
-
+                .subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public Completable logout() {

@@ -64,8 +64,7 @@ android {
 }
 
 dependencies {
-//    implementation fileTree(include: ['*.jar'], dir: 'libs')
-//    implementation project(path: ':chat-sdk-core')
+
     implementation "androidx.multidex:multidex:$androidxMultidexVersion"
     implementation project(path: ':chat-sdk-ui')
     implementation project(path: ':chat-sdk-firebase-adapter')
@@ -73,8 +72,10 @@ dependencies {
     implementation project(path: ':chat-sdk-firebase-file-storage')
     implementation project(path: ':chat-sdk-firebase-ui')
     implementation project(path: ':chat-sdk-profile-pictures')
-    compile project(path: ':firestream')
-    compile project(path: ':chat-sdk-firestream-adapter')
+    implementation project(path: ':firestream')
+    implementation project(path: ':chat-sdk-firestream-adapter')
+
+    implementation "com.google.android.libraries.places:places:$googlePlacesVersion"
 }
 
 apply plugin: 'com.google.gms.google-services'

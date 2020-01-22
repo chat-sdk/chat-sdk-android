@@ -1,10 +1,15 @@
 # Chat SDK 5.0
 
+- Add support for FireStream (Firestore or Realtime database)
 - Replaced ChatActivity implementation with ChatKit
 - Removed social login module - you can use FirebaseUI if you need social login
-- Add support for FireStream (Firestore and Realtime database)
 - Added multi-message select
-- Added message replies
+- Add message replies
+- Allow multiple images to be sent at once
+- Streamline image selection using Matisse
+- Make Firebase UI the default interface
+- Replace Fresco with Picasso
+- 
 
 ## FireStream - Firestore support incoming
 

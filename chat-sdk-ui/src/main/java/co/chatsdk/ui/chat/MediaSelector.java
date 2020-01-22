@@ -1,17 +1,24 @@
 package co.chatsdk.ui.chat;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 
 import com.theartofdev.edmodo.cropper.CropImage;
+import com.zhihu.matisse.Matisse;
+import com.zhihu.matisse.MimeType;
+import com.zhihu.matisse.engine.impl.PicassoEngine;
+import com.zhihu.matisse.internal.entity.CaptureStrategy;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
@@ -32,14 +39,14 @@ import static android.app.Activity.RESULT_OK;
 
 public class MediaSelector {
 
-    public static final int TAKE_PHOTO = 100;
-    public static final int CHOOSE_PHOTO = 101;
-    public static final int TAKE_VIDEO = 102;
-    public static final int CHOOSE_VIDEO = 103;
+    public static final int CHOOSE_PHOTO = 100;
+    public static final int TAKE_VIDEO = 101;
+    public static final int CHOOSE_VIDEO = 102;
 
-    protected Uri fileUri;
+    public static final int SELECTION_MAX_SIZE = 5;
+
     protected Disposable disposable;
-    protected SingleEmitter<File> emitter;
+    protected SingleEmitter<List<File>> emitter;
 
     protected CropType cropType = CropType.Rectangle;
 
@@ -50,71 +57,62 @@ public class MediaSelector {
         Circle,
     }
 
-    public Single<File> startActivity (Activity activity, MediaType type) {
+    public Single<List<File>> startActivity (Activity activity, MediaType type) {
         return startActivity(activity, type, null);
     }
 
-    public Single<File> startActivity (Activity activity, MediaType type, CropType cropType) {
+    public Single<List<File>> startActivity (Activity activity, MediaType type, CropType cropType) {
 
         if (cropType != null) {
             this.cropType = cropType;
         }
 
-        Single<File> action = null;
-        if (type.isEqual(MediaType.TakePhoto)) {
-            action = startTakePhotoActivity(activity, this.cropType);
-        }
+        Single<List<File>> single = null;
+
         if (type.isEqual(MediaType.ChoosePhoto)) {
-            action = startChooseImageActivity(activity, this.cropType);
-        }
-        if (type.isEqual(MediaType.TakeVideo)) {
-            action = startTakeVideoActivity(activity);
-        }
-        if (type.isEqual(MediaType.ChooseVideo)) {
-            action = startChooseVideoActivity(activity);
+            single = startChooseMediaActivity(activity, MimeType.ofImage(), this.cropType, true);
         }
 
-        if (action != null) {
-            if(type.is(MediaType.Take)) {
-                return PermissionRequestHandler.shared().requestCameraAccess(activity).andThen(action);
-            }
-            if(type.is(MediaType.Choose)) {
-                return PermissionRequestHandler.shared().requestReadExternalStorage(activity).andThen(action);
-            }
+        if (type.isEqual(MediaType.TakeVideo)) {
+            single = startTakeVideoActivity(activity);
+        }
+        if (type.isEqual(MediaType.ChooseVideo)) {
+            single = startChooseVideoActivity(activity);
+        }
+
+        if (single != null) {
+            return PermissionRequestHandler.requestImageMessage(activity).andThen(single);
         }
         return Single.error(new Throwable(activity.getString(R.string.error_launching_activity)));
     }
 
-    public Single<File> startTakePhotoActivity (Activity activity, CropType cropType) {
+    public Single<List<File>> startChooseMediaActivity(Activity activity, Set<MimeType> mimeTypeSet, CropType cropType, boolean multiSelectEnabled) {
         return Single.create(emitter -> {
-            MediaSelector.this.emitter = emitter;
-            MediaSelector.this.cropType = cropType;
 
-            Context context = ChatSDK.shared().context();
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            File destination = ImageUtils.createEmptyFileInCacheDirectory(context, "CAPTURE", ".jpg");
-            fileUri = PhotoProvider.getPhotoUri(destination, context);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+            this.emitter = emitter;
+            this.cropType = cropType;
 
-            if (!startActivityForResult(activity, intent, TAKE_PHOTO)) {
-                notifyError(new Exception(activity.getString(R.string.unable_to_fetch_image)));
+            if (disposable != null) {
+                disposable.dispose();
             }
+
+            disposable = ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
+                handleResult(activity, activityResult.requestCode, activityResult.resultCode, activityResult.data);
+            });
+
+            Matisse.from(activity)
+                    .choose(mimeTypeSet)
+                    .captureStrategy(new CaptureStrategy(false, "co.chatsdk.file-provider", "images"))
+                    .theme(R.style.Matisse_Zhihu)
+                    .capture(true)
+                    .maxSelectable(multiSelectEnabled ? SELECTION_MAX_SIZE : 1)
+                    .thumbnailScale(1)
+                    .imageEngine(new PicassoEngine())
+                    .forResult(CHOOSE_PHOTO);
         });
     }
 
-    public Single<File> startChooseImageActivity(Activity activity, CropType cropType) {
-        return Single.create(emitter -> {
-            MediaSelector.this.emitter = emitter;
-            MediaSelector.this.cropType = cropType;
-
-            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            if(!startActivityForResult(activity, intent, CHOOSE_PHOTO)) {
-                notifyError(new Exception(activity.getString(R.string.unable_to_start_activity)));
-            };
-        });
-    }
-
-    public Single<File> startTakeVideoActivity (Activity activity) {
+    public Single<List<File>> startTakeVideoActivity (Activity activity) {
         return Single.create(emitter -> {
             MediaSelector.this.emitter = emitter;
 
@@ -125,7 +123,7 @@ public class MediaSelector {
         });
     }
 
-    public Single<File> startChooseVideoActivity (Activity activity) {
+    public Single<List<File>> startChooseVideoActivity (Activity activity) {
         return Single.create(emitter -> {
             MediaSelector.this.emitter = emitter;
 
@@ -141,19 +139,24 @@ public class MediaSelector {
             disposable = ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> handleResult(activity, activityResult.requestCode, activityResult.resultCode, activityResult.data));
             activity.startActivityForResult(intent, tag);
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
-    protected void processPickedPhoto(Activity activity, Uri uri) throws Exception {
-        if (!ChatSDK.config().imageCroppingEnabled && cropType == CropType.None) {
-            File imageFile = fileFromURI(uri, activity, MediaStore.Images.Media.DATA);
+    protected void processPickedImage(Activity activity, List<Uri> uris) throws Exception {
+        if (!ChatSDK.config().imageCroppingEnabled || cropType == CropType.None || uris.size() > 1) {
+
+            ArrayList<File> files = new ArrayList<File>();
+            for (Uri uri: uris) {
+                File imageFile = fileFromURI(uri, activity, MediaStore.Images.Media.DATA);
+                File file = ImageUtils.compressImageToFile(activity, imageFile.getPath(), "COMPRESSED", "jpg");
+                files.add(file);
+            }
             // New
-            File file = ImageUtils.compressImageToFile(activity, imageFile.getPath(), "COMPRESSED", "jpg");
-            handleImageFile(activity, file);
+            handleImageFiles(activity, files);
         }
         else {
+            Uri uri = uris.get(0);
             if (cropType == CropType.Circle) {
                 Cropper.startCircleActivity(activity, uri);
             }
@@ -198,7 +201,7 @@ public class MediaSelector {
         }
         else if (resultCode == RESULT_OK) {
             try {
-                handleImageFile(activity, new File(result.getUri().getPath()));
+                handleImageFiles(activity, new File(result.getUri().getPath()));
             }
             catch (NullPointerException e){
                 notifyError(new Exception(activity.getString(R.string.unable_to_fetch_image)));
@@ -207,23 +210,27 @@ public class MediaSelector {
 
     }
 
-    public void handleImageFile (Activity activity, File file) {
+    public void handleImageFiles (Activity activity, File... files) {
+        handleImageFiles(activity, Arrays.asList(files));
+    }
+
+    public void handleImageFiles (Activity activity, List<File> files) {
 
         // Scanning the messageImageView so it would be visible in the gallery images.
         if (ChatSDK.config().saveImagesToDirectory) {
-            ImageUtils.scanFilePathForGallery(activity, file.getPath());
+            for (File file: files) {
+                ImageUtils.scanFilePathForGallery(activity, file.getPath());
+            }
         }
-        notifySuccess(file);
+        notifySuccess(files);
     }
 
     public void handleResult (Activity activity, int requestCode, int resultCode, Intent intent) throws Exception {
 
         if (resultCode == RESULT_OK) {
             if (requestCode == CHOOSE_PHOTO) {
-                processPickedPhoto(activity, intent.getData());
-            }
-            else if (requestCode == TAKE_PHOTO && fileUri != null) {
-                processPickedPhoto(activity, fileUri);
+                List<Uri> result = Matisse.obtainResult(intent);
+                processPickedImage(activity, result);
             }
             else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
                 processCroppedPhoto(activity, resultCode, intent);
@@ -240,9 +247,13 @@ public class MediaSelector {
         }
     }
 
-    protected void notifySuccess (@NotNull File file) {
+    protected void notifySuccess (@NotNull File... file) {
+        notifySuccess(Arrays.asList(file));
+    }
+
+    protected void notifySuccess (@NotNull List<File> files) {
         if (emitter != null) {
-            emitter.onSuccess(file);
+            emitter.onSuccess(files);
         }
         clear();
     }

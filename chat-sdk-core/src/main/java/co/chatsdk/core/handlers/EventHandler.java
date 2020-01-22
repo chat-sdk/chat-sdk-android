@@ -13,10 +13,11 @@ import io.reactivex.subjects.ReplaySubject;
  * Created by benjaminsmiley-andrews on 16/05/2017.
  */
 
-public interface EventHandler {
+public interface EventHandler extends Consumer<Throwable> {
 
     PublishSubject<NetworkEvent> source ();
     Observable<NetworkEvent> sourceOnMain ();
+    Observable<Throwable> errorSourceOnMain ();
 
     void impl_currentUserOn (String userEntityID);
     void impl_currentUserOff (String userEntityID);

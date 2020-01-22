@@ -25,6 +25,7 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import firestream.chat.namespace.FireStreamUser;
@@ -41,11 +42,17 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
 
             if (message.getThread().getType() == ThreadType.Private1to1) {
                 User otherUser = message.getThread().otherUser();
-                return Fire.Stream.sendMessageWithBody(otherUser.getEntityID(), messageBody, message::setEntityID);
+                return Fire.Stream.sendMessageWithBody(otherUser.getEntityID(), messageBody, newId -> {
+                    message.setEntityID(newId);
+                    message.update();
+                });
             } else {
                 IChat chat = Fire.Stream.getChat(message.getThread().getEntityID());
                 if (chat != null) {
-                    return chat.sendMessageWithBody(messageBody, message::setEntityID);
+                    return chat.sendMessageWithBody(messageBody, newId -> {
+                        message.setEntityID(newId);
+                        message.update();
+                    });
                 } else {
                     // TODO: localise
                     return Completable.error(new Throwable("Chat chat doesn't exist"));

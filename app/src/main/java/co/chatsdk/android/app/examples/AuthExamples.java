@@ -1,14 +1,9 @@
-package co.chatsdk.core.examples;
+package co.chatsdk.android.app.examples;
 
-import java.util.HashMap;
-
-import co.chatsdk.core.hook.Executor;
 import co.chatsdk.core.hook.Hook;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.AccountDetails;
-import co.chatsdk.core.utils.DisposableMap;
-import io.reactivex.functions.Consumer;
 
 public class AuthExamples extends BaseExample {
 

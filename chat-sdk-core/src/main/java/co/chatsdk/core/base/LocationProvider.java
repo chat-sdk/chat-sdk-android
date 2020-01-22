@@ -116,7 +116,7 @@ public class LocationProvider {
     @SuppressLint("MissingPermission")
     public Observable<Location> requestLocationUpdates(Activity activity, long interval) {
         return requestEnableLocationServices(activity)
-                .andThen(PermissionRequestHandler.shared().requestLocationAccess(activity))
+                .andThen(PermissionRequestHandler.requestLocationAccess(activity))
                 .andThen(Observable.create((ObservableOnSubscribe<Location>) observable -> {
                     locationUpdatesRequest.setInterval(interval * 1000);
                     locationUpdatesRequest.setFastestInterval(interval * 1000);
@@ -142,7 +142,7 @@ public class LocationProvider {
 
     @SuppressLint("MissingPermission")
     public Single<Location> getLastLocation(Activity activity) {
-        return PermissionRequestHandler.shared().requestLocationAccess(activity)
+        return PermissionRequestHandler.requestLocationAccess(activity)
                 .andThen((Single.create((SingleOnSubscribe<Location>) single -> {
                     locationClient.getLastLocation().addOnSuccessListener(location -> {
                         if (location != null) {

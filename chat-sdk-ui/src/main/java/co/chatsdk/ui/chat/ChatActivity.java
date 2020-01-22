@@ -202,7 +202,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 .subscribe(networkEvent -> reloadActionBar()));
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
+                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .filter(networkEvent -> thread.containsUser(networkEvent.user))
                 .subscribe(networkEvent -> {
@@ -230,7 +230,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     MessageSendProgress progress = networkEvent.getMessageSendProgress();
                     MessageSendStatus status = progress.getStatus();
 
-                    if (status == MessageSendStatus.Sending || status == MessageSendStatus.Created) {
+                    if (status == MessageSendStatus.WillSend || status == MessageSendStatus.Created) {
                         // Add this so that the message only appears after it's been sent
                         if (ChatSDK.encryption() == null) {
                             if(messageListAdapter.addRow(progress.message, false, true, progress.uploadProgress, true)) {

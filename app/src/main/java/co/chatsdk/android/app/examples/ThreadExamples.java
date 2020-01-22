@@ -1,4 +1,4 @@
-package co.chatsdk.core.examples;
+package co.chatsdk.android.app.examples;
 
 import android.content.Context;
 
@@ -7,16 +7,11 @@ import com.google.android.gms.maps.model.LatLng;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.GoogleUtils;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 public class ThreadExamples extends BaseExample {
     public ThreadExamples(Context context, ArrayList<User> users) {

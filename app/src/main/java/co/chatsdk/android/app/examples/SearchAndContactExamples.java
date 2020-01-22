@@ -1,4 +1,4 @@
-package co.chatsdk.core.examples;
+package co.chatsdk.android.app.examples;
 
 import android.content.Context;
 
@@ -10,7 +10,6 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
 import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 public class SearchAndContactExamples extends BaseExample {
     public SearchAndContactExamples(Context context) {

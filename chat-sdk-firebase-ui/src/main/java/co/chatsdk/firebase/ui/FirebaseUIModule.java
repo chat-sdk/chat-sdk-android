@@ -13,6 +13,7 @@ import com.google.firebase.auth.TwitterAuthProvider;
 
 import java.util.ArrayList;
 
+import chatsdk.co.chat_sdk_firebase_ui.R;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
@@ -33,6 +34,9 @@ public class FirebaseUIModule {
 
         Intent authUILoginIntent = authUI()
                 .createSignInIntentBuilder()
+                .setLogo(ChatSDK.config().logoDrawableResourceID)
+                .setTheme(R.style.FirebaseLoginTheme)
+                .setIsSmartLockEnabled(false)
                 .setAvailableProviders(idps)
                 .build();
 

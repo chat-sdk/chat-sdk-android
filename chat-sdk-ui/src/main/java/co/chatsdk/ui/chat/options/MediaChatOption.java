@@ -3,6 +3,9 @@ package co.chatsdk.ui.chat.options;
 import android.app.Activity;
 import android.widget.Toast;
 
+import java.io.File;
+import java.util.ArrayList;
+
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.session.ChatSDK;
@@ -25,14 +28,17 @@ public class MediaChatOption extends BaseChatOption {
 
     public MediaChatOption(String title, Integer iconResourceId, final MediaType type) {
         super(title, iconResourceId, null);
-        action = (activity, thread) -> new MediaSelector().startActivity(activity, type).flatMapCompletable(path -> {
-            if (type.is(MediaType.Photo)) {
-                return ChatSDK.imageMessage().sendMessageWithImage(path, thread);
+        action = (activity, thread) -> new MediaSelector().startActivity(activity, type).flatMapCompletable(files -> {
+            ArrayList<Completable> completables = new ArrayList<>();
+            for (File file: files) {
+                if (type.is(MediaType.Photo)) {
+                    completables.add(ChatSDK.imageMessage().sendMessageWithImage(file, thread));
+                }
+                if (type.is(MediaType.Video)) {
+                    completables.add(ChatSDK.videoMessage().sendMessageWithVideo(file, thread));
+                }
             }
-            if (type.is(MediaType.Video)) {
-                return ChatSDK.videoMessage().sendMessageWithVideo(path, thread);
-            }
-            return Completable.complete();
+            return Completable.concat(completables);
         });
     }
 

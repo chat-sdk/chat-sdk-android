@@ -11,10 +11,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.LayoutRes;
@@ -22,8 +25,11 @@ import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
+import com.stfalcon.chatkit.commons.models.MessageContentType;
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
@@ -58,6 +64,7 @@ import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActionBar;
+import co.chatsdk.ui.chat.ImageMessageOnClickHandler;
 import co.chatsdk.ui.chat.ReplyView;
 import co.chatsdk.ui.chat.TextInputDelegate;
 import co.chatsdk.ui.chatkit.custom.IncomingImageMessageViewHolder;
@@ -104,6 +111,8 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
     protected ChatActionBar chatActionBar;
     protected ReplyView replyView;
+
+    protected DisplayMetrics displayMetrics = new DisplayMetrics();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,7 +169,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                 .subscribe(networkEvent -> chatActionBar.reload(thread)));
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
+                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .filter(networkEvent -> thread.containsUser(networkEvent.user))
                 .subscribe(networkEvent -> {
@@ -191,8 +200,14 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
         onLoadMore(0, 0);
 
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
         thread.markRead();
 
+    }
+
+    protected int maxImageWidth() {
+        return Math.round(displayMetrics.widthPixels);
     }
 
     @Override
@@ -254,18 +269,37 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                     imageView.setImageResource(R.drawable.icn_200_image_message_placeholder);
                 }
             } else {
-                RequestCreator request = Picasso.get().load(url);
+
+                RequestCreator request = Picasso.get().load(url)
+                        .resize(maxImageWidth(), maxImageWidth());
+
+                if (payload == null) {
+                    request.placeholder(R.drawable.icn_100_profile);
+                } else if (payload instanceof ImageMessageHolder) {
+                    request.placeholder(R.drawable.icn_200_image_message_placeholder);
+                }
 
 //                if (payload instanceof ImageMessageHolder) {
 //                    ImageMessageHolder holder = (ImageMessageHolder) payload;
 //                    request.resize(holder.width(), holder.height());
 //                }
+
                 request.into(imageView);
             }
         });
 
         messagesListAdapter.setLoadMoreListener(this);
         messagesListAdapter.setDateHeadersFormatter(date -> prettyTime.format(date));
+
+        messagesListAdapter.setOnMessageClickListener(message -> {
+            if (message instanceof MessageContentType.Image) {
+                View rootView = findViewById(android.R.id.content);
+                MessageContentType.Image content = (MessageContentType.Image) message;
+                if (content.getImageUrl() != null) {
+                    ImageMessageOnClickHandler.onClick(this, rootView, content.getImageUrl());
+                }
+            }
+        });
 
         messagesListAdapter.enableSelectionMode(count -> {
             invalidateOptionsMenu();

@@ -110,8 +110,6 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
             newMessage.setMessageStatus(MessageSendStatus.WillSend);
             ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
-            newMessage.setMessageStatus(MessageSendStatus.Sending);
-            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
 
             return sendMessage(newMessage);
         }).subscribeOn(Schedulers.single());
@@ -283,8 +281,6 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             newMessage.setValueForKey(reply, Keys.Reply);
 
             newMessage.setMessageStatus(MessageSendStatus.WillSend);
-            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
-            newMessage.setMessageStatus(MessageSendStatus.Sending);
             ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
 
             return sendMessage(newMessage);

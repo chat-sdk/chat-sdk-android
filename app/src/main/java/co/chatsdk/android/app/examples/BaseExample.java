@@ -1,4 +1,4 @@
-package co.chatsdk.core.examples;
+package co.chatsdk.android.app.examples;
 
 import co.chatsdk.core.utils.DisposableMap;
 import io.reactivex.functions.Consumer;

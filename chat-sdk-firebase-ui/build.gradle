@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 buildscript {
     repositories {
@@ -8,12 +9,8 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:$mavenGradleVersion"
     }
 }
-
-apply plugin: 'com.jfrog.bintray'
 
 android {
 
@@ -34,6 +31,27 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+ext {
+    libraryName = 'Chat SDK Firebase UI'
+    artifact = 'chat-sdk-firebase-ui'
+    libraryDescription = 'Chat SDK Firebase UI'
+}
+
+publish {
+    userOrg = BINTRAY_USER_ORG
+    groupId = CHAT_SDK_GROUP
+    artifactId = artifact
+    repoName = BINTRAY_REPO
+    publishVersion = CHAT_SDK_VERSION
+    desc = libraryDescription
+    licences = ["GPL-3.0"]
+    uploadName = libraryName
+    website = GIT_URL
 }
 
 dependencies {
@@ -43,15 +61,4 @@ dependencies {
     api project(':chat-sdk-firebase-adapter')
 
     implementation "com.firebaseui:firebase-ui-auth:$firebaseUiVersion"
-}
-ext {
-    bintrayName = 'chat-sdk-firebase-ui'
-    libraryName = 'ChatSDKFirebaseUI'
-    artifact = 'chat-sdk-firebase-ui'
-    libraryDescription = 'Chat SDK Firebase UI'
-}
-
-def bintrayGradleFile = file("$rootProject.rootDir/gradle/bintray.gradle")
-if (bintrayGradleFile.exists()) {
-    apply from: bintrayGradleFile
 }

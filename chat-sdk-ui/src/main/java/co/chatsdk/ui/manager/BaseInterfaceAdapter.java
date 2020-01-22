@@ -110,7 +110,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         Picasso.Builder builder = new Picasso.Builder(context);
         builder.downloader(new OkHttp3Downloader(context, Long.MAX_VALUE));
         Picasso built = builder.build();
-        built.setIndicatorsEnabled(true);
+//        built.setIndicatorsEnabled(true);
         built.setLoggingEnabled(false);
         Picasso.setSingletonInstance(built);
 
@@ -121,8 +121,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
         stringLocation = context.getResources().getString(R.string.location);
         stringTakePhoto = context.getResources().getString(R.string.take_photo);
-        stringChoosePhoto = context.getResources().getString(R.string.choose_photo);
-
+        stringChoosePhoto = context.getResources().getString(R.string.image_or_photo);
     }
 
     @Override
@@ -563,7 +562,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
             }
 
             if(ChatSDK.config().imageMessagesEnabled) {
-                chatOptions.add(new MediaChatOption(stringTakePhoto, MediaType.takePhoto()));
+                //chatOptions.add(new MediaChatOption(stringTakePhoto, MediaType.takePhoto()));
                 chatOptions.add(new MediaChatOption(stringChoosePhoto, MediaType.choosePhoto()));
             }
             defaultChatOptionsAdded = true;

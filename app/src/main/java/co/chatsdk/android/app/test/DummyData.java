@@ -1,4 +1,4 @@
-package co.chatsdk.core.test;
+package co.chatsdk.android.app.test;
 
 import org.joda.time.DateTime;
 

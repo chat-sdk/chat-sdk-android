@@ -5,11 +5,14 @@ import android.content.Context;
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
 
+import com.google.firebase.auth.EmailAuthProvider;
+import com.google.firebase.auth.PhoneAuthProvider;
+
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
-import co.chatsdk.core.test.DummyData;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
+import co.chatsdk.firebase.ui.FirebaseUIModule;
 import co.chatsdk.firestream.FireStreamNetworkAdapter;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.chatkit.CKChatActivity;
@@ -66,6 +69,7 @@ public class AppObj extends MultiDexApplication {
             FirebaseFileStorageModule.activate();
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
+            FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
 
 //            new DummyData(1, 1000);
 
