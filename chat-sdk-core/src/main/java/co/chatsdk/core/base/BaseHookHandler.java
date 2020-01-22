@@ -6,6 +6,7 @@ import java.util.HashMap;
 import co.chatsdk.core.handlers.HookHandler;
 import co.chatsdk.core.hook.Hook;
 import io.reactivex.Completable;
+import io.reactivex.functions.Action;
 
 /**
  * Created by ben on 9/13/17.
@@ -41,7 +42,11 @@ public class BaseHookHandler implements HookHandler {
         ArrayList<Completable> completables = new ArrayList<>();
         if(existingHooks != null) {
             for(Hook hook : existingHooks) {
-                completables.add(hook.executeAsync(data));
+                completables.add(hook.executeAsync(data).doOnComplete(() -> {
+                    if (hook.removeOnFire) {
+                        removeHook(hook, name);
+                    }
+                }));
             }
         }
         return Completable.merge(completables);

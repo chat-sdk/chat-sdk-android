@@ -1,10 +1,10 @@
-package co.chatsdk.android.app.custom;
+package sdk.chat.custom;
 
 import android.os.Bundle;
 
-import co.chatsdk.ui.login.LoginActivity;
+import co.chatsdk.ui.profile.ProfileActivity;
 
-public class ALoginActivity extends LoginActivity {
+public class AProfileActivity extends ProfileActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

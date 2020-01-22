@@ -1,4 +1,4 @@
-package co.chatsdk.android.app.test;
+package sdk.chat.test;
 
 import android.app.Activity;
 

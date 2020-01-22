@@ -31,6 +31,7 @@ public interface AuthenticationHandler {
     @Deprecated
     Boolean userAuthenticated();
     Boolean isAuthenticated();
+    Boolean isAuthenticating();
 
     /**
      * Has been authenticated this session. If they are authenticated this session

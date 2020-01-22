@@ -60,6 +60,10 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         updateExtras(getIntent().getExtras());
 
+        if(ChatSDK.config().theme != 0) {
+            setTheme(ChatSDK.config().theme);
+        }
+
         // Setting the default task description.
         setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
     }

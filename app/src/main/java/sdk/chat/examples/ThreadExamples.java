@@ -1,4 +1,4 @@
-package co.chatsdk.android.app.examples;
+package sdk.chat.examples;
 
 import android.content.Context;
 
@@ -12,6 +12,7 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.GoogleUtils;
+import sdk.chat.examples.BaseExample;
 
 public class ThreadExamples extends BaseExample {
     public ThreadExamples(Context context, ArrayList<User> users) {

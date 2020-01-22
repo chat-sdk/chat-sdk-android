@@ -49,10 +49,14 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
         FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
             // We are connecting for the first time
             if (this.currentUserID == null && firebaseAuth.getCurrentUser() != null) {
-                dm.add(authenticate().subscribe(() -> {}, ChatSDK.events()));
+                if (!isAuthenticating()) {
+                    dm.add(authenticate().subscribe(() -> {}, ChatSDK.events()));
+                }
             }
             if(this.currentUserID != null && firebaseAuth.getCurrentUser() == null) {
-                dm.add(logout().subscribe(() -> {}, ChatSDK.events()));
+                if (isAuthenticated()) {
+                    dm.add(logout().subscribe(() -> {}, ChatSDK.events()));
+                }
             }
         });
 

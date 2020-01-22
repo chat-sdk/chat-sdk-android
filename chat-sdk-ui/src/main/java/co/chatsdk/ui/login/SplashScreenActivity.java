@@ -7,9 +7,19 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.LayoutRes;
 import androidx.constraintlayout.widget.ConstraintLayout;
+
+import java.util.HashMap;
+
+import co.chatsdk.core.events.EventType;
+import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.hook.Executor;
+import co.chatsdk.core.hook.Hook;
+import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;
+import io.reactivex.Completable;
+import io.reactivex.functions.Consumer;
 
 public class SplashScreenActivity extends BaseActivity {
 
@@ -52,9 +62,16 @@ public class SplashScreenActivity extends BaseActivity {
             startMainActivity();
         } else if (ChatSDK.auth().isAuthenticated()) {
             startProgressBar();
-            dm.add(ChatSDK.auth().authenticate()
-                    .doFinally(this::stopProgressBar)
-                    .subscribe(this::startMainActivity, throwable -> startLoginActivity()));
+            if (ChatSDK.auth().isAuthenticating()) {
+                ChatSDK.hook().addHook(Hook.sync(data -> {
+                    stopProgressBar();
+                    startMainActivity();
+                }, true), HookEvent.DidAuthenticate);
+            } else {
+                dm.add(ChatSDK.auth().authenticate()
+                        .doFinally(this::stopProgressBar)
+                        .subscribe(this::startMainActivity, throwable -> startLoginActivity()));
+            }
         } else {
             startLoginActivity();
         }

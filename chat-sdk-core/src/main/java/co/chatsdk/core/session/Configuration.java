@@ -2,6 +2,9 @@ package co.chatsdk.core.session;
 
 import android.graphics.Color;
 
+import androidx.annotation.IntegerRes;
+import androidx.annotation.StyleRes;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,6 +76,7 @@ public class Configuration {
     public boolean inboundPushHandlingEnabled = true;
 
     public boolean replyFromNotificationEnabled = true;
+    @StyleRes public int theme;
 
     // Rooms that are older than this will be hidden
     // Zero is infinite lifetime
@@ -248,6 +252,11 @@ public class Configuration {
 
         public Builder googleLogin(String webClientKey) {
             config.googleWebClientKey = webClientKey;
+            return this;
+        }
+
+        public Builder setTheme(@StyleRes int theme) {
+            config.theme = theme;
             return this;
         }
 

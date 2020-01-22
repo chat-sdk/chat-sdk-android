@@ -1,4 +1,4 @@
-package co.chatsdk.android.app;
+package sdk.chat.examples;
 
 import android.content.Context;
 import android.content.Intent;

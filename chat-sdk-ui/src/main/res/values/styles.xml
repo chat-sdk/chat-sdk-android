@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="SdkTheme" parent="Theme.MaterialComponents.Light.Bridge">
+    <style name="ChatSDKTheme" parent="Theme.MaterialComponents.Light.Bridge">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
@@ -10,7 +10,7 @@
     </style>
 
     <!-- For the sliding affect to look good in the chat context and pick friends context.-->
-    <style name="ChatSDKSlidingTransactionTheme" parent="@style/SdkTheme">
+    <style name="ChatSDKSlidingTransactionTheme" parent="@style/ChatSDKTheme">
         <item name="android:windowIsTranslucent">true</item>
     </style>
 

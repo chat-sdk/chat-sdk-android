@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 
 import java.io.File;
 
+@Deprecated
 public class PhotoProvider extends ContentProvider {
 
     private static final String CONTENT_PROVIDER_AUTHORITY_SUFFIX = ".provider";

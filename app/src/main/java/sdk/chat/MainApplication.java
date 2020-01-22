@@ -1,4 +1,4 @@
-package co.chatsdk.android.app;
+package sdk.chat;
 
 import android.content.Context;
 
@@ -8,6 +8,7 @@ import androidx.multidex.MultiDexApplication;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
 
+import co.chatsdk.android.app.R;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
@@ -22,9 +23,9 @@ import firestream.chat.Config;
 import firestream.chat.namespace.Fire;
 
 /**
- * Created by itzik on 6/8/2014.
+ * Created by Ben Smiley on 6/8/2014.
  */
-public class AppObj extends MultiDexApplication {
+public class MainApplication extends MultiDexApplication {
 
     @Override
     public void onCreate() {
@@ -42,6 +43,7 @@ public class AppObj extends MultiDexApplication {
                     .twitterLogin("Kqprq5b6bVeEfcMAGoHzUmB3I", "hPd9HCt3PLnifQFrGHJWi6pSZ5jF7kcHKXuoqB8GJpSDAlVcLq")
                     .googleLogin("1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com")
                     .googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
+//                    .setTheme(R.style.CustomChatSDKTheme)
                     .build();
 
             // FireStream configuration

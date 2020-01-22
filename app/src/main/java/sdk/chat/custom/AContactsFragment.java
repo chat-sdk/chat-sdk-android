@@ -1,4 +1,4 @@
-package co.chatsdk.android.app.custom;
+package sdk.chat.custom;
 
 import android.os.Bundle;
 

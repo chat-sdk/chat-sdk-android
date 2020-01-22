@@ -1,4 +1,4 @@
-package co.chatsdk.android.app.queries;
+package sdk.chat.queries;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 

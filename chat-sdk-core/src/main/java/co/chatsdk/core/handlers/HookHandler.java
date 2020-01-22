@@ -12,6 +12,7 @@ import io.reactivex.Completable;
 public interface HookHandler {
 
     void addHook (Hook hook, String name);
+
     void removeHook (Hook hook, String name);
     Completable executeHook (String name, HashMap<String, Object> data);
     Completable executeHook (String name);

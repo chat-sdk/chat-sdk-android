@@ -30,7 +30,7 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
         authStatus = status;
     }
 
-    public boolean isAuthenticating () {
+    public Boolean isAuthenticating () {
         return authStatus != AuthStatus.Idle;
     }
 

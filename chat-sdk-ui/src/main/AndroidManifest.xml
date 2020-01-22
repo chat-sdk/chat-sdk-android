@@ -14,33 +14,16 @@
         android:supportsRtl="true"
         android:hardwareAccelerated="true">
 
-        <!--<provider-->
-            <!--android:name="android.support.v4.content.FileProvider"-->
-            <!--android:authorities="${applicationId}.provider"-->
-            <!--android:exported="false"-->
-            <!--android:grantUriPermissions="true">-->
-            <!--<meta-data-->
-                <!--android:name="android.support.FILE_PROVIDER_PATHS"-->
-                <!--android:resource="Android/data/com.example.package.name/files/Pictures">-->
-            <!--</meta-data>-->
-        <!--</provider>-->
-
-        <provider
-            android:name=".chat.PhotoProvider"
-            android:authorities="${applicationId}.provider"
-            android:exported="false"
-            android:grantUriPermissions="true" />
-
         <activity android:name=".login.LoginActivity"
             android:screenOrientation="portrait"
             android:launchMode = "singleTask"
-            android:theme="@style/SdkTheme">
+            android:theme="@style/ChatSDKTheme">
         </activity>
 
         <activity android:name=".login.SplashScreenActivity"
             android:screenOrientation="portrait"
             android:launchMode = "singleTask"
-            android:theme="@style/SdkTheme">
+            android:theme="@style/ChatSDKTheme">
         </activity>
 
         <activity android:name=".threads.ThreadDetailsActivity"
@@ -61,35 +44,28 @@
             android:parentActivityName=".main.MainAppBarActivity"
             android:launchMode = "singleTop"
             android:windowSoftInputMode="stateHidden|adjustResize"
-            android:theme="@style/ChatSDKSlidingTransactionTheme">
-
-        <!--<intent-filter>-->
-                <!--<action android:name="co.chatsdk.QuickReply" />-->
-                <!--<category android:name="android.intent.category.DEFAULT" />-->
-            <!--</intent-filter>-->
-
-        </activity>
+            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
         <activity android:name=".profile.EditProfileActivity"
             android:windowSoftInputMode="stateHidden"
-            android:theme="@style/SdkTheme"/>
+            android:theme="@style/ChatSDKTheme"/>
 
         <activity android:name=".search.SearchActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:theme="@style/SdkTheme"/>
+            android:windowSoftInputMode="stateVisible"
+            android:theme="@style/ChatSDKTheme"/>
 
         <activity android:name=".profile.ProfileActivity"
             android:windowSoftInputMode="stateHidden"
-            android:theme="@style/SdkTheme"/>
+            android:theme="@style/ChatSDKTheme"/>
 
         <activity android:name=".main.MainAppBarActivity"
             android:launchMode = "singleTask"
-            android:theme="@style/SdkTheme"
+            android:theme="@style/ChatSDKTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
         <activity android:name=".main.MainDrawActivity"
             android:launchMode = "singleTask"
-            android:theme="@style/SdkTheme"
+            android:theme="@style/ChatSDKTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
         <activity android:name=".threads.AddUsersToThreadActivity"

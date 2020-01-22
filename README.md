@@ -18,24 +18,25 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 
 ## Technical details
 
-- **Multiple backend support** [Firebase](https://firebase.google.com/), [ejabberd](https://www.ejabberd.im/), [OpenFire](https://www.igniterealtime.org/projects/openfire/)
-- **Data storage** all data is persisted using the [GreenDao](http://greenrobot.org/greendao/)
-- **Dynamic image loading** using [Fresco](http://frescolib.org/)
-- **Reactive** using [RXAndroid](https://github.com/ReactiveX/RxAndroid)
+- **Multiple backend support** [Firestore](https://firebase.google.com/), [Firebase](https://firebase.google.com/), [ejabberd](https://www.ejabberd.im/), [OpenFire](https://www.igniterealtime.org/projects/openfire/)
+- **Backend -** [FireStream]()
+- **Persistence -** [GreenDao](http://greenrobot.org/greendao/)
+- **Reactive -** [RXAndroid](https://github.com/ReactiveX/RxAndroid)
 - **Java 8** supports Java 8 and lamda expressions
 - **API Level 16+** Compatible with 99.3% of Android devices
 
 ## Features
 
+- Powered by Firebase Firestore or Realtime database
 - Private and group messages
 - Public chat rooms
 - Username / password, Facebook, Twitter, Anonymous and custom login
 - Phone number authentication
 - Push notifications (using FCM)
 - Text, Image and Location messages
+- Forward, Reply, Copy and Delete messages
 - User profiles
 - User search
-- Powered by Firebase
 - Firebase UI
 - [iOS Version](https://github.com/chat-sdk/chat-sdk-ios)
 - [Web Version](https://github.com/chat-sdk/chat-sdk-web)

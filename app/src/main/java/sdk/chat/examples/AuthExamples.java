@@ -1,9 +1,10 @@
-package co.chatsdk.android.app.examples;
+package sdk.chat.examples;
 
 import co.chatsdk.core.hook.Hook;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.AccountDetails;
+import sdk.chat.examples.BaseExample;
 
 public class AuthExamples extends BaseExample {
 
