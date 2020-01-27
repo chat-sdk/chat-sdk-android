@@ -1,28 +1,22 @@
 package co.chatsdk.firestream;
 
-import org.joda.time.DateTime;
-
 import java.util.Date;
-import java.util.HashMap;
 
 import co.chatsdk.core.api.APIHelper;
-import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
-import co.chatsdk.core.types.MessageSendStatus;
+import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.FirebaseEventHandler;
 import firestream.chat.events.Event;
-import firestream.chat.filter.MessageStreamFilter;
+import firestream.chat.filter.Filter;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.events.EventType;
 import firestream.chat.firebase.rx.DisposableMap;
-import firestream.chat.message.Sendable;
 import firestream.chat.namespace.Fire;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
@@ -32,7 +26,15 @@ import firestream.chat.types.RoleType;
 
 public class FirestreamEventHandler extends FirebaseEventHandler implements Consumer<Throwable> {
 
-    protected DisposableMap dm = Fire.Stream.getDisposableMap();
+    public FirestreamEventHandler() {
+        Fire.stream().setMarkReceivedFilter(event -> {
+            // Check if the message is read
+            Message message = ChatSDK.db().fetchEntityWithEntityID(event.get().getId(), Message.class);
+            return !message.readStatusForUser(ChatSDK.currentUser()).is(ReadStatus.read(), ReadStatus.delivered());
+        });
+    }
+
+    protected DisposableMap dm = Fire.stream().getDisposableMap();
 
     @Override
     public void impl_currentUserOn(final String entityID) {
@@ -41,11 +43,11 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
 
     protected void threadsOn(User chatSDKUser) {
 
-        dm.add(Fire.Stream.getSendableEvents().getErrors().subscribe(throwable -> {
+        dm.add(Fire.stream().getSendableEvents().getErrors().subscribe(throwable -> {
             throwable.printStackTrace();
         }));
 
-        dm.add(Fire.Stream.getChatEvents().subscribe(chatEvent -> {
+        dm.add(Fire.stream().getChatEvents().subscribe(chatEvent -> {
             IChat chat = chatEvent.get();
 
             DisposableMap cdm = chat.getDisposableMap();
@@ -110,7 +112,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
         }, this));
 
         // Handle 1-to-1 messages
-        dm.add(Fire.Stream.getSendableEvents().getFireStreamMessages().subscribe(event -> {
+        dm.add(Fire.stream().getSendableEvents().getFireStreamMessages().subscribe(event -> {
 
             // Get the user
             dm.add(APIHelper.fetchRemoteUser(event.get().getFrom()).subscribe(user -> {
@@ -138,10 +140,10 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
         // Handle message deletion
         // We only do this if we are not deleting messages upon receipt, otherwise
         // the messages would just be deleted
-        if (!Fire.privateApi().getConfig().deleteMessagesOnReceipt) {
-            dm.add(Fire.Stream.getSendableEvents()
+        if (!Fire.internal().getConfig().deleteMessagesOnReceipt) {
+            dm.add(Fire.stream().getSendableEvents()
                     .getSendables()
-                    .filter(MessageStreamFilter.byEventType(EventType.Removed))
+                    .filter(Filter.byEventType(EventType.Removed))
                     .subscribe(sendableEvent -> {
                 String from = sendableEvent.get().getFrom();
                 removeMessage(from, from);
@@ -173,7 +175,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
 
     @Override
     protected void contactsOn (User chatSDKUser) {
-        dm.add(Fire.Stream.getContactEvents().subscribe(userEvent -> {
+        dm.add(Fire.stream().getContactEvents().subscribe(userEvent -> {
             User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEvent.get().getId());
             if (userEvent.typeIs(EventType.Added)) {
                 dm.add(ChatSDK.contact().addContactLocal(contact, ConnectionType.Contact).doOnError(this).subscribe());
@@ -222,7 +224,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
             }
         }
         if (event.typeIs(EventType.Removed)) {
-            if(!Fire.privateApi().getConfig().deleteMessagesOnReceipt) {
+            if(!Fire.internal().getConfig().deleteMessagesOnReceipt) {
                 removeMessage(event.get().getId(), thread.getEntityID());
             }
         }

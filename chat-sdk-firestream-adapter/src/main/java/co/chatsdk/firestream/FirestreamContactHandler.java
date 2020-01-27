@@ -13,13 +13,13 @@ public class FirestreamContactHandler extends BaseContactHandler {
     @Override
     public Completable addContact(User user, ConnectionType type) {
         FireStreamUser firestreamUser = new FireStreamUser(user.getEntityID());
-        return Fire.Stream.addContact(firestreamUser, ContactType.contact());
+        return Fire.stream().addContact(firestreamUser, ContactType.contact());
     }
 
     @Override
     public Completable deleteContact(User user, ConnectionType type) {
         FireStreamUser firestreamUser = new FireStreamUser(user.getEntityID());
-        return Fire.Stream.removeContact(firestreamUser);
+        return Fire.stream().removeContact(firestreamUser);
     }
 
 }

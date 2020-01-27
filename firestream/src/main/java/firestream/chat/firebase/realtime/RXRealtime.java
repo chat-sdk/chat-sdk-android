@@ -123,7 +123,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
         }).addOnFailureListener(e -> {
             emitter.onError(e);
         }).addOnCanceledListener(() -> {
-            emitter.onError(new Exception(Fire.privateApi().context().getString(R.string.error_write_cancelled)));
+            emitter.onError(new Exception(Fire.internal().context().getString(R.string.error_write_cancelled)));
         }));
     }
 

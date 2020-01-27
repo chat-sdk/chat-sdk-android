@@ -29,14 +29,14 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
     public FirestreamReadReceiptHandler() {
 
         // We want to add these listeners when we connect and remove them when we disconnect
-        Disposable d = Fire.Stream.getConnectionEvents().subscribe(connectionEvent -> {
+        Disposable d = Fire.stream().getConnectionEvents().subscribe(connectionEvent -> {
             if (connectionEvent.getType() == ConnectionEvent.Type.DidConnect) {
 
-                dm.add(Fire.Stream.getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(event -> {
+                dm.add(Fire.stream().getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(event -> {
                     dm.add(handleReceipt(event.get().getFrom(), event.get()));
                 }));
 
-                dm.add(Fire.Stream.getChatEvents().pastAndNewEvents().subscribe(chatEvent -> {
+                dm.add(Fire.stream().getChatEvents().pastAndNewEvents().subscribe(chatEvent -> {
                     IChat chat = chatEvent.get();
                     if (chatEvent.typeIs(EventType.Added)) {
                         chat.manage(chat.getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(event -> {
@@ -86,13 +86,12 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
 
         if (thread.typeIs(ThreadType.Private1to1)) {
             User otherUser = thread.otherUser();
-            dm.add(Fire.Stream.sendDeliveryReceipt(otherUser.getEntityID(), DeliveryReceiptType.read(), message.getEntityID())
-                    .subscribe(() -> {}, this));
+            dm.add(Fire.stream().markRead(otherUser.getEntityID(), message.getEntityID()).subscribe(() -> {}, this));
         }
         if (thread.typeIs(ThreadType.PrivateGroup)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
-                chat.manage(chat.sendDeliveryReceipt(DeliveryReceiptType.read(), message.getEntityID()).subscribe(() -> {}, this));
+                chat.manage(chat.markRead(message.getEntityID()).subscribe(() -> {}, this));
             }
         }
     }

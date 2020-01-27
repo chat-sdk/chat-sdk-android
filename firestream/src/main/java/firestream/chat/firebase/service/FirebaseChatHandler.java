@@ -18,10 +18,10 @@ public abstract class FirebaseChatHandler {
 
     /**
      * Note in this case, we don't provide the path to the chat/meta
-     * we provide it to the chat. This isType because of differences between
+     * we provide it to the chat. This type because of differences between
      * Realtime and Firestore. The realtime database stores the data at
      *  - chat/meta/...
-     * But in Firestore meta/... isType stored as a field on the chat document
+     * But in Firestore meta/... type stored as a field on the chat document
      * So we need to link to the chat document in both cases
      * @param chatId chat room id
      * @return stream of data when chat meta changes

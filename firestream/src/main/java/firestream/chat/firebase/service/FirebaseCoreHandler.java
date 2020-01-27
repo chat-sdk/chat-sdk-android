@@ -33,11 +33,11 @@ public abstract class FirebaseCoreHandler {
     public abstract Completable deleteSendable(Path messagesPath);
 
     /**
-     * Send a errorMessage to a messages ref
+     * Send a message to a messages ref
      *
-     * @param messagesPath Firestore reference for errorMessage collection
+     * @param messagesPath Firestore reference for message collection
      * @param sendable item to be sent
-     * @param newId get the id of the new errorMessage before it's sent
+     * @param newId get the id of the new message before it's sent
      * @return completion
      */
     public abstract Completable send(Path messagesPath, Sendable sendable, Consumer<String> newId);
@@ -78,24 +78,24 @@ public abstract class FirebaseCoreHandler {
      * @param fromDate get messages from this date
      * @param toDate get messages until this date
      * @param limit limit the maximum number of messages
-     * @return a events of errorMessage results
+     * @return a events of message results
      */
     public abstract Single<List<Sendable>> loadMoreMessages(Path messagesPath, @Nullable Date fromDate, @Nullable Date toDate, @Nullable Integer limit);
 
     /**
      * This method gets the date of the last delivery receipt that we sent - i.e. the
-     * last errorMessage WE received.
+     * last message WE received.
      * @param messagesPath
      * @return single date
      */
     public abstract Single<Date> dateOfLastSentMessage(Path messagesPath);
 
     /**
-     * Start listening to the current errorMessage reference and pass the messages to the events
+     * Start listening to the current message reference and pass the messages to the events
      * @param messagesPath
      * @param newerThan only listen for messages after this date
      * @param limit limit the maximum number of historic messages
-     * @return a events of errorMessage results
+     * @return a events of message results
      */
     public abstract Observable<Event<Sendable>> messagesOn(Path messagesPath, Date newerThan, int limit);
 

@@ -5,6 +5,9 @@ import android.widget.TextView;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
+import java.text.DateFormat;
+
+import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.ui.R;
@@ -23,10 +26,13 @@ public class IncomingTextMessageViewHolder
     }
 
     @Override
-    public void onBind(MessageHolder message) {
-        super.onBind(message);
+    public void onBind(MessageHolder holder) {
+        super.onBind(holder);
 
-        boolean isOnline = message.getUser().isOnline();
+        Message message = holder.getMessage();
+        Message nextMessage = message.getNextMessage();
+
+        boolean isOnline = holder.getUser().isOnline();
         if (isOnline) {
             onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_online);
         } else {
@@ -37,16 +43,20 @@ public class IncomingTextMessageViewHolder
         final Payload payload = (Payload) this.payload;
         userAvatar.setOnClickListener(view -> {
             if (payload != null && payload.avatarClickListener != null) {
-                payload.avatarClickListener.onAvatarClick(message.getMessage().getSender());
+                payload.avatarClickListener.onAvatarClick(holder.getMessage().getSender());
             }
         });
 
-        if (message.getMessage().getThread().typeIs(ThreadType.Group)) {
+        if (message.getThread().typeIs(ThreadType.Group) && (nextMessage == null || !message.getSender().equals(nextMessage.getSender()))) {
             userName.setVisibility(View.VISIBLE);
-            userName.setText(message.getUser().getName());
+            userName.setText(holder.getUser().getName());
         } else {
             userName.setVisibility(View.GONE);
         }
+
+
+
+
     }
 
     public static class Payload {

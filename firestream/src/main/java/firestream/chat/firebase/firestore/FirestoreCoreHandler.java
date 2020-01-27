@@ -148,7 +148,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
         return Single.create((SingleOnSubscribe<Query>) emitter -> {
             Query query = Ref.collection(messagesPath);
 
-            query = query.whereEqualTo(Keys.From, Fire.Stream.currentUserId());
+            query = query.whereEqualTo(Keys.From, Fire.stream().currentUserId());
             query = query.orderBy(Keys.Date, Query.Direction.DESCENDING);
             query = query.limit(1);
 
@@ -170,9 +170,9 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
     }
 
     /**
-     * Start listening to the current errorMessage reference and pass the messages to the events
+     * Start listening to the current message reference and pass the messages to the events
      * @param newerThan only listen for messages after this date
-     * @return a events of errorMessage results
+     * @return a events of message results
      */
     public Observable<Event<Sendable>> messagesOn(Path messagesPath, Date newerThan, int limit) {
         return Single.create((SingleOnSubscribe<Query>) emitter -> {

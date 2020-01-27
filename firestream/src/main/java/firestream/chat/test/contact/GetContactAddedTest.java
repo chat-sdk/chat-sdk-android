@@ -17,7 +17,7 @@ public class GetContactAddedTest extends Test {
     public Observable<Result> run() {
         return Observable.create(emitter -> {
             manage(emitter);
-            dm.add(Fire.Stream.getContactEvents().currentAndNewEvents().subscribe(userEvent -> {
+            dm.add(Fire.stream().getContactEvents().currentAndNewEvents().subscribe(userEvent -> {
                 if (userEvent.typeIs(EventType.Added)) {
                     if (userEvent.get().equals(TestScript.testUser1())) {
                         complete();

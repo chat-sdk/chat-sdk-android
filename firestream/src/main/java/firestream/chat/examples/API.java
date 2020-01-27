@@ -34,10 +34,10 @@ public class API {
         // etc...
 
         // Initialize
-        Fire.Stream.initialize(context, config);
+        Fire.stream().initialize(context, config);
 
-        // Send a errorMessage from text
-        Disposable d1 = Fire.Stream.sendMessageWithText("user-id", "Hello", messageId -> {
+        // Send a message from text
+        Disposable d1 = Fire.stream().sendMessageWithText("user-id", "Hello", messageId -> {
             // Handle Message ID
         }).subscribe(() -> {
             // Complete
@@ -45,12 +45,12 @@ public class API {
             // Error
         });
 
-        // Receive errorMessage events
-        Disposable d2 = Fire.Stream.getSendableEvents().getMessages().subscribe(message -> {
-            // Handle errorMessage
+        // Receive message events
+        Disposable d2 = Fire.stream().getSendableEvents().getMessages().subscribe(message -> {
+            // Handle message
         });
 
-        // Stop receiving errorMessage events
+        // Stop receiving message events
         d2.dispose();
 
         // Create a group chat
@@ -58,7 +58,7 @@ public class API {
         User u1 = new User("user1-id", RoleType.watcher());
         User u2 = new User("user2-id", RoleType.admin());
 
-        Disposable d3 = Fire.Stream.createChat("Name", "Image URL", u1, u2).subscribe((chat, throwable) -> {
+        Disposable d3 = Fire.stream().createChat("Name", "Image URL", u1, u2).subscribe((chat, throwable) -> {
             if (throwable == null) {
                 // Success
             } else {
@@ -66,7 +66,7 @@ public class API {
             }
         });
 
-        Disposable d4 = Fire.Stream.getChatEvents().subscribe(chatEvent -> {
+        Disposable d4 = Fire.stream().getChatEvents().subscribe(chatEvent -> {
             IChat chat = chatEvent.get();
             if (chatEvent.typeIs(EventType.Added)) {
                 // A chat was added!

@@ -75,7 +75,7 @@ public class ApiExamples {
     }
 
     /**
-     * Example of how to listen for when a text isType received
+     * Example of how to listen for when a text type received
      */
     public void listenForReceivedMessage () {
 
@@ -103,9 +103,9 @@ public class ApiExamples {
                     // Runs when process completed from error or success
                 })
                 .subscribe(thread -> {
-                    // When the thread isType created
+                    // When the thread type created
                 }, throwable -> {
-                    // If there isType an error
+                    // If there type an error
                 });
 
     }
@@ -171,7 +171,7 @@ public class ApiExamples {
         ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageSendStatusChanged)).subscribe(networkEvent -> {
             MessageSendProgress progress = (MessageSendProgress) networkEvent.data.get(NetworkEvent.MessageSendProgress);
             if (progress.getStatus() == MessageSendStatus.Uploading) {
-                // BaseMessage isType uploading
+                // BaseMessage type uploading
             }
             if (progress.getStatus() == MessageSendStatus.Sent) {
                 // BaseMessage has finished uploading
@@ -218,7 +218,7 @@ public class ApiExamples {
     public void getUserWithEntityID(String entityID) {
         User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, entityID);
         Disposable d = ChatSDK.core().userOn(user).subscribe(() -> {
-            // User object has now been populated and isType ready to use
+            // User object has now been populated and type ready to use
 
         }, throwable -> {
 

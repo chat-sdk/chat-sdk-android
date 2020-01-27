@@ -1,20 +1,26 @@
 package firestream.chat.message;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.namespace.Fire;
 
 import firestream.chat.types.BaseType;
-import firestream.chat.types.SendableType;
 
 public class Sendable extends BaseMessage {
 
     protected String id;
 
     public Sendable() {
-        from = Fire.Stream.currentUserId();
+        from = Fire.stream().currentUserId();
+    }
+
+    public Sendable(String sendableId, String fromUserId) {
+        from = fromUserId;
+        id = sendableId;
     }
 
     @SuppressWarnings("unchecked")
@@ -78,7 +84,7 @@ public class Sendable extends BaseMessage {
         HashMap<String, Object> data = new HashMap<>();
         data.put(Keys.From, from);
         data.put(Keys.Body, body);
-        data.put(Keys.Date, Fire.privateApi().getFirebaseService().core.timestamp());
+        data.put(Keys.Date, Fire.internal().getFirebaseService().core.timestamp());
         data.put(Keys.Type, type);
         return data;
     }
@@ -100,6 +106,17 @@ public class Sendable extends BaseMessage {
                 return null;
             }
         }
+
+        public List<T> convert(List<Sendable> sendables) {
+            ArrayList<T> list = new ArrayList<>();
+            for (Sendable sendable: sendables) {
+                if (clazz.isInstance(sendable)) {
+                    list.add(convert(sendable));
+                }
+            }
+            return list;
+        }
+
     }
 
     public Message toMessage() {

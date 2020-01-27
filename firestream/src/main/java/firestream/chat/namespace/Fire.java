@@ -10,12 +10,9 @@ import firestream.chat.interfaces.IFireStream;
  * FireStream.shared().sendMessage()
  */
 public class Fire {
-    public static final IFireStream Stream = FireStream.shared();
-
-    public static FireStream privateApi() {
+    public static FireStream internal() {
         return FireStream.shared();
     }
-
     public static IFireStream stream() {
         return FireStream.shared();
     }

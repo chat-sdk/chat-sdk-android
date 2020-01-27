@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import firefly.sdk.chat.R;
-import firestream.chat.chat.User;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.namespace.Fire;
 
@@ -117,7 +116,7 @@ public class RoleType extends BaseType {
         }
 
         if (resId != -1) {
-            return Fire.privateApi().context().getString(resId);
+            return Fire.internal().context().getString(resId);
         }
         return null;
     }

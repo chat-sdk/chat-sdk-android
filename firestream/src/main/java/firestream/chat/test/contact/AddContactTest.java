@@ -21,9 +21,9 @@ public class AddContactTest extends Test {
         return Observable.create(emitter -> {
             manage(emitter);
             User user = TestScript.testUser1();
-            dm.add(Fire.Stream.addContact(user, ContactType.contact()).subscribe(() -> {
+            dm.add(Fire.stream().addContact(user, ContactType.contact()).subscribe(() -> {
                 // Check that it exists in the contact list
-                List<User> contacts = Fire.Stream.getContacts();
+                List<User> contacts = Fire.stream().getContacts();
 
                 if (contacts.size() != 1) {
                     failure("Contact size must be 1");

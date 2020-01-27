@@ -9,17 +9,17 @@ public class FirestreamBlockingHandler implements BlockingHandler {
 
     @Override
     public Completable blockUser(String userEntityID) {
-        return Fire.Stream.block(new User(userEntityID));
+        return Fire.stream().block(new User(userEntityID));
     }
 
     @Override
     public Completable unblockUser(String userEntityID) {
-        return Fire.Stream.unblock(new User(userEntityID));
+        return Fire.stream().unblock(new User(userEntityID));
     }
 
     @Override
     public Boolean isBlocked(String userEntityID) {
-        return Fire.Stream.isBlocked(new User(userEntityID));
+        return Fire.stream().isBlocked(new User(userEntityID));
     }
 
     @Override

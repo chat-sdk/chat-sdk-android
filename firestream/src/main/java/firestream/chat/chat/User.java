@@ -79,11 +79,11 @@ public class User {
     }
 
     public boolean isMe() {
-        return id.equals(Fire.Stream.currentUserId());
+        return id.equals(Fire.stream().currentUserId());
     }
 
     public static User currentUser(RoleType role) {
-        return new User(Fire.Stream.currentUserId(), role);
+        return new User(Fire.stream().currentUserId(), role);
     }
 
     public static User currentUser() {
@@ -97,7 +97,7 @@ public class User {
     public static DataProvider dateDataProvider() {
         return user -> {
             HashMap<String, Object> data = new HashMap<>();
-            data.put(Keys.Date, Fire.privateApi().getFirebaseService().core.timestamp());
+            data.put(Keys.Date, Fire.internal().getFirebaseService().core.timestamp());
             return data;
         };
     }

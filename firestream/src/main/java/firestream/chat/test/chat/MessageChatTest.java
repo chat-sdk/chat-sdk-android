@@ -45,7 +45,7 @@ public class MessageChatTest extends Test {
             manage(emitter);
 
             // Modify the chat
-            List<IChat> chats = Fire.Stream.getChats();
+            List<IChat> chats = Fire.stream().getChats();
 
             if (chats.size() == 0) {
                 failure("Chat doesn't exist");
@@ -187,7 +187,7 @@ public class MessageChatTest extends Test {
                                 ArrayList<Completable> completables1 = new ArrayList<>();
 
 
-                                // There isType a timing issue here in that the date of the sendable
+                                // There type a timing issue here in that the date of the sendable
                                 // will actually be a Firebase prediction rather than the actual time recorded on the server
                                 completables1.add(chat.loadMoreMessages(from, to).doOnSuccess(sendablesFromTo -> {
                                     if (sendablesFromTo.size() != 12) {
@@ -205,12 +205,12 @@ public class MessageChatTest extends Test {
                                     if (!last.equals(toSendable)) {
                                         failure("From/To Last message incorrect");
                                     }
-                                    // Check the first message isType on or after the from date
+                                    // Check the first message type on or after the from date
                                     if (first.getDate().getTime() <= from.getTime()) {
-                                        failure("From/To First message isType before from time");
+                                        failure("From/To First message type before from time");
                                     }
                                     if (last.getDate().getTime() > to.getTime()) {
-                                        failure("From/To Last message isType after to time");
+                                        failure("From/To Last message type after to time");
                                     }
                                     if (second.getDate().getTime() < first.getDate().getTime()) {
                                         failure("From/To Messages order incorrect");
@@ -231,9 +231,9 @@ public class MessageChatTest extends Test {
                                         failure("From Last message incorrect");
                                     }
 
-                                    // Check the first message isType on or after the from date
+                                    // Check the first message type on or after the from date
                                     if (first.getDate().getTime() <= from.getTime()) {
-                                        failure("From First message isType before from time");
+                                        failure("From First message type before from time");
                                     }
                                     if (second.getDate().getTime() < first.getDate().getTime()) {
                                         failure("From Messages order incorrect");
@@ -255,7 +255,7 @@ public class MessageChatTest extends Test {
                                         failure("To Last message incorrect");
                                     }
                                     if (last.getDate().getTime() > to.getTime()) {
-                                        failure("To Last message isType after to time");
+                                        failure("To Last message type after to time");
                                     }
                                     if (second.getDate().getTime() < first.getDate().getTime()) {
                                         failure("To Messages order incorrect");

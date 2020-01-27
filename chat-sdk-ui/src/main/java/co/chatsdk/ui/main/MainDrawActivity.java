@@ -2,6 +2,9 @@ package co.chatsdk.ui.main;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.appcompat.widget.Toolbar;
 
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -18,6 +21,7 @@ import co.chatsdk.core.Tab;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.profile.ProfileFragment;
 
 public class MainDrawActivity extends MainActivity {
 
@@ -45,26 +49,33 @@ public class MainDrawActivity extends MainActivity {
                                 .withEmail(currentUser.getEmail())
                                 .withIcon(currentUser.getAvatarURL())
                 )
-                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
-                    @Override
-                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
-                        return false;
+                .withOnAccountHeaderListener((view, profile, currentProfile) -> {
+                    int j = 0;
+                    for (Tab tab : ChatSDK.ui().defaultTabs()) {
+                        if (tab.fragment instanceof ProfileFragment) {
+                            j++;
+                        }
                     }
+                    setFragmentForPosition(j);
+                    return false;
                 })
                 .build();
 
+        View toolbarView = getLayoutInflater().inflate(R.layout.draw_toolbar, null);
+        Toolbar toolbar = toolbarView.findViewById(R.id.toolbar);
+
+        setSupportActionBar(toolbar);
+
         Drawer d = new DrawerBuilder()
                 .withActivity(this)
+                .withToolbar(toolbar)
                 .withAccountHeader(headerResult)
                 .withTranslucentStatusBar(false)
-                .withActionBarDrawerToggle(false)
+                .withActionBarDrawerToggle(true)
                 .withDrawerItems(items)
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        setFragmentForPosition(position);
-                        return false;
-                    }
+                .withOnDrawerItemClickListener((view, position, drawerItem) -> {
+                    setFragmentForPosition(position);
+                    return false;
                 })
                 .build();
         d.openDrawer();

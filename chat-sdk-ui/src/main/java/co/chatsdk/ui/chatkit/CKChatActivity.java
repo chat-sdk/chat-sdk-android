@@ -362,8 +362,8 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     public void removeMessage(Message message) {
         MessageHolder holder = messageHolderHashMap.get(message);
         if (holder != null) {
-            messageHolders.remove(holder);
             messagesListAdapter.delete(holder);
+            messageHolders.remove(holder);
             messageHolderHashMap.remove(message);
         }
     }

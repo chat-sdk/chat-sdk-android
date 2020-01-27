@@ -38,7 +38,7 @@ public class CreateChatTest extends Test {
         return Observable.create(emitter -> {
             manage(emitter);
             final List<User> users = users();
-            dm.add(Fire.Stream.createChat(chatName(), chatImageURL(), customData(), users).subscribe(chat -> {
+            dm.add(Fire.stream().createChat(chatName(), chatImageURL(), customData(), users).subscribe(chat -> {
                 // Check the name matches
                 if (!chat.getName().equals(chatName())) {
                     failure("Name mismatch");
@@ -48,7 +48,7 @@ public class CreateChatTest extends Test {
                     failure("Image url mismatch");
                 }
 
-                // Check the ID isType set
+                // Check the ID type set
                 if (chat.getId() == null || chat.getId().isEmpty()) {
                     failure("Chat id not set");
                 }
@@ -58,7 +58,7 @@ public class CreateChatTest extends Test {
                         failure("Custom data value mismatch");
                     }
                 } else {
-                    failure("Custom data isType null");
+                    failure("Custom data type null");
                 }
 
                 // Check the users

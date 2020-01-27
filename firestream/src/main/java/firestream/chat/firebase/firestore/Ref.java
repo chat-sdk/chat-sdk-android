@@ -16,7 +16,7 @@ public class Ref {
         if (ref instanceof CollectionReference) {
             return (CollectionReference) ref;
         } else {
-            Fire.privateApi().debug((Fire.privateApi().context().getString(R.string.error_mismatched_col_reference)));
+            Fire.internal().debug((Fire.internal().context().getString(R.string.error_mismatched_col_reference)));
             return null;
         }
     }
@@ -26,7 +26,7 @@ public class Ref {
         if (ref instanceof DocumentReference) {
             return (DocumentReference) ref;
         } else {
-            Fire.privateApi().debug(Fire.privateApi().context().getString(R.string.error_mismatched_doc_reference));
+            Fire.internal().debug(Fire.internal().context().getString(R.string.error_mismatched_doc_reference));
             return null;
         }
     }

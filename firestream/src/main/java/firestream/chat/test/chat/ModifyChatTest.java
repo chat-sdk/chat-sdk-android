@@ -44,7 +44,7 @@ public class ModifyChatTest extends Test {
             manage(emitter);
 
             // Modify the chat
-            List<IChat> chats = Fire.Stream.getChats();
+            List<IChat> chats = Fire.stream().getChats();
 
             if (chats.size() == 0) {
                 failure("Chat doesn't exist");
@@ -110,7 +110,7 @@ public class ModifyChatTest extends Test {
 
                 dm.add(Completable.timer(4, TimeUnit.SECONDS).subscribe(() -> {
 
-                    // Check the chat isType correct
+                    // Check the chat type correct
                     // Check the name matches
                     if (!chat.getName().equals(chatName())) {
                         failure("Name mismatch");

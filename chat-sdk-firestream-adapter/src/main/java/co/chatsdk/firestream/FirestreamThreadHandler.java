@@ -1,15 +1,12 @@
 package co.chatsdk.firestream;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Observable;
 import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.AbstractThreadHandler;
-import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
@@ -27,7 +24,7 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
-import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import firestream.chat.namespace.FireStreamUser;
@@ -44,12 +41,12 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
 
             if (message.getThread().getType() == ThreadType.Private1to1) {
                 User otherUser = message.getThread().otherUser();
-                return Fire.Stream.sendMessageWithBody(otherUser.getEntityID(), messageBody, newId -> {
+                return Fire.stream().sendMessageWithBody(otherUser.getEntityID(), messageBody, newId -> {
                     message.setEntityID(newId);
                     message.update();
                 });
             } else {
-                IChat chat = Fire.Stream.getChat(message.getThread().getEntityID());
+                IChat chat = Fire.stream().getChat(message.getThread().getEntityID());
                 if (chat != null) {
                     return chat.sendMessageWithBody(messageBody, newId -> {
                         message.setEntityID(newId);
@@ -67,7 +64,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     public Single<Thread> createThread(String name, List<User> users, final int type, String entityID, String imageURL) {
         return Single.create((SingleOnSubscribe<Thread>) e -> {
 
-        // Make sure that the current user isType in the list and
+        // Make sure that the current user type in the list and
         // that they are not the first item
         ArrayList<User> allUsers = new ArrayList<>();
         allUsers.addAll(users);
@@ -111,7 +108,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
 
             if(threadType == ThreadType.Private1to1) {
                 if (allUsers.size() != 2) {
-                    e.onError(new Throwable(Fire.privateApi().context().getString(R.string.error_private_chat_needs_two_members)));
+                    e.onError(new Throwable(Fire.internal().context().getString(R.string.error_private_chat_needs_two_members)));
                 } else {
                     e.onSuccess(thread);
                 }
@@ -127,7 +124,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 final Thread finalThread = thread;
 
                 // We need to actually create the chat
-                Fire.Stream.manage(Fire.Stream.createChat(name, imageURL, null, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
+                Fire.stream().manage(Fire.stream().createChat(name, imageURL, null, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
                     if (throwable == null) {
                         finalThread.setEntityID(groupChat.getId());
                         e.onSuccess(finalThread);
@@ -196,27 +193,21 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable deleteMessage(Message message) {
+    public Completable deleteMessage(final Message message) {
         return Completable.defer(() -> {
             // Get the thread
             Thread thread = message.getThread();
             if (thread.typeIs(ThreadType.Private1to1)) {
-                Sendable sendable = Fire.stream().getSendable(message.getEntityID());
-                if (sendable != null) {
-                    return Fire.stream().deleteSendable(sendable);
-                }
+                return Fire.stream().deleteSendable(message.getEntityID());
             }
             if (thread.typeIs(ThreadType.PrivateGroup)) {
                 IChat chat = Fire.stream().getChat(thread.getEntityID());
                 if (chat != null) {
-                    Sendable sendable = chat.getSendable(message.getEntityID());
-                    if (sendable != null) {
-                        return chat.deleteSendable(sendable);
-                    }
+                    return chat.deleteSendable(message.getEntityID());
                 }
             }
             return Completable.complete();
-        });
+        }).doOnComplete(() -> message.getThread().removeMessage(message));
     }
 
     @Override

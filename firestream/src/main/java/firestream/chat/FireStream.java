@@ -28,12 +28,13 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 import firestream.chat.chat.AbstractChat;
 import firestream.chat.chat.Chat;
 import firestream.chat.chat.User;
 import firestream.chat.events.EventType;
-import firestream.chat.filter.MessageStreamFilter;
+import firestream.chat.filter.Filter;
 import firestream.chat.firebase.firestore.FirestoreService;
 import firestream.chat.firebase.realtime.RealtimeService;
 import firestream.chat.firebase.service.Paths;
@@ -72,6 +73,10 @@ public class FireStream extends AbstractChat implements IFireStream {
 
     protected FirebaseService firebaseService = null;
     protected WeakReference<Context> context;
+
+    protected Predicate<Event<? extends Sendable>> markReceivedFilter = message -> {
+        return getConfig().deliveryReceiptsEnabled && getConfig().autoMarkReceived;
+    };
 
     /**
      * Current configuration
@@ -145,28 +150,34 @@ public class FireStream extends AbstractChat implements IFireStream {
         // We always delete typing state and presence messages
         Observable<Event<Sendable>> stream = getSendableEvents().getSendables().pastAndNewEvents();
         if (!config.deleteMessagesOnReceipt) {
-            stream = stream.filter(MessageStreamFilter.eventBySendableType(SendableType.typingState(), SendableType.presence()));
+            stream = stream.filter(Filter.eventBySendableType(SendableType.typingState(), SendableType.presence()));
         }
-        // If deletion isType enabled, we don't filter so we delete all the errorMessage types
+        // If deletion is enabled, we don't filter so we delete all the message types
         dm.add(stream.map(Event::get).flatMapCompletable(this::deleteSendable).subscribe());
 
         // DELIVERY RECEIPTS
 
-        dm.add(getSendableEvents().getMessages().pastAndNewEvents().flatMapCompletable(event -> {
-            ArrayList<Completable> completables = new ArrayList<>();
+        dm.add(getSendableEvents()
+                .getMessages()
+                .pastAndNewEvents()
+                .filter(deliveryReceiptFilter())
+                .flatMapCompletable(event -> markReceived(event.get()))
+                .doOnError(this)
+                .subscribe());
 
-            // If delivery receipts are enabled, send the delivery receipt
-            if (config.deliveryReceiptsEnabled) {
-                completables.add(markReceived(event.get()));
-            }
-            // If errorMessage deletion isType disabled, instead mark the errorMessage as received. This means
-            // that when we add a childListener, we only get new messages
-            if (!config.deleteMessagesOnReceipt) {
-                completables.add(sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), event.get().getId()));
-            }
+        // If message deletion is disabled, send a received receipt to ourself for each message. This means
+        // that when we add a childListener, we only get new messages
+        if (!config.deleteMessagesOnReceipt && config.listenFromLastSentMessage) {
+            dm.add(getSendableEvents()
+                    .getMessages()
+                    .pastAndNewEvents()
+                    .filter(Filter.notFromMe())
+                    .flatMapCompletable(event -> {
 
-            return Completable.merge(completables);
-        }).doOnError(this).subscribe());
+                    return sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), event.get().getId());
+
+            }).doOnError(this).subscribe());
+        }
 
         // INVITATIONS
 
@@ -223,7 +234,7 @@ public class FireStream extends AbstractChat implements IFireStream {
             }
         }));
 
-        // Connect to the errorMessage events AFTER we have added our events listeners
+        // Connect to the message events AFTER we have added our events listeners
         super.connect();
 
         connectionEvents.onNext(ConnectionEvent.didConnect());
@@ -247,7 +258,12 @@ public class FireStream extends AbstractChat implements IFireStream {
 
     @Override
     public Completable deleteSendable (Sendable sendable) {
-        return deleteSendable(Paths.messagePath(sendable.getId()));
+        return deleteSendable(sendable.getId());
+    }
+
+    @Override
+    public Completable deleteSendable (String sendableId) {
+        return deleteSendable(Paths.messagePath(sendableId));
     }
 
     @Override
@@ -429,7 +445,12 @@ public class FireStream extends AbstractChat implements IFireStream {
      */
     @Override
     public Completable markRead(Sendable sendable) {
-        return Fire.Stream.sendDeliveryReceipt(sendable.getFrom(), DeliveryReceiptType.read(), sendable.getId());
+        return markRead(sendable.getFrom(), sendable.getId());
+    }
+
+    @Override
+    public Completable markRead(String fromUserId, String sendableId) {
+        return Fire.stream().sendDeliveryReceipt(fromUserId, DeliveryReceiptType.read(), sendableId);
     }
 
     /**
@@ -438,7 +459,12 @@ public class FireStream extends AbstractChat implements IFireStream {
      */
     @Override
     public Completable markReceived(Sendable sendable) {
-        return Fire.Stream.sendDeliveryReceipt(sendable.getFrom(), DeliveryReceiptType.received(), sendable.getId());
+        return markReceived(sendable.getFrom(), sendable.getId());
+    }
+
+    @Override
+    public Completable markReceived(String fromUserId, String sendableId) {
+        return Fire.stream().sendDeliveryReceipt(fromUserId, DeliveryReceiptType.received(), sendableId);
     }
 
     //
@@ -472,7 +498,7 @@ public class FireStream extends AbstractChat implements IFireStream {
     @Override
     protected Single<Date> dateOfLastDeliveryReceipt() {
         if (config.deleteMessagesOnReceipt) {
-            return Single.just(new Date(0));
+            return Single.just(config.listenToMessagesWithTimeAgo.getDate());
         } else {
             return super.dateOfLastDeliveryReceipt();
         }
@@ -504,4 +530,12 @@ public class FireStream extends AbstractChat implements IFireStream {
         return new Throwable(context().getString(resId));
     }
 
+    @Override
+    public void setMarkReceivedFilter(Predicate<Event<? extends Sendable>> filter) {
+        this.markReceivedFilter = filter;
+    }
+
+    public Predicate<Event<? extends Sendable>> getMarkReceivedFilter() {
+        return markReceivedFilter;
+    }
 }

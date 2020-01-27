@@ -13,15 +13,19 @@ import javax.annotation.Nullable;
 import firestream.chat.events.Event;
 import firestream.chat.events.EventType;
 import firestream.chat.events.ListData;
+import firestream.chat.filter.Filter;
 import firestream.chat.firebase.rx.DisposableMap;
 import firestream.chat.interfaces.IAbstractChat;
+import firestream.chat.message.DeliveryReceipt;
 import firestream.chat.namespace.Fire;
+import firestream.chat.types.DeliveryReceiptType;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 import firestream.chat.firebase.service.Path;
 import firestream.chat.message.Sendable;
@@ -60,20 +64,20 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
     }
 
     /**
-     * Start listening to the current errorMessage reference and retrieve all messages
-     * @return a events of errorMessage results
+     * Start listening to the current message reference and retrieve all messages
+     * @return a events of message results
      */
     protected Observable<Event<Sendable>> messagesOn() {
         return messagesOn(null);
     }
 
     /**
-     * Start listening to the current errorMessage reference and pass the messages to the events
+     * Start listening to the current message reference and pass the messages to the events
      * @param newerThan only listen for messages after this date
-     * @return a events of errorMessage results
+     * @return a events of message results
      */
     protected Observable<Event<Sendable>> messagesOn(Date newerThan) {
-        return Fire.privateApi().getFirebaseService().core.messagesOn(messagesPath(), newerThan, Fire.privateApi().getConfig().messageHistoryLimit).doOnNext(event -> {
+        return Fire.internal().getFirebaseService().core.messagesOn(messagesPath(), newerThan, Fire.internal().getConfig().messageHistoryLimit).doOnNext(event -> {
             Sendable sendable = event.get();
             Sendable previous = getSendable(sendable.getId());
             if (event.typeIs(EventType.Added)) {
@@ -98,10 +102,10 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @param fromDate get messages from this date
      * @param toDate get messages until this date
      * @param limit limit the maximum number of messages
-     * @return a events of errorMessage results
+     * @return a events of message results
      */
     protected Single<List<Sendable>> loadMoreMessages(@Nullable Date fromDate, @Nullable Date toDate, @Nullable Integer limit) {
-        return Fire.privateApi().getFirebaseService().core
+        return Fire.internal().getFirebaseService().core
                 .loadMoreMessages(messagesPath(), fromDate, toDate, limit)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -128,23 +132,29 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
 
     /**
      * This method gets the date of the last delivery receipt that we sent - i.e. the
-     * last errorMessage WE received.
+     * last message WE received.
      * @return single date
      */
     protected Single<Date> dateOfLastDeliveryReceipt() {
-        return Fire.privateApi().getFirebaseService().core
-                .dateOfLastSentMessage(messagesPath())
-                .subscribeOn(Schedulers.single())
-                .observeOn(AndroidSchedulers.mainThread());
+        return Single.defer(() -> {
+            if (!Fire.internal().getConfig().listenFromLastSentMessage) {
+                return Single.just(Fire.internal().getConfig().listenToMessagesWithTimeAgo.getDate());
+            } else {
+                return Fire.internal().getFirebaseService().core
+                        .dateOfLastSentMessage(messagesPath())
+                        .subscribeOn(Schedulers.single())
+                        .observeOn(AndroidSchedulers.mainThread());
+            }
+        });
     }
 
-    /**
+                /**
      * Listen for changes in the value of a list reference
      * @param path to listen to
      * @return events of list events
      */
     protected Observable<Event<ListData>> listChangeOn(Path path) {
-        return Fire.privateApi().getFirebaseService().core
+        return Fire.internal().getFirebaseService().core
                 .listChangeOn(path)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -155,14 +165,14 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
     }
 
         /**
-         * Send a errorMessage to a messages ref
+         * Send a message to a messages ref
          * @param messagesPath
          * @param sendable item to be sent
-         * @param newId the ID of the new errorMessage
-         * @return single containing errorMessage id
+         * @param newId the ID of the new message
+         * @return single containing message id
          */
     public Completable send(Path messagesPath, Sendable sendable, @Nullable Consumer<String> newId) {
-        return Fire.privateApi().getFirebaseService().core
+        return Fire.internal().getFirebaseService().core
                 .send(messagesPath, sendable, newId)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -174,7 +184,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @return completion
      */
     protected Completable deleteSendable (Path messagesPath) {
-        return Fire.privateApi().getFirebaseService().core
+        return Fire.internal().getFirebaseService().core
                 .deleteSendable(messagesPath)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -207,7 +217,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @return completion
      */
     protected Completable removeUsers(Path path, List<? extends User> users) {
-        return Fire.privateApi().getFirebaseService().core
+        return Fire.internal().getFirebaseService().core
                 .removeUsers(path, users)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -246,7 +256,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @return completion
      */
     public Completable addUsers(Path path, User.DataProvider dataProvider, List<? extends User> users) {
-        return Fire.privateApi().getFirebaseService().core
+        return Fire.internal().getFirebaseService().core
                 .addUsers(path, dataProvider, users)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -285,7 +295,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * @return completion
      */
     public Completable updateUsers(Path path, User.DataProvider dataProvider, List<? extends User> users) {
-        return Fire.privateApi().getFirebaseService().core
+        return Fire.internal().getFirebaseService().core
                 .updateUsers(path, dataProvider, users)
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread());
@@ -341,6 +351,22 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
         return Lists.newArrayList(Collections2.filter(sendables, input -> input != null && input.isType(type)));
     }
 
+//    public DeliveryReceipt getDeliveryReceiptsForMessage(String messageId, DeliveryReceiptType type) {
+//        List<DeliveryReceipt> receipts = getSendables(DeliveryReceipt.class);
+//        for (DeliveryReceipt receipt: receipts) {
+//            try {
+//                if (receipt.getMessageId().equals(messageId) && receipt.getDeliveryReceiptType() == type) {
+//                    return receipt;
+//                }
+//            } catch (Exception ignored) {}
+//        }
+//        return null;
+//    }
+
+    public <T extends Sendable> List<T> getSendables(Class<T> clazz) {
+        return new Sendable.Converter<T>(clazz).convert(getSendables());
+    }
+
     @Override
     public Sendable getSendable(String id) {
         for (Sendable s: sendables) {
@@ -379,9 +405,17 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
     public abstract Completable markReceived(Sendable message);
 
     public void debug(String text) {
-        if (Fire.privateApi().getConfig().debugEnabled) {
+        if (Fire.internal().getConfig().debugEnabled) {
             System.out.println(text);
         }
+    }
+
+    protected Predicate<Event<? extends Sendable>> deliveryReceiptFilter() {
+        return Filter.and(new ArrayList<Predicate<Event<? extends Sendable>>>() {{
+            add(Fire.internal().getMarkReceivedFilter());
+            add(Filter.notFromMe());
+            add(Filter.byEventType(EventType.Added));
+        }});
     }
 
 }

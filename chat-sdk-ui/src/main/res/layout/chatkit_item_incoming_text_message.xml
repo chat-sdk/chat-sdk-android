@@ -12,14 +12,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_alignRight="@id/bubble"
-        android:layout_alignEnd="@id/bubble"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginBottom="0dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="3dp"
         android:textColor="@color/message_time"
-        android:fontFamily="sans-serif-thin"
-        android:textSize="12sp"
+        android:textSize="14sp"
+        android:ellipsize="end"
+        android:maxLines="1"
         />
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -69,11 +72,11 @@
         android:layout_alignRight="@id/bubble"
         android:layout_alignEnd="@id/bubble"
         android:layout_below="@id/bubble"
-        android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
         android:textColor="@color/message_time"
-        android:fontFamily="sans-serif-thin"
-        android:textSize="12sp"
         />
 
 </RelativeLayout>

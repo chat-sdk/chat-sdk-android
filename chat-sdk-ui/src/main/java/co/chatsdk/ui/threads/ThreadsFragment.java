@@ -66,6 +66,8 @@ public abstract class ThreadsFragment extends BaseFragment {
 
         mainView = inflater.inflate(activityLayout(), null);
 
+
+
         initViews();
 
         return mainView;

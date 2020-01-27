@@ -40,4 +40,13 @@ public class ReadStatus {
     public boolean is (ReadStatus status) {
         return status.getValue() == getValue();
     }
+
+    public boolean is (ReadStatus... statuses) {
+        for (ReadStatus status: statuses) {
+            if (is(status)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -132,34 +132,7 @@ Document](https://github.com/chat-sdk/chat-sdk-ios/blob/master/CONTRIBUTING.md) 
 
 If you have an app that uses the Chat SDK let us know and we'll add a link. 
 
-## Updating from 4.7.x to 4.8.x
-
-The latest update brings a range of improvements and new features including:
-
-- Detailed profile screen:
-	- User status
-	- User availability
-	- Country
-- Update to message view
-	- Efficiency improvements
-- Screens updated to use Material Design
-
-There are also a range of bug fixes and overall improvments. If we aren't able to document all the changes but if you have any issues updating your project, you can post on this [issue](https://github.com/chat-sdk/chat-sdk-android/issues/533) and we will answer your questions. 
-
-The [security rules](https://github.com/chat-sdk/chat-sdk-firebase) have also been updated so make sure to bring your project up to date. 		
-
-Several schema have also been deprecated and will be removed at some point in the future. These include:
-
-- `message/to` field added
-- `message/meta` will replace `json_v2`
-- `message/from` will replace `user-firebase-id`
-- `thread/meta` will replace `details`
-- `thread/meta/creator` will replace `creator-entity-id`
-- `thread/meta/type` will replace `type_v4`
-
-At the moment these fields are not being used and are only included for future compatibility. However, in a future version of the client, the old fields will be removed and any old versions of the client will stop working.
-
-## Running the demo project
+## Quick Start
 
 This repository contains a fully functional version of the Chat SDK which is configured using our Firebase account and social media logins. This is great way to test the features of the Chat SDK before you start integrating it with your app. 
 
@@ -192,10 +165,10 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-core:4.8.9'
-compile 'co.chatsdk.chatsdk:chat-sdk-ui:4.8.9'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-adapter:4.8.9'
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-file-storage:4.8.9'
+compile 'sdk.chat:chat-sdk-core:4.8.9'
+compile 'sdk.chat:chat-sdk-ui:4.8.9'
+compile 'sdk.chat:chat-sdk-firebase-adapter:4.8.9'
+compile 'sdk.chat:chat-sdk-firebase-file-storage:4.8.9'
 ```
 
 You may also need to enable Java 8:
@@ -316,7 +289,7 @@ Then add the following to your `build.gradle`
 *Gradle*
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.8.9.3'
+compile 'sdk.chat:chat-sdk-firebase-push:4.8.9'
 ```
 
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
@@ -396,13 +369,6 @@ In your main `onCreate` method you create a new instance of the `Configuration.B
 
 Here you have the option to set far more properties. For example:
 
-##### Disable Facebook and Twitter login
-
-```
-builder.facebookLoginEnabled(false);
-builder.twitterLoginEnabled(false);
-```
-
 ##### Set a custom user name and avatar
 
 ```
@@ -420,10 +386,6 @@ There are a number of free and premium extensions that can be added to the Chat 
 
 For the following modules:
 
-- Firebase File Storage (free)
-- Firebase Push Notifications (free)
-- Firebase Social Login (free)
-- Fireabse UI (free)
 - [Typing indicator](http://chatsdk.co/downloads/typing-indicator/)
 - [Read receipts](http://chatsdk.co/downloads/read-receipts/)
 - [Location based chat](http://chatsdk.co/downloads/location-based-chat/)
@@ -440,7 +402,7 @@ The free modules are located in the main [Github repository](https://github.com/
 Add the following to your `build.gradle`
 
 ```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-ui:4.8.9'
+compile 'sdk.chat:chat-sdk-firebase-ui:4.8.9'
 ```
 
 ##### Enable the module
@@ -455,98 +417,6 @@ You can provide a list of providers as outlined in the [Firebase documentation](
 
 >**Note**
 >You will need to remove the `com.facebook.sdk.ApplicationId` meta data from the app manifest or you will get a Gradle build error. 
-
-### Social Login
-
-Add the following to your `build.gradle`
-
-##### Add the library
-
-*Gradle*
-
-```
-compile 'co.chatsdk.chatsdk:chat-sdk-firebase-social-login:4.8.9'
-```
-
-[*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
-
-```
-compile project(path: ':chat-sdk-firebase-social-login')
-```
-
-##### Enable the module
-
-In your main class `onCreate` method add:
-
-```
-FirebaseSocialLoginModule.activate(getApplicationContext());
-```
-
-#### Facebook
-
-1. On the [Facebook developer](https://developers.facebook.com/) site get the **App ID** and **App Secret**
-2. Go to the [Firebase Console](https://console.firebase.google.com/) and open the **Auth** section
-3. On the **Sign in method** tab, enable the **Facebook** sign-in method and specify the **App ID** and **App Secret** you got from Facebook.
-4. Then, make sure your **OAuth redirect URI** (e.g. `my-app-12345.firebaseapp.com/__/auth/handler`) is listed as one of your **OAuth redirect URIs** in your Facebook app's settings page on the Facebook for Developers site in the **Product Settings > Facebook Login** config
-5. Add the following to your `AndroidManifest.xml`:
-
-  ```
-  <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_identifier"/>
-  ``` 
-  
-  Add the following to your `chat_sdk_firebase.xml` file:
-  
-  ```
-  <string name="facebook_app_identifier">[FACEBOOK APP KEY]</string>
-  ```
-  
-6. Go back to the Facebook site and click "Add Platform". Choose Android and enter your **Bundle ID**. Then you will need to enter add the **Key Hashes** property. To do this first generate a [key store](https://developer.android.com/studio/publish/app-signing.html) for your app. Then generate the hash by running the following on MacOS:
-
-  ```
-  keytool -exportcert -alias <RELEASE_KEY_ALIAS> -keystore <RELEASE_KEY_PATH> | openssl sha1 -  binary | openssl base64
-  ```
-
-  On Windows, use:
-
-  ```
-  keytool -exportcert -alias <RELEASE_KEY_ALIAS> -keystore <RELEASE_KEY_PATH> | openssl sha1 -binary | openssl base64
-  ```
-
-#### Twitter
-
-1. [Register your app](https://apps.twitter.com/) as a developer application on Twitter and get your app's **API Key** and **API Secret**.
-2. In the [Firebase console](https://console.firebase.google.com/), open the **Auth** section.
-3. On the **Sign in method** tab, enable the **Twitter** sign-in method and specify the **API Key** and **API Secret** you got from Twitter.
-4. Then, make sure your Firebase **OAuth redirect URI** (e.g. `my-app-12345.firebaseapp.com/__/auth/handler`) is set as your **Callback URL** in your app's settings page on your [Twitter app's config](https://apps.twitter.com/).
-5. Add the following to the configuration where you initialize the Chat SDK:
-
-  ```
-  config.twitterLogin("consumer key", "consumer secret");
-  ```
-
-#### Google
-  
-1. If you haven't yet specified your app's SHA-1 fingerprint, do so from the [Settings page](https://console.firebase.google.com/project/_/settings/general/) of the Firebase console. See [Authenticating Your Client](https://developers.google.com/android/guides/client-auth) for details on how to get your app's SHA-1 fingerprint.
-
-  ```
-  keytool -exportcert -alias [KEY ALIAS] -keystore [PATH/TO/KEYSTORE] -list -v  
-  ```
-  
- >**Note:**
- >You may need to add multiple keys for debug and release
-
-2. In the [Firebase console](https://console.firebase.google.com/), open the **Auth** section.
-3. On the **Sign in method** tab, enable the **Google** sign-in method and click **Save**.
-4. You must pass your [server's client ID](https://developers.google.com/identity/sign-in/android/start-integrating#get_your_backend_servers_oauth_20_client_id) to the requestIdToken method. To find the OAuth 2.0 client ID.
-5. Open the [Credentials page](https://console.developers.google.com/apis/credentials) in the API Console.
-6. The **Web application type** client ID is your backend server's OAuth 2.0 client ID.
-7. Add the following to the configuration where you initialize the Chat SDK:
-
-  ```
-  config.googleLogin("web client key");
-  ```
-  
-Social login can also be enabled or disabled by changing the Chat SDK [configuration](https://github.com/chat-sdk/chat-sdk-android#configuration).   
   
 ### Other Modules
 
@@ -597,7 +467,6 @@ And any of the following optional modules:
 
 - `chat-sdk-firebase-file-storage`
 - `chat-sdk-firebase-push`
-- `chat-sdk-firebase-social-login`
 - `chat-sdk-audio-message` - [Available here](http://chatsdk.co/downloads/audio-messages/)
 - `chat-sdk-video-message` - [Available here](http://chatsdk.co/downloads/android-video-messages/)
 - `chat-sdk-sticker-message` - [Available here](http://chatsdk.co/downloads/sticker-messages/)

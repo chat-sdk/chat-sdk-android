@@ -12,6 +12,10 @@ public class UserHolder implements IUser {
         this.user = user;
     }
 
+    public UserHolder(User user, boolean hideName) {
+        this.user = user;
+    }
+
     @Override
     public String getId() {
         return user.getEntityID();

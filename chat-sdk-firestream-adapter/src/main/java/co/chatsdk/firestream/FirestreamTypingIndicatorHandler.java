@@ -22,10 +22,10 @@ public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler 
     public FirestreamTypingIndicatorHandler() {
 
         // We want to add these listeners when we connect and remove them when we disconnect
-        Disposable d = Fire.Stream.getConnectionEvents().subscribe(connectionEvent -> {
+        Disposable d = Fire.stream().getConnectionEvents().subscribe(connectionEvent -> {
             if (connectionEvent.getType() == ConnectionEvent.Type.DidConnect) {
 
-                dm.add(Fire.Stream.getSendableEvents().getTypingStates().subscribe(event -> {
+                dm.add(Fire.stream().getSendableEvents().getTypingStates().subscribe(event -> {
                     // Get the sender
                     String senderId = event.get().getFrom();
 
@@ -73,9 +73,9 @@ public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler 
 
         if (thread.typeIs(ThreadType.Private1to1)) {
             User otherUser = thread.otherUser();
-            return Fire.Stream.sendTypingIndicator(otherUser.getEntityID(), typingStateType);
+            return Fire.stream().sendTypingIndicator(otherUser.getEntityID(), typingStateType);
         } else {
-            IChat chat = Fire.Stream.getChat(thread.getEntityID());
+            IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
                 return chat.sendTypingIndicator(typingStateType);
             } else {

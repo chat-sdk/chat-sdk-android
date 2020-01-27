@@ -12,7 +12,6 @@ import firefly.sdk.chat.R;
 import firestream.chat.events.Event;
 import firestream.chat.events.EventType;
 import firestream.chat.events.ListData;
-import firestream.chat.filter.MessageStreamFilter;
 import firestream.chat.firebase.rx.MultiQueueSubject;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.firebase.service.Path;
@@ -76,11 +75,11 @@ public class Chat extends AbstractChat implements IChat {
         debug("Connect to chat: " + id);
 
         // If delivery receipts are enabled, send the delivery receipt
-        if (Fire.privateApi().getConfig().deliveryReceiptsEnabled) {
+        if (Fire.internal().getConfig().deliveryReceiptsEnabled) {
             dm.add(getSendableEvents()
                     .getMessages()
                     .pastAndNewEvents()
-                    .filter(MessageStreamFilter.notFromMe())
+                    .filter(deliveryReceiptFilter())
                     .flatMapCompletable(messageEvent -> markReceived(messageEvent.get()))
                     .doOnError(this)
                     .subscribe());
@@ -90,7 +89,7 @@ public class Chat extends AbstractChat implements IChat {
             Event<User> userEvent = listEvent.to(User.from(listEvent));
             User user = userEvent.get();
 
-            // If we start by removing the user. If it isType a remove event
+            // If we start by removing the user. If it type a remove event
             // we leave it at that. Otherwise we add that user back in
             users.remove(user);
             if (!userEvent.typeIs(EventType.Removed)) {
@@ -101,7 +100,7 @@ public class Chat extends AbstractChat implements IChat {
         }));
 
         // Handle name and image change
-        dm.add(Fire.privateApi().getFirebaseService().chat
+        dm.add(Fire.internal().getFirebaseService().chat
                 .metaOn(getId())
                 .subscribeOn(Schedulers.single())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -134,7 +133,7 @@ public class Chat extends AbstractChat implements IChat {
         return Completable.defer(() -> {
             if (getMyRoleType().equals(RoleType.owner()) && getUsers().size() > 1) {
                 if (getUsers().size() > 1) {
-                    return Completable.error(Fire.privateApi().getError(R.string.error_group_must_be_empty_to_close));
+                    return Completable.error(Fire.internal().getError(R.string.error_group_must_be_empty_to_close));
                 } else {
                     return delete().doOnComplete(this::disconnect);
                 }
@@ -144,7 +143,7 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     protected Completable delete() {
-        return Fire.privateApi().getFirebaseService().chat.delete(getId());
+        return Fire.internal().getFirebaseService().chat.delete(getId());
     }
 
     @Override
@@ -159,7 +158,7 @@ public class Chat extends AbstractChat implements IChat {
         } else if(this.meta.getName().equals(name)) {
             return Completable.complete();
         } else {
-            return Fire.privateApi().getFirebaseService().chat.setMetaField(getId(), Keys.Name, name).doOnComplete(() -> {
+            return Fire.internal().getFirebaseService().chat.setMetaField(getId(), Keys.Name, name).doOnComplete(() -> {
                 meta.setName(name);
             });
         }
@@ -177,7 +176,7 @@ public class Chat extends AbstractChat implements IChat {
         } else if (this.meta.getImageURL().equals(url)) {
             return Completable.complete();
         } else {
-            return Fire.privateApi().getFirebaseService().chat.setMetaField(getId(), Keys.ImageURL, url).doOnComplete(() -> {
+            return Fire.internal().getFirebaseService().chat.setMetaField(getId(), Keys.ImageURL, url).doOnComplete(() -> {
                 meta.setImageURL(url);
             });
         }
@@ -193,7 +192,7 @@ public class Chat extends AbstractChat implements IChat {
         if (!hasPermission(RoleType.admin())) {
             return Completable.error(this::adminPermissionRequired);
         } else {
-            return Fire.privateApi().getFirebaseService().chat.setMetaField(getId(), Paths.Data, data).doOnComplete(() -> {
+            return Fire.internal().getFirebaseService().chat.setMetaField(getId(), Paths.Data, data).doOnComplete(() -> {
                 meta.setData(data);
             });
         }
@@ -265,7 +264,7 @@ public class Chat extends AbstractChat implements IChat {
         ArrayList<Completable> completables = new ArrayList<>();
         for (User user : users) {
             if (!user.isMe()) {
-                completables.add(Fire.Stream.sendInvitation(user.id, InvitationType.chat(), id));
+                completables.add(Fire.stream().sendInvitation(user.id, InvitationType.chat(), id));
             }
         }
         return Completable.merge(completables).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
@@ -395,16 +394,26 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Completable markReceived(Sendable sendable) {
-        return sendDeliveryReceipt(DeliveryReceiptType.received(), sendable.getId());
+        return markReceived(sendable.getId());
+    }
+
+    @Override
+    public Completable markReceived(String sendableId) {
+        return sendDeliveryReceipt(DeliveryReceiptType.received(), sendableId);
     }
 
     @Override
     public Completable markRead(Sendable sendable) {
-        return sendDeliveryReceipt(DeliveryReceiptType.read(), sendable.getId());
+        return markRead(sendable.getId());
+    }
+
+    @Override
+    public Completable markRead(String sendableId) {
+        return sendDeliveryReceipt(DeliveryReceiptType.read(), sendableId);
     }
 
     public RoleType getMyRoleType() {
-        return getRoleType(Fire.Stream.currentUser());
+        return getRoleType(Fire.stream().currentUser());
     }
 
     @Override
@@ -433,25 +442,25 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     protected Exception ownerPermissionRequired() {
-        return new Exception(Fire.privateApi().context().getString(R.string.error_owner_permission_required));
+        return new Exception(Fire.internal().context().getString(R.string.error_owner_permission_required));
     }
 
     protected Exception adminPermissionRequired() {
-        return new Exception(Fire.privateApi().context().getString(R.string.error_admin_permission_required));
+        return new Exception(Fire.internal().context().getString(R.string.error_admin_permission_required));
     }
 
     protected Exception memberPermissionRequired() {
-        return new Exception(Fire.privateApi().context().getString(R.string.error_member_permission_required));
+        return new Exception(Fire.internal().context().getString(R.string.error_member_permission_required));
     }
 
     public static Single<Chat> create(final String name, final String imageURL, final HashMap<String, Object> data, final List<? extends User> users) {
 
-        return Fire.privateApi().getFirebaseService().chat.add(Meta.from(name, imageURL, data).addTimestamp().wrap().toData()).flatMap(chatId -> {
+        return Fire.internal().getFirebaseService().chat.add(Meta.from(name, imageURL, data).addTimestamp().wrap().toData()).flatMap(chatId -> {
             Chat chat = new Chat(chatId, null, new Meta(name, imageURL, data));
 
             ArrayList<User> usersToAdd = new ArrayList<>(users);
 
-            // Make sure the current user isType the owner
+            // Make sure the current user type the owner
             usersToAdd.remove(User.currentUser());
             usersToAdd.add(User.currentUser(RoleType.owner()));
 
@@ -470,7 +479,11 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     public Completable deleteSendable(Sendable sendable) {
-        return deleteSendable(messagesPath().child(sendable.getId()));
+        return deleteSendable(sendable.getId());
+    }
+
+    public Completable deleteSendable(String sendableId) {
+        return deleteSendable(messagesPath().child(sendableId));
     }
 
     public static Chat from(Event<ListData> listEvent) {

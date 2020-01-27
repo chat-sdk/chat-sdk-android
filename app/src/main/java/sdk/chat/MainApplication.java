@@ -19,9 +19,13 @@ import co.chatsdk.firestream.FireStreamNetworkAdapter;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.chatkit.CKChatActivity;
 import co.chatsdk.ui.chatkit.CKPrivateThreadsFragment;
+import co.chatsdk.ui.main.MainDrawActivity;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import firestream.chat.Config;
+import firestream.chat.events.Event;
+import firestream.chat.message.Sendable;
 import firestream.chat.namespace.Fire;
+import io.reactivex.functions.Predicate;
 
 /**
  * Created by Ben Smiley on 6/8/2014.
@@ -51,11 +55,13 @@ public class MainApplication extends MultiDexApplication {
             Config firestreamConfig = new Config();
             try {
                 firestreamConfig.setRoot(rootPath);
+                firestreamConfig.listenFromLastSentMessage = false;
+                firestreamConfig.listenToMessagesWithTimeAgo = Config.TimePeriod.days(7);
+                firestreamConfig.database = Config.DatabaseType.Realtime;
+                firestreamConfig.deleteMessagesOnReceipt = false;
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            firestreamConfig.database = Config.DatabaseType.Realtime;
-            firestreamConfig.deleteMessagesOnReceipt = false;
 
             Fire.stream().initialize(context, firestreamConfig);
 
@@ -63,6 +69,7 @@ public class MainApplication extends MultiDexApplication {
 
             ChatSDK.ui().setPrivateThreadsFragment(new CKPrivateThreadsFragment());
             ChatSDK.ui().setChatActivity(CKChatActivity.class);
+//            ChatSDK.ui().setMainActivity(MainDrawActivity.class);
 
 //            ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
 

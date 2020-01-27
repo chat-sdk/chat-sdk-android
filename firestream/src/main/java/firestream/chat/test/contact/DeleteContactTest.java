@@ -20,9 +20,9 @@ public class DeleteContactTest extends Test {
         return Observable.create(emitter -> {
             // Remove the contact
             manage(emitter);
-            dm.add(Fire.Stream.removeContact(TestScript.testUser1()).subscribe(() -> {
+            dm.add(Fire.stream().removeContact(TestScript.testUser1()).subscribe(() -> {
                 // Check that it exists in the contact list
-                List<User> contacts = Fire.Stream.getContacts();
+                List<User> contacts = Fire.stream().getContacts();
 
                 if (contacts.size() != 0) {
                     failure("Contact size must be 0");

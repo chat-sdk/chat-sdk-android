@@ -21,7 +21,7 @@ import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
 
 /**
- * This interface isType just provided for clarity
+ * This interface type just provided for clarity
  */
 public interface IChat extends IAbstractChat {
 
@@ -195,26 +195,26 @@ public interface IChat extends IAbstractChat {
     boolean hasPermission(RoleType required);
 
     /**
-     * Get an observable which isType called when the name changes
+     * Get an observable which type called when the name changes
      * @return observable
      */
     Observable<String> getNameChangeEvents();
 
     /**
-     * Get an observable which isType called when the chat image changes
+     * Get an observable which type called when the chat image changes
      * @return observable
      */
     Observable<String> getImageURLChangeEvents();
 
     /**
-     * Get an observable which isType called when the custom data associated from the
-     * chat isType updated
+     * Get an observable which type called when the custom data associated from the
+     * chat type updated
      * @return observable
      */
     Observable<HashMap<String, Object>> getCustomDataChangedEvents();
 
     /**
-     * Get an observable which isType called when the a user isType added, removed or updated
+     * Get an observable which type called when the a user type added, removed or updated
      * @return observable
      */
     MultiQueueSubject<Event<User>> getUserEvents();
@@ -266,7 +266,7 @@ public interface IChat extends IAbstractChat {
 
     /**
      * Send a delivery receipt to a user. If delivery receipts are enabled,
-     * a 'received' status will be returned as soon as a message isType delivered
+     * a 'received' status will be returned as soon as a message type delivered
      * and then you can then manually send a 'read' status when the user
      * actually reads the message
      * @param type receipt type
@@ -277,7 +277,7 @@ public interface IChat extends IAbstractChat {
 
     /**
      * Send a delivery receipt to a user. If delivery receipts are enabled,
-     * a 'received' status will be returned as soon as a message isType delivered
+     * a 'received' status will be returned as soon as a message type delivered
      * and then you can then manually send a 'read' status when the user
      * actually reads the message
      * @param type receipt type
@@ -301,11 +301,17 @@ public interface IChat extends IAbstractChat {
     Completable send(Sendable sendable);
 
     /**
-     * Delete a sendable
-     * @param sendable to delete
+     * Messages can always be deleted locally. Messages can only be deleted remotely
+     * for recent messages. Specifically, when the client connects, it will add a
+     * message listener to get an update for "new" messages. By default, we listen
+     * to messages that were added after we last sent a message or a received delivery
+     * receipt. This is the dateOfLastDeliveryReceipt. A client will only pick up
+     * remote delivery receipts if the date of delivery is after this date.
+     * @param sendable to be deleted
      * @return completion
      */
     Completable deleteSendable(Sendable sendable);
+    Completable deleteSendable(String sendableId);
 
     /**
      * Mark a message as received
@@ -313,6 +319,7 @@ public interface IChat extends IAbstractChat {
      * @return completion
      */
     Completable markReceived(Sendable sendable);
+    Completable markReceived(String sendableId);
 
     /**
      * Mark a message as read
@@ -320,5 +327,6 @@ public interface IChat extends IAbstractChat {
      * @return completion
      */
     Completable markRead(Sendable sendable);
+    Completable markRead(String sendableId);
 
 }

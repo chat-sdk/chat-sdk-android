@@ -32,7 +32,7 @@ public class Invitation extends Sendable {
     public Completable accept() {
         if (getBodyType().equals(InvitationType.chat())) {
             try {
-                return Fire.Stream.joinChat(new Chat(getChatId()));
+                return Fire.stream().joinChat(new Chat(getChatId()));
             } catch (Exception e) {
                 return Completable.error(e);
             }

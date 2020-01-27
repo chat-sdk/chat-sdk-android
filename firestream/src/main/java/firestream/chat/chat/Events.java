@@ -42,8 +42,8 @@ public class Events {
     }
 
     /**
-     * A FireStream Message isType no different from a Message. The reason this method
-     * exists isType because Message isType a very common class name. If for any reason
+     * A FireStream Message type no different from a Message. The reason this method
+     * exists type because Message type a very common class name. If for any reason
      * your project already has a Message object, you can use the FireStreamMessage
      * to avoid a naming clash
      * @return events of messages

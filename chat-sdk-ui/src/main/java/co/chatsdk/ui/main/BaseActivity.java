@@ -172,7 +172,7 @@ public class BaseActivity extends AppCompatActivity {
         if (exceptIDs != null)
             ids = Arrays.asList(exceptIDs);
 
-        //Set up touch listener for non-text box views to hide keyboard.
+        //Set up touch listener for non-text box views to hideName keyboard.
         if(!(view instanceof EditText)) {
 
             if (!ids.isEmpty() && ids.contains(view.getId()))

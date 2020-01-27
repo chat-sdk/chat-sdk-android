@@ -40,7 +40,7 @@ public class TestScript {
         config.debugEnabled = true;
         config.database = Config.DatabaseType.Realtime;
 
-        Fire.privateApi().initialize(context, config);
+        Fire.internal().initialize(context, config);
 
         tests.add(new AddContactTest());
         tests.add(new GetContactAddedTest());
@@ -50,7 +50,7 @@ public class TestScript {
         tests.add(new ModifyChatTest());
         tests.add(new MessageChatTest());
 
-        Disposable d = Fire.Stream.getConnectionEvents().subscribe(connectionEvent -> {
+        Disposable d = Fire.stream().getConnectionEvents().subscribe(connectionEvent -> {
             if (connectionEvent.getType() == ConnectionEvent.Type.DidConnect) {
                 start();
             }
@@ -110,7 +110,7 @@ public class TestScript {
     public static List<User> usersNotMe() {
         ArrayList<User> users = new ArrayList<>();
         for (User u: users()) {
-            if (!u.getId().equals(Fire.Stream.currentUserId())) {
+            if (!u.getId().equals(Fire.stream().currentUserId())) {
                 users.add(u);
             }
         }
