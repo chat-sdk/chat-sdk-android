@@ -78,14 +78,6 @@ The real-time database will support up to **100k concurrent users**. From our ex
 
 The Chat SDK has a number of additional modules that can easily be installed including:
 
-Free:
-
-- [Push Notifications](https://github.com/chat-sdk/chat-sdk-android#push-notifications)
-- [File Storage](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat-sdk-firebase-file-storage) 
-- [Firebase UI](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat-sdk-firebase-ui) 
-
-Paid:
-
 - [End-To-End Encryption](https://chatsdk.co/end-to-end-encryption/)
 - [File Messages](http://chatsdk.co/file-messages/)
 - [Typing indicator](http://chatsdk.co/typing-indicator/)
@@ -97,6 +89,15 @@ Paid:
 - [Sticker messages](https://chatsdk.co/sticker-messages/)
 - [Contact book integration](https://chatsdk.co/contact-book-integration/)
 - [User Blocking](http://chatsdk.co/user-blocking/)
+- [Social Login (free)](https://github.com/chat-sdk/chat-sdk-android#social-login)
+- [Push Notifications (free)](https://github.com/chat-sdk/chat-sdk-android#push-notifications)
+- [File Storage (free)](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat-sdk-firebase-file-storage) (Included in basic setup instructions)
+- [Firebase UI (free)](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat-sdk-firebase-ui) (Included in basic setup instructions)
+
+ 
+## Firebase Firestore
+
+If you are interested in a version of the Chat SDK that supports Firebase's new database please vote on [this issue](https://github.com/chat-sdk/chat-sdk-android/issues/148) and help us meet our target on [Patreon](https://www.patreon.com/chatsdk).
 
 ## Support the project
 

@@ -142,15 +142,10 @@
     <string name="action_contact_developer">De ontwikkelaar contacteren</string>
     <string name="action_add_chat">Gesprek aanmaken</string>
     <string name="actions">Handelingen</string>
-    <string name="done_show_again">Niet opnieuw tonen</string>
-    <string name="double_back_press_exit">Dubbeltikken om te verlaten</string>
     <string name="subscription">Lidmaatschap</string>
     <!--Notification-->
     <string name="not_message_title">Bericht</string>
     <string name="not_message_ticker">Vers bericht</string>
-    <string name="not_follower_title">Nieuwe volger</string>
-    <string name="not_follower_ticker">Jeej! Iemand nieuw volgt jou</string>
-    <string name="not_follower_content">is jou aan het volgen</string>
     <string name="new_message_from__" formatted="false">Nieuw bericht van %s</string>
     <string name="message_already_exists">Ja, hallo! Dit bericht bestaat al</string>
     <!--Error-->
@@ -177,7 +172,6 @@
     <string name="email_hint">E-mail</string>
     <string name="location">Locatie</string>
     <string name="take_photo">Maak een Foto</string>
-    <string name="choose_photo">Kies een Foto</string>
     <string name="take_video">Maak een video</string>
     <string name="choose_video">Kies een video</string>
     <string name="availability">Beschikbaarheid</string>

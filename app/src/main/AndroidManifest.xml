@@ -12,6 +12,8 @@
     <!--        android:name="android.permission.ACCESS_COARSE_LOCATION"-->
     <!--        tools:node="remove" />-->
 
+
+
     <application
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
@@ -26,6 +28,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+<!--        Remove Android Auto-->
+<!--        <meta-data android:name="com.google.android.gms.car.application"-->
+<!--            android:resource="@xml/automotive_app_desc" tools:node="remove" />-->
 
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_api_key"/>
 

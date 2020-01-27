@@ -19,5 +19,4 @@ public class Keys {
     public static String Blocked = "blocked";
     public static String Chats = "chats";
     public static String Meta = "meta";
-
 }

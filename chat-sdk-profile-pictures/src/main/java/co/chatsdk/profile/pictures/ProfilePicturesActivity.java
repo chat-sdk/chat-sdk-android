@@ -19,11 +19,13 @@ import com.squareup.picasso.Picasso;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.utils.ImagePickerUploader;
 import co.chatsdk.ui.utils.ImagePreviewActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
 
 /**
  * Created by Pepe on 01/12/19.
@@ -159,24 +161,24 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
             }
             return;
         }
-
-        dm.add(imagePickerUploader.choosePhoto(this, true).subscribe((results, throwable) -> {
-            if (throwable == null && !results.isEmpty()) {
-                for (ImagePickerUploader.Result result : results) {
-                    ChatSDK.profilePictures().addPicture(getUser(), result.url);
+        dm.add(PermissionRequestHandler.requestImageMessage(this).subscribe(() -> {
+            dm.add(imagePickerUploader.choosePhoto(this, false).subscribe((results, throwable) -> {
+                if (throwable == null && !results.isEmpty()) {
+                    for (ImagePickerUploader.Result result : results) {
+                        ChatSDK.profilePictures().addPicture(getUser(), result.url);
+                    }
+                    updateGallery();
+                    dm.add(ChatSDK.core().pushUser()
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(() -> {
+                            }, throwable1 -> {
+                                // Handle Error
+                                Toast.makeText(ProfilePicturesActivity.this, throwable1.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                            }));
+                } else {
+                    Toast.makeText(ProfilePicturesActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 }
-                updateGallery();
-                dm.add(ChatSDK.core().pushUser()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(() -> {
-                        }, throwable1 -> {
-                            // Handle Error
-                            Toast.makeText(ProfilePicturesActivity.this, throwable1.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                        }));
-            } else {
-                Toast.makeText(ProfilePicturesActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            }
-        }));
+            }));        }, toastOnErrorConsumer()));
     }
 
     protected User getUser() {

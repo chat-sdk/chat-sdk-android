@@ -2,9 +2,11 @@ package co.chatsdk.ui.chatkit.custom;
 
 import android.util.Pair;
 import android.view.View;
+import android.widget.TextView;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
+import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chatkit.model.ImageMessageHolder;
 import co.chatsdk.ui.chatkit.model.MessageHolder;
@@ -16,10 +18,12 @@ public class IncomingImageMessageViewHolder
         extends MessageHolders.IncomingImageMessageViewHolder<ImageMessageHolder> {
 
     private View onlineIndicator;
+    protected TextView userName;
 
     public IncomingImageMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
         onlineIndicator = itemView.findViewById(R.id.onlineIndicator);
+        userName = itemView.findViewById(R.id.userName);
     }
 
     @Override
@@ -31,6 +35,13 @@ public class IncomingImageMessageViewHolder
             onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_online);
         } else {
             onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_offline);
+        }
+
+        if (message.getMessage().getThread().typeIs(ThreadType.Group)) {
+            userName.setVisibility(View.VISIBLE);
+            userName.setText(message.getUser().getName());
+        } else {
+            userName.setVisibility(View.GONE);
         }
     }
 

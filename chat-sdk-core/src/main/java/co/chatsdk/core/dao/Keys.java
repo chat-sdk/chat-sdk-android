@@ -95,4 +95,6 @@ public class Keys {
     public static final String PushKeyTitle = "chat_sdk_push_title";
     public static final String PushKeyBody = "chat_sdk_push_body";
 
+    public static final String CurrentUserID = "current_user_entity_id";
+
 }

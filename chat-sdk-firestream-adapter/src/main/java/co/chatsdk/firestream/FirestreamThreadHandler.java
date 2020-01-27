@@ -15,12 +15,14 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.firefly.R;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.message.Sendable;
 import firestream.chat.namespace.Fire;
+import firestream.chat.types.SendableType;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
@@ -343,7 +345,17 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 // Convert the sendables to messages
                 ArrayList<Single<Message>> singles = new ArrayList<>();
                 for (Sendable sendable: sendables) {
-                    singles.add(FirestreamHelper.sendableToMessage(sendable));
+                    if (sendable.isType(SendableType.message())) {
+                        singles.add(FirestreamHelper.sendableToMessage(sendable));
+                    }
+                    if (sendable.isType(SendableType.deliveryReceipt())) {
+                        if (ChatSDK.readReceipts() != null) {
+                            ReadReceiptHandler handler = ChatSDK.readReceipts();
+                            if (handler instanceof FirestreamReadReceiptHandler) {
+                                ((FirestreamReadReceiptHandler) handler).handleReceipt(thread.getEntityID(), sendable.toDeliveryReceipt());
+                            }
+                        }
+                    }
                 }
                 final ArrayList<Message> messages = new ArrayList<>();
 

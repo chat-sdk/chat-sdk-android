@@ -9,6 +9,7 @@ package co.chatsdk.ui.chatkit;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -209,7 +210,12 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     }
 
     protected int maxImageWidth() {
-        return Math.round(displayMetrics.widthPixels);
+        // Prevent overly big messages in landscape mode
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+            return Math.round(displayMetrics.widthPixels);
+        } else {
+            return Math.round(displayMetrics.heightPixels);
+        }
     }
 
     @Override

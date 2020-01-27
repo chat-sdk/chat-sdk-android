@@ -114,8 +114,8 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
         return Single.create((SingleOnSubscribe<Query>) emitter -> {
             Query query = Ref.get(messagesPath);
 
-            query = query.equalTo(Fire.Stream.currentUserId(), Keys.From);
-            query = query.orderByChild(Keys.Date);
+            query = query.equalTo(Fire.Stream.currentUserId());
+            query = query.orderByChild(Keys.From);
             query = query.limitToLast(1);
 
             emitter.onSuccess(query);

@@ -2,12 +2,9 @@ package co.chatsdk.core.base;
 
 import android.content.SharedPreferences;
 
-import java.util.Map;
-
-import co.chatsdk.core.enums.AuthStatus;
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.AuthKeys;
 import io.reactivex.Completable;
 
 /**
@@ -20,22 +17,18 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
 
     protected String currentUserID = null;
 
-    protected AuthStatus authStatus = AuthStatus.Idle;
+    protected boolean isAuthenticating = false;
 
-    public AuthStatus getAuthStatus () {
-        return authStatus;
-    }
-
-    public void setAuthStatus (AuthStatus status) {
-        authStatus = status;
+    public void setIsAuthenticating(boolean isAuthenticating) {
+        this.isAuthenticating = isAuthenticating;
     }
 
     public Boolean isAuthenticating () {
-        return authStatus != AuthStatus.Idle;
+        return isAuthenticating;
     }
 
     protected void setAuthStateToIdle() {
-        authStatus = AuthStatus.Idle;
+        isAuthenticating = false;
     }
 
     @Deprecated
@@ -60,21 +53,12 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
     /**
      * Currently supporting only string and integers. Long and other values can be added later on.
      */
-    public void setLoginInfo(Map<String, Object> values) {
+    public void saveCurrentUserEntityID(String currentUserID) {
 
-        currentUserID = null;
+        this.currentUserID = currentUserID;
 
         SharedPreferences.Editor keyValuesEditor = ChatSDK.shared().getPreferences().edit();
-
-        for (String s : values.keySet()) {
-            if (values.get(s) instanceof Integer)
-                keyValuesEditor.putInt(s, (Integer) values.get(s));
-            else if (values.get(s) instanceof String)
-                keyValuesEditor.putString(s, (String) values.get(s));
-            else if (values.get(s) instanceof Boolean)
-                keyValuesEditor.putBoolean(s, (Boolean) values.get(s));
-        }
-
+        keyValuesEditor.putString(Keys.CurrentUserID, currentUserID);
         keyValuesEditor.apply();
     }
 
@@ -93,12 +77,12 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
         keyValuesEditor.apply();
     }
 
-    public void removeLoginInfo (String key) {
+    public void clearSavedCurrentUserEntityID() {
 
         currentUserID = null;
 
         SharedPreferences.Editor keyValuesEditor = ChatSDK.shared().getPreferences().edit();
-        keyValuesEditor.remove(key);
+        keyValuesEditor.remove(Keys.CurrentUserID);
         keyValuesEditor.apply();
     }
 
@@ -108,14 +92,14 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
      */
     public String getCurrentUserEntityID() {
         if (currentUserID == null || !isAuthenticated()) {
-            currentUserID = (String) getLoginInfo().get(AuthKeys.CurrentUserID);
+            currentUserID = getSavedCurrentUserEntityID();
         }
         return currentUserID;
     }
 
 
-    public Map<String, ?> getLoginInfo() {
-        return ChatSDK.shared().getPreferences().getAll();
+    public String getSavedCurrentUserEntityID() {
+        return ChatSDK.shared().getPreferences().getString(Keys.CurrentUserID, null);
     }
 
 

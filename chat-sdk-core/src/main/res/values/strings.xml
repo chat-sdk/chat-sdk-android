@@ -196,9 +196,6 @@
     <!--Notification-->
     <string name="not_message_title">Message</string>
     <string name="not_message_ticker">You have a new message</string>
-    <string name="not_follower_title">New Follower</string>
-    <string name="not_follower_ticker">You got a new follower</string>
-    <string name="not_follower_content">is following you!</string>
 
     <string name="new_message_from__" formatted="false">New message from %s</string>
     <string name="message_already_exists">Message already exists</string>

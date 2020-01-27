@@ -6,34 +6,24 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseError;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.AbstractAuthenticationHandler;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.enums.AuthStatus;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.AccountDetails;
-import co.chatsdk.core.types.AuthKeys;
 import co.chatsdk.core.types.ChatError;
 import co.chatsdk.core.utils.DisposableMap;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
-import static co.chatsdk.firebase.FirebaseErrors.getFirebaseError;
 
 /**
  * Created by benjaminsmiley-andrews on 03/05/2017.
@@ -69,7 +59,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 emitter.onError(ChatError.getError(ChatError.Code.AUTH_IN_PROCESS, "Cant execute two auth in parallel"));
             } else {
 
-                setAuthStatus(AuthStatus.Authenticating);
+                setIsAuthenticating(true);
 
                 FirebaseUser user = FirebaseCoreHandler.auth().getCurrentUser();
 
@@ -96,7 +86,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                         return;
                     }
 
-                    setAuthStatus(AuthStatus.Authenticating);
+                    setIsAuthenticating(true);
 
                     OnCompleteListener<AuthResult> resultHandler = task->AsyncTask.execute(()-> {
                         if (task.isComplete() && task.isSuccessful() && task.getResult() != null) {
@@ -151,15 +141,10 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     public Completable authenticateWithUser(final FirebaseUser user) {
         return Completable.defer(() -> {
 
-            final Map<String, Object> loginInfoMap = new HashMap<>();
-            // Save the authentication ID for the current user
-            // Set the current user
 
             String uid = user.getUid();
 
-            loginInfoMap.put(AuthKeys.CurrentUserID, uid);
-
-            setLoginInfo(loginInfoMap);
+            saveCurrentUserEntityID(uid);
 
             // Do a once() on the user to push its details to firebase.
             UserWrapper userWrapper = UserWrapper.initWithAuthData(user);
@@ -195,7 +180,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                         if (task.isSuccessful()) {
                             emitter.onComplete();
                         } else {
-                            emitter.onError(getFirebaseError(DatabaseError.fromException(task.getException())));
+                            emitter.onError(task.getException());
                         }
                     };
 
@@ -217,7 +202,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                     FirebaseCoreHandler.auth().signOut();
 
-                    removeLoginInfo(AuthKeys.CurrentUserID);
+                    clearSavedCurrentUserEntityID();
 
                     ChatSDK.events().source().onNext(NetworkEvent.logout());
 
@@ -242,7 +227,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                         if (task.isSuccessful()) {
                             emitter.onComplete();
                         } else {
-                            emitter.onError(getFirebaseError(DatabaseError.fromException(task.getException())));
+                            emitter.onError(task.getException());
                         }
                     };
 

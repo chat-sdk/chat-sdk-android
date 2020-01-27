@@ -21,6 +21,6 @@
     <color name="reset_password_button_color">#ffffff</color>
     <color name="logout_button_color">#ae2020</color>
     <color name="gray_light">#e8e8e8</color>
-    <color name="message_time">#BEBEBE</color>
+    <color name="message_time">#A5A5A5</color>
 
 </resources>

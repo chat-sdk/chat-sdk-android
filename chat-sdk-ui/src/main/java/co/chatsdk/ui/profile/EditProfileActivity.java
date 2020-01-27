@@ -221,7 +221,6 @@ public class EditProfileActivity extends BaseActivity {
         // Add a synchronized block to prevent concurrent modification exceptions
         for (String key : metaMap.keySet()) {
             if (key.equals(Keys.AvatarURL)) {
-//                imageChanged = valueChanged(metaMap, userMeta, key);
                 currentUser.setAvatarHash(null);
             }
             if (key.equals(Keys.Availability) || key.equals(Keys.Status)) {
@@ -262,15 +261,6 @@ public class EditProfileActivity extends BaseActivity {
         else {
             finished.run();
         }
-
-
-        // TODO: Add this in for Firebase maybe move this to push user...
-//        if (imageChanged && avatarURL != null) {
-//            UserAvatarHelper.saveProfilePicToServer(avatarURL, this).subscribe();
-//        }
-//        else if (changed) {
-
-
     }
 
     protected boolean valueChanged (Map<String, Object> h1, Map<String, Object> h2, String key) {

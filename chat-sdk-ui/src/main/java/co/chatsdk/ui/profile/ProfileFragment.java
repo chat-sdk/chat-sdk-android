@@ -120,9 +120,6 @@ public class ProfileFragment extends BaseFragment {
         blockOrUnblockButton = mainView.findViewById(R.id.btnBlockOrUnblock);
         addOrDeleteButton = mainView.findViewById(R.id.btnAddOrDelete);
 
-//        followsHeight = followsTextView.getHeight();
-//        followedHeight = followedTextView.getHeight();
-
         locationImageView = mainView.findViewById(R.id.ivLocation);
         phoneImageView = mainView.findViewById(R.id.ivPhone);
         emailImageView = mainView.findViewById(R.id.ivEmail);

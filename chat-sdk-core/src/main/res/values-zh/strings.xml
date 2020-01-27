@@ -181,16 +181,11 @@
     <string name="action_contact_developer">联系开发人员</string>
     <string name="action_add_chat">添加聊天</string>
     <string name="actions">操作</string>
-    <string name="done_show_again">再次显示</string>
-    <string name="double_back_press_exit">按下双后退按钮退出</string>
     <string name="subscription">在线订阅</string>
 
     
     <string name="not_message_title">信息</string>
     <string name="not_message_ticker">你有一条新消息</string>
-    <string name="not_follower_title">新追随者</string>
-    <string name="not_follower_ticker">你有一个新的追随者</string>
-    <string name="not_follower_content">跟着你！</string>
 
     <string formatted="false" name="new_message_from__">来自%s的新消息</string>
     <string name="message_already_exists">消息已存在</string>
@@ -220,7 +215,6 @@
     <string name="email_hint">电子邮件</string>
     <string name="location">地点</string>
     <string name="take_photo">拍照</string>
-    <string name="choose_photo">选择照片</string>
     <string name="take_video">拍视频</string>
     <string name="choose_video">选择视频</string>
 

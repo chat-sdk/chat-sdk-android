@@ -29,6 +29,7 @@ import co.chatsdk.core.session.ChatSDK;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
 
@@ -99,8 +100,7 @@ public class PermissionRequestHandler {
                     public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions1, PermissionToken token) {
                         token.continuePermissionRequest();
                     }
-                })
-                .check());
+                }).check()).subscribeOn(AndroidSchedulers.mainThread()).observeOn(AndroidSchedulers.mainThread());
     }
 
 }

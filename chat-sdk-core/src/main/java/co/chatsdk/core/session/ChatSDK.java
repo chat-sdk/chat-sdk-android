@@ -2,19 +2,9 @@ package co.chatsdk.core.session;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.widget.ImageView;
-
-import com.squareup.picasso.Picasso;
-
 import org.jetbrains.annotations.NotNull;
-
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-
-import co.chatsdk.core.R;
 import co.chatsdk.core.base.LocationProvider;
 import co.chatsdk.core.base.BaseNetworkAdapter;
 import co.chatsdk.core.dao.DaoCore;
@@ -22,7 +12,6 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.error.ChatSDKException;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.AudioMessageHandler;
@@ -115,33 +104,33 @@ public class ChatSDK {
         return shared();
     }
 
-    public void activateModule (String moduleName, String methodName, MethodArgument... arguments) throws ChatSDKException {
-        try {
-            ArrayList<Class<?>> classes = new ArrayList<>();
-            ArrayList<Object> values = new ArrayList<>();
-
-            for(MethodArgument a : arguments) {
-                classes.add(a.type);
-                values.add(a.value);
-            }
-
-            Class<?> interfaceModule = Class.forName(moduleName);
-            Method method = interfaceModule.getMethod(methodName, classes.toArray(new Class<?>[0]));
-            method.invoke(null, values.toArray(new Object[0]));
-        }
-        catch (ClassNotFoundException e) {
-            throw new ChatSDKException("Module: " + moduleName + "Not found");
-        }
-        catch (NoSuchMethodException e) {
-            throw new ChatSDKException("Activate method not found for module");
-        }
-        catch (IllegalAccessException e) {
-            throw new ChatSDKException("Activate method not found for module");
-        }
-        catch (InvocationTargetException e) {
-            throw new ChatSDKException("Activate method not found for module");
-        }
-    }
+//    public void activateModule (String moduleName, String methodName, MethodArgument... arguments) throws ChatSDKException {
+//        try {
+//            ArrayList<Class<?>> classes = new ArrayList<>();
+//            ArrayList<Object> values = new ArrayList<>();
+//
+//            for(MethodArgument a : arguments) {
+//                classes.add(a.type);
+//                values.add(a.value);
+//            }
+//
+//            Class<?> interfaceModule = Class.forName(moduleName);
+//            Method method = interfaceModule.getMethod(methodName, classes.toArray(new Class<?>[0]));
+//            method.invoke(null, values.toArray(new Object[0]));
+//        }
+//        catch (ClassNotFoundException e) {
+//            throw new ChatSDKException("Module: " + moduleName + "Not found");
+//        }
+//        catch (NoSuchMethodException e) {
+//            throw new ChatSDKException("Activate method not found for module");
+//        }
+//        catch (IllegalAccessException e) {
+//            throw new ChatSDKException("Activate method not found for module");
+//        }
+//        catch (InvocationTargetException e) {
+//            throw new ChatSDKException("Activate method not found for module");
+//        }
+//    }
 
     public void handleLocalNotifications () {
 

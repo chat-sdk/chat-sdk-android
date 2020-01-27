@@ -41,7 +41,6 @@ public class ChatActionBar {
         subtitleTextView = actionBarView.findViewById(R.id.text_subtitle);
         threadImageView = actionBarView.findViewById(R.id.image_avatar);
 
-
     }
 
     public View get() {
@@ -64,7 +63,7 @@ public class ChatActionBar {
             if(thread.typeIs(ThreadType.Private1to1)) {
                 text = actionBarView.getContext().getString(R.string.tap_here_for_contact_info);
             } else {
-                text = thread.getDisplayName();
+                text = thread.getUserListString();
             }
         }
         subtitleTextView.setText(text);

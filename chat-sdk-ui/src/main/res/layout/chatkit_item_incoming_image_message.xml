@@ -8,6 +8,20 @@
     android:layout_marginRight="16dp"
     android:layout_marginTop="8dp">
 
+    <TextView
+        android:id="@+id/userName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@id/image"
+        android:layout_alignEnd="@id/image"
+        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="0dp"
+        android:textColor="@color/message_time"
+        android:fontFamily="sans-serif-thin"
+        />
+
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@id/messageUserAvatar"
         android:layout_width="40dp"
@@ -46,6 +60,10 @@
         android:layout_alignRight="@id/image"
         android:layout_below="@id/image"
         android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"/>
+        android:layout_marginStart="16dp"
+        android:fontFamily="sans-serif-thin"
+        android:textSize="12sp"
+        android:textColor="@color/message_time"
+        />
 
 </RelativeLayout>

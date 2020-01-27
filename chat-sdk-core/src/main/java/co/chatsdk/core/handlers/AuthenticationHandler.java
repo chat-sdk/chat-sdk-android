@@ -57,12 +57,12 @@ public interface AuthenticationHandler {
     /**
     * Get the user's stored login credentials
     */
-    Map<String, ?> getLoginInfo();
+    String getSavedCurrentUserEntityID();
 
     /**
     * Set the user's stored login credentials
     */
-    void setLoginInfo(Map<String, Object> info);
+    void saveCurrentUserEntityID(String userEntityID);
 
     /**
     * Get the current user's authentication id

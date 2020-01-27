@@ -33,14 +33,14 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
             if (connectionEvent.getType() == ConnectionEvent.Type.DidConnect) {
 
                 dm.add(Fire.Stream.getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(event -> {
-                    handleReceipt(event.get().getFrom(), event.get());
+                    dm.add(handleReceipt(event.get().getFrom(), event.get()));
                 }));
 
                 dm.add(Fire.Stream.getChatEvents().pastAndNewEvents().subscribe(chatEvent -> {
                     IChat chat = chatEvent.get();
                     if (chatEvent.typeIs(EventType.Added)) {
                         chat.manage(chat.getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(event -> {
-                            handleReceipt(chat.getId(), event.get());
+                            chat.manage(handleReceipt(chat.getId(), event.get()));
                         }));
                     }
                 }));
@@ -52,8 +52,8 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
 
     }
 
-    protected void handleReceipt(String threadEntityID, DeliveryReceipt receipt) {
-        dm.add(APIHelper.fetchRemoteUser(receipt.getFrom()).subscribe(user -> {
+    public Disposable handleReceipt(String threadEntityID, DeliveryReceipt receipt) {
+        return ChatSDK.core().getUserForEntityID(receipt.getFrom()).subscribe(user -> {
             Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
             if (thread != null) {
                 // Get the text
@@ -67,7 +67,7 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
                     ChatSDK.events().source().onNext(NetworkEvent.threadReadReceiptUpdated(thread, message));
                 }
             }
-        }));
+        });
     }
 
     @Override
@@ -79,29 +79,6 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
     public void updateReadReceipts(Message message) {
 
     }
-
-//    @Override
-//    public void markRead(Thread thread) {
-//        for (Message m : thread.getMessages()) {
-//            if (!m.isRead()) {
-//                User currentUser = ChatSDK.currentUser();
-//                m.setUserReadStatus(currentUser, ReadStatus.read(), new DateTime());
-//                // Send the read status
-//
-//                if (thread.typeIs(ThreadType.Private1to1)) {
-//                    User otherUser = thread.otherUser();
-//                    dm.add(Fire.Stream.sendDeliveryReceipt(otherUser.getEntityID(), DeliveryReceiptType.read(), m.getEntityID())
-//                            .subscribe(() -> {}, this));
-//                }
-//                if (thread.typeIs(ThreadType.PrivateGroup)) {
-//                    IChat chat = Fire.stream().getChat(thread.getEntityID());
-//                    if (chat != null) {
-//                        chat.manage(chat.sendDeliveryReceipt(DeliveryReceiptType.read(), m.getEntityID()).subscribe(() -> {}, this));
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     @Override
     public void markRead(Message message) {

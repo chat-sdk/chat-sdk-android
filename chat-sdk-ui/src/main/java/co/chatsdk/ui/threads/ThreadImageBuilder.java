@@ -10,6 +10,8 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -40,38 +42,6 @@ import static co.chatsdk.core.utils.ImageBuilder.bitmapForURL;
 
 public class ThreadImageBuilder {
 
-    public static class ImageCache {
-
-        public static final ImageCache instance = new ImageCache();
-
-        HashMap<String, String> threadImageURLMap = new HashMap<>();
-
-        public ImageCache() {
-            Disposable d = ChatSDK.events().source().filter(NetworkEvent.filterType(EventType.ThreadDetailsUpdated, EventType.ThreadUsersChanged)).subscribe(networkEvent -> {
-                if (networkEvent.thread != null) {
-                    clear(networkEvent.thread.getEntityID());
-                }
-            });
-        }
-
-        public static ImageCache shared() {
-            return instance;
-        }
-
-        public void put(String threadEntityID, String url) {
-            threadImageURLMap.put(threadEntityID, url);
-        }
-
-        public String get(String threadEntityID) {
-            return threadImageURLMap.get(threadEntityID);
-        }
-
-        public void clear(String threadEntityID) {
-            threadImageURLMap.remove(threadEntityID);
-        }
-
-    }
-
     public static Disposable load(final ImageView imageView, final Thread thread) {
         int size = imageView.getContext().getResources().getDimensionPixelSize(R.dimen.action_bar_avatar_max_size);
         return load(imageView, thread, size);
@@ -93,16 +63,21 @@ public class ThreadImageBuilder {
                 return Single.just(Uri.parse(thread.getImageUrl()));
             }
 
-            String uriString = ImageCache.shared().get(thread.getEntityID());
-            if (uriString != null) {
-                return Single.just(Uri.parse(uriString));
-            }
-
             List<User> users = thread.getUsers();
+            users.remove(ChatSDK.currentUser());
+
+            // We make a hash code for the user list and their image URLs
+            // that means that if the users haven't changed, we can reaload
+            // the same image split image we created before
+            final String hashCode = hashCodeForMixedUserAvatar(users);
+            File cachedImage = ImageUtils.getFileInCacheDirectory(context, hashCode, ".png");
+            if(cachedImage.exists()) {
+                return Single.just(Uri.fromFile(cachedImage));
+            }
 
             List<String> urls = new ArrayList<>();
             for(User u : users) {
-                if(!StringChecker.isNullOrEmpty(u.getAvatarURL()) && !u.isMe()) {
+                if(!StringChecker.isNullOrEmpty(u.getAvatarURL())) {
                     urls.add(u.getAvatarURL());
                 }
             }
@@ -116,15 +91,21 @@ public class ThreadImageBuilder {
             }
             else {
                 return combineBitmaps(urls, size).map(bitmap -> {
-                    File file = ImageUtils.compressImageToFile(context, bitmap, "avatar", ".png");
-                    Uri uri = Uri.fromFile(file);
-
-                    ImageCache.shared().put(thread.getEntityID(), uri.toString());
-
+                    File file = ImageUtils.compressImageToFile(context, bitmap, hashCode, ".png", false);
                     return Uri.fromFile(file);
                 });
             }
         });
+    }
+
+    public static String hashCodeForMixedUserAvatar(List<User> users) {
+        Collections.sort(users,(o1, o2) -> o1.getEntityID().compareTo(o2.getEntityID()));
+
+        StringBuilder name = new StringBuilder();
+        for (User u: users) {
+            name.append(u.getEntityID()).append(u.getAvatarURL());
+        }
+        return String.valueOf(name.toString().hashCode());
     }
 
     public static Single<Bitmap> combineBitmaps (final List<String> urls, final int size) {

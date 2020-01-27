@@ -181,16 +181,11 @@
     <string name="action_contact_developer">Contactar con el desarrollador</string>
     <string name="action_add_chat">Añadir chat</string>
     <string name="actions">Comportamiento</string>
-    <string name="done_show_again">Hecho mostrar de nuevo</string>
-    <string name="double_back_press_exit">Utilice el botón de doble retroceso para salir</string>
     <string name="subscription">Suscripción de presencia</string>
 
     
     <string name="not_message_title">Mensaje</string>
     <string name="not_message_ticker">Tienes un nuevo mensaje</string>
-    <string name="not_follower_title">Nuevo seguidor</string>
-    <string name="not_follower_ticker">Tienes un nuevo seguidor</string>
-    <string name="not_follower_content">¡te está siguiendo!</string>
 
     <string formatted="false" name="new_message_from__">Nuevo mensaje de %s</string>
     <string name="message_already_exists">El mensaje ya existe</string>
@@ -220,7 +215,6 @@
     <string name="email_hint">Email</string>
     <string name="location">Ubicación</string>
     <string name="take_photo">Tomar foto</string>
-    <string name="choose_photo">Escoge una foto</string>
     <string name="take_video">Toma video</string>
     <string name="choose_video">Elegir video</string>
 

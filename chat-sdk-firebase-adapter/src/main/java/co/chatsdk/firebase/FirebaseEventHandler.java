@@ -24,7 +24,7 @@ import io.reactivex.functions.Consumer;
  * Created by benjaminsmiley-andrews on 10/05/2017.
  */
 
-public class FirebaseEventHandler extends AbstractEventHandler implements Consumer<Throwable> {
+public class FirebaseEventHandler extends AbstractEventHandler {
 
     protected boolean isOn = false;
 
@@ -211,10 +211,4 @@ public class FirebaseEventHandler extends AbstractEventHandler implements Consum
         }
     }
 
-    @Override
-    public void accept(Throwable throwable) throws Exception {
-        if (throwable != null) {
-            eventSource.onNext(NetworkEvent.error(throwable));
-        }
-    }
 }

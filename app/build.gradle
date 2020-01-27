@@ -75,6 +75,8 @@ dependencies {
     implementation project(path: ':firestream')
     implementation project(path: ':chat-sdk-firestream-adapter')
 
+    implementation 'org.webrtc:google-webrtc:1.0.30039'
+
     implementation "com.google.android.libraries.places:places:$googlePlacesVersion"
 }
 

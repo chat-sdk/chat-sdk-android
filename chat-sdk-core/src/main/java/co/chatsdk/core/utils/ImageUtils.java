@@ -42,6 +42,10 @@ public class ImageUtils {
 
     public static final String DIVIDER = "&", HEIGHT = "H", WIDTH = "W";
 
+    public static File getDiskCacheDir(Context context) {
+        return getDiskCacheDir(context, ChatSDK.config().imageDirectoryName);
+    }
+
     public static File getDiskCacheDir(Context context, String uniqueName) {
         // Check if media is mounted or storage is built-in, if so, try and use external cache dir
         // otherwise use internal cache dir
@@ -56,23 +60,54 @@ public class ImageUtils {
         return new File(cachePath + File.separator + uniqueName);
     }
 
-    public static File createEmptyFileInCacheDirectory(File dir, String name, String ext) {
-        if (!dir.exists()) dir.mkdirs();
+    public static File getFileInCacheDirectory(Context context, String name, String ext) {
+        return getFileInCacheDirectory(getDiskCacheDir(context), name, ext);
+    }
+
+    public static File getFileInCacheDirectory(File dir, String name, String ext) {
+        if (!dir.exists()){
+            if (!dir.mkdir()) {
+                return null;
+            }
+        }
         if (name.contains(ext)) {
             return new File(dir, name);
         }
-        String fileName = (name += UUID.randomUUID()).replace("@", "_");
-        File file = new File(dir, fileName + ext);
-        while (file.exists()) {
-            fileName = (name += UUID.randomUUID()).replace("@", "_");
-            file = new File(dir, fileName + ext);
-        }
-        return file;
+        return new File(dir, name + ext);
+    }
+
+    public static File createEmptyFileInCacheDirectory(File dir, String name, String ext) {
+        return createEmptyFileInCacheDirectory(dir, name, ext, true);
     }
 
     public static File createEmptyFileInCacheDirectory(Context context, String name, String ext) {
-        File imageDir = getDiskCacheDir(context, ChatSDK.config().imageDirectoryName);
-        return createEmptyFileInCacheDirectory(imageDir, name, ext);
+        return createEmptyFileInCacheDirectory(getDiskCacheDir(context), name, ext);
+    }
+
+    public static File createEmptyFileInCacheDirectory(Context context, String name, String ext, boolean addRandomIdToName) {
+        return createEmptyFileInCacheDirectory(getDiskCacheDir(context), name, ext, addRandomIdToName);
+    }
+
+    public static File createEmptyFileInCacheDirectory(File dir, String name, String ext, boolean addRandomIdToName) {
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                return null;
+            }
+        }
+        if (name.contains(ext)) {
+            return new File(dir, name);
+        }
+        if (!addRandomIdToName) {
+            return new File(dir, name + ext);
+        } else {
+            String fileName = (name += UUID.randomUUID()).replace("@", "_");
+            File file = new File(dir, fileName + ext);
+            while (file.exists()) {
+                fileName = (name += UUID.randomUUID()).replace("@", "_");
+                file = new File(dir, fileName + ext);
+            }
+            return file;
+        }
     }
 
     public static File compressImageToFile(Bitmap bitmap, File outFile, Bitmap.CompressFormat format) {
@@ -99,9 +134,13 @@ public class ImageUtils {
         return compressImageToFile(bitmap, outFile, format);
     }
 
-    public static File compressImageToFile(Context context, Bitmap bitmap, String name, String ext) {
-        File outFile = createEmptyFileInCacheDirectory(context, name, ext);
+    public static File compressImageToFile(Context context, Bitmap bitmap, String name, String ext, boolean addRandomIdToName) {
+        File outFile = createEmptyFileInCacheDirectory(context, name, ext, addRandomIdToName);
         return compressImageToFile(bitmap, outFile);
+    }
+
+    public static File compressImageToFile(Context context, Bitmap bitmap, String name, String ext) {
+        return compressImageToFile(context, bitmap, name, ext, true);
     }
 
     public static File compressImageToFile(Context context, String filePath, String name, String ext) {

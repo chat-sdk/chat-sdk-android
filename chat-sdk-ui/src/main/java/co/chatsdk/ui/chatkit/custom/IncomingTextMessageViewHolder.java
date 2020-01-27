@@ -1,10 +1,12 @@
 package co.chatsdk.ui.chatkit.custom;
 
 import android.view.View;
+import android.widget.TextView;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chatkit.model.MessageHolder;
 
@@ -12,10 +14,12 @@ public class IncomingTextMessageViewHolder
         extends MessageHolders.IncomingTextMessageViewHolder<MessageHolder> {
 
     private View onlineIndicator;
+    protected TextView userName;
 
     public IncomingTextMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
         onlineIndicator = itemView.findViewById(R.id.onlineIndicator);
+        userName = itemView.findViewById(R.id.userName);
     }
 
     @Override
@@ -36,6 +40,13 @@ public class IncomingTextMessageViewHolder
                 payload.avatarClickListener.onAvatarClick(message.getMessage().getSender());
             }
         });
+
+        if (message.getMessage().getThread().typeIs(ThreadType.Group)) {
+            userName.setVisibility(View.VISIBLE);
+            userName.setText(message.getUser().getName());
+        } else {
+            userName.setVisibility(View.GONE);
+        }
     }
 
     public static class Payload {

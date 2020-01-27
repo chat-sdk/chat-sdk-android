@@ -1,6 +1,7 @@
 package co.chatsdk.core.events;
 
 import android.location.Location;
+import android.net.Network;
 
 import java.util.HashMap;
 
@@ -23,7 +24,6 @@ public class NetworkEvent {
     public User user;
     public String text;
     public HashMap<String, Object> data;
-    public Throwable error;
 
     public static String MessageSendProgress = "MessageSendProgress";
     public Location location;
@@ -38,11 +38,6 @@ public class NetworkEvent {
 
     public NetworkEvent(EventType type, Thread thread, Message message) {
         this(type, thread, message, null);
-    }
-
-    public NetworkEvent(EventType type, Throwable throwable) {
-        this(type);
-        this.error = throwable;
     }
 
     public NetworkEvent(EventType type, Thread thread, Message message, User user) {
@@ -69,22 +64,6 @@ public class NetworkEvent {
 
     public static NetworkEvent threadRemoved (Thread thread) {
         return new NetworkEvent(EventType.ThreadRemoved, thread);
-    }
-
-    public static NetworkEvent followerAdded () {
-        return new NetworkEvent(EventType.FollowerAdded);
-    }
-
-    public static NetworkEvent followerRemoved () {
-        return new NetworkEvent(EventType.FollowerRemoved);
-    }
-
-    public static NetworkEvent error (Throwable throwable) {
-        return new NetworkEvent(EventType.Error, throwable);
-    }
-
-    public static NetworkEvent followingRemoved () {
-        return new NetworkEvent(EventType.FollowingRemoved);
     }
 
     public static NetworkEvent threadDetailsUpdated (Thread thread) {
@@ -279,5 +258,7 @@ public class NetworkEvent {
         }
         return false;
     }
+
+
 
 }
