@@ -69,13 +69,6 @@ public interface AuthenticationHandler {
     */
     String getCurrentUserEntityID();
 
-    // TODO: Implement something like this
-    /**
-    * The view controller that should be displayed when the user isn't logged in
-    */
-
-    void addLoginInfoData (String key, Object value);
-
     Completable changePassword(String email, String oldPassword, final String newPassword);
     Completable sendPasswordResetMail(String email);
 

@@ -30,7 +30,7 @@ android {
 }
 
 ext {
-    libraryName = 'Chat SDK Firebase Push'
+    libraryName = 'ChatSDKFirebasePush'
     artifact = 'chat-sdk-firebase-push'
     libraryDescription = 'Chat SDK Firebase Push'
 }

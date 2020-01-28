@@ -79,7 +79,6 @@ public class MessageSendRig {
             return Single.just(createMessage()).flatMapCompletable(message -> {
                 // First pass back an empty result so that we add the cell to the table view
                 message.setMessageStatus(MessageSendStatus.Uploading);
-                ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
 
                 ArrayList<Uploadable> compressedUploadables = new ArrayList<>();
 
@@ -100,22 +99,17 @@ public class MessageSendRig {
         if (messageDidCreateUpdateAction != null) {
             messageDidCreateUpdateAction.update(message);
         }
-        // Message has been created and added to the thread
-        ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
         return message;
     }
 
     protected Completable send () {
         return Completable.create(emitter -> {
             message.setMessageStatus(MessageSendStatus.WillSend);
-            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
             emitter.onComplete();
         }).concatWith(ChatSDK.thread().sendMessage(message).doOnComplete(() -> {
             message.setMessageStatus(MessageSendStatus.Sent);
-            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
         }).doOnError(throwable -> {
             message.setMessageStatus(MessageSendStatus.Failed);
-            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
         }));
     }
 
@@ -124,15 +118,12 @@ public class MessageSendRig {
             ArrayList<Completable> completables = new ArrayList<>();
 
             message.setMessageStatus(MessageSendStatus.WillUpload);
-            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
-
             message.setMessageStatus(MessageSendStatus.Uploading);
-            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
 
             for (Uploadable item : uploadables) {
                 completables.add(ChatSDK.upload().uploadFile(item.getBytes(), item.name, item.mimeType).flatMapMaybe(result -> {
 
-                    ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
+                    ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message, MessageSendStatus.Uploading, result.progress)));
 
                     if (result.urlValid() && messageDidUploadUpdateAction != null) {
                         messageDidUploadUpdateAction.update(message, result);
@@ -150,7 +141,6 @@ public class MessageSendRig {
             emitter.onSuccess(completables);
         }).flatMapCompletable(Completable::merge).doOnComplete(() -> {
             message.setMessageStatus(MessageSendStatus.DidUpload);
-            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
         });
     }
 

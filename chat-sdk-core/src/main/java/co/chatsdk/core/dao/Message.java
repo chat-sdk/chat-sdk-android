@@ -26,7 +26,9 @@ import java.lang.String;
 import java.lang.Class;
 
 import co.chatsdk.core.base.AbstractEntity;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
@@ -264,6 +266,7 @@ public class Message extends AbstractEntity {
 
         link.update();
 //        this.update();
+        ChatSDK.events().source().onNext(NetworkEvent.threadReadReceiptUpdated(this));
     }
 
     public LatLng getLocation () {
@@ -315,6 +318,7 @@ public class Message extends AbstractEntity {
     public void setMessageStatus(MessageSendStatus status) {
         this.status = status.ordinal();
         this.update();
+        ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(this)));
     }
     public void setStatus(Integer status) {
         this.status = status;

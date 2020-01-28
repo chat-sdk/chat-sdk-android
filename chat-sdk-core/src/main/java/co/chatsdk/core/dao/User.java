@@ -22,6 +22,7 @@ import java.util.Map;
 import co.chatsdk.core.R;
 import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.defines.Availability;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
@@ -112,6 +113,8 @@ public class User extends AbstractEntity implements UserListItem {
         contactLink.setUserId(user.getId());
         // insert contact link entity into DB
         daoSession.insertOrReplace(contactLink);
+
+        ChatSDK.events().source().onNext(NetworkEvent.contactAdded(user));
     }
 
     public void deleteContact (User user) {
@@ -132,6 +135,8 @@ public class User extends AbstractEntity implements UserListItem {
         for(ContactLink link : contactLinks) {
             ChatSDK.db().delete(link);
         }
+
+        ChatSDK.events().source().onNext(NetworkEvent.contactDeleted(user));
     }
 
     public void addContact(User user) {
@@ -216,7 +221,8 @@ public class User extends AbstractEntity implements UserListItem {
     }
 
     public void setAvailability (String availability) {
-        setMetaString(Keys.Availability, availability);
+        setMetaString(Keys.Availability, availability, false);
+        ChatSDK.events().source().onNext(NetworkEvent.userPresenceUpdated(this));
     }
 
     public Boolean getIsOnline () {
@@ -263,8 +269,11 @@ public class User extends AbstractEntity implements UserListItem {
     }
 
     public void setMetaString(String key, String value) {
-        setMetaValue(key, value);
-        update();
+        setMetaValue(key, value, true);
+    }
+
+    public void setMetaString(String key, String value, boolean notify) {
+        setMetaValue(key, value, notify);
     }
 
     /**
@@ -272,8 +281,9 @@ public class User extends AbstractEntity implements UserListItem {
      **/
     public void setMetaMap(Map<String, String> metadata){
         for(String key : metadata.keySet()) {
-            setMetaValue(key, metadata.get(key));
+            setMetaValue(key, metadata.get(key), false);
         }
+        ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(this));
     }
 
     /**
@@ -289,8 +299,12 @@ public class User extends AbstractEntity implements UserListItem {
         return map;
     }
 
-    @Keep
     public void setMetaValue (String key, String value) {
+        setMetaValue(key, value, true);
+    }
+
+    @Keep
+    public void setMetaValue (String key, String value, boolean notify) {
         UserMetaValue metaValue = metaValueForKey(key);
         if (metaValue == null) {
             metaValue = ChatSDK.db().createEntity(UserMetaValue.class);
@@ -302,6 +316,10 @@ public class User extends AbstractEntity implements UserListItem {
 
         metaValue.update();
         update();
+
+        if (notify) {
+            ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(this));
+        }
     }
 
     @Keep
@@ -453,6 +471,8 @@ public class User extends AbstractEntity implements UserListItem {
 
     public void setIsOnline(Boolean isOnline) {
         this.isOnline = isOnline;
+        update();
+        ChatSDK.events().source().onNext(NetworkEvent.userPresenceUpdated(this));
     }
 
     public void loadAvatar(ImageView imageView) {

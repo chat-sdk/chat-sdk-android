@@ -156,7 +156,6 @@ public class UserWrapper {
                 ValueEventListener listener = userMetaRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
                     if (hasValue && snapshot.getValue() instanceof Map) {
                         deserializeMeta((Map<String, Object>) snapshot.getValue());
-                        ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(model));
                         emitter.onComplete();
                     } else {
                         emitter.onError(new Throwable("User doesn't exist"));
@@ -199,7 +198,6 @@ public class UserWrapper {
             }
 
             model.setMetaMap(oldData);
-            model.update();
 
         }
     }
@@ -225,7 +223,6 @@ public class UserWrapper {
                     }
 
                     model.setIsOnline(available);
-                    ChatSDK.events().source().onNext(NetworkEvent.userPresenceUpdated(model));
                     emitter.onComplete();
                 }).onCancelled(error -> {
                     emitter.onError(error.toException());

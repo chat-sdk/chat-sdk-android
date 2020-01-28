@@ -13,13 +13,10 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.LayoutRes;
 import androidx.appcompat.app.ActionBar;
@@ -27,8 +24,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.stfalcon.chatkit.commons.models.MessageContentType;
@@ -61,7 +56,6 @@ import co.chatsdk.core.interfaces.ChatOptionsHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
-import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
@@ -71,10 +65,10 @@ import co.chatsdk.ui.chat.ImageMessageOnClickHandler;
 import co.chatsdk.ui.chat.LocationMessageOnClickHandler;
 import co.chatsdk.ui.chat.ReplyView;
 import co.chatsdk.ui.chat.TextInputDelegate;
-import co.chatsdk.ui.chatkit.custom.IncomingImageMessageViewHolder;
-import co.chatsdk.ui.chatkit.custom.IncomingTextMessageViewHolder;
-import co.chatsdk.ui.chatkit.custom.OutcomingImageMessageViewHolder;
-import co.chatsdk.ui.chatkit.custom.OutcomingTextMessageViewHolder;
+import co.chatsdk.ui.chatkit.view_holders.IncomingImageMessageViewHolder;
+import co.chatsdk.ui.chatkit.view_holders.IncomingTextMessageViewHolder;
+import co.chatsdk.ui.chatkit.view_holders.OutcomingImageMessageViewHolder;
+import co.chatsdk.ui.chatkit.view_holders.OutcomingTextMessageViewHolder;
 import co.chatsdk.ui.chatkit.model.ImageMessageHolder;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.chatkit.model.MessageHolder;
@@ -198,7 +192,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                 .subscribe(networkEvent -> {
 
                     MessageSendProgress progress = networkEvent.getMessageSendProgress();
-                    addMessageToStartOrUpdate(progress.message, progress.status);
+                    addMessageToStartOrUpdate(progress.message, progress);
         }));
 
         onLoadMore(0, 0);
@@ -242,7 +236,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
         if (chatActionBar == null) {
             chatActionBar = new ChatActionBar(getLayoutInflater());
-            chatActionBar.setOnClickListener(this::openThreadDetailsActivity);
+            chatActionBar.setOnClickListener(v -> openThreadDetailsActivity());
 
             ab.setCustomView(chatActionBar.get());
         }
@@ -361,18 +355,52 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
     public void removeMessage(Message message) {
         MessageHolder holder = messageHolderHashMap.get(message);
+
         if (holder != null) {
             messagesListAdapter.delete(holder);
             messageHolders.remove(holder);
             messageHolderHashMap.remove(message);
         }
+
+        updatePrevious(message);
+        updateNext(message);
+    }
+
+    public void updatePrevious(Message message) {
+        MessageHolder holder = previous(message);
+        if (holder != null) {
+            messagesListAdapter.update(holder);
+        }
+    }
+
+    public MessageHolder previous(Message message) {
+        Message previous = message.getPreviousMessage();
+        if (previous != null) {
+            return messageHolderHashMap.get(previous);
+        }
+        return null;
+    }
+
+    public void updateNext(Message message) {
+        MessageHolder holder = next(message);
+        if (holder != null) {
+            messagesListAdapter.update(holder);
+        }
+    }
+
+    public MessageHolder next(Message message) {
+        Message next = message.getNextMessage();
+        if (next != null) {
+            return messageHolderHashMap.get(next);
+        }
+        return null;
     }
 
     public void addMessageToStartOrUpdate(Message message) {
         addMessageToStartOrUpdate(message, null);
     }
 
-    public void addMessageToStartOrUpdate(Message message, MessageSendStatus status) {
+    public void addMessageToStartOrUpdate(Message message, MessageSendProgress progress) {
         MessageHolder holder = messageHolderHashMap.get(message);
 
         if (holder == null) {
@@ -381,6 +409,9 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
             messageHolders.add(0, holder);
             messageHolderHashMap.put(holder.getMessage(), holder);
 
+            // This means that we only scroll down if we were already at the bottom
+            // it can be annoying if you have scrolled up and then a new message
+            // comes in and scrolls the screen down
             boolean scroll = message.getSender().isMe();
 
             RecyclerView.LayoutManager layoutManager = messagesList.getLayoutManager();
@@ -392,8 +423,13 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                 }
             }
             messagesListAdapter.addToStart(holder, scroll);
+
+            // Update the previous holder so that we can hide the
+            // name if necessary
+            updatePrevious(message);
+
         } else {
-            holder.setSendStatus(status);
+            holder.setProgress(progress);
             messagesListAdapter.update(holder);
         }
     }

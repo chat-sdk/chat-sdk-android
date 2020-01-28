@@ -110,25 +110,17 @@ public class FirebaseEventHandler extends AbstractEventHandler {
             eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread1));
         }, this));
 
-        dm.add(thread.metaOn().subscribe(thread1 -> {
-            eventSource.onNext(NetworkEvent.threadMetaUpdated(thread1));
-        }, this));
+        dm.add(thread.metaOn().subscribe(thread1 -> {}, this));
 
         dm.add(thread.lastMessageOn().subscribe(thread1 -> {
             eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread1));
         }, this));
 
-        dm.add(thread.messagesOn().subscribe(message -> {
-            eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message));
-        }, this));
+        dm.add(thread.messagesOn().subscribe(message -> {}, this));
 
-        dm.add(thread.messageRemovedOn().subscribe(message -> {
-            eventSource.onNext(NetworkEvent.messageRemoved(message.getThread(), message));
-        }, this));
+        dm.add(thread.messageRemovedOn().subscribe(message -> {}, this));
 
-        dm.add(thread.usersOn().subscribe(user1 -> {
-            eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user1));
-        }, this));
+        dm.add(thread.usersOn().subscribe(user1 -> {}, this));
     }
 
     protected void contactsOn (User user) {

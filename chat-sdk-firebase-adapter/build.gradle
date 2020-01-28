@@ -31,7 +31,7 @@ android {
 }
 
 ext {
-    libraryName = 'Chat SDK Firebase Adapter'
+    libraryName = 'ChatSDKFirebaseAdapter'
     artifact = 'chat-sdk-firebase-adapter'
     libraryDescription = 'Chat SDK Firebase Adapter'
 }

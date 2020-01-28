@@ -1,6 +1,5 @@
 package co.chatsdk.ui.chat;
 
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,26 +20,26 @@ public class ChatActionBar {
     protected TextView subtitleTextView;
     protected View actionBarView;
     protected ImageView threadImageView;
-    protected Action onClickListener;
+    protected View.OnClickListener onClickListener;
 
     public ChatActionBar(LayoutInflater inflater) {
 
         actionBarView = inflater.inflate(R.layout.action_bar_chat_activity, null);
 
-        actionBarView.setOnClickListener(v -> {
-            if (ChatSDK.config().threadDetailsEnabled) {
-                if (onClickListener != null) {
-                    try {
-                        onClickListener.run();
-                    } catch (Exception e) {}
-                }
-            }
-        });
-
         titleTextView = actionBarView.findViewById(R.id.text_name);
         subtitleTextView = actionBarView.findViewById(R.id.text_subtitle);
         threadImageView = actionBarView.findViewById(R.id.image_avatar);
 
+        titleTextView.setOnClickListener(this::onClick);
+        threadImageView.setOnClickListener(this::onClick);
+        subtitleTextView.setOnClickListener(this::onClick);
+
+    }
+
+    public void onClick(View view) {
+        if (ChatSDK.config().threadDetailsEnabled && onClickListener != null) {
+            onClickListener.onClick(view);
+        }
     }
 
     public View get() {
@@ -54,7 +53,7 @@ public class ChatActionBar {
         ThreadImageBuilder.load(threadImageView, thread);
     }
 
-    public void setOnClickListener(Action onClickListener) {
+    public void setOnClickListener(View.OnClickListener onClickListener) {
         this.onClickListener = onClickListener;
     }
 

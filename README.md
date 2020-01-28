@@ -136,11 +136,6 @@ If you have an app that uses the Chat SDK let us know and we'll add a link.
 
 This repository contains a fully functional version of the Chat SDK which is configured using our Firebase account and social media logins. This is great way to test the features of the Chat SDK before you start integrating it with your app. 
 
-> **Note:**
->You should make sure that the correct SDK versions and build tools are installed in Android Studio. To do this open the Preferences panel and navigate to **Appearance & Behavour** -> **System Settings** -> **Android SDK** or click on the **SDK Manager** icon in the tool bar. Android SDK versions 8.1 and onwards should be installed. **Android SDK Build-Tools** version that is defined in the [`gradle.properties`](https://github.com/chat-sdk/chat-sdk-android/blob/master/gradle.properties) file under the `ANDROID_BUILD_TOOLS_VERSION` property. 
-
-The next step is to setup the Chat SDK using your Firebase and Social Accounts. To do that continue [here](https://github.com/chat-sdk/chat-sdk-android#firebase-setup).
-
 ### Setup Service
 
 We provide extensive documentation on Github but if you’re a non-technical user or want to save yourself some work you can take advantage of our [setup and integration service](http://chatsdk.co/downloads/chat-sdk-setup-service/).
@@ -165,10 +160,19 @@ repositories {
 Then add this to your `dependencies` area:
 
 ```
-compile 'sdk.chat:chat-sdk-core:4.8.9'
-compile 'sdk.chat:chat-sdk-ui:4.8.9'
-compile 'sdk.chat:chat-sdk-firebase-adapter:4.8.9'
-compile 'sdk.chat:chat-sdk-firebase-file-storage:4.8.9'
+implementation 'sdk.chat:chat-sdk-core:4.8.9'
+implementation 'sdk.chat:chat-sdk-ui:4.8.9'
+implementation 'sdk.chat:chat-sdk-firebase-adapter:4.8.9'
+implementation 'sdk.chat:chat-sdk-firebase-ui:4.8.9'
+
+// Neede for push notifications
+implementation 'sdk.chat:chat-sdk-firebase-push:4.8.9'
+
+// Needed for file uploads
+implementation 'sdk.chat:chat-sdk-firebase-file-storage:4.8.9'
+
+// Allows users to upload multiple profile pictures
+implementation 'sdk.chat:chat-sdk-profile-pictures:4.8.9'
 ```
 
 You may also need to enable Java 8:
@@ -190,7 +194,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.google.gms:google-services:4.0.1'
+        classpath 'com.google.gms:google-services:4.3.3'
     }
 }
 ```
@@ -218,20 +222,27 @@ Now open your applications's main class and find the `onCreate` method. Add the 
 Context context = getApplicationContext();
 
 try {
-    // Create a new configuration
-    Configuration.Builder builder = new Configuration.Builder();
 
-    // Perform any other configuration steps (optional)
-    builder.firebaseRootPath("prod");
+    // Create a new configuration
+    Configuration config = new Configuration.Builder()
+            .firebaseRootPath("dev")
+            .googleMaps("Your Key")
+            .build();
 
     // Initialize the Chat SDK
-    ChatSDK.initialize(context, config.build(), FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
+    ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
     
+    // Enable FirebaseUI with email and phone auth
+    FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
+  
     // File storage is needed for profile image upload and image messages
     FirebaseFileStorageModule.activate();
 
     // Push notification module
     FirebasePushModule.activate();
+    
+    // Enable multiple profile pictures per user
+    ProfilePicturesModule.activate();
 
     // Activate any other modules you need.
     // ...
@@ -271,40 +282,9 @@ ChatSDK.ui().startSplashScreenActivity(context);
 5. Click **Settings** (the gear icon). On the General tab, click **Add App -> Add Firebase to your Android app**
 6. Enter your package name - found in your app's `build.gradle` file, app name and SHA-1 key (optional)
 7. Download the **google-services.json** file and add it to your app project. It should be added inside the `app` folder.
-8. Set a custom root path. The chat SDK allows you to run multiple chat instances on one Firebase database. This could be useful if you want *test* and *production* environments for example. To do this set `builder.firebaseRootPath("prod")` in the configuration builder.  
-9. In the Firebase dashboard click **Authentication -> Sign-in method** and enable all the appropriate methods 
-
-### Security Rules
-
-Firebase secures your data by allowing you to write rules to govern who can access the database and what can be written. The rules are also needed to enable user search. To enable the rules see the guide [Enabling Security Rules](https://github.com/chat-sdk/chat-sdk-firebase).
-
-### Push Notifications
-
-Follow the instructions on our [Chat SDK Firebase repository](https://github.com/chat-sdk/chat-sdk-firebase)
-
-Then add the following to your `build.gradle`
-
-##### Add the library
-
-*Gradle*
-
-```
-compile 'sdk.chat:chat-sdk-firebase-push:4.8.9'
-```
-
-[*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
-
-```
-compile project(path: ':chat-sdk-firebase-push')
-```
-
-##### Enable the module
-
-In your main class `onCreate` method add:
-
-```
-FirebasePushModule.activate();
-```
+8. In the Firebase dashboard click **Authentication -> Sign-in method** and enable all the appropriate methods 
+9. Enable the security rules: [Enabling Security Rules](https://github.com/chat-sdk/chat-sdk-firebase).
+10. Enable push notifications: [Push Notifications](https://github.com/chat-sdk/chat-sdk-firebase)
 
 ### Enabling location messages
 
@@ -343,21 +323,7 @@ We have a number of additional guides available on our [Wiki](https://github.com
 Also checkout the other guides:
 
 1. [Build a custom push notification handler](https://github.com/chat-sdk/docs/blob/master/Custom%20Push%20Handler.md)
-
-
-## UI Customization
-
-The Chat SDK is designed to be easily customizable. If you want to customize any of the activities you can do it using the `ui` api. 
-
-```
-// You could define a custom LoginActivity subclass here
-ChatSDK.ui().setLoginActivity(YourLoginActivity.class);
-        
-// Or customise the profile fragment
-ChatSDK.ui().setProfileFragmentProvider(user -> YourProfileFragment.newInstance(user));
-```
-
-Every activity and fragment can be customized this way. 
+2. [Android UI customization](https://github.com/chat-sdk/docs/blob/master/Android%20Customize%20UI.md)
 
 ## Configuration
 

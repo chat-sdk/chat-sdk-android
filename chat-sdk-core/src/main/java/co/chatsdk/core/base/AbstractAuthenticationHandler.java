@@ -62,21 +62,6 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
         keyValuesEditor.apply();
     }
 
-    public void addLoginInfoData (String key, Object value) {
-
-        currentUserID = null;
-
-        SharedPreferences.Editor keyValuesEditor = ChatSDK.shared().getPreferences().edit();
-        if (value instanceof Integer) {
-            keyValuesEditor.putInt(key, (Integer) value);
-        }
-        else if (value instanceof String) {
-            keyValuesEditor.putString(key, (String) value);
-        }
-
-        keyValuesEditor.apply();
-    }
-
     public void clearSavedCurrentUserEntityID() {
 
         currentUserID = null;

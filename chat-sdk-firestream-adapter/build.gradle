@@ -20,7 +20,7 @@ android {
 }
 
 ext {
-    libraryName = 'Chat SDK Fire Stream Adapter'
+    libraryName = 'ChatSDKFireStreamAdapter'
     artifact = 'chat-sdk-firestream-adapter'
     libraryDescription = 'Chat SDK Firebase UI'
 }

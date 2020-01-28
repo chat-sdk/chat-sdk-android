@@ -30,7 +30,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
         Fire.stream().setMarkReceivedFilter(event -> {
             // Check if the message is read
             Message message = ChatSDK.db().fetchEntityWithEntityID(event.get().getId(), Message.class);
-            return !message.readStatusForUser(ChatSDK.currentUser()).is(ReadStatus.read(), ReadStatus.delivered());
+            return message == null || !message.readStatusForUser(ChatSDK.currentUser()).is(ReadStatus.read(), ReadStatus.delivered());
         });
     }
 
@@ -81,19 +81,17 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
 
                 cdm.add(chat.getUserEvents().subscribe(userEvent -> {
                     if (userEvent.typeIs(EventType.Added)) {
-                        dm.put(chat.getId(), APIHelper.fetchRemoteUser(userEvent.get().getId()).subscribe(user -> {
+                        dm.put(chat.getId(), ChatSDK.core().getUserForEntityID(userEvent.get().getId()).subscribe(user -> {
                             if (userEvent.get().equalsRoleType(RoleType.owner())) {
                                 finalThread.setCreator(user);
                             }
                             finalThread.addUser(user);
                             ChatSDK.core().userOn(user).subscribe(new CrashReportingCompletableObserver());
-                            eventSource.onNext(NetworkEvent.threadUsersChanged(finalThread, user));
                         }, this));
                     }
                     if (userEvent.typeIs(EventType.Removed)) {
                         User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEvent.get().getId());
                         finalThread.removeUser(user);
-                        eventSource.onNext(NetworkEvent.threadUsersChanged(finalThread, user));
                     }
                 }, this));
 
@@ -115,7 +113,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
         dm.add(Fire.stream().getSendableEvents().getFireStreamMessages().subscribe(event -> {
 
             // Get the user
-            dm.add(APIHelper.fetchRemoteUser(event.get().getFrom()).subscribe(user -> {
+            dm.add(ChatSDK.core().getUserForEntityID(event.get().getFrom()).subscribe(user -> {
 
                 // Get the thread
                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(event.get().getFrom());
@@ -158,7 +156,6 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
             Message message = thread.getMessageWithEntityID(messageId);
             if (message != null) {
                 thread.removeMessage(message);
-                eventSource.onNext(NetworkEvent.messageRemoved(message.getThread(), message));
             }
         }
     }
@@ -167,7 +164,6 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
         if (!thread.containsMessageWithID(mm.getId())) {
             return FirestreamHelper.sendableToMessage(mm).subscribe(message -> {
                 thread.addMessage(message);
-                eventSource.onNext(NetworkEvent.messageAdded(thread, message));
             }, this);
         }
         return null;

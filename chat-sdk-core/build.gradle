@@ -40,7 +40,7 @@ greendao {
 }
 
 ext {
-    libraryName = 'Chat SDK Core'
+    libraryName = 'ChatSDKCore'
     artifact = 'chat-sdk-core'
     libraryDescription = 'Chat SDK Core'
 }

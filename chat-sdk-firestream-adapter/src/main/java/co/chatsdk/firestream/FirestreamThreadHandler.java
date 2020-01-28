@@ -12,6 +12,7 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
@@ -207,7 +208,9 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        }).doOnComplete(() -> message.getThread().removeMessage(message));
+        }).doOnComplete(() -> {
+            message.getThread().removeMessage(message);
+        });
     }
 
     @Override

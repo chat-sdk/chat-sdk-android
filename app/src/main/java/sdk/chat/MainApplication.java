@@ -1,7 +1,6 @@
 package sdk.chat;
 
 import android.content.Context;
-import android.net.sip.SipProfile;
 
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
@@ -9,7 +8,6 @@ import androidx.multidex.MultiDexApplication;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
 
-import co.chatsdk.android.app.R;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
@@ -19,13 +17,9 @@ import co.chatsdk.firestream.FireStreamNetworkAdapter;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.chatkit.CKChatActivity;
 import co.chatsdk.ui.chatkit.CKPrivateThreadsFragment;
-import co.chatsdk.ui.main.MainDrawActivity;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import firestream.chat.Config;
-import firestream.chat.events.Event;
-import firestream.chat.message.Sendable;
 import firestream.chat.namespace.Fire;
-import io.reactivex.functions.Predicate;
 
 /**
  * Created by Ben Smiley on 6/8/2014.
@@ -55,10 +49,11 @@ public class MainApplication extends MultiDexApplication {
             Config firestreamConfig = new Config();
             try {
                 firestreamConfig.setRoot(rootPath);
-                firestreamConfig.listenFromLastSentMessage = false;
+                firestreamConfig.startListeningFromLastSentMessageDate = false;
                 firestreamConfig.listenToMessagesWithTimeAgo = Config.TimePeriod.days(7);
                 firestreamConfig.database = Config.DatabaseType.Realtime;
                 firestreamConfig.deleteMessagesOnReceipt = false;
+                firestreamConfig.deliveryReceiptsEnabled = false;
             } catch (Exception e) {
                 e.printStackTrace();
             }

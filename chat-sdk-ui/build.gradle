@@ -38,7 +38,7 @@ android {
 }
 
 ext {
-    libraryName = 'Chat SDK UI'
+    libraryName = 'ChatSDKUI'
     artifact = 'chat-sdk-ui'
     libraryDescription = 'Chat SDK UI'
 }

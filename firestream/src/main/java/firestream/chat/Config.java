@@ -1,8 +1,5 @@
 package firestream.chat;
 
-import java.time.Duration;
-import java.time.Period;
-import java.util.Calendar;
 import java.util.Date;
 
 import firefly.sdk.chat.R;
@@ -42,6 +39,10 @@ public class Config {
 
         public static TimePeriod weeks(int weeks) {
             return days(weeks * 7);
+        }
+
+        public static TimePeriod months(int months) {
+            return weeks(months * 4);
         }
 
         public static TimePeriod infinite() {
@@ -127,7 +128,7 @@ public class Config {
      * return true
      *
      */
-    public boolean listenFromLastSentMessage = true;
+    public boolean startListeningFromLastSentMessageDate = true;
 
     /**
      * This will listen to messages with a duration before
@@ -136,7 +137,7 @@ public class Config {
      * the last week. If it is set to null there will be no limit,
      * we will listed to all historic messages
      *
-     * This also is in effect in the case that the {@link Config#listenFromLastSentMessage }
+     * This also is in effect in the case that the {@link Config#startListeningFromLastSentMessageDate }
      * is set to true, in that case, if there are no messages or receipts in the queue,
      * the listener will be set with this duration ago
      * */

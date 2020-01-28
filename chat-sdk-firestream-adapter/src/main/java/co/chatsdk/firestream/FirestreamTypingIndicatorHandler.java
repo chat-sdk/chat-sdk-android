@@ -7,6 +7,7 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
+import firestream.chat.firebase.rx.DisposableMap;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.events.ConnectionEvent;
 import firestream.chat.firebase.rx.DisposableList;
@@ -17,7 +18,7 @@ import io.reactivex.disposables.Disposable;
 
 public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler {
 
-    private DisposableList dm = new DisposableList();
+    private DisposableMap dm = new DisposableMap();
 
     public FirestreamTypingIndicatorHandler() {
 
@@ -30,7 +31,7 @@ public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler 
                     String senderId = event.get().getFrom();
 
                     if (!senderId.equals(ChatSDK.currentUserID())) {
-                        dm.add(APIHelper.fetchRemoteUser(senderId).subscribe((user, throwable) -> {
+                        dm.add(ChatSDK.core().getUserForEntityID(senderId).subscribe((user, throwable) -> {
                             if (throwable == null) {
                                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(senderId);
                                 if (thread != null) {

@@ -74,8 +74,6 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                         public void onNext(@NonNull FileUploadResult fileUploadResult) {
                             if (fileUploadResult.urlValid()) {
                                 ChatSDK.currentUser().setAvatarURL(fileUploadResult.url);
-                                ChatSDK.currentUser().update();
-                                ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(ChatSDK.currentUser()));
                             }
                         }
 

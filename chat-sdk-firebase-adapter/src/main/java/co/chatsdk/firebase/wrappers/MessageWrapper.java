@@ -248,16 +248,7 @@ public class MessageWrapper  {
     
     public Completable send() {
         if (model.getThread() != null) {
-            return push().concatWith(Completable.defer(() -> new ThreadWrapper(model.getThread()).pushLastMessage(lastMessageData()))).doOnComplete(() -> {
-                FirebaseEntity.pushThreadMessagesUpdated(model.getThread().getEntityID());
-
-                model.setMessageStatus(MessageSendStatus.Sent);
-                ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(model)));
-
-            }).doOnError(throwable -> {
-                model.setMessageStatus(MessageSendStatus.Failed);
-                ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(model)));
-            }).subscribeOn(Schedulers.single());
+            return push().concatWith(Completable.defer(() -> new ThreadWrapper(model.getThread()).pushLastMessage(lastMessageData()))).subscribeOn(Schedulers.single());
         } else {
             return Completable.error(new Throwable(ChatSDK.shared().context().getString(R.string.message_doesnt_have_a_thread)));
         }

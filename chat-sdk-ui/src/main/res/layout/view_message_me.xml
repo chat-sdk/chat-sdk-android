@@ -138,7 +138,7 @@
         android:layout_alignParentEnd="true" />
 
     <ImageView
-        android:id="@+id/image_read_receipt"
+        android:id="@+id/read_status"
         android:layout_width="34dp"
         android:layout_height="26dp"
         android:layout_alignParentBottom="true"

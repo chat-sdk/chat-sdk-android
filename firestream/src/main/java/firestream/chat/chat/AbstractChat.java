@@ -16,9 +16,7 @@ import firestream.chat.events.ListData;
 import firestream.chat.filter.Filter;
 import firestream.chat.firebase.rx.DisposableMap;
 import firestream.chat.interfaces.IAbstractChat;
-import firestream.chat.message.DeliveryReceipt;
 import firestream.chat.namespace.Fire;
-import firestream.chat.types.DeliveryReceiptType;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -137,7 +135,7 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      */
     protected Single<Date> dateOfLastDeliveryReceipt() {
         return Single.defer(() -> {
-            if (!Fire.internal().getConfig().listenFromLastSentMessage) {
+            if (!Fire.internal().getConfig().startListeningFromLastSentMessageDate) {
                 return Single.just(Fire.internal().getConfig().listenToMessagesWithTimeAgo.getDate());
             } else {
                 return Fire.internal().getFirebaseService().core

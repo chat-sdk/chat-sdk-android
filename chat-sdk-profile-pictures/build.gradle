@@ -30,7 +30,7 @@ android {
 }
 
 ext {
-    libraryName = 'Chat SDK Profile Pictures'
+    libraryName = 'ChatSDKProfilePictures'
     artifact = 'chat-sdk-profile-pictures'
     libraryDescription = 'Chat SDK Profile Pictures'
 }

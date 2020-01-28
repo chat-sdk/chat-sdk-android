@@ -19,7 +19,7 @@ android {
 }
 
 ext {
-    libraryName = 'Fire Stream'
+    libraryName = 'FireStream'
     artifact = 'firestream'
     libraryDescription = 'FireStream: Messaging Framework for Firebase and Firestore'
 }

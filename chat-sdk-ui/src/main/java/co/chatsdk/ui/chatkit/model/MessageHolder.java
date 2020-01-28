@@ -9,6 +9,7 @@ import java.util.List;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
@@ -19,7 +20,7 @@ public class MessageHolder implements IMessage {
     public Message message;
     protected ReadStatus readStatus = null;
     protected UserHolder userHolder = null;
-    protected MessageSendStatus sendStatus = null;
+    protected MessageSendProgress progress = null;
 
     public MessageHolder(Message message) {
         this.message = message;
@@ -58,14 +59,21 @@ public class MessageHolder implements IMessage {
     }
 
     public MessageSendStatus getStatus() {
-        if (sendStatus == null) {
+        if (progress == null) {
             return message.getMessageStatus();
         }
-        return sendStatus;
+        return progress.status;
     }
 
-    public void setSendStatus(MessageSendStatus sendStatus) {
-        this.sendStatus = sendStatus;
+    public Integer getUploadPercentage() {
+        if (progress != null && progress.uploadProgress != null) {
+            return Math.round(progress.uploadProgress.asFraction() * 100);
+        }
+        return null;
+    }
+
+    public void setProgress(MessageSendProgress progress) {
+        this.progress = progress;
     }
 
     public ReadStatus getReadStatus() {

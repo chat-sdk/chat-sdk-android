@@ -1,24 +1,24 @@
-package co.chatsdk.ui.chatkit.custom;
+package co.chatsdk.ui.chatkit.view_holders;
 
 import android.view.View;
 import android.widget.ImageView;
 
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 
-import co.chatsdk.core.dao.Message;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.chat.ReadStatusViewBinder;
 import co.chatsdk.ui.chatkit.model.MessageHolder;
 import co.chatsdk.ui.chatkit.model.ThreadHolder;
 
 public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<ThreadHolder> {
 
     private View onlineIndicator;
-    private ImageView readReceipt;
+    private ImageView readStatus;
 
     public ThreadViewHolder(View itemView) {
         super(itemView);
         onlineIndicator = itemView.findViewById(R.id.onlineIndicator);
-        readReceipt = itemView.findViewById(R.id.image_read_receipt);
+        readStatus = itemView.findViewById(R.id.read_status);
     }
 
     @Override
@@ -38,11 +38,8 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
         }
 
         MessageHolder lastMessageHolder = dialog.getLastMessage();
-        if (lastMessageHolder == null || lastMessageHolder.getReadStatusResourceId() == null) {
-            readReceipt.setVisibility(View.GONE);
-        } else {
-            readReceipt.setVisibility(View.VISIBLE);
-            readReceipt.setImageResource(lastMessageHolder.getReadStatusResourceId());
+        if (lastMessageHolder != null) {
+            ReadStatusViewBinder.bind(readStatus, lastMessageHolder.getMessage());
         }
     }
 

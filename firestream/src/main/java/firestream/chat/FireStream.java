@@ -167,7 +167,7 @@ public class FireStream extends AbstractChat implements IFireStream {
 
         // If message deletion is disabled, send a received receipt to ourself for each message. This means
         // that when we add a childListener, we only get new messages
-        if (!config.deleteMessagesOnReceipt && config.listenFromLastSentMessage) {
+        if (!config.deleteMessagesOnReceipt && config.startListeningFromLastSentMessageDate) {
             dm.add(getSendableEvents()
                     .getMessages()
                     .pastAndNewEvents()

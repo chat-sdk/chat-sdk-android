@@ -3,6 +3,7 @@ package co.chatsdk.core.base;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
@@ -13,6 +14,7 @@ import co.chatsdk.core.types.ConnectionType;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.CompletableSource;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -57,7 +59,7 @@ public class BaseContactHandler implements ContactHandler {
 
     @Override
     public Completable addContactLocal(User user, ConnectionType type) {
-        return Completable.create(emitter -> {
+        return ChatSDK.core().userOn(user).doOnComplete(() -> {
             if (ChatSDK.currentUser() != null && !user.isMe()) {
 
                 ChatSDK.hook().executeHook(HookEvent.ContactWillBeAdded, HookEvent.userData(user));
@@ -66,9 +68,6 @@ public class BaseContactHandler implements ContactHandler {
 
                 ChatSDK.hook().executeHook(HookEvent.ContactWasAdded, HookEvent.userData(user));
             }
-            emitter.onComplete();
-        }).concatWith(ChatSDK.core().userOn(user)).doOnComplete(() -> {
-            ChatSDK.events().source().onNext(NetworkEvent.contactAdded(user));
         });
     }
 
@@ -81,7 +80,6 @@ public class BaseContactHandler implements ContactHandler {
             ChatSDK.currentUser().deleteContact(user, type);
 
             ChatSDK.hook().executeHook(HookEvent.ContactWasDeleted, HookEvent.userData(user));
-            ChatSDK.events().source().onNext(NetworkEvent.contactDeleted(user));
 
             ChatSDK.core().userOff(user);
         }

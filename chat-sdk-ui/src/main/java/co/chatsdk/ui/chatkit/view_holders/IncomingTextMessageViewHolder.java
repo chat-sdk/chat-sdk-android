@@ -1,4 +1,4 @@
-package co.chatsdk.ui.chatkit.custom;
+package co.chatsdk.ui.chatkit.view_holders;
 
 import android.view.View;
 import android.widget.TextView;
@@ -6,6 +6,7 @@ import android.widget.TextView;
 import com.stfalcon.chatkit.messages.MessageHolders;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
@@ -30,6 +31,7 @@ public class IncomingTextMessageViewHolder
         super.onBind(holder);
 
         Message message = holder.getMessage();
+        Message previousMessage = message.getPreviousMessage();
         Message nextMessage = message.getNextMessage();
 
         boolean isOnline = holder.getUser().isOnline();
@@ -47,16 +49,20 @@ public class IncomingTextMessageViewHolder
             }
         });
 
-        if (message.getThread().typeIs(ThreadType.Group) && (nextMessage == null || !message.getSender().equals(nextMessage.getSender()))) {
+        if (message.getThread().typeIs(ThreadType.Group) && (previousMessage == null || !message.getSender().equalsEntity(previousMessage.getSender()))) {
             userName.setVisibility(View.VISIBLE);
             userName.setText(holder.getUser().getName());
         } else {
             userName.setVisibility(View.GONE);
         }
 
-
-
-
+        // Hide the time if it's the same as the next message
+        DateFormat format = new SimpleDateFormat("dd-M-yyyy hh:mm");
+        if (nextMessage != null && format.format(message.getDate().toDate()).equals(format.format(nextMessage.getDate().toDate()))) {
+            time.setVisibility(View.GONE);
+        } else {
+            time.setVisibility(View.VISIBLE);
+        }
     }
 
     public static class Payload {

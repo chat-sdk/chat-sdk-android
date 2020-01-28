@@ -29,7 +29,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
 import co.chatsdk.ui.threads.ThreadImageBuilder;
-import co.chatsdk.ui.chatkit.custom.ThreadViewHolder;
+import co.chatsdk.ui.chatkit.view_holders.ThreadViewHolder;
 import co.chatsdk.ui.chatkit.model.MessageHolder;
 import co.chatsdk.ui.chatkit.model.ThreadHolder;
 import co.chatsdk.ui.chatkit.model.TypingThreadHolder;

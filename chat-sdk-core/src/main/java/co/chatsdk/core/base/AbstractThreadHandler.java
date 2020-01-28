@@ -78,7 +78,6 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     public static Message newMessage (int type, Thread thread) {
         Message message = ChatSDK.db().createEntity(Message.class);
         message.setSender(ChatSDK.currentUser());
-        message.setMessageStatus(MessageSendStatus.Created);
         message.setDate(new DateTime(System.currentTimeMillis()));
         message.setEntityID(UUID.randomUUID().toString());
         message.setType(type);
@@ -92,6 +91,9 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         }
 
         thread.addMessage(message);
+
+        message.setMessageStatus(MessageSendStatus.Created);
+
         return message;
     }
 
@@ -107,10 +109,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.defer(() -> {
             Message newMessage = newMessage(message.getType(), thread);
             newMessage.setMetaValues(message.getMetaValuesAsMap());
-
             newMessage.setMessageStatus(MessageSendStatus.WillSend);
-            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
-
             return sendMessage(newMessage);
         }).subscribeOn(Schedulers.single());
     }
@@ -279,10 +278,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             Message newMessage = newMessage(message.getType(), thread);
             newMessage.setMetaValues(message.getMetaValuesAsMap());
             newMessage.setValueForKey(reply, Keys.Reply);
-
             newMessage.setMessageStatus(MessageSendStatus.WillSend);
-            ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message)));
-
             return sendMessage(newMessage);
         }).subscribeOn(Schedulers.single());
     }

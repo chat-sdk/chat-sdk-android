@@ -17,8 +17,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import co.chatsdk.core.base.AbstractEntity;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
@@ -144,12 +146,14 @@ public class Thread extends AbstractEntity {
         DaoCore.connectUserAndThread(user, this);
         user.update();
         this.update();
+        ChatSDK.events().source().onNext(NetworkEvent.threadUsersChanged(this, user));
     }
 
     public void removeUser (User user) {
         DaoCore.breakUserAndThread(user, this);
         user.update();
         this.update();
+        ChatSDK.events().source().onNext(NetworkEvent.threadUsersChanged(this, user));
     }
 
     public User otherUser () {
@@ -228,19 +232,27 @@ public class Thread extends AbstractEntity {
     public void addMessage (Message message) {
         message.setThreadId(this.getId());
         List<Message> messages = getMessages();
-        if (messages.size() > 0) {
+        if (!messages.isEmpty()) {
             Message previousMessage = messages.get(messages.size() - 1);
             previousMessage.setNextMessage(message);
+            previousMessage.update();
             message.setPreviousMessage(previousMessage);
+
+            ChatSDK.events().source().onNext(NetworkEvent.messageUpdated(previousMessage));
         }
         getMessages().add(message);
         message.update();
         update();
         refresh();
+        ChatSDK.events().source().onNext(NetworkEvent.messageAdded(message));
+    }
+
+    public void setMetaValue (String key, String value) {
+        setMetaValue(key, value, true);
     }
 
     @Keep
-    public void setMetaValue (String key, String value) {
+    public void setMetaValue (String key, String value, boolean notify) {
         ThreadMetaValue metaValue = metaValueForKey(key);
         if (metaValue == null) {
             metaValue = ChatSDK.db().createEntity(ThreadMetaValue.class);
@@ -251,6 +263,19 @@ public class Thread extends AbstractEntity {
         metaValue.setKey(key);
         metaValue.update();
         update();
+        if (notify) {
+            ChatSDK.events().source().onNext(NetworkEvent.threadMetaUpdated(this));
+        }
+    }
+
+    @Keep
+    public void setMetaValues(Map<String, Object> values) {
+        for (String key : values.keySet()) {
+            if (values.get(key) instanceof String) {
+                this.setMetaValue(key, (String) values.get(key), false);
+            }
+        }
+        ChatSDK.events().source().onNext(NetworkEvent.threadMetaUpdated(this));
     }
 
     @Keep
@@ -293,10 +318,15 @@ public class Thread extends AbstractEntity {
             }
             if (previousMessage != null) {
                 previousMessage.setNextMessage(nextMessage);
+                previousMessage.update();
+                ChatSDK.events().source().onNext(NetworkEvent.messageUpdated(previousMessage));
             }
             if (nextMessage != null) {
                 nextMessage.setPreviousMessage(previousMessage);
+                nextMessage.update();
+                ChatSDK.events().source().onNext(NetworkEvent.messageUpdated(nextMessage));
             }
+
             messages.remove(message);
         }
 
@@ -304,6 +334,8 @@ public class Thread extends AbstractEntity {
 
         update();
         resetMessages();
+
+        ChatSDK.events().source().onNext(NetworkEvent.messageRemoved(this, message));
     }
 
     public boolean hasUser(User user) {

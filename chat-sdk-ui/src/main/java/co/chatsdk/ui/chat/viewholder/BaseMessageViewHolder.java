@@ -1,8 +1,6 @@
 package co.chatsdk.ui.chat.viewholder;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
 import android.graphics.PorterDuff;
 import android.text.util.Linkify;
 import android.view.View;
@@ -20,18 +18,13 @@ import java.util.Locale;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.squareup.picasso.Picasso;
-
 import co.chatsdk.core.base.AbstractMessageViewHolder;
 import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendStatus;
-import co.chatsdk.core.types.ReadStatus;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.chat.ReadStatusViewBinder;
 import co.chatsdk.ui.chat.message_action.CopyMessageAction;
 import co.chatsdk.ui.chat.message_action.DeleteMessageAction;
 import co.chatsdk.ui.chat.message_action.ForwardMessageAction;
@@ -63,15 +56,11 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         messageIconView = itemView.findViewById(R.id.image_icon);
         messageImageView = itemView.findViewById(R.id.image_message_image);
         extraLayout = itemView.findViewById(R.id.layout_extra);
-        readReceiptImageView = itemView.findViewById(R.id.image_read_receipt);
+        readReceiptImageView = itemView.findViewById(R.id.read_status);
         progressBar = itemView.findViewById(R.id.progress_bar);
 
         itemView.setOnClickListener(this::onClick);
         itemView.setOnLongClickListener(this::onLongClick);
-
-        if(readReceiptImageView != null) {
-            readReceiptImageView.setVisibility(ChatSDK.readReceipts() != null ? View.VISIBLE : View.INVISIBLE);
-        }
 
         // Enable linkify
         messageTextView.setAutoLinkMask(Linkify.ALL);
@@ -130,27 +119,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     }
 
     protected void updateReadStatus () {
-
-        if (message != null) {
-            int resource = R.drawable.ic_message_received;
-            ReadStatus status = message.getReadStatus();
-
-            // Hide the read receipt for public threads
-            if(message.getThread().typeIs(ThreadType.Public) || ChatSDK.readReceipts() == null) {
-                status = ReadStatus.hide();
-            }
-
-            if(status.is(ReadStatus.delivered())) {
-                resource = R.drawable.ic_message_delivered;
-            }
-            if(status.is(ReadStatus.read())) {
-                resource = R.drawable.ic_message_read;
-            }
-            if(readReceiptImageView != null) {
-                readReceiptImageView.setImageResource(resource);
-                readReceiptImageView.setVisibility(status.is(ReadStatus.hide()) ? View.INVISIBLE : View.VISIBLE);
-            }
-        }
+        ReadStatusViewBinder.bind(readReceiptImageView, message);
     }
 
     public void setAlpha (float alpha) {

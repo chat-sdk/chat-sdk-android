@@ -1,4 +1,4 @@
-package co.chatsdk.ui.chatkit.custom;
+package co.chatsdk.ui.chatkit.view_holders;
 
 import android.util.Pair;
 import android.view.View;

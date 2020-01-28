@@ -269,11 +269,7 @@ public class ThreadWrapper  {
             FirebaseReferenceManager.shared().addRef(ref, ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
                 if(hasValue &&  snapshot.getValue() instanceof Map) {
                     Map<String, Object> value = (Map<String, Object>) snapshot.getValue();
-                    for (String key : value.keySet()) {
-                        if (value.get(key) instanceof String) {
-                            model.setMetaValue(key, (String) value.get(key));
-                        }
-                    }
+                    model.setMetaValues(value);
                 }
                 e.onNext(model);
             })));
@@ -513,7 +509,6 @@ public class ThreadWrapper  {
         this.model.setImageUrl((String) value.get(Keys.ImageUrl));
         this.model.setCreatorEntityId((String) value.get(Keys.CreatorEntityId));
         this.model.update();
-
     }
 
     /**

@@ -30,11 +30,20 @@
         android:id="@id/messageTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@id/bubble"
-        android:layout_alignRight="@id/bubble"
+        android:layout_alignEnd="@id/read_status"
+        android:layout_alignRight="@id/read_status"
         android:layout_below="@id/bubble"
-        android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginRight="34dp"
+        android:layout_marginEnd="34dp"
         android:maxLines="1"/>
+
+    <ImageView
+        android:id="@+id/read_status"
+        android:layout_width="34dp"
+        android:layout_height="26dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/bubble"
+        />
 
 </RelativeLayout>

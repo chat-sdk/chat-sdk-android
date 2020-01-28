@@ -64,7 +64,6 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
                     } else {
                         message.setUserReadStatus(user, ReadStatus.delivered(), new DateTime());
                     }
-                    ChatSDK.events().source().onNext(NetworkEvent.threadReadReceiptUpdated(thread, message));
                 }
             }
         });
