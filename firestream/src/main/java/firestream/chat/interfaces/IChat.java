@@ -3,6 +3,7 @@ package firestream.chat.interfaces;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -329,4 +330,34 @@ public interface IChat extends IAbstractChat {
     Completable markRead(Sendable sendable);
     Completable markRead(String sendableId);
 
+    /**
+     * Mute notifications for a user
+     * @return completion
+     */
+    Completable mute();
+
+    /**
+     * Mute notifications for a user
+     * @param until mute the thread until this date
+     * @return completion
+     */
+    Completable mute(Date until);
+
+    /**
+     * Unmute notifications for a user
+     * @return completion
+     */
+    Completable unmute();
+
+    /**
+     * Is a user muted?
+     * @return true / false
+     */
+    boolean muted();
+
+    /**
+     * Thread is muted until this date
+     * @return date or null if not muted
+     */
+    Date mutedUntil();
 }

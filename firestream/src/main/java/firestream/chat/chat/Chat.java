@@ -494,4 +494,24 @@ public class Chat extends AbstractChat implements IChat {
         return new Chat(change.getId());
     }
 
+    public Completable mute() {
+        return Fire.internal().mute(getId());
+    }
+
+    public Completable mute(@Nullable Date until) {
+        return Fire.internal().mute(getId(), until);
+    }
+
+    public Completable unmute() {
+        return Fire.internal().unmute(getId());
+    }
+
+    public Date mutedUntil() {
+        return Fire.internal().mutedUntil(getId());
+    }
+
+    public boolean muted() {
+        return Fire.internal().muted(getId());
+    }
+
 }

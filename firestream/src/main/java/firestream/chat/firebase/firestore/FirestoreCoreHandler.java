@@ -11,12 +11,14 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
 import firestream.chat.events.Event;
 import firestream.chat.events.ListData;
+import firestream.chat.firebase.realtime.RXRealtime;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -230,6 +232,14 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             default:
                 return null;
         }
+    }
+
+    public Completable mute(Path path, HashMap<String, Object> data) {
+        return new RXFirestore().set(Ref.document(path), data);
+    }
+
+    public Completable unmute(Path path) {
+        return new RXFirestore().delete(Ref.document(path));
     }
 
 }

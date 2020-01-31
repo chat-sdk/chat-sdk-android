@@ -18,12 +18,16 @@ import javax.annotation.Nullable;
 
 import firefly.sdk.chat.R;
 import firestream.chat.events.Event;
+import firestream.chat.events.ListData;
+import firestream.chat.firebase.service.Keys;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.events.ConnectionEvent;
 import firestream.chat.interfaces.IFireStream;
 import firestream.chat.namespace.Fire;
 
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -64,6 +68,7 @@ public class FireStream extends AbstractChat implements IFireStream {
 
     protected ArrayList<User> contacts = new ArrayList<>();
     protected ArrayList<User> blocked = new ArrayList<>();
+    protected HashMap<String, Date> muted = new HashMap<>();
 
     protected MultiQueueSubject<Event<Chat>> chatEvents = MultiQueueSubject.create();
     protected MultiQueueSubject<Event<User>> contactEvents = MultiQueueSubject.create();
@@ -231,6 +236,18 @@ public class FireStream extends AbstractChat implements IFireStream {
                 }, this));
             } else {
                 chatEvents.onNext(chatEvent);
+            }
+        }));
+
+        dm.add(listChangeOn(Paths.userMutedPath()).subscribe(listDataEvent -> {
+            String id = listDataEvent.get().getId();
+            if (listDataEvent.typeIs(EventType.Removed)) {
+                muted.remove(id);
+            } else {
+                Object date = listDataEvent.get().getData().get(Keys.Date);
+                if (date instanceof Long) {
+                    muted.put(id, new Date((Long) date));
+                }
             }
         }));
 
@@ -537,5 +554,54 @@ public class FireStream extends AbstractChat implements IFireStream {
 
     public Predicate<Event<? extends Sendable>> getMarkReceivedFilter() {
         return markReceivedFilter;
+    }
+
+    @Override
+    public Completable mute(User user) {
+        return mute(user, null);
+    }
+
+    @Override
+    public Completable mute(User user, @Nullable Date until) {
+        return mute(user.getId(), until);
+    }
+
+    @Override
+    public Completable unmute(User user) {
+        return mute(user, null);
+    }
+
+    @Override
+    public Date mutedUntil(User user) {
+        return mutedUntil(user.getId());
+    }
+
+    @Override
+    public boolean muted(User user) {
+        return muted(user.getId());
+    }
+
+    // Internal mute methods
+
+    public Date mutedUntil(String id) {
+        return muted.get(id);
+    }
+
+    public boolean muted(String id) {
+        return mutedUntil(id) != null;
+    }
+
+    public Completable mute(String id) {
+        return mute(id, null);
+    }
+
+    public Completable mute(String id, @Nullable Date until) {
+        return getFirebaseService().core.mute(Paths.userMutedPath().child(id), new HashMap<String, Object>() {{
+            put(Keys.Date, until != null ? until.getTime() : Long.MAX_VALUE);
+        }});
+    }
+
+    public Completable unmute(String id) {
+        return getFirebaseService().core.unmute(Paths.userMutedPath().child(id));
     }
 }

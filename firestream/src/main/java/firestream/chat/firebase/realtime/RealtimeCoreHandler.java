@@ -219,4 +219,12 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
         return data;
     }
 
+    public Completable mute(Path path, HashMap<String, Object> data) {
+        return new RXRealtime().set(Ref.get(path), data);
+    }
+
+    public Completable unmute(Path path) {
+        return new RXRealtime().delete(Ref.get(path));
+    }
+
 }

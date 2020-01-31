@@ -19,4 +19,5 @@ public class Keys {
     public static String Blocked = "blocked";
     public static String Chats = "chats";
     public static String Meta = "meta";
+    public static String Muted = "muted";
 }

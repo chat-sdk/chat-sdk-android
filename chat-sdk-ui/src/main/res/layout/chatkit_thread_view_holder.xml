@@ -70,16 +70,16 @@
                 android:layout_centerVertical="true"
                 android:layout_toEndOf="@id/dialogLastMessageUserAvatar"
                 android:layout_toRightOf="@id/dialogLastMessageUserAvatar"
-                android:layout_toStartOf="@id/read_status"
-                android:layout_toLeftOf="@id/read_status"
+                android:layout_toStartOf="@id/readStatus"
+                android:layout_toLeftOf="@id/readStatus"
                 android:ellipsize="end"
                 android:gravity="top"
                 android:maxLines="2"/>
 
             <ImageView
-                android:id="@id/read_status"
-                android:layout_width="34dp"
-                android:layout_height="26dp"
+                android:id="@id/readStatus"
+                android:layout_width="20dp"
+                android:layout_height="10dp"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
                 android:background="@drawable/ic_message_received" />
@@ -91,8 +91,10 @@
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:layout_alignRight="@id/dialogAvatar"
+            android:layout_alignEnd="@id/dialogAvatar"
             android:layout_alignTop="@id/dialogAvatar"
             android:layout_marginRight="5dp"
+            android:layout_marginEnd="5dp"
             android:background="@drawable/chatkit_shape_bubble_online"
             />
 

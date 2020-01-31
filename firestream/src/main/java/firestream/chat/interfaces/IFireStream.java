@@ -3,6 +3,7 @@ package firestream.chat.interfaces;
 import android.content.Context;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import firestream.chat.chat.User;
 import firestream.chat.events.ConnectionEvent;
 import firestream.chat.events.Event;
 import firestream.chat.firebase.rx.MultiQueueSubject;
+import firestream.chat.firebase.service.Paths;
 import firestream.chat.message.Message;
 import firestream.chat.message.Sendable;
 import firestream.chat.types.ContactType;
@@ -148,4 +150,40 @@ public interface IFireStream extends IAbstractChat {
      * @param filter
      */
     void setMarkReceivedFilter(Predicate<Event<? extends Sendable>> filter);
+
+    /**
+     * Mute notifications for a user
+     * @param user to mute
+     * @return completion
+     */
+    Completable mute(User user);
+
+    /**
+     * Mute notifications until a future date
+     * @param user to mute
+     * @param until to mute until
+     * @return completion
+     */
+    Completable mute(User user, Date until);
+
+    /**
+     * Unmute notifications for a user
+     * @param user to unmute
+     * @return completion
+     */
+    Completable unmute(User user);
+
+    /**
+     * Use this method to find out if the user is muted and until when
+     * @param user to check
+     * @return date or null if not muted
+     */
+    Date mutedUntil(User user);
+
+    /**
+     * Is a user muted?
+     * @param user to mute
+     * @return true / false
+     */
+    boolean muted(User user);
 }

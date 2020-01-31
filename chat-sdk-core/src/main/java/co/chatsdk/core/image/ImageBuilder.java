@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
 import co.chatsdk.core.R;
@@ -21,9 +22,17 @@ import io.reactivex.schedulers.Schedulers;
 public class ImageBuilder {
 
     public static Single<Bitmap> bitmapForURL (final String url) {
+        return bitmapForURL(url, null, null);
+    }
+
+    public static Single<Bitmap> bitmapForURL (final String url, Integer width, Integer height) {
         // Picasso needs to run on the main thread
         return Single.create((SingleOnSubscribe<Bitmap>) emitter -> {
-            Picasso.get().load(url).into(new Target() {
+            RequestCreator creator = Picasso.get().load(url);
+            if (width != null && height != null) {
+                creator = creator.resize(width, height);
+            }
+            creator.into(new Target() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                     emitter.onSuccess(bitmap);

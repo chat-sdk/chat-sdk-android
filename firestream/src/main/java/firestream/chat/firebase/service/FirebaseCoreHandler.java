@@ -1,6 +1,7 @@
 package firestream.chat.firebase.service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -105,5 +106,7 @@ public abstract class FirebaseCoreHandler {
      */
     public abstract Object timestamp();
 
+    public abstract Completable mute(Path path, HashMap<String, Object> data);
+    public abstract Completable unmute(Path path);
 
-    }
+}

@@ -227,17 +227,6 @@ public class ImageUtils {
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
-    public static String getDimensionAsString(Bitmap bitmap){
-        if (bitmap == null)
-            throw  new NullPointerException("Bitmap cannot be null");
-
-        return getDimensionAsString(bitmap.getWidth(), bitmap.getHeight());
-    }
-
-    public static String getDimensionAsString(int width, int height){
-        return WIDTH + width +  DIVIDER + HEIGHT + height;
-    }
-
     public static void scanFilePathForGallery(Context context, String path) {
         if (context == null)
             return;

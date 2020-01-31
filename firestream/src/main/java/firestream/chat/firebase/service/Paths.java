@@ -33,6 +33,10 @@ public class Paths extends Keys {
         return userPath(currentUserId()).child(Keys.Chats);
     }
 
+    public static Path userMutedPath() {
+        return userPath(currentUserId()).child(Keys.Muted);
+    }
+
     public static Path userGroupChatPath(String chatId) {
         return userChatsPath().child(chatId);
     }
