@@ -134,9 +134,9 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         }).flatMap((Function<FirebaseUpdateWriter, SingleSource<?>>) FirebaseUpdateWriter::execute)
                 .ignoreElement()
                 .doOnComplete(() -> {
-            FirebaseEntity.pushThreadUsersUpdated(thread.getEntityID()).subscribe(ChatSDK.shared().getCrashReporter());
+            FirebaseEntity.pushThreadUsersUpdated(thread.getEntityID()).subscribe(ChatSDK.events());
             for (User u : users) {
-                FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe(ChatSDK.shared().getCrashReporter());
+                FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe(ChatSDK.events());
             }
         }).subscribeOn(Schedulers.single());
     }

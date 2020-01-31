@@ -8,7 +8,6 @@ import java.lang.reflect.Constructor;
 import co.chatsdk.core.base.LocationProvider;
 import co.chatsdk.core.base.BaseNetworkAdapter;
 import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -43,7 +42,6 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.notifications.NotificationDisplayHandler;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.AppBackgroundMonitor;
-import co.chatsdk.core.utils.CrashReporter;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
@@ -144,7 +142,7 @@ public class ChatSDK {
                 .subscribe(networkEvent -> {
                     Message message = networkEvent.message;
                     Thread thread = networkEvent.thread;
-                    if(message != null && !AppBackgroundMonitor.shared().inBackground() && thread.metaValueForKey(Keys.Mute) == null) {
+                    if(message != null && !AppBackgroundMonitor.shared().inBackground() && thread.isMuted()) {
                         if (thread.typeIs(ThreadType.Private) || (thread.typeIs(ThreadType.Public) && ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled)) {
                             if(!message.getSender().isMe() && !message.isDelivered() && ChatSDK.ui().showLocalNotifications(message.getThread()) || NotificationDisplayHandler.connectedToAuto(context())) {
                                 ReadStatus status = message.readStatusForUser(ChatSDK.currentUser());
@@ -273,6 +271,10 @@ public class ChatSDK {
         return a().hook;
     }
 
+    /**
+     * In the future, we will be removing social login in favour of FirebaseUI
+     */
+    @Deprecated
     public static SocialLoginHandler socialLogin () {
         return a().socialLogin;
     }

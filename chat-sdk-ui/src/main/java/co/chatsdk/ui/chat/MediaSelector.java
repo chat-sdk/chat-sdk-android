@@ -22,7 +22,7 @@ import java.util.Set;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
-import co.chatsdk.core.utils.ImageUtils;
+import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.options.MediaType;

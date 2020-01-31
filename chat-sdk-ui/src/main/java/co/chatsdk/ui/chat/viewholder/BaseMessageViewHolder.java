@@ -24,7 +24,6 @@ import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.chat.ReadStatusViewBinder;
 import co.chatsdk.ui.chat.message_action.CopyMessageAction;
 import co.chatsdk.ui.chat.message_action.DeleteMessageAction;
 import co.chatsdk.ui.chat.message_action.ForwardMessageAction;
@@ -56,7 +55,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         messageIconView = itemView.findViewById(R.id.image_icon);
         messageImageView = itemView.findViewById(R.id.image_message_image);
         extraLayout = itemView.findViewById(R.id.layout_extra);
-        readReceiptImageView = itemView.findViewById(R.id.read_status);
+        readReceiptImageView = itemView.findViewById(R.id.readStatus);
         progressBar = itemView.findViewById(R.id.progress_bar);
 
         itemView.setOnClickListener(this::onClick);
@@ -106,7 +105,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         String time = String.valueOf(getTimeFormat(message).format(message.getDate().toDate()));
         timeTextView.setText(time);
 
-        message.getSender().loadAvatar(avatarImageView);
+//        message.getSender().loadAvatar(avatarImageView);
 
         if (message.getSender().isMe()) {
             messageBubble.getBackground().setColorFilter(ChatSDK.config().messageColorMe, PorterDuff.Mode.MULTIPLY);
@@ -119,7 +118,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     }
 
     protected void updateReadStatus () {
-        ReadStatusViewBinder.bind(readReceiptImageView, message);
+//        ReadStatusViewBinder.onBind(readReceiptImageView, message);
     }
 
     public void setAlpha (float alpha) {
@@ -134,11 +133,11 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
     }
 
     public int maxWidth () {
-        return activity.get().getResources().getDimensionPixelSize(R.dimen.message_image_max_width);
+        return activity.get().getResources().getDimensionPixelSize(R.dimen.message_image_width);
     }
 
     public int maxHeight () {
-        return activity.get().getResources().getDimensionPixelSize(R.dimen.message_image_max_height);
+        return activity.get().getResources().getDimensionPixelSize(R.dimen.message_image_height);
     }
 
     public void showProgressBar () {
@@ -193,7 +192,7 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
         if (hidden) {
             setIconSize(0, 0);
         } else {
-            setIconSize(activity.get().getResources().getDimensionPixelSize(R.dimen.message_icon_max_width), activity.get().getResources().getDimensionPixelSize(R.dimen.message_icon_max_height));
+            setIconSize(activity.get().getResources().getDimensionPixelSize(R.dimen.message_icon_width), activity.get().getResources().getDimensionPixelSize(R.dimen.message_icon_height));
         }
         messageBubble.requestLayout();
     }

@@ -25,6 +25,7 @@ import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
+import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseFragment;
@@ -197,10 +198,7 @@ public class ProfileFragment extends BaseFragment {
                     updateBlockedButton(true);
                     updateInterface();
                     ToastHelper.show(getContext(), getString(R.string.user_blocked));
-                }, throwable1 -> {
-                    ChatSDK.logError(throwable1);
-                    Toast.makeText(ProfileFragment.this.getContext(), throwable1.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                }));
+                },this));
     }
 
     protected void unblock() {
@@ -212,10 +210,7 @@ public class ProfileFragment extends BaseFragment {
                     updateBlockedButton(false);
                     updateInterface();
                     ToastHelper.show(getContext(), R.string.user_unblocked);
-                }, throwable12 -> {
-                    ChatSDK.logError(throwable12);
-                    Toast.makeText(ProfileFragment.this.getContext(), throwable12.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                }));
+                }, this));
     }
 
     protected void toggleBlocked() {
@@ -234,10 +229,7 @@ public class ProfileFragment extends BaseFragment {
                 .subscribe(() -> {
                     updateFriendsButton(true);
                     ToastHelper.show(getContext(), getString(R.string.contact_added));
-                }, throwable -> {
-                    ChatSDK.logError(throwable);
-                    Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                }));
+                }, this));
     }
 
     protected void delete() {
@@ -249,10 +241,7 @@ public class ProfileFragment extends BaseFragment {
                     updateFriendsButton(false);
                     ToastHelper.show(getContext(), getString(R.string.contact_deleted));
                     getActivity().finish();
-                }, throwable -> {
-                    ChatSDK.logError(throwable);
-                    Toast.makeText(ProfileFragment.this.getContext(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                }));
+                }, this));
     }
 
     protected void toggleFriends() {
@@ -317,7 +306,9 @@ public class ProfileFragment extends BaseFragment {
 
         // Profile Image
         if (avatarImageView != null) {
-            getUser().loadAvatar(avatarImageView);
+            int width = Dimen.from(R.dimen.small_avatar_width);
+            int height = Dimen.from(R.dimen.small_avatar_height);
+            getUser().loadAvatar(avatarImageView, width, height);
         }
 
         String status = getUser().getStatus();

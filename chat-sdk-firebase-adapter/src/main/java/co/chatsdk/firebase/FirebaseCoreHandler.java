@@ -41,16 +41,11 @@ import timber.log.Timber;
 
 public class FirebaseCoreHandler extends AbstractCoreHandler {
 
-    private DisposableList disposableList = new DisposableList();
+//    private DisposableList disposableList = new DisposableList();
 
-    public FirebaseCoreHandler(EventHandler events) {
+    protected static FirebaseDatabase database;
 
-        database().setPersistenceEnabled(true);
-
-        // When the user logs out, turn off all the existing listeners
-        Disposable d = events.source()
-                .filter(NetworkEvent.filterType(EventType.Logout))
-                .subscribe(networkEvent -> disposableList.dispose());
+    public FirebaseCoreHandler() {
     }
 
     public Completable pushUser() {
@@ -103,7 +98,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             return UserWrapper.initWithModel(currentUser()).goOnline();
         }
         if (ChatSDK.hook() != null) {
-            ChatSDK.hook().executeHook(HookEvent.UserDidConnect, null).subscribe(ChatSDK.shared().getCrashReporter());;
+            ChatSDK.hook().executeHook(HookEvent.UserDidConnect, null).subscribe(ChatSDK.events());
         }
 
         return Completable.complete();
@@ -128,7 +123,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public void goOffline() {
         ChatSDK.core().save();
-        disposableList.add(setUserOffline().subscribe(() -> DatabaseReference.goOffline()));
+        ChatSDK.events().disposeOnLogout(setUserOffline().subscribe(DatabaseReference::goOffline));
     }
 
     public void goOnline() {
@@ -139,7 +134,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             } else {
                 DatabaseReference.goOnline();
             }
-            setUserOnline().subscribe(new CrashReportingCompletableObserver(disposableList));
+            setUserOnline().subscribe(ChatSDK.events());
         }));
     }
 
@@ -185,12 +180,14 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public static FirebaseDatabase database () {
-        if (ChatSDK.config().firebaseDatabaseUrl != null) {
-            return FirebaseDatabase.getInstance(app(), ChatSDK.config().firebaseDatabaseUrl);
-        } else {
-            return FirebaseDatabase.getInstance(app());
+        if (database == null) {
+            if (ChatSDK.config().firebaseDatabaseUrl != null) {
+                database = FirebaseDatabase.getInstance(app(), ChatSDK.config().firebaseDatabaseUrl);
+            } else {
+                database = FirebaseDatabase.getInstance(app());
+            }
+            database.setPersistenceEnabled(true);
         }
+        return database;
     }
-
-
 }

@@ -10,7 +10,7 @@ public class FirebaseNetworkAdapter extends BaseNetworkAdapter {
 
     public FirebaseNetworkAdapter () {
         events = new FirebaseEventHandler();
-        core = new FirebaseCoreHandler(events);
+        core = new FirebaseCoreHandler();
         auth = new FirebaseAuthenticationHandler();
         thread = new FirebaseThreadHandler();
         publicThread = new FirebasePublicThreadHandler();

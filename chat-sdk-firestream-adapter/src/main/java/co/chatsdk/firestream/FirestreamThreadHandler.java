@@ -22,6 +22,7 @@ import firestream.chat.message.Sendable;
 import firestream.chat.namespace.Fire;
 import firestream.chat.types.SendableType;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
@@ -201,7 +202,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
             if (thread.typeIs(ThreadType.Private1to1)) {
                 return Fire.stream().deleteSendable(message.getEntityID());
             }
-            if (thread.typeIs(ThreadType.PrivateGroup)) {
+            if (thread.typeIs(ThreadType.Group)) {
                 IChat chat = Fire.stream().getChat(thread.getEntityID());
                 if (chat != null) {
                     return chat.deleteSendable(message.getEntityID());
@@ -215,7 +216,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean deleteMessageEnabled(Message message) {
-        if (message.getThread() != null && message.getThread().typeIs(ThreadType.PrivateGroup)) {
+        if (message.getThread() != null && message.getThread().typeIs(ThreadType.Group)) {
             IChat chat = Fire.stream().getChat(message.getThread().getEntityID());
             if (chat != null && chat.hasPermission(RoleType.admin())) {
                 return true;
@@ -225,7 +226,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     public boolean rolesEnabled(Thread thread) {
-        return thread.typeIs(ThreadType.PrivateGroup);
+        return thread.typeIs(ThreadType.Group);
     }
 
     public String roleForUser(Thread thread, User user) {
@@ -262,20 +263,41 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean muteEnabled(Thread thread) {
-        return false;
+        return true;
     }
 
     public Completable mute(Thread thread) {
-        return Completable.complete();
+        return Completable.defer(() -> {
+            if (thread.typeIs(ThreadType.Private1to1)) {
+                return Fire.stream().mute(new FireStreamUser(thread.getEntityID()));
+            }
+            if (thread.typeIs(ThreadType.Group)) {
+                IChat chat = Fire.stream().getChat(thread.getEntityID());
+                if (chat != null) {
+                    return chat.mute();
+                }
+            }
+            return Completable.complete();
+        }).doOnComplete(() -> thread.setMuted(true));
     }
 
     public Completable unmute(Thread thread) {
-        return Completable.complete();
-    }
+        return Completable.defer(() -> {
+            if (thread.typeIs(ThreadType.Private1to1)) {
+                return Fire.stream().unmute(new FireStreamUser(thread.getEntityID()));
+            }
+            if (thread.typeIs(ThreadType.Group)) {
+                IChat chat = Fire.stream().getChat(thread.getEntityID());
+                if (chat != null) {
+                    return chat.unmute();
+                }
+            }
+            return Completable.complete();
+        }).doOnComplete(() -> thread.setMuted(false));    }
 
     public Completable removeUsersFromThread(final Thread thread, List<User> users) {
         return Completable.defer(() -> {
-            if (thread.typeIs(ThreadType.PrivateGroup)) {
+            if (thread.typeIs(ThreadType.Group)) {
                 IChat chat = Fire.stream().getChat(thread.getEntityID());
                 if (chat != null) {
                     ArrayList<FireStreamUser> usersToRemove = new ArrayList<>();
@@ -291,7 +313,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
 
     public Completable addUsersToThread(final Thread thread, final List<User> users) {
         return Completable.defer(() -> {
-            if (thread.typeIs(ThreadType.PrivateGroup)) {
+            if (thread.typeIs(ThreadType.Group)) {
                 IChat chat = Fire.stream().getChat(thread.getEntityID());
                 if (chat != null) {
                     ArrayList<FireStreamUser> usersToAdd = new ArrayList<>();
@@ -311,7 +333,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
             if (thread.typeIs(ThreadType.Private1to1)) {
                 return super.deleteThread(thread);
             }
-            if (thread.typeIs(ThreadType.PrivateGroup)) {
+            if (thread.typeIs(ThreadType.Group)) {
                 IChat chat = Fire.stream().getChat(thread.getEntityID());
                 if (chat != null) {
                     return chat.leave().concatWith(super.deleteThread(thread));
@@ -377,7 +399,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
             if (thread.typeIs(ThreadType.Private1to1)) {
                 return Fire.stream().loadMoreMessagesBefore(lastMessageDate, ChatSDK.config().messagesToLoadPerBatch).flatMap(sendableToMessage);
             }
-            if (thread.typeIs(ThreadType.PrivateGroup)) {
+            if (thread.typeIs(ThreadType.Group)) {
                 IChat chat = Fire.stream().getChat(thread.getEntityID());
                 if (chat != null) {
                     return chat.loadMoreMessagesBefore(lastMessageDate, ChatSDK.config().messagesToLoadPerBatch).flatMap(sendableToMessage);
@@ -389,7 +411,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean addUsersEnabled(Thread thread) {
-        if (thread.typeIs(ThreadType.PrivateGroup)) {
+        if (thread.typeIs(ThreadType.Group)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
                 return chat.hasPermission(RoleType.admin());
@@ -400,7 +422,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean removeUsersEnabled(Thread thread) {
-        if (thread.typeIs(ThreadType.PrivateGroup)) {
+        if (thread.typeIs(ThreadType.Group)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
                 return chat.hasPermission(RoleType.admin());

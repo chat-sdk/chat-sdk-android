@@ -3,6 +3,8 @@ package co.chatsdk.core.interfaces;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+
+import androidx.annotation.DrawableRes;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
@@ -11,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import co.chatsdk.core.Tab;
+import co.chatsdk.core.avatar.AvatarGenerator;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -132,4 +135,11 @@ public interface InterfaceAdapter {
     void setLocalNotificationHandler(LocalNotificationHandler handler);
 
     NotificationDisplayHandler notificationDisplayHandler ();
+
+    AvatarGenerator getAvatarGenerator();
+    void setAvatarGenerator(AvatarGenerator avatarGenerator);
+
+    void setDefaultProfileImage(@DrawableRes int drawable);
+    @DrawableRes int getDefaultProfileImage();
+
 }

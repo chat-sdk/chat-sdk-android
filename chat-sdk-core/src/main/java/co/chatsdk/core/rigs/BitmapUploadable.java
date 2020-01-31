@@ -2,7 +2,7 @@ package co.chatsdk.core.rigs;
 
 import android.graphics.Bitmap;
 
-import co.chatsdk.core.utils.ImageUtils;
+import co.chatsdk.core.image.ImageUtils;
 
 public class BitmapUploadable extends Uploadable {
 

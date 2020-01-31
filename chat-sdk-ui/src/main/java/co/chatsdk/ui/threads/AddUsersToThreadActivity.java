@@ -77,7 +77,7 @@ public class AddUsersToThreadActivity extends SelectContactActivity {
                         overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
                     }
                 }, throwable -> {
-                    ChatSDK.logError(throwable);
+                    showToast(throwable.getLocalizedMessage());
                     setResult(Activity.RESULT_CANCELED);
                 }));
     }

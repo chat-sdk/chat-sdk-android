@@ -26,9 +26,11 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.chatkit.model.UserHolder;
 import co.chatsdk.ui.main.BaseFragment;
-import co.chatsdk.ui.threads.ThreadImageBuilder;
+import co.chatsdk.ui.image.ThreadImageBuilder;
 import co.chatsdk.ui.chatkit.view_holders.ThreadViewHolder;
 import co.chatsdk.ui.chatkit.model.MessageHolder;
 import co.chatsdk.ui.chatkit.model.ThreadHolder;
@@ -104,7 +106,7 @@ public abstract class CKThreadsFragment extends BaseFragment {
 
     protected  @LayoutRes
     int activityLayout () {
-        return R.layout.fragment_chatkit_threads;
+        return R.layout.chatkit_fragment_threads;
     }
 
     public void initViews() {
@@ -112,11 +114,11 @@ public abstract class CKThreadsFragment extends BaseFragment {
 
         dialogsList = mainView.findViewById(R.id.dialogsList);
 
-        dialogsListAdapter = new DialogsListAdapter<>(R.layout.chatkit_dialog_view_holder, ThreadViewHolder.class, (imageView, url, payload) -> {
+        dialogsListAdapter = new DialogsListAdapter<>(R.layout.chatkit_thread_view_holder, ThreadViewHolder.class, (imageView, url, payload) -> {
             if (getContext() != null) {
-                int size = getContext().getResources().getDimensionPixelSize(R.dimen.action_bar_avatar_max_size);
+                int size = Dimen.from(getContext(), R.dimen. action_bar_avatar_size);
                 if (url != null) {
-                    Picasso.get().load(url).resize(size, size).placeholder(ThreadImageBuilder.defaultBitmapResId()).into(imageView);
+                    Picasso.get().load(url).resize(size, size).placeholder(ChatSDK.ui().getDefaultProfileImage()).into(imageView);
                 } else if (payload instanceof ThreadHolder) {
                     ThreadHolder threadHolder = (ThreadHolder) payload;
                     dm.add(ThreadImageBuilder.load(imageView, threadHolder.getThread(), size));

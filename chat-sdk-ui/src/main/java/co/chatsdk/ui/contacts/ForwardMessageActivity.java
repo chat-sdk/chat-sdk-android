@@ -35,7 +35,7 @@ public class ForwardMessageActivity extends SelectContactActivity {
             finish();
         }
 
-        List<String> messageEntityIDs = Arrays.asList(getIntent().getStringArrayExtra(Keys.IntentKeyMessageEntityIDs));
+        List<String> messageEntityIDs = getIntent().getExtras().getStringArrayList(Keys.IntentKeyMessageEntityIDs);
 
         for (String messageEntityID: messageEntityIDs) {
             Message message = ChatSDK.db().fetchEntityWithEntityID(messageEntityID, Message.class);

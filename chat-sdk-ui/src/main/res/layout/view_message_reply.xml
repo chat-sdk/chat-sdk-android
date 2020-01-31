@@ -38,8 +38,8 @@
 
             <ImageView
                 android:id="@+id/image_icon"
-                android:layout_width="@dimen/message_icon_max_width"
-                android:layout_height="@dimen/message_icon_max_height"
+                android:layout_width="@dimen/message_icon_width"
+                android:layout_height="@dimen/message_icon_height"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentBottom="true"

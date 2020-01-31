@@ -17,6 +17,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.ChatError;
 import co.chatsdk.core.utils.DisposableMap;
+import co.chatsdk.firebase.utils.Generic;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -127,7 +128,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             if (ChatSDK.config().remoteConfigEnabled) {
                 FirebasePaths.configRef().addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
                     if (hasValue && snapshot.getValue() instanceof HashMap) {
-                        HashMap<String, Object> map = (HashMap<String, Object>) snapshot.getValue();
+                        HashMap<String, Object> map = snapshot.getValue(Generic.hashMapStringObject());
                         ChatSDK.config().updateRemoteConfig(map);
                     }
                     emitter.onComplete();
@@ -155,10 +156,10 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 if (ChatSDK.hook() != null) {
                     HashMap<String, Object> data = new HashMap<>();
                     data.put(HookEvent.User, userWrapper.getModel());
-                    ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(ChatSDK.shared().getCrashReporter());
+                    ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(ChatSDK.events());
                 }
 
-                ChatSDK.core().setUserOnline().subscribe(ChatSDK.shared().getCrashReporter());
+                ChatSDK.core().setUserOnline().subscribe(ChatSDK.events());
 
                 authenticatedThisSession = true;
             });

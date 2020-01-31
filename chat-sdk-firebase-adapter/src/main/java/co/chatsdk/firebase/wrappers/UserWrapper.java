@@ -96,11 +96,6 @@ public class UserWrapper {
         String name = authData.getDisplayName();
         String email = authData.getEmail();
         String phoneNumber = authData.getPhoneNumber();
-        String profileURL = null;
-
-        if(authData.getPhotoUrl() != null) {
-            profileURL = authData.getPhotoUrl().toString();
-        }
 
         // Setting the name.
         if (!StringChecker.isNullOrEmpty(name) && StringChecker.isNullOrEmpty(model.getName())) {
@@ -119,12 +114,21 @@ public class UserWrapper {
             model.setPhoneNumber(phoneNumber);
         }
 
-        if (!StringChecker.isNullOrEmpty(profileURL) && StringChecker.isNullOrEmpty(model.getAvatarURL())) {
-            model.setAvatarURL(profileURL);
+        String profileURL = model.getAvatarURL();
+
+        if(StringChecker.isNullOrEmpty(profileURL)) {
+            if (authData.getPhotoUrl() != null) {
+                profileURL = authData.getPhotoUrl().toString();
+            }
         }
-        else {
-            String url = ChatSDK.config().defaultUserAvatarURL;
-            model.setAvatarURL(url);
+        if (StringChecker.isNullOrEmpty(profileURL)) {
+            profileURL = ChatSDK.config().defaultUserAvatarURL;
+        }
+        if (StringChecker.isNullOrEmpty(profileURL)) {
+            profileURL = ChatSDK.ui().getAvatarGenerator().getAvatarURL(model);
+        }
+        if (!StringChecker.isNullOrEmpty(profileURL)) {
+            model.setAvatarURL(profileURL);
         }
 
         model.update();
@@ -264,12 +268,12 @@ public class UserWrapper {
 
             final DatabaseReference ref = ref();
 
-            updateFirebaseUser().subscribe(ChatSDK.shared().getCrashReporter());
+            updateFirebaseUser().subscribe(ChatSDK.events());
 
             ref.updateChildren(serialize(), (firebaseError, firebase) -> {
                 if (firebaseError == null) {
                     // index should be updated whenever the user is pushed
-                    FirebaseEntity.pushUserMetaUpdated(model.getEntityID()).subscribe(ChatSDK.shared().getCrashReporter());
+                    FirebaseEntity.pushUserMetaUpdated(model.getEntityID()).subscribe(ChatSDK.events());
 
                     ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(model));
 

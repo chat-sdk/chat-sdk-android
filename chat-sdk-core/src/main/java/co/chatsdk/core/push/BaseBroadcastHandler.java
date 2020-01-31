@@ -28,7 +28,7 @@ public class BaseBroadcastHandler implements BroadcastHandler {
         // Check if notifications are muted
         Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
         if (thread != null) {
-            if (thread.metaValueForKey(Keys.Mute) != null) {
+            if (thread.isMuted()) {
                 return;
             }
         }

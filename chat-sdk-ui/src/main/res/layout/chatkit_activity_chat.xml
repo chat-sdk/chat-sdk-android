@@ -25,6 +25,7 @@
         app:outcomingBubblePaddingTop="9dp"
         app:outcomingBubblePaddingLeft="10dp"
         app:outcomingBubblePaddingRight="10dp"
+        app:incomingBubbleDrawable="@drawable/chatkit_shape_incoming_message"
         app:outcomingTextSize="14sp"
         app:outcomingTimeTextColor="@color/message_time"
         app:outcomingTimeTextStyle="italic"

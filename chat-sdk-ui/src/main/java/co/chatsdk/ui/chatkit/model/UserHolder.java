@@ -3,6 +3,8 @@ package co.chatsdk.ui.chatkit.model;
 import com.stfalcon.chatkit.commons.models.IUser;
 
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.StringChecker;
 
 public class UserHolder implements IUser {
 
@@ -28,7 +30,7 @@ public class UserHolder implements IUser {
 
     @Override
     public String getAvatar() {
-        return user.getAvatarURL();
+        return user.getAvatarUrlOrDefault(ChatSDK.shared().context());
     }
 
     @Override

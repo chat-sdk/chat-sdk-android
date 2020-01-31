@@ -2,6 +2,7 @@ package co.chatsdk.core.session;
 
 import android.graphics.Color;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.IntegerRes;
 import androidx.annotation.StyleRes;
 
@@ -96,8 +97,14 @@ public class Configuration {
 
     // Login
     public boolean anonymousLoginEnabled = true;
+
+    @Deprecated
     public boolean facebookLoginEnabled = true;
+
+    @Deprecated
     public boolean twitterLoginEnabled = true;
+
+    @Deprecated
     public boolean googleLoginEnabled = true;
 
     // Should we open a new thread with a user after the thread has been deleted?
@@ -148,7 +155,7 @@ public class Configuration {
     public String contactDeveloperEmailAddress = "support@chatsdk.co";
     public String contactDeveloperEmailSubject = "";
     public String contactDeveloperDialogTitle = "";
-    public String defaultUserAvatarURL = "http://flathash.com/" + String.valueOf(new Random().nextInt(1000)) + ".png";
+    public String defaultUserAvatarURL = null;
     public int audioMessageMaxLengthSeconds = 300;
 
     // If we are representing a location as a URL, which service should we use? Google Maps is the default

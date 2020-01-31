@@ -24,8 +24,9 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.MessageDisplayHandler;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.ImageBuilder;
-import co.chatsdk.core.utils.ImageUtils;
+import co.chatsdk.core.utils.Dimen;
+import co.chatsdk.core.image.ImageBuilder;
+import co.chatsdk.core.image.ImageUtils;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 
@@ -241,7 +242,9 @@ public class NotificationBuilder {
 
     public Single<NotificationCompat.Builder> loadLargeIconFromURL(final NotificationCompat.Builder builder) {
         if (largeIconUrl != null) {
-            return ImageBuilder.bitmapForURL(largeIconUrl).map(bitmap -> {
+            int width = Dimen.from(context.get(), R.dimen.large_notification_width);
+            int height = Dimen.from(context.get(), R.dimen.large_notification_height);
+            return ImageBuilder.bitmapForURL(largeIconUrl, width, height).map(bitmap -> {
                 if (bitmap != null) {
                     builder.setLargeIcon(scaleLargeIcon(bitmap));
                 }

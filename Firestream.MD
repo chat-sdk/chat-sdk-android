@@ -29,6 +29,21 @@ There are many chat systems available, here are the benefits of FireStream:
 3. Full Control - you control the source, you have sole access to the data
 4. Powered by Firebase - for a managed solution, it's the best
 
+### Status
+
+1. FireStream Android - beta
+2. Chat SDK FireStream Android - beta
+3. FireStream Web - beta
+4. Chat SDK FireStream Web - In development
+5. FireStream iOS - beta
+6. Chat SDK FireStream iOS - In development
+
+|Platform | FireStream | Chat SDK FireStream
+|---|---|---|
+| Android | Beta | Beta |
+| iOS | Beta | In development |
+| Web | Beta | In development |
+
 Firebase benefits:
 
 1. Low cost, excellent performance and reliability 
@@ -58,6 +73,7 @@ With FireStream Pro you get everything from FireStream+ as well as the following
 2. Admin panel / moderation
 3. Bot integration
 4. Email Support
+5. Automatic translation
 
 - 1 app: $9.99 per month
 - 2 apps: $19.99 per month

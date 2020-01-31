@@ -26,6 +26,7 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.image.ThreadImageBuilder;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 

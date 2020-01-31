@@ -259,8 +259,8 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
         MessageHolders holders = new MessageHolders()
                 .setIncomingTextConfig(IncomingTextMessageViewHolder.class, R.layout.chatkit_item_incoming_text_message, holderPayload)
-                .setOutcomingTextConfig(OutcomingTextMessageViewHolder.class, R.layout.chatkit_item_outcoming_text_message)
-                .setIncomingImageConfig(IncomingImageMessageViewHolder.class, R.layout.chatkit_item_incoming_image_message)
+                .setOutcomingTextConfig(OutcomingTextMessageViewHolder.class, R.layout.chatkit_item_outcoming_text_message, null)
+                .setIncomingImageConfig(IncomingImageMessageViewHolder.class, R.layout.chatkit_item_incoming_image_message, null)
                 .setOutcomingImageConfig(OutcomingImageMessageViewHolder.class, R.layout.chatkit_item_outcoming_image_message);
 
         messagesListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, (imageView, url, payload) -> {
@@ -337,7 +337,13 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
         });
 
         replyView = findViewById(R.id.reply_view);
+        replyView.setOnCancelListener(v -> hideReplyView());
 
+    }
+
+    public void hideReplyView() {
+        messagesListAdapter.unselectAllItems();
+        replyView.hide();
     }
 
     @Override
@@ -463,8 +469,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
         if (replyView.isVisible()) {
             Message message = MessageHolder.toMessages(messagesListAdapter.getSelectedMessages()).get(0);
             handleMessageSend(ChatSDK.thread().replyToMessage(thread, message, text));
-            messagesListAdapter.unselectAllItems();
-            replyView.hide();
+            hideReplyView();
         }
         else {
             handleMessageSend(ChatSDK.thread().sendMessageWithText(text.trim(), thread));
@@ -472,10 +477,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     }
 
     protected void handleMessageSend (Completable completable) {
-        completable.observeOn(AndroidSchedulers.mainThread()).doOnError(throwable -> {
-            ChatSDK.logError(throwable);
-            ToastHelper.show(getApplicationContext(), throwable.getLocalizedMessage());
-        }).subscribe(ChatSDK.shared().getCrashReporter());
+        completable.observeOn(AndroidSchedulers.mainThread()).subscribe(this);
     }
 
     @Override
@@ -529,6 +531,8 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                             }
                         }
                     }));
+        } else {
+            chatActionBar.setSubtitleText(thread, null);
         }
 
         // Show a local notification if the text is from a different thread
@@ -552,8 +556,10 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
         becomeInactive();
 
-        if (thread != null && thread.typeIs(ThreadType.Public) && (removeUserFromChatOnExit || thread.metaValueForKey(Keys.Mute) != null)) {
-            ChatSDK.thread().removeUsersFromThread(thread, ChatSDK.currentUser()).observeOn(AndroidSchedulers.mainThread()).subscribe(ChatSDK.shared().getCrashReporter());
+        if (thread != null && thread.typeIs(ThreadType.Public) && (removeUserFromChatOnExit || thread.isMuted())) {
+            ChatSDK.thread()
+                    .removeUsersFromThread(thread, ChatSDK.currentUser())
+                    .observeOn(AndroidSchedulers.mainThread()).subscribe(this);
         }
     }
 
@@ -623,7 +629,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
         int id = item.getItemId();
         if (id == R.id.action_delete) {
             List<Message> messages = MessageHolder.toMessages(messagesListAdapter.getSelectedMessages());
-            dm.add(ChatSDK.thread().deleteMessages(messages).subscribe(() -> {}, toastOnErrorConsumer()));
+            ChatSDK.thread().deleteMessages(messages).subscribe(this);
             messagesListAdapter.unselectAllItems();
         }
         if (id == R.id.action_copy) {
@@ -656,7 +662,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
         if (id == R.id.action_reply) {
             Message message = messagesListAdapter.getSelectedMessages().get(0).getMessage();
-            replyView.show(message.imageURL(), message.getText());
+            replyView.show(message.getSender().getName(), message.imageURL(), message.getText());
         }
 
         return super.onOptionsItemSelected(item);

@@ -5,10 +5,12 @@
  * Last Modification at: 3/12/15 4:27 PM
  */
 
-package co.chatsdk.core.utils;
+package co.chatsdk.core.image;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -19,6 +21,9 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.StrictMode;
+
+import androidx.annotation.DrawableRes;
+import androidx.annotation.IntegerRes;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -39,8 +44,6 @@ public class ImageUtils {
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
     }
-
-    public static final String DIVIDER = "&", HEIGHT = "H", WIDTH = "W";
 
     public static File getDiskCacheDir(Context context) {
         return getDiskCacheDir(context, ChatSDK.config().imageDirectoryName);
@@ -248,6 +251,16 @@ public class ImageUtils {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream);
         return stream.toByteArray();
+    }
+
+    public static Uri uriForResourceId(Context context, @DrawableRes int resourceId) {
+        Resources resources = context.getResources();
+        return new Uri.Builder()
+                .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                .authority(resources.getResourcePackageName(resourceId))
+                .appendPath(resources.getResourceTypeName(resourceId))
+                .appendPath(resources.getResourceEntryName(resourceId))
+                .build();
     }
 
 }

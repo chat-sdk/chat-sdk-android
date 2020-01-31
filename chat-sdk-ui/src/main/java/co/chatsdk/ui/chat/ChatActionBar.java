@@ -11,8 +11,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.threads.ThreadImageBuilder;
-import io.reactivex.functions.Action;
+import co.chatsdk.ui.image.ThreadImageBuilder;
 
 public class ChatActionBar {
 

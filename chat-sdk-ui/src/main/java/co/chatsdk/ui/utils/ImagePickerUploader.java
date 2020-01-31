@@ -4,9 +4,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
-import com.zhihu.matisse.engine.impl.PicassoEngine;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -14,26 +12,12 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.FileUploadResult;
-import co.chatsdk.core.utils.ActivityResult;
-import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
-import co.chatsdk.core.utils.DisposableMap;
-import co.chatsdk.core.utils.ImageUtils;
-import co.chatsdk.core.utils.PermissionRequestHandler;
+import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.ui.chat.MediaSelector;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Maybe;
-import io.reactivex.MaybeSource;
-import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import io.reactivex.functions.Predicate;
 
 public class ImagePickerUploader {
 

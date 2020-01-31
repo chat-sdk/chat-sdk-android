@@ -28,6 +28,7 @@ import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.main.BaseActivity;
@@ -145,7 +146,10 @@ public class EditProfileActivity extends BaseActivity {
         String email = currentUser.getEmail();
         String countryCode = currentUser.getCountryCode();
 
-        currentUser.loadAvatar(avatarImageView);
+        int width = Dimen.from(this, R.dimen.large_avatar_width);
+        int height = Dimen.from(this, R.dimen.large_avatar_height);
+
+        currentUser.loadAvatar(avatarImageView, width, height);
 
         if (countryCode != null && !countryCode.isEmpty()) {
             Locale l = new Locale("", countryCode);
@@ -167,10 +171,7 @@ public class EditProfileActivity extends BaseActivity {
     protected void logout () {
         dm.add(ChatSDK.auth().logout()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getApplicationContext()), throwable -> {
-            ChatSDK.logError(throwable);
-            Toast.makeText(EditProfileActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-        }));
+                .subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getApplicationContext()), this));
     }
 
     @Override
@@ -218,7 +219,6 @@ public class EditProfileActivity extends BaseActivity {
 
         Map<String, Object> metaMap = new HashMap<>(currentUser.metaMap());
 
-        // Add a synchronized block to prevent concurrent modification exceptions
         for (String key : metaMap.keySet()) {
             if (key.equals(Keys.AvatarURL)) {
                 currentUser.setAvatarHash(null);

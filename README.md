@@ -165,6 +165,9 @@ implementation 'sdk.chat:chat-sdk-ui:4.8.9'
 implementation 'sdk.chat:chat-sdk-firebase-adapter:4.8.9'
 implementation 'sdk.chat:chat-sdk-firebase-ui:4.8.9'
 
+// If you want the main draw activity
+implementation 'sdk.chat:chat-sdk-ui-extras:4.8.9'
+
 // Neede for push notifications
 implementation 'sdk.chat:chat-sdk-firebase-push:4.8.9'
 
@@ -232,6 +235,10 @@ try {
     // Initialize the Chat SDK
     ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
     
+} catch (Exception e) {
+    // Handle any exceptions
+    e.printStackTrace();
+} finally {
     // Enable FirebaseUI with email and phone auth
     FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
   
@@ -246,10 +253,6 @@ try {
 
     // Activate any other modules you need.
     // ...
-    
-} catch (Exception e) {
-    // Handle any exceptions
-    e.printStackTrace();
 }
 
 ``` 

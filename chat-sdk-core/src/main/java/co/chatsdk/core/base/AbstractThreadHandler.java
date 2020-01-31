@@ -275,7 +275,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable replyToMessage(Thread thread, Message message, String reply) {
         return Completable.defer(() -> {
-            Message newMessage = newMessage(message.getType(), thread);
+            Message newMessage = newMessage(MessageType.Text, thread);
             newMessage.setMetaValues(message.getMetaValuesAsMap());
             newMessage.setValueForKey(reply, Keys.Reply);
             newMessage.setMessageStatus(MessageSendStatus.WillSend);

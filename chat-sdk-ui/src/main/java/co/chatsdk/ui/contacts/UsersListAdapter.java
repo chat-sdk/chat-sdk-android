@@ -8,6 +8,8 @@
 package co.chatsdk.ui.contacts;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Context;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +28,8 @@ import java.util.List;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.interfaces.UserListItem;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.AvailabilityHelper;
 import io.reactivex.Observable;
@@ -42,7 +46,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     protected SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
 
-    protected boolean multiSelectEnabled = false;
+    protected boolean multiSelectEnabled;
     protected final PublishSubject<Object> onClickSubject = PublishSubject.create();
     protected final PublishSubject<Object> onLongClickSubject = PublishSubject.create();
     protected final PublishSubject<List<UserListItem>> onToggleSubject = PublishSubject.create();
@@ -160,7 +164,16 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             Timber.v("User: " + userListItem.getName() + " Availability: " + userListItem.getAvailability());
 
-            User.loadAvatar(userListItem.getAvatarURL(), userViewHolder.avatarImageView);
+            Context context = ChatSDK.shared().context();
+
+            int width = Dimen.from(context, R.dimen.small_avatar_width);
+            int height = Dimen.from(context, R.dimen.small_avatar_height);
+
+            if (userListItem instanceof User) {
+                ((User) userListItem).loadAvatar(userViewHolder.avatarImageView, width, height);
+            } else {
+                Picasso.get().load(userListItem.getAvatarURL()).resize(width, height).into(userViewHolder.avatarImageView);
+            }
 
             userViewHolder.setMultiSelectEnabled(multiSelectEnabled);
 

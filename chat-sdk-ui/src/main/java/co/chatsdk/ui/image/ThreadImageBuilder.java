@@ -1,4 +1,4 @@
-package co.chatsdk.ui.threads;
+package co.chatsdk.ui.image;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -19,14 +19,14 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
-import co.chatsdk.core.utils.ImageUtils;
+import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.disposables.Disposable;
 
-import static co.chatsdk.core.utils.ImageBuilder.bitmapForURL;
+import static co.chatsdk.core.image.ImageBuilder.bitmapForURL;
 
 /**
  * Created by benjaminsmiley-andrews on 12/06/2017.

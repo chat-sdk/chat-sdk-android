@@ -1,31 +1,18 @@
 package co.chatsdk.ui.chat;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.location.Location;
 
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.List;
-
-import co.chatsdk.core.base.LocationProvider;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
+import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.core.utils.GoogleUtils;
 import co.chatsdk.ui.R;
-import io.reactivex.Emitter;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
 
 /**
  * Created by benjaminsmiley-andrews on 23/05/2017.
@@ -52,8 +39,8 @@ public class LocationSelector {
         return ChatSDK.locationProvider().getLastLocation(activity).map(location -> {
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
-            int width = activity.getResources().getDimensionPixelSize(R.dimen.message_image_max_width);
-            int height = activity.getResources().getDimensionPixelSize(R.dimen.message_image_max_height);
+            int width = Dimen.from(activity, R.dimen.message_image_width);
+            int height = Dimen.from(activity, R.dimen.message_image_height);
 
             return new Result(latLng, GoogleUtils.getMapImageURL(latLng, width, height));
         });

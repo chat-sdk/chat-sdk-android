@@ -1,9 +1,10 @@
 package co.chatsdk.ui.chat;
 
 import android.content.Context;
+import android.text.Html;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,6 +19,7 @@ public class ReplyView extends ConstraintLayout {
 
     protected ImageView imageView;
     protected TextView textView;
+    protected ImageButton cancelButton;
 
     public ReplyView(Context context) {
         super(context);
@@ -37,16 +39,14 @@ public class ReplyView extends ConstraintLayout {
     protected void initViews() {
         inflate(getContext(), R.layout.view_chat_reply, this);
 
-//        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        inflater.inflate(R.layout.view_chat_reply, this, true);
-
         imageView = findViewById(R.id.image_view);
-        textView = findViewById(R.id.text_view);
+        textView = findViewById(R.id.replyTextView);
+        cancelButton = findViewById(R.id.cancelButton);
 
         hide();
     }
 
-    public void show(String imageURL, String text) {
+    public void show(String title, String imageURL, String text) {
         setVisibility(View.VISIBLE);
 
         if (imageURL != null && !imageURL.isEmpty()) {
@@ -56,7 +56,7 @@ public class ReplyView extends ConstraintLayout {
             imageView.setVisibility(View.GONE);
         }
         if (text != null) {
-            textView.setText(text);
+            textView.setText(Html.fromHtml("<b>" + title + "</b><br/>" + text));
         }
     }
 
@@ -66,6 +66,10 @@ public class ReplyView extends ConstraintLayout {
 
     public boolean isVisible() {
         return getVisibility() == View.VISIBLE;
+    }
+
+    public void setOnCancelListener(View.OnClickListener listener) {
+        cancelButton.setOnClickListener(listener);
     }
 
 }

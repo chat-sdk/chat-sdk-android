@@ -1,4 +1,4 @@
-package co.chatsdk.core.avatar;
+package co.chatsdk.core.avatar.gravatar;
 
 /**
  * Fluent API for Gravatar request configuration.

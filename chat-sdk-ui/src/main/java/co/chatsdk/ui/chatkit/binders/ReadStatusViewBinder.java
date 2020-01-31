@@ -1,34 +1,30 @@
-package co.chatsdk.ui.chat;
+package co.chatsdk.ui.chatkit.binders;
 
 import android.view.View;
 import android.widget.ImageView;
 
 import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.chatkit.model.MessageHolder;
 
 public class ReadStatusViewBinder {
-    public static void bind(ImageView view, Message message) {
-        if (ChatSDK.readReceipts() == null && !message.getSender().isMe()) {
+
+    public static void onBind(ImageView view, MessageHolder holder) {
+        if (ChatSDK.readReceipts() == null) {
             view.setVisibility(View.GONE);
         } else {
             int resource = R.drawable.ic_message_received;
-            ReadStatus status = message.getReadStatus();
+            ReadStatus status = holder.getReadStatus();
 
-            // Hide the read receipt for public threads
-            if(message.getThread().typeIs(ThreadType.Public)) {
-                status = ReadStatus.hide();
-            }
-
-            if(status.is(ReadStatus.delivered())) {
+            if (status.is(ReadStatus.delivered())) {
                 resource = R.drawable.ic_message_delivered;
             }
-            if(status.is(ReadStatus.read())) {
+            if (status.is(ReadStatus.read())) {
                 resource = R.drawable.ic_message_read;
             }
-            if(view != null) {
+            if (view != null) {
                 view.setImageResource(resource);
                 view.setVisibility(status.is(ReadStatus.hide()) ? View.GONE : View.VISIBLE);
             }

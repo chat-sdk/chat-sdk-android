@@ -63,11 +63,6 @@
             android:theme="@style/ChatSDKTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
-        <activity android:name=".main.MainDrawActivity"
-            android:launchMode = "singleTask"
-            android:theme="@style/ChatSDKTheme"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
-
         <activity android:name=".threads.AddUsersToThreadActivity"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>

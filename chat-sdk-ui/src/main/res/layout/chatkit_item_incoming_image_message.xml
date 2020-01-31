@@ -49,7 +49,7 @@
         android:layout_toEndOf="@id/messageUserAvatar"
         android:layout_toRightOf="@id/messageUserAvatar"
         android:adjustViewBounds="true"
-        app:siShape="@drawable/chatkit_bg_incoming_message"
+        app:siShape="@drawable/chatkit_shape_incoming_message"
         app:siSquare="false"/>
 
     <TextView
@@ -61,7 +61,6 @@
         android:layout_below="@id/image"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
-        android:fontFamily="sans-serif-thin"
         android:textSize="12sp"
         android:textColor="@color/message_time"
         />

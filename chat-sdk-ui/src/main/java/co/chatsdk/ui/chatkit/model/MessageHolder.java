@@ -2,6 +2,7 @@ package co.chatsdk.ui.chatkit.model;
 
 import com.stfalcon.chatkit.commons.models.IMessage;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -13,17 +14,30 @@ import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
-import co.chatsdk.ui.R;
+import co.chatsdk.ui.chatkit.binders.MessageBinder;
 
 public class MessageHolder implements IMessage {
 
     public Message message;
-    protected ReadStatus readStatus = null;
     protected UserHolder userHolder = null;
     protected MessageSendProgress progress = null;
 
+    protected boolean isGroup;
+    protected boolean previousSenderEqualsSender;
+    protected boolean showDate;
+
     public MessageHolder(Message message) {
         this.message = message;
+
+        Message nextMessage = message.getNextMessage();
+        Message previousMessage = message.getPreviousMessage();
+
+        previousSenderEqualsSender = previousMessage == null || !message.getSender().equalsEntity(previousMessage.getSender());
+
+        DateFormat format = MessageBinder.messageTimeComparisonDateFormat(ChatSDK.shared().context());
+        showDate = nextMessage == null || !format.format(message.getDate().toDate()).equals(format.format(nextMessage.getDate().toDate()));
+
+        message.getThread().typeIs(ThreadType.Group);
     }
 
     @Override
@@ -33,6 +47,9 @@ public class MessageHolder implements IMessage {
 
     @Override
     public String getText() {
+        if (isReply()) {
+            return message.getReply();
+        }
         return message.getText();
     }
 
@@ -80,24 +97,24 @@ public class MessageHolder implements IMessage {
         return message.getReadStatus();
     }
 
-    public Integer getReadStatusResourceId() {
-        ReadStatus status = message.getReadStatus();
+    public boolean isReply() {
+        return message.isReply();
+    }
 
-        // Hide the read receipt for public threads
-        if(!message.getThread().typeIs(ThreadType.Public) && ChatSDK.readReceipts() != null || status.is(ReadStatus.hide())) {
-            return null;
-        }
+    public String getQuotedText() {
+        return message.getText();
+    }
 
-        int resource = R.drawable.ic_message_received;
+    public String getQuotedImageUrl() {
+        return message.imageURL();
+    }
 
-        if(status.is(ReadStatus.delivered())) {
-            resource = R.drawable.ic_message_delivered;
-        }
-        if(status.is(ReadStatus.read())) {
-            resource = R.drawable.ic_message_read;
-        }
+    public boolean showNames() {
+        return isGroup && previousSenderEqualsSender;
+    }
 
-        return resource;
+    public boolean showDate() {
+        return showDate;
     }
 
     public static List<MessageHolder> fromMessages(List<Message> messages) {

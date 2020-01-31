@@ -1,6 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
 
-</LinearLayout>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape android:shape="rectangle">
+
+            <corners
+                android:bottomLeftRadius="@dimen/reply_corner_radius"
+                android:bottomRightRadius="0dp"
+                android:topLeftRadius="@dimen/reply_corner_radius"
+                android:topRightRadius="@dimen/reply_corner_radius" />
+
+            <solid android:color="@color/primary_green"/>
+        </shape>
+    </item>
+
+    <item android:left="4dp">
+        <shape android:shape="rectangle">
+
+            <corners
+                android:bottomLeftRadius="0dp"
+                android:bottomRightRadius="0dp"
+                android:topLeftRadius="0dp"
+                android:topRightRadius="@dimen/reply_corner_radius" />
+
+            <solid android:color="@color/white"/>
+        </shape>
+    </item>
+
+</layer-list>
+

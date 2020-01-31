@@ -51,8 +51,8 @@
 
             <ImageView
                 android:id="@+id/image_icon"
-                android:layout_width="@dimen/message_icon_max_width"
-                android:layout_height="@dimen/message_icon_max_height"
+                android:layout_width="@dimen/message_icon_width"
+                android:layout_height="@dimen/message_icon_height"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentBottom="true"
@@ -138,7 +138,7 @@
         android:layout_alignParentEnd="true" />
 
     <ImageView
-        android:id="@+id/read_status"
+        android:id="@+id/readStatus"
         android:layout_width="34dp"
         android:layout_height="26dp"
         android:layout_alignParentBottom="true"

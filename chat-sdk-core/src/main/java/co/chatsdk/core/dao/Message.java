@@ -27,6 +27,7 @@ import java.lang.Class;
 
 import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
@@ -368,6 +369,10 @@ public class Message extends AbstractEntity {
     }
 
     public ReadStatus getReadStatus () {
+        if (getThread().typeIs(ThreadType.Public)) {
+            return ReadStatus.hide();
+        }
+
         int userCount = 0;
         int deliveredCount = 0;
         int readCount = 0;

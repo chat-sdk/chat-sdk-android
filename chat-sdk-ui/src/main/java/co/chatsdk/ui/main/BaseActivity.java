@@ -42,9 +42,11 @@ import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.ToastHelper;
+import io.reactivex.CompletableObserver;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
-public class BaseActivity extends AppCompatActivity {
+public class BaseActivity extends AppCompatActivity implements Consumer<Throwable>, CompletableObserver {
 
     protected ProgressDialog progressDialog;
 
@@ -286,10 +288,33 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Some convenience methods to handle disposables and errors
+     */
+
     @Override
     public void onBackPressed() {
         finish();
         super.onBackPressed();  // optional depending on your needs
     }
 
+    @Override
+    public void accept(Throwable throwable) {
+        onError(throwable);
+    }
+
+    @Override
+    public void onSubscribe(Disposable d) {
+        dm.add(d);
+    }
+
+    @Override
+    public void onComplete() {
+
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        showToast(e.getLocalizedMessage());
+    }
 }

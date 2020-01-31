@@ -1,4 +1,4 @@
-package co.chatsdk.core.avatar;
+package co.chatsdk.core.avatar.gravatar;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;

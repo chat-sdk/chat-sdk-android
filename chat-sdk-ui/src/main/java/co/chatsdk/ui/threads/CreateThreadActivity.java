@@ -77,7 +77,7 @@ public class CreateThreadActivity extends SelectContactActivity {
                 .subscribe(thread -> {
                     ChatSDK.ui().startChatActivityForID(this, thread.getEntityID());
                     finish();
-                }, toastOnErrorConsumer()));
+                }, this));
     }
 
 

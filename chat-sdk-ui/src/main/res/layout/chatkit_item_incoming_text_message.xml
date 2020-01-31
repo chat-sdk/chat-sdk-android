@@ -1,7 +1,7 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginBottom="4dp"
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
@@ -52,9 +52,45 @@
         android:layout_marginRight="30dp"
         android:layout_toEndOf="@id/messageUserAvatar"
         android:layout_toRightOf="@id/messageUserAvatar"
-            android:layout_below="@id/userName"
+        android:layout_below="@id/userName"
         android:orientation="vertical">
 
+        <LinearLayout
+            android:id="@+id/replyView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/chatkit_shape_incoming_reply"
+            android:clipChildren="true"
+            android:paddingLeft="4dp"
+            android:paddingStart="4dp"
+            android:paddingRight="2dp"
+            android:paddingEnd="2dp"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:layout_marginBottom="6dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/replyTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="13sp"
+                android:padding="4dp" />
+
+            <com.github.siyamed.shapeimageview.mask.PorterShapeImageView
+                android:id="@+id/replyImageView"
+                android:layout_width="@dimen/reply_image_width"
+                android:layout_height="@dimen/reply_image_height"
+                android:adjustViewBounds="true"
+                android:layout_gravity="end"
+                android:layout_marginEnd="4dp"
+                android:layout_marginRight="4dp"
+                app:siShape="@drawable/chatkit_shape_incoming_reply_image"
+                app:siSquare="false"
+                />
+
+        </LinearLayout>
 
         <TextView
             android:id="@id/messageText"
@@ -76,7 +112,6 @@
         android:layout_marginStart="0dp"
         android:layout_marginEnd="5dp"
         android:layout_marginRight="5dp"
-        android:textColor="@color/message_time"
-        />
+        android:textColor="@color/message_time" />
 
 </RelativeLayout>

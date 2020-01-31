@@ -67,6 +67,7 @@ dependencies {
 
     implementation "androidx.multidex:multidex:$androidxMultidexVersion"
     implementation project(path: ':chat-sdk-ui')
+    implementation project(path: ':chat-sdk-ui-extras')
     implementation project(path: ':chat-sdk-firebase-adapter')
     implementation project(path: ':chat-sdk-firebase-push')
     implementation project(path: ':chat-sdk-firebase-file-storage')

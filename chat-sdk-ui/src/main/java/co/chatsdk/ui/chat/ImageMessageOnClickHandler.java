@@ -14,7 +14,7 @@ import android.widget.ProgressBar;
 
 import com.github.chrisbanes.photoview.PhotoView;
 
-import co.chatsdk.core.utils.ImageBuilder;
+import co.chatsdk.core.image.ImageBuilder;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.main.BaseActivity;

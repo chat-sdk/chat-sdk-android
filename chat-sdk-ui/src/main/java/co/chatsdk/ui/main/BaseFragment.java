@@ -17,12 +17,15 @@ import android.view.ViewGroup;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.DisposableMap;
 import co.chatsdk.ui.utils.ToastHelper;
+import io.reactivex.CompletableObserver;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
 /**
  * Created by itzik on 6/17/2014.
  */
-public abstract class BaseFragment extends DialogFragment {
+public abstract class BaseFragment extends DialogFragment implements Consumer<Throwable>, CompletableObserver {
 
     protected ProgressDialog progressDialog;
 
@@ -100,14 +103,33 @@ public abstract class BaseFragment extends DialogFragment {
         dm.dispose();
     }
 
+    @Deprecated
     protected Consumer<? super Throwable> toastOnErrorConsumer() {
-        return (Consumer<Throwable>) throwable -> {
-            if (getActivity() != null) {
-                ToastHelper.show(getActivity(), throwable.getLocalizedMessage());
-            }
-        };
+        return this;
     }
 
+    public void onSubscribe(@NonNull Disposable d) {
+        dm.add(d);
+    }
+
+    /**
+     * Called once the deferred computation completes normally.
+     */
+    public void onComplete() {
+
+    }
+
+    /**
+     * Called once if the deferred computation 'throws' an exception.
+     * @param e the exception, not null.
+     */
+    public void onError(@NonNull Throwable e) {
+        ToastHelper.show(getContext(), e.getLocalizedMessage());
+    }
+
+    public void accept(Throwable t) {
+        onError(t);
+    }
 
 }
 

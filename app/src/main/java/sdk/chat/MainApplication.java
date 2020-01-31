@@ -8,8 +8,10 @@ import androidx.multidex.MultiDexApplication;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
 
+import co.chatsdk.core.avatar.gravatar.GravatarAvatarGenerator;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
+import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
@@ -20,6 +22,7 @@ import co.chatsdk.ui.chatkit.CKPrivateThreadsFragment;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import firestream.chat.Config;
 import firestream.chat.namespace.Fire;
+import sdk.chat.ui.extras.MainDrawActivity;
 
 /**
  * Created by Ben Smiley on 6/8/2014.
@@ -59,16 +62,23 @@ public class MainApplication extends MultiDexApplication {
             }
 
             Fire.stream().initialize(context, firestreamConfig);
-
             ChatSDK.initialize(context, config, FireStreamNetworkAdapter.class, BaseInterfaceAdapter.class);
 
+            // Old Firebase Adapter
+//            ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error");
+        }
+        finally {
             ChatSDK.ui().setPrivateThreadsFragment(new CKPrivateThreadsFragment());
             ChatSDK.ui().setChatActivity(CKChatActivity.class);
 //            ChatSDK.ui().setMainActivity(MainDrawActivity.class);
 
-//            ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
 
-//            AConfigurator.configure();
+            ChatSDK.ui().setAvatarGenerator(new GravatarAvatarGenerator());
 
             FirebaseFileStorageModule.activate();
             FirebasePushModule.activate();
@@ -80,16 +90,11 @@ public class MainApplication extends MultiDexApplication {
 //            TestScript.run(context, config.build().firebaseRootPath);
 
             // Uncomment this to enable Firebase UI
-                    // FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
+            // FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
 
 //            ChatSDK.ui().addChatOption(new MessageTestChatOption("BaseMessage Burst"));
 
-
         }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
     @Override

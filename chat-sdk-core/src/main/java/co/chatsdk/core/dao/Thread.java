@@ -251,6 +251,18 @@ public class Thread extends AbstractEntity {
         setMetaValue(key, value, true);
     }
 
+    public void setMuted(boolean muted) {
+        if (muted) {
+            setMetaValue(Keys.Mute, "");
+        } else {
+            removeMetaValue(Keys.Mute);
+        }
+    }
+
+    public boolean isMuted() {
+        return metaValueForKey(Keys.Mute) != null;
+    }
+
     @Keep
     public void setMetaValue (String key, String value, boolean notify) {
         ThreadMetaValue metaValue = metaValueForKey(key);

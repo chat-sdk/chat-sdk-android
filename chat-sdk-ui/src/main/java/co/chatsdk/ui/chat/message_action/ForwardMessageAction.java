@@ -20,7 +20,7 @@ import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 
-public class               ForwardMessageAction extends MessageAction {
+public class ForwardMessageAction extends MessageAction {
 
     protected int messageForwardActivityCode = 998;
 

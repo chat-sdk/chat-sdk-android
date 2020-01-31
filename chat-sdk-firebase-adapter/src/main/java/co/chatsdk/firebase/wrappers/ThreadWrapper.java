@@ -39,6 +39,7 @@ import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebaseEventListener;
 import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.FirebaseReferenceManager;
+import co.chatsdk.firebase.utils.Generic;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -234,7 +235,7 @@ public class ThreadWrapper  {
                         HashMap<String, Object> data = new HashMap<>();
                         data.put(HookEvent.Message, message.getModel());
                         data.put(HookEvent.IsNew_Boolean, newMessage);
-                        ChatSDK.hook().executeHook(HookEvent.MessageReceived, data).subscribe(ChatSDK.shared().getCrashReporter());;
+                        ChatSDK.hook().executeHook(HookEvent.MessageReceived, data).subscribe(ChatSDK.events());
                     }
 
                     // If we remove this, then the thread will update twice for each text.
@@ -245,7 +246,7 @@ public class ThreadWrapper  {
                         emitter.onNext(message.getModel());
                     }
 
-                    message.markAsReceived().subscribe(ChatSDK.shared().getCrashReporter());
+                    message.markAsReceived().subscribe(ChatSDK.events());
                     updateReadReceipts(message.getModel());
                 }
             }));
@@ -337,17 +338,9 @@ public class ThreadWrapper  {
                         model.removeUser(user.getModel());
                         e.onNext(user.getModel());
             }).onChildChanged((snapshot, s, hasValue) -> {
-                if (snapshot.getValue() instanceof HashMap && snapshot.getKey().equals(ChatSDK.currentUserID())) {
-                    HashMap<String, Object> value = (HashMap<String, Object>) snapshot.getValue();
-                    // Mute Value
-                    if (value.get(Keys.Mute) instanceof Boolean) {
-                        Boolean muted = (Boolean) value.get(Keys.Mute);
-                        if (muted) {
-                            model.setMetaValue(Keys.Mute, "");
-                        } else {
-                            model.removeMetaValue(Keys.Mute);
-                        }
-                    }
+                Boolean muted = snapshot.child(Keys.Mute).getValue(Boolean.class);
+                if (muted != null) {
+                    model.setMuted(muted);
                 }
             }));
 
@@ -528,7 +521,7 @@ public class ThreadWrapper  {
 
             ref.updateChildren(serialize(), (databaseError, databaseReference) -> {
                 if (databaseError == null) {
-                    FirebaseEntity.pushThreadDetailsUpdated(model.getEntityID()).subscribe(ChatSDK.shared().getCrashReporter());
+                    FirebaseEntity.pushThreadDetailsUpdated(model.getEntityID()).subscribe(ChatSDK.events());
                     e.onComplete();
                 }
                 else {

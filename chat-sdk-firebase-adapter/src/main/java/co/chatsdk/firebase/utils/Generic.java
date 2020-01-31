@@ -11,4 +11,7 @@ public class Generic {
     static public GenericTypeIndicator<HashMap<String, Long>> contactType() {
         return new GenericTypeIndicator<HashMap<String, Long>>() {};
     }
+    public static GenericTypeIndicator<HashMap<String, Object>> hashMapStringObject() {
+        return new GenericTypeIndicator<HashMap<String, Object>>() {};
+    }
 }

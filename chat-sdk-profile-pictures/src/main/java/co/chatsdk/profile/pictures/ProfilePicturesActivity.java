@@ -178,7 +178,8 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
                 } else {
                     Toast.makeText(ProfilePicturesActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 }
-            }));        }, toastOnErrorConsumer()));
+            }));
+            }, this));
     }
 
     protected User getUser() {

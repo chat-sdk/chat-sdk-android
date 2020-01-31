@@ -89,7 +89,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
             // there's an edge case where the user could kill the app and remain
             // a member of a public thread
             if (!ChatSDK.config().publicChatAutoSubscriptionEnabled) {
-                ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).subscribe(ChatSDK.shared().getCrashReporter());
+                ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).subscribe(ChatSDK.events());
             }
 
             threadWrapperOn(thread);

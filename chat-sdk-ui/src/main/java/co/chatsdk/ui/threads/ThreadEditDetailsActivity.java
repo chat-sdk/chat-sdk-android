@@ -13,7 +13,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -31,6 +30,7 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.MediaSelector;
+import co.chatsdk.ui.image.ThreadImageBuilder;
 import co.chatsdk.ui.main.BaseActivity;
 import co.chatsdk.ui.utils.ImagePickerUploader;
 import co.chatsdk.ui.utils.ToastHelper;
@@ -174,8 +174,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
                     finish();
                     ChatSDK.ui().startChatActivityForID(ChatSDK.shared().context(), thread.getEntityID());
                 } else {
-                    ChatSDK.logError(throwable);
-                    Toast.makeText(ChatSDK.shared().context(), throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    showToast(throwable.getLocalizedMessage());
                 }
             };
 
@@ -195,7 +194,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
                 thread.setImageUrl(threadImageURL);
             }
             thread.update();
-            dm.add(ChatSDK.thread().pushThread(thread).subscribe(this::finish, toastOnErrorConsumer()));
+            dm.add(ChatSDK.thread().pushThread(thread).subscribe(this::finish, this));
         }
     }
 

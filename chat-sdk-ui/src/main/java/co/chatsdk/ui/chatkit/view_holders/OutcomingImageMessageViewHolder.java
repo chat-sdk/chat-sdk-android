@@ -1,14 +1,16 @@
 package co.chatsdk.ui.chatkit.view_holders;
 
-import android.util.Pair;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendStatusFormatter;
+import co.chatsdk.ui.R;
+import co.chatsdk.ui.chatkit.binders.MessageBinder;
+import co.chatsdk.ui.chatkit.binders.ReadStatusViewBinder;
 import co.chatsdk.ui.chatkit.model.ImageMessageHolder;
-import co.chatsdk.ui.chatkit.model.MessageHolder;
 
 /*
  * Created by troy379 on 05.04.17.
@@ -16,18 +18,20 @@ import co.chatsdk.ui.chatkit.model.MessageHolder;
 public class OutcomingImageMessageViewHolder
         extends MessageHolders.OutcomingImageMessageViewHolder<ImageMessageHolder> {
 
+    protected ImageView readStatus;
+
     public OutcomingImageMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
+        readStatus = itemView.findViewById(R.id.readStatus);
     }
 
     @Override
-    public void onBind(ImageMessageHolder message) {
-        super.onBind(message);
+    public void onBind(ImageMessageHolder holder) {
+        super.onBind(holder);
 
-        String status = MessageSendStatusFormatter.format(ChatSDK.shared().context(), message.getStatus(), message.getUploadPercentage());
-        String timeString = status + " " + time.getText();
+        ReadStatusViewBinder.onBind(readStatus, holder);
+        MessageBinder.onBindSendStatus(time, holder);
 
-        time.setText(timeString);
     }
 
     @Override

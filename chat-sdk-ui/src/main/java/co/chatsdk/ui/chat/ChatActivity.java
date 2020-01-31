@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -56,10 +55,8 @@ import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.message_action.MessageActionHandler;
-import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.main.BaseActivity;
-import co.chatsdk.ui.threads.ThreadImageBuilder;
-import co.chatsdk.ui.utils.ToastHelper;
+import co.chatsdk.ui.image.ThreadImageBuilder;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeOnSubscribe;
@@ -301,19 +298,18 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         progressBar = findViewById(R.id.progress_bar);
 
-        final SwipeRefreshLayout mSwipeRefresh = findViewById(R.id.layout_swipe_to_refresh);
-
-        mSwipeRefresh.setOnRefreshListener(() -> {
-            if (!loadingMoreMessages) {
-                loadMoreMessages(true, true, true)
-                        .doFinally(() -> mSwipeRefresh.setRefreshing(false))
-                        .subscribeOn(AndroidSchedulers.mainThread())
-                        .doOnError(toastOnErrorConsumer())
-                        .subscribe(ChatSDK.shared().getCrashReporter());
-            } else {
-                mSwipeRefresh.setRefreshing(false);
-            }
-        });
+//        final SwipeRefreshLayout mSwipeRefresh = findViewById(R.id.layout_swipe_to_refresh);
+//
+//        mSwipeRefresh.setOnRefreshListener(() -> {
+//            if (!loadingMoreMessages) {
+//                loadMoreMessages(true, true, true)
+//                        .doFinally(() -> mSwipeRefresh.setRefreshing(false))
+//                        .subscribeOn(AndroidSchedulers.mainThread())
+//                        .subscribe(this);
+//            } else {
+//                mSwipeRefresh.setRefreshing(false);
+//            }
+//        });
 
         recyclerView = findViewById(R.id.recycler_messages);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -437,10 +433,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     }
 
     protected void handleMessageSend (Completable completable) {
-        completable.observeOn(AndroidSchedulers.mainThread()).doOnError(throwable -> {
-            ChatSDK.logError(throwable);
-            ToastHelper.show(getApplicationContext(), throwable.getLocalizedMessage());
-        }).subscribe(ChatSDK.shared().getCrashReporter());
+        completable.observeOn(AndroidSchedulers.mainThread()).subscribe(this);
     }
 
     @Override
@@ -570,8 +563,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         stopTyping(true);
 
-        if (thread != null && thread.typeIs(ThreadType.Public) && (removeUserFromChatOnExit || thread.metaValueForKey(Keys.Mute) != null)) {
-            ChatSDK.thread().removeUsersFromThread(thread, ChatSDK.currentUser()).observeOn(AndroidSchedulers.mainThread()).subscribe(ChatSDK.shared().getCrashReporter());
+        if (thread != null && thread.typeIs(ThreadType.Public) && (removeUserFromChatOnExit || thread.isMuted())) {
+            ChatSDK.thread().removeUsersFromThread(thread, ChatSDK.currentUser())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(this);
         }
     }
 
@@ -807,7 +802,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         dm.add(loadMoreMessages(false, false, true)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> progressBar.setVisibility(View.INVISIBLE))
-                .subscribe(() -> scrollListTo(toPosition, !showLoadingIndicator), toastOnErrorConsumer()));
+                .subscribe(() -> scrollListTo(toPosition, !showLoadingIndicator), this));
     }
 
 //    public void markAsDelivered(List<Message> messages){

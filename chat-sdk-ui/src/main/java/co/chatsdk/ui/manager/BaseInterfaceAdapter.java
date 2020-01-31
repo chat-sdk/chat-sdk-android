@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.annotation.DrawableRes;
 import androidx.fragment.app.Fragment;
 
 import com.squareup.picasso.OkHttp3Downloader;
@@ -13,13 +14,12 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import co.chatsdk.core.Tab;
+import co.chatsdk.core.avatar.FlatHashAvatarGenerator;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
@@ -35,6 +35,7 @@ import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.core.ui.ProfileFragmentProvider;
 import co.chatsdk.core.notifications.NotificationDisplayHandler;
+import co.chatsdk.core.avatar.AvatarGenerator;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActivity;
 import co.chatsdk.ui.chat.handlers.ImageMessageDisplayHandler;
@@ -85,6 +86,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class createThreadActivity = CreateThreadActivity.class;
     protected Class addUsersToThreadActivity = AddUsersToThreadActivity.class;
     protected Class forwardMessageActivity = ForwardMessageActivity.class;
+    protected AvatarGenerator avatarGenerator = new FlatHashAvatarGenerator();
 
     protected Intent loginIntent;
 
@@ -92,6 +94,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Fragment publicThreadsFragment = new PublicThreadsFragment();
     protected Fragment contactsFragment = new ContactsFragment();
     protected ProfileFragmentProvider profileFragmentProvider = ProfileFragment::newInstance;
+
+    protected @DrawableRes int defaultProfileImage = R.drawable.icn_100_profile;
 
     private ArrayList<Tab> tabs = new ArrayList<>();
     private Tab privateThreadsTab;
@@ -476,7 +480,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
             messageEntityIDs.add(message.getEntityID());
         }
 
-        intent.putExtra(Keys.IntentKeyMessageEntityIDs, messageEntityIDs);
+        intent.putStringArrayListExtra(Keys.IntentKeyMessageEntityIDs, messageEntityIDs);
         startActivityForResult(activity, intent, code);
     }
 
@@ -627,5 +631,22 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         }
         return notificationDisplayHandler;
     }
+
+    public AvatarGenerator getAvatarGenerator() {
+        return avatarGenerator;
+    }
+
+    public void setAvatarGenerator(AvatarGenerator avatarGenerator) {
+        this.avatarGenerator = avatarGenerator;
+    }
+
+    public void setDefaultProfileImage(@DrawableRes int drawable) {
+        defaultProfileImage = drawable;
+    }
+
+    public @DrawableRes int getDefaultProfileImage() {
+        return defaultProfileImage;
+    }
+
 
 }

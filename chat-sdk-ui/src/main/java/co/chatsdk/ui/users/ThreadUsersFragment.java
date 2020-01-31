@@ -84,9 +84,6 @@ public class ThreadUsersFragment extends BaseFragment {
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
                 .subscribe(networkEvent -> loadData(true)));
-
-
-
     }
 
     protected void showRoleListDialog(User user) {
@@ -106,9 +103,8 @@ public class ThreadUsersFragment extends BaseFragment {
             String newRole = roles.get(which);
             if (!newRole.equals(currentRole)) {
                 dm.add(ChatSDK.thread().setRole(newRole, thread, user).subscribe(() -> {
-                    //
                     ToastHelper.show(getActivity(), R.string.success);
-                }, toastOnErrorConsumer()));
+                }, this));
             }
         });
 
@@ -156,7 +152,7 @@ public class ThreadUsersFragment extends BaseFragment {
             options.add(new Option(R.string.remove_from_group, u -> {
                 dm.add(ChatSDK.thread().removeUsersFromThread(thread, u).subscribe(() -> {
                     ToastHelper.show(getActivity(), R.string.success);
-                }, toastOnErrorConsumer()));
+                }, this));
             }));
         }
 

@@ -143,12 +143,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         int i = v.getId();
 
         Action completion = this::afterLogin;
-
-        Consumer<Throwable> error = throwable -> {
-            ChatSDK.logError(throwable);
-            Toast.makeText(LoginActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-        };
-
         Action doFinally = this::dismissProgressDialog;
 
         showProgressDialog(getString(R.string.authenticating));
@@ -171,26 +165,26 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
         else if (i == R.id.button_twitter) {
             if(ChatSDK.socialLogin() != null) {
-                dm.add(ChatSDK.socialLogin().loginWithTwitter(this).doOnError(error)
+                dm.add(ChatSDK.socialLogin().loginWithTwitter(this)
                         .observeOn(AndroidSchedulers.mainThread())
                         .doFinally(doFinally)
-                        .subscribe(completion, error));
+                        .subscribe(completion, this));
             }
         }
         else if (i == R.id.button_facebook) {
             if(ChatSDK.socialLogin() != null) {
-                dm.add(ChatSDK.socialLogin().loginWithFacebook(this).doOnError(error)
+                dm.add(ChatSDK.socialLogin().loginWithFacebook(this)
                         .observeOn(AndroidSchedulers.mainThread())
                         .doFinally(doFinally)
-                        .subscribe(completion, error));
+                        .subscribe(completion, this));
             }
         }
         else if (i == R.id.button_google) {
             if(ChatSDK.socialLogin() != null) {
-                dm.add(ChatSDK.socialLogin().loginWithGoogle(this).doOnError(error)
+                dm.add(ChatSDK.socialLogin().loginWithGoogle(this)
                         .observeOn(AndroidSchedulers.mainThread())
                         .doFinally(doFinally)
-                        .subscribe(completion, error));
+                        .subscribe(completion, this));
             }
         }
     }

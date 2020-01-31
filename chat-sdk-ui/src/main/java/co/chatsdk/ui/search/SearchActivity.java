@@ -213,7 +213,7 @@ public class SearchActivity extends BaseActivity {
         dm.add(Completable.merge(completables)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(this::dismissProgressDialog)
-                .subscribe(this::finish, toastOnErrorConsumer()));
+                .subscribe(this::finish, this));
     }
 
     public void refreshDoneButton () {

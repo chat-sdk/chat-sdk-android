@@ -28,6 +28,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.image.ThreadImageBuilder;
 import co.chatsdk.ui.users.ThreadUsersFragment;
 import co.chatsdk.ui.utils.ImagePreviewActivity;
 import co.chatsdk.ui.utils.ToastHelper;
@@ -88,7 +89,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.threadDetailsUpdated())
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .subscribe(networkEvent -> reloadData()));
+                .subscribe(networkEvent -> reloadData(), this));
 
         reloadData();
     }
@@ -199,10 +200,10 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             ChatSDK.ui().startThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
         }
         if (item.getItemId() == R.id.action_mute) {
-            if (thread.metaValueForKey(Keys.Mute) != null) {
-                ChatSDK.thread().unmute(thread).subscribe(ChatSDK.shared().getCrashReporter());
+            if (thread.isMuted()) {
+                ChatSDK.thread().unmute(thread).subscribe(this);
             } else {
-                ChatSDK.thread().mute(thread).subscribe(ChatSDK.shared().getCrashReporter());
+                ChatSDK.thread().mute(thread).subscribe(this);
             }
             invalidateOptionsMenu();
         }
