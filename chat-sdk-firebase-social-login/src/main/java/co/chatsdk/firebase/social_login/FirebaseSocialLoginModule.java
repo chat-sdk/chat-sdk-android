@@ -11,7 +11,7 @@ import co.chatsdk.core.session.ChatSDK;
 public class FirebaseSocialLoginModule {
 
     public static void activate (Context context) {
-        ChatSDK.a().socialLogin = new FirebaseSocialLoginHandler(context);
+//        ChatSDK.a().socialLogin = new FirebaseSocialLoginHandler(context);
     }
 
 }
