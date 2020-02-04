@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 import co.chatsdk.core.session.ChatSDK;
-import timber.log.Timber;
+
 
 /**
  * Created by ben on 9/28/17.

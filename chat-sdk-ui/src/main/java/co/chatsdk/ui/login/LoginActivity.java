@@ -35,7 +35,7 @@ import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import timber.log.Timber;
+
 
 /**
  * Created by itzik on 6/8/2014.

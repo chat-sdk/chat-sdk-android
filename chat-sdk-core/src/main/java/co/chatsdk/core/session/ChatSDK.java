@@ -2,7 +2,9 @@ package co.chatsdk.core.session;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import org.jetbrains.annotations.NotNull;
+
+import org.greenrobot.greendao.annotation.NotNull;
+
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import co.chatsdk.core.base.LocationProvider;
@@ -42,9 +44,9 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.notifications.NotificationDisplayHandler;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.AppBackgroundMonitor;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+
 import io.reactivex.disposables.Disposable;
-import timber.log.Timber;
+
 
 /**
  * Created by ben on 9/5/17.
@@ -62,8 +64,6 @@ public class ChatSDK {
     protected InterfaceAdapter interfaceAdapter;
     protected StorageManager storageManager;
     protected BaseNetworkAdapter networkAdapter;
-
-    protected CrashReportingCompletableObserver crashReporter = new CrashReportingCompletableObserver();
 
     protected LocationProvider locationProvider;
 
@@ -95,40 +95,8 @@ public class ChatSDK {
         // Monitor the app so if it goes into the background we know
         AppBackgroundMonitor.shared().setEnabled(true);
 
-        if (config().debug) {
-            Timber.plant(new Timber.DebugTree());
-        }
-      
         return shared();
     }
-
-//    public void activateModule (String moduleName, String methodName, MethodArgument... arguments) throws ChatSDKException {
-//        try {
-//            ArrayList<Class<?>> classes = new ArrayList<>();
-//            ArrayList<Object> values = new ArrayList<>();
-//
-//            for(MethodArgument a : arguments) {
-//                classes.add(a.type);
-//                values.add(a.value);
-//            }
-//
-//            Class<?> interfaceModule = Class.forName(moduleName);
-//            Method method = interfaceModule.getMethod(methodName, classes.toArray(new Class<?>[0]));
-//            method.invoke(null, values.toArray(new Object[0]));
-//        }
-//        catch (ClassNotFoundException e) {
-//            throw new ChatSDKException("Module: " + moduleName + "Not found");
-//        }
-//        catch (NoSuchMethodException e) {
-//            throw new ChatSDKException("Activate method not found for module");
-//        }
-//        catch (IllegalAccessException e) {
-//            throw new ChatSDKException("Activate method not found for module");
-//        }
-//        catch (InvocationTargetException e) {
-//            throw new ChatSDKException("Activate method not found for module");
-//        }
-//    }
 
     public void handleLocalNotifications () {
 
@@ -323,12 +291,5 @@ public class ChatSDK {
         return shared().storageManager;
     }
 
-    public void setCrashReporter(CrashReportingCompletableObserver crashReporter) {
-        this.crashReporter = crashReporter;
-    }
-
-    public CrashReportingCompletableObserver getCrashReporter() {
-        return crashReporter;
-    }
 
 }

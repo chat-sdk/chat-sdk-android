@@ -50,7 +50,7 @@ import co.chatsdk.core.message_action.MessageAction;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
@@ -66,7 +66,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import timber.log.Timber;
+
 
 /**
  * #use {@link co.chatsdk.ui.chatkit.CKChatActivity} instead

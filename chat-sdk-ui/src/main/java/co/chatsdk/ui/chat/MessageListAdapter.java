@@ -29,7 +29,7 @@ import co.chatsdk.ui.chat.handlers.TextMessageDisplayHandler;
 import co.chatsdk.core.message_action.MessageAction;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
-import timber.log.Timber;
+
 
 public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageViewHolder> {
 

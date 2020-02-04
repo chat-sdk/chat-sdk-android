@@ -29,7 +29,7 @@ import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.StorageManager;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.HashMapHelper;
 import co.chatsdk.firebase.FirebaseCoreHandler;
@@ -47,7 +47,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import timber.log.Timber;
+
 
 
 public class UserWrapper {

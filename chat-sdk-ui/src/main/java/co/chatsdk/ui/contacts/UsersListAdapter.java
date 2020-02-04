@@ -34,7 +34,7 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.AvailabilityHelper;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
-import timber.log.Timber;
+
 
 public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

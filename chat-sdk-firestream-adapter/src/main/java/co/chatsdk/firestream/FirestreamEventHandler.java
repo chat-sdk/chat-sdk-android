@@ -10,7 +10,7 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.ReadStatus;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+
 import co.chatsdk.firebase.FirebaseEventHandler;
 import firestream.chat.events.Event;
 import firestream.chat.filter.Filter;

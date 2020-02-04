@@ -14,6 +14,7 @@ import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.async.AsyncSession;
 import org.greenrobot.greendao.query.QueryBuilder;
+import org.pmw.tinylog.Logger;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -23,7 +24,6 @@ import java.util.Random;
 
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.session.ChatSDK;
-import timber.log.Timber;
 
 /**
  * Manage all creation, deletion and updating Entities.
@@ -35,9 +35,6 @@ public class DaoCore {
 
     public static final int ORDER_ASC = 0;
     public static final int ORDER_DESC = 1;
-
-    @Keep
-    static Boolean DEBUG = false;
 
     private static Context context;
 
@@ -242,7 +239,7 @@ public class DaoCore {
     }
 
     public static void connectUserAndThread(User user, Thread thread){
-        if (DEBUG) Timber.v("connectUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
+        Logger.debug("connectUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
         if(!thread.hasUser(user)) {
             UserThreadLink linkData = new UserThreadLink();
             linkData.setThreadId(thread.getId());
@@ -254,7 +251,7 @@ public class DaoCore {
     }
 
     public static void breakUserAndThread(User user, Thread thread){
-        if (DEBUG) Timber.v("breakUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
+        Logger.debug("breakUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
         UserThreadLink linkData = fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, thread.getId(), user.getId());
         if(linkData != null) {
             deleteEntity(linkData);
@@ -263,41 +260,16 @@ public class DaoCore {
 
     @SuppressWarnings("unchecked") public static <T extends CoreEntity> T getEntityForClass(Class<T> c){
         // Create the new entity.
-        Class<T> clazz = null;
+        Class<T> clazz;
         T o = null;
         try {
             clazz = (Class<T>) Class.forName(c.getName());
             Constructor<T> ctor = clazz.getConstructor();
             o = ctor.newInstance();
-        } catch (ClassNotFoundException e) {
-//                e.printStackTrace();
-            if (DEBUG) Timber.e("ClassNotFoundException");
-        } catch (NoSuchMethodException e) {
-//                e.printStackTrace();
-            if (DEBUG) Timber.e("NoSuchMethodException");
-        } catch (InvocationTargetException e) {
-//                e.printStackTrace();
-            if (DEBUG) Timber.e("InvocationTargetException");
-        } catch (InstantiationException e) {
-//                e.printStackTrace();
-            if (DEBUG) Timber.e("InstantiationException");
-        } catch (IllegalAccessException e) {
-//                e.printStackTrace();
-            if (DEBUG) Timber.e("IllegalAccessException");
+        } catch (Exception e) {
+            Logger.error(e);
         }
 
         return o;
     }
-
-//    public static <T extends Object> T createOrReplace(T entity){
-//
-//        if (entity==null)
-//            return null;
-//
-//        asyncSession.insertOrReplace(entity);
-//
-//        return entity;
-//    }
-
-
 }

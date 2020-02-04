@@ -21,7 +21,6 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.update.FirebaseUpdate;
 import co.chatsdk.firebase.update.FirebaseUpdateWriter;
 import co.chatsdk.firebase.wrappers.MessageWrapper;

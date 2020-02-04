@@ -22,7 +22,7 @@ import co.chatsdk.core.handlers.EventHandler;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.FileUploadResult;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
@@ -33,7 +33,7 @@ import io.reactivex.SingleSource;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import timber.log.Timber;
+
 
 /**
  * Created by benjaminsmiley-andrews on 02/05/2017.
@@ -46,6 +46,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     protected static FirebaseDatabase database;
 
     public FirebaseCoreHandler() {
+        database();
     }
 
     public Completable pushUser() {

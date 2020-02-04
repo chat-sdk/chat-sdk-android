@@ -2,14 +2,14 @@ package co.chatsdk.core.audio;
 
 import android.media.MediaPlayer;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.concurrent.TimeUnit;
 
-import co.chatsdk.core.R;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import timber.log.Timber;
 
 /**
  * Created by ben on 9/28/17.
@@ -36,7 +36,7 @@ public class AudioPlayer {
 
                             AndroidSchedulers.mainThread().scheduleDirect(() -> progressListener.update(pos));
                         }
-                    }, throwable -> Timber.v(throwable.getMessage()));
+                    }, throwable -> Logger.error(throwable.getMessage()));
 
             player.setOnCompletionListener(completionListener);
         }

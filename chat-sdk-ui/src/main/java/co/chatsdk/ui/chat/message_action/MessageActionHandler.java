@@ -11,7 +11,7 @@ import java.util.List;
 
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.message_action.MessageAction;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
 import io.reactivex.Single;

@@ -18,7 +18,7 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Function;
-import timber.log.Timber;
+
 
 /**
  * Created by ben on 10/11/17.

@@ -45,10 +45,10 @@ class MainDrawActivity : MainActivity() {
         setContentView(activityLayout())
 
         // Handle Toolbar
-//        setSupportActionBar(toolbar)
-//        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-//        supportActionBar?.setHomeButtonEnabled(true)
-//        supportActionBar?.setTitle("Test Title")
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeButtonEnabled(true)
+        supportActionBar?.setTitle("Test Title")
 
         actionBarDrawerToggle = ActionBarDrawerToggle(this, root, toolbar, R.string.material_drawer_open, R.string.material_drawer_close)
 

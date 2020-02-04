@@ -40,7 +40,7 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.PublishSubject;
-import timber.log.Timber;
+
 
 /**
  * Created by itzik on 6/17/2014.

@@ -16,7 +16,7 @@ import co.chatsdk.core.push.BaseBroadcastHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.firebase.FirebaseCoreHandler;
-import timber.log.Timber;
+
 
 /**
  * Created by ben on 9/1/17.

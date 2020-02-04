@@ -10,7 +10,7 @@ import androidx.core.app.RemoteInput;
 import co.chatsdk.core.dao.Thread;
 
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+
 
 public class MessagingService extends IntentService {
 

@@ -7,6 +7,10 @@
         <item name="colorControlNormal">@color/text_primary</item>
         <item name="actionBarTheme">@style/ThemeOverlay.SdkTheme.ActionBar</item>
         <item name="android:itemTextAppearance">@style/myCustomMenuTextAppearance</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
     <!-- For the sliding affect to look good in the chat context and pick friends context.-->
@@ -60,8 +64,8 @@
 
     <!--Circle image view style-->
     <style name="CircleIconStyle">
-        <item name="android:layout_width">48dp</item>
-        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_width">@dimen/small_avatar_width</item>
+        <item name="android:layout_height">@dimen/small_avatar_height</item>
     </style>
 
     <style name="ThreadListCircleIconStyle" parent="CircleIconStyle">

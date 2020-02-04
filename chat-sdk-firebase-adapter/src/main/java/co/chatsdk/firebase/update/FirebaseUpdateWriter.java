@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebasePaths;
 import io.reactivex.Single;

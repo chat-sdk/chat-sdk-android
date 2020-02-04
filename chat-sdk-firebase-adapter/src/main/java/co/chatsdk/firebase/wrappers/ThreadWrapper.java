@@ -34,7 +34,7 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebaseEventListener;
 import co.chatsdk.firebase.FirebasePaths;

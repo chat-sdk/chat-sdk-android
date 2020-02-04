@@ -58,7 +58,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
-import co.chatsdk.core.utils.CrashReportingCompletableObserver;
+
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ChatActionBar;
 import co.chatsdk.ui.chat.ImageMessageOnClickHandler;
@@ -75,7 +75,7 @@ import co.chatsdk.ui.chatkit.model.MessageHolder;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import timber.log.Timber;
+
 
 public class CKChatActivity extends BaseActivity implements TextInputDelegate, ChatOptionsDelegate,
         MessagesListAdapter.OnLoadMoreListener {
