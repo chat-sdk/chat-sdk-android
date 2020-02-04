@@ -21,7 +21,6 @@ import co.chatsdk.core.handlers.PublicThreadHandler;
 import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.handlers.SearchHandler;
-import co.chatsdk.core.handlers.SocialLoginHandler;
 import co.chatsdk.core.handlers.StickerMessageHandler;
 import co.chatsdk.core.handlers.FileMessageHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
@@ -56,7 +55,6 @@ public class BaseNetworkAdapter {
     public ReadReceiptHandler readReceipts;
     public StickerMessageHandler stickerMessage;
     public FileMessageHandler fileMessage;
-    public SocialLoginHandler socialLogin;
     public EventHandler events;
     public HookHandler hook = new BaseHookHandler();
     public EncryptionHandler encryption;

@@ -13,9 +13,6 @@ public class AccountDetails {
      */
     public enum Type {
         Username,
-        Facebook,
-        Twitter,
-        Google,
         Anonymous,
         Register,
         Custom,
@@ -26,17 +23,6 @@ public class AccountDetails {
     public String password;
     public String token;
     public HashMap<String, String> meta = new HashMap<>();
-
-    /**
-     * For Facebook login user Firebase UI
-     * @return
-     */
-    @Deprecated
-    public static AccountDetails facebook () {
-        AccountDetails a = new AccountDetails();
-        a.type = Type.Facebook;
-        return a;
-    }
 
     public static AccountDetails username (String username, String password) {
         AccountDetails a = new AccountDetails();
@@ -51,28 +37,6 @@ public class AccountDetails {
         a.type = Type.Register;
         a.username = username;
         a.password = password;
-        return a;
-    }
-
-    /**
-     * For Twitter login user Firebase UI
-     * @return
-     */
-    @Deprecated
-    public static AccountDetails twitter () {
-        AccountDetails a = new AccountDetails();
-        a.type = Type.Twitter;
-        return a;
-    }
-
-    /**
-     * For Google login user Firebase UI
-     * @return
-     */
-    @Deprecated
-    public static AccountDetails google () {
-        AccountDetails a = new AccountDetails();
-        a.type = Type.Google;
         return a;
     }
 

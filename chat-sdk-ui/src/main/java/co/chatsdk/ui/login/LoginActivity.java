@@ -56,7 +56,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
      * That means the context wont try to authenticate in inResume. */
 
     protected MaterialButton btnLogin, btnReg,  btnAnonymous, btnResetPassword;
-    protected ImageButton btnTwitter, btnGoogle, btnFacebook;
     protected ImageView appIconImage;
 
     @Override
@@ -83,26 +82,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected void initViews() {
         btnLogin = findViewById(R.id.button_login);
         btnAnonymous = findViewById(R.id.button_anonymous_login);
-        btnTwitter = findViewById(R.id.button_twitter);
         btnReg = findViewById(R.id.button_register);
         usernameEditText = findViewById(R.id.text_input_username);
         passwordEditText = findViewById(R.id.text_input_password);
-        btnGoogle = findViewById(R.id.button_google);
-        btnFacebook = findViewById(R.id.button_facebook);
         appIconImage = findViewById(R.id.image_app_icon);
         btnResetPassword = findViewById(R.id.button_reset_password);
 
         btnResetPassword.setVisibility(ChatSDK.config().resetPasswordEnabled ? View.VISIBLE : View.INVISIBLE);
 
-        if(!ChatSDK.auth().accountTypeEnabled(AccountDetails.Type.Facebook)) {
-            ((ViewGroup) btnFacebook.getParent()).removeView(btnFacebook);
-        }
-        if(!ChatSDK.auth().accountTypeEnabled(AccountDetails.Type.Twitter)) {
-            ((ViewGroup) btnTwitter.getParent()).removeView(btnTwitter);
-        }
-        if(!ChatSDK.auth().accountTypeEnabled(AccountDetails.Type.Google)) {
-            ((ViewGroup) btnGoogle.getParent()).removeView(btnGoogle);
-        }
         if(!ChatSDK.auth().accountTypeEnabled(AccountDetails.Type.Anonymous)) {
             ((ViewGroup) btnAnonymous.getParent()).removeView(btnAnonymous);
         }
@@ -122,9 +109,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(ChatSDK.socialLogin() != null) {
-            ChatSDK.socialLogin().onActivityResult(requestCode, resultCode, data);
-        }
     }
 
     protected void initListeners() {
@@ -132,9 +116,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         btnLogin.setOnClickListener(this);
         btnReg.setOnClickListener(this);
         btnAnonymous.setOnClickListener(this);
-        btnTwitter.setOnClickListener(this);
-        btnFacebook.setOnClickListener(this);
-        btnGoogle.setOnClickListener(this);
         btnResetPassword.setOnClickListener(this);
 
     }
@@ -163,30 +144,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
         else if (i == R.id.button_reset_password) {
             showForgotPasswordDialog();
-        }
-        else if (i == R.id.button_twitter) {
-            if(ChatSDK.socialLogin() != null) {
-                dm.add(ChatSDK.socialLogin().loginWithTwitter(this)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doFinally(doFinally)
-                        .subscribe(completion, this));
-            }
-        }
-        else if (i == R.id.button_facebook) {
-            if(ChatSDK.socialLogin() != null) {
-                dm.add(ChatSDK.socialLogin().loginWithFacebook(this)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doFinally(doFinally)
-                        .subscribe(completion, this));
-            }
-        }
-        else if (i == R.id.button_google) {
-            if(ChatSDK.socialLogin() != null) {
-                dm.add(ChatSDK.socialLogin().loginWithGoogle(this)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doFinally(doFinally)
-                        .subscribe(completion, this));
-            }
         }
     }
 

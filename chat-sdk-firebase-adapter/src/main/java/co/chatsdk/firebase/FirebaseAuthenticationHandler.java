@@ -110,9 +110,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                         case Custom:
                             FirebaseCoreHandler.auth().signInWithCustomToken(details.token).addOnCompleteListener(resultHandler);
                             break;
-                        // Should be handled by Social Login Module
-                        case Facebook:
-                        case Twitter:
                         default:
                             emitter.onError(ChatError.getError(ChatError.Code.NO_LOGIN_TYPE, "No matching login type was found"));
                             break;
@@ -207,10 +204,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                     ChatSDK.events().source().onNext(NetworkEvent.logout());
 
-                    if (ChatSDK.socialLogin() != null) {
-                        ChatSDK.socialLogin().logout();
-                    }
-
                     if (ChatSDK.hook() != null) {
                         HashMap<String, Object> data = new HashMap<>();
                         data.put(HookEvent.User, user);
@@ -243,8 +236,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             return ChatSDK.config().anonymousLoginEnabled;
         } else if (type == AccountDetails.Type.Username || type == AccountDetails.Type.Register) {
             return true;
-        } else if (ChatSDK.socialLogin() != null) {
-            return ChatSDK.socialLogin().accountTypeEnabled(type);
         } else {
             return false;
         }

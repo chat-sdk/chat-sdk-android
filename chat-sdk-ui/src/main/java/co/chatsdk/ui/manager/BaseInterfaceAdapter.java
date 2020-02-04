@@ -45,6 +45,7 @@ import co.chatsdk.ui.chat.options.DialogChatOptionsHandler;
 import co.chatsdk.ui.chat.options.LocationChatOption;
 import co.chatsdk.ui.chat.options.MediaChatOption;
 import co.chatsdk.ui.chat.options.MediaType;
+import co.chatsdk.ui.chatkit.CKChatActivity;
 import co.chatsdk.ui.threads.AddUsersToThreadActivity;
 import co.chatsdk.ui.contacts.ContactsFragment;
 import co.chatsdk.ui.threads.CreateThreadActivity;
@@ -76,7 +77,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class loginActivity = LoginActivity.class;
     protected Class splashScreenActivity = SplashScreenActivity.class;
     protected Class mainActivity = MainAppBarActivity.class;
-    protected Class chatActivity = ChatActivity.class;
+    protected Class chatActivity = CKChatActivity.class;
     protected Class threadDetailsActivity = ThreadDetailsActivity.class;
     protected Class threadEditDetailsActivity = ThreadEditDetailsActivity.class;
 

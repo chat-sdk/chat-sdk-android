@@ -75,11 +75,15 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
 
         setContentView(activityLayout());
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = getToolbar();
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
 
+    }
+
+    protected Toolbar getToolbar() {
+        return findViewById(R.id.toolbar);
     }
 
     protected View getContentView() {

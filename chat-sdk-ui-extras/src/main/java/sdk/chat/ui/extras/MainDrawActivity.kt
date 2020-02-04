@@ -4,6 +4,8 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import co.chatsdk.core.session.ChatSDK
 import co.chatsdk.ui.main.MainActivity
 import com.mikepenz.iconics.IconicsDrawable
@@ -39,18 +41,19 @@ class MainDrawActivity : MainActivity() {
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
 
     private lateinit var profile: IProfile
+    private var lastFragment: Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(activityLayout())
 
         // Handle Toolbar
-        setSupportActionBar(toolbar)
+//        setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.setTitle("Test Title")
 
-        actionBarDrawerToggle = ActionBarDrawerToggle(this, root, toolbar, R.string.material_drawer_open, R.string.material_drawer_close)
+        actionBarDrawerToggle = ActionBarDrawerToggle(this, root, getToolbar(), R.string.material_drawer_open, R.string.material_drawer_close)
 
         var user = ChatSDK.currentUser()
         profile = ProfileDrawerItem().withName(user.name).withEmail(user.email).withIcon(user.avatarURL)
@@ -64,8 +67,8 @@ class MainDrawActivity : MainActivity() {
                 itemAdapter.add(PrimaryDrawerItem().withName(tab.title).withIcon(tab.icon))
             }
             onDrawerItemClickListener = { v, drawerItem, position ->
-                setFragmentForPosition(position)
-                true
+                setFragmentForPosition(position - 1)
+                false
             }
             setSavedInstance(savedInstanceState)
         }
@@ -74,8 +77,13 @@ class MainDrawActivity : MainActivity() {
     }
 
     protected fun setFragmentForPosition(position: Int) {
-        var tab = ChatSDK.ui().tabs().get(position)
-        supportFragmentManager.beginTransaction().add(R.id.content, tab.fragment).disallowAddToBackStack().commit()
+        val tab = ChatSDK.ui().tabs().get(position)
+        val transaction = supportFragmentManager.beginTransaction()
+        if(lastFragment != null) {
+            transaction.remove(lastFragment!!)
+        }
+        transaction.add(R.id.fragment_container, tab.fragment).disallowAddToBackStack().commit()
+        lastFragment = tab.fragment
     }
 
     /**

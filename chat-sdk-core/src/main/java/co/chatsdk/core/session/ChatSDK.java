@@ -33,7 +33,6 @@ import co.chatsdk.core.handlers.PublicThreadHandler;
 import co.chatsdk.core.handlers.PushHandler;
 import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.handlers.SearchHandler;
-import co.chatsdk.core.handlers.SocialLoginHandler;
 import co.chatsdk.core.handlers.StickerMessageHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
@@ -241,14 +240,6 @@ public class ChatSDK {
 
     public static HookHandler hook () {
         return a().hook;
-    }
-
-    /**
-     * In the future, we will be removing social login in favour of FirebaseUI
-     */
-    @Deprecated
-    public static SocialLoginHandler socialLogin () {
-        return a().socialLogin;
     }
 
     public static StickerMessageHandler stickerMessage () {
