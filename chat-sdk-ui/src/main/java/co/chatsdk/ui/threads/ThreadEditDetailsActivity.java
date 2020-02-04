@@ -81,6 +81,11 @@ public class ThreadEditDetailsActivity extends BaseActivity {
 
     }
 
+    @Override
+    protected int activityLayout() {
+        return R.layout.activity_thread_details;
+    }
+
     protected void initViews() {
         actionBar = getSupportActionBar();
         if (actionBar != null) {

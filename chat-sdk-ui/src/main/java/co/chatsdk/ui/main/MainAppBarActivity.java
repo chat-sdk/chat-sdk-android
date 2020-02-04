@@ -7,6 +7,7 @@ import com.google.android.material.tabs.TabLayout;
 import java.util.List;
 
 import androidx.annotation.LayoutRes;
+import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 import co.chatsdk.core.Tab;
 import co.chatsdk.core.dao.Thread;
@@ -31,7 +32,7 @@ public class MainAppBarActivity extends MainActivity {
     }
 
     protected void initViews() {
-        setContentView(activityLayout());
+
         viewPager = findViewById(R.id.pager);
 
         tabLayout = findViewById(R.id.tab_layout);

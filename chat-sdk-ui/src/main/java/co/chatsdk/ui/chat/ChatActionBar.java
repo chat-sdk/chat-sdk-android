@@ -1,9 +1,17 @@
 package co.chatsdk.ui.chat;
 
+import android.content.Context;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
+
+import com.google.android.material.appbar.AppBarLayout;
+
 import co.chatsdk.core.dao.Thread;
 
 import co.chatsdk.core.interfaces.ThreadType;
@@ -13,36 +21,46 @@ import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.image.ThreadImageBuilder;
 
-public class ChatActionBar {
+public class ChatActionBar extends AppBarLayout {
 
     protected TextView titleTextView;
     protected TextView subtitleTextView;
-    protected View actionBarView;
     protected ImageView threadImageView;
     protected View.OnClickListener onClickListener;
+    protected Toolbar toolbar;
 
-    public ChatActionBar(LayoutInflater inflater) {
+    public ChatActionBar(Context context) {
+        super(context);
+        initViews();
+    }
 
-        actionBarView = inflater.inflate(R.layout.action_bar_chat_activity, null);
+    public ChatActionBar(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        initViews();
+    }
 
-        titleTextView = actionBarView.findViewById(R.id.text_name);
-        subtitleTextView = actionBarView.findViewById(R.id.text_subtitle);
-        threadImageView = actionBarView.findViewById(R.id.image_avatar);
+    public ChatActionBar(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        initViews();
+    }
+
+    public void initViews() {
+        inflate(getContext(), R.layout.action_bar_chat_activity, this);
+
+        titleTextView = findViewById(R.id.text_name);
+        subtitleTextView = findViewById(R.id.text_subtitle);
+        threadImageView = findViewById(R.id.image_avatar);
+        toolbar = findViewById(R.id.toolbar);
 
         titleTextView.setOnClickListener(this::onClick);
         threadImageView.setOnClickListener(this::onClick);
         subtitleTextView.setOnClickListener(this::onClick);
-
     }
 
     public void onClick(View view) {
         if (ChatSDK.config().threadDetailsEnabled && onClickListener != null) {
             onClickListener.onClick(view);
         }
-    }
-
-    public View get() {
-        return actionBarView;
     }
 
     public void reload(Thread thread) {
@@ -59,7 +77,7 @@ public class ChatActionBar {
     public void setSubtitleText(Thread thread, String text) {
         if(StringChecker.isNullOrEmpty(text)) {
             if(thread.typeIs(ThreadType.Private1to1)) {
-                text = actionBarView.getContext().getString(R.string.tap_here_for_contact_info);
+                text = getContext().getString(R.string.tap_here_for_contact_info);
             } else {
                 text = thread.getUserListString();
             }
@@ -75,5 +93,9 @@ public class ChatActionBar {
     public void showText() {
         titleTextView.setVisibility(View.VISIBLE);
         subtitleTextView.setVisibility(View.VISIBLE);
+    }
+
+    public Toolbar getToolbar() {
+        return toolbar;
     }
 }

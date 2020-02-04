@@ -5,6 +5,8 @@ import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.HashMap;
 
 import co.chatsdk.core.dao.Message;
@@ -43,10 +45,10 @@ public class FirebasePushHandler extends AbstractPushHandler {
         if (data != null) {
             functions().getHttpsCallable("pushToChannels").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
                 if(task.getException() != null) {
-                    Timber.d(task.getException());
+                    Logger.error(task.getException());
                 }
                 else {
-                    Timber.d(task.getResult().getData().toString());
+                    Logger.debug(task.getResult().getData().toString());
                 }
                 return null;
             });

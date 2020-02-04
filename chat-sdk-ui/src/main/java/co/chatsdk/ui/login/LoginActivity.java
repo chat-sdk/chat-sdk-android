@@ -26,6 +26,9 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+
+import org.pmw.tinylog.Logger;
+
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.utils.StringChecker;
@@ -61,8 +64,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         super.onCreate(savedInstanceState);
 
         setExitOnBackPressed(true);
-
-        setContentView(activityLayout());
 
         mainView = findViewById(R.id.view_root);
         setupTouchUIToDismissKeyboard(mainView);
@@ -211,7 +212,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
 
         if(!isNetworkAvailable()) {
-            Timber.v("Network Connection unavailable");
+            Logger.debug("Network Connection unavailable");
         }
 
         AccountDetails details = AccountDetails.username(usernameEditText.getText().toString(), passwordEditText.getText().toString());

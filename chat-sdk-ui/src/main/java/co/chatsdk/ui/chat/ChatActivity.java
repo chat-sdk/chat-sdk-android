@@ -25,9 +25,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.leinardi.android.speeddial.SpeedDialView;
-
 import org.ocpsoft.prettytime.PrettyTime;
+import org.pmw.tinylog.Logger;
 
 import java.util.Date;
 import java.util.List;
@@ -107,7 +106,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected Bundle bundle;
     protected boolean loadingMoreMessages;
 
-    protected SpeedDialView messageActionsSpeedDialView;
+//    protected SpeedDialView messageActionsSpeedDialView;
     protected MessageActionHandler messageActionHandler;
 
     /**
@@ -124,9 +123,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-        setContentView(activityLayout());
 
         initViews();
 
@@ -215,7 +211,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     if(typingText != null) {
                         typingText += getString(R.string.typing);
                     }
-                    Timber.v(typingText);
+                    Logger.debug(typingText);
                     setSubtitleText(typingText);
                 }));
 
@@ -353,20 +349,20 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             }
         });
 
-        setupChatActions();
+//        setupChatActions();
     }
 
-    protected void setupChatActions() {
-        messageActionsSpeedDialView = findViewById(R.id.speed_dial_message_actions);
-        messageActionHandler = new MessageActionHandler(messageActionsSpeedDialView);
-
-        dm.add(messageListAdapter.getMessageActionObservable()
-                .flatMapSingle((Function<List<MessageAction>, SingleSource<String>>) messageActions -> {
-                    // Open the text action sheet
-                    hideKeyboard();
-                    return messageActionHandler.open(messageActions, ChatActivity.this);
-        }).subscribe(this::showSnackbar, snackbarOnErrorConsumer()));
-    }
+//    protected void setupChatActions() {
+//        messageActionsSpeedDialView = findViewById(R.id.speed_dial_message_actions);
+//        messageActionHandler = new MessageActionHandler(messageActionsSpeedDialView);
+//
+//        dm.add(messageListAdapter.getMessageActionObservable()
+//                .flatMapSingle((Function<List<MessageAction>, SingleSource<String>>) messageActions -> {
+//                    // Open the text action sheet
+//                    hideKeyboard();
+//                    return messageActionHandler.open(messageActions, ChatActivity.this);
+//        }).subscribe(this::showSnackbar, snackbarOnErrorConsumer()));
+//    }
 
     public Completable loadMoreMessages (boolean loadFromServer, boolean saveScrollPosition, boolean notify) {
         return Maybe.create((MaybeOnSubscribe<Date>) emitter -> {
@@ -501,7 +497,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             User currentUser = ChatSDK.currentUser();
             ChatSDK.thread().addUsersToThread(thread, currentUser)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new CrashReportingCompletableObserver(dm));
+                    .subscribe(this);
         }
 
         if (thread.typeIs(ThreadType.Private1to1) && thread.otherUser() != null && ChatSDK.lastOnline() != null) {
@@ -779,7 +775,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if(ChatSDK.typingIndicator() != null) {
             ChatSDK.typingIndicator().setChatState(state, thread)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new CrashReportingCompletableObserver(dm));
+                    .subscribe(this);
         }
     }
 

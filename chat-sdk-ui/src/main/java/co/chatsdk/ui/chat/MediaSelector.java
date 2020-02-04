@@ -12,7 +12,7 @@ import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.PicassoEngine;
 import com.zhihu.matisse.internal.entity.CaptureStrategy;
 
-import org.jetbrains.annotations.NotNull;
+import org.greenrobot.greendao.annotation.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -34,8 +34,6 @@ public class SplashScreenActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(activityLayout());
-
         mainView = findViewById(R.id.view_root);
 
         imageView = (ImageView) mainView.getViewById(R.id.image_view);

@@ -18,6 +18,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -89,7 +91,7 @@ public class UserWrapper {
      * Note - Change was removing of online values as set online and online time.
      * * * * */
     private void updateUserFromAuthData(FirebaseUser authData){
-        Timber.v("updateUserFromAuthData");
+        Logger.debug("updateUserFromAuthData");
 
         model.setEntityID(authData.getUid());
 

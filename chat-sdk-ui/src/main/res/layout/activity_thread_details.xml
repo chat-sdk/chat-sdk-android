@@ -10,11 +10,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <include layout="@layout/toolbar_default"/>
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center|start"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_below="@id/toolbar">
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/chat_sdk_thread_image_view"
@@ -52,7 +55,6 @@
                 android:layout_marginRight="8dp"
                 android:layout_marginBottom="10dp"
                 android:gravity="center"
-                android:text="Thread"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@+id/frame_thread_users"
                 app:layout_constraintEnd_toEndOf="parent"

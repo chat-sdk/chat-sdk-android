@@ -69,10 +69,12 @@ class MainDrawActivity : MainActivity() {
             }
             setSavedInstance(savedInstanceState)
         }
+
+        setFragmentForPosition(0);
     }
 
     protected fun setFragmentForPosition(position: Int) {
-        var tab = ChatSDK.ui().defaultTabs().get(position)
+        var tab = ChatSDK.ui().tabs().get(position)
         supportFragmentManager.beginTransaction().add(R.id.content, tab.fragment).disallowAddToBackStack().commit()
     }
 

@@ -46,6 +46,7 @@ import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.AppBackgroundMonitor;
 
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 
 /**
@@ -107,21 +108,24 @@ public class ChatSDK {
         // TODO: Check this
         localNotificationDisposable = ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.MessageAdded))
-                .subscribe(networkEvent -> {
-                    Message message = networkEvent.message;
-                    Thread thread = networkEvent.thread;
-                    if(message != null && !AppBackgroundMonitor.shared().inBackground() && thread.isMuted()) {
-                        if (thread.typeIs(ThreadType.Private) || (thread.typeIs(ThreadType.Public) && ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled)) {
-                            if(!message.getSender().isMe() && !message.isDelivered() && ChatSDK.ui().showLocalNotifications(message.getThread()) || NotificationDisplayHandler.connectedToAuto(context())) {
-                                ReadStatus status = message.readStatusForUser(ChatSDK.currentUser());
-                                if (!message.isRead() && !status.is(ReadStatus.delivered()) && !status.is(ReadStatus.read())) {
-                                    // Only show the alert if we'recyclerView not on the private threads tab
-                                    ChatSDK.ui().notificationDisplayHandler().createMessageNotification(message);
-                                }
-                            }
-                        }
-                    }
-                });
+                .subscribe(new Consumer<NetworkEvent>() {
+                               @Override
+                               public void accept(NetworkEvent networkEvent) throws Exception {
+                                   Message message = networkEvent.message;
+                                   Thread thread = networkEvent.thread;
+                                   if (message != null && !AppBackgroundMonitor.shared().inBackground() && thread.isMuted()) {
+                                       if (thread.typeIs(ThreadType.Private) || (thread.typeIs(ThreadType.Public) && ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled)) {
+                                           if (!message.getSender().isMe() && !message.isDelivered() && ChatSDK.ui().showLocalNotifications(message.getThread()) || NotificationDisplayHandler.connectedToAuto(context())) {
+                                               ReadStatus status = message.readStatusForUser(ChatSDK.currentUser());
+                                               if (!message.isRead() && !status.is(ReadStatus.delivered()) && !status.is(ReadStatus.read())) {
+                                                   // Only show the alert if we'recyclerView not on the private threads tab
+                                                   ChatSDK.ui().notificationDisplayHandler().createMessageNotification(message);
+                                               }
+                                           }
+                                       }
+                                   }
+                               }
+                           });
     }
 
     public static ChatSDK shared () {

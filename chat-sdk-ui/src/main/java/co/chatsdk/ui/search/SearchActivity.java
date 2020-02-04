@@ -56,8 +56,6 @@ public class SearchActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(activityLayout());
-
         initViews();
 
         if (getSupportActionBar() != null) {

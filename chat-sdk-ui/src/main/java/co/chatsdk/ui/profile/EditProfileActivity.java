@@ -83,8 +83,6 @@ public class EditProfileActivity extends BaseActivity {
                     }
                 }));
 
-        setContentView(activityLayout());
-
         initViews();
     }
 

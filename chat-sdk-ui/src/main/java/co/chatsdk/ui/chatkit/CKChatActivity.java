@@ -33,6 +33,7 @@ import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
 import org.ocpsoft.prettytime.PrettyTime;
+import org.pmw.tinylog.Logger;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -115,8 +116,6 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(activityLayout());
-
         initViews();
 
         if (!updateThreadFromBundle(savedInstanceState)) {
@@ -182,7 +181,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                     if(typingText != null) {
                         typingText += getString(R.string.typing);
                     }
-                    Timber.v(typingText);
+                    Logger.debug(typingText);
                     chatActionBar.setSubtitleText(thread, typingText);
                 }));
 
@@ -217,29 +216,35 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
         return super.getTaskDescriptionBitmap();
     }
 
-    protected ActionBar readyActionBarToCustomView () {
-        ActionBar ab = getSupportActionBar();
-        if (ab != null) {
-            ab.setDisplayHomeAsUpEnabled(false);
-            ab.setDisplayShowHomeEnabled(false);
-            ab.setDisplayShowTitleEnabled(false);
-            ab.setDisplayShowCustomEnabled(true);
-        }
-        return ab;
-    }
+//    protected ActionBar readyActionBarToCustomView () {
+//        ActionBar ab = getSupportActionBar();
+//        if (ab != null) {
+//            ab.setDisplayHomeAsUpEnabled(false);
+//            ab.setDisplayShowHomeEnabled(false);
+//            ab.setDisplayShowTitleEnabled(false);
+//            ab.setDisplayShowCustomEnabled(true);
+//        }
+//        return ab;
+//    }
 
     protected void initActionBar () {
 
-        final ActionBar ab = readyActionBarToCustomView();
+//        final ActionBar ab = readyActionBarToCustomView();
 
         // http://stackoverflow.com/questions/16026818/actionbar-custom-view-with-centered-imageview-action-items-on-sides
 
         if (chatActionBar == null) {
-            chatActionBar = new ChatActionBar(getLayoutInflater());
+            chatActionBar = findViewById(R.id.chatActionBar);
             chatActionBar.setOnClickListener(v -> openThreadDetailsActivity());
+            setSupportActionBar(chatActionBar.getToolbar());
 
-            ab.setCustomView(chatActionBar.get());
+//            ab.setCustomView(chatActionBar);
         }
+
+//        ActionBar ab = getSupportActionBar();
+//        if (ab != null) {
+//            getSupportActionBar().setElevation(2);
+//        }
 
         chatActionBar.reload(thread);
     }
@@ -514,7 +519,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
             User currentUser = ChatSDK.currentUser();
             ChatSDK.thread().addUsersToThread(thread, currentUser)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new CrashReportingCompletableObserver(dm));
+                    .subscribe(this);
         }
 
         if (thread.typeIs(ThreadType.Private1to1) && thread.otherUser() != null && ChatSDK.lastOnline() != null) {
@@ -752,7 +757,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
         if(ChatSDK.typingIndicator() != null) {
             ChatSDK.typingIndicator().setChatState(state, thread)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new CrashReportingCompletableObserver(dm));
+                    .subscribe(this);
         }
     }
 

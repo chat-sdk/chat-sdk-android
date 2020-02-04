@@ -46,7 +46,6 @@ public class ImagePreviewActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(activityLayout());
         mainView = findViewById(android.R.id.content);
 
         setupViews();

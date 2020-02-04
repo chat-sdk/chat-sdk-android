@@ -67,8 +67,6 @@ public abstract class SelectContactActivity extends BaseActivity {
                 .filter(contactChanged)
                 .subscribe(networkEvent -> loadData()));
 
-        setContentView(activityLayout());
-
         initViews();
         initList();
 

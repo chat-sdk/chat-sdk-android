@@ -25,7 +25,6 @@ public class ProfileActivity extends BaseActivity {
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
 
         String userEntityID = getIntent().getStringExtra(Keys.IntentKeyUserEntityID);
 
@@ -41,6 +40,11 @@ public class ProfileActivity extends BaseActivity {
 
         ToastHelper.show(this, R.string.user_entity_id_not_set);
         finish();
+    }
+
+    @Override
+    protected int activityLayout() {
+        return R.layout.activity_profile;
     }
 
     @Override

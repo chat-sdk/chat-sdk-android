@@ -4,11 +4,15 @@
     android:layout_height="match_parent"
     android:animateLayoutChanges="true">
 
+    <include
+        layout="@layout/toolbar_default"/>
+
     <fragment
         android:name="co.chatsdk.ui.profile.ProfileFragment"
         android:id="@+id/fragment_profile"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar">
     </fragment>
 
 </RelativeLayout>

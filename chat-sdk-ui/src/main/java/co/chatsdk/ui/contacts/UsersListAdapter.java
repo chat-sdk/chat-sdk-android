@@ -20,6 +20,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -162,7 +164,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             userViewHolder.availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(userListItem.getAvailability()));
             userViewHolder.statusTextView.setText(userListItem.getStatus());
 
-            Timber.v("User: " + userListItem.getName() + " Availability: " + userListItem.getAvailability());
+            Logger.debug("User: " + userListItem.getName() + " Availability: " + userListItem.getAvailability());
 
             Context context = ChatSDK.shared().context();
 

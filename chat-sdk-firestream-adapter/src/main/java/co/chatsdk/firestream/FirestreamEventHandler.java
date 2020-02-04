@@ -86,7 +86,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                                 finalThread.setCreator(user);
                             }
                             finalThread.addUser(user);
-                            ChatSDK.core().userOn(user).subscribe(new CrashReportingCompletableObserver());
+                            ChatSDK.core().userOn(user).subscribe(this);
                         }, this));
                     }
                     if (userEvent.typeIs(EventType.Removed)) {

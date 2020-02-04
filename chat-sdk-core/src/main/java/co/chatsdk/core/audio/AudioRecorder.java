@@ -1,7 +1,10 @@
 package co.chatsdk.core.audio;
 
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Environment;
+
+import org.pmw.tinylog.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,14 +33,20 @@ public class AudioRecorder {
 
         stopRecording();
 
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + AudioMessageDirectory + File.separator;
+        String path;
+        if (Build.VERSION.SDK_INT >= 19) {
+            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+        }else{
+            path = new File(Environment.getExternalStorageDirectory() + "/Documents").getAbsolutePath();
+        }
+        path += AudioMessageDirectory + File.separator;
 
         File file = new File(path);
         file.mkdir();
 
         path += name;
 
-        Timber.v("Recording to: " + path);
+        Logger.debug("Recording to: " + path);
 
         recorder = new MediaRecorder();
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);

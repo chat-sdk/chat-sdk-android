@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.Activity;
 import android.view.ViewGroup;
 
+import org.pmw.tinylog.Logger;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,7 +66,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<AbstractMessageView
             return handler.newViewHolder(isReply, activity.get(), messageActionPublishSubject);
         } else {
             // TODO: Handler this better
-            Timber.w("Message handler not available for text type");
+            Logger.debug("Message handler not available for text type");
             handler = new TextMessageDisplayHandler();
             return handler.newViewHolder(isReply, activity.get(), messageActionPublishSubject);
         }

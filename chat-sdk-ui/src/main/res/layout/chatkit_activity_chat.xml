@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    android:id="@+id/view_container"
     android:layout_width="match_parent"
-    android:id="@+id/view_root"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true">
+
+    <co.chatsdk.ui.chat.ChatActionBar
+        android:id="@+id/chatActionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <com.stfalcon.chatkit.messages.MessagesList
         android:id="@+id/messagesList"
@@ -32,28 +37,37 @@
         app:outcomingDefaultBubbleSelectedColor="@color/primary_green"
         app:outcomingDefaultBubbleColor="@color/primary"
         app:outcomingDefaultBubblePressedColor="@color/primary"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         />
 
-    <View
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_above="@+id/reply_view"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:background="@color/gray_light"/>
-
-    <co.chatsdk.ui.chat.ReplyView
-        android:id="@+id/reply_view"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:layout_above="@+id/input"/>
-
-    <com.stfalcon.chatkit.messages.MessageInput
-        android:id="@+id/input"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:showAttachmentButton="true" />
+        android:orientation="vertical"
+        android:layout_gravity="bottom"
+        app:layout_behavior="co.chatsdk.ui.appbar.TextInputBehavior"
+        >
 
-</RelativeLayout>
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:background="@color/gray_light"/>
+
+        <co.chatsdk.ui.chat.ReplyView
+            android:id="@+id/reply_view"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            />
+
+        <com.stfalcon.chatkit.messages.MessageInput
+            android:id="@+id/input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:showAttachmentButton="true" />
+
+    </LinearLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>

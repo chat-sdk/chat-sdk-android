@@ -4,7 +4,7 @@ import android.app.Activity;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import org.jetbrains.annotations.NotNull;
+import org.greenrobot.greendao.annotation.NotNull;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;

@@ -8,6 +8,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import org.pmw.tinylog.Logger;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
@@ -131,7 +133,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         super.goOnline();
         FirebasePaths.firebaseRawRef().child(".info/connected").addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
             if (hasValue) {
-                Timber.v("Already online!");
+                Logger.debug("Already online!");
             } else {
                 DatabaseReference.goOnline();
             }

@@ -18,10 +18,13 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +49,7 @@ import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
-public class BaseActivity extends AppCompatActivity implements Consumer<Throwable>, CompletableObserver {
+public abstract class BaseActivity extends AppCompatActivity implements Consumer<Throwable>, CompletableObserver {
 
     protected ProgressDialog progressDialog;
 
@@ -66,8 +69,21 @@ public class BaseActivity extends AppCompatActivity implements Consumer<Throwabl
             setTheme(ChatSDK.config().theme);
         }
 
+
         // Setting the default task description.
         setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
+
+        setContentView(activityLayout());
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
+
+    }
+
+    protected View getContentView() {
+        return this.findViewById(android.R.id.content);
     }
 
     protected void setActionBarTitle (int resourceId) {
@@ -77,6 +93,8 @@ public class BaseActivity extends AppCompatActivity implements Consumer<Throwabl
             ab.setHomeButtonEnabled(true);
         }
     }
+
+    protected abstract @LayoutRes int activityLayout();
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
