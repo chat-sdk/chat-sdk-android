@@ -66,7 +66,7 @@ public abstract class ThreadsFragment extends BaseFragment {
 
         mainView = inflater.inflate(activityLayout(), null);
 
-
+        setHasOptionsMenu(true);
 
         initViews();
 
@@ -76,7 +76,7 @@ public abstract class ThreadsFragment extends BaseFragment {
     protected abstract Predicate<NetworkEvent> mainEventFilter ();
 
     protected  @LayoutRes int activityLayout () {
-        return R.layout.activity_threads;
+        return R.layout.fragment_threads;
     }
 
     public void initViews() {

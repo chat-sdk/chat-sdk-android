@@ -2,6 +2,8 @@ package sdk.chat.ui.extras
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -13,9 +15,11 @@ import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.actionBar
 import com.mikepenz.iconics.utils.paddingDp
 import com.mikepenz.materialdrawer.holder.ImageHolder
+import com.mikepenz.materialdrawer.holder.StringHolder
 import com.mikepenz.materialdrawer.iconics.withIcon
 import com.mikepenz.materialdrawer.model.*
 import com.mikepenz.materialdrawer.model.interfaces.*
+import com.mikepenz.materialdrawer.util.createDrawerItemColorStateList
 import com.mikepenz.materialdrawer.widget.AccountHeaderView
 import kotlinx.android.synthetic.main.activity_main_drawer.*
 
@@ -45,22 +49,24 @@ class MainDrawActivity : MainActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(activityLayout())
 
         // Handle Toolbar
-//        setSupportActionBar(toolbar)
+        setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
-        supportActionBar?.setTitle("Test Title")
 
-        actionBarDrawerToggle = ActionBarDrawerToggle(this, root, getToolbar(), R.string.material_drawer_open, R.string.material_drawer_close)
+        actionBarDrawerToggle = ActionBarDrawerToggle(this, root, toolbar, R.string.material_drawer_open, R.string.material_drawer_close)
 
-        var user = ChatSDK.currentUser()
-        profile = ProfileDrawerItem().withName(user.name).withEmail(user.email).withIcon(user.avatarURL)
+        val user = ChatSDK.currentUser()
+
+        profile = ProfileDrawerItem().apply {
+            name = StringHolder(user.name)
+            description = StringHolder(user.email)
+            icon = ImageHolder(user.avatarURL)
+        }
 
         // Create the AccountHeader
         buildHeader(false, savedInstanceState)
-
 
         slider.apply {
             for (tab in ChatSDK.ui().tabs()) {
@@ -78,12 +84,16 @@ class MainDrawActivity : MainActivity() {
 
     protected fun setFragmentForPosition(position: Int) {
         val tab = ChatSDK.ui().tabs().get(position)
-        val transaction = supportFragmentManager.beginTransaction()
-        if(lastFragment != null) {
-            transaction.remove(lastFragment!!)
-        }
-        transaction.add(R.id.fragment_container, tab.fragment).disallowAddToBackStack().commit()
+        supportFragmentManager.beginTransaction().replace(R.id.fragment_container, tab.fragment).commit()
+        supportActionBar?.setTitle(tab.title)
+//        if(lastFragment != null) {
+//            transaction.remove(lastFragment!!)
+//        }
+//
+//
+//        transaction.add(R.id.fragment_container, tab.fragment).disallowAddToBackStack().commit()
         lastFragment = tab.fragment
+//        invalidateOptionsMenu()
     }
 
     /**
@@ -99,12 +109,12 @@ class MainDrawActivity : MainActivity() {
             attachToSliderView(slider)
             selectionListEnabledForSingleProfile = false
             headerBackground = ImageHolder(R.drawable.header)
-            // TODO withCompactStyle(compact)
             addProfiles(
                     profile,
                     //don't ask but google uses 14dp for the add account icon in gmail but 20dp for the normal icons (like manage account)
                     ProfileSettingDrawerItem().withName("Add Account").withDescription("Add new GitHub Account").withIcon(IconicsDrawable(this@MainDrawActivity, GoogleMaterial.Icon.gmd_add).apply { actionBar(); paddingDp = 5 }).withIdentifier(PROFILE_SETTING.toLong()),
-                    ProfileSettingDrawerItem().withName("Manage Account").withIcon(GoogleMaterial.Icon.gmd_settings)
+                    ProfileSettingDrawerItem().withName("Manage Account").withIcon(GoogleMaterial.Icon.gmd_settings),
+                    ProfileSettingDrawerItem().withName(R.string.logout).withIcon(GoogleMaterial.Icon.gmd_exit_to_app).withIconTinted(true).withIconColor(R.color.logout_button_color)
             )
             withSavedInstance(savedInstanceState)
         }
@@ -122,7 +132,10 @@ class MainDrawActivity : MainActivity() {
 
 //    override fun onCreateOptionsMenu(menu: Menu): Boolean {
 //        val inflater = menuInflater
-//        return true
+//        if (lastFragment != null) {
+//            lastFragment!!.onCreateOptionsMenu(menu, inflater)
+//        }
+//        return super.onCreateOptionsMenu(menu)
 //    }
 
 //    override fun onOptionsItemSelected(item: MenuItem): Boolean {

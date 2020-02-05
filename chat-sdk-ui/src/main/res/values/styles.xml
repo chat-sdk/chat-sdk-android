@@ -7,10 +7,14 @@
         <item name="colorControlNormal">@color/text_primary</item>
         <item name="actionBarTheme">@style/ThemeOverlay.SdkTheme.ActionBar</item>
         <item name="android:itemTextAppearance">@style/myCustomMenuTextAppearance</item>
+
         <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
         <item name="android:windowNoTitle">true</item>
+
+<!--        <item name="windowActionModeOverlay">true</item>-->
+<!--        <item name="android:windowActionModeOverlay">true</item>-->
     </style>
 
     <!-- For the sliding affect to look good in the chat context and pick friends context.-->
@@ -38,13 +42,13 @@
         <item name="android:padding">2dp</item>
     </style>
 
-    <style name="SocialLoginButton">
-        <item name="android:layout_width">50dp</item>
-        <item name="android:layout_height">50dp</item>
-        <item name="android:layout_marginTop">@dimen/login_button_outer_margin</item>
-        <item name="android:layout_marginLeft">@dimen/login_button_outer_margin</item>
-        <item name="android:layout_marginStart">@dimen/login_button_outer_margin</item>
-    </style>
+<!--    <style name="SocialLoginButton">-->
+<!--        <item name="android:layout_width">50dp</item>-->
+<!--        <item name="android:layout_height">50dp</item>-->
+<!--        <item name="android:layout_marginTop">@dimen/login_button_outer_margin</item>-->
+<!--        <item name="android:layout_marginLeft">@dimen/login_button_outer_margin</item>-->
+<!--        <item name="android:layout_marginStart">@dimen/login_button_outer_margin</item>-->
+<!--    </style>-->
 
     <style name="LoginButton">
         <item name="android:layout_height">@dimen/login_button_height</item>
@@ -82,24 +86,25 @@
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
 
-    <style name="ProfileUsernameField"
-        parent="ProfileTextField">
-        <item name="android:textStyle">bold</item>
-    </style>
-    <style name="ProfileUsernameEditField"
-        parent="ProfileUsernameField">
-        <item name="android:background">@drawable/edit_text_background</item>
-        <item name="android:textStyle">bold</item>
-    </style>
+<!--    <style name="ProfileUsernameField"-->
+<!--        parent="ProfileTextField">-->
+<!--        <item name="android:textStyle">bold</item>-->
+<!--    </style>-->
 
-    <style name="ProfileTextField">
-        <item name="android:textSize">18sp</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:gravity">center</item>
-        <item name="android:padding">0dp</item>
-        <item name="android:layout_margin">0dp</item>
-        <item name="android:layout_marginBottom">1dp</item>
-        <item name="android:background">@null</item>
-    </style>
+<!--    <style name="ProfileUsernameEditField"-->
+<!--        parent="ProfileUsernameField">-->
+<!--        <item name="android:background">@drawable/edit_text_background</item>-->
+<!--        <item name="android:textStyle">bold</item>-->
+<!--    </style>-->
+
+<!--    <style name="ProfileTextField">-->
+<!--        <item name="android:textSize">18sp</item>-->
+<!--        <item name="android:layout_width">match_parent</item>-->
+<!--        <item name="android:gravity">center</item>-->
+<!--        <item name="android:padding">0dp</item>-->
+<!--        <item name="android:layout_margin">0dp</item>-->
+<!--        <item name="android:layout_marginBottom">1dp</item>-->
+<!--        <item name="android:background">@null</item>-->
+<!--    </style>-->
 
 </resources>

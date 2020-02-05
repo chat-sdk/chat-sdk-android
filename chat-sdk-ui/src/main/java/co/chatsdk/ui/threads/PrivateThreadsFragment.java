@@ -40,6 +40,7 @@ public class PrivateThreadsFragment extends ThreadsFragment {
                             }, throwable -> ToastHelper.show(getContext(), throwable.getLocalizedMessage())));
                     return null;
                 })));
+
     }
 
     @Override

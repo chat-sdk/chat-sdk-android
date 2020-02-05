@@ -62,10 +62,10 @@ public class MainApplication extends MultiDexApplication {
             }
 
             Fire.stream().initialize(context, firestreamConfig);
-//            ChatSDK.initialize(context, config, FireStreamNetworkAdapter.class, BaseInterfaceAdapter.class);
+            ChatSDK.initialize(context, config, FireStreamNetworkAdapter.class, BaseInterfaceAdapter.class);
 
             // Old Firebase Adapter
-            ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
+//            ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
 
         }
         catch (Exception e) {
@@ -74,7 +74,7 @@ public class MainApplication extends MultiDexApplication {
         }
         finally {
             ChatSDK.ui().setPrivateThreadsFragment(new CKPrivateThreadsFragment());
-//            ChatSDK.ui().setMainActivity(MainDrawActivity.class);
+            ChatSDK.ui().setMainActivity(MainDrawActivity.class);
 
             ChatSDK.ui().setAvatarGenerator(new GravatarAvatarGenerator());
 
