@@ -22,7 +22,7 @@
         android:name="sdk.chat.MainApplication"
         android:hardwareAccelerated="true">
 
-        <activity android:name="co.chatsdk.ui.login.SplashScreenActivity">
+        <activity android:name="co.chatsdk.ui.activities.SplashScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

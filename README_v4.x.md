@@ -276,7 +276,7 @@ Activate the core Chat SDK modules and any other modules you need. See the modul
 Launch the Chat SDK login activity by adding this to your `AndroidManifest.xml`:
 
 ```
-<activity android:name="co.chatsdk.ui.login.SplashScreenActivity">
+<activity android:name="co.chatsdk.ui.activities.SplashScreenActivity">
     <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />

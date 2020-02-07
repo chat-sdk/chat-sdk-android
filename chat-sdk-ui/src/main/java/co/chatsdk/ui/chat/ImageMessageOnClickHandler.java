@@ -17,7 +17,8 @@ import com.github.chrisbanes.photoview.PhotoView;
 import co.chatsdk.core.image.ImageBuilder;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.main.BaseActivity;
+import co.chatsdk.ui.activities.BaseActivity;
+import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -47,6 +48,8 @@ public class ImageMessageOnClickHandler {
             final PhotoView imageView = popupView.findViewById(R.id.photo_view);
             final ProgressBar progressBar = popupView.findViewById(R.id.progress_bar);
             final FloatingActionButton saveButton = popupView.findViewById(R.id.floating_button_save);
+
+            saveButton.setImageDrawable(Icons.get(Icons.shared().save, R.color.popup_image_save_icon_color));
 
             saveButton.setVisibility(View.INVISIBLE);
 
@@ -80,6 +83,4 @@ public class ImageMessageOnClickHandler {
 
         }
     }
-
-
 }

@@ -2,7 +2,7 @@ package sdk.chat.custom;
 
 import android.os.Bundle;
 
-import co.chatsdk.ui.contacts.ContactsFragment;
+import co.chatsdk.ui.fragments.ContactsFragment;
 
 public class AContactsFragment extends ContactsFragment {
     @Override

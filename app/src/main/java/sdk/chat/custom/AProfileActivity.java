@@ -2,7 +2,7 @@ package sdk.chat.custom;
 
 import android.os.Bundle;
 
-import co.chatsdk.ui.profile.ProfileActivity;
+import co.chatsdk.ui.activities.ProfileActivity;
 
 public class AProfileActivity extends ProfileActivity {
     @Override

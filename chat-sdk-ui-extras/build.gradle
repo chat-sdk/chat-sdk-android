@@ -3,6 +3,7 @@ apply plugin: 'com.novoda.bintray-release'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.jakewharton.butterknife'
 
 buildscript {
     repositories {
@@ -74,9 +75,8 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
 
     implementation 'com.mikepenz:google-material-typeface:3.0.1.4.original-kotlin@aar'
-    implementation 'com.mikepenz:fontawesome-typeface:5.3.1.2-kotlin@aar'
-    implementation 'com.mikepenz:octicons-typeface:3.2.0.6-kotlin@aar'
-
+//    implementation 'com.mikepenz:fontawesome-typeface:5.3.1.2-kotlin@aar'
+//    implementation 'com.mikepenz:octicons-typeface:3.2.0.6-kotlin@aar'
 
 // Add for NavController support
     implementation "com.mikepenz:materialdrawer-nav:$materialDrawerVersion"
@@ -84,6 +84,8 @@ dependencies {
     // Need this: maven { url "https://dl.bintray.com/mikepenz/maven" }
     implementation "com.mikepenz:materialdrawer-iconics:$materialDrawerVersion"
 
+//    implementation "com.mikepenz:iconics-core:$iconicsVersion"
+//    implementation "com.mikepenz:iconics-views:$iconicsVersion"
 // Add for Android-Iconics support
 //    implementation "com.mikepenz:materialdrawer-iconics:$iconicsVersion"
 

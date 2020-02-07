@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
 
 import androidx.fragment.app.Fragment;
@@ -14,8 +13,6 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.hook.AsyncExecutor;
-import co.chatsdk.core.hook.Executor;
 import co.chatsdk.core.hook.Hook;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.BroadcastHandler;
@@ -24,17 +21,11 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
-import co.chatsdk.core.ui.ProfileFragmentProvider;
-import co.chatsdk.ui.login.LoginActivity;
-import co.chatsdk.ui.profile.ProfileFragment;
-import co.chatsdk.ui.utils.ToastHelper;
+import co.chatsdk.ui.activities.LoginActivity;
+import co.chatsdk.ui.fragments.ProfileFragment;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 
 /**

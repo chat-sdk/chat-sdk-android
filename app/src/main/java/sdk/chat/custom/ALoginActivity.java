@@ -2,7 +2,7 @@ package sdk.chat.custom;
 
 import android.os.Bundle;
 
-import co.chatsdk.ui.login.LoginActivity;
+import co.chatsdk.ui.activities.LoginActivity;
 
 public class ALoginActivity extends LoginActivity {
     @Override

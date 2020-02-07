@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.novoda.bintray-release'
+apply plugin: 'com.jakewharton.butterknife'
 
 buildscript {
     repositories {
@@ -75,10 +76,21 @@ dependencies {
     api "com.google.android.material:material:$materialVersion"
 
     implementation "com.github.siyamed:android-shape-imageview:$shapeImageViewVersion"
-    implementation "co.chatsdk.chatsdk:chatkit:$chatKit"
+    api "co.chatsdk.chatsdk:chatkit:$chatKit"
+
+    implementation 'com.mikepenz:material-design-icons-dx-typeface:5.0.1.0-kotlin@aar'
+    implementation 'com.mikepenz:google-material-typeface:3.0.1.4.original-kotlin@aar'
+    implementation 'com.mikepenz:fontawesome-typeface:5.3.1.2-kotlin@aar'
+    implementation 'com.mikepenz:octicons-typeface:3.2.0.6-kotlin@aar'
+
+    implementation "com.mikepenz:iconics-core:$iconicsVersion"
+    implementation "com.mikepenz:iconics-views:$iconicsVersion"
 
     implementation "de.hdodenhof:circleimageview:$circleImageViewVersion"
 
     implementation "co.chatsdk:matisse:$matisseVersion"
+
+    implementation 'com.jakewharton:butterknife:10.2.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
 
 }

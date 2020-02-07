@@ -2,7 +2,6 @@ package co.chatsdk.ui.chat;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -11,7 +10,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.mikepenz.iconics.Iconics;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.chatsdk.core.dao.Thread;
 
 import co.chatsdk.core.interfaces.ThreadType;
@@ -19,15 +21,17 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.image.ThreadImageBuilder;
+import co.chatsdk.ui.R2;
+import co.chatsdk.ui.utils.ThreadImageBuilder;
 
 public class ChatActionBar extends AppBarLayout {
 
-    protected TextView titleTextView;
-    protected TextView subtitleTextView;
-    protected ImageView threadImageView;
+    @BindView(R2.id.text_name) protected TextView titleTextView;
+    @BindView(R2.id.text_subtitle) protected TextView subtitleTextView;
+    @BindView(R2.id.image_avatar) protected ImageView threadImageView;
+    @BindView(R2.id.toolbar) protected Toolbar toolbar;
+
     protected View.OnClickListener onClickListener;
-    protected Toolbar toolbar;
 
     public ChatActionBar(Context context) {
         super(context);
@@ -47,10 +51,7 @@ public class ChatActionBar extends AppBarLayout {
     public void initViews() {
         inflate(getContext(), R.layout.action_bar_chat_activity, this);
 
-        titleTextView = findViewById(R.id.text_name);
-        subtitleTextView = findViewById(R.id.text_subtitle);
-        threadImageView = findViewById(R.id.image_avatar);
-        toolbar = findViewById(R.id.toolbar);
+        ButterKnife.bind(this);
 
         titleTextView.setOnClickListener(this::onClick);
         threadImageView.setOnClickListener(this::onClick);

@@ -22,10 +22,9 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.utils.ImagePickerUploader;
-import co.chatsdk.ui.utils.ImagePreviewActivity;
+import co.chatsdk.ui.activities.ImagePreviewActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
 
 /**
  * Created by Pepe on 01/12/19.

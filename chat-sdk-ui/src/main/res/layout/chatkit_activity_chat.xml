@@ -57,7 +57,7 @@
             android:background="@color/gray_light"/>
 
         <co.chatsdk.ui.chat.ReplyView
-            android:id="@+id/reply_view"
+            android:id="@+id/replyView"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             />

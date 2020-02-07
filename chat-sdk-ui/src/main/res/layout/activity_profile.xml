@@ -8,7 +8,7 @@
         layout="@layout/toolbar_default"/>
 
     <fragment
-        android:name="co.chatsdk.ui.profile.ProfileFragment"
+        android:name="co.chatsdk.ui.fragments.ProfileFragment"
         android:id="@+id/fragment_profile"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

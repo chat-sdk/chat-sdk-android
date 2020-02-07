@@ -268,9 +268,9 @@ public class ThreadWrapper  {
         return Observable.create((ObservableOnSubscribe<Thread>) e -> {
             DatabaseReference ref = FirebasePaths.threadMetaRef(model.getEntityID());
             FirebaseReferenceManager.shared().addRef(ref, ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-                if(hasValue &&  snapshot.getValue() instanceof Map) {
-                    Map<String, Object> value = (Map<String, Object>) snapshot.getValue();
-                    model.setMetaValues(value);
+                HashMap<String, Object> map = snapshot.getValue(Generic.hashMapStringObject());
+                if (map != null) {
+                    model.setMetaValues(map);
                 }
                 e.onNext(model);
             })));

@@ -2,20 +2,15 @@ package sdk.chat.examples;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.media.audiofx.DynamicsProcessing;
 
 import co.chatsdk.android.app.R;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.interfaces.LocalNotificationHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
 import co.chatsdk.firestream.FireStreamNetworkAdapter;
-import co.chatsdk.ui.manager.BaseInterfaceAdapter;
+import co.chatsdk.ui.BaseInterfaceAdapter;
 import sdk.chat.custom.AChatActivity;
 import sdk.chat.custom.APrivateThreadsFragment;
-import sdk.chat.examples.BaseExample;
 import sdk.chat.test.MessageTestChatOption;
 
 public class CustomiseInterfaceExample extends BaseExample {

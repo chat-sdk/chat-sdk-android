@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.ui.profile.ProfileFragment;
+import co.chatsdk.ui.fragments.ProfileFragment;
 
 public class AProfileFragment extends ProfileFragment {
 

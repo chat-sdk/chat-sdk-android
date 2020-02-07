@@ -13,13 +13,16 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
 
 public class ReplyView extends ConstraintLayout {
 
-    protected ImageView imageView;
-    protected TextView textView;
-    protected ImageButton cancelButton;
+    @BindView(R2.id.image_view) protected ImageView imageView;
+    @BindView(R2.id.replyTextView) protected TextView textView;
+    @BindView(R2.id.cancelButton) protected ImageButton cancelButton;
 
     public ReplyView(Context context) {
         super(context);
@@ -39,9 +42,7 @@ public class ReplyView extends ConstraintLayout {
     protected void initViews() {
         inflate(getContext(), R.layout.view_chat_reply, this);
 
-        imageView = findViewById(R.id.image_view);
-        textView = findViewById(R.id.replyTextView);
-        cancelButton = findViewById(R.id.cancelButton);
+        ButterKnife.bind(this);
 
         hide();
     }

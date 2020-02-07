@@ -1,25 +1,19 @@
 package sdk.chat.ui.extras
 
 import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import co.chatsdk.core.session.ChatSDK
-import co.chatsdk.ui.main.MainActivity
+import co.chatsdk.ui.activities.MainActivity
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
-import com.mikepenz.iconics.utils.actionBar
-import com.mikepenz.iconics.utils.paddingDp
+import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.materialdrawer.holder.ImageHolder
 import com.mikepenz.materialdrawer.holder.StringHolder
-import com.mikepenz.materialdrawer.iconics.withIcon
 import com.mikepenz.materialdrawer.model.*
 import com.mikepenz.materialdrawer.model.interfaces.*
-import com.mikepenz.materialdrawer.util.createDrawerItemColorStateList
 import com.mikepenz.materialdrawer.widget.AccountHeaderView
 import kotlinx.android.synthetic.main.activity_main_drawer.*
 
@@ -112,9 +106,12 @@ class MainDrawActivity : MainActivity() {
             addProfiles(
                     profile,
                     //don't ask but google uses 14dp for the add account icon in gmail but 20dp for the normal icons (like manage account)
-                    ProfileSettingDrawerItem().withName("Add Account").withDescription("Add new GitHub Account").withIcon(IconicsDrawable(this@MainDrawActivity, GoogleMaterial.Icon.gmd_add).apply { actionBar(); paddingDp = 5 }).withIdentifier(PROFILE_SETTING.toLong()),
-                    ProfileSettingDrawerItem().withName("Manage Account").withIcon(GoogleMaterial.Icon.gmd_settings),
-                    ProfileSettingDrawerItem().withName(R.string.logout).withIcon(GoogleMaterial.Icon.gmd_exit_to_app).withIconTinted(true).withIconColor(R.color.logout_button_color)
+                    ProfileSettingDrawerItem().apply {
+                        name = StringHolder(R.string.logout)
+                        icon = ImageHolder(IconicsDrawable(context, GoogleMaterial.Icon.gmd_exit_to_app).apply {
+                            colorInt = Color.RED
+                        })
+                    }
             )
             withSavedInstance(savedInstanceState)
         }
