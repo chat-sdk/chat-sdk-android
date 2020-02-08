@@ -4,18 +4,11 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 
 import com.google.android.material.appbar.AppBarLayout;
-import com.mikepenz.iconics.Iconics;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import co.chatsdk.core.dao.Thread;
 
 import co.chatsdk.core.interfaces.ThreadType;

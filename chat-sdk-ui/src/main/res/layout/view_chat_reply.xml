@@ -8,7 +8,7 @@
         android:background="@color/white">
 
         <com.github.siyamed.shapeimageview.mask.PorterShapeImageView
-            android:id="@+id/image_view"
+            android:id="@+id/imageView"
             android:layout_width="50dp"
             android:layout_height="50dp"
             app:layout_constraintBottom_toBottomOf="@+id/replyTextView"
@@ -21,7 +21,7 @@
             android:id="@+id/divider"
             android:layout_width="3dp"
             android:layout_height="match_parent"
-            app:layout_constraintStart_toEndOf="@+id/image_view"
+            app:layout_constraintStart_toEndOf="@+id/imageView"
             android:background="@color/primary_green_dark"/>
 
         <TextView

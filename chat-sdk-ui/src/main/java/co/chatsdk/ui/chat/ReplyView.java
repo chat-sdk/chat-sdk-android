@@ -3,28 +3,16 @@ package co.chatsdk.ui.chat;
 import android.content.Context;
 import android.text.Html;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.databinding.DataBindingUtil;
-
 import com.squareup.picasso.Picasso;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
 import co.chatsdk.ui.databinding.ViewChatReplyBinding;
 
 public class ReplyView extends ConstraintLayout {
-
-    @BindView(R2.id.image_view) protected ImageView imageView;
-    @BindView(R2.id.replyTextView) protected TextView textView;
-    @BindView(R2.id.cancelButton) protected ImageButton cancelButton;
 
     protected ViewChatReplyBinding b;
 
@@ -44,12 +32,7 @@ public class ReplyView extends ConstraintLayout {
     }
 
     protected void initViews() {
-        DataBindingUtil.inf
-
-        inflate(getContext(), R.layout.view_chat_reply, this);
-
-        ButterKnife.bind(this);
-
+        b = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.view_chat_reply, this, true);
         hide();
     }
 
@@ -57,13 +40,13 @@ public class ReplyView extends ConstraintLayout {
         setVisibility(View.VISIBLE);
 
         if (imageURL != null && !imageURL.isEmpty()) {
-            imageView.setVisibility(View.VISIBLE);
-            Picasso.get().load(imageURL).into(imageView);
+            b.imageView.setVisibility(View.VISIBLE);
+            Picasso.get().load(imageURL).into(b.imageView);
         } else {
-            imageView.setVisibility(View.GONE);
+            b.imageView.setVisibility(View.GONE);
         }
         if (text != null) {
-            textView.setText(Html.fromHtml("<b>" + title + "</b><br/>" + text));
+            b.replyTextView.setText(Html.fromHtml("<b>" + title + "</b><br/>" + text));
         }
     }
 
@@ -76,7 +59,7 @@ public class ReplyView extends ConstraintLayout {
     }
 
     public void setOnCancelListener(View.OnClickListener listener) {
-        cancelButton.setOnClickListener(listener);
+        b.cancelButton.setOnClickListener(listener);
     }
 
 }

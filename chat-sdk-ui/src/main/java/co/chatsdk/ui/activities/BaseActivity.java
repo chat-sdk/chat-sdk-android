@@ -37,9 +37,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Optional;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ActivityResult;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;

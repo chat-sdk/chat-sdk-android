@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/viewContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true">
+
+        <co.chatsdk.ui.chat.ChatActionBar
+            android:id="@+id/chatActionBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <fragment
+            android:id="@+id/chatFragment"
+            android:name="co.chatsdk.ui.fragments.CKChatFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/chatActionBar">
+        </fragment>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

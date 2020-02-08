@@ -12,7 +12,7 @@
             android:orientation="horizontal">
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/image_avatar"
+                android:id="@+id/avatarImageView"
                 style="@style/CircleIconStyle"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -31,11 +31,11 @@
                 android:layout_width="12dp"
                 android:layout_height="12dp"
                 android:background="@drawable/chatkit_shape_bubble_online"
-                app:layout_constraintEnd_toEndOf="@+id/image_avatar"
-                app:layout_constraintTop_toTopOf="@+id/image_avatar" />
+                app:layout_constraintEnd_toEndOf="@+id/avatarImageView"
+                app:layout_constraintTop_toTopOf="@+id/avatarImageView" />
 
             <TextView
-                android:id="@+id/text_name"
+                android:id="@+id/nameTextView"
                 style="@style/TextViewStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="27dp"
@@ -46,7 +46,7 @@
                 android:maxLines="1"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                app:layout_constraintLeft_toRightOf="@+id/image_avatar"
+                app:layout_constraintLeft_toRightOf="@+id/avatarImageView"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <CheckBox
@@ -66,7 +66,7 @@
                 android:layout_marginBottom="8dp" />
 
             <TextView
-                android:id="@+id/text_status"
+                android:id="@+id/statusTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="15dp"
                 android:layout_marginLeft="10dp"
@@ -76,12 +76,12 @@
                 android:layout_marginTop="0dp"
                 android:textSize="12sp"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintLeft_toRightOf="@+id/image_avatar"
+                app:layout_constraintLeft_toRightOf="@+id/avatarImageView"
                 app:layout_constraintRight_toLeftOf="@+id/checkbox"
-                app:layout_constraintTop_toBottomOf="@+id/text_name" />
+                app:layout_constraintTop_toBottomOf="@+id/nameTextView" />
 
             <ImageView
-                android:id="@+id/image_availability"
+                android:id="@+id/availabilityImageView"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_marginBottom="8dp"

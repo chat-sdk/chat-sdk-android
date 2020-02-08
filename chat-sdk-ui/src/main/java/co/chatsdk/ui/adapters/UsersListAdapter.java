@@ -8,40 +8,16 @@
 package co.chatsdk.ui.adapters;
 
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.content.Context;
 import android.util.SparseBooleanArray;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
-
-import org.pmw.tinylog.Logger;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.interfaces.UserListItem;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.Dimen;
-import co.chatsdk.core.utils.StringChecker;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
-import co.chatsdk.ui.chat.binders.OnlineStatusBinder;
-import co.chatsdk.ui.utils.AvailabilityHelper;
+import co.chatsdk.ui.view_holders.UserViewHolder;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
-
 
 public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -54,35 +30,6 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     protected final PublishSubject<Object> onClickSubject = PublishSubject.create();
     protected final PublishSubject<Object> onLongClickSubject = PublishSubject.create();
     protected final PublishSubject<List<UserListItem>> onToggleSubject = PublishSubject.create();
-
-    protected class UserViewHolder extends RecyclerView.ViewHolder {
-
-        @BindView(R2.id.image_avatar) protected ImageView avatarImageView;
-        @BindView(R2.id.text_name) protected TextView nameTextView;
-        @BindView(R2.id.checkbox) protected CheckBox checkBox;
-        @BindView(R2.id.text_status) protected TextView statusTextView;
-        @BindView(R2.id.image_availability) protected ImageView availabilityImageView;
-        @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
-
-        public UserViewHolder(View view) {
-            super(view);
-
-            ButterKnife.bind(this, view);
-
-            // Clicks are handled at the list item level
-            checkBox.setClickable(false);
-        }
-
-        public void setMultiSelectEnabled (boolean enabled) {
-            if (enabled) {
-                checkBox.setVisibility(View.VISIBLE);
-                availabilityImageView.setVisibility(View.INVISIBLE);
-            } else {
-                availabilityImageView.setVisibility(View.VISIBLE);
-                checkBox.setVisibility(View.INVISIBLE);
-            }
-        }
-    }
 
     public UsersListAdapter() {
         this(null, false);
@@ -109,9 +56,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View row = inflater.inflate(R.layout.view_user_row, parent, false);
-        return new UserViewHolder(row);
+        return new UserViewHolder(parent);
     }
 
     @Override
@@ -119,43 +64,15 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         UserViewHolder viewHolder = (UserViewHolder) holder;
         UserListItem item = items.get(position);
+        viewHolder.bind(item);
 
         viewHolder.setMultiSelectEnabled(multiSelectEnabled);
-
-        viewHolder.nameTextView.setText(item.getName());
-
-        if (StringChecker.isNullOrEmpty(item.getAvailability())) {
-            viewHolder.availabilityImageView.setVisibility(View.INVISIBLE);
-        } else {
-            viewHolder.availabilityImageView.setVisibility(View.VISIBLE);
-            viewHolder.availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(item.getAvailability()));
-        }
-
-        OnlineStatusBinder.bind(viewHolder.onlineIndicator, item.getIsOnline());
-
-        viewHolder.statusTextView.setText(item.getStatus());
-
-        Logger.debug("User: " + item.getName() + " Availability: " + item.getAvailability());
-
-        Context context = ChatSDK.shared().context();
-
-        int width = Dimen.from(context, R.dimen.small_avatar_width);
-        int height = Dimen.from(context, R.dimen.small_avatar_height);
-
-        if (item instanceof User) {
-            ((User) item).loadAvatar(viewHolder.avatarImageView, width, height);
-        } else {
-            Picasso.get().load(item.getAvatarURL()).resize(width, height).into(viewHolder.avatarImageView);
-        }
-
-
         if (multiSelectEnabled) {
-            viewHolder.checkBox.setChecked(selectedUsersPositions.get(position));
+            viewHolder.setChecked(selectedUsersPositions.get(position));
         }
 
-
-        holder.itemView.setOnClickListener(view -> onClickSubject.onNext(item));
-        holder.itemView.setOnLongClickListener(view -> {
+        viewHolder.itemView.setOnClickListener(view -> onClickSubject.onNext(item));
+        viewHolder.itemView.setOnLongClickListener(view -> {
             onLongClickSubject.onNext(item);
             return true;
         });

@@ -16,6 +16,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import butterknife.ButterKnife;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.DisposableMap;
@@ -36,6 +38,7 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
     protected View rootView;
     protected boolean tabIsVisible;
     protected DisposableMap dm = new DisposableMap();
+    protected Snackbar snackbar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -143,6 +146,49 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
 
     public void accept(Throwable t) {
         onError(t);
+    }
+
+    /** Show a SuperToast with the given text. */
+    protected void showToast(int textResourceId){
+        showToast(this.getString(textResourceId));
+    }
+
+    protected void showToast(String text){
+        if (!text.isEmpty()) {
+            ToastHelper.show(getContext(), text);
+        }
+    }
+
+    protected void showSnackbar(int textResourceId, int duration){
+        showSnackbar(getContext().getString(textResourceId), duration);
+    }
+
+    protected void showSnackbar(int textResourceId){
+        showSnackbar(this.getString(textResourceId), Snackbar.LENGTH_SHORT);
+    }
+
+    protected void showSnackbar (String text) {
+        showSnackbar(text, Snackbar.LENGTH_SHORT);
+    }
+
+    protected void showSnackbar (String text, int duration) {
+        if (!text.isEmpty()) {
+            if (snackbar == null) {
+                snackbar = Snackbar.make(rootView, text, duration);
+                snackbar.addCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        BaseFragment.this.snackbar = null;
+                    }
+
+                    @Override
+                    public void onShown(Snackbar snackbar) {
+                    }
+                });
+                snackbar.show();
+
+            }
+        }
     }
 
 }
