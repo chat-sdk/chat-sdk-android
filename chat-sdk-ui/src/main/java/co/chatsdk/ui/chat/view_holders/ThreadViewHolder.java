@@ -18,7 +18,6 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
     @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
     @BindView(R2.id.readStatus) protected ImageView readStatus;
 
-
     public ThreadViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);

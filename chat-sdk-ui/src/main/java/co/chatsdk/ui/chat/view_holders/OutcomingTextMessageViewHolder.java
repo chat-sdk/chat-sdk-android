@@ -1,8 +1,11 @@
 package co.chatsdk.ui.chat.view_holders;
 
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.databinding.DataBindingUtil;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
@@ -14,6 +17,7 @@ import co.chatsdk.ui.chat.binders.MessageBinder;
 import co.chatsdk.ui.chat.binders.ReadStatusViewBinder;
 import co.chatsdk.ui.chat.binders.ReplyViewBinder;
 import co.chatsdk.ui.chat.model.MessageHolder;
+import co.chatsdk.ui.databinding.ChatkitItemCustomIncomingVoiceMessageBinding;
 
 public class OutcomingTextMessageViewHolder
         extends MessageHolders.OutcomingTextMessageViewHolder<MessageHolder> {
@@ -22,6 +26,8 @@ public class OutcomingTextMessageViewHolder
     @BindView(R2.id.replyView) protected View replyView;
     @BindView(R2.id.replyImageView) protected ImageView replyImageView;
     @BindView(R2.id.replyTextView) protected TextView replyTextView;
+
+    ChatkitItemCustomIncomingVoiceMessageBinding b;
 
     public OutcomingTextMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);

@@ -74,11 +74,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
 
         // Setting the default task description.
         setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
-
-//        setContentView(getLayout());
-//        ButterKnife.bind(this);
-
-
     }
 
     protected void initViews() {

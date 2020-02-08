@@ -18,7 +18,6 @@ import android.view.ViewGroup;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import butterknife.ButterKnife;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.DisposableMap;
 import co.chatsdk.ui.activities.BaseActivity;
@@ -50,10 +49,6 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
         View view = super.onCreateView(inflater, container, savedInstanceState);
         setHasOptionsMenu(true);
         return view;
-
-//        rootView = inflater.inflate(getLayout(), container, false);
-//        ButterKnife.bind(this, rootView);
-//        return rootView;
     }
 
     @Override

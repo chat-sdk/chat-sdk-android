@@ -12,16 +12,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
@@ -31,7 +27,6 @@ import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
 import co.chatsdk.ui.databinding.FragmentProfileBinding;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.utils.AvailabilityHelper;
@@ -105,7 +100,7 @@ public class ProfileFragment extends BaseFragment {
 
     public void initViews() {
 
-        setupTouchUIToDismissKeyboard(rootView, R.id.image_avatar);
+        setupTouchUIToDismissKeyboard(rootView, R.id.avatarImageView);
 
         setupIcons();
 
@@ -324,7 +319,7 @@ public class ProfileFragment extends BaseFragment {
         imageViewIds.add(b.followsImageView);
         imageViewIds.add(b.followedImageView);
 
-        stackViews(imageViewIds, R.id.text_status, set);
+        stackViews(imageViewIds, b.statusTextView, set);
 
         ArrayList<View> textViewIds = new ArrayList<>();
         textViewIds.add(b.locationTextView);
@@ -335,13 +330,13 @@ public class ProfileFragment extends BaseFragment {
         textViewIds.add(b.addDeleteButton);
         textViewIds.add(b.blockButton);
 
-        stackViews(textViewIds, R.id.text_status, set);
+        stackViews(textViewIds, b.statusTextView, set);
 
         set.applyTo(layout);
     }
 
-    protected void stackViews (ArrayList<View> views, Integer firstViewId, ConstraintSet set) {
-        int lastViewId = firstViewId;
+    protected void stackViews (ArrayList<View> views, View firstView, ConstraintSet set) {
+        int lastViewId = firstView.getId();
         final float density = getContext().getResources().getDisplayMetrics().density;
         for (View view: views) {
             if (view != null && view.getVisibility() == View.VISIBLE) {
