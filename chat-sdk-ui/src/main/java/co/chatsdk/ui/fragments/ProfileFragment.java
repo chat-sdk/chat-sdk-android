@@ -95,18 +95,15 @@ public class ProfileFragment extends BaseFragment {
                     }
                 }));
 
-        mainView = inflater.inflate(activityLayout(), null);
-        ButterKnife.bind(this, mainView);
 
-        setupTouchUIToDismissKeyboard(mainView, R.id.image_avatar);
+        setupTouchUIToDismissKeyboard(rootView, R.id.image_avatar);
 
-        initViews();
         setupIcons();
 
-        return mainView;
+        return rootView;
     }
 
-    protected @LayoutRes int activityLayout() {
+    protected @LayoutRes int getLayout() {
         return R.layout.fragment_profile;
     }
 
@@ -153,8 +150,8 @@ public class ProfileFragment extends BaseFragment {
     }
 
     protected void setRowVisible (int textViewID, int imageViewID, boolean visible) {
-        setViewVisibility(mainView.findViewById(textViewID), visible);
-        setViewVisibility(mainView.findViewById(imageViewID), visible);
+        setViewVisibility(rootView.findViewById(textViewID), visible);
+        setViewVisibility(rootView.findViewById(imageViewID), visible);
     }
 
     protected void updateBlockedButton(boolean blocked) {
@@ -330,7 +327,7 @@ public class ProfileFragment extends BaseFragment {
         // Email
         setViewText(emailTextView, getUser().getEmail());
 
-        ConstraintLayout layout = mainView.findViewById(R.id.mainConstraintLayout);
+        ConstraintLayout layout = rootView.findViewById(R.id.mainConstraintLayout);
         ConstraintSet set = new ConstraintSet();
         set.clone(layout);
 
@@ -361,7 +358,7 @@ public class ProfileFragment extends BaseFragment {
         int lastViewId = firstViewId;
         final float density = getContext().getResources().getDisplayMetrics().density;
         for (int viewId : viewIds) {
-            View view = mainView.findViewById(viewId);
+            View view = rootView.findViewById(viewId);
             if (view != null && view.getVisibility() == View.VISIBLE) {
                 set.connect(viewId, ConstraintSet.TOP, lastViewId, ConstraintSet.BOTTOM, (int) (ProfileDetailMargin * density));
                 //set.constrainHeight(viewId, ProfileDetailRowHeight * density);

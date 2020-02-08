@@ -26,7 +26,7 @@ ext {
     materialVersion = "1.1.0"
     playAuthVersion = "17.0.0"
     playMapsVersion = "17.0.0"
-    googlePlacesVersion = "2.1.0"
+    googlePlacesVersion = "2.2.0"
     playLocationVersion = "17.0.0"
     firebaseUiVersion = "4.3.2"
     firebaseCoreVersion = "17.2.2"
@@ -61,6 +61,7 @@ ext {
     circleImageViewVersion = "3.0.1"
     dexterVersion = "6.0.1"
     tinyLogVersion = "1.3.6"
+    butterKnifeVersion = "10.2.1"
 
     iconicsVersion = "5.0.0-a01"
 //    iconicsVersion = "3.2.5"

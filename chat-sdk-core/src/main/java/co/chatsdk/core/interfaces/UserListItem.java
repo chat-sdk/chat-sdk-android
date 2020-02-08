@@ -10,6 +10,7 @@ public interface UserListItem {
     String getStatus();
     String getAvailability();
     String getAvatarURL();
+    Boolean getIsOnline();
 
 }
 

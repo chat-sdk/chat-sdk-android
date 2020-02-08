@@ -27,12 +27,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
+import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
+import co.chatsdk.ui.chat.binders.OnlineStatusBinder;
 import co.chatsdk.ui.utils.AvailabilityHelper;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
@@ -40,10 +45,7 @@ import io.reactivex.subjects.PublishSubject;
 
 public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    protected static final int TYPE_USER = 0;
-    protected static final int TYPE_HEADER = 1;
-
-    protected List<Object> items = new ArrayList<>();
+    protected List<UserListItem> items = new ArrayList<>();
     protected List<String> headers = new ArrayList<>();
 
     protected SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
@@ -53,32 +55,19 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     protected final PublishSubject<Object> onLongClickSubject = PublishSubject.create();
     protected final PublishSubject<List<UserListItem>> onToggleSubject = PublishSubject.create();
 
-    protected class HeaderViewHolder extends RecyclerView.ViewHolder {
-
-        TextView textView;
-
-        public HeaderViewHolder(View itemView) {
-            super(itemView);
-            textView = itemView.findViewById(R.id.text_header);
-        }
-    }
-
     protected class UserViewHolder extends RecyclerView.ViewHolder {
 
-        protected ImageView avatarImageView;
-        protected TextView nameTextView;
-        protected CheckBox checkBox;
-        protected TextView statusTextView;
-        protected ImageView availabilityImageView;
+        @BindView(R2.id.image_avatar) protected ImageView avatarImageView;
+        @BindView(R2.id.text_name) protected TextView nameTextView;
+        @BindView(R2.id.checkbox) protected CheckBox checkBox;
+        @BindView(R2.id.text_status) protected TextView statusTextView;
+        @BindView(R2.id.image_availability) protected ImageView availabilityImageView;
+        @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
 
         public UserViewHolder(View view) {
             super(view);
 
-            nameTextView = view.findViewById(R.id.text_name);
-            statusTextView = view.findViewById(R.id.text_status);
-            availabilityImageView = view.findViewById(R.id.image_availability);
-            avatarImageView = view.findViewById(R.id.image_avatar);
-            checkBox = view.findViewById(R.id.checkbox);
+            ButterKnife.bind(this, view);
 
             // Clicks are handled at the list item level
             checkBox.setClickable(false);
@@ -114,17 +103,6 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     @Override
-    public int getItemViewType(int position) {
-        Object item = items.get(position);
-        if (headers.contains(item)) {
-            return TYPE_HEADER;
-        }
-        else {
-            return TYPE_USER;
-        }
-    }
-
-    @Override
     public int getItemCount() {
         return items.size();
     }
@@ -132,58 +110,49 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        if (viewType == TYPE_HEADER) {
-            View row = inflater.inflate(R.layout.view_contact_row_header, null);
-            return new HeaderViewHolder(row);
-        }
-        else if (viewType == TYPE_USER) {
-            View row = inflater.inflate(R.layout.view_contact_row_body, null);
-            return new UserViewHolder(row);
-        }
-        return null;
+        View row = inflater.inflate(R.layout.view_user_row, parent, false);
+        return new UserViewHolder(row);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
 
-        int type = getItemViewType(position);
-        final Object item = items.get(position);
+        UserViewHolder viewHolder = (UserViewHolder) holder;
+        UserListItem item = items.get(position);
 
-        if (type == TYPE_HEADER) {
-            HeaderViewHolder hh = (HeaderViewHolder) holder;
-            String header = (String) item;
-            hh.textView.setText(header);
+        viewHolder.setMultiSelectEnabled(multiSelectEnabled);
+
+        viewHolder.nameTextView.setText(item.getName());
+
+        if (StringChecker.isNullOrEmpty(item.getAvailability())) {
+            viewHolder.availabilityImageView.setVisibility(View.INVISIBLE);
+        } else {
+            viewHolder.availabilityImageView.setVisibility(View.VISIBLE);
+            viewHolder.availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(item.getAvailability()));
         }
 
-        if (type == TYPE_USER) {
-            UserViewHolder userViewHolder = (UserViewHolder) holder;
-            UserListItem userListItem = (UserListItem) item;
+        OnlineStatusBinder.bind(viewHolder.onlineIndicator, item.getIsOnline());
 
-            userViewHolder.nameTextView.setText(userListItem.getName());
+        viewHolder.statusTextView.setText(item.getStatus());
 
-            userViewHolder.availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(userListItem.getAvailability()));
-            userViewHolder.statusTextView.setText(userListItem.getStatus());
+        Logger.debug("User: " + item.getName() + " Availability: " + item.getAvailability());
 
-            Logger.debug("User: " + userListItem.getName() + " Availability: " + userListItem.getAvailability());
+        Context context = ChatSDK.shared().context();
 
-            Context context = ChatSDK.shared().context();
+        int width = Dimen.from(context, R.dimen.small_avatar_width);
+        int height = Dimen.from(context, R.dimen.small_avatar_height);
 
-            int width = Dimen.from(context, R.dimen.small_avatar_width);
-            int height = Dimen.from(context, R.dimen.small_avatar_height);
-
-            if (userListItem instanceof User) {
-                ((User) userListItem).loadAvatar(userViewHolder.avatarImageView, width, height);
-            } else {
-                Picasso.get().load(userListItem.getAvatarURL()).resize(width, height).into(userViewHolder.avatarImageView);
-            }
-
-            userViewHolder.setMultiSelectEnabled(multiSelectEnabled);
-
-            if (multiSelectEnabled) {
-                userViewHolder.checkBox.setChecked(selectedUsersPositions.get(position));
-            }
-
+        if (item instanceof User) {
+            ((User) item).loadAvatar(viewHolder.avatarImageView, width, height);
+        } else {
+            Picasso.get().load(item.getAvatarURL()).resize(width, height).into(viewHolder.avatarImageView);
         }
+
+
+        if (multiSelectEnabled) {
+            viewHolder.checkBox.setChecked(selectedUsersPositions.get(position));
+        }
+
 
         holder.itemView.setOnClickListener(view -> onClickSubject.onNext(item));
         holder.itemView.setOnLongClickListener(view -> {
@@ -193,7 +162,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     }
 
-    public Object getItem(int i) {
+    public UserListItem getItem(int i) {
         return items.get(i);
     }
 
@@ -215,7 +184,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         addUser(user, false);
     }
 
-    public List<Object> getItems () {
+    public List<UserListItem> getItems () {
         return items;
     }
 
@@ -237,20 +206,11 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    public void addHeader (String header) {
-        if (!items.contains(header)) {
-            items.add(header);
-            headers.add(header);
-        }
-    }
-
     public List<UserListItem> getSelectedUsers () {
         List<UserListItem> users = new ArrayList<>();
         for (int i = 0 ; i < getSelectedCount() ; i++) {
             int pos = getSelectedUsersPositions().keyAt(i);
-            if (items.get(pos) instanceof UserListItem) {
-                users.add(((UserListItem) items.get(pos)));
-            }
+            users.add((items.get(pos)));
         }
         return users;
     }
@@ -270,16 +230,6 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
-    public UserListItem userAtPosition (int position) {
-        Object item = getItem(position);
-        if (item instanceof UserListItem) {
-            return (UserListItem) item;
-        }
-        else {
-            return null;
-        }
-    }
-
     /**
      * Sorting a given list using the internal comparator.
      * 
@@ -287,8 +237,8 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      * * */
     protected void sortList(List<UserListItem> list) {
         Comparator comparator = (Comparator<UserListItem>) (u1, u2) -> {
-            boolean u1online = u1.getAvailability().equals(Availability.Available);
-            boolean u2online = u2.getAvailability().equals(Availability.Available);
+            boolean u1online = u1.getIsOnline();
+            boolean u2online = u2.getIsOnline();
             if (u1online != u2online) {
                 if (u1online) {
                     return -1;
@@ -328,7 +278,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      * @param selected pass true for selecting the view, false will remove the view from the selectedUsersPositions
      * * */
     public boolean setViewSelected(int position, boolean selected) {
-        UserListItem user = userAtPosition(position);
+        UserListItem user = getItem(position);
         if (user != null) {
             if (selected) {
                 selectedUsersPositions.put(position, true);

@@ -9,6 +9,7 @@ package co.chatsdk.ui.activities;
 
 import android.os.Bundle;
 import androidx.annotation.LayoutRes;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,6 +33,7 @@ import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
+import co.chatsdk.ui.databinding.ActivitySelectContactsBinding;
 import io.reactivex.functions.Predicate;
 
 /**
@@ -39,8 +41,8 @@ import io.reactivex.functions.Predicate;
  */
 public abstract class SelectContactActivity extends BaseActivity {
 
-    @BindView(R2.id.recycler_contacts) protected RecyclerView recyclerView;
-    @BindView(R2.id.button_done) protected FloatingActionButton doneButton;
+//    @BindView(R2.id.recycler_contacts) protected RecyclerView recyclerView;
+//    @BindView(R2.id.button_done) protected FloatingActionButton doneButton;
 
     protected UsersListAdapter adapter;
     protected boolean multiSelectEnabled;
@@ -48,8 +50,11 @@ public abstract class SelectContactActivity extends BaseActivity {
     /** Set true if you want slide down animation for this context exit. */
     protected boolean animateExit = false;
 
+    protected ActivitySelectContactsBinding b;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null) {
@@ -102,12 +107,12 @@ public abstract class SelectContactActivity extends BaseActivity {
         return true;
     }
 
-    protected @LayoutRes int activityLayout() {
+    protected @LayoutRes int getLayout() {
         return R.layout.activity_select_contacts;
     }
 
     protected void initViews() {
-        doneButton.setOnClickListener(v -> {
+        b.floatingActionButton.setOnClickListener(v -> {
             doneButtonPressed(UserListItemConverter.toUserList(adapter.getSelectedUsers()));
         });
     }
@@ -115,8 +120,8 @@ public abstract class SelectContactActivity extends BaseActivity {
     protected void initList() {
         adapter = new UsersListAdapter(multiSelectEnabled);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
+        b.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        b.recyclerView.setAdapter(adapter);
 
         loadData();
 
@@ -172,7 +177,7 @@ public abstract class SelectContactActivity extends BaseActivity {
         if (multiSelectEnabled) {
             visible = adapter.getSelectedCount() > 0;
         }
-        doneButton.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        b.floatingActionButton.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
     }
 
 }

@@ -254,14 +254,15 @@ public class User extends AbstractEntity implements UserListItem {
 
     public String getAvailability () {
         if (!getIsOnline()) {
-            return Availability.Unavailable;
+            return null;
         }
-        String availability = metaStringForKey(Keys.Availability);
-        if (availability != null) {
-            return availability;
-        } else {
-            return Availability.Available;
-        }
+//        String availability = metaStringForKey(Keys.Availability);
+//        if (availability != null) {
+//            return availability;
+//        } else {
+//            return Availability.Available;
+//        }
+        return metaStringForKey(Keys.Availability);
     }
 
     public String getLocation () {

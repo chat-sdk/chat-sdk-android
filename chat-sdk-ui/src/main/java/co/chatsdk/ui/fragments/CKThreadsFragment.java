@@ -13,6 +13,7 @@ import android.widget.EditText;
 
 import androidx.annotation.LayoutRes;
 
+import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
@@ -20,6 +21,7 @@ import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -28,6 +30,8 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
+import co.chatsdk.ui.interfaces.SearchSupported;
 import co.chatsdk.ui.utils.ThreadImageBuilder;
 import co.chatsdk.ui.chat.view_holders.ThreadViewHolder;
 import co.chatsdk.ui.chat.model.MessageHolder;
@@ -37,13 +41,13 @@ import io.reactivex.Observable;
 import io.reactivex.functions.Predicate;
 import io.reactivex.subjects.PublishSubject;
 
-public abstract class CKThreadsFragment extends BaseFragment {
+public abstract class CKThreadsFragment extends BaseFragment implements SearchSupported {
 
-    protected EditText searchField;
+    @BindView(R2.id.dialogsList) protected DialogsList dialogsList;
+
     protected String filter;
     protected MenuItem addMenuItem;
 
-    protected DialogsList dialogsList;
     protected DialogsListAdapter<ThreadHolder> dialogsListAdapter;
 
     protected PublishSubject<Thread> onClickPublishSubject = PublishSubject.create();
@@ -57,7 +61,7 @@ public abstract class CKThreadsFragment extends BaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mainView = inflater.inflate(activityLayout(), null);
+        super.onCreateView(inflater, container, savedInstanceState);
 
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(mainEventFilter())
@@ -92,27 +96,18 @@ public abstract class CKThreadsFragment extends BaseFragment {
                     }
                 }));
 
-
-        initViews();
-
         loadData();
 
         hideKeyboard();
 
-        return mainView;
+        return rootView;
     }
 
-    protected abstract Predicate<NetworkEvent> mainEventFilter ();
-
-    protected  @LayoutRes
-    int activityLayout () {
+    protected  @LayoutRes int getLayout () {
         return R.layout.chatkit_fragment_threads;
     }
 
     public void initViews() {
-        searchField = mainView.findViewById(R.id.search_field);
-
-        dialogsList = mainView.findViewById(R.id.dialogsList);
 
         dialogsListAdapter = new DialogsListAdapter<>(R.layout.chatkit_thread_view_holder, ThreadViewHolder.class, (imageView, url, payload) -> {
             if (getContext() != null) {
@@ -141,6 +136,8 @@ public abstract class CKThreadsFragment extends BaseFragment {
         });
     }
 
+    protected abstract Predicate<NetworkEvent> mainEventFilter ();
+
     protected boolean allowThreadCreation () {
         return true;
     }
@@ -148,10 +145,9 @@ public abstract class CKThreadsFragment extends BaseFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        if (allowThreadCreation()) {
-            addMenuItem = menu.add(Menu.NONE, R.id.action_add, 10, getString(R.string.thread_fragment_add_item_text));
-            addMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-            addMenuItem.setIcon(R.drawable.ic_plus);
+        inflater.inflate(R.menu.fragment_threads_menu, menu);
+        if (!allowThreadCreation()) {
+            menu.removeItem(R.id.action_add);
         }
     }
 
@@ -166,25 +162,25 @@ public abstract class CKThreadsFragment extends BaseFragment {
         super.onResume();
         softReloadData();
 
-        if (searchField != null) {
-            searchField.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    filter = searchField.getText().toString();
-                    loadData();
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-
-                }
-            });
-        }
+//        if (searchField != null) {
+//            searchField.addTextChangedListener(new TextWatcher() {
+//                @Override
+//                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//                }
+//
+//                @Override
+//                public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                    filter = searchField.getText().toString();
+//                    loadData();
+//                }
+//
+//                @Override
+//                public void afterTextChanged(Editable s) {
+//
+//                }
+//            });
+//        }
     }
 
     @Override
@@ -269,4 +265,10 @@ public abstract class CKThreadsFragment extends BaseFragment {
     public Observable<Thread> getOnLongClickObservable() {
         return onLongClickPublishSubject.hide();
     }
+
+    public void filter(String text) {
+        filter = text;
+        loadData();
+    }
+
 }

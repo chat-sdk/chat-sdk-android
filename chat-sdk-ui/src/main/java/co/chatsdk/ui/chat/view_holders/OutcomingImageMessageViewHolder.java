@@ -5,7 +5,10 @@ import android.widget.ImageView;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
 import co.chatsdk.ui.chat.binders.MessageBinder;
 import co.chatsdk.ui.chat.binders.ReadStatusViewBinder;
 import co.chatsdk.ui.chat.model.ImageMessageHolder;
@@ -16,11 +19,11 @@ import co.chatsdk.ui.chat.model.ImageMessageHolder;
 public class OutcomingImageMessageViewHolder
         extends MessageHolders.OutcomingImageMessageViewHolder<ImageMessageHolder> {
 
-    protected ImageView readStatus;
+    @BindView(R2.id.readStatus) protected ImageView readStatus;
 
     public OutcomingImageMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
-        readStatus = itemView.findViewById(R.id.readStatus);
+        ButterKnife.bind(this, itemView);
     }
 
     @Override

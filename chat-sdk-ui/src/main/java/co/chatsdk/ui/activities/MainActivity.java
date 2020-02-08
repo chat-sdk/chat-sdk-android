@@ -9,10 +9,19 @@ package co.chatsdk.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+
+import com.miguelcatalan.materialsearchview.MaterialSearchView;
+
+import butterknife.BindView;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
 
 
 public abstract class MainActivity extends BaseActivity {
@@ -27,9 +36,33 @@ public abstract class MainActivity extends BaseActivity {
             finish();
             return;
         }
-        initViews();
         launchFromPush(getIntent().getExtras());
+
+        if (searchView() != null) {
+            searchView().setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    search(query);
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    search(newText);
+                    return false;
+                }
+            });
+        }
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.Logout))
+                .subscribe(networkEvent -> clearData()));
+
     }
+
+    abstract boolean searchEnabled();
+    abstract void search(String text);
+    abstract MaterialSearchView searchView();
 
     public void launchFromPush (Bundle bundle) {
         if (bundle != null) {
@@ -44,10 +77,6 @@ public abstract class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.Logout))
-                .subscribe(networkEvent -> clearData()));
-
         updateLocalNotificationsForTab();
         reloadData();
 
@@ -57,7 +86,7 @@ public abstract class MainActivity extends BaseActivity {
     protected abstract void initViews();
     protected abstract void clearData();
     protected abstract void updateLocalNotificationsForTab();
-    protected abstract int activityLayout();
+    protected abstract int getLayout();
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -68,6 +97,22 @@ public abstract class MainActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        // Add the filter button
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean value = super.onCreateOptionsMenu(menu);
+
+        if (searchEnabled()) {
+            MenuItem item = menu.add(Menu.NONE, R.id.action_search, 0, R.string.abc_search_hint);
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            item.setIcon(R.drawable.ic_action_action_search);
+            searchView().setMenuItem(item);
+        }
+
+        return value;
     }
 
     @Override

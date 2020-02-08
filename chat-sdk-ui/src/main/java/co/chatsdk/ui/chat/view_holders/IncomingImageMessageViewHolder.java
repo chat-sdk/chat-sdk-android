@@ -5,8 +5,12 @@ import android.widget.TextView;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
+import co.chatsdk.ui.chat.binders.OnlineStatusBinder;
 import co.chatsdk.ui.chat.model.ImageMessageHolder;
 import co.chatsdk.ui.chat.model.MessageHolder;
 
@@ -16,13 +20,12 @@ import co.chatsdk.ui.chat.model.MessageHolder;
 public class IncomingImageMessageViewHolder
         extends MessageHolders.IncomingImageMessageViewHolder<ImageMessageHolder> {
 
-    private View onlineIndicator;
-    protected TextView userName;
+    @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
+    @BindView(R2.id.userName) protected TextView userName;
 
     public IncomingImageMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
-        onlineIndicator = itemView.findViewById(R.id.onlineIndicator);
-        userName = itemView.findViewById(R.id.userName);
+        ButterKnife.bind(this, itemView);
     }
 
     @Override
@@ -30,11 +33,7 @@ public class IncomingImageMessageViewHolder
         super.onBind(message);
 
         boolean isOnline = message.getUser().isOnline();
-        if (isOnline) {
-            onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_online);
-        } else {
-            onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_offline);
-        }
+        OnlineStatusBinder.bind(onlineIndicator, isOnline);
 
         if (message.getMessage().getThread().typeIs(ThreadType.Group)) {
             userName.setVisibility(View.VISIBLE);

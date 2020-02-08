@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.LayoutRes;
 import androidx.appcompat.app.ActionBar;
+import androidx.databinding.DataBindingUtil;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +32,7 @@ import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
+import co.chatsdk.ui.databinding.ActivityThreadDetailsBinding;
 import co.chatsdk.ui.fragments.ThreadUsersFragment;
 import co.chatsdk.ui.utils.ThreadImageBuilder;
 import co.chatsdk.ui.utils.ToastHelper;
@@ -41,15 +44,15 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
 
     protected Thread thread;
 
-    @BindView(R2.id.thread_image_view) protected ImageView threadImageView;
-    @BindView(R2.id.name_text_view) protected TextView threadNameTextView;
-
     protected ThreadUsersFragment usersFragment;
 
     protected ActionBar actionBar;
 
+    ActivityThreadDetailsBinding b;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null) {
@@ -72,14 +75,14 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
 
         // Depending on the thread type, disable / enable options
         if (thread.typeIs(ThreadType.Private1to1)) {
-            threadNameTextView.setVisibility(View.INVISIBLE);
+            b.nameTextView.setVisibility(View.INVISIBLE);
         } else {
-            threadNameTextView.setVisibility(View.VISIBLE);
+            b.nameTextView.setVisibility(View.VISIBLE);
         }
 
     }
 
-    protected @LayoutRes int activityLayout() {
+    protected @LayoutRes int getLayout() {
         return R.layout.activity_thread_details;
     }
 
@@ -100,20 +103,20 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             actionBar.setTitle(name);
             actionBar.setHomeButtonEnabled(true);
         }
-        threadNameTextView.setText(name);
+        b.nameTextView.setText(name);
 
         if (!StringChecker.isNullOrEmpty(thread.getImageUrl())) {
-            threadImageView.setOnClickListener(v -> zoomImageFromThumbnail(threadImageView, thread.getImageUrl()));
-            Picasso.get().load(thread.getImageUrl()).into(threadImageView);
+            b.threadImageView.setOnClickListener(v -> zoomImageFromThumbnail(b.threadImageView, thread.getImageUrl()));
+            Picasso.get().load(thread.getImageUrl()).into(b.threadImageView);
         } else {
-            ThreadImageBuilder.load(threadImageView, thread);
-            threadImageView.setOnClickListener(null);
+            ThreadImageBuilder.load(b.threadImageView, thread);
+            b.threadImageView.setOnClickListener(null);
         }
 
         // CoreThread users bundle
         if (usersFragment == null) {
             usersFragment = new ThreadUsersFragment(thread);
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame_thread_users, usersFragment).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.threadUsersFrame, usersFragment).commit();
         } else {
             usersFragment.loadData(false);
         }

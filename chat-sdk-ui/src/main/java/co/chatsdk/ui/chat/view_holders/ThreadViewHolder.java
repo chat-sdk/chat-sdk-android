@@ -5,21 +5,23 @@ import android.widget.ImageView;
 
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
 import co.chatsdk.ui.chat.binders.ReadStatusViewBinder;
 import co.chatsdk.ui.chat.model.MessageHolder;
 import co.chatsdk.ui.chat.model.ThreadHolder;
 
 public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<ThreadHolder> {
 
-    private View onlineIndicator;
-    private ImageView readStatus;
+    @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
+    @BindView(R2.id.readStatus) protected ImageView readStatus;
 
 
     public ThreadViewHolder(View itemView) {
         super(itemView);
-        onlineIndicator = itemView.findViewById(R.id.onlineIndicator);
-        readStatus = itemView.findViewById(R.id.readStatus);
+        ButterKnife.bind(this, itemView);
     }
 
     @Override

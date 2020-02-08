@@ -7,6 +7,7 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.LayoutRes;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.databinding.DataBindingUtil;
 
 import butterknife.BindView;
 import co.chatsdk.core.hook.Hook;
@@ -14,21 +15,20 @@ import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
+import co.chatsdk.ui.databinding.ActivitySplashScreenBinding;
 
 public class SplashScreenActivity extends BaseActivity {
 
     public static int AUTH = 1;
 
-    @BindView(R2.id.view_root) ConstraintLayout mainView;
-
-    @BindView(R2.id.image_view) protected ImageView imageView;
-    @BindView(R2.id.progress_bar) protected ProgressBar progressBar;
+    protected ActivitySplashScreenBinding b;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        b = DataBindingUtil.setContentView(this, getLayout());
 
-        imageView.setImageResource(ChatSDK.config().logoDrawableResourceID);
+        b.imageView.setImageResource(ChatSDK.config().logoDrawableResourceID);
 
         stopProgressBar();
 
@@ -73,20 +73,20 @@ public class SplashScreenActivity extends BaseActivity {
     }
 
     protected void startProgressBar () {
-        progressBar.setVisibility(View.VISIBLE);
-        progressBar.setIndeterminate(true);
-        progressBar.animate();
+        b.progressBar.setVisibility(View.VISIBLE);
+        b.progressBar.setIndeterminate(true);
+        b.progressBar.animate();
     }
 
     protected void stopProgressBar () {
 //        progressBar.setVisibility(View.GONE);
-        progressBar.setProgress(0);
-        progressBar.setIndeterminate(false);
+        b.progressBar.setProgress(0);
+        b.progressBar.setIndeterminate(false);
     }
 
 
     protected @LayoutRes
-    int activityLayout() {
+    int getLayout() {
         return R.layout.activity_splash_screen;
     }
 

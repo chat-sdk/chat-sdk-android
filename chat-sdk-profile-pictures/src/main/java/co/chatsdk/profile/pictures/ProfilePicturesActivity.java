@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.LayoutRes;
+import androidx.databinding.DataBindingUtil;
 
 import com.squareup.picasso.Picasso;
 
@@ -20,6 +21,7 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.PermissionRequestHandler;
+import co.chatsdk.profile.pictures.databinding.ActivityProfilePicturesBinding;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.utils.ImagePickerUploader;
 import co.chatsdk.ui.activities.ImagePreviewActivity;
@@ -33,9 +35,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 public class ProfilePicturesActivity extends ImagePreviewActivity {
 
     protected User user;
-    protected GridLayout gridLayout;
     protected MenuItem addMenuItem;
     protected ImagePickerUploader imagePickerUploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
+
+    protected ActivityProfilePicturesBinding b;
 
     protected int gridPadding = 4;
     protected int pictureMargin = 8;
@@ -46,6 +49,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
 
         String userEntityID = getIntent().getStringExtra(Keys.IntentKeyUserEntityID);
@@ -67,19 +71,19 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
         if (warning != null) {
             limitWarning = warning;
         }
+
     }
 
     @Override
-    protected @LayoutRes int activityLayout() {
-        return R.layout.chat_sdk_profile_pictures_activity;
+    protected @LayoutRes int getLayout() {
+        return R.layout.activity_profile_pictures;
     }
 
     @Override
     protected void setupViews() {
         super.setupViews();
-        gridLayout = findViewById(R.id.gridLayout);
-        gridLayout.setPadding(gridPadding, gridPadding, gridPadding, gridPadding);
-        gridLayout.setColumnCount(picturesPerRow);
+        b.gridLayout.setPadding(gridPadding, gridPadding, gridPadding, gridPadding);
+        b.gridLayout.setColumnCount(picturesPerRow);
     }
 
     protected View createCellView(String url) {
@@ -139,9 +143,9 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
 
     protected void updateGallery() {
         ArrayList<String> urls = ChatSDK.profilePictures().fromUser(getUser());
-        gridLayout.removeAllViews();
+        b.gridLayout.removeAllViews();
         for (String url : urls) {
-            addCellToGridLayout(gridLayout, createCellView(url));
+            addCellToGridLayout(b.gridLayout, createCellView(url));
         }
 
         if (addMenuItem != null) {

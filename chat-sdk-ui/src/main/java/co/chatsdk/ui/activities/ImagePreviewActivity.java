@@ -27,7 +27,7 @@ public class ImagePreviewActivity extends BaseActivity {
     protected Animator currentAnimator;
     protected int shortAnimationDuration;
 
-    @BindView(R2.id.content) protected ViewGroup mainView;
+    protected ViewGroup mainView;
     protected View backgroundView;
     protected ImageView expandedImageView;
 
@@ -41,13 +41,14 @@ public class ImagePreviewActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mainView = findViewById(android.R.id.content);
         setupViews();
 
         shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
     }
 
     protected @LayoutRes
-    int activityLayout() {
+    int getLayout() {
         return 0;
     }
 

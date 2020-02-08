@@ -1,73 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/view_container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:animateLayoutChanges="true">
-
-    <co.chatsdk.ui.chat.ChatActionBar
-        android:id="@+id/chatActionBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <com.stfalcon.chatkit.messages.MessagesList
-        android:id="@+id/messagesList"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/viewContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/divider"
-        app:incomingBubblePaddingBottom="9dp"
-        app:incomingBubblePaddingTop="9dp"
-        app:incomingBubblePaddingLeft="10dp"
-        app:incomingBubblePaddingRight="10dp"
-        app:incomingTextSize="14sp"
-        app:incomingTimeTextColor="@color/message_time"
-        app:incomingTimeTextStyle="italic"
-        app:incomingDefaultBubbleSelectedColor="@color/primary_green"
-        app:outcomingBubblePaddingBottom="9dp"
-        app:outcomingBubblePaddingTop="9dp"
-        app:outcomingBubblePaddingLeft="10dp"
-        app:outcomingBubblePaddingRight="10dp"
-        app:incomingBubbleDrawable="@drawable/chatkit_shape_incoming_message"
-        app:outcomingTextSize="14sp"
-        app:outcomingTimeTextColor="@color/message_time"
-        app:outcomingTimeTextStyle="italic"
-        app:outcomingDefaultBubbleSelectedColor="@color/primary_green"
-        app:outcomingDefaultBubbleColor="@color/primary"
-        app:outcomingDefaultBubblePressedColor="@color/primary"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        />
+        android:animateLayoutChanges="true">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="bottom"
-        app:layout_behavior="co.chatsdk.ui.appbar.TextInputBehavior"
-        >
-
-        <View
-            android:id="@+id/divider"
+        <co.chatsdk.ui.chat.ChatActionBar
+            android:id="@+id/chatActionBar"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:background="@color/gray_light"/>
+            android:layout_height="wrap_content" />
 
-        <co.chatsdk.ui.chat.ReplyView
-            android:id="@+id/replyView"
-            android:layout_height="wrap_content"
+        <com.stfalcon.chatkit.messages.MessagesList
+            android:id="@+id/messagesList"
             android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/divider"
+            app:incomingBubblePaddingBottom="9dp"
+            app:incomingBubblePaddingTop="9dp"
+            app:incomingBubblePaddingLeft="10dp"
+            app:incomingBubblePaddingRight="10dp"
+            app:incomingTextSize="14sp"
+            app:incomingTimeTextColor="@color/message_time"
+            app:incomingTimeTextStyle="italic"
+            app:incomingDefaultBubbleSelectedColor="@color/primary_green"
+            app:outcomingBubblePaddingBottom="9dp"
+            app:outcomingBubblePaddingTop="9dp"
+            app:outcomingBubblePaddingLeft="10dp"
+            app:outcomingBubblePaddingRight="10dp"
+            app:incomingBubbleDrawable="@drawable/chatkit_shape_incoming_message"
+            app:outcomingTextSize="14sp"
+            app:outcomingTimeTextColor="@color/message_time"
+            app:outcomingTimeTextStyle="italic"
+            app:outcomingDefaultBubbleSelectedColor="@color/primary_green"
+            app:outcomingDefaultBubbleColor="@color/primary"
+            app:outcomingDefaultBubblePressedColor="@color/primary"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             />
 
-        <com.stfalcon.chatkit.messages.MessageInput
-            android:id="@+id/input"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:showAttachmentButton="true" />
+            android:orientation="vertical"
+            android:layout_gravity="bottom"
+            app:layout_behavior="co.chatsdk.ui.appbar.TextInputBehavior"
+            >
 
-    </LinearLayout>
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:background="@color/gray_light"/>
+
+            <co.chatsdk.ui.chat.ReplyView
+                android:id="@+id/replyView"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                />
+
+            <com.stfalcon.chatkit.messages.MessageInput
+                android:id="@+id/messageInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:showAttachmentButton="true" />
+
+        </LinearLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

@@ -24,6 +24,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.databinding.DataBindingUtil;
 
 import org.pmw.tinylog.Logger;
 
@@ -33,6 +34,7 @@ import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
+import co.chatsdk.ui.databinding.ActivityLoginBinding;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
@@ -44,29 +46,19 @@ import io.reactivex.functions.Action;
 public class LoginActivity extends BaseActivity implements View.OnClickListener {
 
     protected boolean exitOnBackPressed = false;
-    protected ConstraintLayout mainView;
     protected boolean authenticating = false;
 
-    @BindView(R2.id.text_input_username) protected TextInputEditText usernameEditText;
-    @BindView(R2.id.text_input_password) protected TextInputEditText passwordEditText;
-
-    /** Passed to the context in the intent extras, Indicates that the context was called after the user press the logout button,
-     * That means the context wont try to authenticate in inResume. */
-
-    @BindView(R2.id.button_login) protected MaterialButton btnLogin;
-    @BindView(R2.id.button_register) protected MaterialButton btnReg;
-    @BindView(R2.id.button_anonymous_login) protected MaterialButton btnAnonymous;
-    @BindView(R2.id.button_reset_password) protected MaterialButton btnResetPassword;
-    @BindView(R2.id.image_app_icon) protected ImageView appIconImage;
+    ActivityLoginBinding b;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
+        initViews();
 
         setExitOnBackPressed(true);
 
-        mainView = findViewById(R.id.view_root);
-        setupTouchUIToDismissKeyboard(mainView);
+        setupTouchUIToDismissKeyboard(b.rootView);
 
         initViews();
 
@@ -76,27 +68,27 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     }
 
-    protected @LayoutRes int activityLayout() {
+    protected @LayoutRes int getLayout() {
         return R.layout.activity_login;
     }
 
     protected void initViews() {
 
-        btnResetPassword.setVisibility(ChatSDK.config().resetPasswordEnabled ? View.VISIBLE : View.INVISIBLE);
+        b.resetPasswordButton.setVisibility(ChatSDK.config().resetPasswordEnabled ? View.VISIBLE : View.INVISIBLE);
 
         if(!ChatSDK.auth().accountTypeEnabled(AccountDetails.Type.Anonymous)) {
-            ((ViewGroup) btnAnonymous.getParent()).removeView(btnAnonymous);
+            ((ViewGroup) b.anonymousButton.getParent()).removeView(b.anonymousButton);
         }
 
         // Set the debug username and password details for testing
         if(!StringChecker.isNullOrEmpty(ChatSDK.config().debugUsername)) {
-            usernameEditText.setText(ChatSDK.config().debugUsername);
+            b.usernameTextInput.setText(ChatSDK.config().debugUsername);
         }
         if(!StringChecker.isNullOrEmpty(ChatSDK.config().debugPassword)) {
-            passwordEditText.setText(ChatSDK.config().debugPassword);
+            b.passwordTextInput.setText(ChatSDK.config().debugPassword);
         }
 
-        appIconImage.setImageResource(ChatSDK.config().logoDrawableResourceID);
+        b.appIconImageView.setImageResource(ChatSDK.config().logoDrawableResourceID);
 
     }
 
@@ -107,10 +99,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     protected void initListeners() {
 
-        btnLogin.setOnClickListener(this);
-        btnReg.setOnClickListener(this);
-        btnAnonymous.setOnClickListener(this);
-        btnResetPassword.setOnClickListener(this);
+        b.loginButton.setOnClickListener(this);
+        b.registerButton.setOnClickListener(this);
+        b.anonymousButton.setOnClickListener(this);
+        b.resetPasswordButton.setOnClickListener(this);
 
     }
 
@@ -127,16 +119,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             dm.dispose();
         });
 
-        if (i == R.id.button_login) {
+        if (i == R.id.loginButton) {
             passwordLogin();
         }
-        else if (i == R.id.button_anonymous_login) {
+        else if (i == R.id.anonymousButton) {
             anonymousLogin();
         }
-        else if (i == R.id.button_register) {
+        else if (i == R.id.registerButton) {
             register();
         }
-        else if (i == R.id.button_reset_password) {
+        else if (i == R.id.resetPasswordButton) {
             showForgotPasswordDialog();
         }
     }
@@ -166,7 +158,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             Logger.debug("Network Connection unavailable");
         }
 
-        AccountDetails details = AccountDetails.username(usernameEditText.getText().toString(), passwordEditText.getText().toString());
+        AccountDetails details = AccountDetails.username(b.usernameTextInput.getText().toString(), b.passwordTextInput.getText().toString());
 
         authenticateWithDetails(details);
     }
@@ -208,8 +200,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         AccountDetails details = new AccountDetails();
         details.type = AccountDetails.Type.Register;
-        details.username = usernameEditText.getText().toString();
-        details.password = passwordEditText.getText().toString();
+        details.username = b.usernameTextInput.getText().toString();
+        details.password = b.passwordTextInput.getText().toString();
 
         authenticateWithDetails(details);
 
@@ -254,12 +246,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     }
 
     protected boolean checkFields(){
-        if (usernameEditText.getText().toString().isEmpty()) {
+        if (b.usernameTextInput.getText().toString().isEmpty()) {
             showToast(getString(R.string.login_activity_no_mail_toast));
             return false;
         }
 
-        if (passwordEditText.getText().toString().isEmpty()) {
+        if (b.passwordTextInput.getText().toString().isEmpty()) {
             showToast( getString(R.string.login_activity_no_password_toast) );
             return false;
         }

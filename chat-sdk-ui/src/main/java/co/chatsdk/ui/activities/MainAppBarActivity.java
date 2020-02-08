@@ -3,10 +3,13 @@ package co.chatsdk.ui.activities;
 import android.os.Bundle;
 
 import com.google.android.material.tabs.TabLayout;
+import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import java.util.List;
 
 import androidx.annotation.LayoutRes;
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import butterknife.BindView;
@@ -16,29 +19,50 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
+import co.chatsdk.ui.databinding.ActivityViewPagerBinding;
 import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.ui.adapters.PagerAdapterTabs;
+import co.chatsdk.ui.interfaces.SearchSupported;
 
 public class MainAppBarActivity extends MainActivity {
 
-    @BindView(R2.id.tab_layout) protected TabLayout tabLayout;
-    @BindView(R2.id.pager) protected ViewPager viewPager;
-
     protected PagerAdapterTabs adapter;
+
+    protected ActivityViewPagerBinding b;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
+        initViews();
+    }
+
+    @Override
+    boolean searchEnabled() {
+        return currentTab().fragment instanceof SearchSupported;
+    }
+
+    @Override
+    void search(String text) {
+        Fragment fragment = currentTab().fragment;
+        if (fragment instanceof SearchSupported) {
+            ((SearchSupported) fragment).filter(text);
+        }
+    }
+
+    @Override
+    MaterialSearchView searchView() {
+        return b.searchView;
     }
 
     protected @LayoutRes
-    int activityLayout() {
+    int getLayout() {
         return R.layout.activity_view_pager;
     }
 
     protected void initViews() {
 
-        tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
+        b.tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
         // Only creates the adapter if it wasn't initiated already
         if (adapter == null) {
@@ -47,26 +71,18 @@ public class MainAppBarActivity extends MainActivity {
 
         final List<Tab> tabs = adapter.getTabs();
         for (Tab tab : tabs) {
-            tabLayout.addTab(tabLayout.newTab().setText(tab.title));
+            b.tabLayout.addTab(b.tabLayout.newTab().setText(tab.title));
         }
 
-        ((BaseFragment) tabs.get(0).fragment).setTabVisibility(true);
+//        ((BaseFragment) tabs.get(0).fragment).setTabVisibility(true);
 
-        viewPager.setAdapter(adapter);
+        b.viewPager.setAdapter(adapter);
 
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        b.viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(b.tabLayout));
+        b.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                viewPager.setCurrentItem(tab.getPosition());
-
-                updateLocalNotificationsForTab();
-
-                // We mark the tab as visible. This lets us be more efficient with updates
-                // because we only
-                for(int i = 0; i < tabs.size(); i++) {
-                    ((BaseFragment) tabs.get(i).fragment).setTabVisibility(i == tab.getPosition());
-                }
+                tabSelected(tab);
             }
 
             @Override
@@ -80,11 +96,33 @@ public class MainAppBarActivity extends MainActivity {
             }
         });
 
-        viewPager.setOffscreenPageLimit(3);
+        b.viewPager.setOffscreenPageLimit(3);
+        TabLayout.Tab tab = b.tabLayout.getTabAt(0);
+        if (tab != null) {
+            tabSelected(tab);
+        }
+    }
+
+    public void tabSelected(TabLayout.Tab tab) {
+        b.viewPager.setCurrentItem(tab.getPosition());
+
+        final List<Tab> tabs = adapter.getTabs();
+
+        updateLocalNotificationsForTab();
+
+        // We mark the tab as visible. This lets us be more efficient with updates
+        // because we only
+        for(int i = 0; i < tabs.size(); i++) {
+            ((BaseFragment) tabs.get(i).fragment).setTabVisibility(i == tab.getPosition());
+        }
+    }
+
+    public Tab currentTab() {
+        return adapter.getTabs().get(b.viewPager.getCurrentItem());
     }
 
     public void updateLocalNotificationsForTab () {
-        TabLayout.Tab tab = tabLayout.getTabAt(tabLayout.getSelectedTabPosition());
+        TabLayout.Tab tab = b.tabLayout.getTabAt(b.tabLayout.getSelectedTabPosition());
         ChatSDK.ui().setLocalNotificationHandler(thread -> showLocalNotificationsForTab(tab, thread));
     }
 

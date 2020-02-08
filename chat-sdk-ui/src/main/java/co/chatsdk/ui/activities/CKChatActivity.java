@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.LayoutRes;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -73,6 +74,7 @@ import co.chatsdk.ui.chat.view_holders.IncomingImageMessageViewHolder;
 import co.chatsdk.ui.chat.view_holders.IncomingTextMessageViewHolder;
 import co.chatsdk.ui.chat.view_holders.OutcomingImageMessageViewHolder;
 import co.chatsdk.ui.chat.view_holders.OutcomingTextMessageViewHolder;
+import co.chatsdk.ui.databinding.ChatkitActivityChatBinding;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import co.chatsdk.ui.chat.model.MessageHolder;
@@ -80,7 +82,6 @@ import co.chatsdk.ui.chat.model.MessageHolder;
 
 public class CKChatActivity extends BaseActivity implements TextInputDelegate, ChatOptionsDelegate,
         MessagesListAdapter.OnLoadMoreListener {
-
 
     public static final int messageForwardActivityCode = 998;
 
@@ -97,10 +98,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
     protected Bundle bundle;
 
-    @BindView(R2.id.messagesList) protected MessagesList messagesList;
-    @BindView(R2.id.input) protected MessageInput messageInput;
-    @BindView(R2.id.chatActionBar) protected ChatActionBar chatActionBar;
-    @BindView(R2.id.replyView) protected ReplyView replyView;
+    ChatkitActivityChatBinding b;
 
     protected MessagesListAdapter<MessageHolder> messagesListAdapter;
 
@@ -114,13 +112,15 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
+
+        initViews();
 
         if (!updateThreadFromBundle(savedInstanceState)) {
             return;
         }
 
-        initViews();
 
         setChatState(TypingIndicatorHandler.State.active);
 
@@ -160,7 +160,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.ThreadDetailsUpdated, EventType.ThreadUsersChanged))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .subscribe(networkEvent -> chatActionBar.reload(thread)));
+                .subscribe(networkEvent -> b.chatActionBar.reload(thread)));
 
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
@@ -168,7 +168,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                 .filter(networkEvent -> thread.containsUser(networkEvent.user))
                 .subscribe(networkEvent -> {
                     reloadData();
-                    chatActionBar.reload(thread);
+                    b.chatActionBar.reload(thread);
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()
@@ -180,7 +180,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                         typingText += getString(R.string.typing);
                     }
                     Logger.debug(typingText);
-                    chatActionBar.setSubtitleText(thread, typingText);
+                    b.chatActionBar.setSubtitleText(thread, typingText);
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()
@@ -214,7 +214,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
         return super.getTaskDescriptionBitmap();
     }
 
-    protected @LayoutRes int activityLayout() {
+    protected @LayoutRes int getLayout() {
         return R.layout.chatkit_activity_chat;
     }
 
@@ -263,7 +263,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
                 if (content.getImageUrl() != null) {
                     if (message.getMessage().getMessageType().is(MessageType.Image)) {
-                        View rootView = findViewById(android.R.id.content);
+                        View rootView = getContentView();
                         ImageMessageOnClickHandler.onClick(this, rootView, content.getImageUrl());
                     }
                     if (message.getMessage().getMessageType().is(MessageType.Location)) {
@@ -281,16 +281,16 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
             invalidateOptionsMenu();
         });
 
-        messagesList.setAdapter(messagesListAdapter);
+        b.messagesList.setAdapter(messagesListAdapter);
 
-        messageInput.setInputListener(input -> {
+        b.messageInput.setInputListener(input -> {
             sendMessage(String.valueOf(input));
             return true;
         });
 
-        messageInput.setAttachmentsListener(this::showOptions);
+        b.messageInput.setAttachmentsListener(this::showOptions);
 
-        messageInput.setTypingListener(new MessageInput.TypingListener() {
+        b.messageInput.setTypingListener(new MessageInput.TypingListener() {
             @Override
             public void onStartTyping() {
                 startTyping();
@@ -302,18 +302,18 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
             }
         });
 
-        replyView.setOnCancelListener(v -> hideReplyView());
+        b.replyView.setOnCancelListener(v -> hideReplyView());
 
         // Action bar
-        chatActionBar.setOnClickListener(v -> openThreadDetailsActivity());
-        setSupportActionBar(chatActionBar.getToolbar());
-        chatActionBar.reload(thread);
+        b.chatActionBar.setOnClickListener(v -> openThreadDetailsActivity());
+        setSupportActionBar(b.chatActionBar.getToolbar());
+        b.chatActionBar.reload(thread);
 
     }
 
     public void hideReplyView() {
         messagesListAdapter.unselectAllItems();
-        replyView.hide();
+        b.replyView.hide();
     }
 
     @Override
@@ -390,7 +390,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
             // comes in and scrolls the screen down
             boolean scroll = message.getSender().isMe();
 
-            RecyclerView.LayoutManager layoutManager = messagesList.getLayoutManager();
+            RecyclerView.LayoutManager layoutManager = b.messagesList.getLayoutManager();
             if (layoutManager instanceof LinearLayoutManager) {
                 LinearLayoutManager llm = (LinearLayoutManager) layoutManager;
 
@@ -436,7 +436,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
             return;
         }
 
-        if (replyView.isVisible()) {
+        if (b.replyView.isVisible()) {
             Message message = MessageHolder.toMessages(messagesListAdapter.getSelectedMessages()).get(0);
             handleMessageSend(ChatSDK.thread().replyToMessage(thread, message, text));
             hideReplyView();
@@ -495,14 +495,14 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                             Locale current = getResources().getConfiguration().locale;
                             PrettyTime pt = new PrettyTime(current);
                             if (thread.otherUser().getIsOnline()) {
-                                chatActionBar.setSubtitleText(thread, CKChatActivity.this.getString(R.string.online));
+                                b.chatActionBar.setSubtitleText(thread, CKChatActivity.this.getString(R.string.online));
                             } else {
-                                chatActionBar.setSubtitleText(thread, String.format(getString(R.string.last_seen__), pt.format(date)));
+                                b.chatActionBar.setSubtitleText(thread, String.format(getString(R.string.last_seen__), pt.format(date)));
                             }
                         }
                     }));
         } else {
-            chatActionBar.setSubtitleText(thread, null);
+            b.chatActionBar.setSubtitleText(thread, null);
         }
 
         // Show a local notification if the text is from a different thread
@@ -583,9 +583,9 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
                 menu.removeItem(R.id.action_delete);
             }
 
-            chatActionBar.hideText();
+            b.chatActionBar.hideText();
         } else {
-            chatActionBar.showText();
+            b.chatActionBar.showText();
         }
 
         return super.onCreateOptionsMenu(menu);
@@ -631,7 +631,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
         if (id == R.id.action_reply) {
             Message message = messagesListAdapter.getSelectedMessages().get(0).getMessage();
-            replyView.show(message.getSender().getName(), message.imageURL(), message.getText());
+            b.replyView.show(message.getSender().getName(), message.imageURL(), message.getText());
         }
 
         return super.onOptionsItemSelected(item);

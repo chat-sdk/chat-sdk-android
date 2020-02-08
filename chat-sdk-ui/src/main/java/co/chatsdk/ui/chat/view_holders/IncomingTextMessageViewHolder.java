@@ -12,9 +12,13 @@ import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.util.Locale;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
 import co.chatsdk.ui.chat.binders.MessageBinder;
+import co.chatsdk.ui.chat.binders.OnlineStatusBinder;
 import co.chatsdk.ui.chat.binders.ReadStatusViewBinder;
 import co.chatsdk.ui.chat.binders.ReplyViewBinder;
 import co.chatsdk.ui.chat.model.MessageHolder;
@@ -22,25 +26,21 @@ import co.chatsdk.ui.chat.model.MessageHolder;
 public class IncomingTextMessageViewHolder
         extends MessageHolders.IncomingTextMessageViewHolder<MessageHolder>  {
 
-    private View onlineIndicator;
-    protected TextView userName;
-    protected WeakReference<Context> context;
+    @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
+    @BindView(R2.id.userName) protected TextView userName;
+    @BindView(R2.id.replyView) protected View replyView;
+    @BindView(R2.id.replyImageView) protected ImageView replyImageView;
+    @BindView(R2.id.replyTextView) protected TextView replyTextView;
 
-    protected View replyView;
-    protected ImageView replyImageView;
-    protected TextView replyTextView;
-    protected DateFormat format;
     protected View itemView;
+
+    protected WeakReference<Context> context;
+    protected DateFormat format;
 
     public IncomingTextMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
         this.itemView = itemView;
-
-        onlineIndicator = itemView.findViewById(R.id.onlineIndicator);
-        userName = itemView.findViewById(R.id.userName);
-        replyView = itemView.findViewById(R.id.replyView);
-        replyImageView = itemView.findViewById(R.id.replyImageView);
-        replyTextView = itemView.findViewById(R.id.replyTextView);
+        ButterKnife.bind(this, itemView);
 
         context = new WeakReference<>(itemView.getContext());
 
@@ -54,11 +54,7 @@ public class IncomingTextMessageViewHolder
         ReplyViewBinder.onBind(replyView, replyTextView, replyImageView, holder);
 
         boolean isOnline = holder.getUser().isOnline();
-        if (isOnline) {
-            onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_online);
-        } else {
-            onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_offline);
-        }
+        OnlineStatusBinder.bind(onlineIndicator, isOnline);
 
         //We can set click listener on view from payload
         final Payload payload = (Payload) this.payload;
@@ -67,10 +63,6 @@ public class IncomingTextMessageViewHolder
                 payload.avatarClickListener.onAvatarClick(holder.getMessage().getSender());
             }
         });
-
-//        Message message = holder.getMessage();
-//        Message previousMessage = message.getPreviousMessage();
-//        Message nextMessage = message.getNextMessage();
 
         if (holder.showNames()) {
             userName.setVisibility(View.VISIBLE);

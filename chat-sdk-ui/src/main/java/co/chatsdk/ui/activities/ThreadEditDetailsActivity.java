@@ -19,6 +19,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.squareup.picasso.Picasso;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.databinding.DataBindingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.chat.MediaSelector;
+import co.chatsdk.ui.databinding.ActivityEditThreadDetailsBinding;
 import co.chatsdk.ui.utils.ThreadImageBuilder;
 import co.chatsdk.ui.utils.ImagePickerUploader;
 import co.chatsdk.ui.utils.ToastHelper;
@@ -52,15 +54,14 @@ public class ThreadEditDetailsActivity extends BaseActivity {
     protected Thread thread;
     protected ArrayList<User> users = new ArrayList<>();
 
-    @BindView(R2.id.text_name) protected TextInputEditText nameInput;
-    @BindView(R2.id.button_done) protected MaterialButton saveButton;
-    @BindView(R2.id.image_thread) protected ImageView threadImageView;
-
     protected String threadImageURL;
     protected ImagePickerUploader pickerUploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
 
+    protected ActivityEditThreadDetailsBinding b;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
 
         threadEntityID = getIntent().getStringExtra(Keys.IntentKeyThreadEntityID);
@@ -77,13 +78,11 @@ public class ThreadEditDetailsActivity extends BaseActivity {
                 }
             }
         }
-
         initViews();
-
     }
 
     @Override
-    protected int activityLayout() {
+    protected int getLayout() {
         return R.layout.activity_edit_thread_details;
     }
 
@@ -93,7 +92,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
             actionBar.setHomeButtonEnabled(true);
         }
 
-        nameInput.addTextChangedListener(new TextWatcher() {
+        b.nameTextInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -110,11 +109,11 @@ public class ThreadEditDetailsActivity extends BaseActivity {
             }
         });
 
-        saveButton.setOnClickListener(v -> {
+        b.doneButton.setOnClickListener(v -> {
             didClickOnSaveButton();
         });
 
-        threadImageView.setOnClickListener(view -> {
+        b.threadImageView.setOnClickListener(view -> {
                     showProgressDialog(ThreadEditDetailsActivity.this.getString(R.string.uploading));
                     dm.add(pickerUploader.choosePhoto(ThreadEditDetailsActivity.this, false).subscribe((urls, throwable) -> {
                         if (throwable == null && !urls.isEmpty()) {
@@ -131,7 +130,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
     }
 
     protected void updateSaveButtonState () {
-        saveButton.setEnabled(!nameInput.getText().toString().isEmpty());
+        b.doneButton.setEnabled(!b.nameTextInput.getText().toString().isEmpty());
     }
 
     protected void updateThreadImageURL (String url) {
@@ -142,24 +141,24 @@ public class ThreadEditDetailsActivity extends BaseActivity {
         if (thread != null) {
             String name = thread.getName();
             actionBar.setTitle(name);
-            nameInput.setText(name);
-            saveButton.setText(R.string.update_thread);
+            b.nameTextInput.setText(name);
+            b.doneButton.setText(R.string.update_thread);
         } else {
-            saveButton.setEnabled(false);
+            b.doneButton.setEnabled(false);
         }
         if (threadImageURL != null) {
-            Picasso.get().load(threadImageURL).into(threadImageView);
+            Picasso.get().load(threadImageURL).into(b.threadImageView);
         } else if (thread != null) {
-            ThreadImageBuilder.load(threadImageView, thread);
+            ThreadImageBuilder.load(b.threadImageView, thread);
         }
         else {
-            threadImageView.setImageResource(R.drawable.icn_100_public_thread);
+            b.threadImageView.setImageResource(R.drawable.icn_100_public_thread);
         }
         updateSaveButtonState();
     }
 
     protected void didClickOnSaveButton() {
-        final String threadName = nameInput.getText().toString();
+        final String threadName = b.nameTextInput.getText().toString();
 
         // There are several ways this view can be used:
         // 1. Create a Public Thread

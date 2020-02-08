@@ -22,6 +22,8 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
@@ -29,24 +31,28 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
+import co.chatsdk.ui.chat.model.ThreadHolder;
+import co.chatsdk.ui.interfaces.SearchSupported;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.PublishSubject;
 
-
 /**
  * Created by itzik on 6/17/2014.
  */
-public class ContactsFragment extends BaseFragment {
+public class ContactsFragment extends BaseFragment implements SearchSupported {
 
     protected UsersListAdapter adapter;
-    protected RecyclerView recyclerView;
+    @BindView(R2.id.recycler_contacts) protected RecyclerView recyclerView;
 
     protected PublishSubject<User> onClickSubject = PublishSubject.create();
     protected PublishSubject<User> onLongClickSubject = PublishSubject.create();
     protected Disposable listOnClickListenerDisposable;
     protected Disposable listOnLongClickListenerDisposable;
+
+    protected String filter;
 
     protected List<User> sourceUsers = new ArrayList<>();
 
@@ -69,10 +75,6 @@ public class ContactsFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-
-        mainView = inflater.inflate(activityLayout(), null);
-
-        initViews();
 
         if (listOnClickListenerDisposable != null) {
             listOnClickListenerDisposable.dispose();
@@ -97,15 +99,14 @@ public class ContactsFragment extends BaseFragment {
 
         loadData(true);
 
-        return mainView;
+        return rootView;
     }
 
-    protected @LayoutRes int activityLayout() {
+    protected @LayoutRes int getLayout() {
         return R.layout.fragment_contacts;
     }
 
     public void initViews() {
-        recyclerView = mainView.findViewById(R.id.recycler_contacts);
 
         // Create the adapter only if null this is here so we wont
         // override the adapter given from the extended class with setAdapter.
@@ -130,7 +131,7 @@ public class ContactsFragment extends BaseFragment {
         /* Cant use switch in the library*/
         int id = item.getItemId();
 
-        // Each user that will be found in the search context will be automatically added as a contact.
+        // Each user that will be found in the filter context will be automatically added as a contact.
         if (id == R.id.action_add) {
             startSearchActivity();
             return true;
@@ -191,7 +192,7 @@ public class ContactsFragment extends BaseFragment {
     @Override
     public void reloadData() {
         sourceUsers.clear();
-        sourceUsers.addAll(ChatSDK.contact().contacts());
+        sourceUsers.addAll(filter(ChatSDK.contact().contacts()));
     }
 
     public Observable<User> onClickObservable () {
@@ -200,6 +201,26 @@ public class ContactsFragment extends BaseFragment {
 
     public Observable<User> onLongClickObservable () {
         return onLongClickSubject;
+    }
+
+    @Override
+    public void filter(String text) {
+        filter = text;
+        loadData(false);
+    }
+
+    public List<User> filter (List<User> users) {
+        if (filter == null || filter.isEmpty()) {
+            return users;
+        }
+
+        List<User> filteredUsers = new ArrayList<>();
+        for (User u : users) {
+            if (u.getName() != null && u.getName().toLowerCase().contains(filter.toLowerCase())) {
+                filteredUsers.add(u);
+            }
+        }
+        return filteredUsers;
     }
 
 }

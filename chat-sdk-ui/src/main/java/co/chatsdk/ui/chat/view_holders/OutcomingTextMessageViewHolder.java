@@ -6,7 +6,10 @@ import android.widget.TextView;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
 import co.chatsdk.ui.chat.binders.MessageBinder;
 import co.chatsdk.ui.chat.binders.ReadStatusViewBinder;
 import co.chatsdk.ui.chat.binders.ReplyViewBinder;
@@ -15,18 +18,14 @@ import co.chatsdk.ui.chat.model.MessageHolder;
 public class OutcomingTextMessageViewHolder
         extends MessageHolders.OutcomingTextMessageViewHolder<MessageHolder> {
 
-    protected ImageView readStatus;
-    protected View replyView;
-    protected ImageView replyImageView;
-    protected TextView replyTextView;
+    @BindView(R2.id.readStatus) protected ImageView readStatus;
+    @BindView(R2.id.replyView) protected View replyView;
+    @BindView(R2.id.replyImageView) protected ImageView replyImageView;
+    @BindView(R2.id.replyTextView) protected TextView replyTextView;
 
     public OutcomingTextMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
-
-        readStatus = itemView.findViewById(R.id.readStatus);
-        replyView = itemView.findViewById(R.id.replyView);
-        replyImageView = itemView.findViewById(R.id.replyImageView);
-        replyTextView = itemView.findViewById(R.id.replyTextView);
+        ButterKnife.bind(this, itemView);
     }
 
     @Override

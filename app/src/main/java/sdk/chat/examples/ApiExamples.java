@@ -120,7 +120,7 @@ public class ApiExamples {
     }
 
     /**
-     * An example of how to retrieve a remote user from Firebase using the search API
+     * An example of how to retrieve a remote user from Firebase using the filter API
      * @param name
      */
     public void getUserFromFirebase (String name) {

@@ -9,11 +9,14 @@ package co.chatsdk.ui.fragments;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+
+import androidx.annotation.LayoutRes;
 import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import butterknife.ButterKnife;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.DisposableMap;
 import co.chatsdk.ui.activities.BaseActivity;
@@ -30,7 +33,7 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
 
     protected ProgressDialog progressDialog;
 
-    protected View mainView;
+    protected View rootView;
     protected boolean tabIsVisible;
     protected DisposableMap dm = new DisposableMap();
 
@@ -41,7 +44,11 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        return super.onCreateView(inflater, container, savedInstanceState);
+        super.onCreateView(inflater, container, savedInstanceState);
+        rootView = inflater.inflate(getLayout(), container, false);
+        ButterKnife.bind(this, rootView);
+        initViews();
+        return rootView;
     }
 
     @Override
@@ -55,6 +62,8 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
             return false;
         }, exceptIDs);
     }
+
+    protected abstract @LayoutRes int getLayout();
 
     public void hideKeyboard () {
         BaseActivity.hideKeyboard(getActivity());
@@ -74,6 +83,8 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
             progressDialog.setMessage(message);
         }
     }
+
+    protected abstract void initViews();
 
     public void setTabVisibility (boolean isVisible) {
         tabIsVisible = isVisible;

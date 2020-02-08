@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -25,8 +26,8 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
-import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.PublishSubject;
@@ -34,8 +35,7 @@ import io.reactivex.subjects.PublishSubject;
 public class ThreadUsersFragment extends BaseFragment {
 
     protected UsersListAdapter adapter;
-    protected ProgressBar progressBar;
-    protected RecyclerView recyclerView;
+    @BindView(R2.id.recycler_contacts) protected RecyclerView recyclerView;
 
     protected PublishSubject<User> onClickSubject = PublishSubject.create();
     protected PublishSubject<User> onLongClickSubject = PublishSubject.create();
@@ -65,24 +65,6 @@ public class ThreadUsersFragment extends BaseFragment {
 
     public ThreadUsersFragment(Thread thread) {
         this.thread = thread;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (thread == null) {
-            String threadEntityID = savedInstanceState.getString(Keys.IntentKeyThreadEntityID);
-            thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
-        }
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterContactsChanged())
-                .subscribe(networkEvent -> loadData(true)));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
-                .subscribe(networkEvent -> loadData(true)));
     }
 
     protected void showRoleListDialog(User user) {
@@ -164,32 +146,32 @@ public class ThreadUsersFragment extends BaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mainView = inflater.inflate(activityLayout(), null);
+        super.onCreateView(inflater, container, savedInstanceState);
 
-        initViews();
+        if (thread == null) {
+            String threadEntityID = savedInstanceState.getString(Keys.IntentKeyThreadEntityID);
+            thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
+        }
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterContactsChanged())
+                .subscribe(networkEvent -> loadData(true)));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
+                .subscribe(networkEvent -> loadData(true)));
 
         loadData(true);
 
-        return mainView;
+        return rootView;
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (thread != null) {
-            outState.putString(Keys.IntentKeyThreadEntityID, thread.getEntityID());
-        }
-    }
-
-    protected @LayoutRes
-    int activityLayout() {
+    protected @LayoutRes int getLayout() {
         return R.layout.fragment_contacts;
     }
 
     public void initViews() {
-        recyclerView = mainView.findViewById(R.id.recycler_contacts);
-
-        progressBar = mainView.findViewById(R.id.progress_bar);
 
         // Create the adapter only if null this is here so we wont
         // override the adapter given from the extended class with setAdapter.
@@ -221,6 +203,14 @@ public class ThreadUsersFragment extends BaseFragment {
                 onLongClickSubject.onNext(user);
             }
         }));
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (thread != null) {
+            outState.putString(Keys.IntentKeyThreadEntityID, thread.getEntityID());
+        }
     }
 
     public void loadData (final boolean force) {

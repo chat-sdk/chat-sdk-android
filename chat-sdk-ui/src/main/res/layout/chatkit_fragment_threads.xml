@@ -1,39 +1,67 @@
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/coordinator"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/bar_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <EditText
-            android:id="@+id/search_field"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:hint="@string/search_threads"
-            android:inputType="text"
-            android:padding="8dp"
-            app:layout_scrollFlags="enterAlwaysCollapsed|snap"
-            app:layout_collapseMode="pin" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <com.stfalcon.chatkit.dialogs.DialogsList
-        android:id="@+id/dialogsList"
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:dialogDividerLeftPadding="0dp"
-        app:dialogTitleTextStyle="bold"
-        app:dialogUnreadTitleTextStyle="bold"
-        app:dialogTitleTextSize="16dp"
-        app:dialogMessageTextSize="15dp"
-        app:dialogMessageTextColor="@color/gray"
-        app:dialogUnreadMessageTextColor="#00B7FF"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:animateLayoutChanges="true">
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:animateLayoutChanges="true">
+
+    <!--        <include-->
+    <!--            layout="@layout/toolbar_default"/>-->
+
+            <com.stfalcon.chatkit.dialogs.DialogsList
+                android:id="@+id/dialogsList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:dialogDividerLeftPadding="0dp"
+                app:dialogTitleTextStyle="bold"
+                app:dialogUnreadTitleTextStyle="bold"
+                app:dialogTitleTextSize="16dp"
+                app:dialogMessageTextSize="15dp"
+                app:dialogMessageTextColor="@color/gray"
+                app:dialogUnreadMessageTextColor="#00B7FF" />
+
+        </RelativeLayout>
+
+        <com.miguelcatalan.materialsearchview.MaterialSearchView
+            android:id="@+id/search_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </FrameLayout>
+</layout>
+
+
+<!--<androidx.coordinatorlayout.widget.CoordinatorLayout-->
+<!--    xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    android:id="@+id/coordinator"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent">-->
+
+<!--    <com.google.android.material.appbar.AppBarLayout-->
+<!--        android:id="@+id/bar_layout"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content">-->
+
+<!--        <EditText-->
+<!--            android:id="@+id/search_field"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@color/white"-->
+<!--            android:hint="@string/search_threads"-->
+<!--            android:inputType="text"-->
+<!--            android:padding="8dp"-->
+<!--            app:layout_scrollFlags="enterAlwaysCollapsed|snap"-->
+<!--            app:layout_collapseMode="pin" />-->
+
+<!--    </com.google.android.material.appbar.AppBarLayout>-->
+
+
+
+<!--</androidx.coordinatorlayout.widget.CoordinatorLayout>-->

@@ -37,12 +37,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Optional;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ActivityResult;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.Disposable;
@@ -55,6 +58,9 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     // This is a list of extras that are passed to the login view
     protected HashMap<String, Object> extras = new HashMap<>();
     protected DisposableList dm = new DisposableList();
+    protected Snackbar snackbar;
+    @BindView(R2.id.toolbar) @Nullable protected Toolbar toolbar;
+    @BindView(R2.id.content) @Nullable protected View content;
 
     public BaseActivity() {
     }
@@ -68,11 +74,10 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
             setTheme(ChatSDK.config().theme);
         }
 
-
         // Setting the default task description.
         setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
 
-        setContentView(activityLayout());
+        setContentView(getLayout());
         ButterKnife.bind(this);
 
         Toolbar toolbar = getToolbar();
@@ -82,12 +87,11 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
 
     }
 
-    protected Toolbar getToolbar() {
-        return findViewById(R.id.toolbar);
+    protected @Nullable Toolbar getToolbar() {
+        return toolbar;
     }
-
-    protected View getContentView() {
-        return this.findViewById(android.R.id.content);
+    protected @Nullable View getContentView() {
+        return content;
     }
 
     protected void setActionBarTitle (int resourceId) {
@@ -98,7 +102,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         }
     }
 
-    protected abstract @LayoutRes int activityLayout();
+    protected abstract @LayoutRes int getLayout();
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -230,13 +234,35 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         }
     }
 
+    protected void showSnackbar(int textResourceId, int duration){
+        showSnackbar(this.getString(textResourceId), duration);
+    }
+
     protected void showSnackbar(int textResourceId){
-        showSnackbar(this.getString(textResourceId));
+        showSnackbar(this.getString(textResourceId), Snackbar.LENGTH_SHORT);
     }
 
     protected void showSnackbar (String text) {
+        showSnackbar(text, Snackbar.LENGTH_SHORT);
+    }
+
+    protected void showSnackbar (String text, int duration) {
         if (!text.isEmpty()) {
-            Snackbar.make(findViewById(android.R.id.content), text, Snackbar.LENGTH_SHORT).show();
+            if (snackbar == null) {
+                snackbar = Snackbar.make(getContentView(), text, duration);
+                snackbar.addCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        BaseActivity.this.snackbar = null;
+                    }
+
+                    @Override
+                    public void onShown(Snackbar snackbar) {
+                    }
+                });
+                snackbar.show();
+
+            }
         }
     }
 

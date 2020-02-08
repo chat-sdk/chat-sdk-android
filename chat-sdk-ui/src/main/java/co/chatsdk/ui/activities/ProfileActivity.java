@@ -53,7 +53,7 @@ public class ProfileActivity extends BaseActivity {
     }
 
     @Override
-    protected int activityLayout() {
+    protected int getLayout() {
         return R.layout.activity_profile;
     }
 

@@ -42,7 +42,7 @@ public class SearchAndContactExamples extends BaseExample {
             // Get a fragment containing a list of contacts
             Fragment contactFragment = ChatSDK.ui().contactsFragment();
 
-            // Start the search activity
+            // Start the filter activity
             ChatSDK.ui().startSearchActivity(context);
 
 

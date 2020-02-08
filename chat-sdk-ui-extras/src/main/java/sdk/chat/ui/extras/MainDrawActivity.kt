@@ -31,7 +31,7 @@ class MainDrawActivity : MainActivity() {
     override fun updateLocalNotificationsForTab() {
     }
 
-    override fun activityLayout(): Int {
+    override fun getLayout(): Int {
         return R.layout.activity_main_drawer
     }
 

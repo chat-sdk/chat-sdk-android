@@ -12,7 +12,8 @@
 
     <application
         android:supportsRtl="true"
-        android:hardwareAccelerated="true">
+        android:hardwareAccelerated="true"
+        >
 
         <activity android:name=".activities.LoginActivity"
             android:screenOrientation="portrait"
@@ -87,6 +88,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"/>
         </provider>
+
 
     </application>
 </manifest>
