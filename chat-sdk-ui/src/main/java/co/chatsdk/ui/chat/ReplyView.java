@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.databinding.DataBindingUtil;
 
 import com.squareup.picasso.Picasso;
 
@@ -17,12 +18,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
+import co.chatsdk.ui.databinding.ViewChatReplyBinding;
 
 public class ReplyView extends ConstraintLayout {
 
     @BindView(R2.id.image_view) protected ImageView imageView;
     @BindView(R2.id.replyTextView) protected TextView textView;
     @BindView(R2.id.cancelButton) protected ImageButton cancelButton;
+
+    protected ViewChatReplyBinding b;
 
     public ReplyView(Context context) {
         super(context);
@@ -40,6 +44,8 @@ public class ReplyView extends ConstraintLayout {
     }
 
     protected void initViews() {
+        DataBindingUtil.inf
+
         inflate(getContext(), R.layout.view_chat_reply, this);
 
         ButterKnife.bind(this);

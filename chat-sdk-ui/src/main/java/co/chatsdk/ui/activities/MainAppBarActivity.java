@@ -32,8 +32,8 @@ public class MainAppBarActivity extends MainActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
+        b = DataBindingUtil.setContentView(this, getLayout());
         initViews();
     }
 
@@ -61,6 +61,7 @@ public class MainAppBarActivity extends MainActivity {
     }
 
     protected void initViews() {
+        super.initViews();
 
         b.tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
@@ -97,6 +98,7 @@ public class MainAppBarActivity extends MainActivity {
         });
 
         b.viewPager.setOffscreenPageLimit(3);
+
         TabLayout.Tab tab = b.tabLayout.getTabAt(0);
         if (tab != null) {
             tabSelected(tab);

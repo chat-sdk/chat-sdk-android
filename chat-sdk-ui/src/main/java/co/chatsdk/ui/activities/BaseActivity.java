@@ -59,8 +59,9 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     protected HashMap<String, Object> extras = new HashMap<>();
     protected DisposableList dm = new DisposableList();
     protected Snackbar snackbar;
-    @BindView(R2.id.toolbar) @Nullable protected Toolbar toolbar;
-    @BindView(R2.id.content) @Nullable protected View content;
+
+//    @BindView(R2.id.toolbar) @Nullable protected Toolbar toolbar;
+//    @BindView(R2.id.content) @Nullable protected View content;
 
     public BaseActivity() {
     }
@@ -77,21 +78,25 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         // Setting the default task description.
         setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
 
-        setContentView(getLayout());
-        ButterKnife.bind(this);
+//        setContentView(getLayout());
+//        ButterKnife.bind(this);
 
+
+    }
+
+    protected void initViews() {
         Toolbar toolbar = getToolbar();
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
-
     }
 
     protected @Nullable Toolbar getToolbar() {
-        return toolbar;
+        return findViewById(R.id.toolbar);
     }
+
     protected @Nullable View getContentView() {
-        return content;
+        return findViewById(R.id.content);
     }
 
     protected void setActionBarTitle (int resourceId) {

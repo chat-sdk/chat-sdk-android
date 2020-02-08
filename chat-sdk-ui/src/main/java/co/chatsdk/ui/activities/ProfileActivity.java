@@ -9,6 +9,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import androidx.databinding.DataBindingUtil;
+
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial;
 import com.mikepenz.iconics.utils.IconicsMenuInflaterUtil;
@@ -17,6 +19,7 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.databinding.ActivityProfileBinding;
 import co.chatsdk.ui.fragments.ProfileFragment;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.utils.ToastHelper;
@@ -35,13 +38,14 @@ public class ProfileActivity extends BaseActivity {
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(getLayout());
 
         String userEntityID = getIntent().getStringExtra(Keys.IntentKeyUserEntityID);
 
         if (userEntityID != null && !userEntityID.isEmpty()) {
             user =  ChatSDK.db().fetchUserWithEntityID(userEntityID);
             if (user != null) {
-                ProfileFragment fragment = (ProfileFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_profile);
+                ProfileFragment fragment = (ProfileFragment) getSupportFragmentManager().findFragmentById(R.id.profileFragment);
                 fragment.setUser(user);
                 fragment.updateInterface();
                 return;

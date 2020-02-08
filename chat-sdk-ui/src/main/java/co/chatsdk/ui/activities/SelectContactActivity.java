@@ -54,8 +54,8 @@ public abstract class SelectContactActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
+        b = DataBindingUtil.setContentView(this, getLayout());
 
         if (savedInstanceState != null) {
             getDataFromBundle(savedInstanceState);
@@ -112,6 +112,7 @@ public abstract class SelectContactActivity extends BaseActivity {
     }
 
     protected void initViews() {
+        super.initViews();
         b.floatingActionButton.setOnClickListener(v -> {
             doneButtonPressed(UserListItemConverter.toUserList(adapter.getSelectedUsers()));
         });

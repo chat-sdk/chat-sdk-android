@@ -58,12 +58,13 @@ public class SearchActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
+        b = DataBindingUtil.setContentView(this, getLayout());
         initViews();
     }
 
     protected void initViews() {
+        super.initViews();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setHomeButtonEnabled(true);
@@ -110,7 +111,8 @@ public class SearchActivity extends BaseActivity {
                 }
                 return false;
             }
-        });    }
+        });
+    }
 
     @Override
     protected void onNewIntent(Intent intent) {

@@ -52,8 +52,8 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
+        b = DataBindingUtil.setContentView(this, getLayout());
 
         if (savedInstanceState != null) {
             getDataFromBundle(savedInstanceState);
@@ -87,6 +87,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     }
 
     protected void initViews() {
+        super.initViews();
 
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.threadDetailsUpdated())

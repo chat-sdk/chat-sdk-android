@@ -44,11 +44,13 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        super.onCreateView(inflater, container, savedInstanceState);
-        rootView = inflater.inflate(getLayout(), container, false);
-        ButterKnife.bind(this, rootView);
-        initViews();
-        return rootView;
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        setHasOptionsMenu(true);
+        return view;
+
+//        rootView = inflater.inflate(getLayout(), container, false);
+//        ButterKnife.bind(this, rootView);
+//        return rootView;
     }
 
     @Override

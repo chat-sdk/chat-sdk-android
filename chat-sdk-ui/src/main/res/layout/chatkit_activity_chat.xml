@@ -62,7 +62,7 @@
                 />
 
             <com.stfalcon.chatkit.messages.MessageInput
-                android:id="@+id/messageInput"
+                android:id="@+id/input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:showAttachmentButton="true" />

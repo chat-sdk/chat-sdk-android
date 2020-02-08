@@ -38,6 +38,10 @@ public abstract class MainActivity extends BaseActivity {
         }
         launchFromPush(getIntent().getExtras());
 
+    }
+
+    protected void initViews() {
+        super.initViews();
         if (searchView() != null) {
             searchView().setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
                 @Override
@@ -53,11 +57,6 @@ public abstract class MainActivity extends BaseActivity {
                 }
             });
         }
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.Logout))
-                .subscribe(networkEvent -> clearData()));
-
     }
 
     abstract boolean searchEnabled();
@@ -77,13 +76,16 @@ public abstract class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.Logout))
+                .subscribe(networkEvent -> clearData()));
+
         updateLocalNotificationsForTab();
         reloadData();
 
     }
 
     protected abstract void reloadData();
-    protected abstract void initViews();
     protected abstract void clearData();
     protected abstract void updateLocalNotificationsForTab();
     protected abstract int getLayout();

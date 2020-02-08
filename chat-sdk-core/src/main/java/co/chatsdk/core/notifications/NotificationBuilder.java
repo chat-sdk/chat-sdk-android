@@ -22,7 +22,6 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.interfaces.MessageDisplayHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.core.image.ImageBuilder;
@@ -107,8 +106,7 @@ public class NotificationBuilder {
     }
 
     public NotificationBuilder addTitleAndTextForMessage(Message message) {
-        MessageDisplayHandler displayHandler = ChatSDK.ui().getMessageHandler(message.getMessageType());
-        return setTitle(message.getSender().getName()).setText(displayHandler.displayName(message));
+        return setTitle(message.getSender().getName()).setText(message.getTextRepresentation());
     }
 
     public NotificationBuilder addIconForUser(User user) {

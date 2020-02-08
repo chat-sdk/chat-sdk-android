@@ -26,6 +26,7 @@ public class IncomingImageMessageViewHolder
     public IncomingImageMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
         ButterKnife.bind(this, itemView);
+
     }
 
     @Override

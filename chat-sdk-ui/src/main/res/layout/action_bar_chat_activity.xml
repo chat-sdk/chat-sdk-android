@@ -19,11 +19,10 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    >
+                    android:layout_height="wrap_content">
 
                     <TextView
-                        android:id="@+id/text_name"
+                        android:id="@+id/titleTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -34,11 +33,11 @@
                         android:textColor="@android:color/white"
                         android:textSize="20sp"
                         android:textStyle="bold"
-                        app:layout_constraintLeft_toRightOf="@+id/image_avatar"
+                        app:layout_constraintLeft_toRightOf="@+id/imageView"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/image_avatar"
+                        android:id="@+id/imageView"
                         android:layout_width="42dp"
                         android:layout_height="42dp"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -47,15 +46,15 @@
                         app:srcCompat="@drawable/icn_100_profile" />
 
                     <TextView
-                        android:id="@+id/text_subtitle"
+                        android:id="@+id/subtitleTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="12dp"
                         android:layout_marginStart="12dp"
                         android:textColor="@android:color/white"
                         android:textSize="12sp"
-                        app:layout_constraintLeft_toRightOf="@+id/image_avatar"
-                        app:layout_constraintTop_toBottomOf="@+id/text_name" />
+                        app:layout_constraintLeft_toRightOf="@+id/imageView"
+                        app:layout_constraintTop_toBottomOf="@+id/titleTextView" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.appcompat.widget.Toolbar>
         </com.google.android.material.appbar.CollapsingToolbarLayout>

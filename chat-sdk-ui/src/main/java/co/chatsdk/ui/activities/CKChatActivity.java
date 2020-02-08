@@ -24,13 +24,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.stfalcon.chatkit.commons.models.MessageContentType;
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessageInput;
-import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
 import org.ocpsoft.prettytime.PrettyTime;
@@ -63,11 +61,8 @@ import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
-import co.chatsdk.ui.chat.ChatActionBar;
 import co.chatsdk.ui.chat.ImageMessageOnClickHandler;
 import co.chatsdk.ui.chat.LocationMessageOnClickHandler;
-import co.chatsdk.ui.chat.ReplyView;
 import co.chatsdk.ui.chat.TextInputDelegate;
 import co.chatsdk.ui.chat.model.ImageMessageHolder;
 import co.chatsdk.ui.chat.view_holders.IncomingImageMessageViewHolder;
@@ -112,15 +107,14 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
-
-        initViews();
+        b = DataBindingUtil.setContentView(this, getLayout());
 
         if (!updateThreadFromBundle(savedInstanceState)) {
             return;
         }
 
+        initViews();
 
         setChatState(TypingIndicatorHandler.State.active);
 
@@ -219,6 +213,7 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
     }
 
     protected void initViews () {
+        super.initViews();
 
         IncomingTextMessageViewHolder.Payload holderPayload = new IncomingTextMessageViewHolder.Payload();
         holderPayload.avatarClickListener = user -> {
@@ -283,14 +278,14 @@ public class CKChatActivity extends BaseActivity implements TextInputDelegate, C
 
         b.messagesList.setAdapter(messagesListAdapter);
 
-        b.messageInput.setInputListener(input -> {
+        b.input.setInputListener(input -> {
             sendMessage(String.valueOf(input));
             return true;
         });
 
-        b.messageInput.setAttachmentsListener(this::showOptions);
+        b.input.setAttachmentsListener(this::showOptions);
 
-        b.messageInput.setTypingListener(new MessageInput.TypingListener() {
+        b.input.setTypingListener(new MessageInput.TypingListener() {
             @Override
             public void onStartTyping() {
                 startTyping();

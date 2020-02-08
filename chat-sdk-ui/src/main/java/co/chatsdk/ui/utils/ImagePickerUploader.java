@@ -13,6 +13,7 @@ import java.util.concurrent.Callable;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.image.ImageUtils;
+import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.chat.MediaSelector;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Maybe;
@@ -40,9 +41,16 @@ public class ImagePickerUploader {
     }
 
     public Single<List<Result>> choosePhoto (Activity activity, boolean multiSelectEnabled) {
-        return mediaSelector.startChooseMediaActivity(activity, MimeType.ofImage(), cropType, multiSelectEnabled)
+        return PermissionRequestHandler.requestReadExternalStorage(activity)
+                .andThen(mediaSelector.startChooseMediaActivity(activity, MimeType.ofImage(), cropType, multiSelectEnabled)
                 .map(this::compressFiles)
-                .flatMap(this::uploadImageFiles);
+                .flatMap(this::uploadImageFiles));
+    }
+
+    public Single<List<File>> choosePhoto(Activity activity) {
+        return PermissionRequestHandler.requestReadExternalStorage(activity)
+                .andThen(mediaSelector.startChooseMediaActivity(activity, MimeType.ofImage(), cropType, false)
+                        .map(this::compressFiles));
     }
 
     public List<File> compressFiles (List<File> files) throws Exception {

@@ -125,12 +125,6 @@ public interface InterfaceAdapter {
     void setChatOptionsHandler (ChatOptionsHandler handler);
     ChatOptionsHandler getChatOptionsHandler (ChatOptionsDelegate delegate);
 
-    void setMessageHandler(MessageDisplayHandler handler, MessageType type);
-    void removeMessageHandler(MessageType type);
-    MessageDisplayHandler getMessageHandler(MessageType type);
-
-    Collection<MessageDisplayHandler> getMessageHandlers();
-
     boolean showLocalNotifications(Thread thread);
     void setLocalNotificationHandler(LocalNotificationHandler handler);
 

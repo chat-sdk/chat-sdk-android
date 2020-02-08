@@ -2,12 +2,14 @@ package co.chatsdk.ui.chat;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.databinding.DataBindingUtil;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.mikepenz.iconics.Iconics;
@@ -22,16 +24,14 @@ import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
+import co.chatsdk.ui.databinding.ActionBarChatActivityBinding;
 import co.chatsdk.ui.utils.ThreadImageBuilder;
 
 public class ChatActionBar extends AppBarLayout {
 
-    @BindView(R2.id.text_name) protected TextView titleTextView;
-    @BindView(R2.id.text_subtitle) protected TextView subtitleTextView;
-    @BindView(R2.id.image_avatar) protected ImageView threadImageView;
-    @BindView(R2.id.toolbar) protected Toolbar toolbar;
-
     protected View.OnClickListener onClickListener;
+
+    protected ActionBarChatActivityBinding b;
 
     public ChatActionBar(Context context) {
         super(context);
@@ -49,13 +49,10 @@ public class ChatActionBar extends AppBarLayout {
     }
 
     public void initViews() {
-        inflate(getContext(), R.layout.action_bar_chat_activity, this);
-
-        ButterKnife.bind(this);
-
-        titleTextView.setOnClickListener(this::onClick);
-        threadImageView.setOnClickListener(this::onClick);
-        subtitleTextView.setOnClickListener(this::onClick);
+        b = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.action_bar_chat_activity, this, true);
+        b.titleTextView.setOnClickListener(this::onClick);
+        b.imageView.setOnClickListener(this::onClick);
+        b.subtitleTextView.setOnClickListener(this::onClick);
     }
 
     public void onClick(View view) {
@@ -67,8 +64,8 @@ public class ChatActionBar extends AppBarLayout {
     public void reload(Thread thread) {
         String displayName = Strings.nameForThread(thread);
 //        setTitle(displayName);
-        titleTextView.setText(displayName);
-        ThreadImageBuilder.load(threadImageView, thread);
+        b.titleTextView.setText(displayName);
+        ThreadImageBuilder.load(b.imageView, thread);
     }
 
     public void setOnClickListener(View.OnClickListener onClickListener) {
@@ -83,20 +80,20 @@ public class ChatActionBar extends AppBarLayout {
                 text = thread.getUserListString();
             }
         }
-        subtitleTextView.setText(text);
+        b.subtitleTextView.setText(text);
     }
 
     public void hideText() {
-        titleTextView.setVisibility(View.GONE);
-        subtitleTextView.setVisibility(View.GONE);
+        b.titleTextView.setVisibility(View.GONE);
+        b.subtitleTextView.setVisibility(View.GONE);
     }
 
     public void showText() {
-        titleTextView.setVisibility(View.VISIBLE);
-        subtitleTextView.setVisibility(View.VISIBLE);
+        b.titleTextView.setVisibility(View.VISIBLE);
+        b.subtitleTextView.setVisibility(View.VISIBLE);
     }
 
     public Toolbar getToolbar() {
-        return toolbar;
+        return b.toolbar;
     }
 }

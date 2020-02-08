@@ -9,7 +9,6 @@ import co.chatsdk.core.R;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.interfaces.MessageDisplayHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 
@@ -27,13 +26,13 @@ public class Strings {
         return t(ChatSDK.shared().context(), resId);
     }
 
-    public static String payloadAsString (Message message) {
-        MessageDisplayHandler handler =  ChatSDK.ui().getMessageHandler(message.getMessageType());
-        if (handler != null) {
-            return handler.displayName(message);
-        }
-        return t(R.string.unknown_message);
-    }
+//    public static String payloadAsString (Message message) {
+//        MessageDisplayHandler handler =  ChatSDK.ui().getMessageHandler(message.getMessageType());
+//        if (handler != null) {
+//            return handler.displayName(message);
+//        }
+//        return t(R.string.unknown_message);
+//    }
 
     public static String dateTime (Date date) {
         return new SimpleDateFormat("HH:mm dd/MM/yy").format(date);

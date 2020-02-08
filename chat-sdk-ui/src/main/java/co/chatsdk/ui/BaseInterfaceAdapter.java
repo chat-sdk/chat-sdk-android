@@ -28,7 +28,6 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.interfaces.ChatOptionsDelegate;
 import co.chatsdk.core.interfaces.ChatOptionsHandler;
-import co.chatsdk.core.interfaces.MessageDisplayHandler;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
 import co.chatsdk.core.interfaces.LocalNotificationHandler;
 import co.chatsdk.core.session.ChatSDK;
@@ -66,7 +65,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public List<SearchActivityType> searchActivities = new ArrayList<>();
     public List<ChatOption> chatOptions = new ArrayList<>();
     public ChatOptionsHandler chatOptionsHandler = null;
-    public Map<Integer,MessageDisplayHandler> messageHandlers = new HashMap<>();
     public boolean defaultChatOptionsAdded = false;
     public LocalNotificationHandler localNotificationHandler;
     public NotificationDisplayHandler notificationDisplayHandler;
@@ -102,7 +100,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     private Tab profileTab;
 
     private String stringLocation;
-    private String stringTakePhoto;
     private String stringChoosePhoto;
 
     public BaseInterfaceAdapter (Context context) {
@@ -119,7 +116,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         Icons.shared().setContext(context);
 
         stringLocation = context.getResources().getString(R.string.location);
-        stringTakePhoto = context.getResources().getString(R.string.take_photo);
         stringChoosePhoto = context.getResources().getString(R.string.image_or_photo);
     }
 
@@ -580,30 +576,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
             chatOptionsHandler.setDelegate(delegate);
         }
         return chatOptionsHandler;
-    }
-
-    @Override
-    @Deprecated
-    public void setMessageHandler(MessageDisplayHandler handler, MessageType type) {
-        messageHandlers.put(type.value(), handler);
-    }
-
-    @Override
-    public void removeMessageHandler(MessageType type) {
-        MessageDisplayHandler handler = getMessageHandler(type);
-        if (handler != null) {
-            messageHandlers.remove(handler);
-        }
-    }
-
-    @Override
-    public Collection<MessageDisplayHandler> getMessageHandlers() {
-        return messageHandlers.values();
-    }
-
-    @Override
-    public MessageDisplayHandler getMessageHandler(MessageType type) {
-        return messageHandlers.get(type.value());
     }
 
     @Override

@@ -10,6 +10,7 @@ package co.chatsdk.ui.fragments;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import androidx.annotation.LayoutRes;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -34,6 +35,7 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
 import co.chatsdk.ui.chat.model.ThreadHolder;
+import co.chatsdk.ui.databinding.FragmentContactsBinding;
 import co.chatsdk.ui.interfaces.SearchSupported;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -45,7 +47,6 @@ import io.reactivex.subjects.PublishSubject;
 public class ContactsFragment extends BaseFragment implements SearchSupported {
 
     protected UsersListAdapter adapter;
-    @BindView(R2.id.recycler_contacts) protected RecyclerView recyclerView;
 
     protected PublishSubject<User> onClickSubject = PublishSubject.create();
     protected PublishSubject<User> onLongClickSubject = PublishSubject.create();
@@ -56,25 +57,27 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
 
     protected List<User> sourceUsers = new ArrayList<>();
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected FragmentContactsBinding b;
 
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterContactsChanged())
-                .subscribe(networkEvent -> loadData(true)));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
-                .subscribe(networkEvent -> loadData(true)));
-
-        setHasOptionsMenu(true);
-//        setMenuVisibility(true);
+    protected @LayoutRes int getLayout() {
+        return R.layout.fragment_contacts;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        b = DataBindingUtil.inflate(inflater, getLayout(), container, false);
+        rootView = b.getRoot();
+
+        initViews();
+        addListeners();
+
+        loadData(true);
+
+        return rootView;
+    }
+
+    public void addListeners() {
 
         if (listOnClickListenerDisposable != null) {
             listOnClickListenerDisposable.dispose();
@@ -97,13 +100,13 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
             }
         });
 
-        loadData(true);
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterContactsChanged())
+                .subscribe(networkEvent -> loadData(true)));
 
-        return rootView;
-    }
-
-    protected @LayoutRes int getLayout() {
-        return R.layout.fragment_contacts;
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
+                .subscribe(networkEvent -> loadData(true)));
     }
 
     public void initViews() {
@@ -112,8 +115,8 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         // override the adapter given from the extended class with setAdapter.
         adapter = new UsersListAdapter();
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(adapter);
+        b.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        b.recyclerView.setAdapter(adapter);
     }
 
     @Override

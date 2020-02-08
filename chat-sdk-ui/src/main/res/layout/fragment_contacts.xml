@@ -8,13 +8,13 @@
         android:animateLayoutChanges="true">
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:cacheColorHint="@android:color/transparent"
             android:scrollbars="none"
             android:divider="@null"
-            android:descendantFocusability="blocksDescendants"
-            android:id="@+id/recycler_contacts"/>
+            android:descendantFocusability="blocksDescendants" />
 
     </FrameLayout>
 </layout>

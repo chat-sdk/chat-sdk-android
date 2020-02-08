@@ -1,27 +1,22 @@
 package co.chatsdk.ui.fragments;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 
 import androidx.annotation.LayoutRes;
+import androidx.databinding.DataBindingUtil;
 
-import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.squareup.picasso.Picasso;
-import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -30,7 +25,7 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
+import co.chatsdk.ui.databinding.ChatkitFragmentThreadsBinding;
 import co.chatsdk.ui.interfaces.SearchSupported;
 import co.chatsdk.ui.utils.ThreadImageBuilder;
 import co.chatsdk.ui.chat.view_holders.ThreadViewHolder;
@@ -43,8 +38,6 @@ import io.reactivex.subjects.PublishSubject;
 
 public abstract class CKThreadsFragment extends BaseFragment implements SearchSupported {
 
-    @BindView(R2.id.dialogsList) protected DialogsList dialogsList;
-
     protected String filter;
     protected MenuItem addMenuItem;
 
@@ -53,16 +46,29 @@ public abstract class CKThreadsFragment extends BaseFragment implements SearchSu
     protected PublishSubject<Thread> onClickPublishSubject = PublishSubject.create();
     protected PublishSubject<Thread> onLongClickPublishSubject = PublishSubject.create();
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+    protected ChatkitFragmentThreadsBinding b;
+
+    protected  @LayoutRes int getLayout () {
+        return R.layout.chatkit_fragment_threads;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        b = DataBindingUtil.inflate(inflater, getLayout(), container, false);
+        rootView = b.getRoot();
 
+        initViews();
+        addListeners();
+
+        loadData();
+
+        hideKeyboard();
+
+        return rootView;
+    }
+
+    public void addListeners() {
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(mainEventFilter())
                 .subscribe(networkEvent -> {
@@ -95,16 +101,6 @@ public abstract class CKThreadsFragment extends BaseFragment implements SearchSu
                         }
                     }
                 }));
-
-        loadData();
-
-        hideKeyboard();
-
-        return rootView;
-    }
-
-    protected  @LayoutRes int getLayout () {
-        return R.layout.chatkit_fragment_threads;
     }
 
     public void initViews() {
@@ -123,7 +119,7 @@ public abstract class CKThreadsFragment extends BaseFragment implements SearchSu
             }
         });
 
-        dialogsList.setAdapter(dialogsListAdapter);
+        b.dialogsList.setAdapter(dialogsListAdapter);
 
         dialogsListAdapter.setOnDialogClickListener(dialog -> {
             ChatSDK.ui().startChatActivityForID(getContext(), dialog.getId());
@@ -161,26 +157,6 @@ public abstract class CKThreadsFragment extends BaseFragment implements SearchSu
     public void onResume() {
         super.onResume();
         softReloadData();
-
-//        if (searchField != null) {
-//            searchField.addTextChangedListener(new TextWatcher() {
-//                @Override
-//                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//                }
-//
-//                @Override
-//                public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                    filter = searchField.getText().toString();
-//                    loadData();
-//                }
-//
-//                @Override
-//                public void afterTextChanged(Editable s) {
-//
-//                }
-//            });
-//        }
     }
 
     @Override

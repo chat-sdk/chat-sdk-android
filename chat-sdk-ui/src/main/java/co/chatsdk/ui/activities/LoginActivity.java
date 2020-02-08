@@ -52,8 +52,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
+        b = DataBindingUtil.setContentView(this, getLayout());
         initViews();
 
         setExitOnBackPressed(true);
@@ -73,6 +73,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     }
 
     protected void initViews() {
+        super.initViews();
 
         b.resetPasswordButton.setVisibility(ChatSDK.config().resetPasswordEnabled ? View.VISIBLE : View.INVISIBLE);
 

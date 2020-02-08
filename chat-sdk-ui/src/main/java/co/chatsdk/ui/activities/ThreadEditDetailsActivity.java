@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.google.android.material.button.MaterialButton;
@@ -21,6 +22,7 @@ import com.squareup.picasso.Picasso;
 import androidx.appcompat.app.ActionBar;
 import androidx.databinding.DataBindingUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +41,7 @@ import co.chatsdk.ui.utils.ImagePickerUploader;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.BiConsumer;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by Pepe Becker on 09/05/18.
@@ -61,8 +64,8 @@ public class ThreadEditDetailsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
+        b = DataBindingUtil.setContentView(this, getLayout());
 
         threadEntityID = getIntent().getStringExtra(Keys.IntentKeyThreadEntityID);
         if (threadEntityID != null) {
@@ -78,6 +81,7 @@ public class ThreadEditDetailsActivity extends BaseActivity {
                 }
             }
         }
+
         initViews();
     }
 
@@ -87,6 +91,8 @@ public class ThreadEditDetailsActivity extends BaseActivity {
     }
 
     protected void initViews() {
+        super.initViews();
+
         actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setHomeButtonEnabled(true);
@@ -114,17 +120,19 @@ public class ThreadEditDetailsActivity extends BaseActivity {
         });
 
         b.threadImageView.setOnClickListener(view -> {
+            dm.add(pickerUploader.choosePhoto(this).subscribe(files -> {
+                if (!files.isEmpty()) {
                     showProgressDialog(ThreadEditDetailsActivity.this.getString(R.string.uploading));
-                    dm.add(pickerUploader.choosePhoto(ThreadEditDetailsActivity.this, false).subscribe((urls, throwable) -> {
-                        if (throwable == null && !urls.isEmpty()) {
-                            updateThreadImageURL(urls.get(0).url);
-                        } else {
-                            ToastHelper.show(ThreadEditDetailsActivity.this, throwable.getLocalizedMessage());
+                    dm.add(pickerUploader.uploadImageFile(files.get(0)).subscribe(result -> {
+                        if (result != null) {
+                            updateThreadImageURL(result.url);
+                            refreshView();
                         }
                         dismissProgressDialog();
-                        refreshView();
-                    }));
-                });
+                    }, this));
+                }
+            }, this));
+        });
 
         refreshView();
     }

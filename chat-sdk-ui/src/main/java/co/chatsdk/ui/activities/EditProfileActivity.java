@@ -56,9 +56,8 @@ public class EditProfileActivity extends BaseActivity {
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
-        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
-        initViews();
+        b = DataBindingUtil.setContentView(this, getLayout());
 
         String userEntityID = getIntent().getStringExtra(Keys.IntentKeyUserEntityID);
 
@@ -90,6 +89,7 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     protected void initViews() {
+        super.initViews();
 
         b.locationImageView.setImageDrawable(Icons.get(Icons.shared().location, R.color.edit_profile_icon_color));
         b.nameImageView.setImageDrawable(Icons.get(Icons.shared().user, R.color.edit_profile_icon_color));
