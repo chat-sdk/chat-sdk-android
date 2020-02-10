@@ -1,314 +1,191 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/main_content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
-
-    <!--    <com.google.android.material.appbar.AppBarLayout-->
-    <!--        android:id="@+id/appbar"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="200dp"-->
-    <!--        android:fitsSystemWindows="true"-->
-    <!--        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">-->
-
-    <!--        <com.google.android.material.appbar.CollapsingToolbarLayout-->
-    <!--            android:id="@+id/collapsingToolbar"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="match_parent"-->
-    <!--            android:fitsSystemWindows="true"-->
-    <!--            app:contentScrim="?attr/colorPrimary"-->
-    <!--            app:expandedTitleMarginEnd="64dp"-->
-    <!--            app:expandedTitleMarginStart="48dp"-->
-    <!--            app:layout_scrollFlags="scroll|exitUntilCollapsed"-->
-    <!--            app:titleEnabled="true">-->
-
-    <!--            <ImageView-->
-    <!--                android:id="@+id/backdrop"-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="match_parent"-->
-    <!--                android:fitsSystemWindows="true"-->
-    <!--                android:scaleType="centerCrop"-->
-    <!--                app:layout_collapseMode="parallax" />-->
-
-    <!--            &lt;!&ndash; As our statusBar is transparent below and content is moved behind our toolbar has to include the padding on top so we use this area &ndash;&gt;-->
-    <!--            <androidx.appcompat.widget.Toolbar-->
-    <!--                android:id="@+id/toolbar"-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="?attr/actionBarSize"-->
-    <!--                app:layout_collapseMode="pin"-->
-    <!--                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />-->
-
-    <!--        </com.google.android.material.appbar.CollapsingToolbarLayout>-->
-    <!--    </com.google.android.material.appbar.AppBarLayout>-->
-
-        <androidx.core.widget.NestedScrollView
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/main_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            android:animateLayoutChanges="true"
+            android:fitsSystemWindows="true">
 
-            <LinearLayout
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/appbar"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:fitsSystemWindows="true"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+                <com.google.android.material.appbar.CollapsingToolbarLayout
+                    android:id="@+id/collapsingToolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fitsSystemWindows="true"
+                    app:contentScrim="?attr/colorPrimary"
+                    app:expandedTitleMarginEnd="64dp"
+                    app:expandedTitleMarginStart="48dp"
+                    app:collapsedTitleGravity="center_vertical|start"
+                    app:expandedTitleGravity="center_horizontal|center_vertical"
+                    app:expandedTitleMarginTop="12dp"
+                    app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                    app:titleEnabled="true">
+
+                    <ImageView
+                        android:id="@+id/backdrop"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:fitsSystemWindows="true"
+                        android:scaleType="centerCrop"
+                        app:layout_collapseMode="parallax" />
+
+                    <!-- As our statusBar is transparent below and content is moved behind our toolbar has to include the padding on top so we use this area -->
+                    <androidx.appcompat.widget.Toolbar
+                        android:id="@+id/toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="?attr/actionBarSize"
+                        app:layout_collapseMode="pin"
+                        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+                    </androidx.appcompat.widget.Toolbar>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:layout_collapseMode="parallax"
+                        app:layout_collapseParallaxMultiplier="1">
+
+                        <TextView
+                            android:id="@+id/titleTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="5dp"
+                            android:layout_marginStart="5dp"
+                            android:textSize="20sp"
+                            android:gravity="center_vertical" />
+
+                    </RelativeLayout>
+
+                </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:paddingTop="24dp">
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-                <androidx.cardview.widget.CardView
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
-                    android:layout_marginBottom="16dp">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:paddingTop="24dp">
 
-                    <LinearLayout
+                    <Space
+                        android:id="@+id/topSpace"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"/>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/statusCardView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:paddingLeft="16dp"
-                        android:paddingTop="24dp"
-                        android:paddingRight="16dp"
-                        android:paddingBottom="24dp">
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginBottom="16dp">
 
-                        <TextView
+                        <LinearLayout
+                            android:id="@+id/statusLinearLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Friends"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                            android:orientation="vertical"
+                            android:paddingLeft="16dp"
+                            android:paddingTop="20dp"
+                            android:paddingRight="16dp"
+                            android:paddingBottom="8dp">
 
-                        <TextView
+                            <TextView
+                                android:id="@+id/statusTitleTextView"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingBottom="16dp"
+                                android:text="@string/status"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+
+                            <TextView
+                                android:id="@+id/statusTextView2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content" />
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/availabilityCardView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginBottom="16dp">
+
+                        <LinearLayout
+                            android:id="@+id/availabilityLinearLayout"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginBottom="16dp">
+
+                        <LinearLayout
+                            android:id="@+id/iconLinearLayout"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginBottom="16dp">
+
+                        <LinearLayout
+                            android:id="@+id/buttonsLinearLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="ok this is a test" />
+                            android:orientation="vertical"/>
 
-                    </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
 
-                </androidx.cardview.widget.CardView>
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"
+                app:layout_anchor="@id/appbar"
+                app:layout_anchorGravity="bottom|end" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/mainConstraintLayout">
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/avatarImageView2"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                app:layout_anchor="@id/appbar"
+                android:alpha="0.5"
+                app:civ_border_width="5dp"
+                app:civ_border_color="@color/white"
+                app:layout_anchorGravity="center|bottom"
+                />
 
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/avatarImageView"
-                        android:layout_width="130dp"
-                        android:layout_height="130dp"
-                        android:layout_gravity="center"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        android:src="@drawable/icn_100_profile"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/nameTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginTop="8dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                        android:textSize="17sp"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/avatarImageView" />
-
-                    <TextView
-                        android:id="@+id/statusTextView"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginTop="8dp"
-                        android:textAlignment="center"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                        android:textSize="17sp"
-                        android:textStyle="italic"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/nameTextView" />
-
-                    <ImageView
-                        android:id="@+id/flagImageView"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <ImageView
-                        android:id="@+id/locationImageView"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/statusTextView"
-                        app:layout_goneMarginTop="0dp"
-                        app:srcCompat="@drawable/icn_36_location" />
-
-                    <ImageView
-                        android:id="@+id/phoneImageView"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="9dp"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/locationImageView"
-                        app:srcCompat="@drawable/icn_36_phone" />
-
-                    <ImageView
-                        android:id="@+id/emailImageView"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="9dp"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/phoneImageView"
-                        app:srcCompat="@drawable/icn_36_email" />
-
-                    <TextView
-                        android:id="@+id/emailTextView"
-                        android:layout_width="0dp"
-                        android:layout_height="25dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginTop="8dp"
-                        android:textSize="17sp"
-                        app:layout_constraintLeft_toRightOf="@+id/emailImageView"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/phoneTextView" />
-
-                    <TextView
-                        android:id="@+id/phoneTextView"
-                        android:layout_width="0dp"
-                        android:layout_height="25dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginTop="8dp"
-                        android:textSize="17sp"
-                        app:layout_constraintLeft_toRightOf="@+id/phoneImageView"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/locationTextView" />
-
-                    <TextView
-                        android:id="@+id/locationTextView"
-                        android:layout_width="0dp"
-                        android:layout_height="25dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginTop="8dp"
-                        android:textSize="17sp"
-                        app:layout_goneMarginTop="0dp"
-                        app:layout_constraintLeft_toRightOf="@+id/locationImageView"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/statusTextView" />
-
-                    <TextView
-                        android:id="@+id/followsTextView"
-                        android:layout_width="0dp"
-                        android:layout_height="25dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:text="@string/follows"
-                        android:textSize="17sp"
-                        app:layout_constraintLeft_toRightOf="@+id/followsImageView"
-                        app:layout_constraintRight_toRightOf="parent"
-                        android:layout_marginTop="8dp"
-                        app:layout_constraintTop_toBottomOf="@+id/phoneTextView"
-                        app:layout_constraintHorizontal_bias="0.0" />
-
-                    <ImageView
-                        android:id="@+id/followsImageView"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginStart="8dp"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:srcCompat="@drawable/icn_36_follows"
-                        android:layout_marginTop="8dp"
-                        app:layout_constraintTop_toBottomOf="@+id/phoneImageView" />
-
-                    <ImageView
-                        android:id="@+id/followedImageView"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/followsImageView"
-                        app:srcCompat="@drawable/icn_36_following" />
-
-                    <TextView
-                        android:id="@+id/followedTextView"
-                        android:layout_width="0dp"
-                        android:layout_height="25dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/followed"
-                        android:textSize="17sp"
-                        app:layout_constraintLeft_toRightOf="@+id/followedImageView"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/followsTextView" />
-
-                    <Button
-                        android:id="@+id/blockButton"
-                        android:layout_width="0dp"
-                        android:layout_height="36dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/block"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/followedTextView" />
-
-                    <Button
-                        android:id="@+id/addDeleteButton"
-                        android:layout_width="0dp"
-                        android:layout_height="36dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginRight="8dp"
-                        android:text="@string/add_contacts"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/blockButton" />
-
-                    <ImageView
-                        android:id="@+id/availabilityImageView"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginTop="8dp"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/icn_20_online" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
-<!--    <ScrollView-->
-<!--    android:layout_width="match_parent"-->
-<!--    android:layout_height="match_parent"-->
-<!--    android:animateLayoutChanges="true">-->
-
-
-<!--</ScrollView>-->

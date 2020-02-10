@@ -246,6 +246,7 @@
     <string name="unblock">Unblock</string>
     <string name="contact_deleted">Contact deleted</string>
     <string name="contact_added">Contact added</string>
+    <string name="contact">Contact</string>
     <string name="user_blocked">User blocked</string>
     <string name="user_unblocked">User unblocked</string>
     <string name="user_deleted">User deleted</string>

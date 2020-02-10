@@ -7,6 +7,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.fragment.app.Fragment
 import co.chatsdk.core.session.ChatSDK
 import co.chatsdk.ui.activities.MainActivity
+import co.chatsdk.ui.interfaces.SearchSupported
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorInt
@@ -43,6 +44,8 @@ class MainDrawActivity : MainActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(layout)
+//        b = DataBindingUtil.setContentView(this, layout)
 
         // Handle Toolbar
         setSupportActionBar(toolbar)
@@ -158,7 +161,16 @@ class MainDrawActivity : MainActivity() {
         }
     }
 
-    companion object {
-        private const val PROFILE_SETTING = 1
+    override fun searchEnabled(): Boolean {
+        return lastFragment is SearchSupported
     }
+
+    override fun search(text: String?) {
+        (lastFragment as SearchSupported).filter(text)
+    }
+
+    override fun searchView(): com.miguelcatalan.materialsearchview.MaterialSearchView {
+        return searchView
+    }
+
 }

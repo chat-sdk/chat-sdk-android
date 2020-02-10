@@ -1,6 +1,7 @@
 package co.chatsdk.ui.activities;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import com.google.android.material.tabs.TabLayout;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
@@ -22,6 +23,7 @@ import co.chatsdk.ui.R2;
 import co.chatsdk.ui.databinding.ActivityViewPagerBinding;
 import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.ui.adapters.PagerAdapterTabs;
+import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.interfaces.SearchSupported;
 
 public class MainAppBarActivity extends MainActivity {
@@ -34,16 +36,17 @@ public class MainAppBarActivity extends MainActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         b = DataBindingUtil.setContentView(this, getLayout());
+
         initViews();
     }
 
     @Override
-    boolean searchEnabled() {
+    protected boolean searchEnabled() {
         return currentTab().fragment instanceof SearchSupported;
     }
 
     @Override
-    void search(String text) {
+    protected void search(String text) {
         Fragment fragment = currentTab().fragment;
         if (fragment instanceof SearchSupported) {
             ((SearchSupported) fragment).filter(text);
@@ -51,7 +54,7 @@ public class MainAppBarActivity extends MainActivity {
     }
 
     @Override
-    MaterialSearchView searchView() {
+    protected MaterialSearchView searchView() {
         return b.searchView;
     }
 
@@ -62,6 +65,11 @@ public class MainAppBarActivity extends MainActivity {
 
     protected void initViews() {
         super.initViews();
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setHomeAsUpIndicator(Icons.get(Icons.shared().user, R.color.white));
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         b.tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
@@ -106,16 +114,31 @@ public class MainAppBarActivity extends MainActivity {
     }
 
     public void tabSelected(TabLayout.Tab tab) {
-        b.viewPager.setCurrentItem(tab.getPosition());
+
+        int index = tab.getPosition();
+
+        b.viewPager.setCurrentItem(index);
 
         final List<Tab> tabs = adapter.getTabs();
+
+//        Fragment currentFragment = adapter.getTabs().get(index).fragment;
+//        if (getSupportActionBar() != null) {
+//            if (currentFragment instanceof HasAppbar) {
+//                getSupportActionBar().hide();
+//            } else {
+//                getSupportActionBar().show();
+//            }
+//        }
 
         updateLocalNotificationsForTab();
 
         // We mark the tab as visible. This lets us be more efficient with updates
         // because we only
         for(int i = 0; i < tabs.size(); i++) {
-            ((BaseFragment) tabs.get(i).fragment).setTabVisibility(i == tab.getPosition());
+            Fragment fragment = tabs.get(i).fragment;
+            if (fragment instanceof BaseFragment) {
+                ((BaseFragment) tabs.get(i).fragment).setTabVisibility(i == tab.getPosition());
+            }
         }
     }
 
@@ -156,6 +179,19 @@ public class MainAppBarActivity extends MainActivity {
             if(t.fragment instanceof BaseFragment) {
                 ((BaseFragment) t.fragment).safeReloadData();
             }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                ChatSDK.ui().startProfileActivity(this, ChatSDK.currentUserID());
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
         }
     }
 }

@@ -3,21 +3,19 @@ package co.chatsdk.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 
 import androidx.annotation.DrawableRes;
 import androidx.fragment.app.Fragment;
 
-import com.mikepenz.iconics.Iconics;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import co.chatsdk.core.Tab;
 import co.chatsdk.core.avatar.FlatHashAvatarGenerator;
@@ -31,7 +29,6 @@ import co.chatsdk.core.interfaces.ChatOptionsHandler;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
 import co.chatsdk.core.interfaces.LocalNotificationHandler;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.core.ui.ProfileFragmentProvider;
 import co.chatsdk.core.notifications.NotificationDisplayHandler;
@@ -125,7 +122,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         tabs.add(privateThreadsTab());
         tabs.add(publicThreadsTab());
         tabs.add(contactsTab());
-        tabs.add(profileTab());
+//        tabs.add(profileTab());
         return tabs;
     }
 
@@ -148,12 +145,12 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public void addTab(String title, int icon, Fragment fragment) {
+    public void addTab(String title, Drawable icon, Fragment fragment) {
         addTab(new Tab(title, icon, fragment));
     }
 
     @Override
-    public void addTab(String title, int icon, Fragment fragment, int index) {
+    public void addTab(String title, Drawable icon, Fragment fragment, int index) {
         addTab(new Tab(title, icon, fragment), index);
     }
 
@@ -165,7 +162,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab privateThreadsTab() {
         if (privateThreadsTab == null) {
-            privateThreadsTab = new Tab(context.get().getString(R.string.conversations), R.drawable.ic_action_private, privateThreadsFragment());
+            privateThreadsTab = new Tab(context.get().getString(R.string.conversations), Icons.get(Icons.shared().chat, R.color.tab_icon_color), privateThreadsFragment());
         }
         return privateThreadsTab;
     }
@@ -173,7 +170,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab publicThreadsTab() {
         if (publicThreadsTab == null) {
-            publicThreadsTab = new Tab(context.get().getString(R.string.chat_rooms), R.drawable.ic_action_public, publicThreadsFragment());
+            publicThreadsTab = new Tab(context.get().getString(R.string.chat_rooms), Icons.get(Icons.shared().publicChat, R.color.tab_icon_color), publicThreadsFragment());
         }
         return publicThreadsTab;
     }
@@ -181,18 +178,18 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab contactsTab() {
         if (contactsTab == null) {
-            contactsTab = new Tab(context.get().getString(R.string.contacts), R.drawable.ic_action_contacts, contactsFragment());
+            contactsTab = new Tab(context.get().getString(R.string.contacts), Icons.get(Icons.shared().contact, R.color.tab_icon_color), contactsFragment());
         }
         return contactsTab;
     }
 
-    @Override
-    public Tab profileTab() {
-        if (profileTab == null) {
-            profileTab = new Tab (context.get().getString(R.string.profile), R.drawable.ic_action_user, profileFragment(null));
-        }
-        return profileTab;
-    }
+//    @Override
+//    public Tab profileTab() {
+//        if (profileTab == null) {
+//            profileTab = new Tab (context.get().getString(R.string.profile), Icons.get(Icons.shared().user, R.color.tab_icon_color), profileFragment(null));
+//        }
+//        return profileTab;
+//    }
 
     @Override
     public Fragment privateThreadsFragment() {

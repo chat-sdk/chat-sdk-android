@@ -20,6 +20,7 @@ import android.os.Bundle;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -43,6 +44,7 @@ import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
+import co.chatsdk.ui.utils.AlertUtils;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.Disposable;
@@ -55,12 +57,20 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     // This is a list of extras that are passed to the login view
     protected HashMap<String, Object> extras = new HashMap<>();
     protected DisposableList dm = new DisposableList();
-    protected Snackbar snackbar;
 
-//    @BindView(R2.id.toolbar) @Nullable protected Toolbar toolbar;
-//    @BindView(R2.id.content) @Nullable protected View content;
+    protected AlertUtils alert;
 
     public BaseActivity() {
+        alert = new AlertUtils(new AlertUtils.Provider() {
+            @Override
+            public Context getContext() {
+                return BaseActivity.this;
+            }
+            @Override
+            public View getRootView() {
+                return getContentView();
+            }
+        });
     }
 
     @Override
@@ -220,98 +230,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         }
     }
 
-    /** Show a SuperToast with the given text. */
-    protected void showToast(int textResourceId){
-        showToast(this.getString(textResourceId));
-    }
-
-    protected void showToast(String text){
-        if (!text.isEmpty()) {
-            ToastHelper.show(this, text);
-        }
-    }
-
-    protected void showSnackbar(int textResourceId, int duration){
-        showSnackbar(this.getString(textResourceId), duration);
-    }
-
-    protected void showSnackbar(int textResourceId){
-        showSnackbar(this.getString(textResourceId), Snackbar.LENGTH_SHORT);
-    }
-
-    protected void showSnackbar (String text) {
-        showSnackbar(text, Snackbar.LENGTH_SHORT);
-    }
-
-    protected void showSnackbar (String text, int duration) {
-        if (!text.isEmpty()) {
-            if (snackbar == null) {
-                snackbar = Snackbar.make(getContentView(), text, duration);
-                snackbar.addCallback(new Snackbar.Callback() {
-                    @Override
-                    public void onDismissed(Snackbar snackbar, int event) {
-                        BaseActivity.this.snackbar = null;
-                    }
-
-                    @Override
-                    public void onShown(Snackbar snackbar) {
-                    }
-                });
-                snackbar.show();
-
-            }
-        }
-    }
-
-    protected Consumer<? super Throwable> toastOnErrorConsumer () {
-        return (Consumer<Throwable>) throwable -> showToast(throwable.getLocalizedMessage());
-    }
-
-    protected Consumer<? super Throwable> snackbarOnErrorConsumer () {
-        return (Consumer<Throwable>) throwable -> showSnackbar(throwable.getLocalizedMessage());
-    }
-
-    protected void showProgressDialog(int stringResId) {
-        showProgressDialog(getString(stringResId));
-    }
-
-    protected void showProgressDialog(String message) {
-        if (progressDialog == null) {
-            progressDialog = new ProgressDialog(this);
-        }
-
-        if (!progressDialog.isShowing()) {
-            progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage(message);
-            progressDialog.show();
-        }
-    }
-
-    protected void showOrUpdateProgressDialog(String message) {
-        if (progressDialog == null) {
-            progressDialog = new ProgressDialog(this);
-        }
-
-        if (!progressDialog.isShowing()) {
-            progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage(message);
-            progressDialog.show();
-        } else {
-            progressDialog.setMessage(message);
-        }
-    }
-
-    protected void dismissProgressDialog() {
-        // For handling orientation changed.
-        try {
-            if (progressDialog != null && progressDialog.isShowing()) {
-                progressDialog.dismiss();
-            }
-        } catch (Exception e) {
-            ChatSDK.logError(e);
-        }
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -361,6 +279,55 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
 
     @Override
     public void onError(Throwable e) {
-        showToast(e.getLocalizedMessage());
+        alert.onError(e);
+    }
+
+    /** Show a SuperToast with the given text. */
+    protected void showToast(@StringRes int textResourceId){
+        alert.showToast(textResourceId);
+    }
+
+    protected void showToast(String text){
+        alert.showToast(text);
+    }
+
+    protected void showSnackbar(int textResourceId, int duration){
+        alert.showSnackbar(textResourceId, duration);
+    }
+
+    protected void showSnackbar(int textResourceId){
+        alert.showSnackbar(textResourceId);
+    }
+
+    protected void showSnackbar (String text) {
+        alert.showSnackbar(text);
+    }
+
+    protected void showSnackbar (String text, int duration) {
+        alert.showSnackbar(text, duration);
+    }
+
+    protected Consumer<? super Throwable> toastOnErrorConsumer () {
+        return alert.toastOnErrorConsumer();
+    }
+
+    protected Consumer<? super Throwable> snackbarOnErrorConsumer () {
+        return alert.snackbarOnErrorConsumer();
+    }
+
+    protected void showProgressDialog(int stringResId) {
+        alert.showProgressDialog(stringResId);
+    }
+
+    protected void showProgressDialog(String message) {
+        alert.showProgressDialog(message);
+    }
+
+    protected void showOrUpdateProgressDialog(String message) {
+        alert.showOrUpdateProgressDialog(message);
+    }
+
+    protected void dismissProgressDialog() {
+        alert.dismissProgressDialog();
     }
 }

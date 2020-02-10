@@ -7,6 +7,9 @@
     <color name="button_success">#78b737</color>
     <color name="message_input_border">#E7E7E7</color>
 
+    <color name="red">#CC1515</color>
+    <color name="light_gray">#A5A5A5</color>
+
     <color name="primary_green">@android:color/holo_green_light</color>
     <color name="primary_green_dark">@android:color/holo_green_dark</color>
     <color name="primary">@android:color/holo_blue_light</color>
@@ -25,9 +28,12 @@
     <color name="incoming_reply">#F6FFDD</color>
     <color name="incoming_message_color">#E0E0E0</color>
 
-    <color name="edit_profile_icon_color">#A5A5A5</color>
-    <color name="profile_icon_color">#A5A5A5</color>
+    <color name="edit_profile_icon_color">@color/light_gray</color>
+    <color name="profile_icon_color">@color/light_gray</color>
+    <color name="profile_blocked_icon_color">@color/red</color>
+    <color name="profile_contacts_icon_color">@color/primary_green_dark</color>
     <color name="app_bar_icon_color">#FFFFFF</color>
     <color name="popup_image_save_icon_color">#FFFFFF</color>
+    <color name="tab_icon_color">@color/light_gray</color>
 
 </resources>

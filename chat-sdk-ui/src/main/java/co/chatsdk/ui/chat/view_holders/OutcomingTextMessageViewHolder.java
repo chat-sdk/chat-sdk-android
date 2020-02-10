@@ -27,8 +27,6 @@ public class OutcomingTextMessageViewHolder
     @BindView(R2.id.replyImageView) protected ImageView replyImageView;
     @BindView(R2.id.replyTextView) protected TextView replyTextView;
 
-    ChatkitItemCustomIncomingVoiceMessageBinding b;
-
     public OutcomingTextMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
         ButterKnife.bind(this, itemView);

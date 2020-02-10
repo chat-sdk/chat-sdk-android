@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.iconics.typeface.library.fontawesome.FontAwesome;
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial;
+import com.mikepenz.iconics.typeface.library.materialdesigndx.MaterialDesignDx;
 
 import java.lang.ref.WeakReference;
 
@@ -38,6 +39,10 @@ public class Icons {
     public FontAwesome.Icon chat = FontAwesome.Icon.faw_comment;
     public GoogleMaterial.Icon check = GoogleMaterial.Icon.gmd_check;
     public FontAwesome.Icon save = FontAwesome.Icon.faw_download;
+    public GoogleMaterial.Icon block = GoogleMaterial.Icon.gmd_block;
+    public FontAwesome.Icon publicChat = FontAwesome.Icon.faw_users;
+    public FontAwesome.Icon contact = FontAwesome.Icon.faw_address_book;
+    public FontAwesome.Icon edit = FontAwesome.Icon.faw_user_edit;
 
     public static Drawable get(FontAwesome.Icon icon, @ColorRes int colorRes) {
         Context context = context();

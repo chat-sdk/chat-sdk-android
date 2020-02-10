@@ -59,9 +59,9 @@ public abstract class MainActivity extends BaseActivity {
         }
     }
 
-    abstract boolean searchEnabled();
-    abstract void search(String text);
-    abstract MaterialSearchView searchView();
+    protected abstract boolean searchEnabled();
+    protected abstract void search(String text);
+    protected abstract MaterialSearchView searchView();
 
     public void launchFromPush (Bundle bundle) {
         if (bundle != null) {

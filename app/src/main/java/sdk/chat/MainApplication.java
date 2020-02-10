@@ -72,7 +72,7 @@ public class MainApplication extends MultiDexApplication {
         }
         finally {
             ChatSDK.ui().setPrivateThreadsFragment(new CKPrivateThreadsFragment());
-//            ChatSDK.ui().setMainActivity(MainDrawActivity.class);
+            ChatSDK.ui().setMainActivity(MainDrawActivity.class);
 
             ChatSDK.ui().setAvatarGenerator(new GravatarAvatarGenerator());
 

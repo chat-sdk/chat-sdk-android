@@ -8,9 +8,11 @@
 package co.chatsdk.ui.fragments;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.StringRes;
 import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +23,7 @@ import com.google.android.material.snackbar.Snackbar;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.DisposableMap;
 import co.chatsdk.ui.activities.BaseActivity;
+import co.chatsdk.ui.utils.AlertUtils;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.CompletableObserver;
 import io.reactivex.annotations.NonNull;
@@ -32,12 +35,11 @@ import io.reactivex.functions.Consumer;
  */
 public abstract class BaseFragment extends DialogFragment implements Consumer<Throwable>, CompletableObserver {
 
-    protected ProgressDialog progressDialog;
+    protected AlertUtils alert;
 
     protected View rootView;
     protected boolean tabIsVisible;
     protected DisposableMap dm = new DisposableMap();
-    protected Snackbar snackbar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,18 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = super.onCreateView(inflater, container, savedInstanceState);
         setHasOptionsMenu(true);
+
+        alert = new AlertUtils(new AlertUtils.Provider() {
+            @Override
+            public Context getContext() {
+                return BaseFragment.this.getContext();
+            }
+            @Override
+            public View getRootView() {
+                return getView();
+            }
+        });
+
         return view;
     }
 
@@ -69,36 +83,10 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
         BaseActivity.hideKeyboard(getActivity());
     }
 
-    protected void showOrUpdateProgressDialog(String message) {
-        if (progressDialog == null)
-            progressDialog = new ProgressDialog(getActivity());
-
-        if (!progressDialog.isShowing())
-        {
-            progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setMessage(message);
-            progressDialog.show();
-        }
-        else {
-            progressDialog.setMessage(message);
-        }
-    }
-
     protected abstract void initViews();
 
     public void setTabVisibility (boolean isVisible) {
         tabIsVisible = isVisible;
-    }
-
-    protected void dismissProgressDialog() {
-        try {
-            if (progressDialog != null && progressDialog.isShowing()) {
-                progressDialog.dismiss();
-            }
-        } catch (Exception e) {
-            ChatSDK.logError(e);
-            // For handling orientation changed.
-        }
     }
 
     abstract public void clearData ();
@@ -113,11 +101,6 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
     public void onDestroyView() {
         super.onDestroyView();
         dm.dispose();
-    }
-
-    @Deprecated
-    protected Consumer<? super Throwable> toastOnErrorConsumer() {
-        return this;
     }
 
     public void onSubscribe(@NonNull Disposable d) {
@@ -144,46 +127,52 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
     }
 
     /** Show a SuperToast with the given text. */
-    protected void showToast(int textResourceId){
-        showToast(this.getString(textResourceId));
+    protected void showToast(@StringRes int textResourceId){
+        alert.showToast(textResourceId);
     }
 
     protected void showToast(String text){
-        if (!text.isEmpty()) {
-            ToastHelper.show(getContext(), text);
-        }
+        alert.showToast(text);
     }
 
     protected void showSnackbar(int textResourceId, int duration){
-        showSnackbar(getContext().getString(textResourceId), duration);
+        alert.showSnackbar(textResourceId, duration);
     }
 
     protected void showSnackbar(int textResourceId){
-        showSnackbar(this.getString(textResourceId), Snackbar.LENGTH_SHORT);
+        alert.showSnackbar(textResourceId);
     }
 
     protected void showSnackbar (String text) {
-        showSnackbar(text, Snackbar.LENGTH_SHORT);
+        alert.showSnackbar(text);
     }
 
     protected void showSnackbar (String text, int duration) {
-        if (!text.isEmpty()) {
-            if (snackbar == null) {
-                snackbar = Snackbar.make(rootView, text, duration);
-                snackbar.addCallback(new Snackbar.Callback() {
-                    @Override
-                    public void onDismissed(Snackbar snackbar, int event) {
-                        BaseFragment.this.snackbar = null;
-                    }
+        alert.showSnackbar(text, duration);
+    }
 
-                    @Override
-                    public void onShown(Snackbar snackbar) {
-                    }
-                });
-                snackbar.show();
+    protected Consumer<? super Throwable> toastOnErrorConsumer () {
+        return alert.toastOnErrorConsumer();
+    }
 
-            }
-        }
+    protected Consumer<? super Throwable> snackbarOnErrorConsumer () {
+        return alert.snackbarOnErrorConsumer();
+    }
+
+    protected void showProgressDialog(int stringResId) {
+        alert.showProgressDialog(stringResId);
+    }
+
+    protected void showProgressDialog(String message) {
+        alert.showProgressDialog(message);
+    }
+
+    protected void showOrUpdateProgressDialog(String message) {
+        alert.showOrUpdateProgressDialog(message);
+    }
+
+    protected void dismissProgressDialog() {
+        alert.dismissProgressDialog();
     }
 
 }

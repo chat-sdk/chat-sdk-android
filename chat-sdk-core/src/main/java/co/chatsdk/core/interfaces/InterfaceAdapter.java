@@ -3,6 +3,7 @@ package co.chatsdk.core.interfaces;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 
 import androidx.annotation.DrawableRes;
 import androidx.fragment.app.Fragment;
@@ -75,13 +76,13 @@ public interface InterfaceAdapter {
     Tab privateThreadsTab ();
     Tab publicThreadsTab ();
     Tab contactsTab ();
-    Tab profileTab ();
+//    Tab profileTab ();
 
     void addTab(Tab tab);
     void addTab(Tab tab, int index);
 
-    void addTab(String title, int icon, Fragment fragment);
-    void addTab(String title, int icon, Fragment fragment, int index);
+    void addTab(String title, Drawable icon, Fragment fragment);
+    void addTab(String title, Drawable icon, Fragment fragment, int index);
 
     void removeTab(int index);
 

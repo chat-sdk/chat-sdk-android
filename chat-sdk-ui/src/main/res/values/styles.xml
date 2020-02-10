@@ -42,7 +42,15 @@
         <item name="android:padding">2dp</item>
     </style>
 
-<!--    <style name="SocialLoginButton">-->
+    <style name="BlockSwitchTheme" >
+        <item name="colorControlActivated">@color/profile_blocked_icon_color</item>
+    </style>
+
+    <style name="ContactSwitchTheme" >
+        <item name="colorControlActivated">@color/profile_contacts_icon_color</item>
+    </style>
+
+    <!--    <style name="SocialLoginButton">-->
 <!--        <item name="android:layout_width">50dp</item>-->
 <!--        <item name="android:layout_height">50dp</item>-->
 <!--        <item name="android:layout_marginTop">@dimen/login_button_outer_margin</item>-->

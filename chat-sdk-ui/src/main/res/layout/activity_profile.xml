@@ -6,8 +6,8 @@
         android:animateLayoutChanges="true"
         android:fitsSystemWindows="true">
 
-        <include
-            layout="@layout/toolbar_default"/>
+<!--        <include-->
+<!--            layout="@layout/toolbar_default"/>-->
 
 <!--        <androidx.fragment.app.FragmentContainerView-->
 <!--            android:id="@+id/profileFragment"-->
@@ -21,8 +21,7 @@
             android:name="co.chatsdk.ui.fragments.ProfileFragment"
             android:id="@+id/profileFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/toolbar">
+            android:layout_height="match_parent">
         </fragment>
 
     </RelativeLayout>

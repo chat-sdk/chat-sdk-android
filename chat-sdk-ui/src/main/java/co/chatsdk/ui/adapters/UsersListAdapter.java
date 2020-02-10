@@ -7,14 +7,18 @@
 
 package co.chatsdk.ui.adapters;
 
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.SparseBooleanArray;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import co.chatsdk.core.interfaces.UserListItem;
+import co.chatsdk.ui.R;
+import co.chatsdk.ui.databinding.ViewUserRowBinding;
 import co.chatsdk.ui.view_holders.UserViewHolder;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
@@ -56,7 +60,8 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new UserViewHolder(parent);
+        ViewUserRowBinding b = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.view_user_row, parent, false);
+        return new UserViewHolder(b.getRoot(), b);
     }
 
     @Override
@@ -64,9 +69,10 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         UserViewHolder viewHolder = (UserViewHolder) holder;
         UserListItem item = items.get(position);
-        viewHolder.bind(item);
 
         viewHolder.setMultiSelectEnabled(multiSelectEnabled);
+        viewHolder.bind(item);
+
         if (multiSelectEnabled) {
             viewHolder.setChecked(selectedUsersPositions.get(position));
         }

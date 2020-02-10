@@ -32,7 +32,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 public class ProfileActivity extends BaseActivity {
 
     protected User user;
-    protected boolean startingChat = false;
     protected MenuItem chatMenuItem;
 
     @Override
@@ -54,6 +53,7 @@ public class ProfileActivity extends BaseActivity {
 
         ToastHelper.show(this, R.string.user_entity_id_not_set);
         finish();
+
     }
 
     @Override
@@ -61,56 +61,30 @@ public class ProfileActivity extends BaseActivity {
         return R.layout.activity_profile;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.activity_profile_menu, menu);
-
-        menu.findItem(R.id.action_chat).setIcon(Icons.get(Icons.shared().chat, R.color.app_bar_icon_color));
-//        IconicsMenuInflaterUtil.inflate(inflater, this, R.menu.activity_profile_menu, menu);
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        /* Cant use switch in the library*/
-        int id = item.getItemId();
-
-        if (id == R.id.action_chat) {
-            startChat();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void startChat () {
-
-        if (startingChat) {
-            return;
-        }
-
-        startingChat = true;
-
-        showProgressDialog(getString(R.string.creating_thread));
-
-
-        dm.add(ChatSDK.thread().createThread("", user, ChatSDK.currentUser())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doFinally(() -> {
-                    dismissProgressDialog();
-                    startingChat = false;
-                })
-                .subscribe(thread -> {
-                    ChatSDK.ui().startChatActivityForID(getApplicationContext(), thread.getEntityID());
-                }, throwable -> {
-                    ToastHelper.show(getApplicationContext(), throwable.getLocalizedMessage());
-                }));
-
-
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.activity_profile_menu, menu);
+//
+//        menu.findItem(R.id.action_chat).setIcon(Icons.get(Icons.shared().chat, R.color.app_bar_icon_color));
+////        IconicsMenuInflaterUtil.inflate(inflater, this, R.menu.activity_profile_menu, menu);
+//
+//        return super.onCreateOptionsMenu(menu);
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//
+//        /* Cant use switch in the library*/
+//        int id = item.getItemId();
+//
+//        if (id == R.id.action_chat) {
+//            startChat();
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @Override
     public void onBackPressed() {

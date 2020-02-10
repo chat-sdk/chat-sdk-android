@@ -26,9 +26,9 @@ public class UserViewHolder extends RecyclerView.ViewHolder  {
 
     protected ViewUserRowBinding b;
 
-    public UserViewHolder(ViewGroup parent) {
-        super(parent);
-        b = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.view_user_row, parent, true);
+    public UserViewHolder(View view, ViewUserRowBinding binding) {
+        super(view);
+        b = binding;
 
         // Clicks are handled at the list item level
         b.checkbox.setClickable(false);
