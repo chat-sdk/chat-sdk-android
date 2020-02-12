@@ -50,7 +50,6 @@ ext {
     facebookLoginVersion = "4.38.1"
     twitterVersion = "3.3.0"
     prettyTimeVersion = "4.0.1.Final"
-    countryPickerVersion = "2.0.0"
     imageCropperVersion = "2.8.0"
     photoViewVersion = "2.3.0"
     androidDatabaseSQLCipher = "4.3.0"
@@ -64,8 +63,12 @@ ext {
     butterKnifeVersion = "10.2.1"
 
     iconicsVersion = "5.0.0-a01"
-//    iconicsVersion = "3.2.5"
     materialDrawerVersion = "8.0.0-a07"
+    iconicsMaterialDesignIconsVersion = "5.0.1.0-kotlin@aar"
+    iconicsGoogleMaterialIconsVersion = "3.0.1.4.original-kotlin@aar"
+    iconicsFontAwesomeTypefaceVersion = "5.3.1.2-kotlin@aar"
+    materialSearchVersion = "1.4.0"
+
 }
 
 allprojects {

@@ -280,6 +280,7 @@
     <string name="contacts">Contacts</string>
     <string name="invite_more_friends">Invite more friends</string>
     <string name="profile">Profile</string>
+    <string name="edit_profile">Edit Profile</string>
 
     <string-array name="availability_states">
         <item>Available</item>

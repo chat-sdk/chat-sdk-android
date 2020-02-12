@@ -3,29 +3,23 @@ package co.chatsdk.ui.activities;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Spinner;
-
-import com.mikepenz.iconics.IconicsDrawable;
-import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial;
-import com.mikepenz.iconics.typeface.library.materialdesigndx.MaterialDesignDx;
-import com.mukesh.countrypicker.CountryPicker;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import androidx.annotation.LayoutRes;
 import androidx.databinding.DataBindingUtil;
 
-import butterknife.BindView;
+import com.squareup.picasso.Picasso;
+
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
@@ -33,13 +27,14 @@ import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
+import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.databinding.ActivityEditProfileBinding;
+import co.chatsdk.ui.fragments.ProfileViewOffsetChangeListener;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.utils.ImagePickerUploader;
-import co.chatsdk.ui.utils.ToastHelper;
+import co.chatsdk.ui.views.IconEditView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
@@ -91,11 +86,6 @@ public class EditProfileActivity extends BaseActivity {
     protected void initViews() {
         super.initViews();
 
-        b.locationImageView.setImageDrawable(Icons.get(Icons.shared().location, R.color.edit_profile_icon_color));
-        b.nameImageView.setImageDrawable(Icons.get(Icons.shared().user, R.color.edit_profile_icon_color));
-        b.phoneImageView.setImageDrawable(Icons.get(Icons.shared().phone, R.color.edit_profile_icon_color));
-        b.emailImageView.setImageDrawable(Icons.get(Icons.shared().email, R.color.edit_profile_icon_color));
-
         b.avatarImageView.setOnClickListener(view -> {
             if (ChatSDK.profilePictures() != null) {
                 ChatSDK.profilePictures().startProfilePicturesActivity(this, currentUser.getEntityID());
@@ -106,24 +96,20 @@ public class EditProfileActivity extends BaseActivity {
                         b.avatarImageView.setImageURI(Uri.fromFile(new File(results.get(0).uri)));
                         avatarImageURL = results.get(0).url;
                     } else {
-                        ToastHelper.show(EditProfileActivity.this, throwable.getLocalizedMessage());
+                        showToast(throwable.getLocalizedMessage());
                     }
                 }));
             }
         });
 
-        b.countryButton.setOnClickListener(view -> {
+        b.appbar.addOnOffsetChangedListener(new ProfileViewOffsetChangeListener(b.avatarImageView));
 
-            final CountryPicker picker = new CountryPicker.Builder().with(EditProfileActivity.this).listener(country -> {
-                b.countryButton.setText(country.getName());
-                currentUser.setCountryCode(country.getCode());
-            }).build();
+        b.backdrop.setImageResource(R.drawable.header2);
 
-            picker.showDialog(EditProfileActivity.this);
-
-        });
-
-        b.logoutButton.setOnClickListener(view -> logout());
+        b.doneFab.setImageDrawable(Icons.get(Icons.shared().check, R.color.app_bar_icon_color));
+        b.doneFab.setOnClickListener(v -> saveAndExit());
+        b.logoutFab.setImageDrawable(Icons.get(Icons.shared().logout, R.color.app_bar_icon_color));
+        b.logoutFab.setOnClickListener(v -> logout());
 
         reloadData();
     }
@@ -136,17 +122,15 @@ public class EditProfileActivity extends BaseActivity {
         String location = currentUser.getLocation();
         String phoneNumber = currentUser.getPhoneNumber();
         String email = currentUser.getEmail();
-        String countryCode = currentUser.getCountryCode();
 
         int width = Dimen.from(this, R.dimen.large_avatar_width);
         int height = Dimen.from(this, R.dimen.large_avatar_height);
 
+        b.collapsingToolbar.setTitle(getString(R.string.edit_profile));
+        Picasso.get().load(currentUser.getAvatarURL()).into(b.avatarImageView);
+
         currentUser.loadAvatar(b.avatarImageView, width, height);
 
-        if (countryCode != null && !countryCode.isEmpty()) {
-            Locale l = new Locale("", countryCode);
-            b.countryButton.setText(l.getDisplayCountry());
-        }
 
         b.statusEditText.setText(status);
 
@@ -154,10 +138,28 @@ public class EditProfileActivity extends BaseActivity {
             setAvailability(availability);
         }
 
-        b.nameEditText.setText(name);
-        b.locationEditText.setText(location);
-        b.phoneEditText.setText(phoneNumber);
-        b.emailEditText.setText(email);
+        b.nameEditView.setText(name);
+        b.nameEditView.setNextFocusDown(R.id.locationEditView);
+        b.nameEditView.setIcon(Icons.get(Icons.shared().user, R.color.edit_profile_icon_color));
+        b.nameEditView.setHint(R.string.name_hint);
+        b.nameEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+
+        b.locationEditView.setText(location);
+        b.locationEditView.setNextFocusDown(R.id.phoneEditView);
+        b.locationEditView.setIcon(Icons.get(Icons.shared().location, R.color.edit_profile_icon_color));
+        b.locationEditView.setHint(R.string.location_hint);
+        b.locationEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+
+        b.phoneEditView.setText(phoneNumber);
+        b.phoneEditView.setNextFocusDown(R.id.emailEditView);
+        b.phoneEditView.setIcon(Icons.get(Icons.shared().phone, R.color.edit_profile_icon_color));
+        b.phoneEditView.setHint(R.string.phone_number_hint);
+        b.phoneEditView.setInputType(InputType.TYPE_CLASS_PHONE);
+
+        b.emailEditView.setText(email);
+        b.emailEditView.setIcon(Icons.get(Icons.shared().email, R.color.edit_profile_icon_color));
+        b.emailEditView.setHint(R.string.email_hint);
+        b.emailEditView.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
     }
 
     protected void logout () {
@@ -166,38 +168,15 @@ public class EditProfileActivity extends BaseActivity {
                 .subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getApplicationContext()), this));
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        MenuItem item = menu.add(Menu.NONE, R.id.action_save, 12, getString(R.string.action_save));
-        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(Icons.get(Icons.shared().check, R.color.app_bar_icon_color));
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        /* Cant use switch in the library*/
-        int id = item.getItemId();
-
-        if (id == R.id.action_save) {
-            saveAndExit();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     protected void saveAndExit () {
 
         String status = b.statusEditText.getText().toString().trim();
         String availability = getAvailability().trim();
-        String name = b.nameEditText.getText().toString().trim();
-        String location = b.locationEditText.getText().toString().trim();
-        String phoneNumber = b.phoneEditText.getText().toString().trim();
-        String email = b.emailEditText.getText().toString().trim();
+
+        String name = b.nameEditView.getText();
+        String location = b.locationEditView.getText();
+        String phoneNumber = b.phoneEditView.getText();
+        String email = b.emailEditView.getText();
 
         currentUser.setStatus(status);
         currentUser.setAvailability(availability);
@@ -305,5 +284,4 @@ public class EditProfileActivity extends BaseActivity {
         b.availabilitySpinner.setSelection(getIndex(b.availabilitySpinner, availability));
 
     }
-
 }

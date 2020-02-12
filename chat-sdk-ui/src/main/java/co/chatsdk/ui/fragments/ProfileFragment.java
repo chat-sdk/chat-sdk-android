@@ -5,9 +5,6 @@ import androidx.annotation.LayoutRes;
 import androidx.databinding.DataBindingUtil;
 
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -25,7 +22,6 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.databinding.FragmentProfileBinding;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.utils.AvailabilityHelper;
-import co.chatsdk.ui.utils.ToastHelper;
 import co.chatsdk.ui.views.IconItemView;
 import co.chatsdk.ui.views.SwitchItemView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -35,9 +31,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
  */
 
 public class ProfileFragment extends BaseFragment {
-
-    public static int ProfileDetailRowHeight = 25;
-    public static int ProfileDetailMargin = 8;
 
     protected User user;
     protected boolean startingChat = false;
@@ -101,15 +94,14 @@ public class ProfileFragment extends BaseFragment {
         setupTouchUIToDismissKeyboard(rootView, R.id.avatarImageView);
 
         if (ChatSDK.profilePictures() != null) {
-            b.avatarImageView2.setOnClickListener(v -> {
+            b.avatarImageView.setOnClickListener(v -> {
                 ChatSDK.profilePictures().startProfilePicturesActivity(getContext(), getUser().getEntityID());
             });
         }
 
         b.backdrop.setImageResource(R.drawable.header2);
 
-        b.appbar.addOnOffsetChangedListener(new ProfileViewOffsetChangeListener(b));
-
+        b.appbar.addOnOffsetChangedListener(new ProfileViewOffsetChangeListener(b.avatarContainerLayout));
 
         reloadData();
     }
@@ -216,15 +208,23 @@ public class ProfileFragment extends BaseFragment {
             b.fab.setOnClickListener(v -> {
                 showEditProfileScreen();
             });
+            b.onlineIndicator.setVisibility(View.GONE);
         } else {
             b.fab.setImageDrawable(Icons.get(Icons.shared().chat, R.color.white));
             b.fab.setOnClickListener(v -> {
                 startChat();
             });
+            b.onlineIndicator.setVisibility(View.VISIBLE);
+
+            if (user.getIsOnline()) {
+                b.onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_online_big);
+            } else {
+                b.onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_offline_big);
+            }
         }
 
         b.collapsingToolbar.setTitle(user.getName());
-        Picasso.get().load(user.getAvatarURL()).into(b.avatarImageView2);
+        Picasso.get().load(user.getAvatarURL()).into(b.avatarImageView);
 
         if (StringChecker.isNullOrEmpty(user.getStatus())) {
             b.statusCardView.setVisibility(View.GONE);

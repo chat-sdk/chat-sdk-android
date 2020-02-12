@@ -200,28 +200,12 @@ public class User extends AbstractEntity implements UserListItem {
         return metaStringForKey(Keys.Email);
     }
 
-    public String getCountryCode () {
-        return metaStringForKey(Keys.CountryCode);
-    }
-
-    public void setCountryCode (String code) {
-        setMetaString(Keys.CountryCode, code);
-    }
-
-    public void setDateOfBirth (String date) {
-        setMetaString(Keys.DateOfBirth, date);
-    }
-
     public void setStatus (String status) {
         setMetaString(Keys.Status, status);
     }
 
     public String getStatus () {
         return metaStringForKey(Keys.Status);
-    }
-
-    public String getDateOfBirth () {
-        return metaStringForKey(Keys.DateOfBirth);
     }
 
     public String getPhoneNumber () {

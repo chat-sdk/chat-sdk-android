@@ -32,7 +32,9 @@
                     android:layout_marginTop="8dp"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:civ_circle_background_color="@color/white"
+                    />
 
                 <FrameLayout
                     android:id="@+id/threadUsersFrame"

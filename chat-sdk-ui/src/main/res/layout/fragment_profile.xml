@@ -21,8 +21,6 @@
                     android:layout_height="match_parent"
                     android:fitsSystemWindows="true"
                     app:contentScrim="?attr/colorPrimary"
-                    app:expandedTitleMarginEnd="64dp"
-                    app:expandedTitleMarginStart="48dp"
                     app:collapsedTitleGravity="center_vertical|start"
                     app:expandedTitleGravity="center_horizontal|center_vertical"
                     app:expandedTitleMarginTop="12dp"
@@ -70,7 +68,7 @@
 
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
                 <LinearLayout
@@ -100,7 +98,7 @@
                             android:paddingLeft="16dp"
                             android:paddingTop="20dp"
                             android:paddingRight="16dp"
-                            android:paddingBottom="8dp">
+                            android:paddingBottom="16dp">
 
                             <TextView
                                 android:id="@+id/statusTitleTextView"
@@ -176,16 +174,40 @@
                 app:layout_anchor="@id/appbar"
                 app:layout_anchorGravity="bottom|end" />
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/avatarImageView2"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
+            <RelativeLayout
+                android:id="@+id/avatarContainerLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 app:layout_anchor="@id/appbar"
-                android:alpha="0.5"
-                app:civ_border_width="5dp"
-                app:civ_border_color="@color/white"
                 app:layout_anchorGravity="center|bottom"
-                />
+                >
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/avatarImageView"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    app:civ_border_width="5dp"
+                    app:civ_circle_background_color="@color/white"
+                    app:civ_border_color="@color/white"
+                    />
+
+                <View
+                    android:id="@+id/onlineIndicator"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+
+                    android:layout_marginTop="20dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_marginEnd="12dp"
+
+                    android:background="@drawable/chatkit_shape_bubble_online_big"
+
+                    android:layout_alignRight="@id/avatarImageView"
+                    android:layout_alignEnd="@id/avatarImageView"
+                    android:layout_alignTop="@id/avatarImageView"
+                    />
+
+            </RelativeLayout>
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

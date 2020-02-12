@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <FrameLayout
         android:id="@id/dialogRootLayout"
         android:layout_width="match_parent"
@@ -16,6 +17,7 @@
                 android:layout_width="@dimen/dialog_avatar_width"
                 android:layout_height="@dimen/dialog_avatar_height"
                 android:layout_margin="16dp"
+                app:civ_circle_background_color="@color/white"
                 />
 
             <TextView
@@ -63,7 +65,9 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_marginEnd="7dp"
-                    android:layout_marginRight="7dp"/>
+                    android:layout_marginRight="7dp"
+                    app:civ_circle_background_color="@color/white"
+                    />
 
                 <TextView
                     android:id="@id/dialogLastMessage"

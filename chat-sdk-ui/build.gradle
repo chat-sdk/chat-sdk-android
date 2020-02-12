@@ -67,10 +67,8 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     implementation "com.google.android.libraries.places:places:$googlePlacesVersion"
     implementation "org.ocpsoft.prettytime:prettytime:$rootProject.ext.prettyTimeVersion"
-    implementation "com.github.mukeshsolanki:country-picker-android:$rootProject.ext.countryPickerVersion"
     implementation "com.theartofdev.edmodo:android-image-cropper:$rootProject.ext.imageCropperVersion"
     implementation "com.github.chrisbanes:PhotoView:$rootProject.ext.photoViewVersion"
-//    implementation "com.leinardi.android:speed-dial:$speedDial"
     implementation "com.jakewharton.picasso:picasso2-okhttp3-downloader:$okHttpDownloaderVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
 
@@ -81,10 +79,10 @@ dependencies {
     implementation "com.github.siyamed:android-shape-imageview:$shapeImageViewVersion"
     api "co.chatsdk.chatsdk:chatkit:$chatKit"
 
-    implementation 'com.mikepenz:material-design-icons-dx-typeface:5.0.1.0-kotlin@aar'
-    implementation 'com.mikepenz:google-material-typeface:3.0.1.4.original-kotlin@aar'
-    implementation 'com.mikepenz:fontawesome-typeface:5.3.1.2-kotlin@aar'
-    implementation 'com.mikepenz:octicons-typeface:3.2.0.6-kotlin@aar'
+    implementation "com.mikepenz:material-design-icons-dx-typeface:$iconicsMaterialDesignIconsVersion"
+    implementation "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
+    implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
+//    implementation 'com.mikepenz:octicons-typeface:3.2.0.6-kotlin@aar'
 
     implementation "com.mikepenz:iconics-core:$iconicsVersion"
     implementation "com.mikepenz:iconics-views:$iconicsVersion"
@@ -96,5 +94,5 @@ dependencies {
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
 
-    implementation 'com.miguelcatalan:materialsearchview:1.4.0'
+    implementation "com.miguelcatalan:materialsearchview:$materialSearchVersion"
 }

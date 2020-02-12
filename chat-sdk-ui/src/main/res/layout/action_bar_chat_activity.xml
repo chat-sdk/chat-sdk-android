@@ -43,7 +43,9 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/icn_100_profile" />
+                        app:srcCompat="@drawable/icn_100_profile"
+                        app:civ_circle_background_color="@color/white"
+                        />
 
                     <TextView
                         android:id="@+id/subtitleTextView"

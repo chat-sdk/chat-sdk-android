@@ -24,7 +24,9 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintVertical_bias="0.0"
+                app:civ_circle_background_color="@color/white"
+                />
 
             <View
                 android:id="@+id/onlineIndicator"
@@ -59,28 +61,28 @@
                 android:enabled="true"
                 android:padding="10dp"
                 android:visibility="invisible"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginTop="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginBottom="8dp" />
+                />
 
             <TextView
                 android:id="@+id/statusTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="15dp"
+                android:layout_width="0dp"
+                android:layout_height="16dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginTop="0dp"
-                android:textSize="12sp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:scrollHorizontally="true"
+                android:textSize="12sp"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintLeft_toRightOf="@+id/avatarImageView"
-                app:layout_constraintRight_toLeftOf="@+id/checkbox"
+                app:layout_constraintRight_toLeftOf="@+id/availabilityImageView"
                 app:layout_constraintTop_toBottomOf="@+id/nameTextView" />
 
             <ImageView

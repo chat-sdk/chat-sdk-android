@@ -5,32 +5,28 @@ import android.content.res.Resources;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
-
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.google.android.material.appbar.AppBarLayout;
 
-import org.pmw.tinylog.Logger;
-
 import co.chatsdk.ui.databinding.FragmentProfileBinding;
-import io.reactivex.functions.Action;
 
 public class ProfileViewOffsetChangeListener implements AppBarLayout.OnOffsetChangedListener {
 
-    FragmentProfileBinding b;
 
-    int avatarWidth;
-    int avatarHeight;
+//    int avatarWidth;
+//    int avatarHeight;
 
     float lastFraction;
 
-    public ProfileViewOffsetChangeListener(FragmentProfileBinding b) {
-        this.b = b;
-        avatarHeight = b.avatarImageView2.getLayoutParams().height;
-        avatarWidth = b.avatarImageView2.getLayoutParams().width;
+    AlphaAnimation alphaAnimation;
+
+    View view;
+
+    public ProfileViewOffsetChangeListener(View view) {
+        this.view = view;
     }
 
     @Override
@@ -39,39 +35,68 @@ public class ProfileViewOffsetChangeListener implements AppBarLayout.OnOffsetCha
 
 //        float abHeight = appBarLayout.getMeasuredHeight();
 
-        b.avatarImageView2.setAlpha(1.6f - fraction / 0.35f);
+        // If we are opening
+//        if (lastFraction > fraction) {
+//            if (fraction < 0.1 && alphaAnimation == null) {
+//                alphaAnimation = new AlphaAnimation(avatarImageView.getAlpha(), 1f);
+//                alphaAnimation.setDuration(200);
+////                alphaAnimation.setFillAfter(true);
+//                alphaAnimation.setInterpolator(new AccelerateInterpolator());
+//                alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
+//                    @Override
+//                    public void onAnimationStart(Animation animation) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onAnimationEnd(Animation animation) {
+//                        alphaAnimation = null;
+//                        avatarImageView.setAlpha(1f);
+//                    }
+//
+//                    @Override
+//                    public void onAnimationRepeat(Animation animation) {
+//
+//                    }
+//                });
+//                avatarImageView.startAnimation(alphaAnimation);
+//            }
+//        } else {
+            view.setAlpha(1.6f - fraction / 0.35f);
+//        }
+
 //        b.toolbar.setAlpha(fraction / 0.25f);
 
 //        if (fraction < 0.25) {
-//            b.avatarImageView2.setAlpha(Math.round(1 - fraction / 0.25f));
+//            b.avatarImageView.setAlpha(Math.round(1 - fraction / 0.25f));
 //        } else {
-//            b.avatarImageView2.setAlpha(0);
+//            b.avatarImageView.setAlpha(0);
 //        }
 
-//        b.avatarImageView2.getLayoutParams().height = Math.round(avatarHeight * fraction);
-//        b.avatarImageView2.setScaleX(1 - 0.5f * fraction);
-//        b.avatarImageView2.setScaleY(1 - 0.5f * fraction);
-//        b.avatarImageView2.setTranslationX(-(1-fraction) * 300);
-//        b.avatarImageView2.setTranslationY((1-fraction) * 500);
-//        b.avatarImageView2.setScaleX(fraction);
+//        b.avatarImageView.getLayoutParams().height = Math.round(avatarHeight * fraction);
+//        b.avatarImageView.setScaleX(1 - 0.5f * fraction);
+//        b.avatarImageView.setScaleY(1 - 0.5f * fraction);
+//        b.avatarImageView.setTranslationX(-(1-fraction) * 300);
+//        b.avatarImageView.setTranslationY((1-fraction) * 500);
+//        b.avatarImageView.setScaleX(fraction);
 
 
 //        CoordinatorLayout.LayoutParams params = getAvatarImageViewLayoutParams();
 //        params.width = 700;
 //        params.height = Math.round(avatarHeight * fraction);
 //        params.width = Math.round(avatarWidth * fraction);
-//        b.avatarImageView2.setLayoutParams(params);
+//        b.avatarImageView.setLayoutParams(params);
 
 
 //        if (lastFraction < 0.5 && fraction >= 0.5) {
-//            b.avatarImageView2.startAnimation(scale(1, 0, () -> {
-//                b.avatarImageView2.setVisibility(View.INVISIBLE);
+//            b.avatarImageView.startAnimation(scale(1, 0, () -> {
+//                b.avatarImageView.setVisibility(View.INVISIBLE);
 //            }));
 //        }
 //        if (lastFraction >= 0.5 && fraction < 0.5) {
-//            b.avatarImageView2.setVisibility(View.VISIBLE);
-//            b.avatarImageView2.startAnimation(scale(0, 1, () -> {
-//                b.avatarImageView2.clearAnimation();
+//            b.avatarImageView.setVisibility(View.VISIBLE);
+//            b.avatarImageView.startAnimation(scale(0, 1, () -> {
+//                b.avatarImageView.clearAnimation();
 //            }));
 //        }
 
@@ -84,7 +109,7 @@ public class ProfileViewOffsetChangeListener implements AppBarLayout.OnOffsetCha
 
 
 //    public CoordinatorLayout.LayoutParams getAvatarImageViewLayoutParams() {
-//        return (CoordinatorLayout.LayoutParams) b.avatarImageView2.getLayoutParams();
+//        return (CoordinatorLayout.LayoutParams) b.avatarImageView.getLayoutParams();
 //    }
 
 //    public ScaleAnimation scale(float from, float to, Runnable onComplete) {

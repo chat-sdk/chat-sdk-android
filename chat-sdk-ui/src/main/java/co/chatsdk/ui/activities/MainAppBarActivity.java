@@ -66,11 +66,6 @@ public class MainAppBarActivity extends MainActivity {
     protected void initViews() {
         super.initViews();
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setHomeAsUpIndicator(Icons.get(Icons.shared().user, R.color.white));
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-
         b.tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
         // Only creates the adapter if it wasn't initiated already
@@ -110,6 +105,15 @@ public class MainAppBarActivity extends MainActivity {
         TabLayout.Tab tab = b.tabLayout.getTabAt(0);
         if (tab != null) {
             tabSelected(tab);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setHomeAsUpIndicator(Icons.get(Icons.shared().user, R.color.app_bar_icon_color));
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }
 

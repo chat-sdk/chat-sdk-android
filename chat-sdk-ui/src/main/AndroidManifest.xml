@@ -42,7 +42,7 @@
             android:theme="@style/ChatSDKSlidingTransactionTheme"/>
 
         <activity android:name=".activities.EditProfileActivity"
-            android:windowSoftInputMode="stateHidden"
+            android:windowSoftInputMode="stateHidden|adjustPan"
             android:theme="@style/ChatSDKTheme"/>
 
         <activity android:name=".activities.SearchActivity"

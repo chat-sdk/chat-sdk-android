@@ -73,10 +73,7 @@ public class Keys {
     public static final String MessageFileURL = "file-url";
 
     // CoreUser details
-    public static final String Gender = "gender";
-    public static final String CountryCode = "country-code";
     public static final String Location = "location";
-    public static final String DateOfBirth = "date-of-birth";
     public static final String Status = "status";
 
     public static final String IntentKeyUserEntityID = "user-entity-id";

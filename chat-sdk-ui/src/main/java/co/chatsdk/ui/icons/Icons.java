@@ -12,12 +12,8 @@ import androidx.core.content.ContextCompat;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.iconics.typeface.library.fontawesome.FontAwesome;
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial;
-import com.mikepenz.iconics.typeface.library.materialdesigndx.MaterialDesignDx;
 
 import java.lang.ref.WeakReference;
-
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.Dimen;
 
 public class Icons {
 
@@ -43,17 +39,24 @@ public class Icons {
     public FontAwesome.Icon publicChat = FontAwesome.Icon.faw_users;
     public FontAwesome.Icon contact = FontAwesome.Icon.faw_address_book;
     public FontAwesome.Icon edit = FontAwesome.Icon.faw_user_edit;
+    public FontAwesome.Icon logout = FontAwesome.Icon.faw_sign_out_alt;
 
-    public static Drawable get(FontAwesome.Icon icon, @ColorRes int colorRes) {
-        Context context = context();
+    public static Drawable get(Context context, FontAwesome.Icon icon, @ColorRes int colorRes) {
         int color = ContextCompat.getColor(context, colorRes);
         IconicsDrawable drawable = new IconicsDrawable(shared().context.get(), icon);
         drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_OVER));
         return new BitmapDrawable(context.getResources(), drawable.toBitmap());
     }
 
+    public static Drawable get(FontAwesome.Icon icon, @ColorRes int colorRes) {
+        return get(context(), icon, colorRes);
+    }
+
     public static Drawable get(GoogleMaterial.Icon icon, @ColorRes int colorRes) {
-        Context context = context();
+        return get(context(), icon, colorRes);
+    }
+
+    public static Drawable get(Context context, GoogleMaterial.Icon icon, @ColorRes int colorRes) {
         int color = ContextCompat.getColor(context, colorRes);
         IconicsDrawable drawable = new IconicsDrawable(shared().context.get(), icon);
         drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_OVER));
