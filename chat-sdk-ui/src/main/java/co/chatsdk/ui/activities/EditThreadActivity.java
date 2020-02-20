@@ -41,9 +41,6 @@ import io.reactivex.functions.BiConsumer;
  */
 public class EditThreadActivity extends BaseActivity {
 
-    /** Set true if you want slide down animation for this context exit. */
-    protected boolean animateExit = false;
-
     protected ActionBar actionBar;
     protected String threadEntityID;
 
@@ -201,11 +198,7 @@ public class EditThreadActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         setResult(Activity.RESULT_OK);
-
         finish();
-        if (animateExit) {
-            overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
-        }
     }
 
     @Override

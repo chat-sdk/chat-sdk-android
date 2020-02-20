@@ -11,9 +11,6 @@
     <dimen name="message_image_width">300dp</dimen>
     <dimen name="message_image_height">300dp</dimen>
 
-    <dimen name="message_icon_width">@dimen/small_icon_width</dimen>
-    <dimen name="message_icon_height">@dimen/small_icon_height</dimen>
-
     <dimen name="small_avatar_width">@dimen/small_icon_width</dimen>
     <dimen name="small_avatar_height">@dimen/small_icon_height</dimen>
 

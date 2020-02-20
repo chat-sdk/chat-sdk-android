@@ -105,6 +105,7 @@ public interface InterfaceAdapter {
     void startProfileActivity(Context context, String userEntityID);
     void startProfileActivity(Context context, String userEntityID, Bundle options);
     void startEditProfileActivity(Context context, String userEntityID);
+    public void startEditProfileActivity(Context context, String userEntityID, Bundle bundle);
 
     void startMainActivity (Context context);
     void startMainActivity (Context context, HashMap<String, Object> extras);

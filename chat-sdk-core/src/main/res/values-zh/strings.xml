@@ -256,8 +256,8 @@
     <string name="availability_busy">忙</string>
     <string name="availability_extended_away">延长离开</string>
 
-    
-    <string name="conversations">对话</string>
+
+    <string name="conversations__" formatted="false">对话%s</string>
     <string name="chat_rooms">聊天室</string>
     <string name="contacts">往来</string>
     <string name="invite_more_friends">邀请更多朋友</string>
@@ -269,13 +269,6 @@
         <item>延长离开</item>
         <item>忙</item>
     </string-array>
-
-    
-        
-        
-        
-        
-    
 
     <string name="forgot_password">忘记密码</string>
     <string name="requesting">请求</string>

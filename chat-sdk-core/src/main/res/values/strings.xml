@@ -4,270 +4,113 @@
 
     <string name="image_message">Image</string>
     <string name="location_message">Location</string>
-    <string name="unknown_message">Unknown Message</string>
-    <string name="no_messages">No Messages</string>
     <string name="audio_message">Recording</string>
     <string name="video_message">Video</string>
     <string name="sticker_message">Sticker</string>
     <string name="file_message">File</string>
-    <string name="thread">Thread</string>
     <string name="no_name">No Name</string>
 
     <string name="register">Register</string>
     <string name="login">Login</string>
     <string name="anonymous_login">Anonymous Login</string>
-    <string name="loading">Loading&#8230;</string>
     <string name="email">Email</string>
-    <string name="sms">SMS</string>
     <string name="password">Password</string>
     <string name="logout">Logout</string>
     <string name="search">Search</string>
-    <string name="add_contacts">Add to Contacts</string>
-    <string name="delete_contact">Remove Contact</string>
     <string name="add_users">Add Users</string>
-    <string name="start_chat">Start Chat</string>
-    <string name="contacts_upper_case">CONTACTS</string>
-    <string name="select_all">Select All</string>
-    <string name="send_location">Send this location</string>
-    <string name="search_upper_case">SEARCH</string>
-    <string name="send">Send</string>
     <string name="tap_here_for_contact_info">Tap here for contact info</string>
     <string name="search_with_name">Search with name</string>
-    <string name="add_conversation">Add Conversation</string>
-    <string name="creating_thread">Creating Thread</string>
     <string name="search_field_empty">Search field is empty</string>
 
     <string name="new_chat">New Chat</string>
 
-    <string name="send_mail">Send Mail</string>
-    <string name="there_are_no_email_clients_installed">Send Mail</string>
-
-
     <string name="thread_users_have_no_valid_avatar_urls">Thread users have no valid avatar URLs</string>
-    <string name="could_not_save_composite_thread_image_to_file">Could not save composite thread image to file</string>
-    <string name="thread_image_could_not_be_created">Thread image could not be created</string>
     <string name="__typing" formatted="false">%s typing...</string>
     <string name="message_doesnt_have_a_thread">Message doesn\'t have a thread</string>
-    <string name="login_method_doesnt_exist">Login method doesn\'t exist</string>
-    <string name="seconds_remaining__">Seconds remaining %d</string>
-    <string name="audio_length_limit_reached">Audio length limit reached</string>
-    <string name="send_or_discard_recording">Send or discard recording</string>
-    <string name="recording_cancelled">Recording cancelled</string>
-    <string name="recording_too_short">Recording too short</string>
-
-    <!--ThreadDetails context-->
-    <string name="thread_details_activity_title">Thread Details</string>
-    <string name="thread_details_activity_change_name_dialog_title">Set thread name</string>
 
     <!--CoreMessage list adapter-->
     <string name="message_adapter_no_google_maps">This device does not have google maps</string>
-    <string name="message_adapter_load_image_fail">Can\'t show image</string>
 
     <!-- Login Activity-->
-    <string name="chat_sdk__version_label">Version:</string>
     <string name="login_activity_no_mail_toast">Please enter your email</string>
     <string name="login_activity_no_password_toast">Please enter password</string>
-    <string name="login_activity_facebook_connection_fail_toast">Failed to connect to Facebook</string>
     <string name="login_activity_failed_to_login_toast">Failed to connect</string>
     <string name="login_activity_failed_to_register_toast">Failed to register</string>
-
-    <!--BaseFragment/BaseActivity-->
-    <string name="create_thread_with_users_fail_toast">Failed to start chat</string>
-    <string name="delete_thread_fail_toast">Unable to delete thread</string>
-    <string name="delete_thread_success_toast">Thread is deleted</string>
-
-    <!--ChatActivity-->
-    <string name="chat_activity_no_more_messages_to_load_toast">There is no new messages to load&#8230;</string>
-    <string name="chat_activity_add_item_text">Add contact to chat</string>
-    <string name="chat_activity_show_users_item_text">Show thread users</string>
-    <string name="chat_activity_show_thread_details">Thread Details</string>
-    <string name="thread_users">Thread users:</string>
-
-    <!--ChatSDKAbstractContactsFragment-->
-    <string name="abstract_contact_fragment_user_added_to_thread_toast_success">User added to thread, Name:&#160;</string>
-    <string name="abstract_contact_fragment_user_added_to_thread_toast_fail">Can\'t add user to thread.</string>
-    <string name="abstract_contact_fragment_share_with_contact_toast_fail_unknown_type">Problem sharing contact, Unknown share type.</string>
-
-    <!--ShareWithContactsActivity-->
-    <string name="share_activity_error_getting_share_data">Error getting share data</string>
 
     <!--SelectContactActivity-->
     <string name="pick_friends_activity_no_users_selected_toast">Please select at least one user</string>
     <string name="pick_friends_activity_prog_dialog_add_to_convo_message">Adding users to thread&#8230;</string>
     <string name="pick_friends_activity_prog_dialog_open_new_convo_message">Creating thread&#8230;</string>
-    <string name="pick_friends_activity_prog_group_name_dialog">Group Name</string>
 
     <!--ExitHelper-->
-    <string name="exit_helper_double_tap_toast">click back again to exit</string>
     <!-- Exit Dialog-->
-    <string name="alert_exit">Are you sure you want to exit?</string>
-    <string name="exit">Exit</string>
-    <string name="stay">Stay</string>
-    <string name="create">Create</string>
     <string name="cancel">Cancel</string>
     <string name="submit">Submit</string>
-    <string name="ok">OK</string>
 
-    <string name="permission_record_audio_title">Microphone Access</string>
-    <string name="permission_record_audio_message">Grant permission to send audio messages</string>
 
-    <string name="permission_write_external_storage_title">Gallery Access</string>
-    <string name="permission_write_external_storage_message">Grant permission to allow images to be saved to your phone</string>
-
-    <string name="permission_manage_documents_storage_title">Manage Documents</string>
-    <string name="permission_manage_documents_message">Grant permission to allow your documents to be accessed</string>
-
-    <string name="permission_read_external_storage_title">Gallery Access</string>
-    <string name="permission_read_external_storage_message">Grant permission to allow images to be sent from your gallery</string>
-
-    <string name="permission_denied">Permissions must be enabled to access all the chat features</string>
-
-    <string name="permission_camera_title">Camera Access</string>
-    <string name="permission_camera_message">Grant permission to allow image messages to be sent</string>
-
-    <string name="permission_video_output_title">Camera Access</string>
-    <string name="permission_video_output_message">Grant permission to allow video messages to be sent</string>
-
-    <string name="permission_read_contacts_title">Contacts Access</string>
-    <string name="permission_read_contacts_message">Grant permission to allow contact book search</string>
-
-    <string name="permission_location_title">Location Access</string>
-    <string name="permission_location_message">Grant permission to allow discovery by other users</string>
-    <string name="permission_location_not_granted">Location permissions not granted</string>
     <string name="location_services_not_enabled">Location services not enabled</string>
     <string name="location_services_problem_message">There was a problem with the location services. Make sure you enabled them in your phone settings.</string>
     <string name="location_is_null">Location is null</string>
 
     <!--SearchActivity-->
-    <string name="search_activity_no_text_input_toast">Please enter some text for the search</string>
     <string name="search_activity_no_user_found_toast">No match found</string>
-    <string name="search_activity_no_contact_selected_toast">No contacts were selected</string>
-    <string name="search_activity_prog_dialog_init_message">Fetching&#8230;</string>
-    <string name="search_activity_prog_dialog_before_count_message">Fetching&#8230; Found:&#160;</string>
-    <string name="search_activity_searching_message">Searching</string>
+
+    <string name="add_public_chat_dialog_progress_message">Creating thread&#8230;</string>
 
     <!--PublicThreadFragment-->
-    <string name="thread_fragment_add_item_text">Create chat</string>
-
-    <!--Add public chat room dialog-->
-    <string name="add_public_chat_dialog_title">Add Chat Room</string>
-    <string name="add_public_chat_dialog_progress_message">Creating thread&#8230;</string>
-    <string name="add_public_chat_dialog_toast_success_before_thread_name">Public thread&#160;</string>
-    <string name="add_public_chat_dialog_toast_success_after_thread_name">&#160;is created.</string>
-    <string name="add_public_chat_dialog_toast_error_before_thread_name">Failed to create public thread&#160;</string>
 
     <!--Save Contact Dialog-->
     <string name="alert_save_contact">Saving</string>
     <string name="contact_book">Contact Book</string>
-    <string name="delete_message">Delete Message</string>
-
-    <!--Delete Contact Dialog-->
-    <string name="alert_delete_contact">Are you sure you want to delete this contact?</string>
 
     <!--Delete CoreThread Dialog-->
     <string name="alert_delete_thread">Are you sure you want to delete this thread?</string>
+
+    <string name="permission_denied">Permissions must be enabled to access all the chat features</string>
 
     <string name="delete">Delete</string>
 
     <!-- Login Dialog-->
     <string name="authenticating">Authenticating&#8230;</string>
-    <string name="login_activity_auth_failed">Auth Failed</string>
     <string name="connecting">Connecting&#8230;</string>
-    <string name="registering">Registering&#8230;</string>
 
     <string name="mute_notifications">Mute Notifications</string>
     <string name="unmute_notifications">Unmute Notifications</string>
 
-    <!--Acceptability-->
-    <string name="access_message_option_button">Message option button</string>
-
-        <string name="chat_sdk__action_settings">action_setting</string>
-    <string name="action_logout">Logout</string>
-    <string name="action_save">Save</string>
-    <string name="action_chat">Chat</string>
-    <string name="action_settings">Settings</string>
-    <string name="action_contact_developer">Contact Developer</string>
-    <string name="action_add_chat">Add Chat</string>
     <string name="actions">Actions</string>
-
-    <!--    <string name="done_show_again">Done show again</string>-->
-    <!--    <string name="double_back_press_exit">Use double back button pressed to exit</string>-->
-    <string name="subscription">Presence Subscription</string>
-
-    <!--Notification-->
-    <string name="not_message_title">Message</string>
-    <string name="not_message_ticker">You have a new message</string>
-
-    <string name="new_message_from__" formatted="false">New message from %s</string>
-    <string name="message_already_exists">Message already exists</string>
 
     <!--Error-->
     <string name="unable_to_fetch_image">Unable to fetch image&#8230;</string>
     <string name="unable_to_start_activity">Unable to start activity</string>
     <string name="error_processing_image">Error processing image</string>
-    <string name="error_picking_location">Error picking location</string>
     <string name="error_launching_activity">Error launching activity</string>
     <string name="error_thread_not_found">Error thread not found</string>
 
-    <string name="unable_to_save_file">Unable to save file&#8230;</string>
-    <string name="unable_to_send_location_message">Unable to send location message&#8230;</string>
-    <string name="unable_to_send_image_message">Unable to send image message&#8230;</string>
-    <string name="unable_to_send_message">unable to send message&#8230;</string>
-    <string name="file_read_permission_not_granted">Read external storage permission not granted</string>
-    <string name="record_permission_not_granted">Record permission not granted</string>
-    <string name="unable_to_save_image_to_disk">Unable to save image to disk</string>
-    <string name="couldnt_load_sticker_pack">Couldn\'t load sticker pack</string>
-    <string name="unable_to_load_image">Unable to load image</string>
-    <string name="__permission_not_granted" formatted="true">%s permission not granted. Please enable this permission in your phone\'s settings.</string>
-    <string name="error_permission_not_granted">Permission not granted: %s</string>
 
     <!--State-->
-    <string name="sending">Sending&#8230;</string>
-    <string name="not_messages_summary">%d unread messages</string>
-    <string name="unable_to_catch_image">Unable to catch image</string>
     <string name="status">Status</string>
     <string name="location_hint">Location</string>
     <string name="name_hint">Name</string>
     <string name="phone_number_hint">Phone Number</string>
     <string name="email_hint">Email</string>
     <string name="location">Location</string>
-    <string name="take_photo">Take Photo</string>
     <string name="image_or_photo">Photo</string>
-    <string name="take_video">Take Video</string>
-    <string name="choose_video">Choose Video</string>
 
     <string name="availability">Availability</string>
-    <string name="details">Details</string>
-    <string name="country">Country</string>
-    <string name="dateOfBirth">Date of birth</string>
-    <string name="follows">Follows</string>
-    <string name="followed">Followed</string>
-    <string name="block">Block</string>
     <string name="blocked">Blocked</string>
-    <string name="unblock">Unblock</string>
     <string name="contact_deleted">Contact deleted</string>
     <string name="contact_added">Contact added</string>
     <string name="contact">Contact</string>
     <string name="user_blocked">User blocked</string>
     <string name="user_unblocked">User unblocked</string>
-    <string name="user_deleted">User deleted</string>
     <string name="user_entity_id_not_set">User Entity ID not set</string>
     <string name="typing">Typing&#8230;</string>
-    <string name="recording">Recording</string>
 
     <string name="image_saved">Image saved successfully</string>
     <string name="image_save_failed">Image save failed</string>
 
 
-    <string name="male">Male</string>
-    <string name="female">Female</string>
     <string name="action_edit">Edit</string>
-    <string name="chat_sdk_edit_profile_select_country">Select Country</string>
-    <string name="chat_sdk_edit_profile_pick_birth_date">Select date of birth</string>
-    <string name="app_info">App Info</string>
-    <string name="unable_to_open_app_in_settings">Unable to open app in settings</string>
-
-    <string name="select_country">Select Country</string>
 
     <string name="availability_unavailable">Unavailable</string>
     <string name="availability_available">Available</string>
@@ -275,11 +118,9 @@
     <string name="availability_busy">Busy</string>
     <string name="availability_extended_away">Extended Away</string>
 
-    <!--Tabs-->
-    <string name="conversations">Conversations</string>
+    <string name="conversations__" formatted="false">Conversations%s</string>
     <string name="chat_rooms">Chat Rooms</string>
     <string name="contacts">Contacts</string>
-    <string name="invite_more_friends">Invite more friends</string>
     <string name="profile">Profile</string>
     <string name="edit_profile">Edit Profile</string>
 
@@ -290,93 +131,14 @@
     <string name="last_seen__" formatted="false">Last seen %s</string>
     <string name="last_seen_on__at__" formatted="false">Last seen on %s at %s</string>
 
-    <!-- AppContext -->
-    <string name="preference_database_id" translatable="false">PREFERENCE_DATABASE_SESSION_ID</string>
-
-    <!-- Hints -->
-    <string name="email_field">Email</string>
-    <string name="password_field">Password</string>
-
-    <!-- Buttons -->
-    <string name="button_login_text">Log in</string>
-    <string name="button_register_text">Register</string>
-
-    <!-- Alerts / Toasts -->
-    <string name="toast_no_email">Please enter your email</string>
-    <string name="toast_no_password">Please enter password</string>
-    <string name="toast_connection_failed">Failed to connect</string>
-    <string name="toast_password_incorrect">Username or password is incorrect</string>
-    <string name="toast_register_failed">Failed to register</string>
-    <string name="toast_connected">Connected</string>
-    <string name="toast_authenticated">Authenticated</string>
-    <string name="toast_disconnected">Server connection lost</string>
-
-    <!--Profile-->
-
-    <!-- Menu Buttons -->
-    <string name="profile_menu_button_edit">Edit</string>
-    <string name="profile_menu_button_save">Save</string>
-    <string name="profile_menu_button_cancel">Cancel</string>
-    <string name="profile_menu_button_logout">Logout</string>
-    <!-- Labels -->
-    <string name="profile_label_user_availability">Availability</string>
-
-    <!-- Placeholders -->
-    <string name="profile_placeholder_user_name">Username</string>
-    <string name="profile_hint_user_name">Username</string>
-    <string name="profile_hint_location">Location</string>
-    <string name="profile_hint_phone_number">+1 123 456 7890</string>
-    <string name="profile_hint_email">address@domain.com</string>
-    <string name="profile_hint_birthday">Day Month Year</string>
-    <string name="profile_placeholder_user_metadata_null">unavailable</string>
-
-    <!-- Alerts -->
-    <string name="profile_country_flag_clicked">Select your country</string>
-    <string name="profile_saving">Saving changes</string>
-    <string name="profile_saving_success">Saved changes</string>
-    <string name="profile_saving_fail">Save failed</string>
-
-    <!--Threads -->
-
-    <string name="thread_timestamp_placeholder">Monday hh.mm</string>
-    <string name="thread_button_send">Send</string>
-
-    <string name="thread_button_message_option">Message option button</string>
-
-    <dimen name="thread_timestamp_text_height">8sp</dimen>
-    <integer name="chat_sdk_max_message_lines">5</integer>
-    <integer name="chat_sdk_max_status_length">140</integer>
-
-    <!--Thread list item-->
-
-    <string name="thread_item_placeholder_timestamp">Yesterday hh.mm</string>
-    <string name="thread_item_placeholder_title">Title or Username</string>
-    <string name="thread_item_placeholder_last_message">Something that was said</string>
-
-
-    <string name="user_list_username">Username</string>
-    <string name="user_list_availability_placeholder">Availability</string>
-
     <string name="push_channel_name">Message Notifications</string>
-    <string name="search_threads">Search Threads</string>
-
-    <!-- Edit Thread Details -->
-    <string name="create_thread">Create Chat</string>
-
-    <string name="update_thread">Update Room</string>
-    <string name="update_thread_failed">Only the thread creator can update the thread</string>
     <string name="uploading">Uploading</string>
 
     <string name="copy">Copy</string>
-    <string name="forward">Forward</string>
     <string name="forward_message">Forward Message</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
-    <string name="copy_failed">Copy failed!</string>
-    <string name="message">Message</string>
     <string name="add_user_to_chat">Add User To Chat</string>
     <string name="success">Success!</string>
-    <string name="message_sent">Message sent!</string>
-    <string name="message_forward_failed">Message forwarded failed</string>
     <string name="online">Online</string>
     <string name="add">Add</string>
 
@@ -393,5 +155,210 @@
     <string name="will_send">Will send</string>
     <string name="sent">Sent</string>
     <string name="failed">Failed</string>
+
+    <!--    Unused-->
+<!--    <string name="unknown_message">Unknown Message</string>-->
+<!--    <string name="no_messages">No Messages</string>-->
+<!--    <string name="thread">Thread</string>-->
+<!--    <string name="loading">Loading&#8230;</string>-->
+<!--    <string name="sms">SMS</string>-->
+<!--    <string name="add_contacts">Add to Contacts</string>-->
+<!--    <string name="delete_contact">Remove Contact</string>-->
+<!--    <string name="start_chat">Start Chat</string>-->
+<!--    <string name="contacts_upper_case">CONTACTS</string>-->
+<!--    <string name="select_all">Select All</string>-->
+<!--    <string name="send_location">Send this location</string>-->
+<!--    <string name="search_upper_case">SEARCH</string>-->
+<!--    <string name="send">Send</string>-->
+<!--    <string name="add_conversation">Add Conversation</string>-->
+<!--    <string name="creating_thread">Creating Thread</string>-->
+<!--    <string name="send_mail">Send Mail</string>-->
+<!--    <string name="there_are_no_email_clients_installed">Send Mail</string>-->
+<!--    <string name="could_not_save_composite_thread_image_to_file">Could not save composite thread image to file</string>-->
+<!--    <string name="thread_image_could_not_be_created">Thread image could not be created</string>-->
+<!--    <string name="login_method_doesnt_exist">Login method doesn\'t exist</string>-->
+<!--    <string name="seconds_remaining__">Seconds remaining %d</string>-->
+
+<!--    <string name="audio_length_limit_reached">Audio length limit reached</string>-->
+<!--    <string name="send_or_discard_recording">Send or discard recording</string>-->
+<!--    <string name="recording_cancelled">Recording cancelled</string>-->
+<!--    <string name="recording_too_short">Recording too short</string>-->
+<!--    <string name="thread_details_activity_title">Thread Details</string>-->
+<!--    <string name="thread_details_activity_change_name_dialog_title">Set thread name</string>-->
+<!--    <string name="message_adapter_load_image_fail">Can\'t show image</string>-->
+<!--    <string name="chat_sdk__version_label">Version:</string>-->
+<!--    <string name="login_activity_facebook_connection_fail_toast">Failed to connect to Facebook</string>-->
+<!--    <string name="create_thread_with_users_fail_toast">Failed to start chat</string>-->
+<!--    <string name="delete_thread_fail_toast">Unable to delete thread</string>-->
+<!--    <string name="delete_thread_success_toast">Thread is deleted</string>-->
+<!--    <string name="chat_activity_no_more_messages_to_load_toast">There is no new messages to load&#8230;</string>-->
+<!--    <string name="chat_activity_add_item_text">Add contact to chat</string>-->
+<!--    <string name="chat_activity_show_users_item_text">Show thread users</string>-->
+<!--    <string name="chat_activity_show_thread_details">Thread Details</string>-->
+<!--    <string name="thread_users">Thread users:</string>-->
+<!--    <string name="abstract_contact_fragment_user_added_to_thread_toast_success">User added to thread, Name:&#160;</string>-->
+<!--    <string name="abstract_contact_fragment_user_added_to_thread_toast_fail">Can\'t add user to thread.</string>-->
+<!--    <string name="abstract_contact_fragment_share_with_contact_toast_fail_unknown_type">Problem sharing contact, Unknown share type.</string>-->
+<!--    <string name="share_activity_error_getting_share_data">Error getting share data</string>-->
+<!--    <string name="pick_friends_activity_prog_group_name_dialog">Group Name</string>-->
+<!--    <string name="exit_helper_double_tap_toast">click back again to exit</string>-->
+<!--    <string name="alert_exit">Are you sure you want to exit?</string>-->
+<!--    <string name="exit">Exit</string>-->
+<!--    <string name="stay">Stay</string>-->
+<!--    <string name="create">Create</string>-->
+<!--    <string name="ok">OK</string>-->
+
+<!--    <string name="permission_record_audio_title">Microphone Access</string>-->
+<!--    <string name="permission_record_audio_message">Grant permission to send audio messages</string>-->
+
+<!--    <string name="permission_write_external_storage_title">Gallery Access</string>-->
+<!--    <string name="permission_write_external_storage_message">Grant permission to allow images to be saved to your phone</string>-->
+
+<!--    <string name="permission_manage_documents_storage_title">Manage Documents</string>-->
+<!--    <string name="permission_manage_documents_message">Grant permission to allow your documents to be accessed</string>-->
+
+<!--    <string name="permission_read_external_storage_title">Gallery Access</string>-->
+<!--    <string name="permission_read_external_storage_message">Grant permission to allow images to be sent from your gallery</string>-->
+
+<!--    <string name="permission_camera_title">Camera Access</string>-->
+<!--    <string name="permission_camera_message">Grant permission to allow image messages to be sent</string>-->
+
+<!--    <string name="permission_video_output_title">Camera Access</string>-->
+<!--    <string name="permission_video_output_message">Grant permission to allow video messages to be sent</string>-->
+
+<!--    <string name="permission_read_contacts_title">Contacts Access</string>-->
+<!--    <string name="permission_read_contacts_message">Grant permission to allow contact book search</string>-->
+
+<!--    <string name="permission_location_title">Location Access</string>-->
+<!--    <string name="permission_location_message">Grant permission to allow discovery by other users</string>-->
+<!--    <string name="permission_location_not_granted">Location permissions not granted</string>-->
+
+<!--    <string name="search_activity_no_text_input_toast">Please enter some text for the search</string>-->
+<!--    <string name="search_activity_no_contact_selected_toast">No contacts were selected</string>-->
+<!--    <string name="search_activity_prog_dialog_init_message">Fetching&#8230;</string>-->
+<!--    <string name="search_activity_prog_dialog_before_count_message">Fetching&#8230; Found:&#160;</string>-->
+<!--    <string name="search_activity_searching_message">Searching</string>-->
+
+<!--    <string name="thread_fragment_add_item_text">Create chat</string>-->
+<!--    <string name="add_public_chat_dialog_title">Add Chat Room</string>-->
+<!--    <string name="add_public_chat_dialog_toast_success_before_thread_name">Public thread&#160;</string>-->
+<!--    <string name="add_public_chat_dialog_toast_success_after_thread_name">&#160;is created.</string>-->
+<!--    <string name="add_public_chat_dialog_toast_error_before_thread_name">Failed to create public thread&#160;</string>-->
+<!--    <string name="delete_message">Delete Message</string>-->
+<!--    <string name="alert_delete_contact">Are you sure you want to delete this contact?</string>-->
+<!--    <string name="registering">Registering&#8230;</string>-->
+<!--    <string name="login_activity_auth_failed">Auth Failed</string>-->
+<!--    <string name="access_message_option_button">Message option button</string>-->
+<!--    <string name="chat_sdk__action_settings">action_setting</string>-->
+<!--    <string name="action_logout">Logout</string>-->
+<!--    <string name="action_save">Save</string>-->
+<!--    <string name="action_chat">Chat</string>-->
+<!--    <string name="action_settings">Settings</string>-->
+<!--    <string name="action_contact_developer">Contact Developer</string>-->
+<!--    <string name="action_add_chat">Add Chat</string>-->
+<!--    <string name="subscription">Presence Subscription</string>-->
+<!--    <string name="not_message_title">Message</string>-->
+<!--    <string name="not_message_ticker">You have a new message</string>-->
+<!--    <string name="new_message_from__" formatted="false">New message from %s</string>-->
+<!--    <string name="message_already_exists">Message already exists</string>-->
+<!--    <string name="error_picking_location">Error picking location</string>-->
+<!--    <string name="unable_to_save_file">Unable to save file&#8230;</string>-->
+<!--    <string name="unable_to_send_location_message">Unable to send location message&#8230;</string>-->
+<!--    <string name="unable_to_send_image_message">Unable to send image message&#8230;</string>-->
+<!--    <string name="unable_to_send_message">unable to send message&#8230;</string>-->
+<!--    <string name="file_read_permission_not_granted">Read external storage permission not granted</string>-->
+<!--    <string name="record_permission_not_granted">Record permission not granted</string>-->
+<!--    <string name="unable_to_save_image_to_disk">Unable to save image to disk</string>-->
+<!--    <string name="couldnt_load_sticker_pack">Couldn\'t load sticker pack</string>-->
+<!--    <string name="unable_to_load_image">Unable to load image</string>-->
+<!--    <string name="__permission_not_granted" formatted="true">%s permission not granted. Please enable this permission in your phone\'s settings.</string>-->
+<!--    <string name="error_permission_not_granted">Permission not granted: %s</string>-->
+<!--    <string name="sending">Sending&#8230;</string>-->
+<!--    <string name="not_messages_summary">%d unread messages</string>-->
+<!--    <string name="unable_to_catch_image">Unable to catch image</string>-->
+<!--    <string name="take_video">Take Video</string>-->
+<!--    <string name="take_photo">Take Photo</string>-->
+<!--    <string name="choose_video">Choose Video</string>-->
+
+<!--    <string name="details">Details</string>-->
+<!--    <string name="country">Country</string>-->
+<!--    <string name="dateOfBirth">Date of birth</string>-->
+<!--    <string name="follows">Follows</string>-->
+<!--    <string name="followed">Followed</string>-->
+<!--    <string name="block">Block</string>-->
+<!--    <string name="unblock">Unblock</string>-->
+<!--    <string name="user_deleted">User deleted</string>-->
+<!--    <string name="recording">Recording</string>-->
+<!--    <string name="male">Male</string>-->
+<!--    <string name="female">Female</string>-->
+<!--    <string name="chat_sdk_edit_profile_select_country">Select Country</string>-->
+<!--    <string name="chat_sdk_edit_profile_pick_birth_date">Select date of birth</string>-->
+<!--    <string name="app_info">App Info</string>-->
+<!--    <string name="unable_to_open_app_in_settings">Unable to open app in settings</string>-->
+
+<!--    <string name="select_country">Select Country</string>-->
+<!--    <string name="invite_more_friends">Invite more friends</string>-->
+<!--    <string name="preference_database_id" translatable="false">PREFERENCE_DATABASE_SESSION_ID</string>-->
+<!--    <string name="email_field">Email</string>-->
+<!--    <string name="password_field">Password</string>-->
+<!--    <string name="button_login_text">Log in</string>-->
+<!--    <string name="button_register_text">Register</string>-->
+
+<!--    <string name="toast_no_email">Please enter your email</string>-->
+<!--    <string name="toast_no_password">Please enter password</string>-->
+<!--    <string name="toast_connection_failed">Failed to connect</string>-->
+<!--    <string name="toast_password_incorrect">Username or password is incorrect</string>-->
+<!--    <string name="toast_register_failed">Failed to register</string>-->
+<!--    <string name="toast_connected">Connected</string>-->
+<!--    <string name="toast_authenticated">Authenticated</string>-->
+<!--    <string name="toast_disconnected">Server connection lost</string>-->
+
+<!--    <string name="profile_menu_button_edit">Edit</string>-->
+<!--    <string name="profile_menu_button_save">Save</string>-->
+<!--    <string name="profile_menu_button_cancel">Cancel</string>-->
+<!--    <string name="profile_menu_button_logout">Logout</string>-->
+
+<!--    <string name="profile_label_user_availability">Availability</string>-->
+
+<!--    <string name="profile_placeholder_user_name">Username</string>-->
+<!--    <string name="profile_hint_user_name">Username</string>-->
+<!--    <string name="profile_hint_location">Location</string>-->
+<!--    <string name="profile_hint_phone_number">+1 123 456 7890</string>-->
+<!--    <string name="profile_hint_email">address@domain.com</string>-->
+<!--    <string name="profile_hint_birthday">Day Month Year</string>-->
+<!--    <string name="profile_placeholder_user_metadata_null">unavailable</string>-->
+<!--    <string name="profile_country_flag_clicked">Select your country</string>-->
+<!--    <string name="profile_saving">Saving changes</string>-->
+<!--    <string name="profile_saving_success">Saved changes</string>-->
+<!--    <string name="profile_saving_fail">Save failed</string>-->
+
+<!--    <string name="thread_timestamp_placeholder">Monday hh.mm</string>-->
+<!--    <string name="thread_button_send">Send</string>-->
+
+<!--    <string name="thread_button_message_option">Message option button</string>-->
+
+<!--    <dimen name="thread_timestamp_text_height">8sp</dimen>-->
+<!--    <integer name="chat_sdk_max_message_lines">5</integer>-->
+<!--    <integer name="chat_sdk_max_status_length">140</integer>-->
+
+<!--    <string name="thread_item_placeholder_timestamp">Yesterday hh.mm</string>-->
+<!--    <string name="thread_item_placeholder_title">Title or Username</string>-->
+<!--    <string name="thread_item_placeholder_last_message">Something that was said</string>-->
+
+
+<!--    <string name="user_list_username">Username</string>-->
+<!--    <string name="user_list_availability_placeholder">Availability</string>-->
+<!--    <string name="search_threads">Search Threads</string>-->
+
+<!--    <string name="create_thread">Create Chat</string>-->
+
+<!--    <string name="update_thread">Update Room</string>-->
+<!--    <string name="update_thread_failed">Only the thread creator can update the thread</string>-->
+<!--    <string name="forward">Forward</string>-->
+<!--    <string name="copy_failed">Copy failed!</string>-->
+<!--    <string name="message">Message</string>-->
+<!--    <string name="message_sent">Message sent!</string>-->
+<!--    <string name="message_forward_failed">Message forwarded failed</string>-->
+
 
 </resources>

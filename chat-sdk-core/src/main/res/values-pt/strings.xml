@@ -256,8 +256,8 @@
     <string name="availability_busy">Ocupado</string>
     <string name="availability_extended_away">Afastado</string>
 
-    
-    <string name="conversations">Conversas</string>
+
+    <string name="conversations__" formatted="false">Conversas%s</string>
     <string name="chat_rooms">Salas de conversa</string>
     <string name="contacts">Contatos</string>
     <string name="invite_more_friends">Convide mais amigos</string>

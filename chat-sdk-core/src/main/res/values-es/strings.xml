@@ -257,7 +257,7 @@
     <string name="availability_extended_away">Extendido de distancia</string>
 
     
-    <string name="conversations">Conversaciones</string>
+    <string name="conversations__" formatted="false">Conversaciones%s</string>
     <string name="chat_rooms">Salas de chat</string>
     <string name="contacts">Contactos</string>
     <string name="invite_more_friends">Invita mas amigos</string>

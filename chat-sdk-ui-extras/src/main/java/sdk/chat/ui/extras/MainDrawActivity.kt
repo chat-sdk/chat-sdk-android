@@ -8,6 +8,8 @@ import android.widget.ImageView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import co.chatsdk.core.events.EventType
+import co.chatsdk.core.events.NetworkEvent
 import co.chatsdk.core.interfaces.LocalNotificationHandler
 import co.chatsdk.core.session.ChatSDK
 import co.chatsdk.ui.activities.MainActivity
@@ -24,8 +26,11 @@ import com.mikepenz.materialdrawer.model.interfaces.withIcon
 import com.mikepenz.materialdrawer.model.interfaces.withName
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader
 import com.mikepenz.materialdrawer.util.DrawerImageLoader
+import com.mikepenz.materialdrawer.util.updateItemAtPosition
+import com.mikepenz.materialdrawer.util.updateName
 import com.mikepenz.materialdrawer.widget.AccountHeaderView
 import com.squareup.picasso.Picasso
+import io.reactivex.functions.Consumer
 import kotlinx.android.synthetic.main.activity_main_drawer.*
 
 class MainDrawActivity : MainActivity() {
@@ -47,12 +52,10 @@ class MainDrawActivity : MainActivity() {
         super.onCreate(savedInstanceState)
         setContentView(layout)
 
-//        ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated)).subscribe(Consumer {
-//            // Refresh the read count
-//            if(privateThreadItem !== null) {
-//                ChatSDK.db().fetchUnreadMessageCount()
-//            }
-//        })
+        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated, EventType.MessageAdded)).subscribe(Consumer {
+            // Refresh the read count
+            slider.updateName(privateThreadItem.identifier, privateTabName())
+        }))
 
         DrawerImageLoader.init(object : AbstractDrawerImageLoader() {
             override fun set(imageView: ImageView, uri: Uri, placeholder: Drawable, tag: String?) {
@@ -94,6 +97,7 @@ class MainDrawActivity : MainActivity() {
                 itemAdapter.add(item)
                 if(tab.fragment === ChatSDK.ui().privateThreadsFragment()) {
                     privateThreadItem = item
+                    slider.updateName(privateThreadItem.identifier, privateTabName())
                 }
                 if(tab.fragment === ChatSDK.ui().publicThreadsFragment()) {
                     publicThreadItem = item
@@ -117,6 +121,16 @@ class MainDrawActivity : MainActivity() {
         }
 
         setFragmentForPosition(0);
+    }
+
+    protected fun privateTabName(): StringHolder {
+        val unread = ChatSDK.thread().getUnreadMessagesAmount(false);
+        val tab = ChatSDK.ui().privateThreadsTab();
+        if (unread == 0) {
+            return StringHolder(tab.title)
+        } else {
+            return StringHolder(String.format(tab.title, " (" + unread + ")"))
+        }
     }
 
     protected fun setFragmentForPosition(position: Int) {

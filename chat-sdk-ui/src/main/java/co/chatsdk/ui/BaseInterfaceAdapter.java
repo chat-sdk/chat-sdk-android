@@ -162,7 +162,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab privateThreadsTab() {
         if (privateThreadsTab == null) {
-            privateThreadsTab = new Tab(context.get().getString(R.string.conversations), Icons.get(Icons.choose().chat, R.color.tab_icon_color), privateThreadsFragment());
+            privateThreadsTab = new Tab(String.format(context.get().getString(R.string.conversations__), ""), Icons.get(Icons.choose().chat, R.color.tab_icon_color), privateThreadsFragment());
         }
         return privateThreadsTab;
     }
@@ -408,10 +408,14 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         startActivity(context, getSplashScreenActivity());
     }
 
-    public void startEditProfileActivity(Context context, String userEntityID){
+    public void startEditProfileActivity(Context context, String userEntityID) {
+        startEditProfileActivity(context, userEntityID, null);
+    }
+
+    public void startEditProfileActivity(Context context, String userEntityID, Bundle bundle) {
         Intent intent = new Intent(context, getEditProfileActivity());
         intent.putExtra(Keys.IntentKeyUserEntityID, userEntityID);
-        startActivity(context, intent);
+        context.startActivity(intent, bundle);
     }
 
     public void startPublicThreadEditDetailsActivity(Context context, String threadEntityID){

@@ -207,7 +207,7 @@
     <string name="availability_busy">Bezig</string>
     <string name="availability_extended_away">Een tijdje weg</string>
     <!--Tabs-->
-    <string name="conversations">Gesprekken</string>
+    <string name="conversations__" formatted="false">Gesprekken%s</string>
     <string name="chat_rooms">Gespreksruimten</string>
     <string name="contacts">Contacten</string>
     <string name="invite_more_friends">Nodig mensen uit</string>

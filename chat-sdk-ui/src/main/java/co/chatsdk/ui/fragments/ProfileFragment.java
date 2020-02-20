@@ -2,6 +2,8 @@ package co.chatsdk.ui.fragments;
 
 import android.os.Bundle;
 import androidx.annotation.LayoutRes;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
 import androidx.databinding.DataBindingUtil;
 
 import android.view.LayoutInflater;
@@ -299,6 +301,16 @@ public class ProfileFragment extends BaseFragment {
     }
 
     public void showEditProfileScreen() {
+
+//        Bundle bundle = null;
+//        if (getActivity() != null) {
+//            Pair<View, String> p1 = Pair.create(b.avatarImageView, "avatarImageView");
+//            Pair<View, String> p2 = Pair.create(b.titleTextView, "titleTextView");
+//            Pair<View, String> p3 = Pair.create(b.fab, "doneFab");
+//            bundle = ActivityOptionsCompat.
+//                    makeSceneTransitionAnimation(getActivity(), p1, p2, p3).toBundle();
+//        }
+
         ChatSDK.ui().startEditProfileActivity(getContext(), ChatSDK.currentUserID());
     }
 
