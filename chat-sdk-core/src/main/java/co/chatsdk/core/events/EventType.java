@@ -24,7 +24,7 @@ public enum EventType {
     TypingStateChanged,
     Logout,
     ThreadRead,
-    ThreadReadReceiptUpdated,
+    MessageReadReceiptUpdated,
     NearbyUserAdded,
     NearbyUserMoved,
     NearbyUserRemoved,

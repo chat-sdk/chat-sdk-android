@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.databinding.ViewUserRowBinding;
@@ -26,13 +28,12 @@ import io.reactivex.subjects.PublishSubject;
 public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     protected List<UserListItem> items = new ArrayList<>();
-    protected List<String> headers = new ArrayList<>();
 
     protected SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
 
     protected boolean multiSelectEnabled;
-    protected final PublishSubject<Object> onClickSubject = PublishSubject.create();
-    protected final PublishSubject<Object> onLongClickSubject = PublishSubject.create();
+    protected final PublishSubject<UserListItem> onClickSubject = PublishSubject.create();
+    protected final PublishSubject<UserListItem> onLongClickSubject = PublishSubject.create();
     protected final PublishSubject<List<UserListItem>> onToggleSubject = PublishSubject.create();
 
     public UsersListAdapter() {
@@ -61,7 +62,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ViewUserRowBinding b = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.view_user_row, parent, false);
-        return new UserViewHolder(b.getRoot(), b);
+        return new UserViewHolder(b.getRoot(), b, multiSelectEnabled);
     }
 
     @Override
@@ -70,7 +71,6 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         UserViewHolder viewHolder = (UserViewHolder) holder;
         UserListItem item = items.get(position);
 
-        viewHolder.setMultiSelectEnabled(multiSelectEnabled);
         viewHolder.bind(item);
 
         if (multiSelectEnabled) {
@@ -250,7 +250,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
-    public Observable<Object> onClickObservable () {
+    public Observable<UserListItem> onClickObservable () {
         return onClickSubject;
     }
 
@@ -258,7 +258,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return onToggleSubject;
     }
 
-    public Observable<Object> onLongClickObservable () {
+    public Observable<UserListItem> onLongClickObservable () {
         return onLongClickSubject;
     }
 

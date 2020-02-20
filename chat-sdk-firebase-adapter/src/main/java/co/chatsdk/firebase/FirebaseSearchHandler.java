@@ -33,7 +33,7 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
 
             if (finalValue.replace(" ", "").isEmpty())
             {
-                e.onError(ChatError.getError(ChatError.Code.NULL, "Value is blank"));
+                e.onError(new Exception(ChatSDK.shared().context().getString(R.string.search_field_empty)));
                 return;
             }
 
@@ -82,6 +82,7 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
                 }
             }));
 
-        }).subscribeOn(Schedulers.single());    }
+        }).subscribeOn(Schedulers.single());
+    }
 
 }

@@ -1,6 +1,12 @@
 package co.chatsdk.firebase.push;
 
+import android.content.SharedPreferences;
+
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -9,6 +15,7 @@ import org.pmw.tinylog.Logger;
 
 import java.util.HashMap;
 
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.handlers.PushHandler;
@@ -18,6 +25,9 @@ import co.chatsdk.core.push.BaseBroadcastHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.firebase.FirebaseCoreHandler;
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 
 
 /**
@@ -30,14 +40,21 @@ public class FirebasePushHandler extends AbstractPushHandler {
 
     }
 
+    // Rather than subscribing for one user topic, subscribe to each thread as a new topic
+    // Then we can mute notifications by just unsubscribing making the push script easier!
+
     @Override
-    public void subscribeToPushChannel(String channel) {
-        messaging().subscribeToTopic(channel);
+    public Completable subscribeToPushChannel(String channel) {
+        return Completable.create(emitter -> messaging().subscribeToTopic(channel).addOnSuccessListener(aVoid -> {
+            emitter.onComplete();
+        }).addOnFailureListener(emitter::onError)).andThen(super.subscribeToPushChannel(channel));
     }
 
     @Override
-    public void unsubscribeToPushChannel(String channel) {
-        messaging().unsubscribeFromTopic(channel);
+    public Completable unsubscribeToPushChannel(String channel) {
+        return Completable.create(emitter -> messaging().unsubscribeFromTopic(channel).addOnSuccessListener(aVoid -> {
+            emitter.onComplete();
+        }).addOnFailureListener(emitter::onError)).andThen(super.unsubscribeToPushChannel(channel));
     }
 
     @Override

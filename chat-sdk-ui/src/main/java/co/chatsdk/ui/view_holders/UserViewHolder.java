@@ -1,11 +1,8 @@
 package co.chatsdk.ui.view_holders;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
-import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
@@ -18,37 +15,35 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.chat.binders.OnlineStatusBinder;
+import co.chatsdk.ui.binders.OnlineStatusBinder;
 import co.chatsdk.ui.databinding.ViewUserRowBinding;
-import co.chatsdk.ui.utils.AvailabilityHelper;
+import co.chatsdk.ui.binders.AvailabilityHelper;
 
 public class UserViewHolder extends RecyclerView.ViewHolder  {
 
     protected ViewUserRowBinding b;
+    protected boolean multiSelectEnabled;
 
-    public UserViewHolder(View view, ViewUserRowBinding binding) {
+    public UserViewHolder(View view, ViewUserRowBinding binding, boolean multiSelectEnabled) {
         super(view);
         b = binding;
+        this.multiSelectEnabled = multiSelectEnabled;
 
         // Clicks are handled at the list item level
         b.checkbox.setClickable(false);
-    }
-
-    public void setMultiSelectEnabled (boolean enabled) {
-        if (enabled) {
-            b.checkbox.setVisibility(View.VISIBLE);
-            b.availabilityImageView.setVisibility(View.INVISIBLE);
-        } else {
-            b.availabilityImageView.setVisibility(View.VISIBLE);
-            b.checkbox.setVisibility(View.INVISIBLE);
-        }
     }
 
     public void bind(UserListItem item) {
 
         b.nameTextView.setText(item.getName());
 
-        if (StringChecker.isNullOrEmpty(item.getAvailability())) {
+        if (multiSelectEnabled) {
+            b.checkbox.setVisibility(View.VISIBLE);
+        } else {
+            b.checkbox.setVisibility(View.INVISIBLE);
+        }
+
+        if (StringChecker.isNullOrEmpty(item.getAvailability()) || multiSelectEnabled) {
             b.availabilityImageView.setVisibility(View.INVISIBLE);
         } else {
             b.availabilityImageView.setVisibility(View.VISIBLE);

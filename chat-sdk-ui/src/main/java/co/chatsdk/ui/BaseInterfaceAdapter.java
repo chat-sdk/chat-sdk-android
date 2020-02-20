@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 
 import androidx.annotation.DrawableRes;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.squareup.picasso.OkHttp3Downloader;
@@ -37,9 +39,9 @@ import co.chatsdk.ui.chat.options.DialogChatOptionsHandler;
 import co.chatsdk.ui.chat.options.LocationChatOption;
 import co.chatsdk.ui.chat.options.MediaChatOption;
 import co.chatsdk.ui.chat.options.MediaType;
-import co.chatsdk.ui.activities.CKChatActivity;
-import co.chatsdk.ui.fragments.CKPrivateThreadsFragment;
-import co.chatsdk.ui.fragments.CKPublicThreadsFragment;
+import co.chatsdk.ui.activities.ChatActivity;
+import co.chatsdk.ui.fragments.PrivateThreadsFragment;
+import co.chatsdk.ui.fragments.PublicThreadsFragment;
 import co.chatsdk.ui.activities.AddUsersToThreadActivity;
 import co.chatsdk.ui.fragments.ContactsFragment;
 import co.chatsdk.ui.activities.CreateThreadActivity;
@@ -51,7 +53,7 @@ import co.chatsdk.ui.activities.EditProfileActivity;
 import co.chatsdk.ui.activities.ProfileActivity;
 import co.chatsdk.ui.fragments.ProfileFragment;
 import co.chatsdk.ui.activities.SearchActivity;
-import co.chatsdk.ui.activities.ThreadEditDetailsActivity;
+import co.chatsdk.ui.activities.EditThreadActivity;
 import co.chatsdk.ui.activities.ThreadDetailsActivity;
 import co.chatsdk.ui.icons.Icons;
 
@@ -69,9 +71,9 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class loginActivity = LoginActivity.class;
     protected Class splashScreenActivity = SplashScreenActivity.class;
     protected Class mainActivity = MainAppBarActivity.class;
-    protected Class chatActivity = CKChatActivity.class;
+    protected Class chatActivity = ChatActivity.class;
     protected Class threadDetailsActivity = ThreadDetailsActivity.class;
-    protected Class threadEditDetailsActivity = ThreadEditDetailsActivity.class;
+    protected Class threadEditDetailsActivity = EditThreadActivity.class;
 
     protected Class searchActivity = SearchActivity.class;
     protected Class editProfileActivity = EditProfileActivity.class;
@@ -83,8 +85,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     protected Intent loginIntent;
 
-    protected Fragment privateThreadsFragment = new CKPrivateThreadsFragment();
-    protected Fragment publicThreadsFragment = new CKPublicThreadsFragment();
+    protected Fragment privateThreadsFragment = new PrivateThreadsFragment();
+    protected Fragment publicThreadsFragment = new PublicThreadsFragment();
     protected Fragment contactsFragment = new ContactsFragment();
     protected ProfileFragmentProvider profileFragmentProvider = ProfileFragment::newInstance;
 
@@ -94,7 +96,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     private Tab privateThreadsTab;
     private Tab publicThreadsTab;
     private Tab contactsTab;
-    private Tab profileTab;
 
     private String stringLocation;
     private String stringChoosePhoto;
@@ -122,7 +123,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         tabs.add(privateThreadsTab());
         tabs.add(publicThreadsTab());
         tabs.add(contactsTab());
-//        tabs.add(profileTab());
         return tabs;
     }
 
@@ -162,7 +162,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab privateThreadsTab() {
         if (privateThreadsTab == null) {
-            privateThreadsTab = new Tab(context.get().getString(R.string.conversations), Icons.get(Icons.shared().chat, R.color.tab_icon_color), privateThreadsFragment());
+            privateThreadsTab = new Tab(context.get().getString(R.string.conversations), Icons.get(Icons.choose().chat, R.color.tab_icon_color), privateThreadsFragment());
         }
         return privateThreadsTab;
     }
@@ -170,7 +170,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab publicThreadsTab() {
         if (publicThreadsTab == null) {
-            publicThreadsTab = new Tab(context.get().getString(R.string.chat_rooms), Icons.get(Icons.shared().publicChat, R.color.tab_icon_color), publicThreadsFragment());
+            publicThreadsTab = new Tab(context.get().getString(R.string.chat_rooms), Icons.get(Icons.choose().publicChat, R.color.tab_icon_color), publicThreadsFragment());
         }
         return publicThreadsTab;
     }
@@ -178,18 +178,10 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab contactsTab() {
         if (contactsTab == null) {
-            contactsTab = new Tab(context.get().getString(R.string.contacts), Icons.get(Icons.shared().contact, R.color.tab_icon_color), contactsFragment());
+            contactsTab = new Tab(context.get().getString(R.string.contacts), Icons.get(Icons.choose().contact, R.color.tab_icon_color), contactsFragment());
         }
         return contactsTab;
     }
-
-//    @Override
-//    public Tab profileTab() {
-//        if (profileTab == null) {
-//            profileTab = new Tab (context.get().getString(R.string.profile), Icons.get(Icons.shared().user, R.color.tab_icon_color), profileFragment(null));
-//        }
-//        return profileTab;
-//    }
 
     @Override
     public Fragment privateThreadsFragment() {
@@ -352,9 +344,12 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         this.profileActivity = profileActivity;
     }
 
-    public Intent intentForActivity(Context context, Class activity, HashMap<String, Object> extras) {
+    public Intent intentForActivity(Context context, Class activity, HashMap<String, Object> extras, int flags) {
         Intent intent = new Intent(context, activity);
         addExtrasToIntent(intent, extras);
+        if (flags != 0) {
+            intent.addFlags(flags);
+        }
         return intent;
     }
 
@@ -378,27 +373,21 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         }
     }
 
-    public void startActivity(Context context, Class activity, HashMap<String, Object> extras){
-        startActivity(context, intentForActivity(context, activity, extras));
+    public void startActivity(Context context, Class activity, HashMap<String, Object> extras, int flags) {
+        startActivity(context, intentForActivity(context, activity, extras, flags));
     }
 
     public void startActivity(Context context, Class activity){
-        startActivity(context, activity, null);
+        startActivity(context, activity, null, 0);
     }
 
     public void startActivity (Context context, Intent intent) {
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
 
     public void startActivityForResult (Activity activity, Intent intent, int code) {
         activity.startActivityForResult(intent, code);
-    }
-
-    public void startChatActivityForID(Context context, String threadEntityID) {
-        Intent intent = new Intent(context, getChatActivity());
-        intent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
-        startActivity(context, intent);
     }
 
     @Override
@@ -407,7 +396,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
             addExtrasToIntent(loginIntent, extras);
             return loginIntent;
         }
-        return intentForActivity(context, getLoginActivity(), extras);
+        return intentForActivity(context, getLoginActivity(), extras, 0);
     }
 
     @Override
@@ -426,14 +415,22 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     public void startPublicThreadEditDetailsActivity(Context context, String threadEntityID){
-        startThreadEditDetailsActivity(context, threadEntityID);
+        startEditThreadActivity(context, threadEntityID);
     }
 
-    public void startThreadEditDetailsActivity(Context context, String threadEntityID){
-        startThreadEditDetailsActivity(context, threadEntityID, null);
+    public void startEditThreadActivity(Context context, String threadEntityID){
+        startEditThreadActivity(context, threadEntityID, null);
     }
 
-    public void startThreadEditDetailsActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs){
+    @Override
+    public void startCreateThreadActivity(Context context) {
+        Intent intent = new Intent(context, getCreateThreadActivity());
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(intent);
+    }
+
+    public void startEditThreadActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs){
         Intent intent = new Intent(context, getThreadEditDetailsActivity());
         if (threadEntityID != null) {
             intent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
@@ -441,12 +438,31 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         if (userEntityIDs != null) {
             intent.putStringArrayListExtra(Keys.IntentKeyUserEntityIDList, userEntityIDs);
         }
-        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
     }
 
+    public void startChatActivityForID(Context context, String threadEntityID) {
+        startChatActivityForID(context, threadEntityID, null);
+    }
+
+    public void startChatActivityForID(Context context, String threadEntityID, Bundle options) {
+        Intent intent = new Intent(context, getChatActivity());
+        intent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        context.startActivity(intent, options);
+//        startActivity(context, intent);
+    }
+
+
     public void startMainActivity (Context context, HashMap<String, Object> extras) {
-        startActivity(context, getMainActivity(), extras);
+        startActivity(context, getMainActivity(), extras, Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
     }
 
     public void startMainActivity (Context context) {
@@ -492,12 +508,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         startActivity(context, intent);
     }
 
-    @Override
-    public void startCreateThreadActivity(Context context) {
-        Intent intent = new Intent(context, getCreateThreadActivity());
-        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-        context.startActivity(intent);
-    }
 
     @Override
     public void addSearchActivity(Class className, String title) {
@@ -554,9 +564,14 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     public void startProfileActivity(Context context, String userEntityID) {
+        startProfileActivity(context, userEntityID, null);
+    }
+
+    @Override
+    public void startProfileActivity(Context context, String userEntityID, Bundle options) {
         Intent intent = new Intent(context, getProfileActivity());
         intent.putExtra(Keys.IntentKeyUserEntityID, userEntityID);
-        startActivity(context, intent);
+        context.startActivity(intent, options);
     }
 
     @Override

@@ -23,6 +23,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.profile.pictures.databinding.ActivityProfilePicturesBinding;
 import co.chatsdk.ui.chat.MediaSelector;
+import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.utils.ImagePickerUploader;
 import co.chatsdk.ui.activities.ImagePreviewActivity;
 import co.chatsdk.ui.utils.ToastHelper;
@@ -201,9 +202,8 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
         if (!getUser().isMe())
             return super.onCreateOptionsMenu(menu);
 
-        addMenuItem = menu.add(Menu.NONE, R.id.action_add, 12, getString(R.string.action_add_picture));
-        addMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        addMenuItem.setIcon(R.drawable.ic_plus);
+        getMenuInflater().inflate(R.menu.add_menu, menu);
+        menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, R.color.app_bar_icon_color));
         addMenuItem.setVisible(shouldShowAddButton(ChatSDK.profilePictures().fromUser(getUser())));
 
         return super.onCreateOptionsMenu(menu);

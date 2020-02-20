@@ -1,12 +1,14 @@
 package co.chatsdk.ui.chat.options;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.widget.Toast;
 
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -19,13 +21,13 @@ public class BaseChatOption implements ChatOption {
 
     protected Action action;
     protected String title;
-    protected Integer iconResourceId;
+    protected Drawable drawable;
     protected DisposableList disposableList = new DisposableList();
 
-    public BaseChatOption (String title, Integer iconResourceId, Action action) {
+    public BaseChatOption (String title, Drawable drawable, Action action) {
         this.action = action;
         this.title = title;
-        this.iconResourceId = iconResourceId;
+        this.drawable = drawable;
     }
 
     public BaseChatOption (String title, Action action, MediaType type) {
@@ -33,11 +35,11 @@ public class BaseChatOption implements ChatOption {
     }
 
     @Override
-    public int getIconResourceId() {
-        if (iconResourceId != null) {
-            return iconResourceId;
+    public Drawable getIconDrawable() {
+        if (drawable != null) {
+            return drawable;
         } else {
-            return R.drawable.ic_plus;
+            return Icons.get(Icons.choose().add, R.color.white);
         }
     }
 

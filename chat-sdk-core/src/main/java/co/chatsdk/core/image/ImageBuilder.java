@@ -25,6 +25,8 @@ public class ImageBuilder {
         return bitmapForURL(url, null, null);
     }
 
+    // Use Picasso instead
+    @Deprecated
     public static Single<Bitmap> bitmapForURL (final String url, Integer width, Integer height) {
         // Picasso needs to run on the main thread
         return Single.create((SingleOnSubscribe<Bitmap>) emitter -> {

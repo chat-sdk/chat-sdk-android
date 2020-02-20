@@ -2,7 +2,9 @@ package co.chatsdk.ui.chat;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.provider.MediaStore;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.view.Gravity;
@@ -12,12 +14,17 @@ import android.view.ViewGroup;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 
+import androidx.databinding.DataBindingUtil;
+
 import com.github.chrisbanes.photoview.PhotoView;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import co.chatsdk.core.image.ImageBuilder;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.activities.BaseActivity;
+import co.chatsdk.ui.databinding.ViewPopupImageBinding;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -35,49 +42,53 @@ public class ImageMessageOnClickHandler {
 
         if (!url.replace(" ", "").isEmpty()) {
 
-            LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View popupView = inflater.inflate(R.layout.popup_image, null);
+            LayoutInflater inflater = LayoutInflater.from(activity);
 
-            final PopupWindow imagePopup = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
+            ViewPopupImageBinding b = DataBindingUtil.inflate(inflater, R.layout.view_popup_image, null, false);
 
-            imagePopup.setContentView(popupView);
+            final PopupWindow imagePopup = new PopupWindow(b.getRoot(), ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
+
+            imagePopup.setContentView(b.getRoot());
             imagePopup.setBackgroundDrawable(new BitmapDrawable());
             imagePopup.setOutsideTouchable(true);
             imagePopup.setAnimationStyle(R.style.ImagePopupAnimation);
 
-            final PhotoView imageView = popupView.findViewById(R.id.photo_view);
-            final ProgressBar progressBar = popupView.findViewById(R.id.progress_bar);
-            final FloatingActionButton saveButton = popupView.findViewById(R.id.floating_button_save);
+            b.fab.setImageDrawable(Icons.get(Icons.choose().save, R.color.fab_icon_color));
 
-            saveButton.setImageDrawable(Icons.get(Icons.shared().save, R.color.popup_image_save_icon_color));
+            b.fab.setVisibility(View.INVISIBLE);
+            b.progressBar.setVisibility(View.VISIBLE);
 
-            saveButton.setVisibility(View.INVISIBLE);
-
-            progressBar.setVisibility(View.VISIBLE);
-
-            Disposable d = ImageBuilder.bitmapForURL(url)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doFinally(() -> progressBar.setVisibility(View.INVISIBLE))
-                    .subscribe(bitmap -> {
-                        imageView.setImageBitmap(bitmap);
-                        saveButton.setVisibility(View.VISIBLE);
-                        saveButton.setOnClickListener(v1 -> PermissionRequestHandler.requestWriteExternalStorage(activity).subscribe(() -> {
-                            if (bitmap != null) {
-                                String bitmapURL = MediaStore.Images.Media.insertImage(activity.getContentResolver(), bitmap, "" , "");
-                                if (bitmapURL != null) {
-                                    ToastHelper.show(activity, activity.getString(R.string.image_saved));
-                                }
-                                else {
-                                    ToastHelper.show(activity, activity.getString(R.string.image_save_failed));
-                                }
+            Picasso.get().load(url).into(new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    b.photoView.setImageBitmap(bitmap);
+                    b.progressBar.setVisibility(View.INVISIBLE);
+                    b.fab.setVisibility(View.VISIBLE);
+                    b.fab.setOnClickListener(v1 -> PermissionRequestHandler.requestWriteExternalStorage(activity).subscribe(() -> {
+                        if (bitmap != null) {
+                            String bitmapURL = MediaStore.Images.Media.insertImage(activity.getContentResolver(), bitmap, "" , "");
+                            if (bitmapURL != null) {
+                                ToastHelper.show(activity, activity.getString(R.string.image_saved));
                             }
-                        }, throwable -> ToastHelper.show(activity, throwable.getLocalizedMessage())));
+                            else {
+                                ToastHelper.show(activity, activity.getString(R.string.image_save_failed));
+                            }
+                        }
+                    }, throwable -> ToastHelper.show(activity, throwable.getLocalizedMessage())));
+                }
 
+                @Override
+                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                    b.progressBar.setVisibility(View.INVISIBLE);
+                    ToastHelper.show(activity, e.getLocalizedMessage());
+                    imagePopup.dismiss();
+                }
 
-                    }, throwable -> {
-                        ToastHelper.show(activity, R.string.unable_to_fetch_image);
-                        imagePopup.dismiss();
-                    });
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                }
+            });
 
             imagePopup.showAtLocation(view, Gravity.CENTER, 0, 0);
 

@@ -4,12 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 
 import androidx.annotation.DrawableRes;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,7 +18,6 @@ import co.chatsdk.core.avatar.AvatarGenerator;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.core.ui.ProfileFragmentProvider;
 import co.chatsdk.core.notifications.NotificationDisplayHandler;
@@ -89,20 +88,22 @@ public interface InterfaceAdapter {
     void startActivity(Context context, Class activity);
     void startActivity (Context context, Intent intent);
     void startChatActivityForID(Context context, String threadEntityID);
+    void startChatActivityForID(Context context, String threadEntityID, Bundle options);
 
     /**
-     * Use {@link #startThreadEditDetailsActivity(Context, String)}
+     * Use {@link #startEditThreadActivity(Context, String)}
      * @param context
      * @param threadEntityID
      */
     @Deprecated
     void startPublicThreadEditDetailsActivity(Context context, String threadEntityID);
-    void startThreadEditDetailsActivity(Context context, String threadEntityID);
-    void startThreadEditDetailsActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs);
+    void startEditThreadActivity(Context context, String threadEntityID);
+    void startEditThreadActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs);
 
     void startThreadDetailsActivity(Context context, String threadEntityID);
 
     void startProfileActivity(Context context, String userEntityID);
+    void startProfileActivity(Context context, String userEntityID, Bundle options);
     void startEditProfileActivity(Context context, String userEntityID);
 
     void startMainActivity (Context context);

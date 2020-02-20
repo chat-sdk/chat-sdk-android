@@ -13,15 +13,22 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.tabs.TabLayout;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import butterknife.BindView;
+import co.chatsdk.core.Tab;
 import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
+import co.chatsdk.ui.icons.Icons;
 
 
 public abstract class MainActivity extends BaseActivity {
@@ -108,9 +115,9 @@ public abstract class MainActivity extends BaseActivity {
         boolean value = super.onCreateOptionsMenu(menu);
 
         if (searchEnabled()) {
-            MenuItem item = menu.add(Menu.NONE, R.id.action_search, 0, R.string.abc_search_hint);
-            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-            item.setIcon(R.drawable.ic_action_action_search);
+            getMenuInflater().inflate(R.menu.activity_search_menu, menu);
+            MenuItem item = menu.findItem(R.id.action_search);
+            item.setIcon(Icons.get(Icons.choose().search, R.color.app_bar_icon_color));
             searchView().setMenuItem(item);
         }
 
@@ -126,4 +133,18 @@ public abstract class MainActivity extends BaseActivity {
     public void onBackPressed() {
         // Fixes an issue where if we press back the whole app goes blank
     }
+
+    public boolean showLocalNotificationsForTab (Fragment fragment, Thread thread) {
+        // Don't show notifications on the threads tabs
+        if (thread.typeIs(ThreadType.Private)) {
+            Class privateThreadsFragmentClass = ChatSDK.ui().privateThreadsFragment().getClass();
+            return !fragment.getClass().isAssignableFrom(privateThreadsFragmentClass);
+        }
+        if (thread.typeIs(ThreadType.Public)) {
+            Class publicThreadsFragmentClass = ChatSDK.ui().publicThreadsFragment().getClass();
+            return !fragment.getClass().isAssignableFrom(publicThreadsFragmentClass);
+        }
+        return true;
+    }
+
 }

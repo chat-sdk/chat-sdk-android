@@ -26,14 +26,6 @@ public class Strings {
         return t(ChatSDK.shared().context(), resId);
     }
 
-//    public static String payloadAsString (Message message) {
-//        MessageDisplayHandler handler =  ChatSDK.ui().getMessageHandler(message.getMessageType());
-//        if (handler != null) {
-//            return handler.displayName(message);
-//        }
-//        return t(R.string.unknown_message);
-//    }
-
     public static String dateTime (Date date) {
         return new SimpleDateFormat("HH:mm dd/MM/yy").format(date);
     }

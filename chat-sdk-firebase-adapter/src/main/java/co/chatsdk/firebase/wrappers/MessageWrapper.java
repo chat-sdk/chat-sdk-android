@@ -7,47 +7,30 @@
 
 package co.chatsdk.firebase.wrappers;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.ReadReceiptUserLink;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.StorageManager;
-import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.ReadStatus;
 
-import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.R;
-import co.chatsdk.firebase.utils.FirebaseRX;
+import co.chatsdk.firebase.utils.Generic;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.CompletableSource;
-import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class MessageWrapper  {
@@ -72,7 +55,6 @@ public class MessageWrapper  {
         values.put(Keys.Type, model.getType());
         values.put(Keys.UserFirebaseId, model.getSender().getEntityID());
 
-        // TODO: Check this
         HashMap<String, Map<String, Integer>> map = new HashMap<>();
         for (ReadReceiptUserLink link: getModel().getReadReceiptLinks()) {
 
@@ -99,20 +81,6 @@ public class MessageWrapper  {
         return users;
     }
 
-//    private HashMap<String, HashMap<String, Integer>> initialReadReceipts () {
-//        HashMap<String, HashMap<String, Integer>> map = new HashMap<>();
-//
-//        for(User u : getModel().getThread().getUsers()) {
-//            ReadStatus readStatus = u.isMe() ? ReadStatus.read() : ReadStatus.none();
-//
-//            HashMap<String, Integer> status = new HashMap<>();
-//            status.put(Keys.Status, readStatus.getValue());
-//            map.put(u.getEntityID(), status);
-//        }
-//
-//        return map;
-//    }
-
     private boolean contains (Map<String, Object> value, String key) {
         return value.containsKey(key) && !value.get(key).equals("");
     }
@@ -124,50 +92,25 @@ public class MessageWrapper  {
         return null;
     }
 
-    private HashMap<String, Object> map (Map<String, Object> value, String key) {
-        if(contains(value, key)) {
-            if (value.get(key) instanceof HashMap) {
-                return (HashMap<String, Object>) value.get(key);
-            }
+    void deserialize(DataSnapshot snapshot) {
+
+        if (snapshot.getValue() == null) {
+            return;
         }
-        return null;
-    }
 
-    private Long long_ (Map<String, Object> value, String key) {
-        if(contains(value, key)) {
-            Object o = value.get(key);
-            if(o instanceof Long) {
-                return (Long) value.get(key);
-            }
-            if(o instanceof Integer) {
-                return ((Integer) value.get(key)).longValue();
-            }
-        }
-        return null;
-    }
-
-    @SuppressWarnings("all") void deserialize(DataSnapshot snapshot) {
-
-        Map<String, Object> value = (Map<String, Object>) snapshot.getValue();
-        //if (DEBUG) Timber.v("deserialize, Value: %s", value);
-        if (value == null) return;
-
-        Object json = snapshot.child(Keys.JSON).getValue();
-
-        if (json != null && json instanceof HashMap) {
-            model.setMetaValues((HashMap) json);
-        }
-        else {
+        if (snapshot.hasChild(Keys.JSON)) {
+            model.setMetaValues(snapshot.child(Keys.JSON).getValue(Generic.hashMapStringObject()));
+        } else {
             model.setText("");
         }
 
-        Long type = long_(value, Keys.Type);
-        if(type != null) {
-            model.setType(type.intValue());
+        if (snapshot.hasChild(Keys.Type)) {
+            model.setType(snapshot.child(Keys.Type).getValue(Long.class).intValue());
         }
 
-        Long date = long_(value, Keys.Date);
-        if(date != null) {
+        if (snapshot.hasChild(Keys.Date)) {
+            Long date = snapshot.child(Keys.Date).getValue(Long.class);
+
             // If the server time of the text is too different to local time
             // set the status to none, which causes the text to be refreshed
             // in the chat view.
@@ -177,21 +120,18 @@ public class MessageWrapper  {
             model.setDate(new DateTime(date));
         }
 
-        String senderID = string(value, Keys.UserFirebaseId);
-        if(senderID != null) {
+        if (snapshot.hasChild(Keys.UserFirebaseId)) {
+            String senderID = snapshot.child(Keys.UserFirebaseId).getValue(String.class);
             User user = DaoCore.fetchEntityWithEntityID(User.class, senderID);
-            if (user == null)
-            {
+            if (user == null) {
                 user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, senderID);
                 UserWrapper.initWithModel(user).once();
             }
 
             model.setSender(user);
-
         }
 
-        // Get read information
-        HashMap<String, Object> readMap = map(value, Keys.Read);
+        HashMap<String, HashMap<String, Long>> readMap = snapshot.child(Keys.Read).getValue(Generic.readReceiptHashMap());
         if (readMap != null) {
             updateReadReceipts(readMap);
         }
@@ -199,27 +139,27 @@ public class MessageWrapper  {
         model.update();
     }
 
-    public void updateReadReceipts (HashMap<String, Object> map) {
+    public void updateReadReceipts (HashMap<String, HashMap<String, Long>> map) {
         for(String key : map.keySet()) {
 
             User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, key);
 
-            Object innerMap = map.get(key);
+            HashMap<String, Long> statusMap = map.get(key);
 
-            if(innerMap != null && innerMap instanceof HashMap) {
+            if (statusMap != null) {
 
-                Map<String, Object> statusMap = (Map) innerMap;
-                long status = ReadStatus.None;
-                long date = 0;
-
-                if(statusMap.get(Keys.Status) instanceof Long) {
-                    status = (Long) statusMap.get(Keys.Status);
-                }
-                if(statusMap.get(Keys.Date) instanceof Long) {
-                    date = (Long) statusMap.get(Keys.Date);
+                Long status = statusMap.get(Keys.Status);
+                if (status == null) {
+                    status = (long) ReadStatus.None;
                 }
 
-                model.setUserReadStatus(user, new ReadStatus((int) status), new DateTime(date));
+                Long date = statusMap.get(Keys.Date);
+                if (date == null) {
+                    date = 0L;
+                }
+
+                model.setUserReadStatus(user, new ReadStatus(status.intValue()), new DateTime(date));
+
             }
         }
     }
@@ -231,7 +171,6 @@ public class MessageWrapper  {
             final DatabaseReference ref = ref();
             model.setEntityID(ref.getKey());
             model.update();
-//            DaoCore.updateEntity(model);
 
             ref.setValue(serialize(), ServerValue.TIMESTAMP, (firebaseError, firebase) -> {
                 if (firebaseError == null) {

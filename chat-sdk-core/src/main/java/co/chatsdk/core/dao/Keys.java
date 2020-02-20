@@ -78,13 +78,9 @@ public class Keys {
 
     public static final String IntentKeyUserEntityID = "user-entity-id";
     public static final String IntentKeyUserEntityIDList = "user-entity-id-list";
-    public static final String IntentKeyMessageEntityID = "text-entity-id";
     public static final String IntentKeyMessageEntityIDs = "text-entity-ids";
     public static final String IntentKeyThreadEntityID = "thread-entity-id";
-    public static final String IntentKeyAnimateExit = "animate-exit";
-    public static final String IntentKeyMultiSelectEnabled = "multi-select-enabled";
     public static final String IntentKeyErrorMessage = "error-text";
-    public static final String IntentKeyListPosSelectEnabled = "list-pos";
 
     // For push notifications
     public static final String PushKeyUserEntityID = "chat_sdk_user_entity_id";

@@ -18,7 +18,6 @@ import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.firebase.utils.Generic;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firebase.wrappers.UserWrapper;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by benjaminsmiley-andrews on 10/05/2017.
@@ -73,7 +72,9 @@ public class FirebaseEventHandler extends AbstractEventHandler {
             if (hasValue) {
                 ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
                 thread.off();
-                eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
+                dm.add(thread.deleteThread().subscribe(() -> {
+                    eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
+                }, this));
             }
         }));
         FirebaseReferenceManager.shared().addRef(threadsRef, threadsListener);

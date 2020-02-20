@@ -3,37 +3,46 @@
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
     <color name="dark_text">#5F5F5F</color>
-    <color name="button_delete">#CC1515</color>
-    <color name="button_success">#78b737</color>
-    <color name="message_input_border">#E7E7E7</color>
 
-    <color name="red">#CC1515</color>
-    <color name="light_gray">#A5A5A5</color>
+    <color name="red_light">#FFC9C9</color>
+    <color name="red_dark">#CC1515</color>
+    <color name="red">#CC4B4B</color>
 
+    <color name="gray_light">#A5A5A5</color>
+
+    <color name="green_light">#CFEE88</color>
     <color name="primary_green">@android:color/holo_green_light</color>
     <color name="primary_green_dark">@android:color/holo_green_dark</color>
+
     <color name="primary">@android:color/holo_blue_light</color>
     <color name="primary_dark">@android:color/holo_blue_dark</color>
     <color name="accent">@android:color/holo_blue_light</color>
     <color name="text_primary">@android:color/white</color>
-    <color name="window_background">@android:color/background_light</color>
 
     <color name="login_button_color">#1c93db</color>
     <color name="register_button_color">#78b737</color>
     <color name="anonymous_button_color">#aaaaaa</color>
-    <color name="reset_password_button_color">#D1D1D1</color>
+    <color name="reset_password_button_color">#00000000</color>
     <color name="logout_button_color">#ae2020</color>
-    <color name="gray_light">#e8e8e8</color>
     <color name="message_time">#A5A5A5</color>
+
     <color name="incoming_reply">#F6FFDD</color>
     <color name="incoming_message_color">#E0E0E0</color>
 
-    <color name="edit_profile_icon_color">@color/light_gray</color>
-    <color name="profile_icon_color">@color/light_gray</color>
-    <color name="profile_blocked_icon_color">@color/red</color>
-    <color name="profile_contacts_icon_color">@color/primary_green_dark</color>
-    <color name="app_bar_icon_color">#FFFFFF</color>
-    <color name="popup_image_save_icon_color">#FFFFFF</color>
-    <color name="tab_icon_color">@color/light_gray</color>
+    <color name="edit_profile_icon_color">@color/gray_light</color>
+    <color name="profile_icon_color">@color/gray_light</color>
+
+    <color name="blocked_primary_icon_color">@color/red_dark</color>
+    <color name="blocked_secondary_icon_color">@color/red_light</color>
+
+    <color name="contacts_primary_color">@color/primary_green_dark</color>
+    <color name="contacts_secondary_color">@color/green_light</color>
+
+    <color name="app_bar_text_color">@color/white</color>
+    <color name="app_bar_icon_color">@color/white</color>
+    <color name="fab_icon_color">@color/white</color>
+    <color name="tab_icon_color">@color/gray_light</color>
+
+    <color name="thread_default_icon_color">@color/gray_light</color>
 
 </resources>

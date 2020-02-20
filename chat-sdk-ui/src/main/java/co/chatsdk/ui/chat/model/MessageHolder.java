@@ -14,7 +14,7 @@ import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
-import co.chatsdk.ui.chat.binders.MessageBinder;
+import co.chatsdk.ui.binders.MessageBinder;
 
 public class MessageHolder implements IMessage {
 
@@ -95,6 +95,10 @@ public class MessageHolder implements IMessage {
 
     public ReadStatus getReadStatus() {
         return message.getReadStatus();
+    }
+
+    public MessageSendStatus getSendStatus() {
+        return message.getMessageStatus();
     }
 
     public boolean isReply() {

@@ -8,7 +8,7 @@
         android:animateLayoutChanges="true"
         android:fitsSystemWindows="true">
 
-        <include layout="@layout/toolbar_default" />
+        <include layout="@layout/app_bar_default" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -31,7 +31,7 @@
         </androidx.recyclerview.widget.RecyclerView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/floatingActionButton"
+            android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
@@ -39,9 +39,9 @@
             android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp"
             android:clickable="true"
+            android:focusable="true"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_check_white_48dp" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

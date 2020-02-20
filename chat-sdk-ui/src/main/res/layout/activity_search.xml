@@ -12,7 +12,7 @@
             android:animateLayoutChanges="true">
 
             <include
-                layout="@layout/toolbar_default"/>
+                layout="@layout/app_bar_default"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -25,7 +25,7 @@
             android:layout_below="@id/toolbar"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/floatingActionButton"
+            android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"

@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.lang.Object;
 import java.lang.String;
-import java.lang.Class;
 
 import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.events.NetworkEvent;
@@ -34,7 +33,6 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.DaoDateTimeConverter;
-import io.reactivex.functions.Consumer;
 
 @Entity
 public class Message extends AbstractEntity {
@@ -267,7 +265,7 @@ public class Message extends AbstractEntity {
 
         link.update();
 //        this.update();
-        ChatSDK.events().source().onNext(NetworkEvent.threadReadReceiptUpdated(this));
+        ChatSDK.events().source().onNext(NetworkEvent.messageReadReceiptUpdated(this));
     }
 
     public LatLng getLocation () {

@@ -1,17 +1,19 @@
 package co.chatsdk.ui.chat.options;
 
+import android.graphics.drawable.Drawable;
+
 public class ChatOptionBuilder {
 
     String title;
-    Integer iconResourceId;
+    Drawable drawable;
     BaseChatOption.Action action;
 
     public ChatOptionBuilder () {
 
     }
 
-    public ChatOptionBuilder icon (Integer iconResourceId) {
-        this.iconResourceId = iconResourceId;
+    public ChatOptionBuilder icon (Drawable iconDrawable) {
+        this.drawable = iconDrawable;
         return this;
     }
 
@@ -26,7 +28,7 @@ public class ChatOptionBuilder {
     }
 
     public BaseChatOption build () {
-        return new BaseChatOption(title, iconResourceId, action);
+        return new BaseChatOption(title, drawable, action);
     }
 
 }

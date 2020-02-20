@@ -3,6 +3,8 @@ package co.chatsdk.ui.activities;
 import android.app.Activity;
 import android.os.Bundle;
 
+import androidx.annotation.StringRes;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,25 +17,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class AddUsersToThreadActivity extends SelectContactActivity {
 
-    protected String threadEntityID = "";
     protected Thread thread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setActionBarTitle(R.string.add_user_to_chat);
-    }
-
-    @Override
-    protected void getDataFromBundle(Bundle bundle) {
-        super.getDataFromBundle(bundle);
-        threadEntityID = bundle.getString(Keys.IntentKeyThreadEntityID, threadEntityID);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString(Keys.IntentKeyThreadEntityID, threadEntityID);
     }
 
     @Override
@@ -45,11 +34,16 @@ public class AddUsersToThreadActivity extends SelectContactActivity {
     protected void loadData () {
         final List<User> list = ChatSDK.contact().contacts();
 
-        // Removing the users that is already inside the thread.
-        if (threadEntityID != null && !threadEntityID.isEmpty()) {
-            thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
-            List<User> threadUser = thread.getUsers();
-            list.removeAll(threadUser);
+        Object threadEntityIDObject = extras.get(Keys.IntentKeyThreadEntityID);;
+        if (threadEntityIDObject instanceof String) {
+            String threadEntityID = (String) threadEntityIDObject;
+
+            // Removing the users that is already inside the thread.
+            if (!threadEntityID.isEmpty()) {
+                thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
+                List<User> threadUser = thread.getUsers();
+                list.removeAll(threadUser);
+            }
         }
 
         adapter.setUsers(new ArrayList<>(list), true);
@@ -72,9 +66,6 @@ public class AddUsersToThreadActivity extends SelectContactActivity {
                 })
                 .subscribe(() -> {
                     setResult(Activity.RESULT_OK);
-                    if (animateExit) {
-                        overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
-                    }
                 }, throwable -> {
                     showToast(throwable.getLocalizedMessage());
                     setResult(Activity.RESULT_CANCELED);

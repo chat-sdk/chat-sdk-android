@@ -25,19 +25,24 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.transition.Explode;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import com.google.android.material.snackbar.Snackbar;
+
+import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ActivityResult;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
@@ -51,8 +56,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
 public abstract class BaseActivity extends AppCompatActivity implements Consumer<Throwable>, CompletableObserver {
-
-    protected ProgressDialog progressDialog;
 
     // This is a list of extras that are passed to the login view
     protected HashMap<String, Object> extras = new HashMap<>();
@@ -76,10 +79,19 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Logger.debug("onCreate: " + this);
+
         updateExtras(getIntent().getExtras());
 
         if(ChatSDK.config().theme != 0) {
             setTheme(ChatSDK.config().theme);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+            getWindow().setEnterTransition(new Explode());
+            getWindow().setExitTransition(new Explode());
         }
 
         // Setting the default task description.
@@ -189,6 +201,24 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        for (String key: extras.keySet()) {
+            Object extra = extras.get(key);
+            if (extra instanceof String) {
+                outState.putString(key, (String) extra);
+            }
+            if (extra instanceof Integer) {
+                outState.putInt(key, (Integer) extra);
+            }
+            if (extra instanceof Float) {
+                outState.putFloat(key, (Float) extra);
+            }
+            if (extra instanceof Double) {
+                outState.putDouble(key, (Double) extra);
+            }
+            if (extra instanceof Long) {
+                outState.putLong(key, (Long) extra);
+            }
+        }
     }
 
     /**
@@ -321,6 +351,10 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
 
     protected void showProgressDialog(String message) {
         alert.showProgressDialog(message);
+    }
+
+    protected ProgressDialog getProgressDialog() {
+        return alert.getProgressDialog();
     }
 
     protected void showOrUpdateProgressDialog(String message) {

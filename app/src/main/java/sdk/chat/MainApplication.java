@@ -11,12 +11,13 @@ import com.google.firebase.auth.PhoneAuthProvider;
 import co.chatsdk.core.avatar.gravatar.GravatarAvatarGenerator;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
+import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
 import co.chatsdk.firestream.FireStreamNetworkAdapter;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
-import co.chatsdk.ui.fragments.CKPrivateThreadsFragment;
+import co.chatsdk.ui.fragments.PrivateThreadsFragment;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import firestream.chat.Config;
 import firestream.chat.namespace.Fire;
@@ -60,10 +61,10 @@ public class MainApplication extends MultiDexApplication {
             }
 
             Fire.stream().initialize(context, firestreamConfig);
-            ChatSDK.initialize(context, config, FireStreamNetworkAdapter.class, BaseInterfaceAdapter.class);
+//            ChatSDK.initialize(context, config, FireStreamNetworkAdapter.class, BaseInterfaceAdapter.class);
 
             // Old Firebase Adapter
-//            ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
+            ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
 
         }
         catch (Exception e) {
@@ -71,15 +72,14 @@ public class MainApplication extends MultiDexApplication {
             System.out.println("Error");
         }
         finally {
-            ChatSDK.ui().setPrivateThreadsFragment(new CKPrivateThreadsFragment());
-//            ChatSDK.ui().setMainActivity(MainDrawActivity.class);
+            ChatSDK.ui().setMainActivity(MainDrawActivity.class);
 
             ChatSDK.ui().setAvatarGenerator(new GravatarAvatarGenerator());
 
             FirebaseFileStorageModule.activate();
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
-            FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
+//            FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
 
 //            new DummyData(1, 1000);
 

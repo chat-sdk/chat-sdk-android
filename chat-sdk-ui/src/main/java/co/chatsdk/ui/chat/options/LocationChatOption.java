@@ -1,6 +1,7 @@
 package co.chatsdk.ui.chat.options;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.rx.ObservableConnector;
@@ -25,8 +26,8 @@ import io.reactivex.functions.Function;
 
 public class LocationChatOption extends BaseChatOption {
 
-    public LocationChatOption(String title, Integer iconResourceId) {
-        super(title, iconResourceId, (activity, thread) -> {
+    public LocationChatOption(String title, Drawable iconDrawable) {
+        super(title, iconDrawable, (activity, thread) -> {
             return new LocationSelector().startChooseLocationActivity(activity).flatMapCompletable(result -> ChatSDK.locationMessage().sendMessageWithLocation(result.snapshotPath, result.latLng, thread));
         });
     }

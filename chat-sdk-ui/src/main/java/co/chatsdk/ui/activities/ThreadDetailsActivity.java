@@ -17,12 +17,9 @@ import androidx.databinding.DataBindingUtil;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import butterknife.BindView;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
@@ -31,7 +28,6 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
 import co.chatsdk.ui.databinding.ActivityThreadDetailsBinding;
 import co.chatsdk.ui.fragments.ThreadUsersFragment;
 import co.chatsdk.ui.utils.ThreadImageBuilder;
@@ -176,7 +172,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.threads_menu, menu);
+        getMenuInflater().inflate(R.menu.activity_thread_details_menu, menu);
 
         // Only the creator can modify the group. Also, private 1-to-1 chats can't be edited
         if (!thread.getCreator().isMe() || thread.typeIs(ThreadType.Private1to1)) {
@@ -200,7 +196,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             onBackPressed();
         }
         if (item.getItemId() == R.id.action_edit) {
-            ChatSDK.ui().startThreadEditDetailsActivity(ChatSDK.shared().context(), thread.getEntityID());
+            ChatSDK.ui().startEditThreadActivity(ChatSDK.shared().context(), thread.getEntityID());
         }
         if (item.getItemId() == R.id.action_mute) {
             if (thread.isMuted()) {

@@ -1,6 +1,7 @@
 package co.chatsdk.ui.chat.options;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.widget.Toast;
 
 import java.io.File;
@@ -26,8 +27,8 @@ import io.reactivex.functions.Function;
 
 public class MediaChatOption extends BaseChatOption {
 
-    public MediaChatOption(String title, Integer iconResourceId, final MediaType type) {
-        super(title, iconResourceId, null);
+    public MediaChatOption(String title, Drawable iconDrawable, final MediaType type) {
+        super(title, iconDrawable, null);
         action = (activity, thread) -> new MediaSelector().startActivity(activity, type).flatMapCompletable(files -> {
             ArrayList<Completable> completables = new ArrayList<>();
             for (File file: files) {

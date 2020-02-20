@@ -1,6 +1,7 @@
 package sdk.chat.test;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 
 import java.util.ArrayList;
 
@@ -13,8 +14,8 @@ import io.reactivex.Observable;
 
 public class MessageTestChatOption extends BaseChatOption {
 
-    public MessageTestChatOption(String title, Integer iconResourceId) {
-        super(title, iconResourceId, (activity, thread) -> {
+    public MessageTestChatOption(String title, Drawable iconDrawable) {
+        super(title, iconDrawable, (activity, thread) -> {
             ArrayList<Completable> completables = new ArrayList<>();
             for (Integer i = 0; i < 100; i++) {
                 completables.add(ChatSDK.thread().sendMessageWithText(i.toString(), thread));

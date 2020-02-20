@@ -1,118 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="ChatSDKTheme" parent="Theme.MaterialComponents.Light.Bridge">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primary_dark</item>
-        <item name="colorAccent">@color/accent</item>
-        <item name="colorControlNormal">@color/text_primary</item>
-        <item name="actionBarTheme">@style/ThemeOverlay.SdkTheme.ActionBar</item>
-        <item name="android:itemTextAppearance">@style/myCustomMenuTextAppearance</item>
+<style name="ChatSDKTheme" parent="Theme.MaterialComponents.Light.Bridge">
+    <item name="colorPrimary">@color/primary</item>
+    <item name="colorPrimaryDark">@color/primary_dark</item>
+    <item name="colorAccent">@color/accent</item>
+    <item name="colorControlNormal">@color/text_primary</item>
+    <item name="windowActionBar">false</item>
+    <item name="android:windowActionBar">false</item>
+    <item name="windowNoTitle">true</item>
+    <item name="android:windowNoTitle">true</item>
+    <!--        <item name="android:editTextStyle">@style/EditText</item>-->
+    <!--        <item name="android:buttonStyle">@style/MaterialButton</item>-->
 
-        <item name="windowActionBar">false</item>
-        <item name="android:windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:windowNoTitle">true</item>
+</style>
 
-<!--        <item name="windowActionModeOverlay">true</item>-->
-<!--        <item name="android:windowActionModeOverlay">true</item>-->
-    </style>
+<style name="TextInput">
+    <item name="android:textSize">14sp</item>
+    <item name="android:textColor">@color/dark_gray</item>
+</style>
 
-    <!-- For the sliding affect to look good in the chat context and pick friends context.-->
-    <style name="ChatSDKSlidingTransactionTheme" parent="@style/ChatSDKTheme">
-        <item name="android:windowIsTranslucent">true</item>
-    </style>
+<style name="MaterialButton">
+    <item name="android:layout_height">@dimen/material_button_height</item>
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:textColor">@android:color/white</item>
+    <item name="android:gravity">center</item>
+    <item name="android:layout_weight">0.5</item>
+</style>
 
-    <style name="ThemeOverlay.SdkTheme.ActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
-        <item name="android:textColorPrimary">@color/text_primary</item>
-        <item name="android:textColorSecondary">?android:textColorSecondary</item>
-    </style>
+<style name="CircleIconStyle">
+    <item name="android:layout_width">@dimen/small_avatar_width</item>
+    <item name="android:layout_height">@dimen/small_avatar_height</item>
+</style>
 
-    <style name="myCustomMenuTextAppearance" parent="@android:style/TextAppearance.Widget.IconMenu.Item">
-        <item name="android:textColor">@android:color/black</item>
-    </style>
+<style name="CardHeader">
+    <item name="android:textSize">12sp</item>
+    <item name="android:textColor">@color/gray_light</item>
+</style>
 
-    <!-- TextView Style-->
-    <style name="TextViewStyle">
-        <item name="android:textSize">20sp</item>
-        <item name="android:padding">2dp</item>
-    </style>
-
-    <style name="TextViewStyleSmall">
-        <item name="android:textSize">13sp</item>
-        <item name="android:padding">2dp</item>
-    </style>
-
-    <style name="BlockSwitchTheme" >
-        <item name="colorControlActivated">@color/profile_blocked_icon_color</item>
-    </style>
-
-    <style name="ContactSwitchTheme" >
-        <item name="colorControlActivated">@color/profile_contacts_icon_color</item>
-    </style>
-
-    <!--    <style name="SocialLoginButton">-->
-<!--        <item name="android:layout_width">50dp</item>-->
-<!--        <item name="android:layout_height">50dp</item>-->
-<!--        <item name="android:layout_marginTop">@dimen/login_button_outer_margin</item>-->
-<!--        <item name="android:layout_marginLeft">@dimen/login_button_outer_margin</item>-->
-<!--        <item name="android:layout_marginStart">@dimen/login_button_outer_margin</item>-->
-<!--    </style>-->
-
-    <style name="LoginButton">
-        <item name="android:layout_height">@dimen/login_button_height</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:gravity">center</item>
-        <!--<item name="android:layout_margin">4dp</item>-->
-        <item name="android:layout_weight">0.5</item>
-    </style>
-
-    <style name="MessageDateStyle">
-        <item name="android:textSize">13sp</item>
-        <item name="android:padding">2dp</item>
-        <item name="android:textColor">@android:color/darker_gray</item>
-        <item name="android:textStyle">italic</item>
-    </style>
-
-    <!--Circle image view style-->
-    <style name="CircleIconStyle">
-        <item name="android:layout_width">@dimen/small_avatar_width</item>
-        <item name="android:layout_height">@dimen/small_avatar_height</item>
-    </style>
-
-    <style name="ThreadListCircleIconStyle" parent="CircleIconStyle">
-        <item name="android:layout_margin">3dp</item>
-    </style>
-
-    <!--Row Margins-->
-    <style name="RowStyle">
-        <item name="android:padding">2dp</item>
-    </style>
-
-    <style name="ImagePopupAnimation">
-        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
-        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
-    </style>
-
-<!--    <style name="ProfileUsernameField"-->
-<!--        parent="ProfileTextField">-->
-<!--        <item name="android:textStyle">bold</item>-->
-<!--    </style>-->
-
-<!--    <style name="ProfileUsernameEditField"-->
-<!--        parent="ProfileUsernameField">-->
-<!--        <item name="android:background">@drawable/edit_text_background</item>-->
-<!--        <item name="android:textStyle">bold</item>-->
-<!--    </style>-->
-
-<!--    <style name="ProfileTextField">-->
-<!--        <item name="android:textSize">18sp</item>-->
-<!--        <item name="android:layout_width">match_parent</item>-->
-<!--        <item name="android:gravity">center</item>-->
-<!--        <item name="android:padding">0dp</item>-->
-<!--        <item name="android:layout_margin">0dp</item>-->
-<!--        <item name="android:layout_marginBottom">1dp</item>-->
-<!--        <item name="android:background">@null</item>-->
-<!--    </style>-->
+<style name="ImagePopupAnimation">
+    <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+    <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+</style>
 
 </resources>

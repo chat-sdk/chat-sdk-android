@@ -21,6 +21,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -34,6 +35,7 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
 import co.chatsdk.ui.databinding.ActivitySelectContactsBinding;
+import co.chatsdk.ui.icons.Icons;
 import io.reactivex.functions.Predicate;
 
 /**
@@ -41,14 +43,8 @@ import io.reactivex.functions.Predicate;
  */
 public abstract class SelectContactActivity extends BaseActivity {
 
-//    @BindView(R2.id.recycler_contacts) protected RecyclerView recyclerView;
-//    @BindView(R2.id.button_done) protected FloatingActionButton doneButton;
-
     protected UsersListAdapter adapter;
     protected boolean multiSelectEnabled;
-
-    /** Set true if you want slide down animation for this context exit. */
-    protected boolean animateExit = false;
 
     protected ActivitySelectContactsBinding b;
 
@@ -56,14 +52,6 @@ public abstract class SelectContactActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         b = DataBindingUtil.setContentView(this, getLayout());
-
-        if (savedInstanceState != null) {
-            getDataFromBundle(savedInstanceState);
-        } else {
-            if (getIntent().getExtras() != null) {
-                getDataFromBundle(getIntent().getExtras());
-            }
-        }
 
         Predicate<NetworkEvent> contactChanged = ne -> {
             // Make a filter for user update events
@@ -81,21 +69,16 @@ public abstract class SelectContactActivity extends BaseActivity {
         setMultiSelectEnabled(true);
     }
 
-    protected void getDataFromBundle(Bundle bundle){
-        animateExit = bundle.getBoolean(Keys.IntentKeyAnimateExit, animateExit);
-    }
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(Keys.IntentKeyAnimateExit, animateExit);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuItem item = menu.add(Menu.NONE, R.id.action_search, 0, getString(R.string.search));
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(R.drawable.ic_search_white_36dp);
+        item.setIcon(Icons.get(Icons.choose().search, R.color.app_bar_icon_color));
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -113,9 +96,10 @@ public abstract class SelectContactActivity extends BaseActivity {
 
     protected void initViews() {
         super.initViews();
-        b.floatingActionButton.setOnClickListener(v -> {
+        b.fab.setOnClickListener(v -> {
             doneButtonPressed(UserListItemConverter.toUserList(adapter.getSelectedUsers()));
         });
+        b.fab.setImageDrawable(Icons.get(Icons.choose().check, R.color.fab_icon_color));
     }
 
     protected void initList() {
@@ -132,9 +116,7 @@ public abstract class SelectContactActivity extends BaseActivity {
                     adapter.toggleSelection(item);
                     userSelectionChanged(getUserList());
                 } else {
-                    if (item instanceof User) {
                         doneButtonPressed(Arrays.asList((User) item));
-                    }
                 }
             }
         }));
@@ -162,9 +144,6 @@ public abstract class SelectContactActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if (animateExit) {
-            overridePendingTransition(R.anim.dummy, R.anim.slide_top_bottom_out);
-        }
     }
 
     public void setMultiSelectEnabled (boolean enabled) {
@@ -178,7 +157,7 @@ public abstract class SelectContactActivity extends BaseActivity {
         if (multiSelectEnabled) {
             visible = adapter.getSelectedCount() > 0;
         }
-        b.floatingActionButton.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        b.fab.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
     }
 
 }

@@ -12,63 +12,47 @@
 
     <application
         android:supportsRtl="true"
-        android:hardwareAccelerated="true"
-        >
+        android:hardwareAccelerated="true">
 
         <activity android:name=".activities.LoginActivity"
             android:screenOrientation="portrait"
-            android:launchMode = "singleTask"
-            android:theme="@style/ChatSDKTheme">
+            android:launchMode = "singleInstance">
         </activity>
 
         <activity android:name=".activities.SplashScreenActivity"
             android:screenOrientation="portrait"
-            android:launchMode = "singleTask"
-            android:theme="@style/ChatSDKTheme">
+            android:launchMode = "singleInstance">
         </activity>
 
         <activity android:name=".activities.ThreadDetailsActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
+            android:windowSoftInputMode="stateHidden" />
 
-        <activity android:name=".activities.ThreadEditDetailsActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
+        <activity android:name=".activities.CreateThreadActivity"
+            android:windowSoftInputMode="stateHidden" />
 
-        <activity android:name=".activities.CKChatActivity"
-            android:parentActivityName=".activities.MainAppBarActivity"
-            android:launchMode = "singleTop"
-            android:windowSoftInputMode="stateHidden|adjustResize"
-            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
+        <activity android:name=".activities.EditThreadActivity"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity android:name=".activities.ChatActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <activity android:name=".activities.EditProfileActivity"
-            android:windowSoftInputMode="stateHidden|adjustPan"
-            android:theme="@style/ChatSDKTheme"/>
+            android:windowSoftInputMode="stateHidden|adjustPan" />
 
         <activity android:name=".activities.SearchActivity"
-            android:windowSoftInputMode="stateVisible"
-            android:theme="@style/ChatSDKTheme"/>
+            android:windowSoftInputMode="stateVisible" />
 
         <activity android:name=".activities.ProfileActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:theme="@style/ChatSDKTheme"/>
+            android:windowSoftInputMode="stateHidden" />
 
         <activity android:name=".activities.MainAppBarActivity"
-            android:launchMode = "singleTask"
-            android:theme="@style/ChatSDKTheme"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
         <activity android:name=".activities.AddUsersToThreadActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
-
-        <activity android:name=".activities.CreateThreadActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
+            android:windowSoftInputMode="stateHidden" />
 
         <activity android:name=".activities.ForwardMessageActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:theme="@style/ChatSDKSlidingTransactionTheme"/>
+            android:windowSoftInputMode="stateHidden" />
 
         <!--Crop image-->
         <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
@@ -88,7 +72,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"/>
         </provider>
-
 
     </application>
 </manifest>

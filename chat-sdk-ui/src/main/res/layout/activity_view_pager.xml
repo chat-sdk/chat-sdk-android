@@ -11,7 +11,7 @@
             android:id="@+id/content"
             android:animateLayoutChanges="true">
 
-            <include layout="@layout/toolbar_default" />
+            <include layout="@layout/app_bar_default" />
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabLayout"

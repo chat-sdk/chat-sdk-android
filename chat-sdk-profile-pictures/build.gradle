@@ -53,4 +53,11 @@ publish {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(':chat-sdk-ui')
+
+    implementation "com.mikepenz:material-design-icons-dx-typeface:$iconicsMaterialDesignIconsVersion"
+    implementation "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
+    implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
+    implementation "com.mikepenz:iconics-core:$iconicsVersion"
+    implementation "com.mikepenz:iconics-views:$iconicsVersion"
+
 }

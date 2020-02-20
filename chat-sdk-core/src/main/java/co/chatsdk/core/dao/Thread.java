@@ -292,10 +292,12 @@ public class Thread extends AbstractEntity {
 
     @Keep
     public void removeMetaValue (String key) {
+        // TODO: test this
         ThreadMetaValue metaValue = metaValueForKey(key);
         this.metaValues.remove(metaValue);
 //        metaValue.delete();
         update();
+//        resetMetaValues();
     }
 
     @Keep

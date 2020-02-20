@@ -1,7 +1,6 @@
 package co.chatsdk.core.events;
 
 import android.location.Location;
-import android.net.Network;
 
 import java.util.HashMap;
 
@@ -134,13 +133,13 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.ThreadRead, thread);
     }
 
-    public static NetworkEvent threadReadReceiptUpdated(Message message) {
-        return new NetworkEvent(EventType.ThreadReadReceiptUpdated, message.getThread(), message);
+    public static NetworkEvent messageReadReceiptUpdated(Message message) {
+        return new NetworkEvent(EventType.MessageReadReceiptUpdated, message.getThread(), message);
     }
 
     @Deprecated
-    public static NetworkEvent threadReadReceiptUpdated(Thread thread, Message message) {
-        return new NetworkEvent(EventType.ThreadReadReceiptUpdated, thread, message);
+    public static NetworkEvent messageReadReceiptUpdated(Thread thread, Message message) {
+        return new NetworkEvent(EventType.MessageReadReceiptUpdated, thread, message);
     }
 
     public static NetworkEvent typingStateChanged(String message, Thread thread) {

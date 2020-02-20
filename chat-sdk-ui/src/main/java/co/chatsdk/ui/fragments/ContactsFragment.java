@@ -7,9 +7,12 @@
 
 package co.chatsdk.ui.fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import androidx.annotation.LayoutRes;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,6 +39,7 @@ import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
 import co.chatsdk.ui.chat.model.ThreadHolder;
 import co.chatsdk.ui.databinding.FragmentContactsBinding;
+import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.interfaces.SearchSupported;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -87,7 +91,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
                 final User clickedUser = (User) o;
 
                 onClickSubject.onNext(clickedUser);
-                ChatSDK.ui().startProfileActivity(getContext(), clickedUser.getEntityID());
+                startProfileActivity(clickedUser.getEntityID());
             }
         });
 
@@ -109,6 +113,22 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
                 .subscribe(networkEvent -> loadData(true)));
     }
 
+    public void startProfileActivity(String userEntityID) {
+
+//        Pair<View, String> p1 = Pair.create(view.findViewById(R.id.dialogAvatar), "imageView");
+//        Pair<View, String> p2 = Pair.create(view.findViewById(R.id.dialogName), "titleTextView");
+//
+//        Bundle bundle = null;
+//        Activity activity = getActivity();
+//        if (activity != null) {
+//            bundle = ActivityOptionsCompat.
+//                    makeSceneTransitionAnimation(activity, p1, p2).toBundle();
+//        }
+
+        ChatSDK.ui().startProfileActivity(getContext(), userEntityID);
+
+    }
+
     public void initViews() {
 
         // Create the adapter only if null this is here so we wont
@@ -122,10 +142,8 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-
-        MenuItem item = menu.add(Menu.NONE, R.id.action_add, 10, getString(R.string.add_contacts));
-        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(R.drawable.ic_plus);
+        inflater.inflate(R.menu.add_menu, menu);
+        menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, R.color.app_bar_icon_color));
     }
 
     @Override
@@ -161,9 +179,9 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
             items[i++] = activity.title;
         }
 
-        builder.setTitle(getActivity().getString(R.string.search)).setItems(items, (dialogInterface, i1) -> {
+        builder.setTitle(getActivity().getString(R.string.search)).setItems(items, (dialogInterface, index) -> {
             // Launch the appropriate context
-            ChatSDK.ui().startActivity(getActivity(), activities.get(i1).className);
+            ChatSDK.ui().startActivity(getActivity(), activities.get(index).className);
         });
 
         builder.show();

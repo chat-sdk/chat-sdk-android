@@ -35,6 +35,7 @@
     <string name="search_with_name">Search with name</string>
     <string name="add_conversation">Add Conversation</string>
     <string name="creating_thread">Creating Thread</string>
+    <string name="search_field_empty">Search field is empty</string>
 
     <string name="new_chat">New Chat</string>
 
@@ -282,20 +283,6 @@
     <string name="profile">Profile</string>
     <string name="edit_profile">Edit Profile</string>
 
-    <string-array name="availability_states">
-        <item>Available</item>
-        <item>Away</item>
-        <item>Extended Away</item>
-        <item>Busy</item>
-    </string-array>
-
-    <!--<string-array name="profile_show_states">-->
-    <!--<item>Available</item>-->
-    <!--<item>Away</item>-->
-    <!--<item>Do not disturb</item>-->
-    <!--<item>Unavailable</item>-->
-    <!--</string-array>-->
-
     <string name="forgot_password">Forgot Password</string>
     <string name="requesting">Requesting</string>
     <string name="password_reset_success">You have been sent an email with instructions to reset your password</string>
@@ -391,6 +378,7 @@
     <string name="message_sent">Message sent!</string>
     <string name="message_forward_failed">Message forwarded failed</string>
     <string name="online">Online</string>
+    <string name="add">Add</string>
 
     <string name="info">Info</string>
     <string name="change_role">Change role</string>

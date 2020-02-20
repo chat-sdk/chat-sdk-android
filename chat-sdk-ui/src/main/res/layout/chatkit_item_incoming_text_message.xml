@@ -40,6 +40,7 @@
         <!--this view is needed for custom holder-->
         <ImageView
             android:id="@+id/onlineIndicator"
+            android:contentDescription="@string/online"
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:layout_alignEnd="@id/messageUserAvatar"

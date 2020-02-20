@@ -126,4 +126,8 @@ public class AlertUtils implements Consumer<Throwable> {
     public void accept(Throwable throwable) throws Exception {
         onError(throwable);
     }
+
+    public ProgressDialog getProgressDialog() {
+        return progressDialog;
+    }
 }

@@ -58,7 +58,7 @@ public class IconEditView extends LinearLayout {
     }
 
     public void setHint(@StringRes int resId) {
-        b.textInput.setHint(resId);
+        b.textInputLayout.setHint(getContext().getResources().getString(resId));
     }
 
     public void setInputType(int type) {

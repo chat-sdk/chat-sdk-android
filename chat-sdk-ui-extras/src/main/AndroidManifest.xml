@@ -7,7 +7,6 @@
 
         <activity android:name=".MainDrawActivity"
             android:screenOrientation="portrait"
-            android:launchMode = "singleTask"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/ChatSDKTheme">
         </activity>

@@ -15,7 +15,7 @@ package co.chatsdk.core.types;
 //    Sticker,
 //    File,
 //    Custom,
-//    None,
+//    Received,
 //
 //}
 

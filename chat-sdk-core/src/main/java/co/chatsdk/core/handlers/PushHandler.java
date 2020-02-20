@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.interfaces.BroadcastHandler;
+import io.reactivex.Completable;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
@@ -11,8 +12,8 @@ import co.chatsdk.core.interfaces.BroadcastHandler;
 
 public interface PushHandler {
 
-    void subscribeToPushChannel(String channel);
-    void unsubscribeToPushChannel(String channel);
+    Completable subscribeToPushChannel(String channel);
+    Completable unsubscribeToPushChannel(String channel);
 
     HashMap<String, Object> pushDataForMessage(Message message);
     void sendPushNotification (HashMap<String, Object> data);

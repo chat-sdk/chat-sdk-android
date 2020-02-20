@@ -14,7 +14,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class CreateThreadActivity extends SelectContactActivity {
 
-    protected String threadEntityID = "";
     protected Thread thread;
 
     @Override
@@ -22,18 +21,6 @@ public class CreateThreadActivity extends SelectContactActivity {
         super.onCreate(savedInstanceState);
         setActionBarTitle(R.string.new_chat);
         setMultiSelectEnabled(ChatSDK.config().groupsEnabled);
-    }
-
-    @Override
-    protected void getDataFromBundle(Bundle bundle) {
-        super.getDataFromBundle(bundle);
-        threadEntityID = bundle.getString(Keys.IntentKeyThreadEntityID, threadEntityID);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString(Keys.IntentKeyThreadEntityID, threadEntityID);
     }
 
     @Override
@@ -60,7 +47,7 @@ public class CreateThreadActivity extends SelectContactActivity {
                 userEntityIDs.add(u.getEntityID());
             }
 //            finish();
-            ChatSDK.ui().startThreadEditDetailsActivity(this, null, userEntityIDs);
+            ChatSDK.ui().startEditThreadActivity(this, null, userEntityIDs);
         }
         else {
             createAndOpenThread("", users);

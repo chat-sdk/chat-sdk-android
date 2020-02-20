@@ -38,6 +38,7 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
 import co.chatsdk.ui.databinding.ActivitySearchBinding;
+import co.chatsdk.ui.icons.Icons;
 import io.reactivex.Completable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -81,7 +82,7 @@ public class SearchActivity extends BaseActivity {
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == SCROLL_STATE_TOUCH_SCROLL) {
-                    b.floatingActionButton.setVisibility(View.INVISIBLE);
+                    b.fab.setVisibility(View.INVISIBLE);
                 } else {
                     refreshDoneButton();
                 }
@@ -100,6 +101,8 @@ public class SearchActivity extends BaseActivity {
             public boolean onQueryTextSubmit(String query) {
                 if (!query.isEmpty()) {
                     search(query);
+                } else {
+                    adapter.clear();
                 }
                 return true;
             }
@@ -108,8 +111,22 @@ public class SearchActivity extends BaseActivity {
             public boolean onQueryTextChange(String newText) {
                 if (newText.length() > 2) {
                     search(newText);
+                } else {
+                    adapter.clear();
                 }
                 return false;
+            }
+        });
+
+        b.searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
+            @Override
+            public void onSearchViewShown() {
+
+            }
+
+            @Override
+            public void onSearchViewClosed() {
+                finish();
             }
         });
     }
@@ -129,6 +146,8 @@ public class SearchActivity extends BaseActivity {
         getMenuInflater().inflate(R.menu.activity_search_menu, menu);
 
         MenuItem item = menu.findItem(R.id.action_search);
+        item.setIcon(Icons.get(Icons.choose().search, R.color.app_bar_icon_color));
+
         b.searchView.setMenuItem(item);
 
         return true;
@@ -145,6 +164,7 @@ public class SearchActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        hideKeyboard();
     }
 
     @Override
@@ -153,14 +173,13 @@ public class SearchActivity extends BaseActivity {
 
         dm.add(adapter.onClickObservable().subscribe(item -> adapter.toggleSelection(item)));
 
-        b.floatingActionButton.setOnClickListener(v -> done());
+        b.fab.setOnClickListener(v -> done());
 
         refreshDoneButton();
         b.searchView.showSearch(false);
     }
 
     protected void search (String text) {
-        // Clear the list of users
 
         final List<UserListItem> users = new ArrayList<>();
         final List<User> existingContacts = ChatSDK.contact().contacts();
@@ -202,7 +221,7 @@ public class SearchActivity extends BaseActivity {
 
     }
 
-    protected void done () {
+    protected void done() {
 
         ArrayList<Completable> completables = new ArrayList<>();
 
@@ -218,8 +237,10 @@ public class SearchActivity extends BaseActivity {
     }
 
     public void refreshDoneButton () {
-        b.floatingActionButton.setImageResource(R.drawable.ic_check_white_48dp);
-        b.floatingActionButton.setVisibility(adapter.getSelectedCount() > 0 ? View.VISIBLE : View.INVISIBLE);
+        b.fab.setImageDrawable(Icons.get(Icons.choose().check, R.color.white));
+        b.fab.setVisibility(adapter.getSelectedCount() > 0 ? View.VISIBLE : View.INVISIBLE);
     }
+
+
 
 }

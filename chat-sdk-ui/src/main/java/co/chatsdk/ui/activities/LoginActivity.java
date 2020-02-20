@@ -111,11 +111,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     public void onClick(View v) {
         int i = v.getId();
 
-        Action completion = this::afterLogin;
-        Action doFinally = this::dismissProgressDialog;
-
         showProgressDialog(getString(R.string.authenticating));
-        progressDialog.setOnDismissListener(dialog -> {
+
+        getProgressDialog().setOnDismissListener(dialog -> {
             // Dispose
             dm.dispose();
         });
@@ -177,7 +175,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
                     authenticating = false;
-//                    dismissProgressDialog();
                 })
                 .subscribe(this::afterLogin, e -> {
                     dismissProgressDialog();

@@ -112,7 +112,7 @@ public class MainAppBarActivity extends MainActivity {
     public void onStart() {
         super.onStart();
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setHomeAsUpIndicator(Icons.get(Icons.shared().user, R.color.app_bar_icon_color));
+            getSupportActionBar().setHomeAsUpIndicator(Icons.get(Icons.choose().user, R.color.app_bar_icon_color));
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }
@@ -151,23 +151,8 @@ public class MainAppBarActivity extends MainActivity {
     }
 
     public void updateLocalNotificationsForTab () {
-        TabLayout.Tab tab = b.tabLayout.getTabAt(b.tabLayout.getSelectedTabPosition());
-        ChatSDK.ui().setLocalNotificationHandler(thread -> showLocalNotificationsForTab(tab, thread));
-    }
-
-    public boolean showLocalNotificationsForTab (TabLayout.Tab tab, Thread thread) {
-        // Don't show notifications on the threads tabs
-        Tab t = adapter.getTabs().get(tab.getPosition());
-
-        if (thread.typeIs(ThreadType.Private)) {
-            Class privateThreadsFragmentClass = ChatSDK.ui().privateThreadsFragment().getClass();
-            return !t.fragment.getClass().isAssignableFrom(privateThreadsFragmentClass);
-        }
-        if (thread.typeIs(ThreadType.Public)) {
-            Class publicThreadsFragmentClass = ChatSDK.ui().publicThreadsFragment().getClass();
-            return !t.fragment.getClass().isAssignableFrom(publicThreadsFragmentClass);
-        }
-        return true;
+        Tab tab = adapter.getTabs().get(b.tabLayout.getSelectedTabPosition());
+        ChatSDK.ui().setLocalNotificationHandler(thread -> showLocalNotificationsForTab(tab.fragment, thread));
     }
 
     public void clearData () {

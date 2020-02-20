@@ -21,7 +21,7 @@ import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.databinding.FragmentProfileBinding;
 import co.chatsdk.ui.icons.Icons;
-import co.chatsdk.ui.utils.AvailabilityHelper;
+import co.chatsdk.ui.binders.AvailabilityHelper;
 import co.chatsdk.ui.views.IconItemView;
 import co.chatsdk.ui.views.SwitchItemView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -204,13 +204,13 @@ public class ProfileFragment extends BaseFragment {
         setHasOptionsMenu(isCurrentUser);
 
         if (isCurrentUser) {
-            b.fab.setImageDrawable(Icons.get(Icons.shared().edit, R.color.white));
+            b.fab.setImageDrawable(Icons.get(Icons.choose().edit, R.color.white));
             b.fab.setOnClickListener(v -> {
                 showEditProfileScreen();
             });
             b.onlineIndicator.setVisibility(View.GONE);
         } else {
-            b.fab.setImageDrawable(Icons.get(Icons.shared().chat, R.color.white));
+            b.fab.setImageDrawable(Icons.get(Icons.choose().chat, R.color.white));
             b.fab.setOnClickListener(v -> {
                 startChat();
             });
@@ -241,41 +241,42 @@ public class ProfileFragment extends BaseFragment {
         b.buttonsLinearLayout.removeAllViews();
 
         if (!StringChecker.isNullOrEmpty(user.getLocation())) {
-            b.iconLinearLayout.addView(IconItemView.create(getContext(), user.getLocation(), Icons.get(Icons.shared().location, R.color.profile_icon_color)));
+            b.iconLinearLayout.addView(IconItemView.create(getContext(), user.getLocation(), Icons.get(Icons.choose().location, R.color.profile_icon_color)));
         }
         if (!StringChecker.isNullOrEmpty(user.getPhoneNumber())) {
-            b.iconLinearLayout.addView(IconItemView.create(getContext(), user.getPhoneNumber(), Icons.get(Icons.shared().phone, R.color.profile_icon_color)));
+            b.iconLinearLayout.addView(IconItemView.create(getContext(), user.getPhoneNumber(), Icons.get(Icons.choose().phone, R.color.profile_icon_color)));
         }
         if (!StringChecker.isNullOrEmpty(user.getEmail())) {
-            b.iconLinearLayout.addView(IconItemView.create(getContext(), user.getEmail(), Icons.get(Icons.shared().email, R.color.profile_icon_color)));
+            b.iconLinearLayout.addView(IconItemView.create(getContext(), user.getEmail(), Icons.get(Icons.choose().email, R.color.profile_icon_color)));
         }
         if (!StringChecker.isNullOrEmpty(user.getPresenceSubscription())) {
-            b.iconLinearLayout.addView(IconItemView.create(getContext(), user.getPresenceSubscription(), Icons.get(Icons.shared().email, R.color.profile_icon_color)));
-            b.iconLinearLayout.addView(IconItemView.create(getContext(), user.getPresenceSubscription(), Icons.get(Icons.shared().email, R.color.profile_icon_color)));
+            b.iconLinearLayout.addView(IconItemView.create(getContext(), user.getPresenceSubscription(), Icons.get(Icons.choose().check, R.color.profile_icon_color)));
+            b.iconLinearLayout.addView(IconItemView.create(getContext(), user.getPresenceSubscription(), Icons.get(Icons.choose().check, R.color.profile_icon_color)));
         }
 
         if (!isCurrentUser) {
 
-            boolean isBlocked = ChatSDK.blocking().isBlocked(getUser().getEntityID());
+            if (ChatSDK.blocking() != null) {
+                boolean isBlocked = ChatSDK.blocking().isBlocked(getUser().getEntityID());
 
-            b.buttonsLinearLayout.addView(SwitchItemView.create(
-                    getContext(),
-                    R.string.blocked,
-                    Icons.get(Icons.shared().block, R.color.profile_blocked_icon_color),
-                    isBlocked,
-                    R.style.BlockSwitchTheme,(buttonView, isChecked) -> {
-                toggleBlocked();
-            }));
+                b.buttonsLinearLayout.addView(SwitchItemView.create(
+                        getContext(),
+                        R.string.blocked,
+                        Icons.get(Icons.choose().block, R.color.blocked_primary_icon_color),
+                        isBlocked,
+                        R.color.blocked_primary_icon_color, R.color.blocked_secondary_icon_color,(buttonView, isChecked) -> {
+                            toggleBlocked();
+                        }));
+            }
 
             boolean isContact = ChatSDK.contact().exists(getUser());
 
             b.buttonsLinearLayout.addView(SwitchItemView.create(
                     getContext(),
                     R.string.contact,
-                    Icons.get(Icons.shared().contact, R.color.profile_contacts_icon_color),
+                    Icons.get(Icons.choose().contact, R.color.contacts_primary_color),
                     isContact,
-                    R.style.ContactSwitchTheme,
-                    (buttonView, isChecked) -> {
+                    R.color.contacts_primary_color, R.color.contacts_secondary_color, (buttonView, isChecked) -> {
                 toggleContact();
             }));
 
@@ -302,49 +303,18 @@ public class ProfileFragment extends BaseFragment {
     }
 
     public void startChat() {
-        ChatSDK.ui().startEditProfileActivity(getContext(), ChatSDK.currentUserID());
-
-        showProgressDialog(getString(R.string.creating_thread));
+//        showProgressDialog(getString(R.string.creating_thread));
 
         dm.add(ChatSDK.thread().createThread("", user, ChatSDK.currentUser())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
-                    dismissProgressDialog();
+//                    dismissProgressDialog();
                     startingChat = false;
                 })
                 .subscribe(thread -> {
                     ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID());
                 }, this.snackbarOnErrorConsumer()));
     }
-
-//    @Override
-//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        super.onCreateOptionsMenu(menu, inflater);
-//
-//        if (!getUser().isMe()) {
-//            return;
-//        }
-//
-//        MenuItem item =
-//                menu.add(Menu.NONE, R.id.action_chat_sdk_settings, 12, getString(R.string.action_settings));
-//        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-//        item.setIcon(R.drawable.icn_24_settings);
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//
-//        /* Cant use switch in the library*/
-//        int id = item.getItemId();
-//
-//        if (id == R.id.action_chat_sdk_settings)
-//        {
-//            showEditProfileScreen();
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
 
     @Override
     public void clearData() {

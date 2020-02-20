@@ -21,6 +21,7 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.UserThreadLink;
 import co.chatsdk.core.dao.UserThreadLinkDao;
 import co.chatsdk.core.interfaces.CoreEntity;
+import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.ReadStatus;
 
 import static co.chatsdk.core.dao.DaoCore.daoSession;
@@ -108,6 +109,29 @@ public class StorageManager {
 
         return qb.list();
     }
+
+//    public int fetchUnreadMessageCount(ThreadType threadType) {
+//        Long currentUserId = ChatSDK.currentUser().getId();
+//
+//        QueryBuilder<ReadReceiptUserLink> qb = daoSession.queryBuilder(ReadReceiptUserLink.class);
+//        Join<?, Message> message = qb.join(Message.class, ReadReceiptUserLinkDao.Properties.MessageId);
+//
+//        Join<Message, ReadReceiptUserLink> rrj;
+//
+//        Join<ReadReceiptUserLink, Thread> thread = qb.join(rrj, null, Thread.class, null);
+//
+//
+//        QueryBuilder<Thread> qb2 = daoSession.queryBuilder(Thread.class);
+//        Join<Thread, Message> join = qb2.join(Message.class, MessageDao.Properties.ThreadId);
+//        Join<Message, ReadReceiptUserLink> join2 = qb2.join(join, MessageDao.Properties.Id, ReadReceiptUserLink.class, ReadReceiptUserLinkDao.Properties.MessageId);
+//
+//        Join message = qb.join(Message.class, MessageDao.Properties.ThreadId).where(MessageDao.Properties.SenderId.notEq(currentUserId));
+//
+//        Join<Message, ReadReceiptUserLink> readReceipt = qb.join(rrj, MessageDao.Properties., ReadReceiptUserLink.class, ReadReceiptUserLinkDao.Properties.MessageId);
+//
+//        join.where(join.and(ReadReceiptUserLinkDao.Properties.UserId.eq(currentUserId), ReadReceiptUserLinkDao.Properties.Status.notEq(ReadStatus.Read)));
+//        return qb.list().size();
+//    }
 
     public Thread fetchThreadWithID (long threadID) {
         return fetchEntityWithProperty(Thread.class, ThreadDao.Properties.Id, threadID);

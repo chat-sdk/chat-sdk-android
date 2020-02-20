@@ -14,4 +14,7 @@ public class Generic {
     public static GenericTypeIndicator<HashMap<String, Object>> hashMapStringObject() {
         return new GenericTypeIndicator<HashMap<String, Object>>() {};
     }
+    public static GenericTypeIndicator<HashMap<String, HashMap<String, Long>>> readReceiptHashMap() {
+        return new GenericTypeIndicator<HashMap<String, HashMap<String, Long>>>() {};
+    }
 }

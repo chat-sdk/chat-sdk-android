@@ -84,6 +84,13 @@ dependencies {
 
     implementation 'org.webrtc:google-webrtc:1.0.30039'
 
+    implementation "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
+    implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
+//    implementation 'com.mikepenz:octicons-typeface:3.2.0.6-kotlin@aar'
+
+    implementation "com.mikepenz:iconics-core:$iconicsVersion"
+
+
     implementation "com.google.android.libraries.places:places:$googlePlacesVersion"
 }
 

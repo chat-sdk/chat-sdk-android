@@ -1,0 +1,49 @@
+<resources>
+<style name="ChatSDKTheme" parent="Theme.MaterialComponents.Light.Bridge">
+    <item name="colorPrimary">@color/primary</item>
+    <item name="colorPrimaryDark">@color/primary_dark</item>
+    <item name="colorAccent">@color/accent</item>
+    <item name="colorControlNormal">@color/text_primary</item>
+    <item name="windowActionBar">false</item>
+    <item name="android:windowActionBar">false</item>
+    <item name="windowNoTitle">true</item>
+    <item name="android:windowNoTitle">true</item>
+
+    <!-- API level 21-->
+    <item name="android:windowActivityTransitions">true</item>
+    <item name="android:windowContentTransitions">true</item>
+
+    <item name="android:windowEnterTransition">@transition/explode</item>
+    <item name="android:windowExitTransition">@transition/explode</item>
+
+</style>
+
+<style name="TextInput">
+    <item name="android:textSize">14sp</item>
+    <item name="android:textColor">@color/dark_gray</item>
+</style>
+
+<style name="MaterialButton">
+    <item name="android:layout_height">@dimen/material_button_height</item>
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:textColor">@android:color/white</item>
+    <item name="android:gravity">center</item>
+    <item name="android:layout_weight">0.5</item>
+</style>
+
+<style name="CircleIconStyle">
+    <item name="android:layout_width">@dimen/small_avatar_width</item>
+    <item name="android:layout_height">@dimen/small_avatar_height</item>
+</style>
+
+<style name="CardHeader">
+    <item name="android:textSize">12sp</item>
+    <item name="android:textColor">@color/gray_light</item>
+</style>
+
+<style name="ImagePopupAnimation">
+    <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+    <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+</style>
+
+</resources>

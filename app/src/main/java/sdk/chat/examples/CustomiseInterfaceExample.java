@@ -9,6 +9,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
 import co.chatsdk.firestream.FireStreamNetworkAdapter;
 import co.chatsdk.ui.BaseInterfaceAdapter;
+import co.chatsdk.ui.icons.Icons;
 import sdk.chat.custom.AChatActivity;
 import sdk.chat.custom.APrivateThreadsFragment;
 import sdk.chat.test.MessageTestChatOption;
@@ -41,14 +42,14 @@ public class CustomiseInterfaceExample extends BaseExample {
             ChatSDK.ui().setPrivateThreadsFragment(new APrivateThreadsFragment());
 
             // Add an extra tab
-            ChatSDK.ui().addTab("Title", context.getResources().getDrawable(R.drawable.push_icon), new APrivateThreadsFragment());
+            ChatSDK.ui().addTab("Title", Icons.get(Icons.choose().search, R.color.gray), new APrivateThreadsFragment());
 
             // Remove a tab
             ChatSDK.ui().removeTab(0);
 
             // Define custom chat options that are displayed
             // in the chat activity when the options button is pressed
-            ChatSDK.ui().addChatOption(new MessageTestChatOption("Title", 0));
+            ChatSDK.ui().addChatOption(new MessageTestChatOption("Title", null));
 
             // Define when notifications are shown
             ChatSDK.ui().setLocalNotificationHandler(thread -> {

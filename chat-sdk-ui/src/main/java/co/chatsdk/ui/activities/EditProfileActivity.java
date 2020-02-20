@@ -18,6 +18,7 @@ import java.util.Map;
 import androidx.annotation.LayoutRes;
 import androidx.databinding.DataBindingUtil;
 
+import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.squareup.picasso.Picasso;
 
 import co.chatsdk.core.dao.Keys;
@@ -29,6 +30,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.binders.AvailabilityHelper;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.databinding.ActivityEditProfileBinding;
 import co.chatsdk.ui.fragments.ProfileViewOffsetChangeListener;
@@ -102,13 +104,15 @@ public class EditProfileActivity extends BaseActivity {
             }
         });
 
+        b.spinner.setItems(AvailabilityHelper.getAvailableStateStrings(this));
+
         b.appbar.addOnOffsetChangedListener(new ProfileViewOffsetChangeListener(b.avatarImageView));
 
         b.backdrop.setImageResource(R.drawable.header2);
 
-        b.doneFab.setImageDrawable(Icons.get(Icons.shared().check, R.color.app_bar_icon_color));
+        b.doneFab.setImageDrawable(Icons.get(Icons.choose().check, R.color.app_bar_icon_color));
         b.doneFab.setOnClickListener(v -> saveAndExit());
-        b.logoutFab.setImageDrawable(Icons.get(Icons.shared().logout, R.color.app_bar_icon_color));
+        b.logoutFab.setImageDrawable(Icons.get(Icons.choose().logout, R.color.app_bar_icon_color));
         b.logoutFab.setOnClickListener(v -> logout());
 
         reloadData();
@@ -135,29 +139,29 @@ public class EditProfileActivity extends BaseActivity {
         b.statusEditText.setText(status);
 
         if (availability != null && !availability.isEmpty()) {
-            setAvailability(availability);
+            b.spinner.setSelectedIndex(AvailabilityHelper.getAvailableStates().indexOf(currentUser.getAvailability()));
         }
 
         b.nameEditView.setText(name);
         b.nameEditView.setNextFocusDown(R.id.locationEditView);
-        b.nameEditView.setIcon(Icons.get(Icons.shared().user, R.color.edit_profile_icon_color));
+        b.nameEditView.setIcon(Icons.get(Icons.choose().user, R.color.edit_profile_icon_color));
         b.nameEditView.setHint(R.string.name_hint);
         b.nameEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
         b.locationEditView.setText(location);
         b.locationEditView.setNextFocusDown(R.id.phoneEditView);
-        b.locationEditView.setIcon(Icons.get(Icons.shared().location, R.color.edit_profile_icon_color));
+        b.locationEditView.setIcon(Icons.get(Icons.choose().location, R.color.edit_profile_icon_color));
         b.locationEditView.setHint(R.string.location_hint);
         b.locationEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
         b.phoneEditView.setText(phoneNumber);
         b.phoneEditView.setNextFocusDown(R.id.emailEditView);
-        b.phoneEditView.setIcon(Icons.get(Icons.shared().phone, R.color.edit_profile_icon_color));
+        b.phoneEditView.setIcon(Icons.get(Icons.choose().phone, R.color.edit_profile_icon_color));
         b.phoneEditView.setHint(R.string.phone_number_hint);
         b.phoneEditView.setInputType(InputType.TYPE_CLASS_PHONE);
 
         b.emailEditView.setText(email);
-        b.emailEditView.setIcon(Icons.get(Icons.shared().email, R.color.edit_profile_icon_color));
+        b.emailEditView.setIcon(Icons.get(Icons.choose().email, R.color.edit_profile_icon_color));
         b.emailEditView.setHint(R.string.email_hint);
         b.emailEditView.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
     }
@@ -171,7 +175,8 @@ public class EditProfileActivity extends BaseActivity {
     protected void saveAndExit () {
 
         String status = b.statusEditText.getText().toString().trim();
-        String availability = getAvailability().trim();
+
+        String availability = AvailabilityHelper.getAvailableStates().get(b.spinner.getSelectedIndex());
 
         String name = b.nameEditView.getText();
         String location = b.locationEditView.getText();
@@ -256,32 +261,32 @@ public class EditProfileActivity extends BaseActivity {
         return index;
     }
 
-    protected String getAvailability () {
-        String a = b.availabilitySpinner.getSelectedItem().toString().toLowerCase();
-        switch (a) {
-            case "away":
-                return Availability.Away;
-            case "extended away":
-                return Availability.XA;
-            case "busy":
-                return Availability.Busy;
-            default:
-                return Availability.Available;
-        }
-    }
-
-    protected void setAvailability (String a) {
-        String availability = "available";
-        if (a.equals(Availability.Away)) {
-            availability = "away";
-        }
-        else if (a.equals(Availability.XA)) {
-            availability = "extended away";
-        }
-        else if (a.equals(Availability.Busy)) {
-            availability = "busy";
-        }
-        b.availabilitySpinner.setSelection(getIndex(b.availabilitySpinner, availability));
-
-    }
+//    protected String getAvailability () {
+//        String a = b.availabilitySpinner.getSelectedItem().toString().toLowerCase();
+//        switch (a) {
+//            case "away":
+//                return Availability.Away;
+//            case "extended away":
+//                return Availability.XA;
+//            case "busy":
+//                return Availability.Busy;
+//            default:
+//                return Availability.Available;
+//        }
+//    }
+//
+//    protected void setAvailability (String a) {
+//        String availability = "available";
+//        if (a.equals(Availability.Away)) {
+//            availability = "away";
+//        }
+//        else if (a.equals(Availability.XA)) {
+//            availability = "extended away";
+//        }
+//        else if (a.equals(Availability.Busy)) {
+//            availability = "busy";
+//        }
+//        b.availabilitySpinner.setSelection(getIndex(b.availabilitySpinner, availability));
+//
+//    }
 }

@@ -87,8 +87,7 @@
                     android:layout_width="20dp"
                     android:layout_height="10dp"
                     android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true"
-                    android:background="@drawable/ic_message_received" />
+                    android:layout_alignParentEnd="true" />
 
             </RelativeLayout>
 

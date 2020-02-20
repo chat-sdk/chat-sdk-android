@@ -196,7 +196,7 @@ public class ApiExamples {
      */
     public void listenForReadReceiptUpdated () {
         Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {
-            if (networkEvent.type == EventType.ThreadReadReceiptUpdated) {
+            if (networkEvent.type == EventType.MessageReadReceiptUpdated) {
                 // Code here
             }
         });

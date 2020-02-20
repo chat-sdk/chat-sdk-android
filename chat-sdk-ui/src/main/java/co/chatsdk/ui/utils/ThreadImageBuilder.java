@@ -3,6 +3,7 @@ package co.chatsdk.ui.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.widget.ImageView;
 
@@ -22,6 +23,7 @@ import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.icons.Icons;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.disposables.Disposable;
@@ -40,7 +42,7 @@ public class ThreadImageBuilder {
     }
 
     public static Disposable load (final ImageView imageView, final Thread thread, int size) {
-        return getImageUriForThread(imageView.getContext(), thread, size).subscribe(uri -> Picasso.get().load(uri).into(imageView), throwable -> imageView.setImageURI(defaultBitmapUri(thread)));
+        return getImageUriForThread(imageView.getContext(), thread, size).subscribe(uri -> Picasso.get().load(uri).into(imageView), throwable -> imageView.setImageDrawable(defaultDrawable(thread)));
     }
 
     public static Single<Uri> getImageUriForThread(Context context, final Thread thread) {
@@ -136,32 +138,18 @@ public class ThreadImageBuilder {
         });
     }
 
-    public static int defaultBitmapResId (Thread thread) {
-        if (thread == null) {
-            return defaultBitmapResId();
-        }
-        else if (thread.typeIs(ThreadType.Private1to1)) {
-            return R.drawable.icn_100_private_thread;
+    public static Drawable defaultDrawable(Thread thread) {
+        if (thread == null || thread.typeIs(ThreadType.Private1to1)) {
+            return Icons.get(Icons.choose().users, R.color.thread_default_icon_color);
         }
         else {
-            return R.drawable.icn_100_public_thread;
+            return Icons.get(Icons.choose().publicChat, R.color.thread_default_icon_color);
         }
     }
 
-    public static Uri defaultBitmapUri (Thread thread) {
-        return new Uri.Builder()
-                .scheme("res")
-                .path(String.valueOf(defaultBitmapResId(thread)))
-                .build();
-    }
-
-    public static Bitmap defaultBitmap (Context context, Thread thread) {
-        return BitmapFactory.decodeResource(context.getResources(), defaultBitmapResId(thread));
-    }
-
-    public static int defaultBitmapResId() {
-        return R.drawable.icn_100_private_thread;
-    }
+//    public static int defaultBitmapResId() {
+//        return R.drawable.icn_100_private_thread;
+//    }
 
 
 

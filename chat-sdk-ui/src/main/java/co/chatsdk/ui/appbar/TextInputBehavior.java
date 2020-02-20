@@ -6,9 +6,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.stfalcon.chatkit.messages.MessagesList;
+import co.chatsdk.ui.views.ChatView;
 
 public class TextInputBehavior extends CoordinatorLayout.Behavior<View> {
 
@@ -23,14 +21,14 @@ public class TextInputBehavior extends CoordinatorLayout.Behavior<View> {
     public boolean layoutDependsOn (CoordinatorLayout parent,
                                     View child,
                                     View dependency){
-        return dependency instanceof RecyclerView;
+        return dependency instanceof ChatView;
     }
 
     public boolean onDependentViewChanged (CoordinatorLayout parent,
                                            View child,
                                            View dependency){
 
-        if (child instanceof LinearLayout && dependency instanceof MessagesList) {
+        if (child instanceof LinearLayout && dependency instanceof ChatView) {
             CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) dependency.getLayoutParams();
             params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, child.getHeight());
             dependency.setLayoutParams(params);

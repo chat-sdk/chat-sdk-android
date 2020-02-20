@@ -104,7 +104,8 @@
                             android:id="@+id/statusTitleTextView"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:paddingBottom="16dp"
+                            android:theme="@style/CardHeader"
+                            android:paddingBottom="4dp"
                             android:text="@string/status"
                             android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
@@ -112,6 +113,7 @@
                             android:id="@+id/statusEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:theme="@style/TextInput"
                             android:gravity="top"
                             android:inputType="textMultiLine|textCapSentences"
                             android:overScrollMode="always"
@@ -130,29 +132,10 @@
                     android:layout_marginRight="16dp"
                     android:layout_marginBottom="16dp">
 
-                    <LinearLayout
-                        android:id="@+id/availabilityLinearLayout"
-                        android:orientation="vertical"
-                        android:paddingLeft="16dp"
-                        android:paddingTop="20dp"
-                        android:paddingRight="16dp"
-                        android:paddingBottom="8dp"
+                    <com.jaredrummler.materialspinner.MaterialSpinner
+                        android:id="@+id/spinner"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <Spinner
-                            android:id="@+id/availabilitySpinner"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="8dp"
-                            android:layout_marginLeft="8dp"
-                            android:layout_marginRight="8dp"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginTop="8dp"
-                            android:entries="@array/availability_states"
-                            android:spinnerMode="dialog" />
-
-                    </LinearLayout>
+                        android:layout_height="wrap_content"/>
 
                 </androidx.cardview.widget.CardView>
 
