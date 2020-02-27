@@ -10,18 +10,18 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <application
         android:supportsRtl="true"
         android:hardwareAccelerated="true">
 
         <activity android:name=".activities.LoginActivity"
-            android:screenOrientation="portrait"
-            android:launchMode = "singleInstance">
+            android:screenOrientation="portrait">
         </activity>
 
         <activity android:name=".activities.SplashScreenActivity"
-            android:screenOrientation="portrait"
-            android:launchMode = "singleInstance">
+            android:screenOrientation="portrait">
         </activity>
 
         <activity android:name=".activities.ThreadDetailsActivity"
@@ -34,6 +34,9 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity android:name=".activities.ChatActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
+        <activity android:name=".activities.ChatActivity2"
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <activity android:name=".activities.EditProfileActivity"

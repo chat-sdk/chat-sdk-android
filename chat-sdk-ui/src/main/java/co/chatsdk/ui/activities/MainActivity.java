@@ -18,6 +18,8 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.tabs.TabLayout;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
+import org.pmw.tinylog.Logger;
+
 import butterknife.BindView;
 import co.chatsdk.core.Tab;
 import co.chatsdk.core.dao.Keys;
@@ -26,9 +28,11 @@ import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.icons.Icons;
+import co.chatsdk.ui.utils.ToastHelper;
 
 
 public abstract class MainActivity extends BaseActivity {
@@ -37,6 +41,7 @@ public abstract class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // TODO: Check this
         if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
             // Activity was brought to front and not created,
             // Thus finishing this will get us to the last viewed context
@@ -64,6 +69,11 @@ public abstract class MainActivity extends BaseActivity {
                 }
             });
         }
+        requestPermissions();
+    }
+
+    protected void requestPermissions() {
+
     }
 
     protected abstract boolean searchEnabled();

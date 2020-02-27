@@ -12,8 +12,6 @@
     <!--        android:name="android.permission.ACCESS_COARSE_LOCATION"-->
     <!--        tools:node="remove" />-->
 
-
-
     <application
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"

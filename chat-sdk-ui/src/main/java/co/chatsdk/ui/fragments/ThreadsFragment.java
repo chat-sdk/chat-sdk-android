@@ -1,6 +1,5 @@
 package co.chatsdk.ui.fragments;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -8,10 +7,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.core.util.Pair;
 
 import androidx.annotation.LayoutRes;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.databinding.DataBindingUtil;
 
 import com.squareup.picasso.Picasso;
@@ -28,6 +25,7 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.custom.Customiser;
 import co.chatsdk.ui.databinding.FragmentThreadsBinding;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.interfaces.SearchSupported;
@@ -110,7 +108,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     public void initViews() {
 
-        dialogsListAdapter = new DialogsListAdapter<>(R.layout.chatkit_thread_view_holder, ThreadViewHolder.class, (imageView, url, payload) -> {
+        dialogsListAdapter = new DialogsListAdapter<>(R.layout.view_holder_thread, ThreadViewHolder.class, (imageView, url, payload) -> {
             if (getContext() != null) {
                 int size = Dimen.from(getContext(), R.dimen. action_bar_avatar_size);
                 if (url != null) {
@@ -126,7 +124,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
         b.dialogsList.setAdapter(dialogsListAdapter);
 
-        dialogsListAdapter.setOnDialogViewClickListener((view, dialog) -> startChatActivity(view, dialog.getId()));
+        dialogsListAdapter.setOnDialogViewClickListener((view, dialog) -> startChatActivity(dialog.getId()));
         dialogsListAdapter.setOnDialogLongClickListener(dialog -> {
             Thread thread = ChatSDK.db().fetchThreadWithEntityID(dialog.getId());
             if (thread != null) {
@@ -135,8 +133,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         });
     }
 
-    protected void startChatActivity(View view, String threadEntityID) {
-        ChatSDK.ui().startChatActivityForID(getContext(), threadEntityID, null);
+    protected void startChatActivity(String threadEntityID) {
+        ChatSDK.ui().startChatActivityForID(getContext(), threadEntityID);
     }
 
     protected abstract Predicate<NetworkEvent> mainEventFilter ();
@@ -209,7 +207,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     }
 
     protected void updateMessage(Message message) {
-        if(!dialogsListAdapter.updateDialogWithMessage(message.getThread().getEntityID(), MessageHolder.fromMessage(message))) {
+        if(!dialogsListAdapter.updateDialogWithMessage(message.getThread().getEntityID(), Customiser.shared().onNewMessageHolder(message))) {
             dialogsListAdapter.addItem(new ThreadHolder(message.getThread()));
         }
     }

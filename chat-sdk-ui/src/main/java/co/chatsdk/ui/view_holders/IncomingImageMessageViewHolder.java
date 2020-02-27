@@ -9,6 +9,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.ui.R2;
+import co.chatsdk.ui.binders.NameBinder;
 import co.chatsdk.ui.binders.OnlineStatusBinder;
 import co.chatsdk.ui.chat.model.ImageMessageHolder;
 
@@ -24,7 +25,6 @@ public class IncomingImageMessageViewHolder
     public IncomingImageMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
         ButterKnife.bind(this, itemView);
-
     }
 
     @Override
@@ -34,12 +34,7 @@ public class IncomingImageMessageViewHolder
         boolean isOnline = message.getUser().isOnline();
         OnlineStatusBinder.bind(onlineIndicator, isOnline);
 
-        if (message.getMessage().getThread().typeIs(ThreadType.Group)) {
-            userName.setVisibility(View.VISIBLE);
-            userName.setText(message.getUser().getName());
-        } else {
-            userName.setVisibility(View.GONE);
-        }
+        NameBinder.bind(userName, message);
     }
 
     @Override

@@ -8,6 +8,7 @@ import java.util.List;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.ui.custom.Customiser;
 
 public class ThreadHolder implements IDialog<MessageHolder> {
 
@@ -50,7 +51,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
     public MessageHolder getLastMessage() {
         Message message = thread.lastMessage();
         if (message != null) {
-            return MessageHolder.fromMessage(message);
+            return Customiser.shared().onNewMessageHolder(message);
         }
         return null;
     }

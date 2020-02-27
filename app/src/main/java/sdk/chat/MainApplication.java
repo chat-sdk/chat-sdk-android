@@ -1,26 +1,38 @@
 package sdk.chat;
 
+import android.app.Activity;
 import android.content.Context;
+import android.view.View;
 
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
 
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.stfalcon.chatkit.commons.models.IMessage;
+import com.stfalcon.chatkit.messages.MessageHolders;
 
+import co.chatsdk.android.app.R;
 import co.chatsdk.core.avatar.gravatar.GravatarAvatarGenerator;
+import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
+import co.chatsdk.core.types.MessageType;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
-import co.chatsdk.firestream.FireStreamNetworkAdapter;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
-import co.chatsdk.ui.fragments.PrivateThreadsFragment;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import firestream.chat.Config;
 import firestream.chat.namespace.Fire;
+import firestream.chat.test.TestScript;
+import sdk.chat.custom_message.audio.AudioMessageModule;
+import sdk.chat.custom_message.sticker.StickerMessageHolder;
+import sdk.chat.custom_message.video.IncomingVideoMessageViewHolder;
+import sdk.chat.custom_message.video.OutcomingVideoMessageViewHolder;
+import sdk.chat.custom_message.video.VideoMessageHolder;
+import sdk.chat.custom_message.video.VideoMessageModule;
 import sdk.chat.ui.extras.MainDrawActivity;
 
 /**
@@ -48,23 +60,26 @@ public class MainApplication extends MultiDexApplication {
 
             // FireStream configuration
 
-            Config firestreamConfig = new Config();
-            try {
-                firestreamConfig.setRoot(rootPath);
-                firestreamConfig.startListeningFromLastSentMessageDate = false;
-                firestreamConfig.listenToMessagesWithTimeAgo = Config.TimePeriod.days(7);
-                firestreamConfig.database = Config.DatabaseType.Realtime;
-                firestreamConfig.deleteMessagesOnReceipt = false;
-                firestreamConfig.deliveryReceiptsEnabled = false;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            Fire.stream().initialize(context, firestreamConfig);
+//            Config firestreamConfig = new Config();
+//            try {
+//                firestreamConfig.setRoot(rootPath);
+//                firestreamConfig.startListeningFromLastSentMessageDate = false;
+//                firestreamConfig.listenToMessagesWithTimeAgo = Config.TimePeriod.days(7);
+//                firestreamConfig.database = Config.DatabaseType.Realtime;
+//                firestreamConfig.deleteMessagesOnReceipt = false;
+//                firestreamConfig.deliveryReceiptsEnabled = false;
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//            Fire.stream().initialize(context, firestreamConfig);
 //            ChatSDK.initialize(context, config, FireStreamNetworkAdapter.class, BaseInterfaceAdapter.class);
 
             // Old Firebase Adapter
             ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
+
+//            TestScript.run(context, config.firebaseRootPath);
+
 
         }
         catch (Exception e) {
@@ -79,11 +94,17 @@ public class MainApplication extends MultiDexApplication {
             FirebaseFileStorageModule.activate();
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
-//            FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
+            FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
+
+            VideoMessageModule.activate();
+            AudioMessageModule.activate();
+
+
+
 
 //            new DummyData(1, 1000);
 
-//            TestScript.run(context, config.build().firebaseRootPath);
+
 
             // Uncomment this to enable Firebase UI
             // FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);

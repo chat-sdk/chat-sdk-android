@@ -42,10 +42,10 @@
     <string name="thread_users_have_no_valid_avatar_urls">Los usuarios de subprocesos no tienen URL de avatar válidas</string>
     <string name="could_not_save_composite_thread_image_to_file">No se pudo guardar la imagen del hilo compuesto en el archivo</string>
     <string name="thread_image_could_not_be_created">No se pudo crear la imagen del hilo.</string>
-    <string formatted="false" name="__typing">%s escribiendo &#8230;</string>
+    <string name="__typing" formatted="false">%s escribiendo &#8230;</string>
     <string name="message_doesnt_have_a_thread">El mensaje no tiene un hilo</string>
     <string name="login_method_doesnt_exist">El método de inicio de sesión no existe</string>
-    <string name="seconds_remaining__">Segundos restantes% d</string>
+    <string name="seconds_remaining__" formatted="false">Segundos restantes %d</string>
     <string name="audio_length_limit_reached">Límite de longitud de audio alcanzado</string>
     <string name="send_or_discard_recording">Enviar o descartar la grabación</string>
     <string name="recording_cancelled">Grabación cancelada</string>

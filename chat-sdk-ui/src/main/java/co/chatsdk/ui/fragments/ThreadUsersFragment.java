@@ -238,7 +238,7 @@ public class ThreadUsersFragment extends BaseFragment {
     protected List<Option> getOptionsForUser(User user) {
         ArrayList<Option> options = new ArrayList<>();
 
-        // Add the click options
+        // Add the onClick options
         options.add(new Option(R.string.info, this::showProfile));
 
         if (ChatSDK.thread().rolesEnabled(thread) && ChatSDK.thread().availableRoles(thread, user).size() > 0) {

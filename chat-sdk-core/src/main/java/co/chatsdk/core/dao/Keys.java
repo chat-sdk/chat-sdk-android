@@ -81,6 +81,7 @@ public class Keys {
     public static final String IntentKeyMessageEntityIDs = "text-entity-ids";
     public static final String IntentKeyThreadEntityID = "thread-entity-id";
     public static final String IntentKeyErrorMessage = "error-text";
+    public static final String IntentKeyFilePath = "file-path";
 
     // For push notifications
     public static final String PushKeyUserEntityID = "chat_sdk_user_entity_id";

@@ -29,16 +29,20 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
+import org.pmw.tinylog.Logger;
+
 import butterknife.BindView;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
+import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
 import co.chatsdk.ui.databinding.ActivitySearchBinding;
 import co.chatsdk.ui.icons.Icons;
+import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -177,6 +181,7 @@ public class SearchActivity extends BaseActivity {
 
         refreshDoneButton();
         b.searchView.showSearch(false);
+
     }
 
     protected void search (String text) {

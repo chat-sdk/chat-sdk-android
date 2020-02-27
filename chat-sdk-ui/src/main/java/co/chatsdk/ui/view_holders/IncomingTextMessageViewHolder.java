@@ -54,7 +54,7 @@ public class IncomingTextMessageViewHolder
         boolean isOnline = holder.getUser().isOnline();
         OnlineStatusBinder.bind(onlineIndicator, isOnline);
 
-        //We can set click listener on view from payload
+        //We can set onClick listener on view from payload
         final Payload payload = (Payload) this.payload;
         userAvatar.setOnClickListener(view -> {
             if (payload != null && payload.avatarClickListener != null) {

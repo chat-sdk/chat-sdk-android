@@ -17,12 +17,16 @@ import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.DexterError;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.PermissionRequestErrorListener;
 import com.karumi.dexter.listener.multi.DialogOnAnyDeniedMultiplePermissionsListener;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener;
 import com.karumi.dexter.listener.single.PermissionListener;
+
+import org.pmw.tinylog.Logger;
 
 import co.chatsdk.core.R;
 import co.chatsdk.core.session.ChatSDK;
@@ -84,23 +88,31 @@ public class PermissionRequestHandler {
     }
 
     public static Completable requestPermissions(final Activity activity, String... permissions) {
-        return Completable.create(emitter -> Dexter.withActivity(activity)
-                .withPermissions(permissions)
-                .withListener(new MultiplePermissionsListener() {
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport report) {
-                        if (report.areAllPermissionsGranted()) {
-                            emitter.onComplete();
-                        } else {
-                            emitter.onError(new Throwable(activity.getString(R.string.permission_denied)));
-                        }
-                    }
+        return Completable.create(emitter -> {
+            Logger.debug("Start Dexter");
+            try {
+                Dexter.withActivity(activity)
+                        .withPermissions(permissions)
+                        .withListener(new MultiplePermissionsListener() {
+                            @Override
+                            public void onPermissionsChecked(MultiplePermissionsReport report) {
+                                if (report.areAllPermissionsGranted()) {
+                                    emitter.onComplete();
+                                } else {
+                                    emitter.onError(new Throwable(activity.getString(R.string.permission_denied)));
+                                }
+                            }
 
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions1, PermissionToken token) {
-                        token.continuePermissionRequest();
-                    }
-                }).check()).subscribeOn(AndroidSchedulers.mainThread()).observeOn(AndroidSchedulers.mainThread());
+                            @Override
+                            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions1, PermissionToken token) {
+                                token.continuePermissionRequest();
+                            }
+                        }).check();
+            } catch (Exception e) {
+                Logger.error(e);
+            }
+
+        }).subscribeOn(AndroidSchedulers.mainThread()).observeOn(AndroidSchedulers.mainThread());
     }
 
 }

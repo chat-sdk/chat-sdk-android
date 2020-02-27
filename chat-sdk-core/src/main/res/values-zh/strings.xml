@@ -42,10 +42,10 @@
     <string name="thread_users_have_no_valid_avatar_urls">线程用户没有有效的头像URL</string>
     <string name="could_not_save_composite_thread_image_to_file">无法将复合线程图像保存到文件</string>
     <string name="thread_image_could_not_be_created">无法创建线程图像</string>
-    <string formatted="false" name="__typing">%s打字..</string>
+    <string name="__typing" formatted="false">%s打字..</string>
     <string name="message_doesnt_have_a_thread">消息没有线程</string>
     <string name="login_method_doesnt_exist">登录方法不存在</string>
-    <string name="seconds_remaining__">剩余秒数％d</string>
+    <string name="seconds_remaining__" formatted="false">剩余秒数 ％d</string>
     <string name="audio_length_limit_reached">达到了音频长度限制</string>
     <string name="send_or_discard_recording">发送或放弃录制</string>
     <string name="recording_cancelled">录音已取消</string>

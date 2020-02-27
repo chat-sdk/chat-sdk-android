@@ -156,6 +156,11 @@
     <string name="sent">Sent</string>
     <string name="failed">Failed</string>
 
+    <string name="choose_video">Choose Video</string>
+    <string name="take_video">Take Video</string>
+    <string name="seconds_remaining__" formatted="false">Seconds remaining %d</string>
+
+
     <!--    Unused-->
 <!--    <string name="unknown_message">Unknown Message</string>-->
 <!--    <string name="no_messages">No Messages</string>-->
@@ -177,7 +182,6 @@
 <!--    <string name="could_not_save_composite_thread_image_to_file">Could not save composite thread image to file</string>-->
 <!--    <string name="thread_image_could_not_be_created">Thread image could not be created</string>-->
 <!--    <string name="login_method_doesnt_exist">Login method doesn\'t exist</string>-->
-<!--    <string name="seconds_remaining__">Seconds remaining %d</string>-->
 
 <!--    <string name="audio_length_limit_reached">Audio length limit reached</string>-->
 <!--    <string name="send_or_discard_recording">Send or discard recording</string>-->
@@ -276,9 +280,7 @@
 <!--    <string name="sending">Sending&#8230;</string>-->
 <!--    <string name="not_messages_summary">%d unread messages</string>-->
 <!--    <string name="unable_to_catch_image">Unable to catch image</string>-->
-<!--    <string name="take_video">Take Video</string>-->
 <!--    <string name="take_photo">Take Photo</string>-->
-<!--    <string name="choose_video">Choose Video</string>-->
 
 <!--    <string name="details">Details</string>-->
 <!--    <string name="country">Country</string>-->

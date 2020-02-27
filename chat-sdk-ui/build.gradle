@@ -97,4 +97,6 @@ dependencies {
     implementation "com.miguelcatalan:materialsearchview:$materialSearchVersion"
 
     implementation "com.jaredrummler:material-spinner:$materialSpinnerVersion"
+
+    implementation "net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:3.0.0-RC1"
 }

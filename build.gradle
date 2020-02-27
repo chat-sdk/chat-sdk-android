@@ -58,7 +58,7 @@ ext {
     shapeImageViewVersion = "0.9.+@aar"
     picassoVersion = "2.71828"
     circleImageViewVersion = "3.0.1"
-    dexterVersion = "6.0.1"
+    dexterVersion = "6.0.2"
     tinyLogVersion = "1.3.6"
     butterKnifeVersion = "10.2.1"
 

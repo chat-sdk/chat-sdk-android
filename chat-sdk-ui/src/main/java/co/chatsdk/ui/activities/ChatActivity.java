@@ -15,6 +15,7 @@ import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.LayoutRes;
 import androidx.databinding.DataBindingUtil;
@@ -23,6 +24,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.stfalcon.chatkit.messages.MessageInput;
 
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
+
 import org.ocpsoft.prettytime.PrettyTime;
 import org.pmw.tinylog.Logger;
 
@@ -30,6 +34,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Observable;
+import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.core.audio.Recording;
 import co.chatsdk.core.dao.Keys;
@@ -47,15 +53,18 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 
+import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.audio.AudioBinder;
+import co.chatsdk.ui.custom.Customiser;
 import co.chatsdk.ui.icons.Icons;
+import co.chatsdk.ui.utils.ToastHelper;
 import co.chatsdk.ui.views.ChatView;
-import co.chatsdk.ui.chat.ImageMessageOnClickHandler;
-import co.chatsdk.ui.chat.LocationMessageOnClickHandler;
 import co.chatsdk.ui.interfaces.TextInputDelegate;
 import co.chatsdk.ui.databinding.ActivityChatBinding;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
 
 
 public class ChatActivity extends BaseActivity implements TextInputDelegate, ChatOptionsDelegate, ChatView.Delegate {
@@ -214,7 +223,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         setSupportActionBar(b.chatActionBar.getToolbar());
         b.chatActionBar.reload(thread);
 
+        if (ChatSDK.audioMessage() != null) {
+            new AudioBinder(this, b.input.getButton(), b.input.getInputEditText());
+        }
+
     }
+
 
     /**
      * Send text text
@@ -255,6 +269,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     protected void onStart() {
         super.onStart();
+
+//        dm.add(PermissionRequestHandler.requestRecordAudio(this).subscribe(() -> {
+//
+//        }, throwable -> ToastHelper.show(this, throwable.getLocalizedMessage())));
+
     }
 
     protected void reloadData () {
@@ -264,6 +283,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     protected void onResume() {
         super.onResume();
+
+
 
         removeUserFromChatOnExit = !ChatSDK.config().publicChatAutoSubscriptionEnabled;
 
@@ -559,17 +580,13 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     }
 
     @Override
-    public void click(Message message) {
-        if (message.getMessageType().is(MessageType.Image)) {
-            ImageMessageOnClickHandler.onClick(this, b.getRoot(), message.stringForKey(Keys.ImageUrl));
-        }
-        if (message.getMessageType().is(MessageType.Location)) {
+    public void onClick(Message message) {
+        Customiser.shared().onClick(this, b.getRoot(), message);
+    }
 
-            double longitude = message.doubleForKey(Keys.MessageLongitude);
-            double latitude = message.doubleForKey(Keys.MessageLatitude);
-
-            LocationMessageOnClickHandler.onClick(this, new LatLng(latitude, longitude));
-        }
+    @Override
+    public void onLongClick(Message message) {
+        Customiser.shared().onLongClick(this, b.getRoot(), message);
     }
 
     @Override

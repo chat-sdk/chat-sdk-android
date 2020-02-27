@@ -10,7 +10,7 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.ui.R;
 
-public class ImageMessageHolder extends MessageHolder implements MessageContentType.Image {
+public class ImageMessageHolder extends MessageHolder implements MessageContentType.Image, MessageContentType {
 
     public ImageMessageHolder(Message message) {
         super(message);
@@ -31,7 +31,7 @@ public class ImageMessageHolder extends MessageHolder implements MessageContentT
     @Nullable
     @Override
     public String getImageUrl() {
-        if (message.getMessageType().is(MessageType.Image, MessageType.Location)) {
+        if (message.getMessageType().is(MessageType.Image, MessageType.Location, MessageType.Video)) {
             return message.stringForKey(Keys.MessageImageURL);
         }
         return null;

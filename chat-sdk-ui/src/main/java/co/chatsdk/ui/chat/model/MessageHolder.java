@@ -15,6 +15,7 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.ui.binders.MessageBinder;
+import co.chatsdk.ui.custom.Customiser;
 
 public class MessageHolder implements IMessage {
 
@@ -121,20 +122,24 @@ public class MessageHolder implements IMessage {
         return showDate;
     }
 
-    public static List<MessageHolder> fromMessages(List<Message> messages) {
-        ArrayList<MessageHolder> messageHolders = new ArrayList<>();
-        for (Message m: messages) {
-            messageHolders.add(fromMessage(m));
-        }
-        return messageHolders;
-    }
+//    public static List<MessageHolder> fromMessages(List<Message> messages) {
+//        ArrayList<MessageHolder> messageHolders = new ArrayList<>();
+//        for (Message m: messages) {
+//            messageHolders.add(fromMessage(m));
+//        }
+//        return messageHolders;
+//    }
 
-    public static MessageHolder fromMessage(Message message) {
-        if (message.getMessageType().is(MessageType.Image, MessageType.Location)) {
-            return new ImageMessageHolder(message);
-        }
-        return new MessageHolder(message);
-    }
+//    public static MessageHolder fromMessage(Message message) {
+//        MessageHolder holder = Customiser.shared().onNewMessageHolder(message);
+//        if (holder != null) {
+//            return holder;
+//        }
+//        if (message.getMessageType().is(MessageType.Image, MessageType.Location)) {
+//            return new ImageMessageHolder(message);
+//        }
+//        return new MessageHolder(message);
+//    }
 
     public static List<Message> toMessages(List<MessageHolder> messageHolders) {
         ArrayList<Message> messages = new ArrayList<>();

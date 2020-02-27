@@ -220,7 +220,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             // If logged out from the main context pressing back in the LoginActivity will get me back to the Main so this have to be done.
             Intent intent = new Intent(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_HOME);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         }
         else super.onBackPressed();

@@ -26,6 +26,9 @@ import co.chatsdk.core.notifications.NotificationDisplayHandler;
  * Created by benjaminsmiley-andrews on 12/07/2017.
  */
 
+// TODO: Currently ChatSDK.ui() is available everywhere. But some functions
+// only need to be called from the UI module. Eventually we want to split
+// This into two services
 public interface InterfaceAdapter {
 
     Fragment privateThreadsFragment ();
@@ -88,7 +91,6 @@ public interface InterfaceAdapter {
     void startActivity(Context context, Class activity);
     void startActivity (Context context, Intent intent);
     void startChatActivityForID(Context context, String threadEntityID);
-    void startChatActivityForID(Context context, String threadEntityID, Bundle options);
 
     /**
      * Use {@link #startEditThreadActivity(Context, String)}
@@ -103,9 +105,7 @@ public interface InterfaceAdapter {
     void startThreadDetailsActivity(Context context, String threadEntityID);
 
     void startProfileActivity(Context context, String userEntityID);
-    void startProfileActivity(Context context, String userEntityID, Bundle options);
     void startEditProfileActivity(Context context, String userEntityID);
-    public void startEditProfileActivity(Context context, String userEntityID, Bundle bundle);
 
     void startMainActivity (Context context);
     void startMainActivity (Context context, HashMap<String, Object> extras);

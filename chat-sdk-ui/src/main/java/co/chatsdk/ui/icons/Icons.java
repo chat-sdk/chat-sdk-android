@@ -55,6 +55,9 @@ public class Icons {
         add = context.getResources().getDrawable(R.drawable.icn_18_plus);
         microphone = new IconicsDrawable(context, FontAwesome.Icon.faw_microphone);
         cancel = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_cancel);
+        play = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_play_arrow);
+        pause = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_pause);
+        send = context.getResources().getDrawable(R.drawable.ic_send);
     }
 
     public IconicsDrawable dummy;
@@ -79,6 +82,9 @@ public class Icons {
     public Drawable add;
     public IconicsDrawable microphone;
     public IconicsDrawable cancel;
+    public IconicsDrawable play;
+    public IconicsDrawable pause;
+    public Drawable send;
 
     public static Icons choose() {
         return shared();

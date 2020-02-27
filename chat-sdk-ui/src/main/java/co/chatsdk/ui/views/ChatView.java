@@ -34,19 +34,17 @@ import co.chatsdk.core.utils.DisposableMap;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.model.ImageMessageHolder;
 import co.chatsdk.ui.chat.model.MessageHolder;
-import co.chatsdk.ui.view_holders.IncomingImageMessageViewHolder;
-import co.chatsdk.ui.view_holders.IncomingTextMessageViewHolder;
-import co.chatsdk.ui.view_holders.OutcomingImageMessageViewHolder;
-import co.chatsdk.ui.view_holders.OutcomingTextMessageViewHolder;
+import co.chatsdk.ui.custom.Customiser;
 import co.chatsdk.ui.databinding.ViewChatBinding;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
-public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoadMoreListener {
+public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoadMoreListener, MessageHolders.ContentChecker<MessageHolder> {
 
     public interface Delegate {
         DisplayMetrics getDisplayMetrics();
         Thread getThread();
-        void click(Message message);
+        void onClick(Message message);
+        void onLongClick(Message message);
     }
 
     protected MessagesListAdapter<MessageHolder> messagesListAdapter;
@@ -82,20 +80,14 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
         b = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.view_chat, this, true);
 
-        LinearLayoutManager manager = new LinearLayoutManager(getContext());
-        manager.setOrientation(LinearLayoutManager.VERTICAL);
-        b.messagesList.setLayoutManager(manager);
+//        LinearLayoutManager manager = new LinearLayoutManager(getContext());
+//        manager.setOrientation(LinearLayoutManager.VERTICAL);
+//        b.messagesList.setLayoutManager(manager);
 
-        IncomingTextMessageViewHolder.Payload holderPayload = new IncomingTextMessageViewHolder.Payload();
-        holderPayload.avatarClickListener = user -> {
-            ChatSDK.ui().startProfileActivity(getContext(), user.getEntityID());
-        };
 
-        MessageHolders holders = new MessageHolders()
-                .setIncomingTextConfig(IncomingTextMessageViewHolder.class, R.layout.chatkit_item_incoming_text_message, holderPayload)
-                .setOutcomingTextConfig(OutcomingTextMessageViewHolder.class, R.layout.chatkit_item_outcoming_text_message, null)
-                .setIncomingImageConfig(IncomingImageMessageViewHolder.class, R.layout.chatkit_item_incoming_image_message, null)
-                .setOutcomingImageConfig(OutcomingImageMessageViewHolder.class, R.layout.chatkit_item_outcoming_image_message);
+        MessageHolders holders = new MessageHolders();
+
+        Customiser.shared().onBindMessageHolders(getContext(), holders, this);
 
         messagesListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, (imageView, url, payload) -> {
             if (url == null || url.isEmpty()) {
@@ -107,7 +99,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
             } else {
 
                 RequestCreator request = Picasso.get().load(url)
-                        .resize(maxImageWidth(), maxImageWidth());
+                        .resize(maxImageWidth(), maxImageWidth()).centerCrop();
 
                 if (payload == null) {
                     request.placeholder(R.drawable.icn_100_profile);
@@ -124,21 +116,22 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         messagesListAdapter.setDateHeadersFormatter(date -> prettyTime.format(date));
 
         messagesListAdapter.setOnMessageClickListener(holder -> {
-            if (holder instanceof MessageContentType.Image) {
-
-                MessageContentType.Image content = (MessageContentType.Image) holder;
-
-                if (content.getImageUrl() != null) {
-                    delegate.click(holder.getMessage());
-                }
-            }
+            delegate.onClick(holder.getMessage());
         });
 
+        messagesListAdapter.setOnMessageLongClickListener(holder -> {
+            delegate.onLongClick(holder.getMessage());
+        });
         b.messagesList.setAdapter(messagesListAdapter);
 
         addListeners();
         onLoadMore(0, 0);
 
+    }
+
+    @Override
+    public boolean hasContentFor(MessageHolder message, byte type) {
+        return Customiser.shared().hasContentFor(message, type);
     }
 
     protected void addListeners() {
@@ -262,7 +255,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         MessageHolder holder = messageHolderHashMap.get(message);
 
         if (holder == null) {
-            holder = MessageHolder.fromMessage(message);
+            holder = Customiser.shared().onNewMessageHolder(message);
 
             messageHolders.add(0, holder);
             messageHolderHashMap.put(holder.getMessage(), holder);
@@ -298,7 +291,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         for (Message message: messages) {
             MessageHolder holder = messageHolderHashMap.get(message);
             if (holder == null) {
-                holder = MessageHolder.fromMessage(message);
+                holder = Customiser.shared().onNewMessageHolder(message);
                 messageHolderHashMap.put(message, holder);
                 holders.add(holder);
             }
@@ -349,4 +342,6 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         messagesListAdapter.clear();
         messagesListAdapter.addToEnd(messageHolders, true);
     }
+
+
 }

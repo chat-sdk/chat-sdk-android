@@ -18,6 +18,7 @@ public class HookEvent {
     public static String User = "User";
     public static String Thread = "Thread";
     public static String Message = "Message";
+    public static String Object = "Object";
 
     public static String UserDidConnect = "UserDidConnect";
     public static String UserWillDisconnect = "UserWillDisconnect";
@@ -26,6 +27,8 @@ public class HookEvent {
     public static String ContactWasAdded = "ContactWasAdded";
     public static String ContactWillBeDeleted = "ContactWillBeDeleted";
     public static String ContactWasDeleted = "ContactWasDeleted";
+
+//    public static String WillRegisterMessageHolders = "WillRegisterMessageHolders";
 
     public static HashMap<String, Object> userData (co.chatsdk.core.dao.User user) {
         HashMap<String, Object> data = new HashMap<>();

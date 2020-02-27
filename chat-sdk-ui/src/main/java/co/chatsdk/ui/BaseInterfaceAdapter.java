@@ -7,11 +7,11 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.DrawableRes;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
+import com.stfalcon.chatkit.messages.MessageHolders;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -409,13 +409,9 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     public void startEditProfileActivity(Context context, String userEntityID) {
-        startEditProfileActivity(context, userEntityID, null);
-    }
-
-    public void startEditProfileActivity(Context context, String userEntityID, Bundle bundle) {
         Intent intent = new Intent(context, getEditProfileActivity());
         intent.putExtra(Keys.IntentKeyUserEntityID, userEntityID);
-        context.startActivity(intent, bundle);
+        context.startActivity(intent);
     }
 
     public void startPublicThreadEditDetailsActivity(Context context, String threadEntityID){
@@ -429,8 +425,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public void startCreateThreadActivity(Context context) {
         Intent intent = new Intent(context, getCreateThreadActivity());
-//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
     }
 
@@ -442,25 +436,13 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         if (userEntityIDs != null) {
             intent.putStringArrayListExtra(Keys.IntentKeyUserEntityIDList, userEntityIDs);
         }
-//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-//        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
     }
 
     public void startChatActivityForID(Context context, String threadEntityID) {
-        startChatActivityForID(context, threadEntityID, null);
-    }
-
-    public void startChatActivityForID(Context context, String threadEntityID, Bundle options) {
         Intent intent = new Intent(context, getChatActivity());
         intent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
-//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-        context.startActivity(intent, options);
-//        startActivity(context, intent);
+        context.startActivity(intent, new Bundle());
     }
 
 
@@ -567,15 +549,11 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         return chatOptions;
     }
 
-    public void startProfileActivity(Context context, String userEntityID) {
-        startProfileActivity(context, userEntityID, null);
-    }
-
     @Override
-    public void startProfileActivity(Context context, String userEntityID, Bundle options) {
+    public void startProfileActivity(Context context, String userEntityID) {
         Intent intent = new Intent(context, getProfileActivity());
         intent.putExtra(Keys.IntentKeyUserEntityID, userEntityID);
-        context.startActivity(intent, options);
+        context.startActivity(intent);
     }
 
     @Override

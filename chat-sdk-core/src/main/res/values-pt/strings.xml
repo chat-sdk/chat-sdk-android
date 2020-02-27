@@ -42,10 +42,10 @@
     <string name="thread_users_have_no_valid_avatar_urls">Os usuários de segmento não têm URLs de avatar válidos</string>
     <string name="could_not_save_composite_thread_image_to_file">Não foi possível salvar a imagem de encadeamento composto no arquivo</string>
     <string name="thread_image_could_not_be_created">A imagem de segmento não pôde ser criada</string>
-    <string formatted="false" name="__typing">%s digitando ..</string>
+    <string name="__typing" formatted="false">%s digitando ..</string>
     <string name="message_doesnt_have_a_thread">A mensagem não tem um fio</string>
     <string name="login_method_doesnt_exist">O método de login não existe</string>
-    <string name="seconds_remaining__">Segundos restantes% d</string>
+    <string name="seconds_remaining__" formatted="false">Segundos restantes %d</string>
     <string name="audio_length_limit_reached">Limite de comprimento de áudio atingido</string>
     <string name="send_or_discard_recording">Enviar ou descartar gravação</string>
     <string name="recording_cancelled">Gravação cancelada</string>

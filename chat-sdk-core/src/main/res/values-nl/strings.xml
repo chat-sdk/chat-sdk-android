@@ -41,7 +41,7 @@
     <string name="__typing" formatted="false">is iets aan het schrijven</string>
     <string name="message_doesnt_have_a_thread">Dit bericht hoort bij geen gesprek</string>
     <string name="login_method_doesnt_exist">Deze loginmethode werkt niet</string>
-    <string name="seconds_remaining__">Resterende seconden %d</string>
+    <string name="seconds_remaining__" formatted="false">Resterende seconden %d</string>
     <string name="audio_length_limit_reached">Limiet van je audiobericht bereikt</string>
     <string name="send_or_discard_recording">Opname versturen of annuleren</string>
     <string name="recording_cancelled">Opname geannuleerd</string>
