@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.databinding.DataBindingUtil;
 
@@ -51,7 +52,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     ActivityLoginBinding b;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         b = DataBindingUtil.setContentView(this, getLayout());
         initViews();

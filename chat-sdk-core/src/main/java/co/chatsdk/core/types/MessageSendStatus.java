@@ -7,6 +7,7 @@ package co.chatsdk.core.types;
 public enum MessageSendStatus {
     None,
     Created,
+    Compressing,
     WillUpload,
     Uploading,
     DidUpload,

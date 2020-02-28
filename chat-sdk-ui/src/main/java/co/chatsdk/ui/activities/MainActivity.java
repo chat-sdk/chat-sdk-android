@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.tabs.TabLayout;
@@ -38,7 +39,7 @@ import co.chatsdk.ui.utils.ToastHelper;
 public abstract class MainActivity extends BaseActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // TODO: Check this
@@ -80,7 +81,7 @@ public abstract class MainActivity extends BaseActivity {
     protected abstract void search(String text);
     protected abstract MaterialSearchView searchView();
 
-    public void launchFromPush (Bundle bundle) {
+    public void launchFromPush (@Nullable Bundle bundle) {
         if (bundle != null) {
             String threadID = bundle.getString(Keys.IntentKeyThreadEntityID);
             if (threadID != null && !threadID.isEmpty()) {
@@ -114,7 +115,7 @@ public abstract class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@Nullable Bundle outState) {
         super.onSaveInstanceState(outState);
         // Add the filter button
 

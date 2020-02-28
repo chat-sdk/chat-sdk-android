@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +25,7 @@ public class ForwardMessageActivity extends SelectContactActivity {
     protected ArrayList<Message> messages = new ArrayList<>();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
 
         // Get the text
         String threadEntityID = getIntent().getStringExtra(Keys.IntentKeyThreadEntityID);

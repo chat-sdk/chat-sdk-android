@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.VideoView;
 
+import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 
 import co.chatsdk.android.app.R;
@@ -26,7 +27,7 @@ public class PlayVideoActivity extends BaseActivity implements MediaPlayer.OnCom
     protected ActivityVideoPlayerBinding b;
 
     @Override
-    public void onCreate(Bundle bundle) {
+    public void onCreate(@Nullable Bundle bundle) {
         super.onCreate(bundle);
         b = DataBindingUtil.setContentView(this, getLayout());
 

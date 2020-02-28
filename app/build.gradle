@@ -98,6 +98,10 @@ dependencies {
     implementation "de.hdodenhof:circleimageview:$circleImageViewVersion"
     implementation "com.github.siyamed:android-shape-imageview:$shapeImageViewVersion"
 
+    // Audio
+    implementation 'com.github.adrielcafe:AndroidAudioRecorder:0.3.0'
+    implementation 'com.github.adrielcafe:AndroidAudioConverter:0.0.8'
+    implementation 'com.google.android.exoplayer:exoplayer:2.11.3'
 
 }
 

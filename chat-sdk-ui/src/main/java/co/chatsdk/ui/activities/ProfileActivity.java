@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 
 import com.mikepenz.iconics.IconicsDrawable;
@@ -34,7 +35,7 @@ public class ProfileActivity extends BaseActivity {
     protected User user;
 
     @Override
-    protected void onCreate (Bundle savedInstanceState) {
+    protected void onCreate (@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayout());
 

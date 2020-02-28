@@ -32,14 +32,13 @@ public class IncomingAudioMessageViewHolder extends MessageHolders.IncomingTextM
     public void onBind(AudioMessageHolder message) {
         super.onBind(message);
 
-        boolean isOnline = message.getUser().isOnline();
-        OnlineStatusBinder.bind(onlineIndicator, isOnline);
+        OnlineStatusBinder.bind(onlineIndicator, message);
         NameBinder.bind(userName, message);
 
         try {
-            audioPlayerView.setSource(message.audioURL());
-            audioPlayerView.setTotalTime(message.length());
-            audioPlayerView.setCurrentTime("0:00");
+            audioPlayerView.bind(message.audioURL());
+//            audioPlayerView.setTotalTime(message.length());
+//            audioPlayerView.setCurrentTime("0:00");
         } catch (Exception e) {
             ChatSDK.logError(e);
         }

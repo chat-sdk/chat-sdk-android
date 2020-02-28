@@ -3,6 +3,7 @@ package co.chatsdk.ui.activities;
 import android.app.Activity;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class AddUsersToThreadActivity extends SelectContactActivity {
     protected Thread thread;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setActionBarTitle(R.string.add_user_to_chat);
     }

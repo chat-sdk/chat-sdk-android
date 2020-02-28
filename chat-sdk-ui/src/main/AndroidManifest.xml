@@ -36,9 +36,6 @@
         <activity android:name=".activities.ChatActivity"
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
-        <activity android:name=".activities.ChatActivity2"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
-
         <activity android:name=".activities.EditProfileActivity"
             android:windowSoftInputMode="stateHidden|adjustPan" />
 

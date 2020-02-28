@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 
 import com.squareup.picasso.Picasso;
@@ -49,7 +50,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
     protected String limitWarning = null;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
 

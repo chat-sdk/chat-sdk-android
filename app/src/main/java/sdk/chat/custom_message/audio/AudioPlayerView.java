@@ -3,6 +3,7 @@ package sdk.chat.custom_message.audio;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,10 +15,14 @@ import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.databinding.DataBindingUtil;
 
+import org.pmw.tinylog.Logger;
+
 import co.chatsdk.android.app.R;
 import co.chatsdk.android.app.databinding.ViewAudioPlayerBinding;
 import co.chatsdk.core.audio.AudioPlayer;
+import co.chatsdk.core.utils.DisposableMap;
 import co.chatsdk.ui.icons.Icons;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by ben on 9/28/17.
@@ -25,9 +30,10 @@ import co.chatsdk.ui.icons.Icons;
 
 public class AudioPlayerView extends LinearLayout {
 
-    private AudioPlayer player = new AudioPlayer();
-    private String source;
+    protected AudioPlayer player;
+//    private String source;
     protected ViewAudioPlayerBinding b;
+    protected DisposableMap dm = new DisposableMap();
 
     public AudioPlayerView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -46,41 +52,52 @@ public class AudioPlayerView extends LinearLayout {
 
     private void initView() {
         b = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.view_audio_player, this, true);
+    }
 
-        b.totalTimeTextView.setText("");
+    public void bind(String source) throws Exception {
+        if (player == null) {
+            player = new AudioPlayer(source, mp -> stop());
 
-        b.playButton.setOnClickListener(view -> {
-            if(player.isPlaying()) {
-                pause();
-            }
-            else {
-                play();
-            }
-            updatePlayPauseButton();
-        });
-
-        player.setCompletionListener(mediaPlayer -> stop());
-
-        b.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                if(player != null) {
-                    player.setPosition(seekBar.getProgress());
-                    updateTime();
+            b.playButton.setOnClickListener(view -> {
+                if(player.isPlaying()) {
+                    pause();
                 }
-            }
-        });
+                else {
+                    play();
+                }
+            });
+
+            b.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (player != null) {
+                        player.setPosition(progress);
+                        updateTime();
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+//                player.setPosition(seekBar.getProgress());
+//                updateTime();
+                }
+            });
+
+            dm.add(player.getTimeObservable().subscribe(integer -> {
+                b.seekBar.setProgress(integer);
+                updateTime();
+            }));
+
+        } else {
+            player.setSource(source);
+        }
 
         updatePlayPauseButton();
-
+        updateTime();
     }
 
     public void updatePlayPauseButton () {
@@ -92,36 +109,22 @@ public class AudioPlayerView extends LinearLayout {
         }
     }
 
-    public void setSource (String url) throws Exception {
-        source = url;
-    }
-
     public void play () {
-        try {
-
-            if(!player.isPaused()) {
-                player.setSource(source);
-                b.seekBar.setMax(player.durationMillis());
-                b.currentTimeTextView.setText(player.position());
-                b.totalTimeTextView.setText(player.duration());
-            }
-
-            player.play();
-
-            player.setProgressListener(elapsed -> {
-                b.seekBar.setProgress(elapsed);
-                updateTime();
-            });
-        }
-        catch (Exception e) {
-            // TODO: Handle this
-        }
-    }
+        player.play();
+        b.seekBar.setMax(player.durationMillis());
+        b.currentTimeTextView.setText(player.position());
+        b.totalTimeTextView.setText(player.duration());
+        updatePlayPauseButton();
+   }
 
     public void stop () {
         player.stop();
         b.seekBar.setProgress(0);
         updatePlayPauseButton();
+    }
+
+    public void pause () {
+        player.pause();
     }
 
     public void updateTime () {
@@ -137,18 +140,14 @@ public class AudioPlayerView extends LinearLayout {
         b.currentTimeTextView.setText(currentTime);
     }
 
-    public void pause () {
-        player.pause();
-    }
-
     public View getView () {
         return b.getRoot();
     }
 
-    public void setBackgroundColor (int color) {
-        Drawable d = getResources().getDrawable(R.drawable.layout_bg);
-        d.setColorFilter(color, PorterDuff.Mode.MULTIPLY);
-//        bubbleLayout.setBackground(d);
+    @Override
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        player.dispose();
     }
 
 }

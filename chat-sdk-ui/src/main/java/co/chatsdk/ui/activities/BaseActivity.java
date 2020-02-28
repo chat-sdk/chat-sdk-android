@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
@@ -77,7 +78,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Logger.debug("onCreate: " + this);
@@ -124,7 +125,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     protected abstract @LayoutRes int getLayout();
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
     }
 
@@ -157,7 +158,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         }
     }
 
-    protected void updateExtras (Bundle bundle) {
+    protected void updateExtras (@Nullable Bundle bundle) {
         if (bundle != null) {
             for (String s : bundle.keySet()) {
                 extras.put(s, bundle.get(s));
@@ -199,7 +200,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         for (String key: extras.keySet()) {
             Object extra = extras.get(key);

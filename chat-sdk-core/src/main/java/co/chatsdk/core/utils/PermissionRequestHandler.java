@@ -52,7 +52,7 @@ public class PermissionRequestHandler {
     }
 
     public static Completable requestRecordAudio(Activity activity) {
-        return requestPermissions(activity, Manifest.permission.RECORD_AUDIO);
+        return requestPermissions(activity, Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
     public static Completable requestWriteExternalStorage(Activity activity) {

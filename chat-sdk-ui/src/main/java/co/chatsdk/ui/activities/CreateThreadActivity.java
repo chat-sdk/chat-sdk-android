@@ -2,6 +2,8 @@ package co.chatsdk.ui.activities;
 
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +19,7 @@ public class CreateThreadActivity extends SelectContactActivity {
     protected Thread thread;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setActionBarTitle(R.string.new_chat);
         setMultiSelectEnabled(ChatSDK.config().groupsEnabled);

@@ -81,7 +81,9 @@ allprojects {
         maven { url "https://jitpack.io" }
 //        maven { url "http://dl.bintray.com/chat-sdk/chatkit" }
 //        maven { url "http://dl.bintray.com/chat-sdk/matisse"}
+        maven { url "http://dl.bintray.com/chat-sdk/dexter"}
         maven { url "https://dl.bintray.com/mikepenz/maven" }
+        maven { url "https://dl.bintray.com/chat-sdk/keyboardvisibilityevent" }
         jcenter()
     }
 }

@@ -15,6 +15,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 
 import com.squareup.picasso.Picasso;
 
@@ -38,7 +39,7 @@ public class ImagePreviewActivity extends BaseActivity {
     protected boolean minimizeOnClick = true;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mainView = findViewById(android.R.id.content);

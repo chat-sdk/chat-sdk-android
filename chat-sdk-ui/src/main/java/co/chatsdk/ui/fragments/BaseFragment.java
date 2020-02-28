@@ -12,6 +12,7 @@ import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -42,12 +43,12 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
     protected DisposableMap dm = new DisposableMap();
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = super.onCreateView(inflater, container, savedInstanceState);
         setHasOptionsMenu(true);
 

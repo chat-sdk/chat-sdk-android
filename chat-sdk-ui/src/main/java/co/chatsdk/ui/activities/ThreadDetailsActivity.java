@@ -11,6 +11,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.databinding.DataBindingUtil;
 
@@ -47,7 +49,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     ActivityThreadDetailsBinding b;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         b = DataBindingUtil.setContentView(this, getLayout());
 
@@ -149,7 +151,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         getDataFromBundle(intent.getExtras());
     }
 
-    protected void getDataFromBundle(Bundle bundle) {
+    protected void getDataFromBundle(@Nullable Bundle bundle) {
         if (bundle == null) {
             return;
         }
@@ -165,7 +167,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(Keys.IntentKeyThreadEntityID, thread.getEntityID());
     }

@@ -6,10 +6,12 @@ import org.pmw.tinylog.Logger;
 
 import java.util.concurrent.TimeUnit;
 
+import co.chatsdk.core.utils.DisposableMap;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 
 /**
  * Created by ben on 9/28/17.
@@ -17,75 +19,59 @@ import io.reactivex.schedulers.Schedulers;
 
 public class AudioPlayer {
 
-    private MediaPlayer player;
-    private Disposable playingDisposable;
-    private ProgressListener progressListener;
-    private MediaPlayer.OnCompletionListener completionListener;
-    private boolean isPaused = false;
+    protected final MediaPlayer player = new MediaPlayer();
+    protected Disposable playingDisposable;
 
-    public void play () throws Exception {
-        if(player != null) {
-            isPaused = false;
-            player.start();
+    protected PublishSubject<Integer> timePublishSubject = PublishSubject.create();
 
-            playingDisposable = Observable.interval(0, 200, TimeUnit.MILLISECONDS)
-                    .subscribeOn(Schedulers.single())
-                    .subscribe(aLong -> {
-                        if(progressListener != null && player != null) {
-                            final int pos = player.getCurrentPosition();
-
-                            AndroidSchedulers.mainThread().scheduleDirect(() -> progressListener.update(pos));
-                        }
-                    }, throwable -> Logger.error(throwable.getMessage()));
-
-            player.setOnCompletionListener(completionListener);
-        }
+    public AudioPlayer(String source, MediaPlayer.OnCompletionListener completionListener) throws Exception {
+        setSource(source);
+        player.setOnCompletionListener(completionListener);
+        playingDisposable = Observable.interval(0, 200, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.single())
+                .subscribe(aLong -> {
+                    if (player.isPlaying()) {
+                        timePublishSubject.onNext(player.getCurrentPosition());
+                    }
+                }, throwable -> Logger.error(throwable.getMessage()));
+        player.setOnErrorListener((mp, what, extra) -> {
+            Logger.debug("Error");
+            return false;
+        });
     }
 
-    public void setCompletionListener (MediaPlayer.OnCompletionListener listener) {
-        this.completionListener = listener;
+    public void play () {
+        player.start();
     }
 
-    public void play (String url) throws Exception {
-        setSource(url);
-        play();
-    }
-
-    public void setSource (String url) throws Exception {
+    public void setSource(String url) throws Exception {
         stop();
-
-        player = new MediaPlayer();
         player.setDataSource(url);
         player.prepare();
+    }
 
+    public void stop() {
+        player.stop();
+    }
+
+    public void pause () {
+        player.pause();
     }
 
     public int durationMillis () {
-        if(player != null) {
-            return player.getDuration();
-        }
-        return -1;
+        return player.getDuration();
     }
 
     public String duration () {
-        if(player != null) {
-            return toSeconds(player.getDuration());
-        }
-        return "";
+        return toSeconds(player.getDuration());
     }
 
     public boolean isPlaying () {
-        if(player != null) {
-            return player.isPlaying();
-        }
-        return false;
+        return player.isPlaying();
     }
 
     public String position() {
-        if(player != null) {
-            return toSeconds(player.getCurrentPosition());
-        }
-        return "";
+        return toSeconds(player.getCurrentPosition());
     }
 
     public static String toSeconds (int millis) {
@@ -96,42 +82,22 @@ public class AudioPlayer {
         );
     }
 
-
-    public void stop () {
-        if(player != null) {
-            player.stop();
-            player.release();
-            player = null;
-        }
-        if(playingDisposable != null) {
-            playingDisposable.dispose();
-        }
-        isPaused = false;
-    }
-
     public void setPosition (final int position) {
-        if(player != null) {
-            Schedulers.single().scheduleDirect(() -> player.seekTo(position));
-        }
-    }
-
-    public void pause () {
-        if(player != null) {
-            isPaused = true;
-            player.pause();
-        }
+        Schedulers.single().scheduleDirect(() -> player.seekTo(position));
     }
 
     public boolean isPaused () {
-        return isPaused;
+        return !player.isPlaying();
     }
 
-    public interface ProgressListener {
-        void update (int position);
+    public Observable<Integer> getTimeObservable() {
+        return timePublishSubject.hide();
     }
 
-    public void setProgressListener (ProgressListener listener) {
-        this.progressListener = listener;
+    public void dispose() {
+        playingDisposable.dispose();
+        stop();
+        player.release();
     }
 
 }

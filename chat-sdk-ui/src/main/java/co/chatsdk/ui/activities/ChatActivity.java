@@ -18,6 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -64,8 +66,6 @@ import co.chatsdk.ui.interfaces.TextInputDelegate;
 import co.chatsdk.ui.databinding.ActivityChatBinding;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
-
 
 public class ChatActivity extends BaseActivity implements TextInputDelegate, ChatOptionsDelegate, ChatView.Delegate {
 
@@ -89,7 +89,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected DisplayMetrics displayMetrics = new DisplayMetrics();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         b = DataBindingUtil.setContentView(this, getLayout());
 
@@ -256,7 +256,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
         // Save the thread ID
@@ -493,7 +493,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     public void sendAudio(Recording recording) {
         if(ChatSDK.audioMessage() != null) {
-            handleMessageSend(ChatSDK.audioMessage().sendMessage(recording, thread));
+//            handleMessageSend(ChatSDK.audioMessage().sendMessage(recording, thread));
         }
     }
 

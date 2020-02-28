@@ -337,25 +337,22 @@ public class Message extends AbstractEntity {
     }
 
     public String getTextRepresentation () {
-        if (getMessageType().is(MessageType.Text, MessageType.System)) {
-            return getText();
-        }
         if (getMessageType().is(MessageType.Location) && ChatSDK.locationMessage() != null) {
             ChatSDK.locationMessage().textRepresentation(this);
         }
-        if (getMessageType().is(MessageType.Image) && ChatSDK.imageMessage() != null) {
+        else if (getMessageType().is(MessageType.Image) && ChatSDK.imageMessage() != null) {
             return ChatSDK.imageMessage().textRepresentation(this);
         }
-        if (getMessageType().is(MessageType.Audio)) {
-            // TODO:
+        else if (getMessageType().is(MessageType.Audio) && ChatSDK.audioMessage() != null) {
+            return ChatSDK.audioMessage().textRepresentation(this);
         }
-        if (getMessageType().is(MessageType.Video)) {
-            // TODO:
+        else if (getMessageType().is(MessageType.Video) && ChatSDK.videoMessage() != null) {
+            return ChatSDK.videoMessage().textRepresentation(this);
         }
-        if (getMessageType().is(MessageType.File)) {
-            // TODO:
+        else if (getMessageType().is(MessageType.File) && ChatSDK.fileMessage() != null) {
+            return ChatSDK.fileMessage().textRepresentation(this);
         }
-        return null;
+        return getText();
     }
 
     public ReadStatus readStatusForUser (Long userId) {

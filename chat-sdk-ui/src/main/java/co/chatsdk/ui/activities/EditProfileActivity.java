@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 
 import com.jaredrummler.materialspinner.MaterialSpinner;
@@ -52,7 +53,7 @@ public class EditProfileActivity extends BaseActivity {
     protected ActivityEditProfileBinding b;
 
     @Override
-    protected void onCreate (Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         b = DataBindingUtil.setContentView(this, getLayout());
 
