@@ -70,9 +70,9 @@ public class NetworkEvent {
     }
 
     @Deprecated
-    public static NetworkEvent threadLastMessageUpdated(Thread thread) {
-        return new NetworkEvent(EventType.ThreadLastMessageUpdated, thread);
-    }
+//    public static NetworkEvent threadLastMessageUpdated(Thread thread) {
+//        return new NetworkEvent(EventType.ThreadLastMessageUpdated, thread);
+//    }
 
     public static NetworkEvent threadMetaUpdated(Thread thread) {
         return new NetworkEvent(EventType.ThreadMetaUpdated, thread);

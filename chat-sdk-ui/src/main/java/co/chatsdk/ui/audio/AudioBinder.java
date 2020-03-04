@@ -2,24 +2,24 @@ package co.chatsdk.ui.audio;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
+
+import com.stfalcon.chatkit.messages.MessageInput;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
+import org.pmw.tinylog.Logger;
+
 import java.io.File;
-import java.lang.ref.WeakReference;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -27,22 +27,14 @@ import cafe.adriel.androidaudiorecorder.AndroidAudioRecorder;
 import cafe.adriel.androidaudiorecorder.model.AudioChannel;
 import cafe.adriel.androidaudiorecorder.model.AudioSampleRate;
 import cafe.adriel.androidaudiorecorder.model.AudioSource;
-import co.chatsdk.core.audio.Recording;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.ActivityResult;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
+import co.chatsdk.core.utils.CurrentLocale;
 import co.chatsdk.core.utils.DisposableMap;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.interfaces.TextInputDelegate;
-import co.chatsdk.ui.utils.InfiniteToast;
 import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -51,26 +43,26 @@ public class AudioBinder {
     protected boolean audioModeEnabled = false;
     protected boolean permissionsGranted = false;
 
-    protected Recording recording = null;
-
     protected Activity activity;
     protected TextInputDelegate delegate;
     protected DisposableMap dm = new DisposableMap();
-    protected ImageButton sendButton;
-    protected EditText input;
+    protected MessageInput messageInput;
+    protected EditText editText;
     protected Drawable sendButtonDrawable;
 
     @SuppressLint("ClickableViewAccessibility")
-    public AudioBinder(Activity activity, ImageButton sendButton, EditText input) {
+    public AudioBinder(Activity activity, TextInputDelegate delegate, MessageInput messageInput) {
         this.activity = activity;
-        this.sendButton = sendButton;
-        this.input = input;
+        this.messageInput = messageInput;
+        this.delegate = delegate;
 
-        sendButton.setOnClickListener(v -> {
+        messageInput.setInputListener(input -> {
             if (audioModeEnabled) {
 
+                DateFormat dateFormatter = new SimpleDateFormat("yy_mm_dd_mm_ss", CurrentLocale.get());
+
                 int requestCode = 8898;
-                String filePath = Environment.getExternalStorageDirectory() + "/recorded_audio.wav";
+                String filePath = Environment.getExternalStorageDirectory() + "/voice_message_" + dateFormatter.format(new Date()) +".wav";
 
                 dm.add(ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
                     if (activityResult.requestCode == requestCode) {
@@ -83,12 +75,24 @@ public class AudioBinder {
                             String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
                             int millSecond = Integer.parseInt(durationStr);
 
-                            ChatSDK.audioMessage().sendMessage(audioFile, "audio/wav", millSecond, null);
+                            delegate.sendAudio(audioFile, "audio/wav", TimeUnit.MILLISECONDS.toSeconds(millSecond));
+                            dm.dispose();
                         }
                     }
                 }));
 
                 int color = activity.getResources().getColor(R.color.primary);
+
+                AudioManager audioManager = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
+                audioManager.requestAudioFocus(focusChange -> {
+                    if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+                        Logger.debug("");
+                    }
+                    if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+                        Logger.debug("");
+                    }
+                }, AudioManager.MODE_NORMAL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+
                 AndroidAudioRecorder.with(activity)
                         // Required
                         .setFilePath(filePath)
@@ -104,7 +108,10 @@ public class AudioBinder {
                         // Start recording
                         .record();
 
+            } else {
+                delegate.sendMessage(String.valueOf(input));
             }
+            return true;
         });
 
         dm.add(PermissionRequestHandler.requestRecordAudio(activity).subscribe(() -> {
@@ -119,7 +126,7 @@ public class AudioBinder {
             updateRecordMode();
         });
 
-        input.addTextChangedListener(new TextWatcher() {
+        messageInput.getInputEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -135,9 +142,9 @@ public class AudioBinder {
     }
 
     protected void updateRecordMode() {
-        if (activity != null && input != null && permissionsGranted) {
+        if (activity != null && editText != null && permissionsGranted) {
             boolean keyboardVisible = KeyboardVisibilityEvent.INSTANCE.isKeyboardVisible(activity);
-            boolean isEmpty = input.getText().toString().isEmpty();
+            boolean isEmpty = editText.getText().toString().isEmpty();
             if (keyboardVisible || !isEmpty) {
                 endRecordingMode();
             } else {
@@ -148,18 +155,18 @@ public class AudioBinder {
 
     protected void startRecordingMode() {
         if (!audioModeEnabled) {
-            sendButtonDrawable = sendButton.getDrawable();
-            sendButton.setImageDrawable(Icons.get(Icons.choose().microphone, R.color.white));
-            sendButton.setEnabled(true);
+            sendButtonDrawable = messageInput.getButton().getDrawable();
+            messageInput.getButton().setImageDrawable(Icons.get(Icons.choose().microphone, R.color.white));
+            messageInput.setEnabled(true);
             audioModeEnabled = true;
         }
     }
 
     protected void endRecordingMode() {
         if (audioModeEnabled) {
-            sendButton.setImageDrawable(sendButtonDrawable);
-            sendButton.setEnabled(!input.getText().toString().isEmpty());
-//            sendButton.setImageDrawable(Icons.get(Icons.choose().send, R.color.white));
+            messageInput.getButton().setImageDrawable(sendButtonDrawable);
+            messageInput.setEnabled(!messageInput.getInputEditText().getText().toString().isEmpty());
+//            messageInput.setImageDrawable(Icons.get(Icons.choose().send, R.color.white));
             audioModeEnabled = false;
         }
     }

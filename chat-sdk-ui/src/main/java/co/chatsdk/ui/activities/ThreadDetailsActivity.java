@@ -10,18 +10,22 @@ package co.chatsdk.ui.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
+
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
-import androidx.databinding.DataBindingUtil;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import androidx.appcompat.widget.Toolbar;
 
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
@@ -30,10 +34,11 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.databinding.ActivityThreadDetailsBinding;
+import co.chatsdk.ui.R2;
 import co.chatsdk.ui.fragments.ThreadUsersFragment;
 import co.chatsdk.ui.utils.ThreadImageBuilder;
 import co.chatsdk.ui.utils.ToastHelper;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by braunster on 24/11/14.
@@ -45,22 +50,27 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     protected ThreadUsersFragment usersFragment;
 
     protected ActionBar actionBar;
-
-    ActivityThreadDetailsBinding b;
+    @BindView(R2.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R2.id.threadImageView)
+    CircleImageView threadImageView;
+    @BindView(R2.id.threadUsersFrame)
+    FrameLayout threadUsersFrame;
+    @BindView(R2.id.nameTextView)
+    TextView nameTextView;
+    @BindView(R2.id.root)
+    ScrollView root;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        b = DataBindingUtil.setContentView(this, getLayout());
 
         if (savedInstanceState != null) {
             getDataFromBundle(savedInstanceState);
-        }
-        else {
+        } else {
             if (getIntent().getExtras() != null) {
                 getDataFromBundle(getIntent().getExtras());
-            }
-            else {
+            } else {
                 finish();
             }
         }
@@ -73,14 +83,15 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
 
         // Depending on the thread type, disable / enable options
         if (thread.typeIs(ThreadType.Private1to1)) {
-            b.nameTextView.setVisibility(View.INVISIBLE);
+            nameTextView.setVisibility(View.INVISIBLE);
         } else {
-            b.nameTextView.setVisibility(View.VISIBLE);
+            nameTextView.setVisibility(View.VISIBLE);
         }
 
     }
 
-    protected @LayoutRes int getLayout() {
+    protected @LayoutRes
+    int getLayout() {
         return R.layout.activity_thread_details;
     }
 
@@ -95,21 +106,21 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         reloadData();
     }
 
-    protected void reloadData () {
+    protected void reloadData() {
         actionBar = getSupportActionBar();
         String name = Strings.nameForThread(thread);
         if (actionBar != null) {
             actionBar.setTitle(name);
             actionBar.setHomeButtonEnabled(true);
         }
-        b.nameTextView.setText(name);
+        nameTextView.setText(name);
 
         if (!StringChecker.isNullOrEmpty(thread.getImageUrl())) {
-            b.threadImageView.setOnClickListener(v -> zoomImageFromThumbnail(b.threadImageView, thread.getImageUrl()));
-            Picasso.get().load(thread.getImageUrl()).into(b.threadImageView);
+            threadImageView.setOnClickListener(v -> zoomImageFromThumbnail(threadImageView, thread.getImageUrl()));
+            Picasso.get().load(thread.getImageUrl()).into(threadImageView);
         } else {
-            ThreadImageBuilder.load(b.threadImageView, thread);
-            b.threadImageView.setOnClickListener(null);
+            ThreadImageBuilder.load(threadImageView, thread);
+            threadImageView.setOnClickListener(null);
         }
 
         // CoreThread users bundle
@@ -160,8 +171,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
 
         if (threadEntityID != null && !threadEntityID.isEmpty()) {
             thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
-        }
-        else {
+        } else {
             finish();
         }
     }

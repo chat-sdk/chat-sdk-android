@@ -14,6 +14,9 @@ import co.chatsdk.ui.chat.model.MessageHolder;
 public class ReplyViewBinder {
 
     public static void onBind(View replyView, TextView replyTextView, ImageView replyImageView, MessageHolder holder) {
+        if (replyView == null) {
+            return;
+        }
         if (holder.isReply()) {
             replyView.setVisibility(View.VISIBLE);
 

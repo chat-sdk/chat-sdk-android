@@ -9,6 +9,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
+import co.chatsdk.ui.binders.OnlineStatusBinder;
 import co.chatsdk.ui.binders.ReadStatusViewBinder;
 import co.chatsdk.ui.chat.model.MessageHolder;
 import co.chatsdk.ui.chat.model.ThreadHolder;
@@ -28,13 +29,9 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
         super.onBind(dialog);
 
         if (dialog.getUsers().size() == 1) {
-            boolean isOnline = dialog.getUsers().get(0).isOnline();
             onlineIndicator.setVisibility(View.VISIBLE);
-            if (isOnline) {
-                onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_online);
-            } else {
-                onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_offline);
-            }
+            boolean isOnline = dialog.getUsers().get(0).isOnline();
+            OnlineStatusBinder.bind(onlineIndicator, isOnline);
         } else {
             onlineIndicator.setVisibility(View.GONE);
         }

@@ -7,26 +7,26 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.LayoutRes;
-import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
-
-import com.squareup.picasso.Picasso;
-
+import butterknife.BindView;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.PermissionRequestHandler;
-import co.chatsdk.profile.pictures.databinding.ActivityProfilePicturesBinding;
+import co.chatsdk.ui.activities.ImagePreviewActivity;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.utils.ImagePickerUploader;
-import co.chatsdk.ui.activities.ImagePreviewActivity;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -40,8 +40,6 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
     protected MenuItem addMenuItem;
     protected ImagePickerUploader imagePickerUploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
 
-    protected ActivityProfilePicturesBinding b;
-
     protected int gridPadding = 4;
     protected int pictureMargin = 8;
     protected int picturesPerRow = 2;
@@ -49,9 +47,15 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
     protected boolean hideButton = false;
     protected String limitWarning = null;
 
+    @BindView(R2.id.imageView)
+    ImageView imageView;
+    @BindView(R2.id.gridLayout)
+    GridLayout gridLayout;
+    @BindView(R2.id.root)
+    RelativeLayout root;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        b = DataBindingUtil.setContentView(this, getLayout());
         super.onCreate(savedInstanceState);
 
         String userEntityID = getIntent().getStringExtra(Keys.IntentKeyUserEntityID);
@@ -77,15 +81,16 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
     }
 
     @Override
-    protected @LayoutRes int getLayout() {
+    protected @LayoutRes
+    int getLayout() {
         return R.layout.activity_profile_pictures;
     }
 
     @Override
     protected void setupViews() {
         super.setupViews();
-        b.gridLayout.setPadding(gridPadding, gridPadding, gridPadding, gridPadding);
-        b.gridLayout.setColumnCount(picturesPerRow);
+        gridLayout.setPadding(gridPadding, gridPadding, gridPadding, gridPadding);
+        gridLayout.setColumnCount(picturesPerRow);
     }
 
     protected View createCellView(String url) {
@@ -145,9 +150,9 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
 
     protected void updateGallery() {
         ArrayList<String> urls = ChatSDK.profilePictures().fromUser(getUser());
-        b.gridLayout.removeAllViews();
+        gridLayout.removeAllViews();
         for (String url : urls) {
-            addCellToGridLayout(b.gridLayout, createCellView(url));
+            addCellToGridLayout(gridLayout, createCellView(url));
         }
 
         if (addMenuItem != null) {
@@ -184,7 +189,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
                     Toast.makeText(ProfilePicturesActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 }
             }));
-            }, this));
+        }, this));
     }
 
     protected User getUser() {

@@ -7,16 +7,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.LayoutRes;
-import androidx.databinding.DataBindingUtil;
 
 import com.squareup.picasso.Picasso;
+import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -25,15 +27,14 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
+import co.chatsdk.ui.chat.model.ThreadHolder;
+import co.chatsdk.ui.chat.model.TypingThreadHolder;
 import co.chatsdk.ui.custom.Customiser;
-import co.chatsdk.ui.databinding.FragmentThreadsBinding;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.interfaces.SearchSupported;
 import co.chatsdk.ui.utils.ThreadImageBuilder;
 import co.chatsdk.ui.view_holders.ThreadViewHolder;
-import co.chatsdk.ui.chat.model.MessageHolder;
-import co.chatsdk.ui.chat.model.ThreadHolder;
-import co.chatsdk.ui.chat.model.TypingThreadHolder;
 import io.reactivex.Observable;
 import io.reactivex.functions.Predicate;
 import io.reactivex.subjects.PublishSubject;
@@ -47,17 +48,19 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     protected PublishSubject<Thread> onClickPublishSubject = PublishSubject.create();
     protected PublishSubject<Thread> onLongClickPublishSubject = PublishSubject.create();
 
-    protected FragmentThreadsBinding b;
+    @BindView(R2.id.dialogsList)
+    DialogsList dialogsList;
+    @BindView(R2.id.root)
+    RelativeLayout root;
 
-    protected  @LayoutRes int getLayout () {
+    protected @LayoutRes
+    int getLayout() {
         return R.layout.fragment_threads;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-        b = DataBindingUtil.inflate(inflater, getLayout(), container, false);
-        rootView = b.getRoot();
+        View view = super.onCreateView(inflater, container, savedInstanceState);
 
         initViews();
         addListeners();
@@ -66,7 +69,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
         hideKeyboard();
 
-        return rootView;
+        return view;
     }
 
     public void addListeners() {
@@ -76,14 +79,11 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                     if (tabIsVisible) {
                         if (networkEvent.typeIs(EventType.ThreadAdded)) {
                             addThread(networkEvent.thread);
-                        }
-                        else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
+                        } else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
                             removeThread(networkEvent.thread);
-                        }
-                        else if (networkEvent.typeIs(EventType.ThreadDetailsUpdated, EventType.ThreadUsersChanged, EventType.UserMetaUpdated)) {
+                        } else if (networkEvent.typeIs(EventType.ThreadDetailsUpdated, EventType.ThreadUsersChanged, EventType.UserMetaUpdated)) {
                             updateThread(networkEvent.thread);
-                        }
-                        else if (networkEvent.typeIs(EventType.ThreadLastMessageUpdated)) {
+                        } else if (networkEvent.typeIs(EventType.ThreadLastMessageUpdated)) {
                             if (networkEvent.message != null) {
                                 updateMessage(networkEvent.message);
                             }
@@ -110,7 +110,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
         dialogsListAdapter = new DialogsListAdapter<>(R.layout.view_holder_thread, ThreadViewHolder.class, (imageView, url, payload) -> {
             if (getContext() != null) {
-                int size = Dimen.from(getContext(), R.dimen. action_bar_avatar_size);
+                int size = Dimen.from(getContext(), R.dimen.action_bar_avatar_size);
                 if (url != null) {
                     Picasso.get().load(url).resize(size, size).placeholder(ChatSDK.ui().getDefaultProfileImage()).into(imageView);
                 } else if (payload instanceof ThreadHolder) {
@@ -122,7 +122,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             }
         });
 
-        b.dialogsList.setAdapter(dialogsListAdapter);
+        dialogsList.setAdapter(dialogsListAdapter);
 
         dialogsListAdapter.setOnDialogViewClickListener((view, dialog) -> startChatActivity(dialog.getId()));
         dialogsListAdapter.setOnDialogLongClickListener(dialog -> {
@@ -137,9 +137,9 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         ChatSDK.ui().startChatActivityForID(getContext(), threadEntityID);
     }
 
-    protected abstract Predicate<NetworkEvent> mainEventFilter ();
+    protected abstract Predicate<NetworkEvent> mainEventFilter();
 
-    protected boolean allowThreadCreation () {
+    protected boolean allowThreadCreation() {
         return true;
     }
 
@@ -172,7 +172,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         }
     }
 
-    public void setTabVisibility (boolean isVisible) {
+    public void setTabVisibility(boolean isVisible) {
         super.setTabVisibility(isVisible);
         if (isVisible) {
             softReloadData();
@@ -195,7 +195,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             dialogsListAdapter.clear();
             ArrayList<ThreadHolder> threadHolders = new ArrayList<>();
             List<Thread> threads = filter(getThreads());
-            for (Thread thread: threads) {
+            for (Thread thread : threads) {
                 threadHolders.add(new ThreadHolder(thread));
             }
             dialogsListAdapter.setItems(threadHolders);
@@ -207,7 +207,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     }
 
     protected void updateMessage(Message message) {
-        if(!dialogsListAdapter.updateDialogWithMessage(message.getThread().getEntityID(), Customiser.shared().onNewMessageHolder(message))) {
+        if (!dialogsListAdapter.updateDialogWithMessage(message.getThread().getEntityID(), Customiser.shared().onNewMessageHolder(message))) {
             dialogsListAdapter.addItem(new ThreadHolder(message.getThread()));
         }
     }
@@ -224,9 +224,9 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         dialogsListAdapter.deleteById(thread.getEntityID());
     }
 
-    protected abstract List<Thread> getThreads ();
+    protected abstract List<Thread> getThreads();
 
-    public List<Thread> filter (List<Thread> threads) {
+    public List<Thread> filter(List<Thread> threads) {
         if (filter == null || filter.isEmpty()) {
             return threads;
         }
@@ -235,8 +235,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         for (Thread t : threads) {
             if (t.getName() != null && t.getName().toLowerCase().contains(filter.toLowerCase())) {
                 filteredThreads.add(t);
-            }
-            else {
+            } else {
                 for (User u : t.getUsers()) {
                     if (u.getName() != null && u.getName().toLowerCase().contains(filter.toLowerCase())) {
                         filteredThreads.add(t);

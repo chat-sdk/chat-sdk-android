@@ -7,7 +7,6 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
@@ -38,7 +37,7 @@ public class CreateThreadActivity extends SelectContactActivity {
     @Override
     protected void doneButtonPressed(List<User> users) {
         if (adapter.getSelectedCount() == 0) {
-            showSnackbar(getString(R.string.pick_friends_activity_no_users_selected_toast));
+            showSnackbar(getString(R.string.select_at_least_one_user));
             return;
         }
 
@@ -57,7 +56,7 @@ public class CreateThreadActivity extends SelectContactActivity {
     }
 
     protected void createAndOpenThread (String name, List<User> users) {
-        showProgressDialog(getString(R.string.pick_friends_activity_prog_dialog_open_new_convo_message));
+        showProgressDialog(getString(R.string.creating_thread));
         dm.add(ChatSDK.thread()
                 .createThread(name, users)
                 .observeOn(AndroidSchedulers.mainThread())

@@ -4,14 +4,9 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.widget.ImageView;
 
 import com.google.android.material.appbar.AppBarLayout;
-
-import co.chatsdk.ui.databinding.FragmentProfileBinding;
 
 public class ProfileViewOffsetChangeListener implements AppBarLayout.OnOffsetChangedListener {
 

@@ -13,6 +13,7 @@
     <color name="green_light">#CFEE88</color>
     <color name="primary_green">@android:color/holo_green_light</color>
     <color name="primary_green_dark">@android:color/holo_green_dark</color>
+    <color name="blue_light">#AED1DF</color>
 
     <color name="primary">@android:color/holo_blue_light</color>
     <color name="primary_dark">@android:color/holo_blue_dark</color>

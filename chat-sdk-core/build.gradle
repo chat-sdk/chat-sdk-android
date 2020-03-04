@@ -83,6 +83,9 @@ dependencies {
 
     api "com.karumi:dexter:$dexterVersion"
 
+    // Audio
+    implementation 'com.google.android.exoplayer:exoplayer:2.11.3'
+
 
 
 }

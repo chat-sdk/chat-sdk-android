@@ -5,17 +5,33 @@ import android.text.Html;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.databinding.DataBindingUtil;
+
+import com.github.siyamed.shapeimageview.mask.PorterShapeImageView;
 import com.squareup.picasso.Picasso;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.databinding.ViewChatReplyBinding;
+import co.chatsdk.ui.R2;
 import co.chatsdk.ui.icons.Icons;
 
 public class ReplyView extends ConstraintLayout {
 
-    protected ViewChatReplyBinding b;
+    @BindView(R2.id.imageView)
+    PorterShapeImageView imageView;
+    @BindView(R2.id.divider)
+    View divider;
+    @BindView(R2.id.replyTextView)
+    TextView replyTextView;
+    @BindView(R2.id.cancelButton)
+    ImageButton cancelButton;
+    @BindView(R2.id.root)
+    ConstraintLayout root;
 
     public ReplyView(Context context) {
         super(context);
@@ -33,8 +49,10 @@ public class ReplyView extends ConstraintLayout {
     }
 
     protected void initViews() {
-        b = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.view_chat_reply, this, true);
-        b.cancelButton.setImageDrawable(Icons.get(Icons.choose().cancel, R.color.gray_light));
+        LayoutInflater.from(getContext()).inflate(R.layout.view_chat_reply, this, true);
+        ButterKnife.bind(this);
+
+        cancelButton.setImageDrawable(Icons.get(Icons.choose().cancel, R.color.gray_light));
         hide();
     }
 
@@ -42,13 +60,13 @@ public class ReplyView extends ConstraintLayout {
         setVisibility(View.VISIBLE);
 
         if (imageURL != null && !imageURL.isEmpty()) {
-            b.imageView.setVisibility(View.VISIBLE);
-            Picasso.get().load(imageURL).into(b.imageView);
+            imageView.setVisibility(View.VISIBLE);
+            Picasso.get().load(imageURL).into(imageView);
         } else {
-            b.imageView.setVisibility(View.GONE);
+            imageView.setVisibility(View.GONE);
         }
         if (text != null) {
-            b.replyTextView.setText(Html.fromHtml("<b>" + title + "</b><br/>" + text));
+            replyTextView.setText(Html.fromHtml("<b>" + title + "</b><br/>" + text));
         }
     }
 
@@ -60,8 +78,8 @@ public class ReplyView extends ConstraintLayout {
         return getVisibility() == View.VISIBLE;
     }
 
-    public void setOnCancelListener(View.OnClickListener listener) {
-        b.cancelButton.setOnClickListener(listener);
+    public void setOnCancelListener(OnClickListener listener) {
+        cancelButton.setOnClickListener(listener);
     }
 
 }

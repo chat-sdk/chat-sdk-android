@@ -2,25 +2,36 @@ package co.chatsdk.ui.views;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.StringRes;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
-import androidx.databinding.DataBindingUtil;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.databinding.ViewSwitchItemBinding;
+import co.chatsdk.ui.R2;
+import co.chatsdk.ui.utils.ColorStateListUtil;
 
 public class SwitchItemView extends LinearLayout {
 
-    protected ViewSwitchItemBinding b;
+    @BindView(R2.id.imageView)
+    ImageView imageView;
+    @BindView(R2.id.textView)
+    TextView textView;
+    @BindView(R2.id.switchMaterial)
+    SwitchCompat switchMaterial;
+    @BindView(R2.id.root)
+    LinearLayout root;
 
     public SwitchItemView(Context context) {
         super(context, null);
@@ -38,56 +49,32 @@ public class SwitchItemView extends LinearLayout {
     }
 
     public void initViews() {
-        b = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.view_switch_item, this, true);
+        LayoutInflater.from(getContext()).inflate(R.layout.view_switch_item, this, true);
+        ButterKnife.bind(this);
     }
 
     public void setTrackColor(@ColorInt int color) {
-//        int[][] states = new int[][] {
-//                new int[] { android.R.attr.state_enabled}, // enabled
-//                new int[] {-android.R.attr.state_enabled}, // disabled
-//                new int[] {-android.R.attr.state_checked}, // unchecked
-//                new int[] { android.R.attr.state_pressed}  // pressed
-//        };
-//
-//        int[] colors = new int[] {
-//                color,
-//                Color.RED,
-//                Color.GREEN,
-//                Color.BLUE
-//        };
-        b.switchMaterial.setTrackTintList(listForColor(color));
+        switchMaterial.setTrackTintList(ColorStateListUtil.forColor(color));
     }
 
     public void setThumbColor(@ColorInt int color) {
-        b.switchMaterial.setThumbTintList(listForColor(color));
-    }
-
-    public ColorStateList listForColor(@ColorInt int color) {
-        int[][] states = new int[][] {
-                new int[] { android.R.attr.state_enabled}, // enabled
-        };
-
-        int[] colors = new int[] {
-                color,
-        };
-
-        return new ColorStateList(states, colors);
+        switchMaterial.setThumbTintList(ColorStateListUtil.forColor(color));
     }
 
     public void setSelected(boolean selected) {
-        b.switchMaterial.setChecked(selected);
+        switchMaterial.setChecked(selected);
     }
 
     public void setText(String text) {
-        b.textView.setText(text);
+        textView.setText(text);
     }
 
     public void setListener(CompoundButton.OnCheckedChangeListener listener) {
-        b.switchMaterial.setOnCheckedChangeListener(listener);
+        switchMaterial.setOnCheckedChangeListener(listener);
     }
 
     public void setIcon(Drawable icon) {
-        b.imageView.setImageDrawable(icon);
+        imageView.setImageDrawable(icon);
     }
 
     public static SwitchItemView create(Context context, @StringRes int text, Drawable icon, boolean selected, CompoundButton.OnCheckedChangeListener listener) {

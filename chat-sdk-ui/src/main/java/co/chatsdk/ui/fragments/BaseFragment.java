@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import butterknife.ButterKnife;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.DisposableMap;
 import co.chatsdk.ui.activities.BaseActivity;
@@ -49,7 +50,11 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        View view = super.onCreateView(inflater, container, savedInstanceState);
+        super.onCreateView(inflater, container, savedInstanceState);
+
+        rootView = inflater.inflate(getLayout(), container, false);
+        ButterKnife.bind(this, rootView);
+
         setHasOptionsMenu(true);
 
         alert = new AlertUtils(new AlertUtils.Provider() {
@@ -63,7 +68,7 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
             }
         });
 
-        return view;
+        return rootView;
     }
 
     @Override

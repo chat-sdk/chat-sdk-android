@@ -2,6 +2,10 @@ package co.chatsdk.ui.view_holders;
 
 import android.content.Context;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -9,50 +13,68 @@ import com.squareup.picasso.Picasso;
 
 import org.pmw.tinylog.Logger;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
 import co.chatsdk.ui.binders.OnlineStatusBinder;
-import co.chatsdk.ui.databinding.ViewUserRowBinding;
 import co.chatsdk.ui.binders.AvailabilityHelper;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserViewHolder extends RecyclerView.ViewHolder  {
 
-    protected ViewUserRowBinding b;
     protected boolean multiSelectEnabled;
 
-    public UserViewHolder(View view, ViewUserRowBinding binding, boolean multiSelectEnabled) {
+    @BindView(R2.id.avatarImageView)
+    CircleImageView avatarImageView;
+    @BindView(R2.id.onlineIndicator)
+    View onlineIndicator;
+    @BindView(R2.id.nameTextView)
+    TextView nameTextView;
+    @BindView(R2.id.checkbox)
+    CheckBox checkbox;
+    @BindView(R2.id.statusTextView)
+    TextView statusTextView;
+    @BindView(R2.id.availabilityImageView)
+    ImageView availabilityImageView;
+    @BindView(R2.id.root)
+    RelativeLayout root;
+
+    public UserViewHolder(View view, boolean multiSelectEnabled) {
         super(view);
-        b = binding;
+        ButterKnife.bind(this, view);
+
         this.multiSelectEnabled = multiSelectEnabled;
 
         // Clicks are handled at the list item level
-        b.checkbox.setClickable(false);
+        checkbox.setClickable(false);
     }
 
     public void bind(UserListItem item) {
 
-        b.nameTextView.setText(item.getName());
+        nameTextView.setText(item.getName());
 
         if (multiSelectEnabled) {
-            b.checkbox.setVisibility(View.VISIBLE);
+            checkbox.setVisibility(View.VISIBLE);
         } else {
-            b.checkbox.setVisibility(View.INVISIBLE);
+            checkbox.setVisibility(View.INVISIBLE);
         }
 
         if (StringChecker.isNullOrEmpty(item.getAvailability()) || multiSelectEnabled) {
-            b.availabilityImageView.setVisibility(View.INVISIBLE);
+            availabilityImageView.setVisibility(View.INVISIBLE);
         } else {
-            b.availabilityImageView.setVisibility(View.VISIBLE);
-            b.availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(item.getAvailability()));
+            availabilityImageView.setVisibility(View.VISIBLE);
+            availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(item.getAvailability()));
         }
 
-        OnlineStatusBinder.bind(b.onlineIndicator, item.getIsOnline());
+        OnlineStatusBinder.bind(onlineIndicator, item.getIsOnline());
 
-        b.statusTextView.setText(item.getStatus());
+        statusTextView.setText(item.getStatus());
 
         Logger.debug("User: " + item.getName() + " Availability: " + item.getAvailability());
 
@@ -62,14 +84,14 @@ public class UserViewHolder extends RecyclerView.ViewHolder  {
         int height = Dimen.from(context, R.dimen.small_avatar_height);
 
         if (item instanceof User) {
-            ((User) item).loadAvatar(b.avatarImageView, width, height);
+            ((User) item).loadAvatar(avatarImageView, width, height);
         } else {
-            Picasso.get().load(item.getAvatarURL()).resize(width, height).into(b.avatarImageView);
+            Picasso.get().load(item.getAvatarURL()).resize(width, height).into(avatarImageView);
         }
     }
 
     public void setChecked(boolean checked) {
-        b.checkbox.setChecked(checked);
+        checkbox.setChecked(checked);
     }
 
 }

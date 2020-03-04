@@ -3,6 +3,8 @@ package co.chatsdk.core.session;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.annotation.StringRes;
+
 import org.greenrobot.greendao.annotation.NotNull;
 
 import java.lang.ref.WeakReference;
@@ -133,6 +135,10 @@ public class ChatSDK {
 
     public SharedPreferences getPreferences () {
         return context.get().getSharedPreferences(Preferences, Context.MODE_PRIVATE);
+    }
+
+    public String getString(@StringRes int stringId) {
+        return context().getString(stringId);
     }
 
     public Context context () {

@@ -28,11 +28,9 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.sorter.MessageSorter;
-import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 
 import co.chatsdk.firebase.FirebaseEntity;
@@ -42,7 +40,6 @@ import co.chatsdk.firebase.FirebaseReferenceManager;
 import co.chatsdk.firebase.utils.Generic;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.Single;
@@ -72,16 +69,16 @@ public class ThreadWrapper  {
     public Observable<Thread> on() {
         return Observable.create((ObservableOnSubscribe<Thread>) e -> {
 
-            DatabaseReference detailsRef = FirebasePaths.threadDetailsRef(model.getEntityID());
+            DatabaseReference metaRef = FirebasePaths.threadMetaRef(model.getEntityID());
 
-            if (FirebaseReferenceManager.shared().isOn(detailsRef)) {
+            if (FirebaseReferenceManager.shared().isOn(metaRef)) {
                 e.onComplete();
                 return;
             }
 
-            ValueEventListener listener = detailsRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-                if (hasValue && snapshot.getValue() instanceof Map) {
-                    deserialize((Map<String, Object>)snapshot.getValue());
+            ValueEventListener listener = metaRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                if (hasValue) {
+                    deserialize(snapshot);
                 }
 
                 if (!model.isDeleted()) {
@@ -91,34 +88,11 @@ public class ThreadWrapper  {
                 e.onNext(model);
             }));
 
-            FirebaseReferenceManager.shared().addRef(detailsRef, listener);
+            FirebaseReferenceManager.shared().addRef(metaRef, listener);
 
             if(ChatSDK.typingIndicator() != null) {
                 ChatSDK.typingIndicator().typingOn(model);
             }
-        }).subscribeOn(Schedulers.single());
-    }
-
-    public Observable<Thread> lastMessageOn () {
-        return Observable.create((ObservableOnSubscribe<Thread>) e -> {
-
-            DatabaseReference ref = FirebasePaths.threadLastMessageRef(model.getEntityID());
-
-            if (FirebaseReferenceManager.shared().isOn(ref)) {
-                e.onComplete();
-                return;
-            }
-
-            ValueEventListener listener = ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-                // We just update the thread. The last text will already have been
-                // set by the text listener
-                if (hasValue) {
-                    e.onNext(model);
-                }
-            }));
-
-            FirebaseReferenceManager.shared().addRef(ref, listener);
-
         }).subscribeOn(Schedulers.single());
     }
 
@@ -129,11 +103,11 @@ public class ThreadWrapper  {
     public Completable once () {
         return Completable.create(e -> {
 
-            DatabaseReference detailsRef = FirebasePaths.threadDetailsRef(model.getEntityID());
+            DatabaseReference metaRef = FirebasePaths.threadMetaRef(model.getEntityID());
 
-            detailsRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-                if(hasValue &&  snapshot.getValue() instanceof Map) {
-                    deserialize((Map<String, Object>) snapshot.getValue());
+            metaRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                if(hasValue) {
+                    deserialize(snapshot);
                 }
                 e.onComplete();
             }));
@@ -145,7 +119,6 @@ public class ThreadWrapper  {
      * Stop listening to thread details change
      **/
     public void off() {
-        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.threadDetailsRef(model.getEntityID()));
         FirebaseReferenceManager.shared().removeListeners(FirebasePaths.threadLastMessageRef(model.getEntityID()));
         metaOff();
         if(ChatSDK.typingIndicator() != null) {
@@ -202,17 +175,9 @@ public class ThreadWrapper  {
 
             ChildEventListener listener = query.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
                 if (hasValue) {
-
-                    Object value = snapshot.getValue();
-                    if (value instanceof HashMap) {
-                        HashMap<String, Object> hashValue = (HashMap) snapshot.getValue();
-                        Object userIDObject = hashValue.get(Keys.UserFirebaseId);
-                        if (userIDObject instanceof String) {
-                            String userID = (String) userIDObject;
-                            if (ChatSDK.blocking() != null && ChatSDK.blocking().isBlocked(userID)) {
-                                return;
-                            }
-                        }
+                    String from = snapshot.child(Keys.From).getValue(String.class);
+                    if (ChatSDK.blocking() != null && ChatSDK.blocking().isBlocked(from)) {
+                        return;
                     }
 
                     model.setDeleted(false);
@@ -435,73 +400,55 @@ public class ThreadWrapper  {
      * Converting the thread details to a map object.
      **/
     protected Map<String, Object> serialize() {
-        Map<String , Object> map = new HashMap<String, Object>();
-        map.put(FirebasePaths.DetailsPath, serializeMeta());
-        return map;
-    }
-
-    protected Map<String, Object> serializeMeta () {
-        Map<String , Object> map = new HashMap<>();
-
-        map.put(Keys.CreationDate, ServerValue.TIMESTAMP);
-        map.put(Keys.Name, model.getName());
-        // Deprecated in favour of type
-        map.put(Keys.Type_v4, model.getType());
-        map.put(Keys.Type, model.getType());
-        // Deprecated in favour of creator
-        map.put(Keys.CreatorEntityId, this.model.getCreator().getEntityID());
-        map.put(Keys.Creator, this.model.getCreator().getEntityID());
-        map.put(Keys.ImageUrl, this.model.getImageUrl());
-
-        return map;
+        return new HashMap<String, Object>() {{
+            put(Keys.CreationDate, ServerValue.TIMESTAMP);
+            put(Keys.Name, model.getName());
+            put(Keys.Type, model.getType());
+            put(Keys.Creator, model.getCreator().getEntityID());
+            put(Keys.ImageUrl, model.getImageUrl());
+        }};
     }
 
     /**
      * Updating thread details from given map
      **/
     @SuppressWarnings("all") // To remove setType warning.
-    void deserialize(Map<String, Object> value){
+    void deserialize(DataSnapshot snapshot){
 
-        if (value == null) {
-            return;
-        }
-
-        if (value.containsKey(Keys.CreationDate))
-        {
-            if (value.get(Keys.CreationDate) instanceof Long) {
-                Long data = (Long) value.get(Keys.CreationDate);
-                if (data != null && data > 0) {
-                    this.model.setCreationDate(new Date(data));
-                }
-            }
-            else if (value.get(Keys.CreationDate) instanceof Double) {
-                Double data = (Double) value.get(Keys.CreationDate);
-                if (data != null && data > 0) {
-                    this.model.setCreationDate(new Date(data.longValue()));
+        if (snapshot.hasChild(Keys.CreationDate)) {
+            Long date = snapshot.child(Keys.CreationDate).getValue(Long.class);
+            if (date != null && date > 0) {
+                model.setCreationDate(new Date(date));
+            } else {
+                Double date2 = snapshot.child(Keys.CreationDate).getValue(Double.class);
+                if (date2 != null && date2 > 0) {
+                    model.setCreationDate(new Date(date));
                 }
             }
         }
-
-        String creatorEntityID = (String) value.get(Keys.CreatorEntityId);
-        if (creatorEntityID != null) {
-            this.model.setCreatorEntityId(creatorEntityID);
-            this.model.setCreator(ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, creatorEntityID));
+        if (snapshot.hasChild(Keys.Creator)) {
+            String creatorEntityID = snapshot.child(Keys.Creator).getValue(String.class);
+            model.setCreator(ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, creatorEntityID));
         }
 
         long type = ThreadType.PrivateGroup;
-        // First check to see if the new type value exists
-        if(value.containsKey(Keys.Type_v4)) {
-            type = (Long) value.get(Keys.Type_v4);
+        if (snapshot.hasChild(Keys.Type)) {
+            type = snapshot.child(Keys.Type).getValue(Long.class);
         }
         model.setType((int)type);
 
-        if (value.containsKey(Keys.Name) && !value.get(Keys.Name).equals("")) {
-            this.model.setName((String) value.get(Keys.Name));
+        if (snapshot.hasChild(Keys.Name)) {
+            String name = snapshot.child(Keys.Name).getValue(String.class);
+            if (!name.isEmpty()) {
+                model.setName(name);
+            }
         }
 
-        this.model.setImageUrl((String) value.get(Keys.ImageUrl));
-        this.model.setCreatorEntityId((String) value.get(Keys.CreatorEntityId));
-        this.model.update();
+        if (snapshot.hasChild(Keys.ImageUrl)) {
+            model.setImageUrl(snapshot.child(Keys.ImageUrl).getValue(String.class));
+        }
+
+        model.update();
     }
 
     /**
@@ -516,12 +463,11 @@ public class ThreadWrapper  {
                 model.update();
             }
 
-            DatabaseReference ref = FirebasePaths.threadRef(model.getEntityID());
             DatabaseReference metaRef = FirebasePaths.threadMetaRef(model.getEntityID());
 
-            ref.updateChildren(serialize(), (databaseError, databaseReference) -> {
+            metaRef.updateChildren(serialize(), (databaseError, databaseReference) -> {
                 if (databaseError == null) {
-                    FirebaseEntity.pushThreadDetailsUpdated(model.getEntityID()).subscribe(ChatSDK.events());
+                    FirebaseEntity.pushThreadMetaUpdated(model.getEntityID()).subscribe(ChatSDK.events());
                     e.onComplete();
                 }
                 else {
@@ -529,23 +475,9 @@ public class ThreadWrapper  {
                 }
             });
 
-            // Also update the meta ref - we do this for forwards compatibility
-            // in the future we will move everything to the meta area
-            metaRef.updateChildren(serializeMeta());
-
         }).subscribeOn(Schedulers.single());
     }
 
-    public Completable pushLastMessage (final HashMap<String, Object> messageData) {
-        return Completable.create(e -> FirebasePaths.threadRef(model.getEntityID()).child(FirebasePaths.LastMessagePath).setValue(messageData, (databaseError, databaseReference) -> {
-            if(databaseError == null) {
-                e.onComplete();
-            }
-            else {
-                e.onError(databaseError.toException());
-            }
-        })).subscribeOn(Schedulers.single());
-    }
 
     private void updateReadReceipts() {
         if(ChatSDK.readReceipts() != null) {

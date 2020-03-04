@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import butterknife.ButterKnife;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ActivityResult;
@@ -81,6 +82,15 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+            getWindow().setEnterTransition(new Explode());
+            getWindow().setExitTransition(new Explode());
+        }
+
+        setContentView(getLayout());
+        ButterKnife.bind(this);
+
         Logger.debug("onCreate: " + this);
 
         updateExtras(getIntent().getExtras());
@@ -89,11 +99,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
             setTheme(ChatSDK.config().theme);
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-            getWindow().setEnterTransition(new Explode());
-            getWindow().setExitTransition(new Explode());
-        }
 
         // Setting the default task description.
         setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());

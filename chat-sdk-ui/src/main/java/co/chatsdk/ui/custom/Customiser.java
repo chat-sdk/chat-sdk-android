@@ -36,9 +36,9 @@ public class Customiser implements IMessageHandler {
     }
 
     @Override
-    public void onBindMessageHolders(Context context, MessageHolders holders, MessageHolders.ContentChecker<MessageHolder> checker) {
+    public void onBindMessageHolders(Context context, MessageHolders holders) {
         for (IMessageHandler handler: messageHandlers) {
-            handler.onBindMessageHolders(context, holders, checker);
+            handler.onBindMessageHolders(context, holders);
         }
     }
 

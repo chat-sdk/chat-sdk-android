@@ -8,26 +8,25 @@
 package co.chatsdk.ui.activities;
 
 import android.os.Bundle;
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
-import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
@@ -36,7 +35,6 @@ import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
-import co.chatsdk.ui.databinding.ActivitySelectContactsBinding;
 import co.chatsdk.ui.icons.Icons;
 import io.reactivex.functions.Predicate;
 
@@ -48,12 +46,18 @@ public abstract class SelectContactActivity extends BaseActivity {
     protected UsersListAdapter adapter;
     protected boolean multiSelectEnabled;
 
-    protected ActivitySelectContactsBinding b;
+    @BindView(R2.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R2.id.recyclerView)
+    RecyclerView recyclerView;
+    @BindView(R2.id.fab)
+    FloatingActionButton fab;
+    @BindView(R2.id.root)
+    ConstraintLayout root;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        b = DataBindingUtil.setContentView(this, getLayout());
 
         Predicate<NetworkEvent> contactChanged = ne -> {
             // Make a filter for user update events
@@ -92,23 +96,24 @@ public abstract class SelectContactActivity extends BaseActivity {
         return true;
     }
 
-    protected @LayoutRes int getLayout() {
+    protected @LayoutRes
+    int getLayout() {
         return R.layout.activity_select_contacts;
     }
 
     protected void initViews() {
         super.initViews();
-        b.fab.setOnClickListener(v -> {
+        fab.setOnClickListener(v -> {
             doneButtonPressed(UserListItemConverter.toUserList(adapter.getSelectedUsers()));
         });
-        b.fab.setImageDrawable(Icons.get(Icons.choose().check, R.color.fab_icon_color));
+        fab.setImageDrawable(Icons.get(Icons.choose().check, R.color.fab_icon_color));
     }
 
     protected void initList() {
         adapter = new UsersListAdapter(multiSelectEnabled);
 
-        b.recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        b.recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
 
         loadData();
 
@@ -118,17 +123,17 @@ public abstract class SelectContactActivity extends BaseActivity {
                     adapter.toggleSelection(item);
                     userSelectionChanged(getUserList());
                 } else {
-                        doneButtonPressed(Arrays.asList((User) item));
+                    doneButtonPressed(Arrays.asList((User) item));
                 }
             }
         }));
     }
 
-    protected List<User> getUserList () {
+    protected List<User> getUserList() {
         return UserListItemConverter.toUserList(adapter.getSelectedUsers());
     }
 
-    protected void loadData () {
+    protected void loadData() {
         adapter.setUsers(new ArrayList<>(ChatSDK.contact().contacts()), true);
     }
 
@@ -137,29 +142,29 @@ public abstract class SelectContactActivity extends BaseActivity {
         super.onPause();
     }
 
-    protected void userSelectionChanged (List<User> users) {
+    protected void userSelectionChanged(List<User> users) {
         refreshDoneButtonVisibility();
     }
 
-    abstract protected void doneButtonPressed (List<User> users);
+    abstract protected void doneButtonPressed(List<User> users);
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
     }
 
-    public void setMultiSelectEnabled (boolean enabled) {
+    public void setMultiSelectEnabled(boolean enabled) {
         multiSelectEnabled = enabled;
         refreshDoneButtonVisibility();
         adapter.setMultiSelectEnabled(enabled);
     }
 
-    public void refreshDoneButtonVisibility () {
+    public void refreshDoneButtonVisibility() {
         boolean visible = false;
         if (multiSelectEnabled) {
             visible = adapter.getSelectedCount() > 0;
         }
-        b.fab.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        fab.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
     }
 
 }

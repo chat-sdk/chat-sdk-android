@@ -14,6 +14,7 @@ import com.google.firebase.auth.PhoneAuthProvider;
 import com.stfalcon.chatkit.commons.models.IMessage;
 import com.stfalcon.chatkit.messages.MessageHolders;
 
+import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
 import co.chatsdk.android.app.R;
 import co.chatsdk.core.avatar.gravatar.GravatarAvatarGenerator;
 import co.chatsdk.core.dao.Message;
@@ -26,16 +27,6 @@ import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.BaseInterfaceAdapter;
-import firestream.chat.Config;
-import firestream.chat.namespace.Fire;
-import firestream.chat.test.TestScript;
-import sdk.chat.custom_message.audio.AudioMessageModule;
-import sdk.chat.custom_message.sticker.StickerMessageHolder;
-import sdk.chat.custom_message.video.IncomingVideoMessageViewHolder;
-import sdk.chat.custom_message.video.OutcomingVideoMessageViewHolder;
-import sdk.chat.custom_message.video.VideoMessageHolder;
-import sdk.chat.custom_message.video.VideoMessageModule;
-import sdk.chat.ui.extras.MainDrawActivity;
 
 /**
  * Created by Ben Smiley on 6/8/2014.
@@ -46,8 +37,6 @@ public class MainApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
 
-        Context context = getApplicationContext();
-
         String rootPath = "micro_test_99";
 
         try {
@@ -55,10 +44,11 @@ public class MainApplication extends MultiDexApplication {
                     .firebaseRootPath(rootPath)
                     .publicRoomCreationEnabled(true)
                     .publicChatRoomLifetimeMinutes(60 * 24)
-                    .twitterLogin("Kqprq5b6bVeEfcMAGoHzUmB3I", "hPd9HCt3PLnifQFrGHJWi6pSZ5jF7kcHKXuoqB8GJpSDAlVcLq")
-                    .googleLogin("1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com")
                     .googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
                     .build();
+
+            config.defaultNamePrefix = "Your name";
+            config.defaultName = "Name";
 
             // FireStream configuration
 
@@ -78,7 +68,7 @@ public class MainApplication extends MultiDexApplication {
 //            ChatSDK.initialize(context, config, FireStreamNetworkAdapter.class, BaseInterfaceAdapter.class);
 
             // Old Firebase Adapter
-            ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
+            ChatSDK.initialize(this, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
 
 //            TestScript.run(context, config.firebaseRootPath);
 
@@ -97,12 +87,6 @@ public class MainApplication extends MultiDexApplication {
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
             FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
-
-            VideoMessageModule.activate();
-            AudioMessageModule.activate();
-
-
-
 
 //            new DummyData(1, 1000);
 

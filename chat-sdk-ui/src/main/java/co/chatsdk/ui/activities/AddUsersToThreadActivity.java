@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,11 +52,11 @@ public class AddUsersToThreadActivity extends SelectContactActivity {
     @Override
     protected void doneButtonPressed(List<User> users) {
         if (adapter.getSelectedCount() == 0) {
-            showToast(getString(R.string.pick_friends_activity_no_users_selected_toast));
+            showToast(getString(R.string.select_at_least_one_user));
             return;
         }
 
-        showProgressDialog( getString(R.string.pick_friends_activity_prog_dialog_add_to_convo_message));
+        showProgressDialog( getString(R.string.adding_users));
 
         dm.add(ChatSDK.thread().addUsersToThread(thread, users)
                 .observeOn(AndroidSchedulers.mainThread())

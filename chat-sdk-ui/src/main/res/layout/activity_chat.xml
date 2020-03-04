@@ -1,66 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <FrameLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/viewContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true">
 
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:id="@+id/viewContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:animateLayoutChanges="true">
-
-            <co.chatsdk.ui.appbar.ChatActionBar
-                android:id="@+id/chatActionBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <co.chatsdk.ui.views.ChatView
-                android:id="@+id/chatView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_above="@id/divider"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="bottom"
-                app:layout_behavior="co.chatsdk.ui.appbar.TextInputBehavior"
-                >
-
-                <View
-                    android:id="@+id/divider"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
-                    android:background="@color/gray_light"/>
-
-                <co.chatsdk.ui.views.ReplyView
-                    android:id="@+id/replyView"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    />
-
-                <com.stfalcon.chatkit.messages.MessageInput
-                    android:id="@+id/input"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:showAttachmentButton="true" />
-
-            </LinearLayout>
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-        <com.miguelcatalan.materialsearchview.MaterialSearchView
-            android:id="@+id/searchView"
+        <co.chatsdk.ui.appbar.ChatActionBar
+            android:id="@+id/chatActionBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-    </FrameLayout>
+        <co.chatsdk.ui.views.ChatView
+            android:id="@+id/chatView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/divider"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            />
 
-</layout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="bottom"
+            app:layout_behavior="co.chatsdk.ui.appbar.TextInputBehavior"
+            >
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:background="@color/gray_light"/>
+
+            <co.chatsdk.ui.views.ReplyView
+                android:id="@+id/replyView"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                />
+
+            <com.stfalcon.chatkit.messages.MessageInput
+                android:id="@+id/input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:showAttachmentButton="true" />
+
+        </LinearLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <com.miguelcatalan.materialsearchview.MaterialSearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</FrameLayout>

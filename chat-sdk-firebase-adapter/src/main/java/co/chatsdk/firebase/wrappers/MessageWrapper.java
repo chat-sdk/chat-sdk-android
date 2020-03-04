@@ -12,10 +12,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 
 import org.joda.time.DateTime;
+import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
@@ -31,6 +33,7 @@ import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.R;
 import co.chatsdk.firebase.utils.Generic;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.schedulers.Schedulers;
 
 public class MessageWrapper  {
@@ -47,13 +50,11 @@ public class MessageWrapper  {
     }
 
     Map<String, Object> serialize() {
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> values = new HashMap<>();
 
-        values.put(Keys.JSON, model.getMetaValuesAsMap());
         values.put(Keys.Meta, model.getMetaValuesAsMap());
         values.put(Keys.Date, ServerValue.TIMESTAMP);
         values.put(Keys.Type, model.getType());
-        values.put(Keys.UserFirebaseId, model.getSender().getEntityID());
 
         HashMap<String, Map<String, Integer>> map = new HashMap<>();
         for (ReadReceiptUserLink link: getModel().getReadReceiptLinks()) {
@@ -66,7 +67,7 @@ public class MessageWrapper  {
         values.put(FirebasePaths.ReadPath, map);
 
         values.put(Keys.To, getTo());
-        values.put(Keys.From, ChatSDK.currentUserID());
+        values.put(Keys.From, model.getSender().getEntityID());
 
         return values;
     }
@@ -98,8 +99,8 @@ public class MessageWrapper  {
             return;
         }
 
-        if (snapshot.hasChild(Keys.JSON)) {
-            model.setMetaValues(snapshot.child(Keys.JSON).getValue(Generic.hashMapStringObject()));
+        if (snapshot.hasChild(Keys.Meta)) {
+            model.setMetaValues(snapshot.child(Keys.Meta).getValue(Generic.hashMapStringObject()));
         } else {
             model.setText("");
         }
@@ -114,14 +115,15 @@ public class MessageWrapper  {
             // If the server time of the text is too different to local time
             // set the status to none, which causes the text to be refreshed
             // in the chat view.
-            if (this.getModel().getDate() == null || Math.abs(this.getModel().getDate().toDate().getTime() - date) > 1000) {
-                model.setMessageStatus(MessageSendStatus.None);
-            }
+//            if (this.getModel().getDate() == null || Math.abs(this.getModel().getDate().toDate().getTime() - date) > 1000) {
+//                model.setMessageStatus(MessageSendStatus.None);
+                Logger.debug("Do we need this");
+//            }
             model.setDate(new DateTime(date));
         }
 
-        if (snapshot.hasChild(Keys.UserFirebaseId)) {
-            String senderID = snapshot.child(Keys.UserFirebaseId).getValue(String.class);
+        if (snapshot.hasChild(Keys.From)) {
+            String senderID = snapshot.child(Keys.From).getValue(String.class);
             User user = DaoCore.fetchEntityWithEntityID(User.class, senderID);
             if (user == null) {
                 user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, senderID);
@@ -182,28 +184,30 @@ public class MessageWrapper  {
                     e.onError(firebaseError.toException());
                 }
             });
-        });
+        }).subscribeOn(Schedulers.single());
     }
     
     public Completable send() {
-        if (model.getThread() != null) {
-            return push().concatWith(Completable.defer(() -> new ThreadWrapper(model.getThread()).pushLastMessage(lastMessageData()))).subscribeOn(Schedulers.single());
-        } else {
-            return Completable.error(new Throwable(ChatSDK.shared().context().getString(R.string.message_doesnt_have_a_thread)));
-        }
+        return Completable.defer(() -> {
+            if (model.getThread() != null) {
+                return push();
+            } else {
+                return Completable.error(new Throwable(ChatSDK.shared().getString(R.string.message_doesnt_have_a_thread)));
+            }
+        });
     }
 
-    public HashMap<String, Object> lastMessageData () {
-        HashMap<String, Object> map = new HashMap<>();
-        map.put(Keys.Type, model.getType());
-        map.put(Keys.Date, ServerValue.TIMESTAMP);
-        map.put(Keys.UserFirebaseId, model.getSender().getEntityID());
-        map.put(Keys.From, model.getSender().getEntityID());
-        map.put(Keys.UserName, model.getSender().getName());
-        map.put(Keys.JSON, model.getMetaValuesAsMap());
-        map.put(Keys.Meta, model.getMetaValuesAsMap());
-        return map;
-    }
+//    public HashMap<String, Object> lastMessageData () {
+//        HashMap<String, Object> map = new HashMap<>();
+//        map.put(Keys.Type, model.getType());
+//        map.put(Keys.Date, ServerValue.TIMESTAMP);
+//        map.put(Keys.UserFirebaseId, model.getSender().getEntityID());
+//        map.put(Keys.From, model.getSender().getEntityID());
+//        map.put(Keys.UserName, model.getSender().getName());
+//        map.put(Keys.JSON, model.getMetaValuesAsMap());
+//        map.put(Keys.Meta, model.getMetaValuesAsMap());
+//        return map;
+//    }
 
     public Completable delete () {
         return Completable.create(e -> {

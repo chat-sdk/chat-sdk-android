@@ -15,7 +15,7 @@ import co.chatsdk.ui.chat.model.MessageHolder;
 
 public interface IMessageHandler extends MessageHolders.ContentChecker<MessageHolder> {
 
-    void onBindMessageHolders(Context context, MessageHolders holders, MessageHolders.ContentChecker<MessageHolder> checker);
+    void onBindMessageHolders(Context context, MessageHolders holders);
     MessageHolder onNewMessageHolder(Message message);
     void onClick(Activity activity, View rootView, Message message);
     void onLongClick(Activity activity, View rootView, Message message);

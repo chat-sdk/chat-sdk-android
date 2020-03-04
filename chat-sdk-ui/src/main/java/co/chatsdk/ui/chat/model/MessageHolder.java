@@ -122,24 +122,10 @@ public class MessageHolder implements IMessage {
         return showDate;
     }
 
-//    public static List<MessageHolder> fromMessages(List<Message> messages) {
-//        ArrayList<MessageHolder> messageHolders = new ArrayList<>();
-//        for (Message m: messages) {
-//            messageHolders.add(fromMessage(m));
-//        }
-//        return messageHolders;
-//    }
-
-//    public static MessageHolder fromMessage(Message message) {
-//        MessageHolder holder = Customiser.shared().onNewMessageHolder(message);
-//        if (holder != null) {
-//            return holder;
-//        }
-//        if (message.getMessageType().is(MessageType.Image, MessageType.Location)) {
-//            return new ImageMessageHolder(message);
-//        }
-//        return new MessageHolder(message);
-//    }
+    public String getIcon() {
+        return null;
+//        return "http://flathash.com/ben";
+    }
 
     public static List<Message> toMessages(List<MessageHolder> messageHolders) {
         ArrayList<Message> messages = new ArrayList<>();

@@ -257,7 +257,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                     return chat.setRole(new FireStreamUser(user.getEntityID()), RoleType.reverseMap().get(role));
                 }
             }
-            return Completable.error(new Throwable(ChatSDK.shared().context().getString(R.string.feature_not_supported)));
+            return Completable.error(new Throwable(ChatSDK.shared().getString(R.string.feature_not_supported)));
         });
     }
 

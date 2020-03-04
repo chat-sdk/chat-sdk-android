@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.novoda.bintray-release'
+apply plugin: 'com.jakewharton.butterknife'
 
 buildscript {
     repositories {
@@ -26,9 +27,6 @@ android {
     }
     lintOptions {
         abortOnError false
-    }
-    dataBinding {
-        enabled = true
     }
 }
 
@@ -59,5 +57,9 @@ dependencies {
     implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
     implementation "com.mikepenz:iconics-core:$iconicsVersion"
     implementation "com.mikepenz:iconics-views:$iconicsVersion"
+
+    implementation "com.jakewharton:butterknife:$butterKnifeVersion"
+    annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
+
 
 }

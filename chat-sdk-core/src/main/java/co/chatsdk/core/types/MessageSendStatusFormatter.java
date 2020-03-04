@@ -9,6 +9,8 @@ public class MessageSendStatusFormatter {
         switch (status) {
             case Created:
                 return context.getString(R.string.created);
+            case Compressing:
+                return context.getString(R.string.compressing);
             case WillUpload:
                 return context.getString(R.string.will_upload);
             case Uploading:
@@ -26,7 +28,7 @@ public class MessageSendStatusFormatter {
             case Failed:
                 return context.getString(R.string.failed);
             default:
-                return context.getString(R.string.none);
+                return "";
 
         }
     }

@@ -490,22 +490,6 @@ public class Thread extends AbstractEntity {
         this.type = type;
     }
 
-    @Deprecated // Use getCreator instead
-    public String getCreatorEntityId() {
-        if (creator != null) {
-            return creator.getEntityID();
-        }
-        return null;
-    }
-
-    @Deprecated // User setCreator instead
-    public void setCreatorEntityId(String creatorEntityId) {
-        User creator = ChatSDK.db().fetchUserWithEntityID(creatorEntityId);
-        if (creator != null) {
-            this.creator = creator;
-        }
-    }
-
     public Message lastMessage () {
         List<Message> messages = getMessagesWithOrder(DaoCore.ORDER_DESC, 1);
         if (messages.size() > 0) {

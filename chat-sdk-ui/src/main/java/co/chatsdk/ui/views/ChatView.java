@@ -8,13 +8,13 @@ import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
-import com.stfalcon.chatkit.commons.models.MessageContentType;
 import com.stfalcon.chatkit.messages.MessageHolders;
+import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
 import org.ocpsoft.prettytime.PrettyTime;
@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.EventType;
@@ -32,18 +34,26 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.utils.DisposableMap;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
 import co.chatsdk.ui.chat.model.ImageMessageHolder;
 import co.chatsdk.ui.chat.model.MessageHolder;
 import co.chatsdk.ui.custom.Customiser;
-import co.chatsdk.ui.databinding.ViewChatBinding;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
-public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoadMoreListener, MessageHolders.ContentChecker<MessageHolder> {
+public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoadMoreListener {
+
+    @BindView(R2.id.messagesList)
+    MessagesList messagesList;
+    @BindView(R2.id.root)
+    LinearLayout root;
 
     public interface Delegate {
         DisplayMetrics getDisplayMetrics();
+
         Thread getThread();
+
         void onClick(Message message);
+
         void onLongClick(Message message);
     }
 
@@ -52,7 +62,6 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     protected HashMap<Message, MessageHolder> messageHolderHashMap = new HashMap<>();
     protected ArrayList<MessageHolder> messageHolders = new ArrayList<>();
 
-    protected ViewChatBinding b;
 
     protected DisposableMap dm = new DisposableMap();
 
@@ -77,8 +86,8 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     }
 
     public void initViews() {
-
-        b = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.view_chat, this, true);
+        LayoutInflater.from(getContext()).inflate(R.layout.view_chat, this);
+        ButterKnife.bind(this);
 
 //        LinearLayoutManager manager = new LinearLayoutManager(getContext());
 //        manager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -87,26 +96,21 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
         MessageHolders holders = new MessageHolders();
 
-        Customiser.shared().onBindMessageHolders(getContext(), holders, this);
+        Customiser.shared().onBindMessageHolders(getContext(), holders);
 
         messagesListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, (imageView, url, payload) -> {
+            int placeholder = R.drawable.icn_100_profile;
+            if (payload instanceof Integer) {
+                placeholder = (Integer) payload;
+            }
+
             if (url == null || url.isEmpty()) {
-                if (payload == null) {
-                    imageView.setImageResource(R.drawable.icn_100_profile);
-                } else if (payload instanceof ImageMessageHolder) {
-                    imageView.setImageResource(R.drawable.icn_200_image_message_placeholder);
-                }
+                imageView.setImageResource(placeholder);
             } else {
-
                 RequestCreator request = Picasso.get().load(url)
+                        .placeholder(placeholder)
+                        .error(R.drawable.icn_200_image_message_error)
                         .resize(maxImageWidth(), maxImageWidth()).centerCrop();
-
-                if (payload == null) {
-                    request.placeholder(R.drawable.icn_100_profile);
-                } else if (payload instanceof ImageMessageHolder) {
-                    request.error(R.drawable.icn_200_image_message_error);
-                    request.placeholder(R.drawable.icn_200_image_message_placeholder);
-                }
 
                 request.into(imageView);
             }
@@ -122,16 +126,11 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         messagesListAdapter.setOnMessageLongClickListener(holder -> {
             delegate.onLongClick(holder.getMessage());
         });
-        b.messagesList.setAdapter(messagesListAdapter);
+        messagesList.setAdapter(messagesListAdapter);
 
         addListeners();
         onLoadMore(0, 0);
 
-    }
-
-    @Override
-    public boolean hasContentFor(MessageHolder message, byte type) {
-        return Customiser.shared().hasContentFor(message, type);
     }
 
     protected void addListeners() {
@@ -176,7 +175,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
     protected int maxImageWidth() {
         // Prevent overly big messages in landscape mode
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             return Math.round(delegate.getDisplayMetrics().widthPixels);
         } else {
             return Math.round(delegate.getDisplayMetrics().heightPixels);
@@ -196,7 +195,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         Date loadFromDate = null;
         if (totalItemsCount != 0) {
             // This list has the newest first
-            loadFromDate = messageHolders.get(messageHolders.size()-1).getCreatedAt();
+            loadFromDate = messageHolders.get(messageHolders.size() - 1).getCreatedAt();
         }
         dm.add(ChatSDK.thread()
                 .loadMoreMessagesForThread(loadFromDate, delegate.getThread(), true)
@@ -265,7 +264,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
             // comes in and scrolls the screen down
             boolean scroll = message.getSender().isMe();
 
-            RecyclerView.LayoutManager layoutManager = b.messagesList.getLayoutManager();
+            RecyclerView.LayoutManager layoutManager = messagesList.getLayoutManager();
             if (layoutManager instanceof LinearLayoutManager) {
                 LinearLayoutManager llm = (LinearLayoutManager) layoutManager;
 
@@ -288,7 +287,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     public void addMessagesToEnd(List<Message> messages) {
         // Check to see if the holders already exist
         ArrayList<MessageHolder> holders = new ArrayList<>();
-        for (Message message: messages) {
+        for (Message message : messages) {
             MessageHolder holder = messageHolderHashMap.get(message);
             if (holder == null) {
                 holder = Customiser.shared().onNewMessageHolder(message);
@@ -327,7 +326,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
             filter = filter.trim();
 
             ArrayList<MessageHolder> filtered = new ArrayList<>();
-            for (MessageHolder holder: messageHolders) {
+            for (MessageHolder holder : messageHolders) {
                 if (holder.getText().toLowerCase().contains(filter)) {
                     filtered.add(holder);
                 }

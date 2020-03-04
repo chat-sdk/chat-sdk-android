@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
-    <RelativeLayout
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:fitsSystemWindows="true">
+
+    <fragment
+        android:name="co.chatsdk.ui.fragments.ProfileFragment"
+        android:id="@+id/profileFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:animateLayoutChanges="true"
-        android:fitsSystemWindows="true">
+        android:layout_height="match_parent">
+    </fragment>
 
-        <fragment
-            android:name="co.chatsdk.ui.fragments.ProfileFragment"
-            android:id="@+id/profileFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        </fragment>
-
-    </RelativeLayout>
-</layout>
+</RelativeLayout>

@@ -12,8 +12,8 @@ import io.reactivex.Completable;
 
 public class FirebaseEntity {
 
-    public static Completable pushThreadDetailsUpdated (String threadEntityID) {
-        return pushUpdated(FirebasePaths.ThreadsPath, threadEntityID, FirebasePaths.DetailsPath);
+    public static Completable pushThreadMetaUpdated(String threadEntityID) {
+        return pushUpdated(FirebasePaths.ThreadsPath, threadEntityID, FirebasePaths.MetaPath);
     }
 
     public static Completable pushThreadUsersUpdated (String threadEntityID) {

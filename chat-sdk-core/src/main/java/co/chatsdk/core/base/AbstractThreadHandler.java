@@ -222,7 +222,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     }
 
     public Completable setRole(String role, Thread thread, User user) {
-        return Completable.error(new Throwable(ChatSDK.shared().context().getString(R.string.feature_not_supported)));
+        return Completable.error(new Throwable(ChatSDK.shared().getString(R.string.feature_not_supported)));
     }
 
     public List<String> availableRoles(Thread thread, User user) {
@@ -237,7 +237,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 m.delete();
             }
             ChatSDK.events().source().onNext(NetworkEvent.threadRemoved(thread));
-            ChatSDK.db().delete(thread);
+//            ChatSDK.db().delete(thread);
 
             emitter.onComplete();
         });

@@ -28,13 +28,14 @@
             </intent-filter>
         </activity>
 
-<!--        Remove Android Auto-->
+        <activity android:name="sdk.chat.custom_message.video.PlayVideoActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
+
+        <!--        Remove Android Auto-->
 <!--        <meta-data android:name="com.google.android.gms.car.application"-->
 <!--            android:resource="@xml/automotive_app_desc" tools:node="remove" />-->
-
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_api_key"/>
-
-        <!--<hashMapStringObject-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_identifier"/>-->
 
     </application>
 

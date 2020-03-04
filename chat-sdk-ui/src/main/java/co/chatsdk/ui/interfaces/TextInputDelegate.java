@@ -1,6 +1,8 @@
 package co.chatsdk.ui.interfaces;
 
-import co.chatsdk.core.audio.Recording;
+import java.io.File;
+
+import co.chatsdk.core.dao.Thread;
 
 /**
  * Created by ben on 10/11/17.
@@ -8,13 +10,13 @@ import co.chatsdk.core.audio.Recording;
 
 public interface TextInputDelegate {
 
-    void showOptions ();
-    void hideOptions ();
-    void onSendPressed(String text);
-    void startTyping();
-    void sendAudio (Recording recording);
-    void stopTyping();
-    void onKeyboardShow ();
-    void onKeyboardHide ();
+//    void showOptions();
+//    void hideOptions();
+//    void startTyping();
+    void sendAudio (final File file, String mimeType, long duration);
+//    void stopTyping();
+//    void onKeyboardShow();
+//    void onKeyboardHide();
+    void sendMessage(String text);
 
 }

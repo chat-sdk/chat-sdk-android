@@ -1,6 +1,7 @@
 package firestream.chat;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import firefly.sdk.chat.R;
 import firestream.chat.namespace.Fire;
@@ -15,33 +16,33 @@ public class Config {
 
     public static class TimePeriod {
 
-        int seconds;
+        long seconds;
 
-        protected TimePeriod(int seconds) {
+        protected TimePeriod(long seconds) {
             this.seconds = seconds;
         }
 
-        public static TimePeriod seconds(int seconds) {
+        public static TimePeriod seconds(long seconds) {
             return new TimePeriod(seconds);
         }
 
         public static TimePeriod minutes(int minutes) {
-            return seconds(minutes * 60);
+            return seconds(TimeUnit.MINUTES.toSeconds(minutes));
         }
 
-        public static TimePeriod hours(int hours) {
-            return minutes(hours * 60);
+        public static TimePeriod hours(long hours) {
+            return seconds(TimeUnit.HOURS.toSeconds(hours));
         }
 
-        public static TimePeriod days(int days) {
-            return hours(days * 24);
+        public static TimePeriod days(long days) {
+            return seconds(TimeUnit.DAYS.toSeconds(days));
         }
 
-        public static TimePeriod weeks(int weeks) {
+        public static TimePeriod weeks(long weeks) {
             return days(weeks * 7);
         }
 
-        public static TimePeriod months(int months) {
+        public static TimePeriod months(long months) {
             return weeks(months * 4);
         }
 
@@ -53,7 +54,7 @@ public class Config {
             if (seconds < 0) {
                 return new Date(0);
             } else {
-                return new Date(new Date().getTime() - seconds * 1000);
+                return new Date(new Date().getTime() - TimeUnit.SECONDS.toMillis(seconds));
             }
         }
     }
@@ -141,7 +142,7 @@ public class Config {
      * is set to true, in that case, if there are no messages or receipts in the queue,
      * the listener will be set with this duration ago
      * */
-    public TimePeriod listenToMessagesWithTimeAgo = TimePeriod.infinite();
+    public TimePeriod listenToMessagesWithTimeAgo = TimePeriod.days(10);
 
     /**
      * Which database to use - Firestore or Realtime database

@@ -6,12 +6,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
+import android.widget.FrameLayout;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
-import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,13 +28,16 @@ import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
-import co.chatsdk.ui.databinding.FragmentContactsBinding;
 import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.PublishSubject;
 
 public class ThreadUsersFragment extends BaseFragment {
+
+    @BindView(R2.id.recyclerView)
+    RecyclerView recyclerView;
+    @BindView(R2.id.root)
+    FrameLayout root;
 
     public class Option {
 
@@ -65,22 +67,19 @@ public class ThreadUsersFragment extends BaseFragment {
     protected AlertDialog userDialog;
     protected AlertDialog rolesDialog;
 
-    protected FragmentContactsBinding b;
-
     public ThreadUsersFragment(Thread thread) {
         this.thread = thread;
     }
 
     @Override
-    protected @LayoutRes int getLayout() {
+    protected @LayoutRes
+    int getLayout() {
         return R.layout.fragment_contacts;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-        b = DataBindingUtil.inflate(inflater, getLayout(), container, false);
-        rootView = b.getRoot();
+        View view = super.onCreateView(inflater, container, savedInstanceState);
 
         if (thread == null) {
             String threadEntityID = savedInstanceState.getString(Keys.IntentKeyThreadEntityID);
@@ -92,7 +91,7 @@ public class ThreadUsersFragment extends BaseFragment {
 
         loadData(true);
 
-        return rootView;
+        return view;
     }
 
     public void addListeners() {
@@ -111,8 +110,8 @@ public class ThreadUsersFragment extends BaseFragment {
         // override the adapter given from the extended class with setAdapter.
         adapter = new UsersListAdapter();
 
-        b.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        b.recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(adapter);
 
         dm.add(adapter.onClickObservable().subscribe(o -> {
             if (o instanceof User) {
@@ -147,7 +146,7 @@ public class ThreadUsersFragment extends BaseFragment {
         }
     }
 
-    public void loadData (final boolean force) {
+    public void loadData(final boolean force) {
         final ArrayList<User> originalUserList = new ArrayList<>(sourceUsers);
         reloadData();
         if (!originalUserList.equals(sourceUsers) || force) {
@@ -220,7 +219,7 @@ public class ThreadUsersFragment extends BaseFragment {
             List<Option> options = getOptionsForUser(user);
 
             ArrayList<String> optionStrings = new ArrayList<>();
-            for (Option o: options) {
+            for (Option o : options) {
                 optionStrings.add(o.getText(getActivity()));
             }
 

@@ -113,9 +113,9 @@ public class FirebaseEventHandler extends AbstractEventHandler {
 
         dm.add(thread.metaOn().subscribe(thread1 -> {}, this));
 
-        dm.add(thread.lastMessageOn().subscribe(thread1 -> {
-            eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread1));
-        }, this));
+//        dm.add(thread.lastMessageOn().subscribe(thread1 -> {
+//            eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread1));
+//        }, this));
 
         dm.add(thread.messagesOn().subscribe(message -> {}, this));
 

@@ -37,10 +37,6 @@ public class Configuration {
     public String debugPassword = null;
     public CrashHandler crashHandler;
 
-    // Twitter Login
-    public String twitterKey;
-    public String twitterSecret;
-
     // Google
     public String googleMapsApiKey;
     public String googleWebClientKey;
@@ -97,15 +93,6 @@ public class Configuration {
 
     // Login
     public boolean anonymousLoginEnabled = true;
-
-    @Deprecated
-    public boolean facebookLoginEnabled = true;
-
-    @Deprecated
-    public boolean twitterLoginEnabled = true;
-
-    @Deprecated
-    public boolean googleLoginEnabled = true;
 
     // Should we open a new thread with a user after the thread has been deleted?
     public boolean reuseDeleted1to1Threads = true;
@@ -200,18 +187,6 @@ public class Configuration {
         defaultName = defaultNamePrefix + String.valueOf(new Random().nextInt(1000));
     }
 
-    public boolean twitterLoginEnabled() {
-        return !StringChecker.isNullOrEmpty(twitterKey) && !StringChecker.isNullOrEmpty(twitterSecret) && twitterLoginEnabled;
-    }
-
-    public boolean googleLoginEnabled() {
-        return !StringChecker.isNullOrEmpty(googleWebClientKey) && googleLoginEnabled;
-    }
-
-    public boolean facebookLoginEnabled() {
-        return facebookLoginEnabled;
-    }
-
     public void updateRemoteConfig(HashMap<String, Object> config) {
         for (String key : config.keySet()) {
             setRemoteConfigValue(key, config.get(key));
@@ -247,17 +222,6 @@ public class Configuration {
 
         public Builder debugPassword(String password) {
             config.debugPassword = password;
-            return this;
-        }
-
-        public Builder twitterLogin(String key, String secret) {
-            config.twitterKey = key;
-            config.twitterSecret = secret;
-            return this;
-        }
-
-        public Builder googleLogin(String webClientKey) {
-            config.googleWebClientKey = webClientKey;
             return this;
         }
 
@@ -420,11 +384,6 @@ public class Configuration {
             return this;
         }
 
-        public Builder facebookLoginEnabled(boolean value) {
-            config.facebookLoginEnabled = value;
-            return this;
-        }
-
         public Builder pushNotificationAction(String action) {
             config.pushNotificationAction = action;
             return this;
@@ -461,16 +420,6 @@ public class Configuration {
 
         public Builder unreadMessagesCountForPublicChatRoomsEnabled(boolean value) {
             config.unreadMessagesCountForPublicChatRoomsEnabled = value;
-            return this;
-        }
-
-        public Builder twitterLoginEnabled(boolean value) {
-            config.twitterLoginEnabled = value;
-            return this;
-        }
-
-        public Builder googleLoginEnabled(boolean value) {
-            config.googleLoginEnabled = value;
             return this;
         }
 

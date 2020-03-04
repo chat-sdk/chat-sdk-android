@@ -1,18 +1,26 @@
 package co.chatsdk.ui.fragments;
 
 import android.os.Bundle;
-import androidx.annotation.LayoutRes;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.util.Pair;
-import androidx.databinding.DataBindingUtil;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Space;
 import android.widget.TextView;
 
+import androidx.annotation.LayoutRes;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
@@ -21,11 +29,12 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.databinding.FragmentProfileBinding;
-import co.chatsdk.ui.icons.Icons;
+import co.chatsdk.ui.R2;
 import co.chatsdk.ui.binders.AvailabilityHelper;
+import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.views.IconItemView;
 import co.chatsdk.ui.views.SwitchItemView;
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
@@ -37,7 +46,44 @@ public class ProfileFragment extends BaseFragment {
     protected User user;
     protected boolean startingChat = false;
 
-    protected FragmentProfileBinding b;
+    @BindView(R2.id.backdrop)
+    ImageView backdrop;
+    @BindView(R2.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R2.id.titleTextView)
+    TextView titleTextView;
+    @BindView(R2.id.collapsingToolbar)
+    CollapsingToolbarLayout collapsingToolbar;
+    @BindView(R2.id.appbar)
+    AppBarLayout appbar;
+    @BindView(R2.id.topSpace)
+    Space topSpace;
+    @BindView(R2.id.statusTitleTextView)
+    TextView statusTitleTextView;
+    @BindView(R2.id.statusTextView2)
+    TextView statusTextView2;
+    @BindView(R2.id.statusLinearLayout)
+    LinearLayout statusLinearLayout;
+    @BindView(R2.id.statusCardView)
+    CardView statusCardView;
+    @BindView(R2.id.availabilityLinearLayout)
+    LinearLayout availabilityLinearLayout;
+    @BindView(R2.id.availabilityCardView)
+    CardView availabilityCardView;
+    @BindView(R2.id.iconLinearLayout)
+    LinearLayout iconLinearLayout;
+    @BindView(R2.id.buttonsLinearLayout)
+    LinearLayout buttonsLinearLayout;
+    @BindView(R2.id.fab)
+    FloatingActionButton fab;
+    @BindView(R2.id.avatarImageView)
+    CircleImageView avatarImageView;
+    @BindView(R2.id.onlineIndicator)
+    View onlineIndicator;
+    @BindView(R2.id.avatarContainerLayout)
+    RelativeLayout avatarContainerLayout;
+    @BindView(R2.id.root)
+    CoordinatorLayout root;
 
     public static ProfileFragment newInstance(User user) {
         ProfileFragment f = new ProfileFragment();
@@ -53,15 +99,14 @@ public class ProfileFragment extends BaseFragment {
         return f;
     }
 
-    protected @LayoutRes int getLayout() {
+    protected @LayoutRes
+    int getLayout() {
         return R.layout.fragment_profile;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-        b = DataBindingUtil.inflate(inflater, getLayout(), container, false);
-        rootView = b.getRoot();
+        View view = super.onCreateView(inflater, container, savedInstanceState);
 
         if (savedInstanceState != null && savedInstanceState.getString(Keys.UserId) != null) {
             user = ChatSDK.db().fetchUserWithEntityID(savedInstanceState.getString(Keys.UserId));
@@ -70,7 +115,7 @@ public class ProfileFragment extends BaseFragment {
         initViews();
         addListeners();
 
-        return rootView;
+        return view;
     }
 
     public void addListeners() {
@@ -96,14 +141,14 @@ public class ProfileFragment extends BaseFragment {
         setupTouchUIToDismissKeyboard(rootView, R.id.avatarImageView);
 
         if (ChatSDK.profilePictures() != null) {
-            b.avatarImageView.setOnClickListener(v -> {
+            avatarImageView.setOnClickListener(v -> {
                 ChatSDK.profilePictures().startProfilePicturesActivity(getContext(), getUser().getEntityID());
             });
         }
 
-        b.backdrop.setImageResource(R.drawable.header2);
+        backdrop.setImageResource(R.drawable.header2);
 
-        b.appbar.addOnOffsetChangedListener(new ProfileViewOffsetChangeListener(b.avatarContainerLayout));
+        appbar.addOnOffsetChangedListener(new ProfileViewOffsetChangeListener(avatarContainerLayout));
 
         reloadData();
     }
@@ -120,7 +165,7 @@ public class ProfileFragment extends BaseFragment {
         if (textView != null) textView.setText(text);
     }
 
-    protected void setRowVisible (View imageView, View textView, boolean visible) {
+    protected void setRowVisible(View imageView, View textView, boolean visible) {
         setViewVisibility(textView, visible);
         setViewVisibility(imageView, visible);
     }
@@ -137,7 +182,7 @@ public class ProfileFragment extends BaseFragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> {
                     showSnackbar(R.string.user_blocked);
-                },this));
+                }, this));
     }
 
     protected void unblock() {
@@ -156,8 +201,7 @@ public class ProfileFragment extends BaseFragment {
         boolean blocked = ChatSDK.blocking().isBlocked(getUser().getEntityID());
         if (blocked) {
             unblock();
-        }
-        else {
+        } else {
             block();
         }
     }
@@ -188,8 +232,7 @@ public class ProfileFragment extends BaseFragment {
         boolean isContact = ChatSDK.contact().exists(getUser());
         if (isContact) {
             delete();
-        }
-        else {
+        } else {
             add();
         }
     }
@@ -206,54 +249,54 @@ public class ProfileFragment extends BaseFragment {
         setHasOptionsMenu(isCurrentUser);
 
         if (isCurrentUser) {
-            b.fab.setImageDrawable(Icons.get(Icons.choose().edit, R.color.white));
-            b.fab.setOnClickListener(v -> {
+            fab.setImageDrawable(Icons.get(Icons.choose().edit, R.color.white));
+            fab.setOnClickListener(v -> {
                 showEditProfileScreen();
             });
-            b.onlineIndicator.setVisibility(View.GONE);
+            onlineIndicator.setVisibility(View.GONE);
         } else {
-            b.fab.setImageDrawable(Icons.get(Icons.choose().chat, R.color.white));
-            b.fab.setOnClickListener(v -> {
+            fab.setImageDrawable(Icons.get(Icons.choose().chat, R.color.white));
+            fab.setOnClickListener(v -> {
                 startChat();
             });
-            b.onlineIndicator.setVisibility(View.VISIBLE);
+            onlineIndicator.setVisibility(View.VISIBLE);
 
             if (user.getIsOnline()) {
-                b.onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_online_big);
+                onlineIndicator.setBackgroundResource(R.drawable.shape_bubble_online_big);
             } else {
-                b.onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_offline_big);
+                onlineIndicator.setBackgroundResource(R.drawable.shape_bubble_offline_big);
             }
         }
 
-        b.collapsingToolbar.setTitle(user.getName());
-        Picasso.get().load(user.getAvatarURL()).into(b.avatarImageView);
+        collapsingToolbar.setTitle(user.getName());
+        Picasso.get().load(user.getAvatarURL()).into(avatarImageView);
 
         if (StringChecker.isNullOrEmpty(user.getStatus())) {
-            b.statusCardView.setVisibility(View.GONE);
-            b.topSpace.setVisibility(View.VISIBLE);
+            statusCardView.setVisibility(View.GONE);
+            topSpace.setVisibility(View.VISIBLE);
         } else {
-            b.topSpace.setVisibility(View.GONE);
-            b.statusCardView.setVisibility(View.VISIBLE);
-            b.statusTextView2.setText(user.getStatus());
+            topSpace.setVisibility(View.GONE);
+            statusCardView.setVisibility(View.VISIBLE);
+            statusTextView2.setText(user.getStatus());
         }
 
         // Remove the views and add them back in
-        b.iconLinearLayout.removeAllViews();
-        b.availabilityLinearLayout.removeAllViews();
-        b.buttonsLinearLayout.removeAllViews();
+        iconLinearLayout.removeAllViews();
+        availabilityLinearLayout.removeAllViews();
+        buttonsLinearLayout.removeAllViews();
 
         if (!StringChecker.isNullOrEmpty(user.getLocation())) {
-            b.iconLinearLayout.addView(IconItemView.create(getContext(), user.getLocation(), Icons.get(Icons.choose().location, R.color.profile_icon_color)));
+            iconLinearLayout.addView(IconItemView.create(getContext(), user.getLocation(), Icons.get(Icons.choose().location, R.color.profile_icon_color)));
         }
         if (!StringChecker.isNullOrEmpty(user.getPhoneNumber())) {
-            b.iconLinearLayout.addView(IconItemView.create(getContext(), user.getPhoneNumber(), Icons.get(Icons.choose().phone, R.color.profile_icon_color)));
+            iconLinearLayout.addView(IconItemView.create(getContext(), user.getPhoneNumber(), Icons.get(Icons.choose().phone, R.color.profile_icon_color)));
         }
         if (!StringChecker.isNullOrEmpty(user.getEmail())) {
-            b.iconLinearLayout.addView(IconItemView.create(getContext(), user.getEmail(), Icons.get(Icons.choose().email, R.color.profile_icon_color)));
+            iconLinearLayout.addView(IconItemView.create(getContext(), user.getEmail(), Icons.get(Icons.choose().email, R.color.profile_icon_color)));
         }
         if (!StringChecker.isNullOrEmpty(user.getPresenceSubscription())) {
-            b.iconLinearLayout.addView(IconItemView.create(getContext(), user.getPresenceSubscription(), Icons.get(Icons.choose().check, R.color.profile_icon_color)));
-            b.iconLinearLayout.addView(IconItemView.create(getContext(), user.getPresenceSubscription(), Icons.get(Icons.choose().check, R.color.profile_icon_color)));
+            iconLinearLayout.addView(IconItemView.create(getContext(), user.getPresenceSubscription(), Icons.get(Icons.choose().check, R.color.profile_icon_color)));
+            iconLinearLayout.addView(IconItemView.create(getContext(), user.getPresenceSubscription(), Icons.get(Icons.choose().check, R.color.profile_icon_color)));
         }
 
         if (!isCurrentUser) {
@@ -261,42 +304,42 @@ public class ProfileFragment extends BaseFragment {
             if (ChatSDK.blocking() != null) {
                 boolean isBlocked = ChatSDK.blocking().isBlocked(getUser().getEntityID());
 
-                b.buttonsLinearLayout.addView(SwitchItemView.create(
+                buttonsLinearLayout.addView(SwitchItemView.create(
                         getContext(),
                         R.string.blocked,
                         Icons.get(Icons.choose().block, R.color.blocked_primary_icon_color),
                         isBlocked,
-                        R.color.blocked_primary_icon_color, R.color.blocked_secondary_icon_color,(buttonView, isChecked) -> {
+                        R.color.blocked_primary_icon_color, R.color.blocked_secondary_icon_color, (buttonView, isChecked) -> {
                             toggleBlocked();
                         }));
             }
 
             boolean isContact = ChatSDK.contact().exists(getUser());
 
-            b.buttonsLinearLayout.addView(SwitchItemView.create(
+            buttonsLinearLayout.addView(SwitchItemView.create(
                     getContext(),
                     R.string.contact,
                     Icons.get(Icons.choose().contact, R.color.contacts_primary_color),
                     isContact,
                     R.color.contacts_primary_color, R.color.contacts_secondary_color, (buttonView, isChecked) -> {
-                toggleContact();
-            }));
+                        toggleContact();
+                    }));
 
             String availability = getUser().getAvailability();
 
             if (!StringChecker.isNullOrEmpty(availability)) {
-                b.availabilityCardView.setVisibility(View.VISIBLE);
-                b.availabilityLinearLayout.addView(IconItemView.create(
+                availabilityCardView.setVisibility(View.VISIBLE);
+                availabilityLinearLayout.addView(IconItemView.create(
                         getContext(),
                         AvailabilityHelper.stringForAvailability(getContext(), availability),
                         AvailabilityHelper.imageResourceIdForAvailability(availability)));
             } else {
-                b.availabilityCardView.setVisibility(View.GONE);
+                availabilityCardView.setVisibility(View.GONE);
             }
         }
     }
 
-    protected User getUser () {
+    protected User getUser() {
         return user != null ? user : ChatSDK.currentUser();
     }
 
@@ -338,7 +381,7 @@ public class ProfileFragment extends BaseFragment {
         updateInterface();
     }
 
-    public void setUser (User user) {
+    public void setUser(User user) {
         this.user = user;
     }
 

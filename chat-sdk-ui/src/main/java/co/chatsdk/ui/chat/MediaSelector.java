@@ -102,7 +102,7 @@ public class MediaSelector {
 
             Matisse.from(activity)
                     .choose(mimeTypeSet)
-                    .captureStrategy(new CaptureStrategy(false, "co.chatsdk.file-provider", "images"))
+                    .captureStrategy(new CaptureStrategy(false, "sdk.chat.file-provider", "images"))
                     .theme(R.style.Matisse_Zhihu)
                     .capture(true)
                     .maxSelectable(multiSelectEnabled ? SELECTION_MAX_SIZE : 1)

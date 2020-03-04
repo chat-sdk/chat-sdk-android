@@ -33,7 +33,7 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
 
             if (finalValue.replace(" ", "").isEmpty())
             {
-                e.onError(new Exception(ChatSDK.shared().context().getString(R.string.search_field_empty)));
+                e.onError(new Exception(ChatSDK.shared().getString(R.string.search_field_empty)));
                 return;
             }
 

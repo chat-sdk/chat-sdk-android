@@ -1,8 +1,9 @@
 package co.chatsdk.core.handlers;
 
+import android.content.Context;
+
 import java.io.File;
 
-import co.chatsdk.core.audio.Recording;
 import co.chatsdk.core.dao.Thread;
 import io.reactivex.Completable;
 
@@ -15,6 +16,7 @@ public interface AudioMessageHandler extends MessageHandler {
     /**
      * Send an audio text
      */
-    Completable sendMessage(final File file, String mimeType, int duration, final Thread thread);
+    Completable sendMessage(Context context, final File file, String mimeType, long duration, final Thread thread);
+    void setCompressionEnabled(boolean enabled);
 
 }

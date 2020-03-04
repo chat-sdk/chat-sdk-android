@@ -4,17 +4,25 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
-import androidx.databinding.DataBindingUtil;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.databinding.ViewIconItemBinding;
+import co.chatsdk.ui.R2;
 
 public class IconItemView extends LinearLayout {
 
-    protected ViewIconItemBinding b;
+    @BindView(R2.id.imageView)
+    ImageView imageView;
+    @BindView(R2.id.textView)
+    TextView textView;
+    @BindView(R2.id.root)
+    LinearLayout root;
 
     public IconItemView(Context context) {
         super(context);
@@ -32,15 +40,16 @@ public class IconItemView extends LinearLayout {
     }
 
     public void initViews() {
-        b = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.view_icon_item, this, true);
+        LayoutInflater.from(getContext()).inflate(R.layout.view_icon_item, this, true);
+        ButterKnife.bind(this);
     }
 
     public void setIcon(Drawable icon) {
-        b.imageView.setImageDrawable(icon);
+        imageView.setImageDrawable(icon);
     }
 
     public void setText(String text) {
-        b.textView.setText(text);
+        textView.setText(text);
     }
 
     public static IconItemView create(Context context, String text, @DrawableRes int icon) {

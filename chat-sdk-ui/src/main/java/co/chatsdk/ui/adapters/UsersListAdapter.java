@@ -7,21 +7,29 @@
 
 package co.chatsdk.ui.adapters;
 
-import androidx.databinding.DataBindingUtil;
-import androidx.recyclerview.widget.RecyclerView;
+
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import co.chatsdk.core.dao.User;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.databinding.ViewUserRowBinding;
 import co.chatsdk.ui.view_holders.UserViewHolder;
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 
@@ -61,8 +69,8 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        ViewUserRowBinding b = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.view_user_row, parent, false);
-        return new UserViewHolder(b.getRoot(), b, multiSelectEnabled);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_user_row, parent, false);
+        return new UserViewHolder(view, multiSelectEnabled);
     }
 
     @Override
@@ -103,24 +111,23 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
-    public void addUser (UserListItem user) {
+    public void addUser(UserListItem user) {
         addUser(user, false);
     }
 
-    public List<UserListItem> getItems () {
+    public List<UserListItem> getItems() {
         return items;
     }
 
-    public void addUser (UserListItem user, boolean notify) {
+    public void addUser(UserListItem user, boolean notify) {
         addUser(user, -1, notify);
     }
 
-    public void addUser (UserListItem user, int atIndex, boolean notify) {
+    public void addUser(UserListItem user, int atIndex, boolean notify) {
         if (!items.contains(user)) {
             if (atIndex >= 0) {
                 items.add(atIndex, user);
-            }
-            else {
+            } else {
                 items.add(user);
             }
             if (notify) {
@@ -129,9 +136,9 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    public List<UserListItem> getSelectedUsers () {
+    public List<UserListItem> getSelectedUsers() {
         List<UserListItem> users = new ArrayList<>();
-        for (int i = 0 ; i < getSelectedCount() ; i++) {
+        for (int i = 0; i < getSelectedCount(); i++) {
             int pos = getSelectedUsersPositions().keyAt(i);
             users.add((items.get(pos)));
         }
@@ -143,10 +150,11 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     /**
-     *  Clear the list.
-     * 
-     *  Calls notifyDataSetChanged.
-     * * */
+     * Clear the list.
+     * <p>
+     * Calls notifyDataSetChanged.
+     * *
+     */
     public void clear() {
         items.clear();
         clearSelection();
@@ -155,9 +163,10 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     /**
      * Sorting a given list using the internal comparator.
-     * 
+     * <p>
      * This will be used each time after setting the user item
-     * * */
+     * *
+     */
     protected void sortList(List<UserListItem> list) {
         Comparator comparator = (Comparator<UserListItem>) (u1, u2) -> {
             boolean u1online = u1.getIsOnline();
@@ -180,10 +189,12 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     /**
      * Toggle the selection state of a list item for a given position
+     *
      * @param position the position in the list of the item that need to be toggled
-     *                 
-     * notifyDataSetChanged will be called.
-     * * */
+     *                 <p>
+     *                 notifyDataSetChanged will be called.
+     *                 *
+     */
     public boolean toggleSelection(int position) {
         boolean selected = setViewSelected(position, !selectedUsersPositions.get(position));
         onToggleSubject.onNext(getSelectedUsers());
@@ -197,16 +208,17 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     /**
      * Set the selection state of a list item for a given position and value
+     *
      * @param position the position in the list of the item that need to be toggled.
      * @param selected pass true for selecting the view, false will remove the view from the selectedUsersPositions
-     * * */
+     *                 *
+     */
     public boolean setViewSelected(int position, boolean selected) {
         UserListItem user = getItem(position);
         if (user != null) {
             if (selected) {
                 selectedUsersPositions.put(position, true);
-            }
-            else {
+            } else {
                 selectedUsersPositions.delete(position);
             }
             notifyItemChanged(position);
@@ -222,14 +234,15 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     /**
      * Get the amount of selected users.
-     * * * */
+     * * *
+     */
     public int getSelectedCount() {
         return selectedUsersPositions.size();
     }
 
     /**
      * Select all users
-     * 
+     * <p>
      * notifyDataSetChanged will be called.
      */
     public void selectAll() {
@@ -242,7 +255,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     /**
      * Clear the selection of all users.
-     * 
+     * <p>
      * notifyDataSetChanged will be called.
      */
     public void clearSelection() {
@@ -250,19 +263,19 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
-    public Observable<UserListItem> onClickObservable () {
+    public Observable<UserListItem> onClickObservable() {
         return onClickSubject;
     }
 
-    public Observable<List<UserListItem>> onToggleObserver () {
+    public Observable<List<UserListItem>> onToggleObserver() {
         return onToggleSubject;
     }
 
-    public Observable<UserListItem> onLongClickObservable () {
+    public Observable<UserListItem> onLongClickObservable() {
         return onLongClickSubject;
     }
 
-    public void setMultiSelectEnabled (boolean enabled) {
+    public void setMultiSelectEnabled(boolean enabled) {
         multiSelectEnabled = enabled;
         notifyDataSetChanged();
     }

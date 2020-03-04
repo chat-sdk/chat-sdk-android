@@ -13,9 +13,9 @@ public class OnlineStatusBinder {
 
     public static void bind(View onlineIndicator, boolean isOnline) {
         if (isOnline) {
-            onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_online);
+            onlineIndicator.setBackgroundResource(R.drawable.shape_bubble_online);
         } else {
-            onlineIndicator.setBackgroundResource(R.drawable.chatkit_shape_bubble_offline);
+            onlineIndicator.setBackgroundResource(R.drawable.shape_bubble_offline);
         }
 
     }

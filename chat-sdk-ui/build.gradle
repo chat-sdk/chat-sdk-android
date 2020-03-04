@@ -36,9 +36,6 @@ android {
     lintOptions {
         abortOnError false
     }
-    dataBinding {
-        enabled = true
-    }
 }
 
 ext {
@@ -79,13 +76,13 @@ dependencies {
     implementation "com.github.siyamed:android-shape-imageview:$shapeImageViewVersion"
     api "co.chatsdk.chatsdk:chatkit:$chatKit"
 
-    implementation "com.mikepenz:material-design-icons-dx-typeface:$iconicsMaterialDesignIconsVersion"
-    implementation "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
-    implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
+    api "com.mikepenz:material-design-icons-dx-typeface:$iconicsMaterialDesignIconsVersion"
+    api "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
+    api "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
 //    implementation 'com.mikepenz:octicons-typeface:3.2.0.6-kotlin@aar'
 
-    implementation "com.mikepenz:iconics-core:$iconicsVersion"
-    implementation "com.mikepenz:iconics-views:$iconicsVersion"
+    api "com.mikepenz:iconics-core:$iconicsVersion"
+    api "com.mikepenz:iconics-views:$iconicsVersion"
 
     implementation "de.hdodenhof:circleimageview:$circleImageViewVersion"
 

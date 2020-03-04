@@ -54,7 +54,6 @@ public class DummyData {
 
         User currentUser = ChatSDK.currentUser();
         thread.setCreator(currentUser);
-        thread.setCreatorEntityId(currentUser.getEntityID());
         thread.setType(ThreadType.PrivateGroup);
         thread.setName("Test " + new Date().toString());
         thread.setEntityID(UUID.randomUUID().toString());

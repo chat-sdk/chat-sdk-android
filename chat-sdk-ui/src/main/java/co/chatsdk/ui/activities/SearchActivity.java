@@ -7,48 +7,41 @@
 
 package co.chatsdk.ui.activities;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.widget.FrameLayout;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
+import androidx.appcompat.widget.Toolbar;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
-import org.pmw.tinylog.Logger;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
-import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
-import co.chatsdk.ui.databinding.ActivitySearchBinding;
 import co.chatsdk.ui.icons.Icons;
-import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL;
 
@@ -60,12 +53,20 @@ public class SearchActivity extends BaseActivity {
     protected UsersListAdapter adapter;
     protected Disposable searchDisposable;
 
-    protected ActivitySearchBinding b;
+    @BindView(R2.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R2.id.recyclerView)
+    RecyclerView recyclerView;
+    @BindView(R2.id.fab)
+    FloatingActionButton fab;
+    @BindView(R2.id.searchView)
+    MaterialSearchView searchView;
+    @BindView(R2.id.root)
+    FrameLayout root;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        b = DataBindingUtil.setContentView(this, getLayout());
         initViews();
     }
 
@@ -80,14 +81,14 @@ public class SearchActivity extends BaseActivity {
 
         adapter = new UsersListAdapter(true);
 
-        b.recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        b.recyclerView.setAdapter(adapter);
-        b.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == SCROLL_STATE_TOUCH_SCROLL) {
-                    b.fab.setVisibility(View.INVISIBLE);
+                    fab.setVisibility(View.INVISIBLE);
                 } else {
                     refreshDoneButton();
                 }
@@ -101,7 +102,7 @@ public class SearchActivity extends BaseActivity {
 
         dm.add(adapter.onToggleObserver().subscribe(userListItem -> refreshDoneButton()));
 
-        b.searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (!query.isEmpty()) {
@@ -123,7 +124,7 @@ public class SearchActivity extends BaseActivity {
             }
         });
 
-        b.searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
+        searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
             @Override
             public void onSearchViewShown() {
 
@@ -141,7 +142,8 @@ public class SearchActivity extends BaseActivity {
         super.onNewIntent(intent);
     }
 
-    protected @LayoutRes int getLayout() {
+    protected @LayoutRes
+    int getLayout() {
         return R.layout.activity_search;
     }
 
@@ -153,7 +155,7 @@ public class SearchActivity extends BaseActivity {
         MenuItem item = menu.findItem(R.id.action_search);
         item.setIcon(Icons.get(Icons.choose().search, R.color.app_bar_icon_color));
 
-        b.searchView.setMenuItem(item);
+        searchView.setMenuItem(item);
 
         return true;
     }
@@ -178,14 +180,14 @@ public class SearchActivity extends BaseActivity {
 
         dm.add(adapter.onClickObservable().subscribe(item -> adapter.toggleSelection(item)));
 
-        b.fab.setOnClickListener(v -> done());
+        fab.setOnClickListener(v -> done());
 
         refreshDoneButton();
-        b.searchView.showSearch(false);
+        searchView.showSearch(false);
 
     }
 
-    protected void search (String text) {
+    protected void search(String text) {
 
         final List<UserListItem> users = new ArrayList<>();
         final List<User> existingContacts = ChatSDK.contact().contacts();
@@ -242,11 +244,10 @@ public class SearchActivity extends BaseActivity {
                 .subscribe(this::finish, this));
     }
 
-    public void refreshDoneButton () {
-        b.fab.setImageDrawable(Icons.get(Icons.choose().check, R.color.white));
-        b.fab.setVisibility(adapter.getSelectedCount() > 0 ? View.VISIBLE : View.INVISIBLE);
+    public void refreshDoneButton() {
+        fab.setImageDrawable(Icons.get(Icons.choose().check, R.color.white));
+        fab.setVisibility(adapter.getSelectedCount() > 0 ? View.VISIBLE : View.INVISIBLE);
     }
-
 
 
 }

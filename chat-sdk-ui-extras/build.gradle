@@ -3,7 +3,6 @@ apply plugin: 'com.novoda.bintray-release'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
-//apply plugin: 'com.jakewharton.butterknife'
 
 buildscript {
     repositories {
@@ -88,5 +87,6 @@ dependencies {
     implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
     implementation "com.mikepenz:iconics-core:$iconicsVersion"
     implementation "com.mikepenz:iconics-views:$iconicsVersion"
+
 
 }

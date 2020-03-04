@@ -9,14 +9,13 @@ import co.chatsdk.ui.chat.model.MessageHolder;
 
 public class NameBinder {
 
-    public static void bind(TextView nameTextView, MessageHolder message) {
-        if (message.getMessage().getThread().typeIs(ThreadType.Group)) {
-            nameTextView.setVisibility(View.VISIBLE);
-            nameTextView.setText(message.getUser().getName());
+    public static void bind(TextView userName, MessageHolder message) {
+        if (message.showNames()) {
+            userName.setVisibility(View.VISIBLE);
+            userName.setText(message.getUser().getName());
         } else {
-            nameTextView.setVisibility(View.GONE);
+            userName.setVisibility(View.GONE);
         }
-
     }
 
 }

@@ -39,7 +39,6 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
 
             User currentUser = ChatSDK.currentUser();
             thread.setCreator(currentUser);
-            thread.setCreatorEntityId(currentUser.getEntityID());
             thread.setType(ThreadType.PublicGroup);
             thread.setName(name);
             thread.setEntityID(entityID);

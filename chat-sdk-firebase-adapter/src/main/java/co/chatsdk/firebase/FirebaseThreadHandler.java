@@ -242,7 +242,6 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
             thread.setEntityID(entityID);
             thread.setCreator(currentUser);
-            thread.setCreatorEntityId(currentUser.getEntityID());
             thread.setCreationDate(new Date());
             thread.setName(name);
             thread.setImageUrl(imageURL);

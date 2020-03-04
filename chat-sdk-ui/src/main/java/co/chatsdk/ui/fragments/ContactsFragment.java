@@ -7,27 +7,24 @@
 
 package co.chatsdk.ui.fragments;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
-import androidx.annotation.LayoutRes;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.util.Pair;
-import androidx.databinding.DataBindingUtil;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+
+import androidx.annotation.LayoutRes;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
@@ -37,8 +34,6 @@ import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
-import co.chatsdk.ui.chat.model.ThreadHolder;
-import co.chatsdk.ui.databinding.FragmentContactsBinding;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.interfaces.SearchSupported;
 import io.reactivex.Observable;
@@ -61,24 +56,27 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
 
     protected List<User> sourceUsers = new ArrayList<>();
 
-    protected FragmentContactsBinding b;
+    @BindView(R2.id.recyclerView)
+    RecyclerView recyclerView;
+    @BindView(R2.id.root)
+    FrameLayout root;
 
-    protected @LayoutRes int getLayout() {
+
+    protected @LayoutRes
+    int getLayout() {
         return R.layout.fragment_contacts;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-        b = DataBindingUtil.inflate(inflater, getLayout(), container, false);
-        rootView = b.getRoot();
+        View view = super.onCreateView(inflater, container, savedInstanceState);
 
         initViews();
         addListeners();
 
         loadData(true);
 
-        return rootView;
+        return view;
     }
 
     public void addListeners() {
@@ -135,8 +133,8 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         // override the adapter given from the extended class with setAdapter.
         adapter = new UsersListAdapter();
 
-        b.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        b.recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -161,7 +159,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         return super.onOptionsItemSelected(item);
     }
 
-    public void startSearchActivity () {
+    public void startSearchActivity() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         final List<SearchActivityType> activities = new ArrayList<>(ChatSDK.ui().getSearchActivities());
@@ -172,7 +170,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
             return;
         }
 
-        String [] items = new String [activities.size()];
+        String[] items = new String[activities.size()];
         int i = 0;
 
         for (SearchActivityType activity : activities) {
@@ -187,7 +185,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         builder.show();
     }
 
-    public void loadData (final boolean force) {
+    public void loadData(final boolean force) {
         final ArrayList<User> originalUserList = new ArrayList<>(sourceUsers);
 
         reloadData();
@@ -216,11 +214,11 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         sourceUsers.addAll(filter(ChatSDK.contact().contacts()));
     }
 
-    public Observable<User> onClickObservable () {
+    public Observable<User> onClickObservable() {
         return onClickSubject;
     }
 
-    public Observable<User> onLongClickObservable () {
+    public Observable<User> onLongClickObservable() {
         return onLongClickSubject;
     }
 
@@ -230,7 +228,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         loadData(false);
     }
 
-    public List<User> filter (List<User> users) {
+    public List<User> filter(List<User> users) {
         if (filter == null || filter.isEmpty()) {
             return users;
         }

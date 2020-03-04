@@ -2,28 +2,27 @@ package co.chatsdk.ui.activities;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import java.util.List;
 
-import androidx.annotation.LayoutRes;
-import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
-
 import butterknife.BindView;
 import co.chatsdk.core.Tab;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
-import co.chatsdk.ui.databinding.ActivityViewPagerBinding;
-import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.ui.adapters.PagerAdapterTabs;
+import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.interfaces.SearchSupported;
 
@@ -31,12 +30,22 @@ public class MainAppBarActivity extends MainActivity {
 
     protected PagerAdapterTabs adapter;
 
-    protected ActivityViewPagerBinding b;
+    @BindView(R2.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R2.id.tabLayout)
+    TabLayout tabLayout;
+    @BindView(R2.id.viewPager)
+    ViewPager viewPager;
+    @BindView(R2.id.content)
+    RelativeLayout content;
+    @BindView(R2.id.searchView)
+    MaterialSearchView searchView;
+    @BindView(R2.id.root)
+    FrameLayout root;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        b = DataBindingUtil.setContentView(this, getLayout());
 
         initViews();
     }
@@ -56,7 +65,7 @@ public class MainAppBarActivity extends MainActivity {
 
     @Override
     protected MaterialSearchView searchView() {
-        return b.searchView;
+        return searchView;
     }
 
     protected @LayoutRes
@@ -67,7 +76,7 @@ public class MainAppBarActivity extends MainActivity {
     protected void initViews() {
         super.initViews();
 
-        b.tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
+        tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
         // Only creates the adapter if it wasn't initiated already
         if (adapter == null) {
@@ -76,15 +85,15 @@ public class MainAppBarActivity extends MainActivity {
 
         final List<Tab> tabs = adapter.getTabs();
         for (Tab tab : tabs) {
-            b.tabLayout.addTab(b.tabLayout.newTab().setText(tab.title));
+            tabLayout.addTab(tabLayout.newTab().setText(tab.title));
         }
 
 //        ((BaseFragment) tabs.get(0).fragment).setTabVisibility(true);
 
-        b.viewPager.setAdapter(adapter);
+        viewPager.setAdapter(adapter);
 
-        b.viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(b.tabLayout));
-        b.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 tabSelected(tab);
@@ -101,9 +110,9 @@ public class MainAppBarActivity extends MainActivity {
             }
         });
 
-        b.viewPager.setOffscreenPageLimit(3);
+        viewPager.setOffscreenPageLimit(3);
 
-        TabLayout.Tab tab = b.tabLayout.getTabAt(0);
+        TabLayout.Tab tab = tabLayout.getTabAt(0);
         if (tab != null) {
             tabSelected(tab);
         }
@@ -122,7 +131,7 @@ public class MainAppBarActivity extends MainActivity {
 
         int index = tab.getPosition();
 
-        b.viewPager.setCurrentItem(index);
+        viewPager.setCurrentItem(index);
 
         final List<Tab> tabs = adapter.getTabs();
 
@@ -139,7 +148,7 @@ public class MainAppBarActivity extends MainActivity {
 
         // We mark the tab as visible. This lets us be more efficient with updates
         // because we only
-        for(int i = 0; i < tabs.size(); i++) {
+        for (int i = 0; i < tabs.size(); i++) {
             Fragment fragment = tabs.get(i).fragment;
             if (fragment instanceof BaseFragment) {
                 ((BaseFragment) tabs.get(i).fragment).setTabVisibility(i == tab.getPosition());
@@ -148,25 +157,25 @@ public class MainAppBarActivity extends MainActivity {
     }
 
     public Tab currentTab() {
-        return adapter.getTabs().get(b.viewPager.getCurrentItem());
+        return adapter.getTabs().get(viewPager.getCurrentItem());
     }
 
-    public void updateLocalNotificationsForTab () {
-        Tab tab = adapter.getTabs().get(b.tabLayout.getSelectedTabPosition());
+    public void updateLocalNotificationsForTab() {
+        Tab tab = adapter.getTabs().get(tabLayout.getSelectedTabPosition());
         ChatSDK.ui().setLocalNotificationHandler(thread -> showLocalNotificationsForTab(tab.fragment, thread));
     }
 
-    public void clearData () {
-        for(Tab t : adapter.getTabs()) {
-            if(t.fragment instanceof BaseFragment) {
+    public void clearData() {
+        for (Tab t : adapter.getTabs()) {
+            if (t.fragment instanceof BaseFragment) {
                 ((BaseFragment) t.fragment).clearData();
             }
         }
     }
 
-    public void reloadData () {
-        for(Tab t : adapter.getTabs()) {
-            if(t.fragment instanceof BaseFragment) {
+    public void reloadData() {
+        for (Tab t : adapter.getTabs()) {
+            if (t.fragment instanceof BaseFragment) {
                 ((BaseFragment) t.fragment).safeReloadData();
             }
         }

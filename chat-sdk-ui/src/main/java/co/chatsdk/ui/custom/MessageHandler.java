@@ -18,23 +18,35 @@ import co.chatsdk.ui.chat.model.ImageMessageHolder;
 import co.chatsdk.ui.chat.model.MessageHolder;
 import co.chatsdk.ui.view_holders.IncomingImageMessageViewHolder;
 import co.chatsdk.ui.view_holders.IncomingTextMessageViewHolder;
-import co.chatsdk.ui.view_holders.OutcomingImageMessageViewHolder;
 import co.chatsdk.ui.view_holders.OutcomingTextMessageViewHolder;
+import co.chatsdk.ui.view_holders.base.BaseIncomingTextMessageViewHolder;
+import co.chatsdk.ui.view_holders.OutcomingImageMessageViewHolder;
+import co.chatsdk.ui.view_holders.base.BaseOutcomingTextMessageViewHolder;
 
 public class MessageHandler implements IMessageHandler {
 
     @Override
-    public void onBindMessageHolders(Context context, MessageHolders holders, MessageHolders.ContentChecker<MessageHolder> checker) {
+    public void onBindMessageHolders(Context context, MessageHolders holders) {
 
-        IncomingTextMessageViewHolder.Payload holderPayload = new IncomingTextMessageViewHolder.Payload();
+        BaseIncomingTextMessageViewHolder.Payload holderPayload = new BaseIncomingTextMessageViewHolder.Payload();
         holderPayload.avatarClickListener = user -> {
             ChatSDK.ui().startProfileActivity(context, user.getEntityID());
         };
 
+        holders.registerContentType(
+                (byte) MessageType.Image,
+                IncomingImageMessageViewHolder.class,
+                holderPayload,
+                R.layout.view_holder_incoming_image_message,
+                OutcomingImageMessageViewHolder.class,
+                holderPayload,
+                R.layout.view_holder_outcoming_image_message,
+                Customiser.shared());
+
         holders.setIncomingTextConfig(IncomingTextMessageViewHolder.class, R.layout.view_holder_incoming_text_message, holderPayload)
-        .setOutcomingTextConfig(OutcomingTextMessageViewHolder.class, R.layout.view_holder_outcoming_text_message, holderPayload)
-        .setIncomingImageConfig(IncomingImageMessageViewHolder.class, R.layout.view_holder_incoming_image_message, holderPayload)
-        .setOutcomingImageConfig(OutcomingImageMessageViewHolder.class, R.layout.view_holder_outcoming_image_message, holderPayload);
+        .setOutcomingTextConfig(OutcomingTextMessageViewHolder.class, R.layout.view_holder_outcoming_text_message, holderPayload);
+//        .setIncomingImageConfig(IncomingImageMessageViewHolder.class, R.layout.view_holder_incoming_image_message, holderPayloa)
+//        .setOutcomingImageConfig(OutcomingImageMessageViewHolder.class, R.layout.view_holder_outcoming_image_message, holderPayload);
 
     }
 

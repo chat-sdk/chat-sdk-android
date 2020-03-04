@@ -5,18 +5,30 @@ import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
-import androidx.databinding.DataBindingUtil;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.databinding.ViewIconEditBinding;
+import co.chatsdk.ui.R2;
 
 public class IconEditView extends LinearLayout {
 
-    protected ViewIconEditBinding b;
+    @BindView(R2.id.imageView)
+    ImageView imageView;
+    @BindView(R2.id.textInput)
+    TextInputEditText textInput;
+    @BindView(R2.id.textInputLayout)
+    TextInputLayout textInputLayout;
+    @BindView(R2.id.root)
+    LinearLayout root;
 
     public IconEditView(Context context) {
         super(context);
@@ -34,23 +46,24 @@ public class IconEditView extends LinearLayout {
     }
 
     public void initViews() {
-        b = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.view_icon_edit, this, true);
+        LayoutInflater.from(getContext()).inflate(R.layout.view_icon_edit, this, true);
+        ButterKnife.bind(this);
     }
 
     public void setIcon(Drawable icon) {
-        b.imageView.setImageDrawable(icon);
+        imageView.setImageDrawable(icon);
     }
 
     public void setText(String text) {
-        b.textInput.setText(text);
+        textInput.setText(text);
     }
 
     public void setNextFocusDown(int id) {
-        b.textInput.setNextFocusDownId(id);
+        textInput.setNextFocusDownId(id);
     }
 
     public String getText() {
-        Editable editable = b.textInput.getText();
+        Editable editable = textInput.getText();
         if (editable != null) {
             return editable.toString().trim();
         }
@@ -58,11 +71,11 @@ public class IconEditView extends LinearLayout {
     }
 
     public void setHint(@StringRes int resId) {
-        b.textInputLayout.setHint(getContext().getResources().getString(resId));
+        textInputLayout.setHint(getContext().getResources().getString(resId));
     }
 
     public void setInputType(int type) {
-        b.textInput.setInputType(type);
+        textInput.setInputType(type);
     }
 
     public static IconEditView create(Context context, String text, @DrawableRes int icon) {
