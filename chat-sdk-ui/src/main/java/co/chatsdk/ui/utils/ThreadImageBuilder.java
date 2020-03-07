@@ -66,7 +66,7 @@ public class ThreadImageBuilder {
             // that means that if the users haven't changed, we can reaload
             // the same image split image we created before
             final String hashCode = hashCodeForMixedUserAvatar(users);
-            File cachedImage = ImageUtils.getFileInCacheDirectory(context, hashCode, ".png");
+            File cachedImage = ImageUtils.getFileInCacheDirectory(context, hashCode, "");
             if(cachedImage.exists()) {
                 return Single.just(Uri.fromFile(cachedImage));
             }
@@ -81,7 +81,8 @@ public class ThreadImageBuilder {
                     File compressed = new Compressor(ChatSDK.shared().context())
                             .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
                             .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
-                            .compressToFile(imageFile);
+                            .setDestinationDirectoryPath(ImageUtils.getDiskCacheDir(context).getPath())
+                            .compressToFile(imageFile, hashCodeForMixedUserAvatar(users));
                     return Uri.fromFile(compressed);
                 });
             }
@@ -91,7 +92,8 @@ public class ThreadImageBuilder {
                     File compressed = new Compressor(ChatSDK.shared().context())
                             .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
                             .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
-                            .compressToFile(imageFile);
+                            .setDestinationDirectoryPath(ImageUtils.getDiskCacheDir(context).getPath())
+                            .compressToFile(imageFile, hashCodeForMixedUserAvatar(users));
                     return Uri.fromFile(compressed);
                 });
             }

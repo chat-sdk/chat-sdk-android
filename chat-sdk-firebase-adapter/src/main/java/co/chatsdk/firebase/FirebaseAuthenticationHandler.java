@@ -97,7 +97,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                         }
                     });
 
-                    switch ( details.type ) {
+                    switch (details.type) {
                         case Username:
                             FirebaseCoreHandler.auth().signInWithEmailAndPassword(details.username, details.password).addOnCompleteListener(resultHandler);
                             break;

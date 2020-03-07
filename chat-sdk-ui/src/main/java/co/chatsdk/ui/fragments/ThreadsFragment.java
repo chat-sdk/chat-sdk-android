@@ -1,5 +1,7 @@
 package co.chatsdk.ui.fragments;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,10 +13,15 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.LayoutRes;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
+import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
+
+import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,13 +117,18 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         dialogsListAdapter = new DialogsListAdapter<>(R.layout.view_holder_thread, ThreadViewHolder.class, (imageView, url, payload) -> {
             if (getContext() != null) {
                 int size = Dimen.from(getContext(), R.dimen.action_bar_avatar_size);
-                if (url != null) {
-                    Picasso.get().load(url).resize(size, size).placeholder(ChatSDK.ui().getDefaultProfileImage()).into(imageView);
-                } else if (payload instanceof ThreadHolder) {
-                    ThreadHolder threadHolder = (ThreadHolder) payload;
-                    dm.add(ThreadImageBuilder.load(imageView, threadHolder.getThread(), size));
+
+                if (payload instanceof ThreadHolder) {
+                    if (url == null) {
+                        ThreadHolder threadHolder = (ThreadHolder) payload;
+                        dm.add(ThreadImageBuilder.load(imageView, threadHolder.getThread(), size));
+                    } else {
+                        Drawable placeholder = ThreadImageBuilder.defaultDrawable(null);
+                        Glide.with(this).load(url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
+                    }
                 } else {
-                    imageView.setImageDrawable(ThreadImageBuilder.defaultDrawable(null));
+                    int placeholder = ChatSDK.ui().getDefaultProfileImage();
+                    Glide.with(this).load(url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
                 }
             }
         });
@@ -125,11 +137,11 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
         dialogsList.setAdapter(dialogsListAdapter);
 
-
         // Stop the image from flashing when the list is reloaded
         RecyclerView.ItemAnimator animator = dialogsList.getItemAnimator();
-        if (animator != null) {
-            animator.setChangeDuration(0);
+        if (animator instanceof SimpleItemAnimator) {
+            ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
+//            animator.setChangeDuration(0);
         }
 
         dialogsListAdapter.setOnDialogViewClickListener((view, dialog) -> startChatActivity(dialog.getId()));

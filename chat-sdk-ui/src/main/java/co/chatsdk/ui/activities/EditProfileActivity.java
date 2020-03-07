@@ -224,7 +224,7 @@ public class EditProfileActivity extends BaseActivity {
     protected void logout() {
         dm.add(ChatSDK.auth().logout()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getApplicationContext()), this));
+                .subscribe(() -> ChatSDK.ui().startSplashScreenActivity(this), this));
     }
 
     protected void saveAndExit() {
