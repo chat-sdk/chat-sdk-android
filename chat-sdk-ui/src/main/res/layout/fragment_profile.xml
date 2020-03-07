@@ -28,7 +28,7 @@
             app:titleEnabled="true">
 
             <ImageView
-                android:id="@+id/backdrop"
+                android:id="@+id/headerImageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fitsSystemWindows="true"

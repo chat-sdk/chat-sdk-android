@@ -172,7 +172,7 @@ class MainDrawActivity : MainActivity() {
 //                    }
             )
             selectionListEnabledForSingleProfile = false
-            headerBackground = ImageHolder(R.drawable.header2)
+            headerBackground = ImageHolder(ChatSDK.config().drawerHeaderImage)
             withSavedInstance(savedInstanceState)
             onAccountHeaderListener = { view, profile, current ->
                 ChatSDK.ui().startProfileActivity(context, ChatSDK.currentUserID())

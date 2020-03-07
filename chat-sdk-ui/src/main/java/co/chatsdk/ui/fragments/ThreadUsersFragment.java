@@ -34,10 +34,8 @@ import io.reactivex.subjects.PublishSubject;
 
 public class ThreadUsersFragment extends BaseFragment {
 
-    @BindView(R2.id.recyclerView)
-    RecyclerView recyclerView;
-    @BindView(R2.id.root)
-    FrameLayout root;
+    @BindView(R2.id.recyclerView) protected RecyclerView recyclerView;
+    @BindView(R2.id.root) protected FrameLayout root;
 
     public class Option {
 

@@ -46,14 +46,10 @@ public abstract class SelectContactActivity extends BaseActivity {
     protected UsersListAdapter adapter;
     protected boolean multiSelectEnabled;
 
-    @BindView(R2.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R2.id.recyclerView)
-    RecyclerView recyclerView;
-    @BindView(R2.id.fab)
-    FloatingActionButton fab;
-    @BindView(R2.id.root)
-    ConstraintLayout root;
+    @BindView(R2.id.toolbar) protected Toolbar toolbar;
+    @BindView(R2.id.recyclerView) protected RecyclerView recyclerView;
+    @BindView(R2.id.fab) protected FloatingActionButton fab;
+    @BindView(R2.id.root) protected ConstraintLayout root;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

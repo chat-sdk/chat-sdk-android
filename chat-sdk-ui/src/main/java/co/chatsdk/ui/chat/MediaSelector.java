@@ -2,6 +2,7 @@ package co.chatsdk.ui.chat;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -24,9 +25,11 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.utils.PermissionRequestHandler;
+import co.chatsdk.ui.BuildConfig;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.options.MediaType;
 import co.chatsdk.ui.utils.Cropper;
+import id.zelory.compressor.Compressor;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.disposables.Disposable;
@@ -47,6 +50,8 @@ public class MediaSelector {
 
     protected Disposable disposable;
     protected SingleEmitter<List<File>> emitter;
+    protected int width = ChatSDK.config().imageMaxThumbnailDimension;
+    protected int height = ChatSDK.config().imageMaxThumbnailDimension;
 
     protected CropType cropType = CropType.Rectangle;
 
@@ -87,6 +92,10 @@ public class MediaSelector {
     }
 
     public Single<List<File>> startChooseMediaActivity(Activity activity, Set<MimeType> mimeTypeSet, CropType cropType, boolean multiSelectEnabled) {
+        return startChooseMediaActivity(activity, mimeTypeSet, cropType, multiSelectEnabled, 0, 0);
+    }
+
+    public Single<List<File>> startChooseMediaActivity(Activity activity, Set<MimeType> mimeTypeSet, CropType cropType, boolean multiSelectEnabled, int width, int height) {
         return Single.create(emitter -> {
 
             this.emitter = emitter;
@@ -96,13 +105,20 @@ public class MediaSelector {
                 disposable.dispose();
             }
 
+            if (width != 0) {
+                this.width = width;
+            }
+            if (height != 0) {
+                this.height = height;
+            }
+
             disposable = ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
                 handleResult(activity, activityResult.requestCode, activityResult.resultCode, activityResult.data);
             });
 
             Matisse.from(activity)
                     .choose(mimeTypeSet)
-                    .captureStrategy(new CaptureStrategy(false, "sdk.chat.file-provider", "images"))
+                    .captureStrategy(new CaptureStrategy(false, activity.getPackageName() + ".contentprovider", "images"))
                     .theme(R.style.Matisse_Zhihu)
                     .capture(true)
                     .maxSelectable(multiSelectEnabled ? SELECTION_MAX_SIZE : 1)
@@ -149,8 +165,13 @@ public class MediaSelector {
             ArrayList<File> files = new ArrayList<File>();
             for (Uri uri: uris) {
                 File imageFile = fileFromURI(uri, activity, MediaStore.Images.Media.DATA);
-                File file = ImageUtils.compressImageToFile(activity, imageFile.getPath(), "COMPRESSED", "jpg");
-                files.add(file);
+                if (imageFile != null) {
+                    File compressed = new Compressor(ChatSDK.shared().context())
+                            .setMaxHeight(width)
+                            .setMaxWidth(height)
+                            .compressToFile(imageFile);
+                    files.add(compressed);
+                }
             }
             // New
             handleImageFiles(activity, files);

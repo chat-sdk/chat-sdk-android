@@ -114,8 +114,4 @@ public class FirebasePaths{
         return firebaseRef().child(PublicThreadsPath);
     }
 
-    public static DatabaseReference onlineRef(String userEntityID){
-        return firebaseRef().child(OnlinePath).child(userEntityID);
-    }
-
 }

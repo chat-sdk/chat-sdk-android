@@ -15,6 +15,7 @@ public class Keys {
     public static final String Value = "value";
     public static final String Phone = "phone";
     public static final String AvatarURL = "pictureURL";
+    public static final String HeaderURL = "header-url";
     public static final String AvatarHash = "avatarHash";
     public static final String Availability = "availability";
     public static final String State = "state";

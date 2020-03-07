@@ -37,7 +37,7 @@ public class MainApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
 
-        String rootPath = "micro_test_99";
+        String rootPath = "micro_test_98";
 
         try {
             Configuration config = new Configuration.Builder()

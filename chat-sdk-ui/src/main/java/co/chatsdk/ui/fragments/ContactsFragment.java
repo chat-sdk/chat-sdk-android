@@ -56,10 +56,8 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
 
     protected List<User> sourceUsers = new ArrayList<>();
 
-    @BindView(R2.id.recyclerView)
-    RecyclerView recyclerView;
-    @BindView(R2.id.root)
-    FrameLayout root;
+    @BindView(R2.id.recyclerView) protected RecyclerView recyclerView;
+    @BindView(R2.id.root) protected FrameLayout root;
 
 
     protected @LayoutRes

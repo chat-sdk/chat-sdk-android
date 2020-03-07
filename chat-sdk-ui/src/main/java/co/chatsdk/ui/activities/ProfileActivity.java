@@ -44,7 +44,6 @@ public class ProfileActivity extends BaseActivity {
             if (user != null) {
                 ProfileFragment fragment = (ProfileFragment) getSupportFragmentManager().findFragmentById(R.id.profileFragment);
                 fragment.setUser(user);
-                fragment.updateInterface();
                 return;
             }
         }

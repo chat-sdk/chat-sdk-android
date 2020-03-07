@@ -80,23 +80,14 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     protected Bundle bundle;
 
-    protected DisplayMetrics displayMetrics = new DisplayMetrics();
-    @BindView(R2.id.chatActionBar)
-    ChatActionBar chatActionBar;
-    @BindView(R2.id.chatView)
-    ChatView chatView;
-    @BindView(R2.id.divider)
-    View divider;
-    @BindView(R2.id.replyView)
-    ReplyView replyView;
-    @BindView(R2.id.input)
-    MessageInput input;
-    @BindView(R2.id.viewContainer)
-    CoordinatorLayout viewContainer;
-    @BindView(R2.id.searchView)
-    MaterialSearchView searchView;
-    @BindView(R2.id.root)
-    FrameLayout root;
+    @BindView(R2.id.chatActionBar) protected ChatActionBar chatActionBar;
+    @BindView(R2.id.chatView) protected ChatView chatView;
+    @BindView(R2.id.divider) protected View divider;
+    @BindView(R2.id.replyView) protected ReplyView replyView;
+    @BindView(R2.id.input) protected MessageInput input;
+    @BindView(R2.id.viewContainer) protected CoordinatorLayout viewContainer;
+    @BindView(R2.id.searchView) protected MaterialSearchView searchView;
+    @BindView(R2.id.root) protected FrameLayout root;
 
     protected @LayoutRes
     int getLayout() {
@@ -106,8 +97,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
         if (!updateThreadFromBundle(savedInstanceState)) {
             return;
@@ -181,8 +170,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     Logger.debug(typingText);
                     chatActionBar.setSubtitleText(thread, typingText);
                 }));
-
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
         thread.markRead();
 
@@ -557,11 +544,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     public void executeChatOption(ChatOption option) {
         handleMessageSend(option.execute(this, thread));
-    }
-
-    @Override
-    public DisplayMetrics getDisplayMetrics() {
-        return displayMetrics;
     }
 
     @Override

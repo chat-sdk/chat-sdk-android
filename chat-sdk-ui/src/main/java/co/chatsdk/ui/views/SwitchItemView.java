@@ -24,14 +24,10 @@ import co.chatsdk.ui.utils.ColorStateListUtil;
 
 public class SwitchItemView extends LinearLayout {
 
-    @BindView(R2.id.imageView)
-    ImageView imageView;
-    @BindView(R2.id.textView)
-    TextView textView;
-    @BindView(R2.id.switchMaterial)
-    SwitchCompat switchMaterial;
-    @BindView(R2.id.root)
-    LinearLayout root;
+    @BindView(R2.id.imageView) protected ImageView imageView;
+    @BindView(R2.id.textView) protected TextView textView;
+    @BindView(R2.id.switchMaterial) protected SwitchCompat switchMaterial;
+    @BindView(R2.id.root) protected LinearLayout root;
 
     public SwitchItemView(Context context) {
         super(context, null);

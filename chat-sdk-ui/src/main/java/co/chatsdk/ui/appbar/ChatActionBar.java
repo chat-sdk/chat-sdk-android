@@ -28,18 +28,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ChatActionBar extends AppBarLayout {
 
     protected OnClickListener onClickListener;
-    @BindView(R2.id.titleTextView)
-    TextView titleTextView;
-    @BindView(R2.id.imageView)
-    CircleImageView imageView;
-    @BindView(R2.id.subtitleTextView)
-    TextView subtitleTextView;
-    @BindView(R2.id.searchImageView)
-    ImageView searchImageView;
-    @BindView(R2.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R2.id.appBarLayout)
-    AppBarLayout appBarLayout;
+    @BindView(R2.id.titleTextView) protected TextView titleTextView;
+    @BindView(R2.id.imageView) protected CircleImageView imageView;
+    @BindView(R2.id.subtitleTextView) protected TextView subtitleTextView;
+    @BindView(R2.id.searchImageView) protected ImageView searchImageView;
+    @BindView(R2.id.toolbar) protected Toolbar toolbar;
+    @BindView(R2.id.appBarLayout) protected AppBarLayout appBarLayout;
 
     public ChatActionBar(Context context) {
         super(context);

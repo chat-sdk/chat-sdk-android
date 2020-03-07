@@ -22,16 +22,11 @@ import co.chatsdk.ui.icons.Icons;
 
 public class ReplyView extends ConstraintLayout {
 
-    @BindView(R2.id.imageView)
-    PorterShapeImageView imageView;
-    @BindView(R2.id.divider)
-    View divider;
-    @BindView(R2.id.replyTextView)
-    TextView replyTextView;
-    @BindView(R2.id.cancelButton)
-    ImageButton cancelButton;
-    @BindView(R2.id.root)
-    ConstraintLayout root;
+    @BindView(R2.id.imageView) protected PorterShapeImageView imageView;
+    @BindView(R2.id.divider) protected View divider;
+    @BindView(R2.id.replyTextView) protected TextView replyTextView;
+    @BindView(R2.id.cancelButton) protected ImageButton cancelButton;
+    @BindView(R2.id.root) protected ConstraintLayout root;
 
     public ReplyView(Context context) {
         super(context);

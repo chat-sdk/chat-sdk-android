@@ -157,6 +157,14 @@ public class User extends AbstractEntity implements UserListItem {
         setMetaString(Keys.AvatarURL, imageUrl);
     }
 
+    public void setHeaderURL(String imageUrl) {
+        setMetaString(Keys.HeaderURL, imageUrl);
+    }
+
+    public String getHeaderURL() {
+        return metaStringForKey(Keys.HeaderURL);
+    }
+
     public void setPresenceSubscription (String presence) {
         setMetaString(Keys.PresenceSubscription, presence);
     }

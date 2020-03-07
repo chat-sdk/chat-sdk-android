@@ -21,14 +21,10 @@ import co.chatsdk.ui.R2;
 
 public class IconEditView extends LinearLayout {
 
-    @BindView(R2.id.imageView)
-    ImageView imageView;
-    @BindView(R2.id.textInput)
-    TextInputEditText textInput;
-    @BindView(R2.id.textInputLayout)
-    TextInputLayout textInputLayout;
-    @BindView(R2.id.root)
-    LinearLayout root;
+    @BindView(R2.id.imageView) protected ImageView imageView;
+    @BindView(R2.id.textInput) protected TextInputEditText textInput;
+    @BindView(R2.id.textInputLayout) protected TextInputLayout textInputLayout;
+    @BindView(R2.id.root) protected LinearLayout root;
 
     public IconEditView(Context context) {
         super(context);

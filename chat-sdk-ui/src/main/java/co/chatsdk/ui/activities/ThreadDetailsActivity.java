@@ -50,16 +50,11 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     protected ThreadUsersFragment usersFragment;
 
     protected ActionBar actionBar;
-    @BindView(R2.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R2.id.threadImageView)
-    CircleImageView threadImageView;
-    @BindView(R2.id.threadUsersFrame)
-    FrameLayout threadUsersFrame;
-    @BindView(R2.id.nameTextView)
-    TextView nameTextView;
-    @BindView(R2.id.root)
-    ScrollView root;
+    @BindView(R2.id.toolbar) protected Toolbar toolbar;
+    @BindView(R2.id.threadImageView) protected CircleImageView threadImageView;
+    @BindView(R2.id.threadUsersFrame) protected FrameLayout threadUsersFrame;
+    @BindView(R2.id.nameTextView) protected TextView nameTextView;
+    @BindView(R2.id.root) protected ScrollView root;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

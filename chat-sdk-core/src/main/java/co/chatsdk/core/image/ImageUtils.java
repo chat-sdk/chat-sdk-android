@@ -28,6 +28,7 @@ import androidx.annotation.IntegerRes;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
@@ -113,42 +114,53 @@ public class ImageUtils {
         }
     }
 
-    public static File compressImageToFile(Bitmap bitmap, File outFile, Bitmap.CompressFormat format) {
-        try {
-            OutputStream outStream = new FileOutputStream(outFile);
-            bitmap.compress(format, 100, outStream);
-            outStream.flush();
-            outStream.close();
-        }
-        catch (Exception e) {
-            ChatSDK.logError(e);
-            return null;
+//    public static File compressImageToFile(Bitmap bitmap, File outFile, Bitmap.CompressFormat format) {
+//        try {
+//            OutputStream outStream = new FileOutputStream(outFile);
+//            bitmap.compress(format, 100, outStream);
+//            outStream.flush();
+//            outStream.close();
+//        }
+//        catch (Exception e) {
+//            ChatSDK.logError(e);
+//            return null;
+//        }
+//        return outFile;
+//    }
+//
+//    public static File compressImageToFile(Bitmap bitmap, File outFile) {
+//        String path = outFile.getPath();
+//        String ext = path.substring(path.lastIndexOf(".")).toLowerCase();
+//        Bitmap.CompressFormat format = Bitmap.CompressFormat.JPEG;
+//        if (ext == "png") {
+//            format = Bitmap.CompressFormat.PNG;
+//        }
+//        return compressImageToFile(bitmap, outFile, format);
+//    }
+//
+//    public static File compressImageToFile(Context context, Bitmap bitmap, String name, String ext, boolean addRandomIdToName) {
+//        File outFile = createEmptyFileInCacheDirectory(context, name, ext, addRandomIdToName);
+//        return compressImageToFile(bitmap, outFile);
+//    }
+//
+//    public static File compressImageToFile(Context context, Bitmap bitmap, String name, String ext) {
+//        return compressImageToFile(context, bitmap, name, ext, true);
+//    }
+//
+//    public static File compressImageToFile(Context context, String filePath, String name, String ext) {
+//        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+//        return compressImageToFile(context, bitmap, name, ext);
+//    }
+
+    public static File saveBitmapToFile(Context context, Bitmap bitmap) {
+        File outFile = createEmptyFileInCacheDirectory(context, "Image", "jpg", true);
+        try (FileOutputStream out = new FileOutputStream(outFile)) {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+            // PNG is a lossless format, the compression factor (100) is ignored
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return outFile;
-    }
-
-    public static File compressImageToFile(Bitmap bitmap, File outFile) {
-        String path = outFile.getPath();
-        String ext = path.substring(path.lastIndexOf(".")).toLowerCase();
-        Bitmap.CompressFormat format = Bitmap.CompressFormat.JPEG;
-        if (ext == "png") {
-            format = Bitmap.CompressFormat.PNG;
-        }
-        return compressImageToFile(bitmap, outFile, format);
-    }
-
-    public static File compressImageToFile(Context context, Bitmap bitmap, String name, String ext, boolean addRandomIdToName) {
-        File outFile = createEmptyFileInCacheDirectory(context, name, ext, addRandomIdToName);
-        return compressImageToFile(bitmap, outFile);
-    }
-
-    public static File compressImageToFile(Context context, Bitmap bitmap, String name, String ext) {
-        return compressImageToFile(context, bitmap, name, ext, true);
-    }
-
-    public static File compressImageToFile(Context context, String filePath, String name, String ext) {
-        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-        return compressImageToFile(context, bitmap, name, ext);
     }
 
     /**

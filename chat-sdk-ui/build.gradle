@@ -95,10 +95,9 @@ dependencies {
 
     implementation "com.jaredrummler:material-spinner:$materialSpinnerVersion"
 
-//    implementation "net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:3.0.0-RC1"
-    implementation "sdk.chat:keyboardvisibilityevent:3.0.0-RCb"
+    implementation "sdk.chat:keyboardvisibilityevent:$keyboardVisibilityEventVersion"
 
     // Audio
-    implementation 'com.github.adrielcafe:AndroidAudioRecorder:0.3.0'
+    implementation "com.github.adrielcafe:AndroidAudioRecorder:$androidAudioRecorderVersion"
 
 }

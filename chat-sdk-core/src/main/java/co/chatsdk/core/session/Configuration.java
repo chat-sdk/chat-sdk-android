@@ -73,6 +73,8 @@ public class Configuration {
 
     public boolean replyFromNotificationEnabled = true;
     @StyleRes public int theme;
+    @DrawableRes public int profileHeaderImage = 0;
+    @DrawableRes public int drawerHeaderImage = 0;
 
     // Rooms that are older than this will be hidden
     // Zero is infinite lifetime

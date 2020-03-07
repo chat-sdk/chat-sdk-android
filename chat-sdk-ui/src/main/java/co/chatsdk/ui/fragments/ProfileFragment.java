@@ -11,6 +11,7 @@ import android.widget.Space;
 import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -46,58 +47,25 @@ public class ProfileFragment extends BaseFragment {
     protected User user;
     protected boolean startingChat = false;
 
-    @BindView(R2.id.backdrop)
-    ImageView backdrop;
-    @BindView(R2.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R2.id.titleTextView)
-    TextView titleTextView;
-    @BindView(R2.id.collapsingToolbar)
-    CollapsingToolbarLayout collapsingToolbar;
-    @BindView(R2.id.appbar)
-    AppBarLayout appbar;
-    @BindView(R2.id.topSpace)
-    Space topSpace;
-    @BindView(R2.id.statusTitleTextView)
-    TextView statusTitleTextView;
-    @BindView(R2.id.statusTextView2)
-    TextView statusTextView2;
-    @BindView(R2.id.statusLinearLayout)
-    LinearLayout statusLinearLayout;
-    @BindView(R2.id.statusCardView)
-    CardView statusCardView;
-    @BindView(R2.id.availabilityLinearLayout)
-    LinearLayout availabilityLinearLayout;
-    @BindView(R2.id.availabilityCardView)
-    CardView availabilityCardView;
-    @BindView(R2.id.iconLinearLayout)
-    LinearLayout iconLinearLayout;
-    @BindView(R2.id.buttonsLinearLayout)
-    LinearLayout buttonsLinearLayout;
-    @BindView(R2.id.fab)
-    FloatingActionButton fab;
-    @BindView(R2.id.avatarImageView)
-    CircleImageView avatarImageView;
-    @BindView(R2.id.onlineIndicator)
-    View onlineIndicator;
-    @BindView(R2.id.avatarContainerLayout)
-    RelativeLayout avatarContainerLayout;
-    @BindView(R2.id.root)
-    CoordinatorLayout root;
-
-    public static ProfileFragment newInstance(User user) {
-        ProfileFragment f = new ProfileFragment();
-
-        Bundle b = new Bundle();
-
-        if (user != null) {
-            b.putString(Keys.UserId, user.getEntityID());
-        }
-
-        f.setArguments(b);
-        f.setRetainInstance(true);
-        return f;
-    }
+    @BindView(R2.id.headerImageView) protected ImageView headerImageView;
+    @BindView(R2.id.toolbar) protected Toolbar toolbar;
+    @BindView(R2.id.titleTextView) protected TextView titleTextView;
+    @BindView(R2.id.collapsingToolbar) protected CollapsingToolbarLayout collapsingToolbar;
+    @BindView(R2.id.appbar) protected AppBarLayout appbar;
+    @BindView(R2.id.topSpace) protected Space topSpace;
+    @BindView(R2.id.statusTitleTextView) protected TextView statusTitleTextView;
+    @BindView(R2.id.statusTextView2) protected TextView statusTextView2;
+    @BindView(R2.id.statusLinearLayout) protected LinearLayout statusLinearLayout;
+    @BindView(R2.id.statusCardView) protected CardView statusCardView;
+    @BindView(R2.id.availabilityLinearLayout) protected LinearLayout availabilityLinearLayout;
+    @BindView(R2.id.availabilityCardView) protected CardView availabilityCardView;
+    @BindView(R2.id.iconLinearLayout) protected LinearLayout iconLinearLayout;
+    @BindView(R2.id.buttonsLinearLayout) protected LinearLayout buttonsLinearLayout;
+    @BindView(R2.id.fab) protected FloatingActionButton fab;
+    @BindView(R2.id.avatarImageView) protected CircleImageView avatarImageView;
+    @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
+    @BindView(R2.id.avatarContainerLayout) protected RelativeLayout avatarContainerLayout;
+    @BindView(R2.id.root) protected CoordinatorLayout root;
 
     protected @LayoutRes
     int getLayout() {
@@ -146,28 +114,26 @@ public class ProfileFragment extends BaseFragment {
             });
         }
 
-        backdrop.setImageResource(R.drawable.header2);
-
         appbar.addOnOffsetChangedListener(new ProfileViewOffsetChangeListener(avatarContainerLayout));
 
-        reloadData();
     }
 
-    protected void setViewVisibility(View view, int visibility) {
-        if (view != null) view.setVisibility(visibility);
-    }
-
-    protected void setViewVisibility(View view, boolean visible) {
-        setViewVisibility(view, visible ? View.VISIBLE : View.INVISIBLE);
-    }
-
-    protected void setViewText(TextView textView, String text) {
-        if (textView != null) textView.setText(text);
-    }
-
-    protected void setRowVisible(View imageView, View textView, boolean visible) {
-        setViewVisibility(textView, visible);
-        setViewVisibility(imageView, visible);
+    protected void setHeaderImage(@Nullable String url) {
+        // Make sure that this runs when the view has dimensions
+        rootView.post(() -> {
+            int profileHeader = ChatSDK.config().profileHeaderImage;
+            if (url != null) {
+                Picasso.get()
+                        .load(url)
+                        .resize(appbar.getWidth(), appbar.getHeight())
+                        .centerCrop()
+                        .placeholder(profileHeader)
+                        .error(profileHeader)
+                        .into(headerImageView);
+            } else {
+                headerImageView.setImageResource(profileHeader);
+            }
+        });
     }
 
     @Override
@@ -268,6 +234,8 @@ public class ProfileFragment extends BaseFragment {
             }
         }
 
+        setHeaderImage(user.getHeaderURL());
+
         collapsingToolbar.setTitle(user.getName());
         Picasso.get().load(user.getAvatarURL()).into(avatarImageView);
 
@@ -299,6 +267,18 @@ public class ProfileFragment extends BaseFragment {
             iconLinearLayout.addView(IconItemView.create(getContext(), user.getPresenceSubscription(), Icons.get(Icons.choose().check, R.color.profile_icon_color)));
         }
 
+        String availability = getUser().getAvailability();
+
+        if (!StringChecker.isNullOrEmpty(availability)) {
+            availabilityCardView.setVisibility(View.VISIBLE);
+            availabilityLinearLayout.addView(IconItemView.create(
+                    getContext(),
+                    AvailabilityHelper.stringForAvailability(getContext(), availability),
+                    AvailabilityHelper.imageResourceIdForAvailability(availability)));
+        } else {
+            availabilityCardView.setVisibility(View.GONE);
+        }
+
         if (!isCurrentUser) {
 
             if (ChatSDK.blocking() != null) {
@@ -325,17 +305,6 @@ public class ProfileFragment extends BaseFragment {
                         toggleContact();
                     }));
 
-            String availability = getUser().getAvailability();
-
-            if (!StringChecker.isNullOrEmpty(availability)) {
-                availabilityCardView.setVisibility(View.VISIBLE);
-                availabilityLinearLayout.addView(IconItemView.create(
-                        getContext(),
-                        AvailabilityHelper.stringForAvailability(getContext(), availability),
-                        AvailabilityHelper.imageResourceIdForAvailability(availability)));
-            } else {
-                availabilityCardView.setVisibility(View.GONE);
-            }
         }
     }
 
@@ -344,26 +313,13 @@ public class ProfileFragment extends BaseFragment {
     }
 
     public void showEditProfileScreen() {
-
-//        Bundle bundle = null;
-//        if (getActivity() != null) {
-//            Pair<View, String> p1 = Pair.create(b.avatarImageView, "avatarImageView");
-//            Pair<View, String> p2 = Pair.create(b.titleTextView, "titleTextView");
-//            Pair<View, String> p3 = Pair.create(b.fab, "doneFab");
-//            bundle = ActivityOptionsCompat.
-//                    makeSceneTransitionAnimation(getActivity(), p1, p2, p3).toBundle();
-//        }
-
         ChatSDK.ui().startEditProfileActivity(getContext(), ChatSDK.currentUserID());
     }
 
     public void startChat() {
-//        showProgressDialog(getString(R.string.creating_thread));
-
         dm.add(ChatSDK.thread().createThread("", user, ChatSDK.currentUser())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
-//                    dismissProgressDialog();
                     startingChat = false;
                 })
                 .subscribe(thread -> {
@@ -383,6 +339,7 @@ public class ProfileFragment extends BaseFragment {
 
     public void setUser(User user) {
         this.user = user;
+        reloadData();
     }
 
 }

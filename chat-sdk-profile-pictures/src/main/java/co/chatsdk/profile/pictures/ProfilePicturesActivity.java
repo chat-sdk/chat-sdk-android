@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -47,12 +48,9 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
     protected boolean hideButton = false;
     protected String limitWarning = null;
 
-    @BindView(R2.id.imageView)
-    ImageView imageView;
-    @BindView(R2.id.gridLayout)
-    GridLayout gridLayout;
-    @BindView(R2.id.root)
-    RelativeLayout root;
+    @BindView(R2.id.imageView) protected ImageView imageView;
+    @BindView(R2.id.gridLayout) protected GridLayout gridLayout;
+    @BindView(R2.id.root) protected LinearLayout root;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,6 +76,9 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
             limitWarning = warning;
         }
 
+        setActionBarTitle(R.string.profile);
+        initViews();
+
     }
 
     @Override
@@ -95,7 +96,10 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
 
     protected View createCellView(String url) {
         ImageView cell = new ImageView(this);
-        Picasso.get().load(url).into(cell);
+        // Get the screen width
+        int size = getResources().getDisplayMetrics().widthPixels / 2 - gridPadding;
+
+        Picasso.get().load(url).resize(size, size).centerCrop().into(cell);
 
         cell.setOnClickListener(v -> {
             zoomImageFromThumbnail(cell, url);
@@ -173,7 +177,10 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
         }
         dm.add(PermissionRequestHandler.requestImageMessage(this).subscribe(() -> {
             dm.add(imagePickerUploader.choosePhoto(this, false).subscribe((results, throwable) -> {
-                if (throwable == null && !results.isEmpty()) {
+                if (throwable != null) {
+                    Toast.makeText(ProfilePicturesActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                }
+                else {
                     for (ImagePickerUploader.Result result : results) {
                         ChatSDK.profilePictures().addPicture(getUser(), result.url);
                     }
@@ -181,12 +188,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
                     dm.add(ChatSDK.core().pushUser()
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(() -> {
-                            }, throwable1 -> {
-                                // Handle Error
-                                Toast.makeText(ProfilePicturesActivity.this, throwable1.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                            }));
-                } else {
-                    Toast.makeText(ProfilePicturesActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                            }, this));
                 }
             }));
         }, this));
@@ -209,7 +211,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
             return super.onCreateOptionsMenu(menu);
 
         getMenuInflater().inflate(R.menu.add_menu, menu);
-        menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, R.color.app_bar_icon_color));
+        addMenuItem = menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, R.color.app_bar_icon_color));
         addMenuItem.setVisible(shouldShowAddButton(ChatSDK.profilePictures().fromUser(getUser())));
 
         return super.onCreateOptionsMenu(menu);

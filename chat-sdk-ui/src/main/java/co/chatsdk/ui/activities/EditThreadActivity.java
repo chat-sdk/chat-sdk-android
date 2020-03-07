@@ -56,16 +56,11 @@ public class EditThreadActivity extends BaseActivity {
     protected String threadImageURL;
     protected ImagePickerUploader pickerUploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
 
-    @BindView(R2.id.threadImageView)
-    CircleImageView threadImageView;
-    @BindView(R2.id.nameTextInput)
-    TextInputEditText nameTextInput;
-    @BindView(R2.id.nameTextInputLayout)
-    TextInputLayout nameTextInputLayout;
-    @BindView(R2.id.fab)
-    FloatingActionButton fab;
-    @BindView(R2.id.root)
-    ConstraintLayout root;
+    @BindView(R2.id.threadImageView) protected CircleImageView threadImageView;
+    @BindView(R2.id.nameTextInput) protected TextInputEditText nameTextInput;
+    @BindView(R2.id.nameTextInputLayout) protected TextInputLayout nameTextInputLayout;
+    @BindView(R2.id.fab) protected FloatingActionButton fab;
+    @BindView(R2.id.root) protected ConstraintLayout root;
 
     @Override
     protected int getLayout() {

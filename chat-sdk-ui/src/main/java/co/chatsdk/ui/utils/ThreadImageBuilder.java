@@ -21,9 +21,11 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.core.image.ImageUtils;
+import co.chatsdk.core.utils.FileUtils;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.icons.Icons;
+import id.zelory.compressor.Compressor;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.disposables.Disposable;
@@ -75,14 +77,22 @@ public class ThreadImageBuilder {
             }
             else if (users.size() == 1) {
                 return users.get(0).getAvatarBitmap(size, size).map(bitmap -> {
-                    File file = ImageUtils.compressImageToFile(context, bitmap, hashCode, ".png", false);
-                    return Uri.fromFile(file);
+                    File imageFile = ImageUtils.saveBitmapToFile(context, bitmap);
+                    File compressed = new Compressor(ChatSDK.shared().context())
+                            .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
+                            .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
+                            .compressToFile(imageFile);
+                    return Uri.fromFile(compressed);
                 });
             }
             else {
                 return combineBitmapsForUsers(users, size).map(bitmap -> {
-                    File file = ImageUtils.compressImageToFile(context, bitmap, hashCode, ".png", false);
-                    return Uri.fromFile(file);
+                    File imageFile = ImageUtils.saveBitmapToFile(context, bitmap);
+                    File compressed = new Compressor(ChatSDK.shared().context())
+                            .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
+                            .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
+                            .compressToFile(imageFile);
+                    return Uri.fromFile(compressed);
                 });
             }
         });

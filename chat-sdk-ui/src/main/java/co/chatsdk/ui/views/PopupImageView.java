@@ -32,14 +32,10 @@ import co.chatsdk.ui.utils.ToastHelper;
 public class PopupImageView extends RelativeLayout {
 
 
-    @BindView(R2.id.photoView)
-    PhotoView photoView;
-    @BindView(R2.id.progressBar)
-    ProgressBar progressBar;
-    @BindView(R2.id.fab)
-    FloatingActionButton fab;
-    @BindView(R2.id.popupView)
-    RelativeLayout popupView;
+    @BindView(R2.id.photoView) protected PhotoView photoView;
+    @BindView(R2.id.progressBar) protected ProgressBar progressBar;
+    @BindView(R2.id.fab) protected FloatingActionButton fab;
+    @BindView(R2.id.popupView) protected RelativeLayout popupView;
 
     public PopupImageView(Context context) {
         super(context);

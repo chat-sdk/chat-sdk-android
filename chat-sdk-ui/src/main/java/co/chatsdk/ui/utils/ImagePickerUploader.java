@@ -41,30 +41,18 @@ public class ImagePickerUploader {
     }
 
     public Single<List<Result>> choosePhoto (Activity activity, boolean multiSelectEnabled) {
+        return choosePhoto(activity, multiSelectEnabled, 0, 0);
+    }
+
+    public Single<List<Result>> choosePhoto (Activity activity, boolean multiSelectEnabled, int width, int height) {
         return PermissionRequestHandler.requestReadExternalStorage(activity)
-                .andThen(mediaSelector.startChooseMediaActivity(activity, MimeType.ofImage(), cropType, multiSelectEnabled)
-                .map(this::compressFiles)
-                .flatMap(this::uploadImageFiles));
+                .andThen(mediaSelector.startChooseMediaActivity(activity, MimeType.ofImage(), cropType, multiSelectEnabled, width, height)
+                        .flatMap(this::uploadImageFiles));
     }
 
     public Single<List<File>> choosePhoto(Activity activity) {
         return PermissionRequestHandler.requestReadExternalStorage(activity)
-                .andThen(mediaSelector.startChooseMediaActivity(activity, MimeType.ofImage(), cropType, false)
-                        .map(this::compressFiles));
-    }
-
-    public List<File> compressFiles (List<File> files) throws Exception {
-        ArrayList<File> compressedFiles = new ArrayList<>();
-
-        for (File file: files) {
-            File compress = new Compressor(ChatSDK.shared().context())
-                    .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
-                    .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
-                    .compressToFile(file);
-            Bitmap bitmap = BitmapFactory.decodeFile(compress.getPath());
-            compressedFiles.add(ImageUtils.compressImageToFile(ChatSDK.shared().context(), bitmap, ChatSDK.currentUserID(), ".png"));
-        }
-        return compressedFiles;
+                .andThen(mediaSelector.startChooseMediaActivity(activity, MimeType.ofImage(), cropType, false));
     }
 
     public Single<List<Result>> uploadImageFiles (List<File> files) {

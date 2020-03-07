@@ -21,12 +21,9 @@ public class SplashScreenActivity extends BaseActivity {
 
     public static int AUTH = 1;
 
-    @BindView(R2.id.imageView)
-    ImageView imageView;
-    @BindView(R2.id.progressBar)
-    ProgressBar progressBar;
-    @BindView(R2.id.root)
-    ConstraintLayout root;
+    @BindView(R2.id.imageView) protected ImageView imageView;
+    @BindView(R2.id.progressBar) protected ProgressBar progressBar;
+    @BindView(R2.id.root) protected ConstraintLayout root;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

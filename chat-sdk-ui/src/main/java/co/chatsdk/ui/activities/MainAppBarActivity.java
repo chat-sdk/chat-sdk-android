@@ -30,18 +30,12 @@ public class MainAppBarActivity extends MainActivity {
 
     protected PagerAdapterTabs adapter;
 
-    @BindView(R2.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R2.id.tabLayout)
-    TabLayout tabLayout;
-    @BindView(R2.id.viewPager)
-    ViewPager viewPager;
-    @BindView(R2.id.content)
-    RelativeLayout content;
-    @BindView(R2.id.searchView)
-    MaterialSearchView searchView;
-    @BindView(R2.id.root)
-    FrameLayout root;
+    @BindView(R2.id.toolbar) protected Toolbar toolbar;
+    @BindView(R2.id.tabLayout) protected TabLayout tabLayout;
+    @BindView(R2.id.viewPager) protected ViewPager viewPager;
+    @BindView(R2.id.content) protected RelativeLayout content;
+    @BindView(R2.id.searchView) protected MaterialSearchView searchView;
+    @BindView(R2.id.root) protected FrameLayout root;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

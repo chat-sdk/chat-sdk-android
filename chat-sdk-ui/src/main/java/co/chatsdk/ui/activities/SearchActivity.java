@@ -53,16 +53,11 @@ public class SearchActivity extends BaseActivity {
     protected UsersListAdapter adapter;
     protected Disposable searchDisposable;
 
-    @BindView(R2.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R2.id.recyclerView)
-    RecyclerView recyclerView;
-    @BindView(R2.id.fab)
-    FloatingActionButton fab;
-    @BindView(R2.id.searchView)
-    MaterialSearchView searchView;
-    @BindView(R2.id.root)
-    FrameLayout root;
+    @BindView(R2.id.toolbar) protected Toolbar toolbar;
+    @BindView(R2.id.recyclerView) protected RecyclerView recyclerView;
+    @BindView(R2.id.fab) protected FloatingActionButton fab;
+    @BindView(R2.id.searchView) protected MaterialSearchView searchView;
+    @BindView(R2.id.root) protected FrameLayout root;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

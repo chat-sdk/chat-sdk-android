@@ -23,6 +23,7 @@ import org.pmw.tinylog.Logger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
@@ -43,6 +44,7 @@ import co.chatsdk.firebase.utils.FirebaseRX;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.disposables.Disposable;
@@ -100,11 +102,13 @@ public class UserWrapper {
         String phoneNumber = authData.getPhoneNumber();
 
         // Setting the name.
-        if (!StringChecker.isNullOrEmpty(name) && StringChecker.isNullOrEmpty(model.getName())) {
-            model.setName(name);
-        }
-        else {
-            model.setName(ChatSDK.config().defaultName);
+        if (StringChecker.isNullOrEmpty(model.getName())) {
+            if (!StringChecker.isNullOrEmpty(name)) {
+                model.setName(name);
+            }
+            else {
+                model.setName(ChatSDK.config().defaultName);
+            }
         }
 
         // Setting the email.
@@ -313,11 +317,7 @@ public class UserWrapper {
      * Set the user online value to false.
      **/
     public Completable goOffline () {
-
-        Completable c1 = FirebaseRX.remove(FirebasePaths.userOnlineRef(model.getEntityID()));
-        Completable c2 = FirebaseRX.remove(FirebasePaths.onlineRef(model.getEntityID()));
-
-        return Completable.merge(Arrays.asList(c1, c2));
+        return FirebaseRX.remove(FirebasePaths.userOnlineRef(model.getEntityID()));
     }
     
     /**
@@ -326,18 +326,7 @@ public class UserWrapper {
      * When firebase disconnect this will be auto change to false.
      **/
     public Completable goOnline() {
-
-        // Set the current state of the user as online.
-        // And add a listener so when the user log off from firebase he will be set as disconnected.
-        Completable c1 = FirebaseRX.set(FirebasePaths.userOnlineRef(model.getEntityID()), true, true);
-
-        HashMap<String, Object> map = new HashMap<>();
-        map.put(Keys.Time, ServerValue.TIMESTAMP);
-        map.put(Keys.UID, model.getEntityID());
-
-        Completable c2 = FirebaseRX.set(FirebasePaths.onlineRef(model.getEntityID()), map, true);
-
-        return Completable.merge(Arrays.asList(c1, c2));
+        return FirebaseRX.set(FirebasePaths.userOnlineRef(model.getEntityID()), true, true);
     }
 
     public User getModel () {

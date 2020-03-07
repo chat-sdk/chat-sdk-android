@@ -39,7 +39,7 @@
     <!--SelectContactActivity-->
     <string name="select_at_least_one_user">Please select at least one user</string>
     <string name="adding_users">Adding users to thread&#8230;</string>
-    <string name="creating_thread">Creating Thread</string>
+    <string name="creating_thread">Creating</string>
 
     <!--ExitHelper-->
     <!-- Exit Dialog-->

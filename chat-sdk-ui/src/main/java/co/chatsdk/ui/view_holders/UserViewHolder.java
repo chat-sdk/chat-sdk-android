@@ -30,20 +30,13 @@ public class UserViewHolder extends RecyclerView.ViewHolder  {
 
     protected boolean multiSelectEnabled;
 
-    @BindView(R2.id.avatarImageView)
-    CircleImageView avatarImageView;
-    @BindView(R2.id.onlineIndicator)
-    View onlineIndicator;
-    @BindView(R2.id.nameTextView)
-    TextView nameTextView;
-    @BindView(R2.id.checkbox)
-    CheckBox checkbox;
-    @BindView(R2.id.statusTextView)
-    TextView statusTextView;
-    @BindView(R2.id.availabilityImageView)
-    ImageView availabilityImageView;
-    @BindView(R2.id.root)
-    RelativeLayout root;
+    @BindView(R2.id.avatarImageView) protected CircleImageView avatarImageView;
+    @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
+    @BindView(R2.id.nameTextView) protected TextView nameTextView;
+    @BindView(R2.id.checkbox) protected CheckBox checkbox;
+    @BindView(R2.id.statusTextView) protected TextView statusTextView;
+    @BindView(R2.id.availabilityImageView) protected ImageView availabilityImageView;
+    @BindView(R2.id.root) protected RelativeLayout root;
 
     public UserViewHolder(View view, boolean multiSelectEnabled) {
         super(view);

@@ -21,12 +21,14 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
+import co.chatsdk.core.ui.ProfileFragmentProvider;
 import co.chatsdk.ui.activities.LoginActivity;
 import co.chatsdk.ui.fragments.ProfileFragment;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import sdk.chat.custom.AProfileFragment;
 
 /**
  * This class contains a list of example API calls for reference
@@ -40,7 +42,14 @@ public class ApiExamples {
         ChatSDK.ui().setLoginActivity(LoginActivity.class);
 
         // Or customise the profile fragment
-        ChatSDK.ui().setProfileFragmentProvider(user -> ProfileFragment.newInstance(user));
+        ChatSDK.ui().setProfileFragmentProvider(new ProfileFragmentProvider() {
+            @Override
+            public Fragment profileFragment(User user) {
+                AProfileFragment fragment = new AProfileFragment();
+                fragment.setUser(user);
+                return fragment;
+            }
+        });
 
     }
 

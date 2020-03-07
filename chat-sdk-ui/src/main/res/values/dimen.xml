@@ -25,4 +25,7 @@
 
     <dimen name="icon_corner_radius">8dp</dimen>
 
+    <dimen name="profile_header_height">300dp</dimen>
+    <dimen name="profile_header_width">540dp</dimen>
+
 </resources>

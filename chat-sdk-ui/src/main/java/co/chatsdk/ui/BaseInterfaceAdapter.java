@@ -9,6 +9,7 @@ import android.os.Bundle;
 import androidx.annotation.DrawableRes;
 import androidx.fragment.app.Fragment;
 
+import com.squareup.picasso.LruCache;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.messages.MessageHolders;
@@ -40,6 +41,7 @@ import co.chatsdk.ui.chat.options.LocationChatOption;
 import co.chatsdk.ui.chat.options.MediaChatOption;
 import co.chatsdk.ui.chat.options.MediaType;
 import co.chatsdk.ui.activities.ChatActivity;
+import co.chatsdk.ui.custom.BaseProfileFragmentProvider;
 import co.chatsdk.ui.fragments.PrivateThreadsFragment;
 import co.chatsdk.ui.fragments.PublicThreadsFragment;
 import co.chatsdk.ui.activities.AddUsersToThreadActivity;
@@ -88,7 +90,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Fragment privateThreadsFragment = new PrivateThreadsFragment();
     protected Fragment publicThreadsFragment = new PublicThreadsFragment();
     protected Fragment contactsFragment = new ContactsFragment();
-    protected ProfileFragmentProvider profileFragmentProvider = ProfileFragment::newInstance;
+    protected ProfileFragmentProvider profileFragmentProvider = new BaseProfileFragmentProvider();
 
     protected @DrawableRes int defaultProfileImage = R.drawable.icn_100_profile;
 
@@ -106,6 +108,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         // Setup Picasso
         Picasso.Builder builder = new Picasso.Builder(context);
         builder.downloader(new OkHttp3Downloader(context, Long.MAX_VALUE));
+        builder.memoryCache(new LruCache(250000));
         Picasso built = builder.build();
 //        built.setIndicatorsEnabled(true);
         built.setLoggingEnabled(false);
@@ -115,6 +118,13 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
         stringLocation = context.getResources().getString(R.string.location);
         stringChoosePhoto = context.getResources().getString(R.string.image_or_photo);
+
+        if (ChatSDK.config().profileHeaderImage == 0) {
+            ChatSDK.config().profileHeaderImage = R.drawable.header2;
+        }
+        if (ChatSDK.config().drawerHeaderImage == 0) {
+            ChatSDK.config().drawerHeaderImage = R.drawable.header2;
+        }
     }
 
     @Override

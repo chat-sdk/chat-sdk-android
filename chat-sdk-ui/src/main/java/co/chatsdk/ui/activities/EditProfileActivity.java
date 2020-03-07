@@ -1,6 +1,8 @@
 package co.chatsdk.ui.activities;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
@@ -25,6 +27,9 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
+import org.pmw.tinylog.Logger;
 
 import java.io.File;
 import java.util.HashMap;
@@ -54,31 +59,32 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class EditProfileActivity extends BaseActivity {
 
-    @BindView(R2.id.backdrop) ImageView backdrop;
-    @BindView(R2.id.toolbar) Toolbar toolbar;
-    @BindView(R2.id.titleTextView) TextView titleTextView;
-    @BindView(R2.id.collapsingToolbar) CollapsingToolbarLayout collapsingToolbar;
-    @BindView(R2.id.appbar) AppBarLayout appbar;
-    @BindView(R2.id.topSpace) Space topSpace;
-    @BindView(R2.id.statusTitleTextView) TextView statusTitleTextView;
-    @BindView(R2.id.statusEditText) EditText statusEditText;
-    @BindView(R2.id.statusLinearLayout) LinearLayout statusLinearLayout;
-    @BindView(R2.id.statusCardView) CardView statusCardView;
-    @BindView(R2.id.spinner) MaterialSpinner spinner;
-    @BindView(R2.id.availabilityCardView) CardView availabilityCardView;
-    @BindView(R2.id.nameEditView) IconEditView nameEditView;
-    @BindView(R2.id.locationEditView) IconEditView locationEditView;
-    @BindView(R2.id.phoneEditView) IconEditView phoneEditView;
-    @BindView(R2.id.emailEditView) IconEditView emailEditView;
-    @BindView(R2.id.iconLinearLayout) LinearLayout iconLinearLayout;
-    @BindView(R2.id.doneFab) FloatingActionButton doneFab;
-    @BindView(R2.id.logoutFab) FloatingActionButton logoutFab;
-    @BindView(R2.id.avatarImageView) CircleImageView avatarImageView;
-    @BindView(R2.id.root) CoordinatorLayout root;
+    @BindView(R2.id.headerImageView) protected ImageView headerImageView;
+    @BindView(R2.id.toolbar) protected Toolbar toolbar;
+    @BindView(R2.id.titleTextView) protected TextView titleTextView;
+    @BindView(R2.id.collapsingToolbar) protected CollapsingToolbarLayout collapsingToolbar;
+    @BindView(R2.id.appbar) protected AppBarLayout appbar;
+    @BindView(R2.id.topSpace) protected Space topSpace;
+    @BindView(R2.id.statusTitleTextView) protected TextView statusTitleTextView;
+    @BindView(R2.id.statusEditText) protected EditText statusEditText;
+    @BindView(R2.id.statusLinearLayout) protected LinearLayout statusLinearLayout;
+    @BindView(R2.id.statusCardView) protected CardView statusCardView;
+    @BindView(R2.id.spinner) protected MaterialSpinner spinner;
+    @BindView(R2.id.availabilityCardView) protected CardView availabilityCardView;
+    @BindView(R2.id.nameEditView) protected IconEditView nameEditView;
+    @BindView(R2.id.locationEditView) protected IconEditView locationEditView;
+    @BindView(R2.id.phoneEditView) protected IconEditView phoneEditView;
+    @BindView(R2.id.emailEditView) protected IconEditView emailEditView;
+    @BindView(R2.id.iconLinearLayout) protected LinearLayout iconLinearLayout;
+    @BindView(R2.id.doneFab) protected FloatingActionButton doneFab;
+    @BindView(R2.id.logoutFab) protected FloatingActionButton logoutFab;
+    @BindView(R2.id.avatarImageView) protected CircleImageView avatarImageView;
+    @BindView(R2.id.root) protected CoordinatorLayout root;
 
     protected User currentUser;
     protected HashMap<String, Object> userMeta;
     protected String avatarImageURL = null;
+    protected String headerImageURL = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -121,22 +127,23 @@ public class EditProfileActivity extends BaseActivity {
                 ChatSDK.profilePictures().startProfilePicturesActivity(this, currentUser.getEntityID());
             } else {
                 ImagePickerUploader uploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
-                dm.add(uploader.choosePhoto(EditProfileActivity.this, false).subscribe((results, throwable) -> {
-                    if (throwable == null && !results.isEmpty()) {
-                        avatarImageView.setImageURI(Uri.fromFile(new File(results.get(0).uri)));
-                        avatarImageURL = results.get(0).url;
-                    } else {
-                        showToast(throwable.getLocalizedMessage());
-                    }
-                }));
+                dm.add(uploader.choosePhoto(EditProfileActivity.this, false).subscribe(results -> {
+                    avatarImageView.setImageURI(Uri.fromFile(new File(results.get(0).uri)));
+                    avatarImageURL = results.get(0).url;
+                }, this));
             }
         });
 
         spinner.setItems(AvailabilityHelper.getAvailableStateStrings(this));
 
         appbar.addOnOffsetChangedListener(new ProfileViewOffsetChangeListener(avatarImageView));
-
-        backdrop.setImageResource(R.drawable.header2);
+        appbar.setOnClickListener(v -> {
+            ImagePickerUploader uploader = new ImagePickerUploader(MediaSelector.CropType.None);
+            dm.add(uploader.choosePhoto(EditProfileActivity.this, false).subscribe(results -> {
+                setHeaderImage(results.get(0).url);
+                headerImageURL = results.get(0).url;
+            }, this));
+        });
 
         doneFab.setImageDrawable(Icons.get(Icons.choose().check, R.color.app_bar_icon_color));
         doneFab.setOnClickListener(v -> saveAndExit());
@@ -144,6 +151,25 @@ public class EditProfileActivity extends BaseActivity {
         logoutFab.setOnClickListener(v -> logout());
 
         reloadData();
+    }
+
+    protected void setHeaderImage(@Nullable String url) {
+        // Make sure that this runs when the view has dimensions
+        root.post(() -> {
+            int profileHeader = ChatSDK.config().profileHeaderImage;
+            if (url != null && appbar != null) {
+                // Get the screen width
+                Picasso.get()
+                        .load(url)
+                        .resize(appbar.getWidth(), appbar.getHeight())
+                        .centerCrop()
+                        .placeholder(profileHeader)
+                        .error(R.drawable.header)
+                        .into(headerImageView);
+            } else {
+                headerImageView.setImageResource(profileHeader);
+            }
+        });
     }
 
     protected void reloadData() {
@@ -163,6 +189,7 @@ public class EditProfileActivity extends BaseActivity {
 
         currentUser.loadAvatar(avatarImageView, width, height);
 
+        setHeaderImage(currentUser.getHeaderURL());
 
         statusEditText.setText(status);
 
@@ -236,6 +263,10 @@ public class EditProfileActivity extends BaseActivity {
             currentUser.setAvatarURL(avatarImageURL);
         }
 
+        if (headerImageURL != null) {
+            currentUser.setHeaderURL(headerImageURL);
+        }
+
         if (presenceChanged && !changed) {
             // Send presence
             ChatSDK.core().goOnline();
@@ -288,32 +319,4 @@ public class EditProfileActivity extends BaseActivity {
         return index;
     }
 
-//    protected String getAvailability () {
-//        String a = b.availabilitySpinner.getSelectedItem().toString().toLowerCase();
-//        switch (a) {
-//            case "away":
-//                return Availability.Away;
-//            case "extended away":
-//                return Availability.XA;
-//            case "busy":
-//                return Availability.Busy;
-//            default:
-//                return Availability.Available;
-//        }
-//    }
-//
-//    protected void setAvailability (String a) {
-//        String availability = "available";
-//        if (a.equals(Availability.Away)) {
-//            availability = "away";
-//        }
-//        else if (a.equals(Availability.XA)) {
-//            availability = "extended away";
-//        }
-//        else if (a.equals(Availability.Busy)) {
-//            availability = "busy";
-//        }
-//        b.availabilitySpinner.setSelection(getIndex(b.availabilitySpinner, availability));
-//
-//    }
 }

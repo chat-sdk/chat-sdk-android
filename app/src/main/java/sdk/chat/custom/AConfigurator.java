@@ -1,6 +1,10 @@
 package sdk.chat.custom;
 
+import androidx.fragment.app.Fragment;
+
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.ui.ProfileFragmentProvider;
 
 public class AConfigurator {
 
@@ -13,7 +17,11 @@ public class AConfigurator {
         ChatSDK.ui().setPublicThreadsFragment(new APublicThreadsFragment());
         ChatSDK.ui().setContactsFragment(new AContactsFragment());
 
-        ChatSDK.ui().setProfileFragmentProvider(AProfileFragment::newInstance);
+        ChatSDK.ui().setProfileFragmentProvider(user -> {
+            AProfileFragment fragment = new AProfileFragment();
+            fragment.setUser(user);
+            return fragment;
+        });
     }
 
 }

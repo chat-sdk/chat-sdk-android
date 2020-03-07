@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.LayoutRes;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.dialogs.DialogsList;
@@ -48,10 +49,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     protected PublishSubject<Thread> onClickPublishSubject = PublishSubject.create();
     protected PublishSubject<Thread> onLongClickPublishSubject = PublishSubject.create();
 
-    @BindView(R2.id.dialogsList)
-    DialogsList dialogsList;
-    @BindView(R2.id.root)
-    RelativeLayout root;
+    @BindView(R2.id.dialogsList) protected DialogsList dialogsList;
+    @BindView(R2.id.root) protected RelativeLayout root;
 
     protected @LayoutRes
     int getLayout() {
@@ -122,7 +121,16 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             }
         });
 
+        dialogsListAdapter.setHasStableIds(true);
+
         dialogsList.setAdapter(dialogsListAdapter);
+
+
+        // Stop the image from flashing when the list is reloaded
+        RecyclerView.ItemAnimator animator = dialogsList.getItemAnimator();
+        if (animator != null) {
+            animator.setChangeDuration(0);
+        }
 
         dialogsListAdapter.setOnDialogViewClickListener((view, dialog) -> startChatActivity(dialog.getId()));
         dialogsListAdapter.setOnDialogLongClickListener(dialog -> {

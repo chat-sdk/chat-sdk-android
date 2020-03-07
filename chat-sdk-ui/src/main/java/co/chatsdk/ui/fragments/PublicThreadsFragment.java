@@ -75,11 +75,4 @@ public class PublicThreadsFragment extends ThreadsFragment {
     public boolean allowThreadCreation () {
         return ChatSDK.config().publicRoomCreationEnabled;
     }
-
-    public void setTabVisibility (boolean isVisible) {
-        super.setTabVisibility(isVisible);
-        if (isVisible) {
-            reloadData();
-        }
-    }
 }

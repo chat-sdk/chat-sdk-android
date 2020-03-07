@@ -42,18 +42,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoadMoreListener {
 
-    @BindView(R2.id.messagesList)
-    MessagesList messagesList;
-    @BindView(R2.id.root)
-    LinearLayout root;
+    @BindView(R2.id.messagesList) protected MessagesList messagesList;
+    @BindView(R2.id.root) protected LinearLayout root;
 
     public interface Delegate {
-        DisplayMetrics getDisplayMetrics();
-
         Thread getThread();
-
         void onClick(Message message);
-
         void onLongClick(Message message);
     }
 
@@ -88,11 +82,6 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     public void initViews() {
         LayoutInflater.from(getContext()).inflate(R.layout.view_chat, this);
         ButterKnife.bind(this);
-
-//        LinearLayoutManager manager = new LinearLayoutManager(getContext());
-//        manager.setOrientation(LinearLayoutManager.VERTICAL);
-//        b.messagesList.setLayoutManager(manager);
-
 
         MessageHolders holders = new MessageHolders();
 
@@ -176,9 +165,9 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     protected int maxImageWidth() {
         // Prevent overly big messages in landscape mode
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            return Math.round(delegate.getDisplayMetrics().widthPixels);
+            return Math.round(getResources().getDisplayMetrics().widthPixels);
         } else {
-            return Math.round(delegate.getDisplayMetrics().heightPixels);
+            return Math.round(getResources().getDisplayMetrics().heightPixels);
         }
     }
 

@@ -48,26 +48,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected boolean exitOnBackPressed = false;
     protected boolean authenticating = false;
 
-    @BindView(R2.id.appIconImageView)
-    ImageView appIconImageView;
-    @BindView(R2.id.usernameTextInput)
-    TextInputEditText usernameTextInput;
-    @BindView(R2.id.usernameTextInputLayout)
-    TextInputLayout usernameTextInputLayout;
-    @BindView(R2.id.passwordTextInput)
-    TextInputEditText passwordTextInput;
-    @BindView(R2.id.passwordTextInputLayout)
-    TextInputLayout passwordTextInputLayout;
-    @BindView(R2.id.loginButton)
-    MaterialButton loginButton;
-    @BindView(R2.id.registerButton)
-    MaterialButton registerButton;
-    @BindView(R2.id.anonymousButton)
-    MaterialButton anonymousButton;
-    @BindView(R2.id.resetPasswordButton)
-    MaterialButton resetPasswordButton;
-    @BindView(R2.id.root)
-    ConstraintLayout root;
+    @BindView(R2.id.appIconImageView) protected ImageView appIconImageView;
+    @BindView(R2.id.usernameTextInput) protected TextInputEditText usernameTextInput;
+    @BindView(R2.id.usernameTextInputLayout) protected TextInputLayout usernameTextInputLayout;
+    @BindView(R2.id.passwordTextInput) protected TextInputEditText passwordTextInput;
+    @BindView(R2.id.passwordTextInputLayout) protected TextInputLayout passwordTextInputLayout;
+    @BindView(R2.id.loginButton) protected MaterialButton loginButton;
+    @BindView(R2.id.registerButton) protected MaterialButton registerButton;
+    @BindView(R2.id.anonymousButton) protected MaterialButton anonymousButton;
+    @BindView(R2.id.resetPasswordButton) protected MaterialButton resetPasswordButton;
+    @BindView(R2.id.root) protected ConstraintLayout root;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
