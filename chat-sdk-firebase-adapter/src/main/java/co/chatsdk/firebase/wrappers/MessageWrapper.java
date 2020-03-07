@@ -102,7 +102,8 @@ public class MessageWrapper  {
         if (snapshot.hasChild(Keys.Meta)) {
             model.setMetaValues(snapshot.child(Keys.Meta).getValue(Generic.hashMapStringObject()));
         } else {
-            model.setText("");
+            Logger.debug("");
+//            model.setText("");
         }
 
         if (snapshot.hasChild(Keys.Type)) {
@@ -196,18 +197,6 @@ public class MessageWrapper  {
             }
         });
     }
-
-//    public HashMap<String, Object> lastMessageData () {
-//        HashMap<String, Object> map = new HashMap<>();
-//        map.put(Keys.Type, model.getType());
-//        map.put(Keys.Date, ServerValue.TIMESTAMP);
-//        map.put(Keys.UserFirebaseId, model.getSender().getEntityID());
-//        map.put(Keys.From, model.getSender().getEntityID());
-//        map.put(Keys.UserName, model.getSender().getName());
-//        map.put(Keys.JSON, model.getMetaValuesAsMap());
-//        map.put(Keys.Meta, model.getMetaValuesAsMap());
-//        return map;
-//    }
 
     public Completable delete () {
         return Completable.create(e -> {

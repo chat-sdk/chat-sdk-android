@@ -195,6 +195,8 @@ public class ThreadWrapper  {
                     message.getModel().update();
                     model.update();
 
+                    message.markAsReceived().subscribe(ChatSDK.events());
+                    updateReadReceipts(message.getModel());
 
                     if(ChatSDK.hook() != null) {
                         HashMap<String, Object> data = new HashMap<>();
@@ -211,8 +213,6 @@ public class ThreadWrapper  {
                         emitter.onNext(message.getModel());
                     }
 
-                    message.markAsReceived().subscribe(ChatSDK.events());
-                    updateReadReceipts(message.getModel());
                 }
             }));
             FirebaseReferenceManager.shared().addRef(messagesRef(), listener);

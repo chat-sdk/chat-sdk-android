@@ -2,16 +2,22 @@ package co.chatsdk.ui.views;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.LinearLayout;
+
+import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.ui.R2;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.stfalcon.chatkit.messages.MessageHolders;
@@ -55,7 +61,6 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     protected HashMap<Message, MessageHolder> messageHolderHashMap = new HashMap<>();
     protected ArrayList<MessageHolder> messageHolders = new ArrayList<>();
 
-
     protected DisposableMap dm = new DisposableMap();
 
     protected PrettyTime prettyTime = new PrettyTime();
@@ -78,6 +83,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         this.delegate = delegate;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public void initViews() {
         LayoutInflater.from(getContext()).inflate(R.layout.view_chat, this);
         ButterKnife.bind(this);
@@ -95,12 +101,21 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
             if (url == null || url.isEmpty()) {
                 imageView.setImageResource(placeholder);
             } else {
-                RequestCreator request = Picasso.get().load(url)
-                        .placeholder(placeholder)
-                        .error(R.drawable.icn_200_image_message_error)
-                        .resize(maxImageWidth(), maxImageWidth()).centerCrop();
+                if (payload == null) {
+                    // User avatar
+                    Glide.with(this)
+                            .load(url)
+                            .override(Dimen.from(getContext(), R.dimen.small_avatar_width), Dimen.from(getContext(), R.dimen.small_avatar_height))
+                            .into(imageView);
+                } else {
+                    // Image message
+                    RequestCreator request = Picasso.get().load(url)
+                            .placeholder(placeholder)
+                            .error(R.drawable.icn_200_image_message_error)
+                            .resize(maxImageWidth(), maxImageWidth()).centerCrop();
 
-                request.into(imageView);
+                    request.into(imageView);
+                }
             }
         });
 
@@ -252,14 +267,13 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
             // comes in and scrolls the screen down
             boolean scroll = message.getSender().isMe();
 
-            RecyclerView.LayoutManager layoutManager = messagesList.getLayoutManager();
-            if (layoutManager instanceof LinearLayoutManager) {
-                LinearLayoutManager llm = (LinearLayoutManager) layoutManager;
+            int scrollYOffset = messagesList.computeVerticalScrollOffset();
+            int extent = messagesList.computeVerticalScrollExtent();
 
-                if (llm.findLastVisibleItemPosition() > messageHolders.size() - 5) {
-                    scroll = true;
-                }
+            if (extent - scrollYOffset < 100) {
+                scroll = true;
             }
+
             messagesListAdapter.addToStart(holder, scroll);
 
             // Update the previous holder so that we can hide the

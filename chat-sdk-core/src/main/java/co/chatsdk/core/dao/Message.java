@@ -121,18 +121,11 @@ public class Message extends AbstractEntity {
     }
 
     public void markRead() {
-        System.out.println("Mark Read: " + getId());
         if (!isRead()) {
             if (ChatSDK.readReceipts() != null) {
                 ChatSDK.readReceipts().markRead(this);
             }
             setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new DateTime());
-
-            if (isRead()) {
-                System.out.println("YES");
-            } else {
-                System.out.println("NO");
-            }
         }
     }
 

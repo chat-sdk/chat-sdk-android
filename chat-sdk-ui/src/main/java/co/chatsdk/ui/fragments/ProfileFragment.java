@@ -16,6 +16,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -123,13 +124,20 @@ public class ProfileFragment extends BaseFragment {
         rootView.post(() -> {
             int profileHeader = ChatSDK.config().profileHeaderImage;
             if (url != null) {
-                Picasso.get()
+                Glide.with(this)
                         .load(url)
-                        .resize(appbar.getWidth(), appbar.getHeight())
+                        .override(appbar.getWidth(), appbar.getHeight())
                         .centerCrop()
                         .placeholder(profileHeader)
                         .error(profileHeader)
                         .into(headerImageView);
+//                Picasso.get()
+//                        .load(url)
+//                        .resize(appbar.getWidth(), appbar.getHeight())
+//                        .centerCrop()
+//                        .placeholder(profileHeader)
+//                        .error(profileHeader)
+//                        .into(headerImageView);
             } else {
                 headerImageView.setImageResource(profileHeader);
             }
