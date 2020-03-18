@@ -17,6 +17,7 @@ import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 @Deprecated
 public class APIHelper {
@@ -48,6 +49,6 @@ public class APIHelper {
         return Single.create((SingleOnSubscribe<User>) emitter -> {
             User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEntityID);
             emitter.onSuccess(user);
-        }).flatMap(user -> ChatSDK.core().userOn(user).toSingle(() -> user));
+        }).flatMap(user -> ChatSDK.core().userOn(user).toSingle(() -> user)).subscribeOn(Schedulers.io());
     }
 }

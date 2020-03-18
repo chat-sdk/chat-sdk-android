@@ -1,12 +1,6 @@
 package co.chatsdk.core.rigs;
 
-import android.graphics.Bitmap;
-
-import java.io.File;
 import java.io.IOException;
-
-import co.chatsdk.core.utils.FileUtils;
-import io.reactivex.Completable;
 
 public abstract class Uploadable {
 

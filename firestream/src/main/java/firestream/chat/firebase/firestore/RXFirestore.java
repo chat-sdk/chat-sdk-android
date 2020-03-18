@@ -21,8 +21,10 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class RXFirestore implements Action {
 
@@ -37,7 +39,7 @@ public class RXFirestore implements Action {
                     emitter.onNext(snapshot);
                 }
             });
-        }).doOnDispose(this);
+        }).doOnDispose(this).subscribeOn(Schedulers.io());
     }
 
     public Observable<DocumentChange> on(@NotNull Query ref) {
@@ -49,7 +51,7 @@ public class RXFirestore implements Action {
                     }
                 }
             });
-        }).doOnDispose(this);
+        }).doOnDispose(this).subscribeOn(Schedulers.io());
     }
 
     public Single<String> add(CollectionReference ref, Object data) {
@@ -57,45 +59,56 @@ public class RXFirestore implements Action {
     }
 
     public Single<String> add(CollectionReference ref, Object data, @Nullable Consumer<String> newId) {
-        return Single.create(emitter -> {
+        return Single.create((SingleOnSubscribe<String>) emitter -> {
             final DocumentReference docRef = ref.document();
             if (newId != null) {
                 newId.accept(docRef.getId());
             }
             docRef.set(data).addOnSuccessListener(aVoid -> emitter.onSuccess(docRef.getId())).addOnFailureListener(emitter::onError);
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     public Completable delete(DocumentReference ref) {
-        return Completable.create(emitter -> ref.delete().addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError));
+        return Completable.create(emitter -> ref.delete()
+                .addOnSuccessListener(aVoid -> emitter.onComplete())
+                .addOnFailureListener(emitter::onError))
+                .subscribeOn(Schedulers.io());
     }
 
     public Completable set(DocumentReference ref, Object data) {
-        return Completable.create(emitter -> ref.set(data).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError));
+        return Completable.create(emitter -> ref.set(data)
+                .addOnSuccessListener(aVoid -> emitter.onComplete())
+                .addOnFailureListener(emitter::onError))
+                .subscribeOn(Schedulers.io());
     }
 
     public Completable update(DocumentReference ref, HashMap<String, Object> data) {
-        return Completable.create(emitter -> ref.update(data).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError));
+        return Completable.create(emitter -> ref.update(data)
+                .addOnSuccessListener(aVoid -> emitter.onComplete())
+                .addOnFailureListener(emitter::onError))
+                .subscribeOn(Schedulers.io());
     }
 
     public Single<Optional<QuerySnapshot>> get(Query ref) {
-        return Single.create(emitter -> ref.get().addOnSuccessListener(snapshots -> {
+        return Single.create((SingleOnSubscribe<Optional<QuerySnapshot>>) emitter -> ref.get().addOnSuccessListener(snapshots -> {
             if (snapshots != null) {
                 emitter.onSuccess(new Optional<>(snapshots));
             } else {
                 emitter.onSuccess(new Optional<>());
             }
-        }).addOnFailureListener(emitter::onError));
+        }).addOnFailureListener(emitter::onError))
+                .subscribeOn(Schedulers.io());
     }
 
     public Single<Optional<DocumentSnapshot>> get(DocumentReference ref) {
-        return Single.create(emitter -> ref.get().addOnSuccessListener(snapshot -> {
+        return Single.create((SingleOnSubscribe<Optional<DocumentSnapshot>>)emitter -> ref.get().addOnSuccessListener(snapshot -> {
             if (snapshot != null && snapshot.exists() && snapshot.getData() != null) {
                 emitter.onSuccess(new Optional<>(snapshot));
             } else {
                 emitter.onSuccess(new Optional<>());
             }
-        }).addOnFailureListener(emitter::onError));
+        }).addOnFailureListener(emitter::onError))
+                .subscribeOn(Schedulers.io());
     }
 
     @Override

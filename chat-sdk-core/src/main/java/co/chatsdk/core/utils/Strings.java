@@ -27,11 +27,11 @@ public class Strings {
     }
 
     public static String dateTime (Date date) {
-        return new SimpleDateFormat("HH:mm dd/MM/yy").format(date);
+        return new SimpleDateFormat("HH:mm dd/MM/yy", CurrentLocale.get()).format(date);
     }
 
     public static String date (Date date) {
-        return new SimpleDateFormat("dd/MM/yy").format(date);
+        return new SimpleDateFormat("dd/MM/yy", CurrentLocale.get()).format(date);
     }
 
     public static String nameForThread (Thread thread) {

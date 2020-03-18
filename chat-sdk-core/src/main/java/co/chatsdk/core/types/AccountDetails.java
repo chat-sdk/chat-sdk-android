@@ -24,7 +24,7 @@ public class AccountDetails {
     public String token;
     public HashMap<String, String> meta = new HashMap<>();
 
-    public static AccountDetails username (String username, String password) {
+    public static AccountDetails username(String username, String password) {
         AccountDetails a = new AccountDetails();
         a.type = Type.Username;
         a.username = username;
@@ -40,7 +40,7 @@ public class AccountDetails {
         return a;
     }
 
-    public static AccountDetails anonymous () {
+    public static AccountDetails anonymous() {
         AccountDetails a = new AccountDetails();
         a.type = Type.Anonymous;
         return a;
@@ -53,7 +53,7 @@ public class AccountDetails {
         return a;
     }
 
-    public boolean loginDetailsValid () {
+    public boolean areValid() {
         return username != null && !username.isEmpty() && password != null && !password.isEmpty();
     }
 

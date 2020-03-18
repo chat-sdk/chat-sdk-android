@@ -2,7 +2,6 @@ package co.chatsdk.ui.chat;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -10,7 +9,7 @@ import android.provider.MediaStore;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
-import com.zhihu.matisse.engine.impl.PicassoEngine;
+import com.zhihu.matisse.engine.impl.GlideEngine;
 import com.zhihu.matisse.internal.entity.CaptureStrategy;
 
 import org.greenrobot.greendao.annotation.NotNull;
@@ -23,9 +22,7 @@ import java.util.Set;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
-import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.utils.PermissionRequestHandler;
-import co.chatsdk.ui.BuildConfig;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.options.MediaType;
 import co.chatsdk.ui.utils.Cropper;
@@ -123,7 +120,7 @@ public class MediaSelector {
                     .capture(true)
                     .maxSelectable(multiSelectEnabled ? SELECTION_MAX_SIZE : 1)
                     .thumbnailScale(1)
-                    .imageEngine(new PicassoEngine())
+                    .imageEngine(new GlideEngine())
                     .forResult(CHOOSE_PHOTO);
         });
     }
@@ -240,7 +237,7 @@ public class MediaSelector {
         // Scanning the messageImageView so it would be visible in the gallery images.
         if (ChatSDK.config().saveImagesToDirectory) {
             for (File file: files) {
-                ImageUtils.scanFilePathForGallery(activity, file.getPath());
+                ChatSDK.shared().fileManager().addFileToGallery(file);
             }
         }
         notifySuccess(files);

@@ -66,42 +66,39 @@ dependencies {
     implementation "org.ocpsoft.prettytime:prettytime:$rootProject.ext.prettyTimeVersion"
     implementation "com.theartofdev.edmodo:android-image-cropper:$rootProject.ext.imageCropperVersion"
     implementation "com.github.chrisbanes:PhotoView:$rootProject.ext.photoViewVersion"
-    implementation "com.jakewharton.picasso:picasso2-okhttp3-downloader:$okHttpDownloaderVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
 
     // Dependencies required by other Chat SDK libraries
     api "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
     api "com.google.android.material:material:$materialVersion"
 
-    implementation "com.github.siyamed:android-shape-imageview:$shapeImageViewVersion"
+    api "com.github.siyamed:android-shape-imageview:$shapeImageViewVersion"
     api "co.chatsdk.chatsdk:chatkit:$chatKit"
 
     api "com.mikepenz:material-design-icons-dx-typeface:$iconicsMaterialDesignIconsVersion"
     api "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
     api "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
-//    implementation 'com.mikepenz:octicons-typeface:3.2.0.6-kotlin@aar'
 
     api "com.mikepenz:iconics-core:$iconicsVersion"
     api "com.mikepenz:iconics-views:$iconicsVersion"
 
-    implementation "de.hdodenhof:circleimageview:$circleImageViewVersion"
+    api "de.hdodenhof:circleimageview:$circleImageViewVersion"
 
-    implementation "co.chatsdk:matisse:$matisseVersion"
+    api "co.chatsdk:matisse:$matisseVersion"
 
-    implementation "com.jakewharton:butterknife:$butterKnifeVersion"
+    api "com.jakewharton:butterknife:$butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
 
-    implementation "com.miguelcatalan:materialsearchview:$materialSearchVersion"
+    api "com.miguelcatalan:materialsearchview:$materialSearchVersion"
 
-    implementation "com.jaredrummler:material-spinner:$materialSpinnerVersion"
+    api "com.jaredrummler:material-spinner:$materialSpinnerVersion"
 
-    implementation "sdk.chat:keyboardvisibilityevent:$keyboardVisibilityEventVersion"
+    api "sdk.chat:keyboardvisibilityevent:$keyboardVisibilityEventVersion"
 
     // Audio
     implementation "com.github.adrielcafe:AndroidAudioRecorder:$androidAudioRecorderVersion"
 
-    implementation 'com.github.bumptech.glide:glide:4.11.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
-
+    api "com.github.bumptech.glide:glide:$glideVersion"
+    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
 }

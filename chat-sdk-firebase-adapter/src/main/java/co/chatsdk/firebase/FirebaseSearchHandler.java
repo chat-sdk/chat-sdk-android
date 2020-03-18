@@ -82,7 +82,7 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
                 }
             }));
 
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
 }

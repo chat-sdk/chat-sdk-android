@@ -16,6 +16,7 @@ import co.chatsdk.ui.activities.MainActivity
 import co.chatsdk.ui.fragments.BaseFragment
 import co.chatsdk.ui.icons.Icons
 import co.chatsdk.ui.interfaces.SearchSupported
+import com.bumptech.glide.Glide
 import com.mikepenz.materialdrawer.holder.ImageHolder
 import com.mikepenz.materialdrawer.holder.StringHolder
 import com.mikepenz.materialdrawer.model.DividerDrawerItem
@@ -26,10 +27,8 @@ import com.mikepenz.materialdrawer.model.interfaces.withIcon
 import com.mikepenz.materialdrawer.model.interfaces.withName
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader
 import com.mikepenz.materialdrawer.util.DrawerImageLoader
-import com.mikepenz.materialdrawer.util.updateItemAtPosition
 import com.mikepenz.materialdrawer.util.updateName
 import com.mikepenz.materialdrawer.widget.AccountHeaderView
-import com.squareup.picasso.Picasso
 import io.reactivex.functions.Consumer
 import kotlinx.android.synthetic.main.activity_main_drawer.*
 
@@ -59,11 +58,15 @@ class MainDrawActivity : MainActivity() {
 
         DrawerImageLoader.init(object : AbstractDrawerImageLoader() {
             override fun set(imageView: ImageView, uri: Uri, placeholder: Drawable, tag: String?) {
-                Picasso.get().load(uri).placeholder(placeholder).into(imageView)
+                Glide.with(this@MainDrawActivity)
+                        .load(uri)
+                        .dontAnimate()
+                        .placeholder(placeholder)
+                        .into(imageView)
             }
 
             override fun cancel(imageView: ImageView) {
-                Picasso.get().cancelRequest(imageView)
+                Glide.with(this@MainDrawActivity).clear(imageView)
             }
         })
 

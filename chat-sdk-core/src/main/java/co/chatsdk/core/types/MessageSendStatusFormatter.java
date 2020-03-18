@@ -17,7 +17,7 @@ public class MessageSendStatusFormatter {
                 if (percentage != null) {
                     return String.format(context.getString(R.string.uploading__), " " + percentage + "%");
                 } else {
-                    return context.getString(R.string.uploading__);
+                    return String.format(context.getString(R.string.uploading__), "");
                 }
             case DidUpload:
                 return context.getString(R.string.did_upload);

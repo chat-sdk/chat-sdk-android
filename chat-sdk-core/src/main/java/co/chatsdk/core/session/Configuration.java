@@ -185,6 +185,10 @@ public class Configuration {
         return customProperties.get(key);
     }
 
+    public void setCustomProperty(String key, Object value) {
+        customProperties.put(key, value);
+    }
+
     public void updateDefaultName() {
         defaultName = defaultNamePrefix + String.valueOf(new Random().nextInt(1000));
     }

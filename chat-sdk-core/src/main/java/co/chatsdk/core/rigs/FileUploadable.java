@@ -1,10 +1,8 @@
 package co.chatsdk.core.rigs;
 
-import android.graphics.Bitmap;
-
 import java.io.File;
 
-import co.chatsdk.core.utils.FileUtils;
+import co.chatsdk.core.storage.FileManager;
 
 public class FileUploadable extends Uploadable {
 
@@ -20,7 +18,7 @@ public class FileUploadable extends Uploadable {
     }
 
     public byte [] getBytes () {
-        return FileUtils.fileToBytes(file);
+        return FileManager.fileToBytes(file);
     }
 
 }

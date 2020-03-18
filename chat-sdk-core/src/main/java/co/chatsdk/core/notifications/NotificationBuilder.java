@@ -16,6 +16,7 @@ import androidx.annotation.ColorInt;
 import androidx.core.app.NotificationCompat;
 
 import java.lang.ref.WeakReference;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.R;
 import co.chatsdk.core.dao.Keys;
@@ -24,10 +25,12 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
-import co.chatsdk.core.image.ImageBuilder;
 import co.chatsdk.core.image.ImageUtils;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
+import io.reactivex.schedulers.Schedulers;
 
 public class NotificationBuilder {
 
@@ -235,21 +238,23 @@ public class NotificationBuilder {
             }
 
             emitter.onSuccess(builder);
-        }).flatMap(this::loadLargeIconFromURL);
+        }).subscribeOn(Schedulers.io()).flatMap(this::loadLargeIconFromURL);
     }
 
     public Single<NotificationCompat.Builder> loadLargeIconFromURL(final NotificationCompat.Builder builder) {
-        if (largeIconUrl != null) {
-            int width = Dimen.from(context.get(), R.dimen.large_notification_width);
-            int height = Dimen.from(context.get(), R.dimen.large_notification_height);
-            return ImageBuilder.bitmapForURL(largeIconUrl, width, height).map(bitmap -> {
-                if (bitmap != null) {
-                    builder.setLargeIcon(scaleLargeIcon(bitmap));
-                }
-                return builder;
-            });
-        }
-        return Single.just(builder);
+        return Single.defer(() -> {
+            if (largeIconUrl != null) {
+                int width = Dimen.from(context.get(), R.dimen.large_notification_width);
+                int height = Dimen.from(context.get(), R.dimen.large_notification_height);
+                return ImageUtils.bitmapForURL(largeIconUrl, width, height).map(bitmap -> {
+                    if (bitmap != null) {
+                        builder.setLargeIcon(scaleLargeIcon(bitmap));
+                    }
+                    return builder;
+                });
+            }
+            return Single.just(builder);
+        });
     }
 
     public Bitmap scaleLargeIcon(Bitmap bitmap) {

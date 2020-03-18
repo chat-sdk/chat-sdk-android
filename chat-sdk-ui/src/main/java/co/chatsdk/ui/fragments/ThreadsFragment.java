@@ -1,6 +1,5 @@
 package co.chatsdk.ui.fragments;
 
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,14 +15,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.bumptech.glide.Glide;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 
-import org.pmw.tinylog.Logger;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -52,6 +48,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     protected String filter;
 
     protected DialogsListAdapter<ThreadHolder> dialogsListAdapter;
+    protected HashMap<Thread, ThreadHolder> threadHolderHashMap = new HashMap<>();
 
     protected PublishSubject<Thread> onClickPublishSubject = PublishSubject.create();
     protected PublishSubject<Thread> onLongClickPublishSubject = PublishSubject.create();
@@ -82,32 +79,31 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(mainEventFilter())
                 .subscribe(networkEvent -> {
-                    if (tabIsVisible) {
-                        if (networkEvent.typeIs(EventType.ThreadAdded)) {
-                            addThread(networkEvent.thread);
+//                    if (tabIsVisible) {
+                        if (networkEvent.typeIs(EventType.ThreadAdded, EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated, EventType.UserMetaUpdated, EventType.UserPresenceUpdated)) {
+                            addOrUpdateThread(networkEvent.thread);
                         } else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
                             removeThread(networkEvent.thread);
-                        } else if (networkEvent.typeIs(EventType.ThreadDetailsUpdated, EventType.ThreadUsersChanged, EventType.UserMetaUpdated)) {
-                            updateThread(networkEvent.thread);
-                        } else if (networkEvent.typeIs(EventType.ThreadLastMessageUpdated)) {
+                        } else if (networkEvent.typeIs(EventType.MessageAdded)) {
                             if (networkEvent.message != null) {
                                 updateMessage(networkEvent.message);
                             }
                         } else {
                             reloadData();
                         }
-                    }
+//                    }
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.TypingStateChanged))
+                .filter(NetworkEvent.filterType(EventType.TypingStateUpdated))
                 .subscribe(networkEvent -> {
-                    if (tabIsVisible) {
-                        if (networkEvent.text != null && !networkEvent.text.isEmpty()) {
-                            dialogsListAdapter.updateItemById(new TypingThreadHolder(networkEvent.thread, networkEvent.text));
-                        } else {
-                            dialogsListAdapter.updateItemById(new ThreadHolder(networkEvent.thread));
-                        }
+                    if (networkEvent.text != null) {
+                        String typingText = networkEvent.text;
+                        typingText += getString(R.string.typing);
+                        dialogsListAdapter.updateItemById(new TypingThreadHolder(networkEvent.thread, typingText));
+                    } else {
+                        ThreadHolder holder = getOrCreateThreadHolder(networkEvent.thread);
+                        dialogsListAdapter.updateItemById(holder);
                     }
                 }));
     }
@@ -133,15 +129,12 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             }
         });
 
-        dialogsListAdapter.setHasStableIds(true);
-
         dialogsList.setAdapter(dialogsListAdapter);
 
         // Stop the image from flashing when the list is reloaded
         RecyclerView.ItemAnimator animator = dialogsList.getItemAnimator();
         if (animator instanceof SimpleItemAnimator) {
             ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
-//            animator.setChangeDuration(0);
         }
 
         dialogsListAdapter.setOnDialogViewClickListener((view, dialog) -> startChatActivity(dialog.getId()));
@@ -216,31 +209,51 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             ArrayList<ThreadHolder> threadHolders = new ArrayList<>();
             List<Thread> threads = filter(getThreads());
             for (Thread thread : threads) {
-                threadHolders.add(new ThreadHolder(thread));
+                ThreadHolder holder = getOrCreateThreadHolder(thread);
+                threadHolders.add(holder);
             }
             dialogsListAdapter.setItems(threadHolders);
         }
     }
 
     protected void reloadThread(Thread thread) {
-        dialogsListAdapter.updateItemById(new ThreadHolder(thread));
+        ThreadHolder holder = getOrCreateThreadHolder(thread);
+        dialogsListAdapter.updateItemById(holder);
     }
 
     protected void updateMessage(Message message) {
-        if (!dialogsListAdapter.updateDialogWithMessage(message.getThread().getEntityID(), Customiser.shared().onNewMessageHolder(message))) {
-            dialogsListAdapter.addItem(new ThreadHolder(message.getThread()));
+        ThreadHolder holder = threadHolderHashMap.get(message.getThread());
+        if (holder != null) {
+            holder.setLastMessage(null);
+            dialogsListAdapter.updateDialogWithMessage(message.getThread().getEntityID(), Customiser.shared().onNewMessageHolder(message));
+        } else {
+            holder = getOrCreateThreadHolder(message.getThread());
+            dialogsListAdapter.addItem(holder);
         }
     }
 
-    public void addThread(Thread thread) {
-        dialogsListAdapter.addItem(new ThreadHolder(thread));
+    public void addOrUpdateThread(Thread thread) {
+        ThreadHolder holder = threadHolderHashMap.get(thread);
+        if (holder == null) {
+            holder = new ThreadHolder(thread);
+            threadHolderHashMap.put(thread, holder);
+            dialogsListAdapter.addItem(new ThreadHolder(thread));
+        } else {
+            dialogsListAdapter.updateItemById(holder);
+        }
     }
 
-    public void updateThread(Thread thread) {
-        dialogsListAdapter.updateItemById(new ThreadHolder(thread));
+    public ThreadHolder getOrCreateThreadHolder(Thread thread) {
+        ThreadHolder holder = threadHolderHashMap.get(thread);
+        if (holder == null) {
+            holder = new ThreadHolder(thread);
+            threadHolderHashMap.put(thread, holder);
+        }
+        return holder;
     }
 
     public void removeThread(Thread thread) {
+        threadHolderHashMap.remove(thread);
         dialogsListAdapter.deleteById(thread.getEntityID());
     }
 

@@ -29,6 +29,7 @@
 
     <color name="incoming_reply">#F6FFDD</color>
     <color name="incoming_message_color">#E0E0E0</color>
+    <color name="system_message_color">#E0E0E0</color>
 
     <color name="edit_profile_icon_color">@color/gray_light</color>
     <color name="profile_icon_color">@color/gray_light</color>

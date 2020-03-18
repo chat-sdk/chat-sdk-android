@@ -28,6 +28,7 @@ import firestream.chat.firebase.service.Path;
 import firestream.chat.message.Sendable;
 
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class RealtimeCoreHandler extends FirebaseCoreHandler {
 
@@ -92,7 +93,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
             }
 
             emitter.onSuccess(query);
-        }).flatMap(query -> new RXRealtime().get(query)).map(optional -> {
+        }).subscribeOn(Schedulers.io()).flatMap(query -> new RXRealtime().get(query)).map(optional -> {
             ArrayList<Sendable> sendables = new ArrayList<>();
             if (!optional.isEmpty()) {
                 DataSnapshot snapshot = optional.get();
@@ -119,7 +120,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
             query = query.limitToLast(1);
 
             emitter.onSuccess(query);
-        }).flatMap(query -> new RXRealtime().get(query).map(snapshot -> {
+        }).subscribeOn(Schedulers.io()).flatMap(query -> new RXRealtime().get(query).map(snapshot -> {
             if (!snapshot.isEmpty()) {
                 Sendable sendable = sendableFromSnapshot(snapshot.get());
                 if (sendable.getDate() != null) {
@@ -165,7 +166,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
             }
             query = query.limitToLast(limit);
             emitter.onSuccess(query);
-        }).flatMapObservable(query -> new RXRealtime().childOn(query).flatMapMaybe(change -> {
+        }).subscribeOn(Schedulers.io()).flatMapObservable(query -> new RXRealtime().childOn(query).flatMapMaybe(change -> {
             Sendable sendable = sendableFromSnapshot(change.snapshot);
             if (sendable != null) {
                 return Maybe.just(new Event<>(sendable, change.type));
@@ -200,7 +201,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
 
            Task<Void> task = Ref.db().getReference().updateChildren(data);
             task.addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     protected List<String> idsForUsers(List<? extends User> users) {

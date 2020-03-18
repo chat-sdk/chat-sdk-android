@@ -29,10 +29,20 @@ import io.reactivex.CompletableSource;
 import io.reactivex.Observer;
 import io.reactivex.functions.Consumer;
 import co.chatsdk.core.dao.Thread;
+import io.reactivex.schedulers.Schedulers;
 
 public abstract class AbstractPushHandler implements PushHandler {
 
     public ChannelManager channelManager = new ChannelManager();
+
+    public static String UserIds = "userIds";
+    public static String Type = "type";
+    public static String Body = "body";
+    public static String SenderId = "senderId";
+    public static String ThreadId = "threadId";
+    public static String Action = "action";
+    public static String Sound = "sound";
+
 
     public AbstractPushHandler() {
 
@@ -114,15 +124,14 @@ public abstract class AbstractPushHandler implements PushHandler {
 
         HashMap<String, Object> data = new HashMap<>();
 
-        // TODO: Parameterise this - update "threadId" in XMPP too
-        data.put("userIds", users);
-        data.put("body", body);
-        data.put("type", message.getType());
-        data.put("senderId", message.getSender().getEntityID());
-        data.put("threadId", message.getThread().getEntityID());
-        data.put("action", ChatSDK.config().pushNotificationAction != null ? ChatSDK.config().pushNotificationAction : QuickReplyNotificationCategory);
+        data.put(UserIds, users);
+        data.put(Body, body);
+        data.put(Type, message.getType());
+        data.put(SenderId, message.getSender().getEntityID());
+        data.put(ThreadId, message.getThread().getEntityID());
+        data.put(Action, ChatSDK.config().pushNotificationAction != null ? ChatSDK.config().pushNotificationAction : QuickReplyNotificationCategory);
         if(!StringChecker.isNullOrEmpty(ChatSDK.config().pushNotificationSound)) {
-            data.put("sound", ChatSDK.config().pushNotificationSound);
+            data.put(Sound, ChatSDK.config().pushNotificationSound);
         }
 
         return data;
@@ -133,7 +142,7 @@ public abstract class AbstractPushHandler implements PushHandler {
         return Completable.create(emitter -> {
             channelManager.addChannel(channel);
             emitter.onComplete();
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     @Override
@@ -141,7 +150,7 @@ public abstract class AbstractPushHandler implements PushHandler {
         return Completable.create(emitter -> {
             channelManager.removeChannel(channel);
             emitter.onComplete();
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
 }

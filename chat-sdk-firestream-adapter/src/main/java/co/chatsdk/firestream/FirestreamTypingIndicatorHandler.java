@@ -18,20 +18,18 @@ import io.reactivex.disposables.Disposable;
 
 public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler {
 
-    private DisposableMap dm = new DisposableMap();
-
     public FirestreamTypingIndicatorHandler() {
 
         // We want to add these listeners when we connect and remove them when we disconnect
-        Disposable d = Fire.stream().getConnectionEvents().subscribe(connectionEvent -> {
+        Fire.stream().manage(Fire.stream().getConnectionEvents().subscribe(connectionEvent -> {
             if (connectionEvent.getType() == ConnectionEvent.Type.DidConnect) {
 
-                dm.add(Fire.stream().getSendableEvents().getTypingStates().subscribe(event -> {
+                Fire.stream().manage(Fire.stream().getSendableEvents().getTypingStates().subscribe(event -> {
                     // Get the sender
                     String senderId = event.get().getFrom();
 
                     if (!senderId.equals(ChatSDK.currentUserID())) {
-                        dm.add(ChatSDK.core().getUserForEntityID(senderId).subscribe((user, throwable) -> {
+                        Fire.stream().manage(ChatSDK.core().getUserForEntityID(senderId).subscribe((user, throwable) -> {
                             if (throwable == null) {
                                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(senderId);
                                 if (thread != null) {
@@ -48,10 +46,7 @@ public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler 
                 }));
 
             }
-            if (connectionEvent.getType() == ConnectionEvent.Type.WillDisconnect) {
-                dm.disposeAll();
-            }
-        });
+        }));
 
     }
 

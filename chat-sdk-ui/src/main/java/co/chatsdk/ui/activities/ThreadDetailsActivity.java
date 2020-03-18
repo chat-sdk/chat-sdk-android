@@ -23,7 +23,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+
 
 import butterknife.BindView;
 import co.chatsdk.core.dao.Keys;
@@ -41,7 +42,7 @@ import co.chatsdk.ui.utils.ToastHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
- * Created by braunster on 24/11/14.
+ * Created by Ben Smiley on 24/11/14.
  */
 public class ThreadDetailsActivity extends ImagePreviewActivity {
 
@@ -112,7 +113,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
 
         if (!StringChecker.isNullOrEmpty(thread.getImageUrl())) {
             threadImageView.setOnClickListener(v -> zoomImageFromThumbnail(threadImageView, thread.getImageUrl()));
-            Picasso.get().load(thread.getImageUrl()).into(threadImageView);
+            Glide.with(this).load(thread.getImageUrl()).dontAnimate().into(threadImageView);
         } else {
             ThreadImageBuilder.load(threadImageView, thread);
             threadImageView.setOnClickListener(null);

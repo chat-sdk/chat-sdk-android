@@ -102,7 +102,7 @@ public class UserWrapper {
         String phoneNumber = authData.getPhoneNumber();
 
         // Setting the name.
-        if (StringChecker.isNullOrEmpty(model.getName())) {
+        if (StringChecker.isNullOrEmpty(model.getName(false))) {
             if (!StringChecker.isNullOrEmpty(name)) {
                 model.setName(name);
             }
@@ -154,7 +154,7 @@ public class UserWrapper {
                 e.onError(error.toException());
             }));
 
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
     public Completable metaOn() {
@@ -175,7 +175,7 @@ public class UserWrapper {
                 }));
                 FirebaseReferenceManager.shared().addRef(userMetaRef, listener);
             }
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
 
@@ -240,7 +240,7 @@ public class UserWrapper {
 
                 FirebaseReferenceManager.shared().addRef(ref, listener);
             }
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
     public void off() {
@@ -281,14 +281,15 @@ public class UserWrapper {
                     // index should be updated whenever the user is pushed
                     FirebaseEntity.pushUserMetaUpdated(model.getEntityID()).subscribe(ChatSDK.events());
 
-                    ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(model));
+                    Logger.debug("Is this needed?");
+//                    ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(model));
 
                     e.onComplete();
                 } else {
                     e.onError(firebaseError.toException());
                 }
             });
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
     public Completable updateFirebaseUser () {
@@ -306,7 +307,7 @@ public class UserWrapper {
             final UserProfileChangeRequest changeRequest = builder.build();
 
             user.updateProfile(changeRequest).addOnCompleteListener(task -> e.onComplete());
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
     
     public DatabaseReference ref(){

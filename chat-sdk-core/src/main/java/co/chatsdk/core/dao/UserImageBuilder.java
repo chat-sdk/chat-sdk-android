@@ -5,11 +5,10 @@ import android.graphics.BitmapFactory;
 import android.widget.ImageView;
 
 import co.chatsdk.core.R;
+import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.session.ChatSDK;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
-
-import static co.chatsdk.core.image.ImageBuilder.bitmapForURL;
 
 public class UserImageBuilder {
 
@@ -18,7 +17,7 @@ public class UserImageBuilder {
     }
 
     public static Single<Bitmap> getAvatarBitmap(final User user, int width, int height) {
-        return bitmapForURL(user.getAvatarURL(), width, height).onErrorReturnItem(defaultAvatar());
+        return ImageUtils.bitmapForURL(user.getAvatarURL(), width, height).onErrorReturnItem(defaultAvatar());
     }
 
     public static Bitmap defaultAvatar() {

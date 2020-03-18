@@ -5,6 +5,7 @@ import com.google.firebase.database.ServerValue;
 
 import co.chatsdk.core.utils.StringChecker;
 import io.reactivex.Completable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by ben on 9/11/17.
@@ -49,7 +50,7 @@ public class FirebaseEntity {
                     e.onError(databaseError.toException());
                 }
             });
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
 }

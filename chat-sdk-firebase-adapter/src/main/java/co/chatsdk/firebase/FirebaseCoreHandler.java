@@ -77,7 +77,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
                         @Override
                         public void onError(@NonNull Throwable ex) {
-                            ChatSDK.logError(ex);
+                            ChatSDK.events().onError(ex);
                             e.onSuccess(ChatSDK.currentUser());
                         }
 
@@ -90,7 +90,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                     e.onSuccess(ChatSDK.currentUser());
                 }
             }
-        }).flatMapCompletable(user -> new UserWrapper(user).push()).subscribeOn(Schedulers.single());
+        }).flatMapCompletable(user -> new UserWrapper(user).push()).subscribeOn(Schedulers.io());
 
     }
 
@@ -147,7 +147,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             currentUser.setLastOnline(new Date());
             currentUser.update();
             e.onComplete();
-        }).concatWith(pushUser()).subscribeOn(Schedulers.single());
+        }).concatWith(pushUser()).subscribeOn(Schedulers.io());
     }
 
     public Completable userOn(final User user) {

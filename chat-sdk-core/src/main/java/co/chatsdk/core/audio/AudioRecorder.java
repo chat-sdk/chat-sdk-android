@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.storage.FileManager;
 
 
 /**
@@ -17,8 +18,6 @@ import co.chatsdk.core.session.ChatSDK;
  */
 
 public class AudioRecorder {
-
-    public static String AudioMessageDirectory = "AudioMessages" + File.separator;
 
     private static final AudioRecorder instance = new AudioRecorder();
 
@@ -33,37 +32,40 @@ public class AudioRecorder {
 
         stopRecording();
 
-        String path;
-        if (Build.VERSION.SDK_INT >= 19) {
-            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
-        }else{
-            path = new File(Environment.getExternalStorageDirectory() + "/Documents").getAbsolutePath();
-        }
-        path += AudioMessageDirectory + File.separator;
+        FileManager fm = ChatSDK.shared().fileManager();
+        File audioFile = fm.newFile(fm.audioStorage(), name);
 
-        File file = new File(path);
-        file.mkdir();
-
-        path += name;
-
-        Logger.debug("Recording to: " + path);
+//        String path;
+//        if (Build.VERSION.SDK_INT >= 19) {
+//            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+//        }else{
+//            path = new File(Environment.getExternalStorageDirectory() + "/Documents").getAbsolutePath();
+//        }
+//        path += AudioMessageDirectory + File.separator;
+//
+//        File file = new File(path);
+//        file.mkdir();
+//
+//        path += name;
+//
+        Logger.debug("Recording to: " + audioFile.getPath());
 
         recorder = new MediaRecorder();
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        recorder.setOutputFile(path);
+        recorder.setOutputFile(audioFile.getPath());
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 
         try {
             recorder.prepare();
         } catch (IOException e) {
-            ChatSDK.logError(e);
+            ChatSDK.events().onError(e);
         }
 
         recorder.start();
         startTime = System.currentTimeMillis();
 
-        return new File (path);
+        return audioFile;
     }
 
     public int stopRecording() {
@@ -73,7 +75,7 @@ public class AudioRecorder {
                 recorder.stop();
             }
             catch (IllegalStateException e) {
-                ChatSDK.logError(e);
+                ChatSDK.events().onError(e);
             }
             recorder.release();
             recorder = null;

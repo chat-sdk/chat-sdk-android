@@ -137,21 +137,21 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             for (User u : users) {
                 FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe(ChatSDK.events());
             }
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
     public Completable mute(Thread thread) {
         return Completable.create(emitter -> {
             DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(ChatSDK.currentUserID()).child(Keys.Mute);
             threadUsersRef.setValue(true).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     public Completable unmute(Thread thread) {
         return Completable.create(emitter -> {
             DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(ChatSDK.currentUserID()).child(Keys.Mute);
             threadUsersRef.setValue(false).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     public Completable removeUsersFromThread(final Thread thread, List<User> users) {
@@ -189,7 +189,6 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     public Single<Thread> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL) {
         return Single.create((SingleOnSubscribe<ThreadPusher>) e -> {
-            ArrayList<User> users = new ArrayList<>(theUsers);
 
             // If the entity ID is set, see if the thread exists and return it if it does
             // TODO: Check this - what if for some reason the user isn't a member of this thread?
@@ -200,6 +199,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                     return;
                 }
             }
+            ArrayList<User> users = new ArrayList<>(theUsers);
             User currentUser = ChatSDK.currentUser();
 
             if (!users.contains(currentUser)) {
@@ -259,13 +259,13 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             e.onSuccess(new ThreadPusher(thread, true));
 
         }).flatMap((Function<ThreadPusher, SingleSource<Thread>>) ThreadPusher::push)
-                .subscribeOn(Schedulers.single());
+                .subscribeOn(Schedulers.io());
     }
 
     public Completable deleteThread(Thread thread) {
         return Completable.defer(() -> {
             return new ThreadWrapper(thread).deleteThread();
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
     protected void pushForMessage(final Message message) {

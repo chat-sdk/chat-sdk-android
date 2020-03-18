@@ -24,7 +24,7 @@ public class FirebaseRX {
             else {
                 e.onComplete();
             }
-        })).subscribeOn(Schedulers.single());
+        })).subscribeOn(Schedulers.io());
     }
 
     public static Completable set (final DatabaseReference ref, final Object value) {
@@ -44,6 +44,6 @@ public class FirebaseRX {
             if(onDisconnectRemoveValue) {
                 ref.onDisconnect().removeValue();
             }
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 }

@@ -15,7 +15,16 @@
         <include
             layout="@layout/app_bar_default"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+        <Button
+            android:id="@+id/addUserButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_user_by_id"
+            android:layout_margin="8dp"
+            android:layout_below="@id/toolbar"
+            android:visibility="gone"/>
+
+        <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

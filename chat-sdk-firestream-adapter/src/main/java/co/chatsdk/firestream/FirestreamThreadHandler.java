@@ -138,7 +138,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
             }
         }
 
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
     @Override
@@ -176,7 +176,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 return Completable.concat(changes);
             }
             return Completable.complete();
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     @Override
@@ -191,7 +191,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 return chat.setCustomData(data);
             }
             return Completable.complete();
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     @Override
@@ -211,7 +211,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
             return Completable.complete();
         }).doOnComplete(() -> {
             message.getThread().removeMessage(message);
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     @Override
@@ -225,12 +225,12 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         return message.getSender().isMe();
     }
 
-    public boolean rolesEnabled(Thread thread) {
-        return thread.typeIs(ThreadType.Group);
+    public boolean rolesEnabled(Thread thread, User user) {
+        return thread.typeIs(ThreadType.Group) && !availableRoles(thread, user).isEmpty();
     }
 
     public String roleForUser(Thread thread, User user) {
-        if (rolesEnabled(thread)) {
+        if (rolesEnabled(thread, user)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
                 return chat.getRoleType(new FireStreamUser(user.getEntityID())).stringValue();
@@ -240,7 +240,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     public List<String> availableRoles(Thread thread, User user) {
-        if (rolesEnabled(thread)) {
+        if (rolesEnabled(thread, user)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
                 return RoleType.rolesToStringValues(chat.getAvailableRoles(new FireStreamUser(user.getEntityID())));
@@ -251,14 +251,14 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
 
     public Completable setRole(String role, Thread thread, User user) {
         return Completable.defer(() -> {
-            if (rolesEnabled(thread)) {
+            if (rolesEnabled(thread, user)) {
                 IChat chat = Fire.stream().getChat(thread.getEntityID());
                 if (chat != null) {
                     return chat.setRole(new FireStreamUser(user.getEntityID()), RoleType.reverseMap().get(role));
                 }
             }
             return Completable.error(new Throwable(ChatSDK.shared().getString(R.string.feature_not_supported)));
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     @Override
@@ -278,7 +278,8 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        }).doOnComplete(() -> thread.setMuted(true));
+        }).doOnComplete(() -> thread.setMuted(true))
+                .subscribeOn(Schedulers.io());
     }
 
     public Completable unmute(Thread thread) {
@@ -293,7 +294,8 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        }).doOnComplete(() -> thread.setMuted(false));    }
+        }).doOnComplete(() -> thread.setMuted(false)).subscribeOn(Schedulers.io());
+    }
 
     public Completable removeUsersFromThread(final Thread thread, List<User> users) {
         return Completable.defer(() -> {
@@ -308,7 +310,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     public Completable addUsersToThread(final Thread thread, final List<User> users) {
@@ -324,7 +326,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     @Override
@@ -340,7 +342,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     @Override
@@ -406,7 +408,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Single.just(localMessages);
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     @Override

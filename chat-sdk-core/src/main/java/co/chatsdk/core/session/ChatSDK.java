@@ -46,8 +46,10 @@ import co.chatsdk.core.notifications.NotificationDisplayHandler;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.AppBackgroundMonitor;
 
+import co.chatsdk.core.storage.FileManager;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.plugins.RxJavaPlugins;
 
 
 /**
@@ -68,6 +70,7 @@ public class ChatSDK {
     protected BaseNetworkAdapter networkAdapter;
 
     protected LocationProvider locationProvider;
+    protected FileManager fileManager;
 
     protected ChatSDK () {
     }
@@ -96,6 +99,10 @@ public class ChatSDK {
         shared().handleLocalNotifications();
         // Monitor the app so if it goes into the background we know
         AppBackgroundMonitor.shared().setEnabled(true);
+
+        RxJavaPlugins.setErrorHandler(ChatSDK.events());
+
+        shared().fileManager = new FileManager(context);
 
         return shared();
     }
@@ -149,17 +156,8 @@ public class ChatSDK {
         return shared().config;
     }
 
-    public static void logError (Throwable t) {
-        logError(new Exception(t));
-    }
-
-    public static void logError (Exception e) {
-        if (config().debug) {
-            e.printStackTrace();
-        }
-        if (config().crashHandler != null) {
-            config().crashHandler.log(e);
-        }
+    public FileManager fileManager() {
+        return fileManager;
     }
 
     /**

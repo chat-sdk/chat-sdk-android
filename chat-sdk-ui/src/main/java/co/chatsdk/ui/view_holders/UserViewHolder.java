@@ -9,9 +9,8 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
-import org.pmw.tinylog.Logger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,6 +21,7 @@ import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
+import co.chatsdk.ui.adapters.UsersListAdapter;
 import co.chatsdk.ui.binders.OnlineStatusBinder;
 import co.chatsdk.ui.binders.AvailabilityHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -38,9 +38,16 @@ public class UserViewHolder extends RecyclerView.ViewHolder  {
     @BindView(R2.id.availabilityImageView) protected ImageView availabilityImageView;
     @BindView(R2.id.root) protected RelativeLayout root;
 
+    UsersListAdapter.SubtitleProvider provider;
+
     public UserViewHolder(View view, boolean multiSelectEnabled) {
+        this(view, multiSelectEnabled, null);
+    }
+
+    public UserViewHolder(View view, boolean multiSelectEnabled, UsersListAdapter.SubtitleProvider provider) {
         super(view);
         ButterKnife.bind(this, view);
+        this.provider = provider;
 
         this.multiSelectEnabled = multiSelectEnabled;
 
@@ -67,9 +74,11 @@ public class UserViewHolder extends RecyclerView.ViewHolder  {
 
         OnlineStatusBinder.bind(onlineIndicator, item.getIsOnline());
 
-        statusTextView.setText(item.getStatus());
-
-        Logger.debug("User: " + item.getName() + " Availability: " + item.getAvailability());
+        if (provider != null) {
+            statusTextView.setText(provider.subtitle(item));
+        }  else {
+            statusTextView.setText(item.getStatus());
+        }
 
         Context context = ChatSDK.shared().context();
 
@@ -79,7 +88,7 @@ public class UserViewHolder extends RecyclerView.ViewHolder  {
         if (item instanceof User) {
             ((User) item).loadAvatar(avatarImageView, width, height);
         } else {
-            Picasso.get().load(item.getAvatarURL()).resize(width, height).into(avatarImageView);
+            Glide.with(root).load(item.getAvatarURL()).dontAnimate().placeholder(ChatSDK.ui().getDefaultProfileImage()).override(width, height).into(avatarImageView);
         }
     }
 

@@ -23,12 +23,15 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.interfaces.ThreadType;
+import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
 import co.chatsdk.ui.utils.ToastHelper;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.PublishSubject;
 
@@ -98,7 +101,7 @@ public class ThreadUsersFragment extends BaseFragment {
                 .subscribe(networkEvent -> loadData(true)));
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
+                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated, EventType.ThreadUserRoleUpdated))
                 .subscribe(networkEvent -> loadData(true)));
     }
 
@@ -106,7 +109,15 @@ public class ThreadUsersFragment extends BaseFragment {
 
         // Create the adapter only if null this is here so we wont
         // override the adapter given from the extended class with setAdapter.
-        adapter = new UsersListAdapter();
+        adapter = new UsersListAdapter(null, false, user -> {
+            if (ChatSDK.thread().rolesEnabled(thread) && user instanceof User) {
+                String role = ChatSDK.thread().roleForUser(thread, (User) user);
+                if (role != null) {
+                    return role;
+                }
+            }
+            return user.getStatus();
+        });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
@@ -115,7 +126,6 @@ public class ThreadUsersFragment extends BaseFragment {
             if (o instanceof User) {
                 User user = (User) o;
                 onClickSubject.onNext(user);
-
 
                 List<Option> options = getOptionsForUser(user);
 
@@ -199,6 +209,8 @@ public class ThreadUsersFragment extends BaseFragment {
                 dm.add(ChatSDK.thread().setRole(newRole, thread, user).subscribe(() -> {
                     ToastHelper.show(getActivity(), R.string.success);
                 }, this));
+            } else {
+                dialog.dismiss();
             }
         });
 
@@ -238,11 +250,46 @@ public class ThreadUsersFragment extends BaseFragment {
         // Add the onClick options
         options.add(new Option(R.string.info, this::showProfile));
 
-        if (ChatSDK.thread().rolesEnabled(thread) && ChatSDK.thread().availableRoles(thread, user).size() > 0) {
+        // Edit roles
+        if (ChatSDK.thread().canChangeRole(thread, user)) {
             options.add(new Option(R.string.change_role, this::showRoleListDialog));
         }
 
-        if (thread.getCreator().isMe()) {
+        // Make a user a moderator
+        if (ChatSDK.thread().canChangeModerator(thread, user)) {
+            if (ChatSDK.thread().isModerator(thread, user)) {
+                options.add(new Option(R.string.revoke_moderator, user1 -> {
+                    dm.add(ChatSDK.thread().revokeModerator(thread, user1).subscribe(() -> {
+                        ToastHelper.show(getActivity(), R.string.success);
+                    }, this));
+                }));
+            } else {
+                options.add(new Option(R.string.grant_moderator, user1 -> {
+                    dm.add(ChatSDK.thread().grantModerator(thread, user1).subscribe(() -> {
+                        ToastHelper.show(getActivity(), R.string.success);
+                    }, this));
+                }));
+            }
+        }
+
+        if (ChatSDK.thread().canChangeVoice(thread, ChatSDK.currentUser())) {
+            if (ChatSDK.thread().hasVoice(thread, user)) {
+                options.add(new Option(R.string.revoke_voice, user1 -> {
+                    dm.add(ChatSDK.thread().revokeVoice(thread, user1).subscribe(() -> {
+                        ToastHelper.show(getActivity(), R.string.success);
+                    }, this));
+                }));
+            } else {
+                options.add(new Option(R.string.grant_voice, user1 -> {
+                    dm.add(ChatSDK.thread().grantVoice(thread, user1).subscribe(() -> {
+                        ToastHelper.show(getActivity(), R.string.success);
+                    }, this));
+                }));
+            }
+        }
+
+        // Remove a user from the group
+        if (ChatSDK.thread().removeUsersEnabled(thread)) {
             options.add(new Option(R.string.remove_from_group, u -> {
                 dm.add(ChatSDK.thread().removeUsersFromThread(thread, u).subscribe(() -> {
                     ToastHelper.show(getActivity(), R.string.success);

@@ -28,6 +28,7 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.sorter.MessageSorter;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
@@ -93,7 +94,7 @@ public class ThreadWrapper  {
             if(ChatSDK.typingIndicator() != null) {
                 ChatSDK.typingIndicator().typingOn(model);
             }
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
     public DatabaseReference messagesRef () {
@@ -112,7 +113,7 @@ public class ThreadWrapper  {
                 e.onComplete();
             }));
 
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
     /**
@@ -127,7 +128,7 @@ public class ThreadWrapper  {
     }
 
     public Observable<Message> messageRemovedOn() {
-        return Observable.create(e -> {
+        return Observable.create((ObservableOnSubscribe<Message>) e -> {
 
             Query query = FirebasePaths.threadMessagesRef(model.getEntityID());
 
@@ -144,7 +145,7 @@ public class ThreadWrapper  {
                 }
             }));
             FirebaseReferenceManager.shared().addRef(query, removedListener);
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     /**
@@ -216,7 +217,7 @@ public class ThreadWrapper  {
                 }
             }));
             FirebaseReferenceManager.shared().addRef(messagesRef(), listener);
-        })).subscribeOn(Schedulers.single());
+        })).subscribeOn(Schedulers.io());
     }
 
 
@@ -239,7 +240,7 @@ public class ThreadWrapper  {
                 }
                 e.onNext(model);
             })));
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
     public Completable pushMeta() {
@@ -267,7 +268,7 @@ public class ThreadWrapper  {
                 e.onComplete();
             }
 
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
     public void metaOff () {
@@ -310,7 +311,7 @@ public class ThreadWrapper  {
             }));
 
             FirebaseReferenceManager.shared().addRef(ref, listener);
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
     /**
@@ -344,7 +345,7 @@ public class ThreadWrapper  {
                 }
             }));
 
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
     //Note - Maybe should treat group thread and one on one thread the same
@@ -353,7 +354,7 @@ public class ThreadWrapper  {
      * We mark the thread as deleted and mark the user in the thread users ref as deleted.
      **/
     public Completable deleteThread() {
-        return new ThreadDeleter(model).execute().subscribeOn(Schedulers.single());
+        return new ThreadDeleter(model).execute().subscribeOn(Schedulers.io());
     }
 
     public Single<List<Message>> loadMoreMessages(final Date fromDate, final Integer numberOfMessages){
@@ -393,7 +394,7 @@ public class ThreadWrapper  {
                     e.onSuccess(new ArrayList<>());
                 }
             }));
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
     /**
@@ -440,15 +441,16 @@ public class ThreadWrapper  {
         if (snapshot.hasChild(Keys.Name)) {
             String name = snapshot.child(Keys.Name).getValue(String.class);
             if (!name.isEmpty()) {
-                model.setName(name);
+                model.setName(name, false);
             }
         }
 
         if (snapshot.hasChild(Keys.ImageUrl)) {
-            model.setImageUrl(snapshot.child(Keys.ImageUrl).getValue(String.class));
+            model.setImageUrl(snapshot.child(Keys.ImageUrl).getValue(String.class), false);
         }
 
         model.update();
+        ChatSDK.events().source().onNext(NetworkEvent.threadDetailsUpdated(model));
     }
 
     /**
@@ -475,7 +477,7 @@ public class ThreadWrapper  {
                 }
             });
 
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
 

@@ -12,6 +12,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
+import java.util.concurrent.Callable;
 
 import firefly.sdk.chat.R;
 import firestream.chat.firebase.rx.Optional;
@@ -20,9 +21,12 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Action;
 import firestream.chat.events.EventType;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class RXRealtime implements Action, Consumer<Throwable> {
 
@@ -60,7 +64,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
                     emitter.onError(databaseError.toException());
                 }
             });
-        }).doOnDispose(this);
+        }).doOnDispose(this).subscribeOn(Schedulers.io());
     }
 
     public Observable<DocumentChange> childOn(Query ref) {
@@ -79,7 +83,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
                     emitter.onNext(new DocumentChange(snapshot, EventType.Modified));
                 }
             }).onCancelled(error -> emitter.onError(error.toException())));
-        }).doOnDispose(this);
+        }).doOnDispose(this).subscribeOn(Schedulers.io());
     }
 
     public Single<String> add(DatabaseReference ref, Object data) {
@@ -91,7 +95,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
     }
 
     public Single<String> add(DatabaseReference ref, Object data, @Nullable Object priority, @Nullable Consumer<String> newId) {
-        return Single.create(emitter -> {
+        return Single.create((SingleOnSubscribe<String>) emitter -> {
             DatabaseReference childRef = ref.push();
             final String id = childRef.getKey();
             if (newId != null) {
@@ -104,7 +108,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
                 task = childRef.setValue(data);
             }
             task.addOnSuccessListener(aVoid -> emitter.onSuccess(id)).addOnFailureListener(emitter::onError);
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     public Completable delete(DatabaseReference ref) {
@@ -114,7 +118,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
             } else {
                 emitter.onComplete();
             }
-        }));
+        })).subscribeOn(Schedulers.io());
     }
 
     public Completable set(DatabaseReference ref, Object data) {
@@ -124,7 +128,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
             emitter.onError(e);
         }).addOnCanceledListener(() -> {
             emitter.onError(new Exception(Fire.internal().context().getString(R.string.error_write_cancelled)));
-        }));
+        })).subscribeOn(Schedulers.io());
     }
 
     public Completable update(DatabaseReference ref, HashMap<String, Object> data) {
@@ -134,24 +138,26 @@ public class RXRealtime implements Action, Consumer<Throwable> {
             } else {
                 emitter.onComplete();
             }
-        }));
+        })).subscribeOn(Schedulers.io());
     }
     public Single<Optional<DataSnapshot>> get(Query ref) {
-        ref.keepSynced(true);
-        return Single.create(emitter -> ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists() && snapshot.getValue() != null) {
-                    emitter.onSuccess(new Optional<>(snapshot));
-                } else {
-                    emitter.onSuccess(new Optional<>());
+        return Single.defer((Callable<SingleSource<? extends Optional<DataSnapshot>>>) () -> {
+            ref.keepSynced(true);
+            return Single.create(emitter -> ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists() && snapshot.getValue() != null) {
+                        emitter.onSuccess(new Optional<>(snapshot));
+                    } else {
+                        emitter.onSuccess(new Optional<>());
+                    }
                 }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                emitter.onError(databaseError.toException());
-            }
-        }));
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    emitter.onError(databaseError.toException());
+                }
+            }));
+        }).subscribeOn(Schedulers.io());
     }
 
     @Override

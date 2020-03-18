@@ -6,6 +6,8 @@ import firestream.chat.test.Result;
 import firestream.chat.test.Test;
 import firestream.chat.test.TestScript;
 import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.schedulers.Schedulers;
 
 public class GetContactRemovedTest extends Test {
 
@@ -15,7 +17,7 @@ public class GetContactRemovedTest extends Test {
 
     @Override
     public Observable<Result> run() {
-        return Observable.create(emitter -> {
+        return Observable.create((ObservableOnSubscribe<Result>) emitter -> {
             manage(emitter);
             dm.add(Fire.stream().getContactEvents().currentAndNewEvents().subscribe(userEvent -> {
                 if (userEvent.typeIs(EventType.Removed)) {
@@ -29,7 +31,7 @@ public class GetContactRemovedTest extends Test {
                 }
                 complete();
             }, this));
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
 }

@@ -11,8 +11,9 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.bumptech.glide.Glide;
 import com.github.siyamed.shapeimageview.mask.PorterShapeImageView;
-import com.squareup.picasso.Picasso;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -56,7 +57,10 @@ public class ReplyView extends ConstraintLayout {
 
         if (imageURL != null && !imageURL.isEmpty()) {
             imageView.setVisibility(View.VISIBLE);
-            Picasso.get().load(imageURL).into(imageView);
+            Glide.with(this)
+                    .load(imageURL)
+                    .dontAnimate()
+                    .into(imageView);
         } else {
             imageView.setVisibility(View.GONE);
         }

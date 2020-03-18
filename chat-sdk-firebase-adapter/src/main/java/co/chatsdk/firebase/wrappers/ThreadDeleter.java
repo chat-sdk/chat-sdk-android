@@ -6,6 +6,7 @@ import com.google.firebase.database.ServerValue;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
@@ -16,6 +17,8 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.firebase.FirebasePaths;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
+import io.reactivex.schedulers.Schedulers;
 
 public class ThreadDeleter {
 
@@ -25,20 +28,22 @@ public class ThreadDeleter {
         this.thread = thread;
     }
 
-    public Completable execute () {
-        if (thread.typeIs(ThreadType.Public)) {
-            return Completable.complete();
-        }
-        else {
-            if (thread.typeIs(ThreadType.Private1to1)) {
-                return deleteMessages().andThen(deleteOneToOneThread());
-            } else {
-                return deleteMessages().andThen(ChatSDK.thread().removeUsersFromThread(thread, ChatSDK.currentUser()));
+    public Completable execute() {
+        return Completable.defer(() -> {
+            if (thread.typeIs(ThreadType.Public)) {
+                return Completable.complete();
             }
-        }
+            else {
+                if (thread.typeIs(ThreadType.Private1to1)) {
+                    return deleteMessages().andThen(deleteOneToOneThread());
+                } else {
+                    return deleteMessages().andThen(ChatSDK.thread().removeUsersFromThread(thread, ChatSDK.currentUser()));
+                }
+            }
+        }).subscribeOn(Schedulers.io());
     }
 
-    public Completable deleteMessages () {
+    public Completable deleteMessages() {
         return Completable.create(emitter -> {
             List<Message> messages = new ArrayList<>(thread.getMessages());
 
@@ -49,10 +54,10 @@ public class ThreadDeleter {
             thread.update();
             thread.refresh();
             emitter.onComplete();
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
-    protected Completable deleteOneToOneThread () {
+    protected Completable deleteOneToOneThread() {
         return Completable.create(emitter -> {
 
             final User currentUser = ChatSDK.currentUser();
@@ -75,7 +80,7 @@ public class ThreadDeleter {
                     emitter.onComplete();
                 }
             });
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
 }

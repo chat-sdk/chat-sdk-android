@@ -14,7 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,7 +99,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
         // Get the screen width
         int size = getResources().getDisplayMetrics().widthPixels / 2 - gridPadding;
 
-        Picasso.get().load(url).resize(size, size).centerCrop().into(cell);
+        Glide.with(this).load(url).dontAnimate().override(size, size).centerCrop().into(cell);
 
         cell.setOnClickListener(v -> {
             zoomImageFromThumbnail(cell, url);

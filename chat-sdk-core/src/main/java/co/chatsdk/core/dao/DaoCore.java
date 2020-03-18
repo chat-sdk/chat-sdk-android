@@ -225,7 +225,7 @@ public class DaoCore {
         daoSession.delete(entity);
         daoSession.clear();
 
-        System.out.println("Update Entity: " + entity.toString());
+        Logger.debug("Update Entity: " + entity.toString());
         return entity;
     }
 
@@ -234,11 +234,11 @@ public class DaoCore {
             return null;
         }
         asyncSession.update(entity);
-        System.out.println("Update Entity: " + entity.toString());
+        Logger.debug("Update Entity: " + entity.toString());
         return entity;
     }
 
-    public static void connectUserAndThread(User user, Thread thread){
+    public static boolean connectUserAndThread(User user, Thread thread){
         Logger.debug("connectUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
         if(!thread.hasUser(user)) {
             UserThreadLink linkData = new UserThreadLink();
@@ -247,15 +247,19 @@ public class DaoCore {
             linkData.setUserId(user.getId());
             linkData.setUser(user);
             createEntity(linkData);
+            return true;
         }
+        return false;
     }
 
-    public static void breakUserAndThread(User user, Thread thread){
+    public static boolean breakUserAndThread(User user, Thread thread){
         Logger.debug("breakUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
         UserThreadLink linkData = fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, thread.getId(), user.getId());
         if(linkData != null) {
             deleteEntity(linkData);
+            return true;
         }
+        return false;
     }
 
     @SuppressWarnings("unchecked") public static <T extends CoreEntity> T getEntityForClass(Class<T> c){

@@ -17,7 +17,8 @@ import android.widget.ImageView;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+
 
 import butterknife.BindView;
 import co.chatsdk.ui.R2;
@@ -110,7 +111,7 @@ public class ImagePreviewActivity extends BaseActivity {
     }
 
     protected void zoomImageFromThumbnail(final View thumbnailView, String uri) {
-        Picasso.get().load(uri).into(expandedImageView);
+        Glide.with(expandedImageView).load(uri).dontAnimate().into(expandedImageView);
         zoomImageFromThumbnail(thumbnailView);
     }
 

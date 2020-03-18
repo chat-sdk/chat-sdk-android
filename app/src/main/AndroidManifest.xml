@@ -28,10 +28,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="sdk.chat.custom_message.video.PlayVideoActivity"
-            android:screenOrientation="portrait">
-        </activity>
-
 
         <!--        Remove Android Auto-->
 <!--        <meta-data android:name="com.google.android.gms.car.application"-->

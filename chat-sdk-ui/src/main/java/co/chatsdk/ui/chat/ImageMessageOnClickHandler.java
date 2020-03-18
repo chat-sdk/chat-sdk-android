@@ -31,6 +31,7 @@ public class ImageMessageOnClickHandler {
             PopupImageView popupView = new PopupImageView(activity);
 
             final PopupWindow imagePopup = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
+            imagePopup.setOnDismissListener(popupView::dispose);
 
             imagePopup.setContentView(popupView);
             imagePopup.setBackgroundDrawable(new BitmapDrawable());
@@ -38,6 +39,7 @@ public class ImageMessageOnClickHandler {
             imagePopup.setAnimationStyle(R.style.ImagePopupAnimation);
 
             popupView.setUrl(activity, url, imagePopup::dismiss);
+
 
             imagePopup.showAtLocation(view, Gravity.CENTER, 0, 0);
         }

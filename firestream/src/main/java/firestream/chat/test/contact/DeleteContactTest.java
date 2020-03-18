@@ -8,6 +8,8 @@ import firestream.chat.test.Result;
 import firestream.chat.test.Test;
 import firestream.chat.test.TestScript;
 import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.schedulers.Schedulers;
 
 public class DeleteContactTest extends Test {
 
@@ -17,7 +19,7 @@ public class DeleteContactTest extends Test {
 
     @Override
     public Observable<Result> run() {
-        return Observable.create(emitter -> {
+        return Observable.create((ObservableOnSubscribe<Result>) emitter -> {
             // Remove the contact
             manage(emitter);
             dm.add(Fire.stream().removeContact(TestScript.testUser1()).subscribe(() -> {
@@ -31,5 +33,5 @@ public class DeleteContactTest extends Test {
                 }
 
             }, this));
-        });
+        }).subscribeOn(Schedulers.io());
     }}

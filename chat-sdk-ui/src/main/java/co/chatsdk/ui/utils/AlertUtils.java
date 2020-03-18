@@ -114,7 +114,7 @@ public class AlertUtils implements Consumer<Throwable> {
                 progressDialog.dismiss();
             }
         } catch (Exception e) {
-            ChatSDK.logError(e);
+            ChatSDK.events().onError(e);
         }
     }
 

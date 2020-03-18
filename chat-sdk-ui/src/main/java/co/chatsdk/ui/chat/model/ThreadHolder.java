@@ -8,15 +8,27 @@ import java.util.List;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.events.EventType;
+import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.custom.Customiser;
+import io.reactivex.functions.Consumer;
 
 public class ThreadHolder implements IDialog<MessageHolder> {
 
     protected Thread thread;
     protected ArrayList<UserHolder> users = null;
+    protected MessageHolder lastMessage = null;
+    protected Integer unreadCount = null;
 
     public ThreadHolder(Thread thread) {
         this.thread = thread;
+
+        ChatSDK.events().source()
+                .filter(NetworkEvent.filterType(EventType.ThreadMarkedRead))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID())).doOnNext(networkEvent -> {
+                    unreadCount = null;
+                }).ignoreElements().subscribe(ChatSDK.events());
     }
 
     @Override
@@ -49,21 +61,30 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     @Override
     public MessageHolder getLastMessage() {
-        Message message = thread.lastMessage();
-        if (message != null) {
-            return Customiser.shared().onNewMessageHolder(message);
+        if (lastMessage != null) {
+            return lastMessage;
         }
-        return null;
+        else {
+            Message message = thread.lastMessage();
+            if (message != null) {
+                lastMessage = Customiser.shared().onNewMessageHolder(message);
+            }
+        }
+        return lastMessage;
     }
 
     @Override
     public void setLastMessage(MessageHolder message) {
-        System.out.println("Implement this");
+        lastMessage = message;
+        unreadCount = null;
     }
 
     @Override
     public int getUnreadCount() {
-        return thread.getUnreadMessagesCount();
+        if (unreadCount == null) {
+            unreadCount = thread.getUnreadMessagesCount();
+        }
+        return unreadCount;
     }
 
     @Override

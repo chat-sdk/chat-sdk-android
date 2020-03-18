@@ -20,7 +20,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.squareup.picasso.Picasso;
+
 
 import butterknife.BindView;
 import co.chatsdk.core.dao.Keys;
@@ -126,18 +126,12 @@ public class ProfileFragment extends BaseFragment {
             if (url != null) {
                 Glide.with(this)
                         .load(url)
+                        .dontAnimate()
                         .override(appbar.getWidth(), appbar.getHeight())
                         .centerCrop()
                         .placeholder(profileHeader)
                         .error(profileHeader)
                         .into(headerImageView);
-//                Picasso.get()
-//                        .load(url)
-//                        .resize(appbar.getWidth(), appbar.getHeight())
-//                        .centerCrop()
-//                        .placeholder(profileHeader)
-//                        .error(profileHeader)
-//                        .into(headerImageView);
             } else {
                 headerImageView.setImageResource(profileHeader);
             }
@@ -245,7 +239,7 @@ public class ProfileFragment extends BaseFragment {
         setHeaderImage(user.getHeaderURL());
 
         collapsingToolbar.setTitle(user.getName());
-        Picasso.get().load(user.getAvatarURL()).into(avatarImageView);
+        Glide.with(this).load(user.getAvatarURL()).dontAnimate().placeholder(ChatSDK.ui().getDefaultProfileImage()).into(avatarImageView);
 
         if (StringChecker.isNullOrEmpty(user.getStatus())) {
             statusCardView.setVisibility(View.GONE);
@@ -270,10 +264,6 @@ public class ProfileFragment extends BaseFragment {
         if (!StringChecker.isNullOrEmpty(user.getEmail())) {
             iconLinearLayout.addView(IconItemView.create(getContext(), user.getEmail(), Icons.get(Icons.choose().email, R.color.profile_icon_color)));
         }
-        if (!StringChecker.isNullOrEmpty(user.getPresenceSubscription())) {
-            iconLinearLayout.addView(IconItemView.create(getContext(), user.getPresenceSubscription(), Icons.get(Icons.choose().check, R.color.profile_icon_color)));
-            iconLinearLayout.addView(IconItemView.create(getContext(), user.getPresenceSubscription(), Icons.get(Icons.choose().check, R.color.profile_icon_color)));
-        }
 
         String availability = getUser().getAvailability();
 
@@ -289,7 +279,7 @@ public class ProfileFragment extends BaseFragment {
 
         if (!isCurrentUser) {
 
-            if (ChatSDK.blocking() != null) {
+            if (ChatSDK.blocking() != null && ChatSDK.blocking().blockingSupported()) {
                 boolean isBlocked = ChatSDK.blocking().isBlocked(getUser().getEntityID());
 
                 buttonsLinearLayout.addView(SwitchItemView.create(

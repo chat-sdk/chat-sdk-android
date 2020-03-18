@@ -9,6 +9,8 @@ import firestream.chat.test.Test;
 import firestream.chat.test.TestScript;
 import firestream.chat.types.ContactType;
 import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.schedulers.Schedulers;
 
 public class AddContactTest extends Test {
 
@@ -18,7 +20,7 @@ public class AddContactTest extends Test {
 
     @Override
     public Observable<Result> run() {
-        return Observable.create(emitter -> {
+        return Observable.create((ObservableOnSubscribe<Result>) emitter -> {
             manage(emitter);
             User user = TestScript.testUser1();
             dm.add(Fire.stream().addContact(user, ContactType.contact()).subscribe(() -> {
@@ -33,7 +35,7 @@ public class AddContactTest extends Test {
                     complete();
                 }
             }, this));
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
 }

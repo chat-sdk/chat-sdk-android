@@ -49,7 +49,29 @@ Firebase benefits:
 1. Low cost, excellent performance and reliability 
 2. Reasonable data usage policy
 3. Google isn't going out of business any time soon
-4q. You have full control over YOUR users' data
+4. You have full control over YOUR users' data
+
+### Steps:
+
+1. Chose your backend server: 
+  1. Firebase Realtime
+  2. Firebase Firestore
+  3. XMPP 
+2. Choose your platform
+  1. iOS
+  2. Android
+  3. Web
+  4. All
+3. Choose your license type:
+  1. Single app 	
+  2. Multi app
+  3. Enterprise
+
+
+### XMPP
+
+- Binary only: $19.99
+- Source: $49.99
 
 ### FireStream+
 

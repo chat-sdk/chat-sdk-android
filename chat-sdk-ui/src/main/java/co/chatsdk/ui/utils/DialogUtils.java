@@ -34,7 +34,7 @@ public class DialogUtils {
                         try {
                             pos.call();
                         } catch (Exception e) {
-                            ChatSDK.logError(e);
+                            ChatSDK.events().onError(e);
                         }
                     dialog.dismiss();
                 })
@@ -45,7 +45,7 @@ public class DialogUtils {
                         try {
                             neg.call();
                         } catch (Exception e) {
-                            ChatSDK.logError(e);
+                            ChatSDK.events().onError(e);
                         }
 
                     dialog.cancel();

@@ -27,6 +27,8 @@ import cafe.adriel.androidaudiorecorder.AndroidAudioRecorder;
 import cafe.adriel.androidaudiorecorder.model.AudioChannel;
 import cafe.adriel.androidaudiorecorder.model.AudioSampleRate;
 import cafe.adriel.androidaudiorecorder.model.AudioSource;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.storage.FileManager;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.CurrentLocale;
 import co.chatsdk.core.utils.DisposableMap;
@@ -59,16 +61,15 @@ public class AudioBinder {
         messageInput.setInputListener(input -> {
             if (audioModeEnabled) {
 
-                DateFormat dateFormatter = new SimpleDateFormat("yy_mm_dd_mm_ss", CurrentLocale.get());
-
                 int requestCode = 8898;
-                String filePath = Environment.getExternalStorageDirectory() + "/voice_message_" + dateFormatter.format(new Date()) +".wav";
+
+                FileManager fm = ChatSDK.shared().fileManager();
+                File audioFile = fm.newDatedFile(fm.audioStorage(), "voice_message", "wav");
 
                 dm.add(ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
                     if (activityResult.requestCode == requestCode) {
                         if (activityResult.resultCode == RESULT_OK) {
                             // Great! User has recorded and saved the audio file
-                            File audioFile = new File(filePath);
 
                             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
                             mmr.setDataSource(audioFile.getAbsolutePath());
@@ -95,7 +96,7 @@ public class AudioBinder {
 
                 AndroidAudioRecorder.with(activity)
                         // Required
-                        .setFilePath(filePath)
+                        .setFilePath(audioFile.getPath())
                         .setColor(color)
                         .setRequestCode(requestCode)
 

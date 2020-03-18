@@ -3,6 +3,7 @@ package firestream.chat.chat;
 import firestream.chat.events.Event;
 import firestream.chat.message.Sendable;
 import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import firestream.chat.message.DeliveryReceipt;
 import firestream.chat.message.Invitation;
@@ -49,7 +50,7 @@ public class Events {
      * @return events of messages
      */
     public Observable<Event<FireStreamMessage>> getFireStreamMessages() {
-        return messages.map(messageEvent -> messageEvent.to(FireStreamMessage.fromMessage(messageEvent.get()))).hide();
+        return messages.map(messageEvent -> messageEvent.to(FireStreamMessage.fromMessage(messageEvent.get()))).subscribeOn(Schedulers.io()).hide();
     }
 
     /**
@@ -57,7 +58,7 @@ public class Events {
      * @return
      */
     public Observable<Throwable> getErrors() {
-        return errors.hide();
+        return errors.subscribeOn(Schedulers.io()).hide();
     }
 
     public MultiQueueSubject<Event<DeliveryReceipt>> getDeliveryReceipts() {

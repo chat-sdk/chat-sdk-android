@@ -23,7 +23,6 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.ui.ProfileFragmentProvider;
 import co.chatsdk.ui.activities.LoginActivity;
-import co.chatsdk.ui.fragments.ProfileFragment;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -168,7 +167,7 @@ public class ApiExamples {
      * @param thread
      */
     public void getNotificationWhenFileUploaded (Thread thread) {
-        ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageSendStatusChanged)).subscribe(networkEvent -> {
+        ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageSendStatusUpdated)).subscribe(networkEvent -> {
             MessageSendProgress progress = (MessageSendProgress) networkEvent.data.get(NetworkEvent.MessageSendProgress);
             if (progress.getStatus() == MessageSendStatus.Uploading) {
                 // BaseMessage type uploading

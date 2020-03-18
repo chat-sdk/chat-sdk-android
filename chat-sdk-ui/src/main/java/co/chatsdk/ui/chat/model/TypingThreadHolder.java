@@ -13,7 +13,7 @@ public class TypingThreadHolder extends ThreadHolder {
 
     @Override
     public MessageHolder getLastMessage() {
-        if (text != null) {
+        if (text != null && thread.lastMessage() != null) {
             return new TypingMessageHolder(thread.lastMessage(), text);
         }
         return super.getLastMessage();

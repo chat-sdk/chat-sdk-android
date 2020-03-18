@@ -7,6 +7,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import org.pmw.tinylog.Logger;
+
 import co.chatsdk.core.base.AbstractUploadHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ChatError;
@@ -37,7 +39,7 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
                 result.progress.set(taskSnapshot.getTotalByteCount(), taskSnapshot.getBytesTransferred());
 
                 double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                System.out.print("Progress: " + progress);
+                Logger.debug("Progress: " + progress);
 
                 e.onNext(result);
             }).addOnSuccessListener(taskSnapshot -> {
@@ -51,7 +53,7 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
                 });
             }).addOnFailureListener(error -> e.onError(ChatError.getError(ChatError.Code.FIREBASE_STORAGE_EXCEPTION, error.getMessage())));
 
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
     public boolean shouldUploadAvatar () {

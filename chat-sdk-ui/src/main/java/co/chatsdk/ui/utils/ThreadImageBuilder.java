@@ -2,12 +2,14 @@ package co.chatsdk.ui.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+
+
+import org.pmw.tinylog.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,16 +23,17 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.core.image.ImageUtils;
-import co.chatsdk.core.utils.FileUtils;
+import co.chatsdk.core.storage.FileManager;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.icons.Icons;
 import id.zelory.compressor.Compressor;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-
-import static co.chatsdk.core.image.ImageBuilder.bitmapForURL;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by benjaminsmiley-andrews on 12/06/2017.
@@ -44,7 +47,7 @@ public class ThreadImageBuilder {
     }
 
     public static Disposable load (final ImageView imageView, final Thread thread, int size) {
-        return getImageUriForThread(imageView.getContext(), thread, size).subscribe(uri -> Picasso.get().load(uri).into(imageView), throwable -> imageView.setImageDrawable(defaultDrawable(thread)));
+        return getImageUriForThread(imageView.getContext(), thread, size).subscribe(uri -> Glide.with(imageView).load(uri).dontAnimate().into(imageView), throwable -> imageView.setImageDrawable(defaultDrawable(thread)));
     }
 
     public static Single<Uri> getImageUriForThread(Context context, final Thread thread) {
@@ -62,11 +65,13 @@ public class ThreadImageBuilder {
             List<User> users = thread.getUsers();
             users.remove(ChatSDK.currentUser());
 
+            FileManager fm = ChatSDK.shared().fileManager();
+
             // We make a hash code for the user list and their image URLs
             // that means that if the users haven't changed, we can reaload
             // the same image split image we created before
             final String hashCode = hashCodeForMixedUserAvatar(users);
-            File cachedImage = ImageUtils.getFileInCacheDirectory(context, hashCode, "");
+            File cachedImage = new File(fm.imageCache(), hashCode);
             if(cachedImage.exists()) {
                 return Single.just(Uri.fromFile(cachedImage));
             }
@@ -77,27 +82,27 @@ public class ThreadImageBuilder {
             }
             else if (users.size() == 1) {
                 return users.get(0).getAvatarBitmap(size, size).map(bitmap -> {
-                    File imageFile = ImageUtils.saveBitmapToFile(context, bitmap);
+                    File imageFile = ImageUtils.saveBitmapToFile(bitmap);
                     File compressed = new Compressor(ChatSDK.shared().context())
                             .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
                             .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
-                            .setDestinationDirectoryPath(ImageUtils.getDiskCacheDir(context).getPath())
+                            .setDestinationDirectoryPath(fm.imageCache().getPath())
                             .compressToFile(imageFile, hashCodeForMixedUserAvatar(users));
                     return Uri.fromFile(compressed);
                 });
             }
             else {
                 return combineBitmapsForUsers(users, size).map(bitmap -> {
-                    File imageFile = ImageUtils.saveBitmapToFile(context, bitmap);
+                    File imageFile = ImageUtils.saveBitmapToFile(bitmap);
                     File compressed = new Compressor(ChatSDK.shared().context())
                             .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
                             .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
-                            .setDestinationDirectoryPath(ImageUtils.getDiskCacheDir(context).getPath())
+                            .setDestinationDirectoryPath(fm.imageCache().getPath())
                             .compressToFile(imageFile, hashCodeForMixedUserAvatar(users));
                     return Uri.fromFile(compressed);
                 });
             }
-        });
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public static String hashCodeForMixedUserAvatar(List<User> users) {
@@ -107,7 +112,7 @@ public class ThreadImageBuilder {
         for (User u: users) {
             name.append(u.getEntityID()).append(u.getAvatarURL());
         }
-        System.out.println(name.toString().hashCode());
+        Logger.debug("Thread hash code: " + name.toString().hashCode());
         return String.valueOf(name.toString().hashCode());
     }
 
@@ -121,7 +126,7 @@ public class ThreadImageBuilder {
                 singles.add(user.getAvatarBitmap(size, size));
             }
             return combineBitmapSingles(singles, size);
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     public static Single<Bitmap> combineBitmapSingles(final List<Single<Bitmap>> singles, final int size) {
@@ -133,7 +138,7 @@ public class ThreadImageBuilder {
                     .toSingle(() -> {
                         return ImageUtils.getMixImagesBitmap(size, size, bitmaps);
                     });
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     public static Single<Bitmap> combineBitmaps(final List<String> urls, final int size) {
@@ -144,10 +149,10 @@ public class ThreadImageBuilder {
                 if(singles.size() >= 4) {
                     break;
                 }
-                singles.add(bitmapForURL(url, size, size));
+                singles.add(ImageUtils.bitmapForURL(url, size, size));
             }
             return combineBitmapSingles(singles, size);
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     public static Drawable defaultDrawable(Thread thread) {

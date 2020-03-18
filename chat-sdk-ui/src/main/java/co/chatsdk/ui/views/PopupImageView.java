@@ -16,18 +16,24 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import co.chatsdk.core.utils.DisposableMap;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.utils.ToastHelper;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class PopupImageView extends RelativeLayout {
 
@@ -36,6 +42,8 @@ public class PopupImageView extends RelativeLayout {
     @BindView(R2.id.progressBar) protected ProgressBar progressBar;
     @BindView(R2.id.fab) protected FloatingActionButton fab;
     @BindView(R2.id.popupView) protected RelativeLayout popupView;
+
+    DisposableMap dm = new DisposableMap();
 
     public PopupImageView(Context context) {
         super(context);
@@ -65,35 +73,33 @@ public class PopupImageView extends RelativeLayout {
     }
 
     public void setUrl(Activity activity, String url, Runnable dismiss) {
-        Picasso.get().load(url).into(new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                photoView.setImageBitmap(bitmap);
-                progressBar.setVisibility(View.INVISIBLE);
-                fab.setVisibility(View.VISIBLE);
-                fab.setOnClickListener(v1 -> PermissionRequestHandler.requestWriteExternalStorage(activity).subscribe(() -> {
-                    if (bitmap != null) {
-                        String bitmapURL = MediaStore.Images.Media.insertImage(activity.getContentResolver(), bitmap, "", "");
-                        if (bitmapURL != null) {
-                            ToastHelper.show(activity, activity.getString(R.string.image_saved));
-                        } else {
-                            ToastHelper.show(activity, activity.getString(R.string.image_save_failed));
-                        }
+
+        Single<Bitmap> onLoad = Single.create((SingleOnSubscribe<Bitmap>) emitter -> {
+            emitter.onSuccess(Glide.with(this).asBitmap().load(url).submit().get());
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+
+        dm.add(onLoad.subscribe(bitmap -> {
+            photoView.setImageBitmap(bitmap);
+            progressBar.setVisibility(View.INVISIBLE);
+            fab.setVisibility(View.VISIBLE);
+            fab.setOnClickListener(v1 -> PermissionRequestHandler.requestWriteExternalStorage(activity).subscribe(() -> {
+                if (bitmap != null) {
+                    String bitmapURL = MediaStore.Images.Media.insertImage(activity.getContentResolver(), bitmap, "", "");
+                    if (bitmapURL != null) {
+                        ToastHelper.show(activity, activity.getString(R.string.image_saved));
+                    } else {
+                        ToastHelper.show(activity, activity.getString(R.string.image_save_failed));
                     }
-                }, throwable -> ToastHelper.show(activity, throwable.getLocalizedMessage())));
-            }
-
-            @Override
-            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                progressBar.setVisibility(View.INVISIBLE);
-                ToastHelper.show(activity, e.getLocalizedMessage());
-                dismiss.run();
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-            }
-        });
+                }
+            }, throwable -> ToastHelper.show(activity, throwable.getLocalizedMessage())));
+        }, throwable -> {
+            ToastHelper.show(activity, throwable.getLocalizedMessage());
+            dismiss.run();
+        }));
     }
+
+    public void dispose() {
+        dm.dispose();
+    }
+
 }

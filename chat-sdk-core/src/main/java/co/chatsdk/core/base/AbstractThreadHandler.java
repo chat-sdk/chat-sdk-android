@@ -20,6 +20,7 @@ import co.chatsdk.core.dao.sorter.ThreadsSorter;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
+import co.chatsdk.core.interfaces.SystemMessageType;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.rigs.MessageSendRig;
 import co.chatsdk.core.session.ChatSDK;
@@ -28,6 +29,8 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
@@ -42,12 +45,14 @@ import io.reactivex.schedulers.Schedulers;
 
 public abstract class AbstractThreadHandler implements ThreadHandler {
 
+    @Override
     public Single<List<Message>> loadMoreMessagesForThread(final Date fromDate, final Thread thread) {
         return loadMoreMessagesForThread(fromDate, thread, true);
     }
 
+    @Override
     public Single<List<Message>> loadMoreMessagesForThread(final Date fromDate, final Thread thread, boolean loadFromServer) {
-        return Single.just(ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), ChatSDK.config().messagesToLoadPerBatch + 1, fromDate)).subscribeOn(Schedulers.single());
+        return Single.just(ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), ChatSDK.config().messagesToLoadPerBatch + 1, fromDate)).subscribeOn(Schedulers.io());
     }
 
     /**
@@ -59,18 +64,22 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
      * When the text is fully sent the status will be changed and the onItem callback will be invoked.
      * When done or when an error occurred the calling method will be notified.
      */
+    @Override
     public Completable sendMessageWithText(final String text, final Thread thread) {
         return new MessageSendRig(new MessageType(MessageType.Text), thread, message -> message.setText(text)).run();
     }
 
+    @Override
     public Single<Thread> createThread(final String name, final List<User> users) {
         return createThread(name, users, -1);
     }
 
+    @Override
     public Single<Thread> createThread(final String name, final List<User> users, final int type) {
         return createThread(name, users, type, null);
     }
 
+    @Override
     public Single<Thread> createThread(String name, List<User> users, int type, String entityID) {
         return createThread(name, users, type, entityID, null);
     }
@@ -105,19 +114,22 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     /* Convenience method to save the text to the database then pass it to the token network adapter
      * send method so it can be sent via the network
      */
+    @Override
     public Completable forwardMessage(Thread thread, Message message) {
         return Completable.defer(() -> {
             Message newMessage = newMessage(message.getType(), thread);
             newMessage.setMetaValues(message.getMetaValuesAsMap());
             newMessage.setMessageStatus(MessageSendStatus.WillSend);
             return sendMessage(newMessage);
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
 
+    @Override
     public Completable forwardMessages(Thread thread, Message... messages) {
         return forwardMessages(thread, Arrays.asList(messages));
     }
 
+    @Override
     public Completable forwardMessages(Thread thread, List<Message> messages) {
         ArrayList<Completable> completables = new ArrayList<>();
         for (Message message: messages) {
@@ -126,6 +138,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.concat(completables);
     }
 
+    @Override
     public int getUnreadMessagesAmount(boolean onePerThread){
         List<Thread> threads = getThreads(ThreadType.Private, false);
 
@@ -143,26 +156,32 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return count;
     }
 
+    @Override
     public Single<Thread> createThread(String name, User... users) {
         return createThread(name, Arrays.asList(users));
     }
 
+    @Override
     public Single<Thread> createThread(List<User> users) {
         return createThread(null, users);
     }
 
+    @Override
     public Completable addUsersToThread(Thread thread, User... users) {
         return addUsersToThread(thread, Arrays.asList(users));
     }
 
+    @Override
     public Completable removeUsersFromThread(Thread thread, User... users) {
         return removeUsersFromThread(thread, Arrays.asList(users));
     }
 
+    @Override
     public List<Thread> getThreads(int type) {
         return getThreads(type, false);
     }
 
+    @Override
     public List<Thread> getThreads(int type, boolean allowDeleted) {
         return getThreads(type, allowDeleted, ChatSDK.config().showEmptyChats);
     }
@@ -192,55 +211,70 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         }
 
         // Sort the threads list before returning
-        Collections.sort(filteredThreads, new ThreadsSorter());
+//        Collections.sort(filteredThreads, new ThreadsSorter());
 
         return filteredThreads;
     }
 
+    @Override
     public void sendLocalSystemMessage(String text, Thread thread) {
-
+        sendLocalSystemMessage(text, SystemMessageType.standard, thread);
     }
 
-    public void sendLocalSystemMessage(String text, CoreHandler.bSystemMessageType type, Thread thread) {
-
+    @Override
+    public void sendLocalSystemMessage(String text, SystemMessageType type, Thread thread) {
+        new MessageSendRig(new MessageType(MessageType.System), thread, message -> {
+            message.setText(text);
+            message.setValueForKey(type, Keys.Type);
+        }).localOnly().run().subscribe(ChatSDK.events());
     }
 
+    @Override
     public Completable mute(Thread thread) {
         return Completable.complete();
     }
 
+    @Override
     public Completable unmute(Thread thread) {
         return Completable.complete();
     }
 
+    @Override
     public boolean rolesEnabled(Thread thread) {
         return false;
     }
 
+    @Override
+    public boolean canChangeRole(Thread thread, User user) {
+        return false;
+    }
+
+    @Override
     public String roleForUser(Thread thread, User user) {
         return null;
     }
 
+    @Override
     public Completable setRole(String role, Thread thread, User user) {
         return Completable.error(new Throwable(ChatSDK.shared().getString(R.string.feature_not_supported)));
     }
 
+    @Override
     public List<String> availableRoles(Thread thread, User user) {
         return new ArrayList<>();
     }
 
+    @Override
     public Completable deleteThread(Thread thread) {
         return Completable.create(emitter -> {
-            thread.setDeleted(true);
             for (Message m: thread.getMessages()) {
                 thread.removeMessage(m);
                 m.delete();
             }
-            ChatSDK.events().source().onNext(NetworkEvent.threadRemoved(thread));
-//            ChatSDK.db().delete(thread);
+            thread.setDeleted(true);
 
             emitter.onComplete();
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     @Override
@@ -280,7 +314,60 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             newMessage.setValueForKey(reply, Keys.Reply);
             newMessage.setMessageStatus(MessageSendStatus.WillSend);
             return sendMessage(newMessage);
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
+    }
+
+    // Moderation
+    @Override
+    public Completable grantVoice(Thread thread, User user) {
+        return Completable.create(emitter -> {
+            ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
+            emitter.onComplete();
+        }).subscribeOn(Schedulers.io());
+    }
+
+    @Override
+    public Completable revokeVoice(Thread thread, User user) {
+        return Completable.create(emitter -> {
+            ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
+            emitter.onComplete();
+        }).subscribeOn(Schedulers.io());
+    }
+
+    @Override
+    public boolean hasVoice(Thread thread, User user) {
+        return true;
+    }
+
+    @Override
+    public boolean canChangeVoice(Thread thread, User user) {
+        return false;
+    }
+
+    @Override
+    public Completable grantModerator(Thread thread, User user) {
+        return Completable.create(emitter -> {
+            ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
+            emitter.onComplete();
+        }).subscribeOn(Schedulers.io());
+    }
+
+    @Override
+    public Completable revokeModerator(Thread thread, User user) {
+        return Completable.create(emitter -> {
+            ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
+            emitter.onComplete();
+        }).subscribeOn(Schedulers.io());
+    }
+
+    @Override
+    public boolean canChangeModerator(Thread thread, User user) {
+        return false;
+    }
+
+    @Override
+    public boolean isModerator(Thread thread, User user) {
+        return false;
     }
 
 }

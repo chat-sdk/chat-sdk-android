@@ -6,6 +6,7 @@ import java.util.List;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.interfaces.SystemMessageType;
 import co.chatsdk.core.types.MessageSendProgress;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -88,20 +89,37 @@ public interface ThreadHandler {
     List<Thread> getThreads (int type);
 
     void sendLocalSystemMessage(String text, Thread thread);
-    void sendLocalSystemMessage(String text, CoreHandler.bSystemMessageType type, Thread thread);
+    void sendLocalSystemMessage(String text, SystemMessageType type, Thread thread);
 
     Completable pushThread(Thread thread);
     Completable pushThreadMeta(Thread thread);
 
-    // Muting
+    // Muting notifications
     boolean muteEnabled(Thread thread);
     Completable mute(Thread thread);
     Completable unmute(Thread thread);
 
     // Roles
+    // Generally it works like this:
+    // Owner can grant ownership, set admins
+    // Admins can grant moderator, add / remove user
+    // Users can chat
     boolean rolesEnabled(Thread thread);
+    boolean canChangeRole(Thread thread, User user);
     String roleForUser(Thread thread, User user);
     Completable setRole(String role, Thread thread, User user);
     List<String> availableRoles(Thread thread, User user);
 
+    // Moderation
+    Completable grantVoice(Thread thread, User user);
+    Completable revokeVoice(Thread thread, User user);
+    boolean canChangeVoice(Thread thread, User user);
+    boolean hasVoice(Thread thread, User user);
+
+    Completable grantModerator(Thread thread, User user);
+    Completable revokeModerator(Thread thread, User user);
+    boolean canChangeModerator(Thread thread, User user);
+    boolean isModerator(Thread thread, User user);
+
 }
+

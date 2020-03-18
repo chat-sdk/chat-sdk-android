@@ -24,9 +24,11 @@ import firestream.chat.types.SendableType;
 import firestream.chat.types.TypingStateType;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class MessageChatTest extends Test {
 
@@ -41,7 +43,7 @@ public class MessageChatTest extends Test {
 
     @Override
     public Observable<Result> run() {
-        return Observable.create(emitter -> {
+        return Observable.create((ObservableOnSubscribe<Result>) emitter -> {
             manage(emitter);
 
             // Modify the chat
@@ -278,7 +280,7 @@ public class MessageChatTest extends Test {
                 }));
 
             }
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     public static Message message() {

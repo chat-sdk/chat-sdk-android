@@ -2,6 +2,8 @@ package firestream.chat.test;
 
 import android.content.Context;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,7 +94,7 @@ public class TestScript {
     }
 
     public void log(String text) {
-        System.out.println(text);
+        Logger.debug(text);
     }
 
     public static User testUser1() {

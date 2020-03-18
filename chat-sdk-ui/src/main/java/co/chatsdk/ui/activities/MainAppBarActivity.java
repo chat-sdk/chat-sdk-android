@@ -82,8 +82,6 @@ public class MainAppBarActivity extends MainActivity {
             tabLayout.addTab(tabLayout.newTab().setText(tab.title));
         }
 
-//        ((BaseFragment) tabs.get(0).fragment).setTabVisibility(true);
-
         viewPager.setAdapter(adapter);
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));

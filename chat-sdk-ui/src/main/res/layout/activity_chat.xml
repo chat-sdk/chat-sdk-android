@@ -50,7 +50,8 @@ xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:showAttachmentButton="true" />
+                app:showAttachmentButton="true"
+                android:background="@color/white"/>
 
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -9,11 +9,6 @@ import android.os.Bundle;
 import androidx.annotation.DrawableRes;
 import androidx.fragment.app.Fragment;
 
-import com.squareup.picasso.LruCache;
-import com.squareup.picasso.OkHttp3Downloader;
-import com.squareup.picasso.Picasso;
-import com.stfalcon.chatkit.messages.MessageHolders;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,15 +99,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     public BaseInterfaceAdapter (Context context) {
         this.context = new WeakReference<>(context);
-
-        // Setup Picasso
-        Picasso.Builder builder = new Picasso.Builder(context);
-        builder.downloader(new OkHttp3Downloader(context, Long.MAX_VALUE));
-        builder.memoryCache(new LruCache(250000));
-        Picasso built = builder.build();
-//        built.setIndicatorsEnabled(true);
-        built.setLoggingEnabled(false);
-        Picasso.setSingletonInstance(built);
 
         Icons.shared().setContext(context);
 

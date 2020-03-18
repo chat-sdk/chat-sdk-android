@@ -1,8 +1,13 @@
 package co.chatsdk.core.rigs;
 
+import android.telecom.Call;
+
+import com.google.android.exoplayer2.C;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.AbstractThreadHandler;
 import co.chatsdk.core.dao.Message;
@@ -43,6 +48,7 @@ public class MessageSendRig {
     protected Thread thread;
     protected Message message;
     protected ArrayList<Uploadable> uploadables = new ArrayList<>();
+    protected boolean local = false;
 
     // This is called after the text has been created. Use it to set the text's payload
     protected MessageDidCreateUpdateAction messageDidCreateUpdateAction;
@@ -72,29 +78,36 @@ public class MessageSendRig {
         return this;
     }
 
-    public Completable run () {
-        if (uploadables.isEmpty()) {
-            return Single.just(createMessage()).ignoreElement().concatWith(send()).subscribeOn(Schedulers.single());
-        } else {
-            return Single.just(createMessage()).flatMapCompletable(message -> {
-                // First pass back an empty result so that we add the cell to the table view
-                message.setMessageStatus(MessageSendStatus.Uploading);
-
-                ArrayList<Uploadable> compressedUploadables = new ArrayList<>();
-
-                for (Uploadable item : uploadables) {
-                    compressedUploadables.add(item.compress());
-                }
-
-                uploadables.clear();
-                uploadables.addAll(compressedUploadables);
-
-                return Completable.complete();
-            }).concatWith(uploadFiles()).concatWith(send()).subscribeOn(Schedulers.single());
-        }
+    public MessageSendRig localOnly() {
+        local = true;
+        return this;
     }
 
-    protected Message createMessage () {
+    public Completable run() {
+        return Completable.defer(() -> {
+            if (uploadables.isEmpty()) {
+                return Single.just(createMessage()).ignoreElement().concatWith(send());
+            } else {
+                return Single.just(createMessage()).flatMapCompletable(message -> {
+                    // First pass back an empty result so that we add the cell to the table view
+                    message.setMessageStatus(MessageSendStatus.Uploading);
+
+                    ArrayList<Uploadable> compressedUploadables = new ArrayList<>();
+
+                    for (Uploadable item : uploadables) {
+                        compressedUploadables.add(item.compress());
+                    }
+
+                    uploadables.clear();
+                    uploadables.addAll(compressedUploadables);
+
+                    return Completable.complete();
+                }).concatWith(uploadFiles()).concatWith(send());
+            }
+        }).subscribeOn(Schedulers.io());
+    }
+
+    protected Message createMessage() {
         message = AbstractThreadHandler.newMessage(messageType, thread);
         if (messageDidCreateUpdateAction != null) {
             messageDidCreateUpdateAction.update(message);
@@ -102,18 +115,23 @@ public class MessageSendRig {
         return message;
     }
 
-    protected Completable send () {
-        return Completable.create(emitter -> {
-            message.setMessageStatus(MessageSendStatus.WillSend);
-            emitter.onComplete();
-        }).concatWith(ChatSDK.thread().sendMessage(message).doOnComplete(() -> {
-            message.setMessageStatus(MessageSendStatus.Sent);
-        }).doOnError(throwable -> {
-            message.setMessageStatus(MessageSendStatus.Failed);
-        }));
+    protected Completable send() {
+        return Completable.defer(new Callable<CompletableSource>() {
+            @Override
+            public CompletableSource call() throws Exception {
+                message.setMessageStatus(MessageSendStatus.WillSend);
+                if (local) {
+                    return Completable.complete();
+                } else {
+                    return ChatSDK.thread().sendMessage(message);
+                }
+            }
+        }).subscribeOn(Schedulers.io())
+                .doOnComplete(() -> message.setMessageStatus(MessageSendStatus.Sent))
+                .doOnError(throwable -> message.setMessageStatus(MessageSendStatus.Failed));
     }
 
-    protected Completable uploadFiles () {
+    protected Completable uploadFiles() {
         return Single.create((SingleOnSubscribe<List<Completable>>) emitter -> {
             ArrayList<Completable> completables = new ArrayList<>();
 
@@ -141,7 +159,7 @@ public class MessageSendRig {
             emitter.onSuccess(completables);
         }).flatMapCompletable(Completable::merge).doOnComplete(() -> {
             message.setMessageStatus(MessageSendStatus.DidUpload);
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
 }

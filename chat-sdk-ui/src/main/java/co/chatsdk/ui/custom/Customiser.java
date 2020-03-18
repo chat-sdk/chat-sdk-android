@@ -7,22 +7,17 @@ import android.view.View;
 import com.stfalcon.chatkit.messages.MessageHolders;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.handlers.ImageMessageHandler;
-import co.chatsdk.ui.chat.model.ImageMessageHolder;
 import co.chatsdk.ui.chat.model.MessageHolder;
-import co.chatsdk.ui.views.ChatView;
 
 public class Customiser implements IMessageHandler {
 
-    static final Customiser customiser = new Customiser();
+    static final Customiser instance = new Customiser();
 
     public static Customiser shared() {
-        return customiser;
+        return instance;
     }
 
     protected List<IMessageHandler> messageHandlers = new ArrayList<>();

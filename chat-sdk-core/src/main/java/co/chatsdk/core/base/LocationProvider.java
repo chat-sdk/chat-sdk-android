@@ -7,6 +7,7 @@ import android.content.IntentSender;
 import android.location.Location;
 import android.os.Looper;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -21,6 +22,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.R;
 import co.chatsdk.core.session.ChatSDK;
@@ -30,7 +32,9 @@ import co.chatsdk.core.utils.PermissionRequestHandler;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -105,7 +109,7 @@ public class LocationProvider {
                     }
                 }
             });
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     public Observable<Location> requestLocationUpdates(Activity activity, long interval, int distance) {
@@ -137,21 +141,24 @@ public class LocationProvider {
                     activity.runOnUiThread(() -> {
                         locationClient.requestLocationUpdates(locationUpdatesRequest, locationCallback, Looper.myLooper());
                     });
-                }).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread()));
+                }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()));
     }
 
     @SuppressLint("MissingPermission")
     public Single<Location> getLastLocation(Activity activity) {
+
+        Single<Location> getLocation = Single.create((SingleOnSubscribe<Location>)emitter -> {
+            locationClient.getLastLocation().addOnSuccessListener(location -> {
+                if (location != null) {
+                    emitter.onSuccess(location);
+                } else {
+                    emitter.onError(new Error(context().getResources().getString(R.string.location_is_null)));
+                }
+            }).addOnFailureListener(emitter::onError);
+        }).subscribeOn(Schedulers.io());
+
         return PermissionRequestHandler.requestLocationAccess(activity)
-                .andThen((Single.create((SingleOnSubscribe<Location>) single -> {
-                    locationClient.getLastLocation().addOnSuccessListener(location -> {
-                        if (location != null) {
-                            single.onSuccess(location);
-                        } else {
-                            single.onError(new Error(context().getResources().getString(R.string.location_is_null)));
-                        }
-                    }).addOnFailureListener(single::onError);
-                })).subscribeOn(Schedulers.single()));
+                .andThen(getLocation);
     }
 
     public Location getMostAccurateLocation(List<Location> locations) {

@@ -10,21 +10,6 @@ import io.reactivex.Single;
 
  public interface CoreHandler {
 
-    enum bSystemMessageType {
-        bSystemMessageTypeInfo(1),
-        bSystemMessageTypeError(2);
-
-        private int numVal;
-
-        bSystemMessageType(int numVal) {
-            this.numVal = numVal;
-        }
-
-         int getNumVal() {
-            return numVal;
-        }
-    }
-
     /**
      * Update the user on the server
      */

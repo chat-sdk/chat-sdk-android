@@ -14,7 +14,6 @@ import com.google.android.exoplayer2.scheduler.Scheduler;
 import java.util.List;
 
 import co.chatsdk.core.R;
-import okhttp3.internal.platform.Platform;
 
 public class MediaDownloadService extends DownloadService {
 

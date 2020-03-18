@@ -9,15 +9,20 @@ import android.view.View;
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
 
+import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.stfalcon.chatkit.commons.models.IMessage;
 import com.stfalcon.chatkit.messages.MessageHolders;
 
+import org.pmw.tinylog.Level;
+import org.pmw.tinylog.Logger;
+
 import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
 import co.chatsdk.android.app.R;
 import co.chatsdk.core.avatar.gravatar.GravatarAvatarGenerator;
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
 import co.chatsdk.core.types.MessageType;
@@ -27,6 +32,8 @@ import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.BaseInterfaceAdapter;
+import co.chatsdk.ui.activities.LoginActivity;
+import sdk.chat.test.DummyData;
 
 /**
  * Created by Ben Smiley on 6/8/2014.
@@ -49,6 +56,7 @@ public class MainApplication extends MultiDexApplication {
 
             config.defaultNamePrefix = "Your name";
             config.defaultName = "Name";
+            config.anonymousLoginEnabled = false;
 
             // FireStream configuration
 
@@ -70,23 +78,27 @@ public class MainApplication extends MultiDexApplication {
             // Old Firebase Adapter
             ChatSDK.initialize(this, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
 
+            Logger.getConfiguration().level(Level.DEBUG).activate();
 //            TestScript.run(context, config.firebaseRootPath);
+
+//            new DummyData(200, 50);
 
 
         }
         catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error");
+            Logger.debug("Error");
         }
         finally {
 //            ChatSDK.ui().setMainActivity(MainDrawActivity.class);
 
             ChatSDK.ui().setAvatarGenerator(new GravatarAvatarGenerator());
+//            ChatSDK.ui().setLoginActivity(LoginActivity.class);
 
             FirebaseFileStorageModule.activate();
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
-            FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
+//            FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
 
 //            new DummyData(1, 1000);
 

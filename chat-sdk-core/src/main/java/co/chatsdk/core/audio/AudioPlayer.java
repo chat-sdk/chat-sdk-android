@@ -60,7 +60,7 @@ public class AudioPlayer {
         player.setPlayWhenReady(true);
 
         playingDisposable = Observable.interval(0, 30, TimeUnit.MILLISECONDS)
-                .subscribeOn(Schedulers.single())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aLong -> {
                     if (player.isPlaying()) {

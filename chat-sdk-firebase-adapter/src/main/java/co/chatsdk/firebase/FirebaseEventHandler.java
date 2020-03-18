@@ -3,6 +3,7 @@ package co.chatsdk.firebase;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import co.chatsdk.core.base.AbstractEventHandler;
@@ -18,6 +19,7 @@ import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.firebase.utils.Generic;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firebase.wrappers.UserWrapper;
+import io.reactivex.Completable;
 
 /**
  * Created by benjaminsmiley-andrews on 10/05/2017.
@@ -107,21 +109,13 @@ public class FirebaseEventHandler extends AbstractEventHandler {
 
     protected void threadWrapperOn(ThreadWrapper thread) {
         // Starting to listen to thread changes.
-        dm.add(thread.on().subscribe(thread1 -> {
-            eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread1));
-        }, this));
-
-        dm.add(thread.metaOn().subscribe(thread1 -> {}, this));
-
-//        dm.add(thread.lastMessageOn().subscribe(thread1 -> {
-//            eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread1));
-//        }, this));
-
-        dm.add(thread.messagesOn().subscribe(message -> {}, this));
-
-        dm.add(thread.messageRemovedOn().subscribe(message -> {}, this));
-
-        dm.add(thread.usersOn().subscribe(user1 -> {}, this));
+       Completable.merge(Arrays.asList(
+               thread.on().ignoreElements(),
+               thread.metaOn().ignoreElements(),
+               thread.messagesOn().ignoreElements(),
+               thread.messageRemovedOn().ignoreElements(),
+               thread.usersOn().ignoreElements()
+       )).subscribe(this);
     }
 
     protected void contactsOn (User user) {

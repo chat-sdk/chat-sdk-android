@@ -185,7 +185,7 @@ public class MessageWrapper  {
                     e.onError(firebaseError.toException());
                 }
             });
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(Schedulers.io());
     }
     
     public Completable send() {
@@ -195,10 +195,10 @@ public class MessageWrapper  {
             } else {
                 return Completable.error(new Throwable(ChatSDK.shared().getString(R.string.message_doesnt_have_a_thread)));
             }
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
-    public Completable delete () {
+    public Completable delete() {
         return Completable.create(e -> {
             DatabaseReference ref = FirebasePaths.threadMessagesRef(model.getThread().getEntityID()).child(model.getEntityID());
             ref.removeValue((databaseError, databaseReference) -> {
@@ -209,7 +209,7 @@ public class MessageWrapper  {
                     e.onError(new Throwable(databaseError.getMessage()));
                 }
             });
-        });
+        }).subscribeOn(Schedulers.io());
     }
     
     private DatabaseReference ref() {
@@ -265,6 +265,6 @@ public class MessageWrapper  {
                 }
             });
 
-        });
+        }).subscribeOn(Schedulers.io());
     }
 }

@@ -5,6 +5,8 @@ package co.chatsdk.core.dao;
 // KEEP INCLUDES - put your token includes here
 
 
+import android.os.AsyncTask;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import org.greenrobot.greendao.DaoException;
@@ -33,6 +35,10 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.DaoDateTimeConverter;
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.schedulers.Schedulers;
 
 @Entity
 public class Message extends AbstractEntity {
@@ -120,13 +126,22 @@ public class Message extends AbstractEntity {
         return false;
     }
 
-    public void markRead() {
+    public void markReadIfNecessary() {
         if (!isRead()) {
-            if (ChatSDK.readReceipts() != null) {
-                ChatSDK.readReceipts().markRead(this);
-            }
-            setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new DateTime());
+            markRead();
         }
+    }
+
+    public void markRead() {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (ChatSDK.readReceipts() != null) {
+                    ChatSDK.readReceipts().markRead(Message.this);
+                }
+                setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new DateTime());
+            }
+        });
     }
 
     public boolean isDelivered () {
@@ -234,31 +249,32 @@ public class Message extends AbstractEntity {
 
     public ReadReceiptUserLink linkForUser (User user) {
         return ChatSDK.db().readReceipt(getId(), user.getId());
-//        for(ReadReceiptUserLink link : getReadReceiptLinks()) {
-//            User linkUser = link.getUser();
-//            if (linkUser != null && user != null) {
-//                if(linkUser.equals(user)) {
-//                    return link;
-//                }
-//            }
-//        }
-//        return null;
     }
 
     public void setUserReadStatus (User user, ReadStatus status, DateTime date) {
-        ReadReceiptUserLink link = linkForUser(user);
-        if(link == null) {
-            link = ChatSDK.db().createEntity(ReadReceiptUserLink.class);
-            link.setMessageId(this.getId());
-            getReadReceiptLinks().add(link);
-        }
-        link.setUser(user);
-        link.setStatus(status.getValue());
-        link.setDate(date);
+        setUserReadStatus(user, status, date, true);
+    }
 
-        link.update();
-//        this.update();
-        ChatSDK.events().source().onNext(NetworkEvent.messageReadReceiptUpdated(this));
+    public void setUserReadStatus (User user, ReadStatus status, DateTime date, boolean notify) {
+        ReadReceiptUserLink link = linkForUser(user);
+
+        if (link == null || !new ReadStatus(link.getStatus()).is(status)) {
+            if(link == null) {
+                link = ChatSDK.db().createEntity(ReadReceiptUserLink.class);
+                link.setMessageId(this.getId());
+                getReadReceiptLinks().add(link);
+            }
+
+            link.setUser(user);
+            link.setStatus(status.getValue());
+            link.setDate(date);
+
+            link.update();
+
+            if (notify) {
+                ChatSDK.events().source().onNext(NetworkEvent.messageReadReceiptUpdated(this));
+            }
+        }
     }
 
     public LatLng getLocation () {
@@ -308,9 +324,17 @@ public class Message extends AbstractEntity {
     }
 
     public void setMessageStatus(MessageSendStatus status) {
-        this.status = status.ordinal();
-        this.update();
-        ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(this)));
+        setMessageStatus(status, true);
+    }
+
+    public void setMessageStatus(MessageSendStatus status, boolean notify) {
+        if (status != null || this.status != status.ordinal()) {
+            this.status = status.ordinal();
+            this.update();
+            if (notify) {
+                ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(this)));
+            }
+        }
     }
     public void setStatus(Integer status) {
         this.status = status;

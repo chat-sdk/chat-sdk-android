@@ -17,7 +17,9 @@ import firestream.chat.test.TestScript;
 import firestream.chat.types.RoleType;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class ModifyChatTest extends Test {
 
@@ -40,7 +42,7 @@ public class ModifyChatTest extends Test {
      */
     @Override
     public Observable<Result> run() {
-        return Observable.create(emitter -> {
+        return Observable.create((ObservableOnSubscribe<Result>) emitter -> {
             manage(emitter);
 
             // Modify the chat
@@ -232,7 +234,7 @@ public class ModifyChatTest extends Test {
 
             }
 
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     public static List<User> users() {

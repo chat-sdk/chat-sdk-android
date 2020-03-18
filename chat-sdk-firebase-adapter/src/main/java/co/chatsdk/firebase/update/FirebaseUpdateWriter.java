@@ -14,6 +14,7 @@ import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.BiConsumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class FirebaseUpdateWriter {
 
@@ -50,23 +51,23 @@ public class FirebaseUpdateWriter {
     }
 
     public Single<DatabaseReference> set (HashMap<String, Object> data) {
-        return Single.create(emitter -> ref().setValue(data, (databaseError, databaseReference) -> {
+        return Single.create((SingleOnSubscribe<DatabaseReference>)emitter -> ref().setValue(data, (databaseError, databaseReference) -> {
             if (databaseError == null) {
                 emitter.onSuccess(databaseReference);
             } else {
                 emitter.onError(databaseError.toException());
             }
-        }));
+        })).subscribeOn(Schedulers.io());
     }
 
     public Single<DatabaseReference> update (HashMap<String, Object> data) {
-        return Single.create(emitter -> ref().updateChildren(data, (databaseError, databaseReference) -> {
+        return Single.create((SingleOnSubscribe<DatabaseReference>) emitter -> ref().updateChildren(data, (databaseError, databaseReference) -> {
             if (databaseError == null) {
                 emitter.onSuccess(databaseReference);
             } else {
                 emitter.onError(databaseError.toException());
             }
-        }));
+        })).subscribeOn(Schedulers.io());
     }
 
     protected DatabaseReference ref () {

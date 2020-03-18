@@ -58,7 +58,7 @@ public class NetworkEvent {
     public static NetworkEvent messageSendStatusChanged(MessageSendProgress progress) {
         HashMap<String, Object> data = new HashMap<>();
         data.put(MessageSendProgress, progress);
-        return new NetworkEvent(EventType.MessageSendStatusChanged, progress.message.getThread(), progress.message, progress.message.getSender(), data);
+        return new NetworkEvent(EventType.MessageSendStatusUpdated, progress.message.getThread(), progress.message, progress.message.getSender(), data);
     }
 
     public static NetworkEvent threadRemoved(Thread thread) {
@@ -69,10 +69,9 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.ThreadDetailsUpdated, thread);
     }
 
-    @Deprecated
-//    public static NetworkEvent threadLastMessageUpdated(Thread thread) {
-//        return new NetworkEvent(EventType.ThreadLastMessageUpdated, thread);
-//    }
+    public static NetworkEvent threadMarkedRead(Thread thread) {
+        return new NetworkEvent(EventType.ThreadMarkedRead, thread);
+    }
 
     public static NetworkEvent threadMetaUpdated(Thread thread) {
         return new NetworkEvent(EventType.ThreadMetaUpdated, thread);
@@ -106,7 +105,11 @@ public class NetworkEvent {
     }
 
     public static NetworkEvent threadUsersChanged(Thread thread, User user) {
-        return new NetworkEvent(EventType.ThreadUsersChanged, thread, null, user);
+        return new NetworkEvent(EventType.ThreadUsersUpdated, thread, null, user);
+    }
+
+    public static NetworkEvent threadUsersRoleChanged(Thread thread, User user) {
+        return new NetworkEvent(EventType.ThreadUserRoleUpdated, thread, null, user);
     }
 
     public static NetworkEvent userMetaUpdated(User user) {
@@ -143,7 +146,7 @@ public class NetworkEvent {
     }
 
     public static NetworkEvent typingStateChanged(String message, Thread thread) {
-        NetworkEvent event = new NetworkEvent(EventType.TypingStateChanged);
+        NetworkEvent event = new NetworkEvent(EventType.TypingStateUpdated);
         event.text = message;
         event.thread = thread;
         return event;
@@ -211,6 +214,17 @@ public class NetworkEvent {
         };
     }
 
+    public static Predicate<NetworkEvent> filterUserEntityID (final String entityID) {
+        return networkEvent -> {
+            if(networkEvent.user != null) {
+                if (networkEvent.user.equalsEntityID(entityID)) {
+                    return true;
+                }
+            }
+            return false;
+        };
+    }
+
     public static Predicate<NetworkEvent> filterThreadType (final int type) {
         return networkEvent -> {
             if(networkEvent.thread != null) {
@@ -224,7 +238,7 @@ public class NetworkEvent {
     public static Predicate<NetworkEvent> threadDetailsUpdated () {
         return filterType(
                 EventType.ThreadDetailsUpdated,
-                EventType.ThreadUsersChanged,
+                EventType.ThreadUsersUpdated,
                 EventType.UserMetaUpdated // Be careful to check that the user is a member of the thread...
         );
     }
@@ -234,10 +248,10 @@ public class NetworkEvent {
                 EventType.ThreadDetailsUpdated,
                 EventType.ThreadAdded,
                 EventType.ThreadRemoved,
-                EventType.ThreadLastMessageUpdated,
-                EventType.ThreadUsersChanged,
+                EventType.ThreadUsersUpdated,
                 EventType.MessageAdded,
                 EventType.MessageRemoved,
+                EventType.UserPresenceUpdated,
                 EventType.UserMetaUpdated // Be careful to check that the user is a member of the thread...
         );
     }
@@ -262,7 +276,7 @@ public class NetworkEvent {
 
     public static Predicate<NetworkEvent> threadUsersUpdated () {
         return filterType(
-                EventType.ThreadUsersChanged,
+                EventType.ThreadUsersUpdated,
                 EventType.UserPresenceUpdated
         );
     }

@@ -12,10 +12,8 @@ import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
-import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.ui.binders.MessageBinder;
-import co.chatsdk.ui.custom.Customiser;
 
 public class MessageHolder implements IMessage {
 
@@ -29,7 +27,10 @@ public class MessageHolder implements IMessage {
 
     public MessageHolder(Message message) {
         this.message = message;
+        update();
+    }
 
+    public void update() {
         Message nextMessage = message.getNextMessage();
         Message previousMessage = message.getPreviousMessage();
 
@@ -37,9 +38,9 @@ public class MessageHolder implements IMessage {
 
         DateFormat format = MessageBinder.messageTimeComparisonDateFormat(ChatSDK.shared().context());
         showDate = nextMessage == null || !format.format(message.getDate().toDate()).equals(format.format(nextMessage.getDate().toDate()));
-
-        message.getThread().typeIs(ThreadType.Group);
+        isGroup = message.getThread().typeIs(ThreadType.Group);
     }
+
 
     @Override
     public String getId() {

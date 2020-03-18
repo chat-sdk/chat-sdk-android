@@ -12,26 +12,17 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.view_holders.UserViewHolder;
-import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
+import co.chatsdk.core.dao.User;
 
 public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -44,18 +35,25 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     protected final PublishSubject<UserListItem> onLongClickSubject = PublishSubject.create();
     protected final PublishSubject<List<UserListItem>> onToggleSubject = PublishSubject.create();
 
+    public interface SubtitleProvider {
+        String subtitle(UserListItem user);
+    }
+
+    protected SubtitleProvider subtitleProvider = null;
+
     public UsersListAdapter() {
-        this(null, false);
+        this(null, false, null);
     }
 
     public UsersListAdapter(boolean multiSelectEnabled) {
-        this(null, multiSelectEnabled);
+        this(null, multiSelectEnabled, null);
     }
 
-    public UsersListAdapter(List<UserListItem> users, boolean multiSelect) {
+    public UsersListAdapter(List<UserListItem> users, boolean multiSelect, SubtitleProvider subtitleProvider) {
         if (users == null) {
             users = new ArrayList<>();
         }
+        this.subtitleProvider = subtitleProvider;
 
         setUsers(users);
 
@@ -70,7 +68,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_user_row, parent, false);
-        return new UserViewHolder(view, multiSelectEnabled);
+        return new UserViewHolder(view, multiSelectEnabled, subtitleProvider);
     }
 
     @Override
@@ -221,6 +219,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             } else {
                 selectedUsersPositions.delete(position);
             }
+            // Is this needed?
             notifyItemChanged(position);
 
             return selected;

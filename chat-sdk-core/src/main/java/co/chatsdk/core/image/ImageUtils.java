@@ -9,154 +9,44 @@ package co.chatsdk.core.image;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
-import android.os.Environment;
-import android.os.StrictMode;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.IntegerRes;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
-import java.util.UUID;
 
-import co.chatsdk.core.R;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.storage.FileManager;
+import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 import static android.os.Environment.isExternalStorageRemovable;
 
 
 public class ImageUtils {
 
-    static {
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
-    }
-
-    public static File getDiskCacheDir(Context context) {
-        return getDiskCacheDir(context, ChatSDK.config().imageDirectoryName);
-    }
-
-    public static File getDiskCacheDir(Context context, String uniqueName) {
-        // Check if media is mounted or storage is built-in, if so, try and use external cache dir
-        // otherwise use internal cache dir
-        final String cachePath =
-                Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-                        !isExternalStorageRemovable() ? context.getExternalCacheDir().getPath() :
-                        context.getCacheDir().getPath();
-
-        if (uniqueName == null || uniqueName.isEmpty()) {
-            uniqueName = context.getResources().getString(R.string.app_name);
-        }
-        return new File(cachePath + File.separator + uniqueName);
-    }
-
-    public static File getFileInCacheDirectory(Context context, String name, String ext) {
-        return getFileInCacheDirectory(getDiskCacheDir(context), name, ext);
-    }
-
-    public static File getFileInCacheDirectory(File dir, String name, String ext) {
-        if (!dir.exists()){
-            if (!dir.mkdir()) {
-                return null;
-            }
-        }
-        if (name.contains(ext)) {
-            return new File(dir, name);
-        }
-        return new File(dir, name + ext);
-    }
-
-    public static File createEmptyFileInCacheDirectory(File dir, String name, String ext) {
-        return createEmptyFileInCacheDirectory(dir, name, ext, true);
-    }
-
-    public static File createEmptyFileInCacheDirectory(Context context, String name, String ext) {
-        return createEmptyFileInCacheDirectory(getDiskCacheDir(context), name, ext);
-    }
-
-    public static File createEmptyFileInCacheDirectory(Context context, String name, String ext, boolean addRandomIdToName) {
-        return createEmptyFileInCacheDirectory(getDiskCacheDir(context), name, ext, addRandomIdToName);
-    }
-
-    public static File createEmptyFileInCacheDirectory(File dir, String name, String ext, boolean addRandomIdToName) {
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                return null;
-            }
-        }
-        if (name.contains(ext)) {
-            return new File(dir, name);
-        }
-        if (!addRandomIdToName) {
-            return new File(dir, name + ext);
-        } else {
-            String fileName = (name += UUID.randomUUID()).replace("@", "_");
-            File file = new File(dir, fileName + ext);
-            while (file.exists()) {
-                fileName = (name += UUID.randomUUID()).replace("@", "_");
-                file = new File(dir, fileName + ext);
-            }
-            return file;
-        }
-    }
-
-//    public static File compressImageToFile(Bitmap bitmap, File outFile, Bitmap.CompressFormat format) {
-//        try {
-//            OutputStream outStream = new FileOutputStream(outFile);
-//            bitmap.compress(format, 100, outStream);
-//            outStream.flush();
-//            outStream.close();
-//        }
-//        catch (Exception e) {
-//            ChatSDK.logError(e);
-//            return null;
-//        }
-//        return outFile;
-//    }
-//
-//    public static File compressImageToFile(Bitmap bitmap, File outFile) {
-//        String path = outFile.getPath();
-//        String ext = path.substring(path.lastIndexOf(".")).toLowerCase();
-//        Bitmap.CompressFormat format = Bitmap.CompressFormat.JPEG;
-//        if (ext == "png") {
-//            format = Bitmap.CompressFormat.PNG;
-//        }
-//        return compressImageToFile(bitmap, outFile, format);
-//    }
-//
-//    public static File compressImageToFile(Context context, Bitmap bitmap, String name, String ext, boolean addRandomIdToName) {
-//        File outFile = createEmptyFileInCacheDirectory(context, name, ext, addRandomIdToName);
-//        return compressImageToFile(bitmap, outFile);
-//    }
-//
-//    public static File compressImageToFile(Context context, Bitmap bitmap, String name, String ext) {
-//        return compressImageToFile(context, bitmap, name, ext, true);
-//    }
-//
-//    public static File compressImageToFile(Context context, String filePath, String name, String ext) {
-//        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-//        return compressImageToFile(context, bitmap, name, ext);
-//    }
-
-    public static File saveBitmapToFile(Context context, Bitmap bitmap) {
-        File outFile = createEmptyFileInCacheDirectory(context, "Image", "jpg", true);
+    public static File saveBitmapToFile(Bitmap bitmap) {
+        FileManager fm = ChatSDK.shared().fileManager();
+        File dir = fm.imageCache();
+        File outFile = fm.newDatedFile(dir, "image", "png");
         try (FileOutputStream out = new FileOutputStream(outFile)) {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-            // PNG is a lossless format, the compression factor (100) is ignored
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -242,18 +132,6 @@ public class ImageUtils {
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
-    public static void scanFilePathForGallery(Context context, String path) {
-        if (context == null)
-            return;
-        
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(path);
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setData(contentUri);
-        context.sendBroadcast(mediaScanIntent);
-    }
-
-
     public static byte[] getImageByteArray(Bitmap bitmap){
         return getImageByteArray(bitmap, 50);
     }
@@ -273,6 +151,22 @@ public class ImageUtils {
                 .appendPath(resources.getResourceTypeName(resourceId))
                 .appendPath(resources.getResourceEntryName(resourceId))
                 .build();
+    }
+
+    public static Single<Bitmap> bitmapForURL (final String url) {
+        return bitmapForURL(url, null, null);
+    }
+
+    public static Single<Bitmap> bitmapForURL (final String url, Integer width, Integer height) {
+        return Single.create((SingleOnSubscribe<Bitmap>) emitter -> {
+            RequestBuilder<Bitmap> requestBuilder = Glide.with(ChatSDK.shared().context()).asBitmap().load(url);
+            if (width != null && height != null) {
+                requestBuilder = requestBuilder.override(width, height);
+            }
+            Bitmap bitmap = requestBuilder.submit().get();
+            emitter.onSuccess(bitmap);
+
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
 }

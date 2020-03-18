@@ -5,7 +5,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+
 
 import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.ui.R;
@@ -26,10 +27,12 @@ public class ReplyViewBinder {
                 int maxHeight = Dimen.from(replyView.getContext(), R.dimen.reply_image_height);
 
                 replyImageView.setVisibility(View.VISIBLE);
-                Picasso.get().load(holder.getQuotedImageUrl())
+                Glide.with(replyImageView)
+                        .load(holder.getQuotedImageUrl())
+                        .dontAnimate()
                         .placeholder(R.drawable.icn_200_image_message_placeholder)
                         .error(R.drawable.icn_200_image_message_error)
-                        .resize(maxWidth, maxHeight)
+                        .override(maxWidth, maxHeight)
                         .into(replyImageView);
             } else {
                 replyImageView.setVisibility(View.GONE);

@@ -1,8 +1,6 @@
 package co.chatsdk.ui.activities;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
@@ -22,14 +20,11 @@ import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jaredrummler.materialspinner.MaterialSpinner;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
-import org.pmw.tinylog.Logger;
 
 import java.io.File;
 import java.util.HashMap;
@@ -159,9 +154,10 @@ public class EditProfileActivity extends BaseActivity {
             int profileHeader = ChatSDK.config().profileHeaderImage;
             if (url != null && appbar != null) {
                 // Get the screen width
-                Picasso.get()
+                Glide.with(this)
                         .load(url)
-                        .resize(appbar.getWidth(), appbar.getHeight())
+                        .dontAnimate()
+                        .override(appbar.getWidth(), appbar.getHeight())
                         .centerCrop()
                         .placeholder(profileHeader)
                         .error(R.drawable.header)
@@ -185,7 +181,7 @@ public class EditProfileActivity extends BaseActivity {
         int height = Dimen.from(this, R.dimen.large_avatar_height);
 
         collapsingToolbar.setTitle(getString(R.string.edit_profile));
-        Picasso.get().load(currentUser.getAvatarURL()).into(avatarImageView);
+        Glide.with(this).load(currentUser.getAvatarURL()).dontAnimate().placeholder(ChatSDK.ui().getDefaultProfileImage()).into(avatarImageView);
 
         currentUser.loadAvatar(avatarImageView, width, height);
 
@@ -246,30 +242,16 @@ public class EditProfileActivity extends BaseActivity {
         currentUser.setEmail(email);
 
         boolean changed = !userMeta.entrySet().equals(currentUser.metaMap().entrySet());
-        boolean presenceChanged = false;
+        boolean avatarChanged = avatarImageURL != null && !avatarImageURL.equals(currentUser.getAvatarURL());
 
-        Map<String, Object> metaMap = new HashMap<>(currentUser.metaMap());
-
-        for (String key : metaMap.keySet()) {
-            if (key.equals(Keys.AvatarURL)) {
-                currentUser.setAvatarHash(null);
-            }
-            if (key.equals(Keys.Availability) || key.equals(Keys.Status)) {
-                presenceChanged = presenceChanged || valueChanged(metaMap, userMeta, key);
-            }
-        }
-
-        if (avatarImageURL != null) {
-            currentUser.setAvatarURL(avatarImageURL);
+        // If this is a new avatar, reset the hash code, this will prompt
+        // the XMPP client to update the image
+        if (avatarChanged) {
+            currentUser.setAvatarURL(avatarImageURL, null);
         }
 
         if (headerImageURL != null) {
             currentUser.setHeaderURL(headerImageURL);
-        }
-
-        if (presenceChanged && !changed) {
-            // Send presence
-            ChatSDK.core().goOnline();
         }
 
         final Runnable finished = () -> {
@@ -281,7 +263,7 @@ public class EditProfileActivity extends BaseActivity {
             finish();
         };
 
-        if (changed) {
+        if (changed || avatarChanged) {
 
             currentUser.update();
 
@@ -295,28 +277,6 @@ public class EditProfileActivity extends BaseActivity {
         } else {
             finished.run();
         }
-    }
-
-    protected boolean valueChanged(Map<String, Object> h1, Map<String, Object> h2, String key) {
-        Object o1 = h1.get(key);
-        Object o2 = h2.get(key);
-        if (o1 == null) {
-            return o2 != null;
-        } else {
-            return !o1.equals(o2);
-        }
-    }
-
-    protected int getIndex(Spinner spinner, String myString) {
-        int index = 0;
-
-        for (int i = 0; i < spinner.getCount(); i++) {
-            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(myString)) {
-                index = i;
-                break;
-            }
-        }
-        return index;
     }
 
 }

@@ -8,6 +8,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.HashMap;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.AbstractAuthenticationHandler;
 import co.chatsdk.core.dao.User;
@@ -20,6 +21,7 @@ import co.chatsdk.core.utils.DisposableMap;
 import co.chatsdk.firebase.utils.Generic;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -75,13 +77,12 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
         })
         .flatMapCompletable(this::authenticateWithUser)
         .doOnTerminate(this::setAuthStateToIdle) // Whether we complete successfully or not, we set the status to Idle
-        .subscribeOn(Schedulers.single());
+        .subscribeOn(Schedulers.io());
     }
 
     @Override
     public Completable authenticate(final AccountDetails details) {
-        return Single.create((SingleOnSubscribe<FirebaseUser>)
-                emitter->{
+        return Single.create((SingleOnSubscribe<FirebaseUser>) emitter -> {
                     if (isAuthenticating()) {
                         emitter.onError(ChatError.getError(ChatError.Code.AUTH_IN_PROCESS, "Can't execute two auth in parallel"));
                         return;
@@ -117,7 +118,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 })
                 .flatMapCompletable(this::authenticateWithUser)
                 .doOnTerminate(this::setAuthStateToIdle)
-                .subscribeOn(Schedulers.single());
+                .subscribeOn(Schedulers.io());
     }
 
     public Completable retrieveRemoteConfig() {
@@ -126,14 +127,16 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 FirebasePaths.configRef().addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
                     if (hasValue && snapshot.getValue() instanceof HashMap) {
                         HashMap<String, Object> map = snapshot.getValue(Generic.hashMapStringObject());
-                        ChatSDK.config().updateRemoteConfig(map);
+                        if (map != null) {
+                            ChatSDK.config().updateRemoteConfig(map);
+                        }
                     }
                     emitter.onComplete();
                 }).onCancelled(error -> emitter.onError(error.toException())));
             } else {
                 emitter.onComplete();
             }
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     public Completable authenticateWithUser(final FirebaseUser user) {
@@ -160,7 +163,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                 authenticatedThisSession = true;
             });
-        }).andThen(retrieveRemoteConfig()).subscribeOn(Schedulers.single())
+        }).andThen(retrieveRemoteConfig()).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
@@ -184,11 +187,10 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                     user.updatePassword(newPassword).addOnCompleteListener(resultHandler);
                 })
-                .subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public Completable logout() {
-
         return ChatSDK.hook().executeHook(HookEvent.WillLogout)
                 .concatWith(ChatSDK.core().setUserOffline())
                 .concatWith(Completable.defer(() -> {
@@ -211,7 +213,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     } else {
                         return Completable.complete();
                     }
-                })).subscribeOn(Schedulers.single());
+                })).subscribeOn(Schedulers.io());
     }
 
     public Completable sendPasswordResetMail(final String email) {
@@ -227,7 +229,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                     FirebaseCoreHandler.auth().sendPasswordResetEmail(email).addOnCompleteListener(resultHandler);
 
-                }).subscribeOn(Schedulers.single());
+                }).subscribeOn(Schedulers.io());
     }
 
     // TODO: Allow users to turn anonymous login off or on in settings

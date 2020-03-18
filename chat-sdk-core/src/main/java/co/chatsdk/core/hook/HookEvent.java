@@ -28,8 +28,6 @@ public class HookEvent {
     public static String ContactWillBeDeleted = "ContactWillBeDeleted";
     public static String ContactWasDeleted = "ContactWasDeleted";
 
-//    public static String WillRegisterMessageHolders = "WillRegisterMessageHolders";
-
     public static HashMap<String, Object> userData (co.chatsdk.core.dao.User user) {
         HashMap<String, Object> data = new HashMap<>();
         data.put(HookEvent.User, user);

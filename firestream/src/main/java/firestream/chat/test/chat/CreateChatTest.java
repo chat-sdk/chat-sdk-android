@@ -17,7 +17,9 @@ import firestream.chat.test.TestScript;
 import firestream.chat.types.RoleType;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class CreateChatTest extends Test {
 
@@ -35,7 +37,7 @@ public class CreateChatTest extends Test {
      */
     @Override
     public Observable<Result> run() {
-        return Observable.create(emitter -> {
+        return Observable.create((ObservableOnSubscribe<Result>) emitter -> {
             manage(emitter);
             final List<User> users = users();
             dm.add(Fire.stream().createChat(chatName(), chatImageURL(), customData(), users).subscribe(chat -> {
@@ -78,7 +80,7 @@ public class CreateChatTest extends Test {
                 complete();
 
             }, this));
-        });
+        }).subscribeOn(Schedulers.io());
     }
 
     public static String chatName() {

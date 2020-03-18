@@ -19,6 +19,7 @@ import id.zelory.compressor.Compressor;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.schedulers.Schedulers;
 
 public class ImagePickerUploader {
 
@@ -80,7 +81,7 @@ public class ImagePickerUploader {
             } else {
                 return Maybe.empty();
             }
-        }).firstElement().toSingle();
+        }).firstElement().toSingle().subscribeOn(Schedulers.io());
     }
 
 }

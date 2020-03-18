@@ -87,7 +87,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         resetPasswordButton.setVisibility(ChatSDK.config().resetPasswordEnabled ? View.VISIBLE : View.INVISIBLE);
 
         if (!ChatSDK.auth().accountTypeEnabled(AccountDetails.Type.Anonymous)) {
-            ((ViewGroup) anonymousButton.getParent()).removeView(anonymousButton);
+            anonymousButton.setVisibility(View.GONE);
         }
 
         // Set the debug username and password details for testing
@@ -185,7 +185,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 .subscribe(this::afterLogin, e -> {
                     dismissProgressDialog();
                     toastErrorMessage(e, false);
-                    ChatSDK.logError(e);
+                    ChatSDK.events().onError(e);
                 }));
     }
 

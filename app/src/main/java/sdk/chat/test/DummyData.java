@@ -1,6 +1,9 @@
 package sdk.chat.test;
 
+import android.os.AsyncTask;
+
 import org.joda.time.DateTime;
+import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,13 +42,21 @@ public class DummyData {
         this.threadCount = threadCount;
         this.messageCount = messageCount;
 
-        ChatSDK.hook().addHook(Hook.sync(data -> create()), HookEvent.DidAuthenticate);
+        ChatSDK.hook().addHook(Hook.sync(data -> {
+            AsyncTask.execute(() -> {
+                for (int i = 0; i < threadCount; i++) {
+                    createThread();
+                    Logger.trace("Thread " + i);
+                }
+            });
+        }), HookEvent.DidAuthenticate);
 
     }
 
     public void create() {
         for (int i = 0; i < threadCount; i++) {
             createThread();
+            Logger.debug("Thread " + i);
         }
     }
 
@@ -55,7 +66,7 @@ public class DummyData {
         User currentUser = ChatSDK.currentUser();
         thread.setCreator(currentUser);
         thread.setType(ThreadType.PrivateGroup);
-        thread.setName("Test " + new Date().toString());
+        thread.setName("Test " + new Date().toString(), false);
         thread.setEntityID(UUID.randomUUID().toString());
         thread.update();
 
@@ -84,7 +95,7 @@ public class DummyData {
         message.setSender(sender);
 
         message.setEntityID(UUID.randomUUID().toString());
-        message.setMessageStatus(MessageSendStatus.Created);
+        message.setMessageStatus(MessageSendStatus.Created, false);
         message.setDate(new DateTime());
         message.setType(MessageType.Text);
 
@@ -98,7 +109,7 @@ public class DummyData {
             }
         }
 
-        thread.addMessage(message);
+        thread.addMessage(message, false);
 
         message.update();
     }

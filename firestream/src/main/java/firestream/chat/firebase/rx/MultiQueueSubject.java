@@ -7,6 +7,7 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.ReplaySubject;
@@ -124,7 +125,7 @@ public class MultiQueueSubject<T> extends Observable<T> implements Observer<T> {
      */
     public Observable<T> newEvents() {
         return publishSubject
-                .hide().observeOn(AndroidSchedulers.mainThread());
+                .hide().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     /**
@@ -133,7 +134,7 @@ public class MultiQueueSubject<T> extends Observable<T> implements Observer<T> {
      * @return a events of all events past and future
      */
     public Observable<T> pastAndNewEvents() {
-        return replaySubject.hide().observeOn(AndroidSchedulers.mainThread());
+        return replaySubject.hide().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     /**
@@ -142,6 +143,6 @@ public class MultiQueueSubject<T> extends Observable<T> implements Observer<T> {
      * @return a events of the last emitted event and all future events
      */
     public Observable<T> currentAndNewEvents() {
-        return behaviorSubject.hide().observeOn(AndroidSchedulers.mainThread());
+        return behaviorSubject.hide().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 }

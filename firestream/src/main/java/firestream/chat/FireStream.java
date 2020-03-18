@@ -439,7 +439,7 @@ public class FireStream extends AbstractChat implements IFireStream {
         // We remove the chat from our list of chats, when that completes,
         // we will remove our self from the chat roster
         return getFirebaseService().chat.leaveChat(chat.getId())
-                .subscribeOn(Schedulers.single())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
@@ -447,7 +447,7 @@ public class FireStream extends AbstractChat implements IFireStream {
     public Completable joinChat(IChat chat) {
         return getFirebaseService().chat
                 .joinChat(chat.getId())
-                .subscribeOn(Schedulers.single())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
@@ -505,7 +505,7 @@ public class FireStream extends AbstractChat implements IFireStream {
 
     @Override
     public Observable<ConnectionEvent> getConnectionEvents() {
-        return connectionEvents.hide();
+        return connectionEvents.subscribeOn(Schedulers.io()).hide();
     }
 
     //

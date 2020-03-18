@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 
 import androidx.annotation.LayoutRes;
@@ -39,9 +40,15 @@ import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
 import co.chatsdk.ui.icons.Icons;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Observer;
+import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.BiConsumer;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 
 import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL;
 
@@ -54,10 +61,18 @@ public class SearchActivity extends BaseActivity {
     protected Disposable searchDisposable;
 
     @BindView(R2.id.toolbar) protected Toolbar toolbar;
+    @BindView(R2.id.addUserButton) protected Button addUserButton;
     @BindView(R2.id.recyclerView) protected RecyclerView recyclerView;
     @BindView(R2.id.fab) protected FloatingActionButton fab;
     @BindView(R2.id.searchView) protected MaterialSearchView searchView;
     @BindView(R2.id.root) protected FrameLayout root;
+
+    protected String text = "";
+
+    protected @LayoutRes
+    int getLayout() {
+        return R.layout.activity_search;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -110,10 +125,12 @@ public class SearchActivity extends BaseActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                text = newText;
                 if (newText.length() > 2) {
                     search(newText);
                 } else {
                     adapter.clear();
+                    addUserButton.setVisibility(View.GONE);
                 }
                 return false;
             }
@@ -130,16 +147,18 @@ public class SearchActivity extends BaseActivity {
                 finish();
             }
         });
+
+        addUserButton.setOnClickListener(v -> {
+            dm.add(ChatSDK.core()
+                    .getUserForEntityID(text)
+                    .flatMapCompletable(user -> ChatSDK.contact().addContact(user, ConnectionType.Contact))
+                    .subscribe(this::finish, this));
+        });
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-    }
-
-    protected @LayoutRes
-    int getLayout() {
-        return R.layout.activity_search;
     }
 
     @Override
@@ -211,6 +230,7 @@ public class SearchActivity extends BaseActivity {
                     @Override
                     public void onError(@NonNull Throwable e) {
                         showSnackbar(e.getLocalizedMessage());
+                        addUserButton.setVisibility(View.VISIBLE);
                     }
 
                     @Override
@@ -218,10 +238,12 @@ public class SearchActivity extends BaseActivity {
                         adapter.setUsers(users, true);
                         if (users.size() == 0) {
                             showSnackbar(R.string.search_activity_no_user_found_toast, Snackbar.LENGTH_LONG);
+                            if (!text.isEmpty()) {
+                                addUserButton.setVisibility(View.VISIBLE);
+                            }
                         }
                     }
                 });
-
     }
 
     protected void done() {
@@ -243,6 +265,5 @@ public class SearchActivity extends BaseActivity {
         fab.setImageDrawable(Icons.get(Icons.choose().check, R.color.white));
         fab.setVisibility(adapter.getSelectedCount() > 0 ? View.VISIBLE : View.INVISIBLE);
     }
-
 
 }

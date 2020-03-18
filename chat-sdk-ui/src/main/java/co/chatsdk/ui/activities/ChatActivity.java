@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Debug;
-import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -146,7 +145,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadDetailsUpdated, EventType.ThreadUsersChanged))
+                .filter(NetworkEvent.filterType(EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> chatActionBar.reload(thread)));
 
@@ -160,7 +159,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.TypingStateChanged))
+                .filter(NetworkEvent.filterType(EventType.TypingStateUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> {
                     String typingText = networkEvent.text;
@@ -171,12 +170,34 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     chatActionBar.setSubtitleText(thread, typingText);
                 }));
 
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.ThreadUserRoleUpdated))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+                .filter(NetworkEvent.filterUserEntityID(ChatSDK.currentUserID()))
+                .subscribe(networkEvent -> {
+                    if (ChatSDK.thread().hasVoice(thread, networkEvent.user)) {
+                        showTextInput();
+                    } else {
+                        hideTextInput();
+                    }
+                }));
+
         thread.markRead();
 
         chatView.enableSelectionMode(count -> {
             invalidateOptionsMenu();
         });
 
+    }
+
+    public void hideTextInput() {
+        input.setVisibility(View.GONE);
+        divider.setVisibility(View.GONE);
+    }
+
+    public void showTextInput() {
+        input.setVisibility(View.VISIBLE);
+        divider.setVisibility(View.VISIBLE);
     }
 
     public void hideReplyView() {
@@ -193,6 +214,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         super.initViews();
 
         chatView.initViews();
+
+        if (!ChatSDK.thread().hasVoice(thread, ChatSDK.currentUser())) {
+            hideTextInput();
+        }
 
         input.setInputListener(input -> {
             sendMessage(String.valueOf(input));

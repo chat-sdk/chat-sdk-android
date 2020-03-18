@@ -28,6 +28,7 @@ import co.chatsdk.firebase.FirebaseCoreHandler;
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -47,14 +48,14 @@ public class FirebasePushHandler extends AbstractPushHandler {
     public Completable subscribeToPushChannel(String channel) {
         return Completable.create(emitter -> messaging().subscribeToTopic(channel).addOnSuccessListener(aVoid -> {
             emitter.onComplete();
-        }).addOnFailureListener(emitter::onError)).andThen(super.subscribeToPushChannel(channel));
+        }).addOnFailureListener(emitter::onError)).andThen(super.subscribeToPushChannel(channel)).subscribeOn(Schedulers.io());
     }
 
     @Override
     public Completable unsubscribeToPushChannel(String channel) {
         return Completable.create(emitter -> messaging().unsubscribeFromTopic(channel).addOnSuccessListener(aVoid -> {
             emitter.onComplete();
-        }).addOnFailureListener(emitter::onError)).andThen(super.unsubscribeToPushChannel(channel));
+        }).addOnFailureListener(emitter::onError)).andThen(super.unsubscribeToPushChannel(channel)).subscribeOn(Schedulers.io());
     }
 
     @Override

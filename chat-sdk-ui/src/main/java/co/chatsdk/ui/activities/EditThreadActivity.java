@@ -18,10 +18,11 @@ import androidx.appcompat.app.ActionBar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.squareup.picasso.Picasso;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -152,7 +153,7 @@ public class EditThreadActivity extends BaseActivity {
             fab.setEnabled(false);
         }
         if (threadImageURL != null) {
-            Picasso.get().load(threadImageURL).into(threadImageView);
+            Glide.with(this).load(threadImageURL).dontAnimate().into(threadImageView);
         } else if (thread != null) {
             ThreadImageBuilder.load(threadImageView, thread);
         } else {
@@ -176,8 +177,8 @@ public class EditThreadActivity extends BaseActivity {
                 if (throwable == null) {
                     // Finish this activity before opening the new thread to prevent the
                     // user from going back to the creation screen by pressing the back button
-                    finish();
-                    ChatSDK.ui().startChatActivityForID(ChatSDK.shared().context(), thread.getEntityID());
+                    ChatSDK.ui().startChatActivityForID(this, thread.getEntityID());
+//                    finish();
                 } else {
                     showToast(throwable.getLocalizedMessage());
                 }

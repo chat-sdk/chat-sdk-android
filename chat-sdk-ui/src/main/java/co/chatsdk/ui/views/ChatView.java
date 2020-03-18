@@ -2,24 +2,17 @@ package co.chatsdk.ui.views;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.LinearLayout;
 
 import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.ui.R2;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
+
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
@@ -83,7 +76,6 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         this.delegate = delegate;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     public void initViews() {
         LayoutInflater.from(getContext()).inflate(R.layout.view_chat, this);
         ButterKnife.bind(this);
@@ -105,16 +97,17 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                     // User avatar
                     Glide.with(this)
                             .load(url)
+                            .dontAnimate()
                             .override(Dimen.from(getContext(), R.dimen.small_avatar_width), Dimen.from(getContext(), R.dimen.small_avatar_height))
                             .into(imageView);
                 } else {
                     // Image message
-                    RequestCreator request = Picasso.get().load(url)
+                    Glide.with(this)
+                            .load(url)
+                            .dontAnimate()
                             .placeholder(placeholder)
                             .error(R.drawable.icn_200_image_message_error)
-                            .resize(maxImageWidth(), maxImageWidth()).centerCrop();
-
-                    request.into(imageView);
+                            .override(maxImageWidth(), maxImageWidth()).centerCrop().into(imageView);
                 }
             }
         });
@@ -137,43 +130,32 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     }
 
     protected void addListeners() {
+
         // Add the event listeners
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageAdded))
+                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.MessageSendStatusUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
                 .subscribe(networkEvent -> {
                     Message message = networkEvent.message;
-                    addMessageToStartOrUpdate(message);
-                    message.markRead();
-                }));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
-                .subscribe(networkEvent -> {
-
-                    Message message = networkEvent.message;
-
-                    if (ChatSDK.readReceipts() != null && message.getSender().isMe()) {
+                    if (networkEvent.typeIs(EventType.MessageAdded)) {
                         addMessageToStartOrUpdate(message);
+                        message.markReadIfNecessary();
+                    }
+                    if (networkEvent.typeIs(EventType.MessageUpdated)) {
+                        addMessageToStartOrUpdate(message);
+                    }
+                    if (networkEvent.typeIs(EventType.MessageRemoved)) {
+                        removeMessage(networkEvent.message);
+                    }
+                    if (networkEvent.typeIs(EventType.MessageReadReceiptUpdated) && ChatSDK.readReceipts() != null && message.getSender().isMe()) {
+                        addMessageToStartOrUpdate(message);
+                    }
+                    if (networkEvent.typeIs(EventType.MessageSendStatusUpdated)) {
+                        MessageSendProgress progress = networkEvent.getMessageSendProgress();
+                        addMessageToStartOrUpdate(progress.message, progress);
                     }
                 }));
 
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageRemoved))
-                .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
-                .subscribe(networkEvent -> {
-                    removeMessage(networkEvent.message);
-                }));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageSendStatusChanged))
-                .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
-                .subscribe(networkEvent -> {
-
-                    MessageSendProgress progress = networkEvent.getMessageSendProgress();
-                    addMessageToStartOrUpdate(progress.message, progress);
-                }));
     }
 
     protected int maxImageWidth() {
@@ -222,6 +204,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     public void updatePrevious(Message message) {
         MessageHolder holder = previous(message);
         if (holder != null) {
+            holder.update();
             messagesListAdapter.update(holder);
         }
     }
@@ -267,10 +250,12 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
             // comes in and scrolls the screen down
             boolean scroll = message.getSender().isMe();
 
-            int scrollYOffset = messagesList.computeVerticalScrollOffset();
+            int offset = messagesList.computeVerticalScrollOffset();
             int extent = messagesList.computeVerticalScrollExtent();
+            int range = messagesList.computeVerticalScrollRange();
+            int distanceFromBottom = range - extent - offset;
 
-            if (extent - scrollYOffset < 100) {
+            if (distanceFromBottom < 400) {
                 scroll = true;
             }
 
@@ -278,9 +263,10 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
             // Update the previous holder so that we can hide the
             // name if necessary
-            updatePrevious(message);
+//            updatePrevious(message);
 
         } else {
+            holder.update();
             holder.setProgress(progress);
             messagesListAdapter.update(holder);
         }
@@ -329,7 +315,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
             ArrayList<MessageHolder> filtered = new ArrayList<>();
             for (MessageHolder holder : messageHolders) {
-                if (holder.getText().toLowerCase().contains(filter)) {
+                if (holder.getText().toLowerCase().contains(filter.toLowerCase())) {
                     filtered.add(holder);
                 }
             }
@@ -344,5 +330,10 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         messagesListAdapter.addToEnd(messageHolders, true);
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        dm.dispose();
+    }
 
 }

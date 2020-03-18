@@ -53,8 +53,7 @@ public class BaseContactHandler implements ContactHandler {
 
     @Override
     public Completable addContact(User user, ConnectionType type) {
-        addContactLocal(user, type);
-        return Completable.complete();
+        return addContactLocal(user, type);
     }
 
     @Override
