@@ -11,6 +11,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -31,6 +32,7 @@ import java.util.List;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.storage.FileManager;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -159,7 +161,7 @@ public class ImageUtils {
 
     public static Single<Bitmap> bitmapForURL (final String url, Integer width, Integer height) {
         return Single.create((SingleOnSubscribe<Bitmap>) emitter -> {
-            RequestBuilder<Bitmap> requestBuilder = Glide.with(ChatSDK.shared().context()).asBitmap().load(url);
+            RequestBuilder<Bitmap> requestBuilder = Glide.with(ChatSDK.ctx()).asBitmap().load(url);
             if (width != null && height != null) {
                 requestBuilder = requestBuilder.override(width, height);
             }
@@ -169,6 +171,20 @@ public class ImageUtils {
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
+    public static Single<ImageUploadResult> uploadImageFile(File file) {
+        return Single.create((SingleOnSubscribe<Bitmap>) emitter -> {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            final Bitmap image = BitmapFactory.decodeFile(file.getPath(), options);
+            emitter.onSuccess(image);
+        }).flatMapObservable(ChatSDK.upload()::uploadImage).flatMapMaybe(fileUploadResult -> {
+            if (fileUploadResult.urlValid()) {
+                return Maybe.just(new ImageUploadResult(fileUploadResult.url, file.getPath()));
+            } else {
+                return Maybe.empty();
+            }
+        }).firstElement().toSingle().subscribeOn(Schedulers.io());
+    }
 }
 
 

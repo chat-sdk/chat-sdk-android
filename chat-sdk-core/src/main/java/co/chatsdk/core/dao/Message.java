@@ -157,6 +157,17 @@ public class Message extends AbstractEntity {
         }
     }
 
+    public void markDelivered() {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!isRead()) {
+                    setUserReadStatus(ChatSDK.currentUser(), ReadStatus.delivered(), new DateTime());
+                }
+            }
+        });
+    }
+
     @Override
     public String toString() {
         return String.format("Message, id: %s, type: %s, Sender: %s", id, type, getSender());

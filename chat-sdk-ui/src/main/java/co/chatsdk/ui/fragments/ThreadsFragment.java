@@ -19,6 +19,7 @@ import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import butterknife.BindView;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.dao.sorter.ThreadsSorter;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
@@ -37,6 +39,7 @@ import co.chatsdk.ui.chat.model.TypingThreadHolder;
 import co.chatsdk.ui.custom.Customiser;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.interfaces.SearchSupported;
+import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.utils.ThreadImageBuilder;
 import co.chatsdk.ui.view_holders.ThreadViewHolder;
 import io.reactivex.Observable;
@@ -79,30 +82,32 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(mainEventFilter())
                 .subscribe(networkEvent -> {
-//                    if (tabIsVisible) {
-                        if (networkEvent.typeIs(EventType.ThreadAdded, EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated, EventType.UserMetaUpdated, EventType.UserPresenceUpdated)) {
-                            addOrUpdateThread(networkEvent.thread);
-                        } else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
-                            removeThread(networkEvent.thread);
-                        } else if (networkEvent.typeIs(EventType.MessageAdded)) {
-                            if (networkEvent.message != null) {
-                                updateMessage(networkEvent.message);
-                            }
-                        } else {
-                            reloadData();
+                    if (networkEvent.typeIs(EventType.ThreadAdded, EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated, EventType.MessageReadReceiptUpdated)) {
+                        addOrUpdateThread(networkEvent.getThread());
+                    }
+                    if (networkEvent.typeIs(EventType.UserMetaUpdated, EventType.UserPresenceUpdated)) {
+                        reloadData();
+                    } else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
+                        removeThread(networkEvent.getThread());
+                    } else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved)) {
+                        if (networkEvent.getMessage() != null) {
+                            updateMessage(networkEvent.getMessage());
                         }
-//                    }
+                    } else {
+                        reloadData();
+                    }
                 }));
+
 
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.TypingStateUpdated))
                 .subscribe(networkEvent -> {
-                    if (networkEvent.text != null) {
-                        String typingText = networkEvent.text;
+                    if (networkEvent.getText() != null) {
+                        String typingText = networkEvent.getText();
                         typingText += getString(R.string.typing);
-                        dialogsListAdapter.updateItemById(new TypingThreadHolder(networkEvent.thread, typingText));
+                        dialogsListAdapter.updateItemById(new TypingThreadHolder(networkEvent.getThread(), typingText));
                     } else {
-                        ThreadHolder holder = getOrCreateThreadHolder(networkEvent.thread);
+                        ThreadHolder holder = getOrCreateThreadHolder(networkEvent.getThread());
                         dialogsListAdapter.updateItemById(holder);
                     }
                 }));
@@ -123,7 +128,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                         Glide.with(this).load(url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
                     }
                 } else {
-                    int placeholder = ChatSDK.ui().getDefaultProfileImage();
+                    int placeholder = DefaultUIModule.config().defaultProfileImage;
                     Glide.with(this).load(url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
                 }
             }
@@ -137,7 +142,10 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
         }
 
-        dialogsListAdapter.setOnDialogViewClickListener((view, dialog) -> startChatActivity(dialog.getId()));
+        dialogsListAdapter.setOnDialogViewClickListener((view, dialog) -> {
+            dialog.markRead();
+            startChatActivity(dialog.getId());
+        });
         dialogsListAdapter.setOnDialogLongClickListener(dialog -> {
             Thread thread = ChatSDK.db().fetchThreadWithEntityID(dialog.getId());
             if (thread != null) {
@@ -213,6 +221,9 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 threadHolders.add(holder);
             }
             dialogsListAdapter.setItems(threadHolders);
+            if (threadHolders.size() > 1) {
+                dialogsListAdapter.sortByLastMessageDate();
+            }
         }
     }
 

@@ -22,6 +22,7 @@ import java.util.List;
 import butterknife.BindView;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.image.ImageUploadResult;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.activities.ImagePreviewActivity;
@@ -181,7 +182,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
                     Toast.makeText(ProfilePicturesActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    for (ImagePickerUploader.Result result : results) {
+                    for (ImageUploadResult result : results) {
                         ChatSDK.profilePictures().addPicture(getUser(), result.url);
                     }
                     updateGallery();

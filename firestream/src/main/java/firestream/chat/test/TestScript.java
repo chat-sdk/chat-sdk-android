@@ -7,7 +7,7 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-import firestream.chat.Config;
+import firestream.chat.FirestreamConfig;
 import firestream.chat.chat.User;
 import firestream.chat.events.ConnectionEvent;
 import firestream.chat.firebase.rx.DisposableMap;
@@ -32,7 +32,7 @@ public class TestScript {
 
     public TestScript(Context context, String rootPath) {
 
-        Config config = new Config();
+        FirestreamConfig config = new FirestreamConfig();
         try {
             config.setRoot(rootPath);
         } catch (Exception e) {
@@ -40,7 +40,7 @@ public class TestScript {
         }
         config.deleteMessagesOnReceipt = false;
         config.debugEnabled = true;
-        config.database = Config.DatabaseType.Realtime;
+        config.database = FirestreamConfig.DatabaseType.Realtime;
 
         Fire.internal().initialize(context, config);
 

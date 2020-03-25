@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
-import androidx.annotation.DrawableRes;
 import androidx.fragment.app.Fragment;
 
 import java.lang.ref.WeakReference;
@@ -16,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import co.chatsdk.core.Tab;
-import co.chatsdk.core.avatar.FlatHashAvatarGenerator;
+import co.chatsdk.core.avatar.HashAvatarGenerator;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
@@ -48,11 +47,11 @@ import co.chatsdk.ui.activities.SplashScreenActivity;
 import co.chatsdk.ui.activities.MainAppBarActivity;
 import co.chatsdk.ui.activities.EditProfileActivity;
 import co.chatsdk.ui.activities.ProfileActivity;
-import co.chatsdk.ui.fragments.ProfileFragment;
 import co.chatsdk.ui.activities.SearchActivity;
 import co.chatsdk.ui.activities.EditThreadActivity;
 import co.chatsdk.ui.activities.ThreadDetailsActivity;
 import co.chatsdk.ui.icons.Icons;
+import co.chatsdk.ui.module.DefaultUIModule;
 
 public class BaseInterfaceAdapter implements InterfaceAdapter {
 
@@ -78,7 +77,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class createThreadActivity = CreateThreadActivity.class;
     protected Class addUsersToThreadActivity = AddUsersToThreadActivity.class;
     protected Class forwardMessageActivity = ForwardMessageActivity.class;
-    protected AvatarGenerator avatarGenerator = new FlatHashAvatarGenerator();
+    protected AvatarGenerator avatarGenerator = new HashAvatarGenerator();
 
     protected Intent loginIntent;
 
@@ -87,30 +86,16 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Fragment contactsFragment = new ContactsFragment();
     protected ProfileFragmentProvider profileFragmentProvider = new BaseProfileFragmentProvider();
 
-    protected @DrawableRes int defaultProfileImage = R.drawable.icn_100_profile;
-
     private ArrayList<Tab> tabs = new ArrayList<>();
     private Tab privateThreadsTab;
     private Tab publicThreadsTab;
     private Tab contactsTab;
-
-    private String stringLocation;
-    private String stringChoosePhoto;
 
     public BaseInterfaceAdapter (Context context) {
         this.context = new WeakReference<>(context);
 
         Icons.shared().setContext(context);
 
-        stringLocation = context.getResources().getString(R.string.location);
-        stringChoosePhoto = context.getResources().getString(R.string.image_or_photo);
-
-        if (ChatSDK.config().profileHeaderImage == 0) {
-            ChatSDK.config().profileHeaderImage = R.drawable.header2;
-        }
-        if (ChatSDK.config().drawerHeaderImage == 0) {
-            ChatSDK.config().drawerHeaderImage = R.drawable.header2;
-        }
     }
 
     @Override
@@ -531,13 +516,13 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public List<ChatOption> getChatOptions() {
         // Setup the default chat options
         if (!defaultChatOptionsAdded) {
-            if(ChatSDK.config().locationMessagesEnabled) {
-                chatOptions.add(new LocationChatOption(stringLocation));
+            if(DefaultUIModule.config().locationMessagesEnabled) {
+                chatOptions.add(new LocationChatOption(context.get().getResources().getString(R.string.location)));
             }
 
-            if(ChatSDK.config().imageMessagesEnabled) {
+            if(DefaultUIModule.config().imageMessagesEnabled) {
                 //chatOptions.add(new MediaChatOption(stringTakePhoto, MediaType.takePhoto()));
-                chatOptions.add(new MediaChatOption(stringChoosePhoto, MediaType.choosePhoto()));
+                chatOptions.add(new MediaChatOption(context.get().getResources().getString(R.string.image_or_photo), MediaType.choosePhoto()));
             }
             defaultChatOptionsAdded = true;
         }
@@ -596,14 +581,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     public void setAvatarGenerator(AvatarGenerator avatarGenerator) {
         this.avatarGenerator = avatarGenerator;
-    }
-
-    public void setDefaultProfileImage(@DrawableRes int drawable) {
-        defaultProfileImage = drawable;
-    }
-
-    public @DrawableRes int getDefaultProfileImage() {
-        return defaultProfileImage;
     }
 
 }

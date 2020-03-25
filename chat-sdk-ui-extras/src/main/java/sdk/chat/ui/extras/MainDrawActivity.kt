@@ -16,6 +16,7 @@ import co.chatsdk.ui.activities.MainActivity
 import co.chatsdk.ui.fragments.BaseFragment
 import co.chatsdk.ui.icons.Icons
 import co.chatsdk.ui.interfaces.SearchSupported
+import co.chatsdk.ui.module.DefaultUIModule
 import com.bumptech.glide.Glide
 import com.mikepenz.materialdrawer.holder.ImageHolder
 import com.mikepenz.materialdrawer.holder.StringHolder
@@ -29,6 +30,7 @@ import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader
 import com.mikepenz.materialdrawer.util.DrawerImageLoader
 import com.mikepenz.materialdrawer.util.updateName
 import com.mikepenz.materialdrawer.widget.AccountHeaderView
+import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import kotlinx.android.synthetic.main.activity_main_drawer.*
 
@@ -112,7 +114,7 @@ class MainDrawActivity : MainActivity() {
             onDrawerItemClickListener = { v, drawerItem, position ->
                 // Logout item
                 if(drawerItem  === logoutItem) {
-                    ChatSDK.auth().logout().subscribe(this@MainDrawActivity)
+                    ChatSDK.auth().logout().doOnComplete(Action { ChatSDK.ui().startSplashScreenActivity(this@MainDrawActivity) }).subscribe(this@MainDrawActivity)
                 } else if(drawerItem  === profileItem) {
                     ChatSDK.ui().startProfileActivity(context, ChatSDK.currentUserID())
                 } else {
@@ -175,7 +177,7 @@ class MainDrawActivity : MainActivity() {
 //                    }
             )
             selectionListEnabledForSingleProfile = false
-            headerBackground = ImageHolder(ChatSDK.config().drawerHeaderImage)
+            headerBackground = ImageHolder(ExtrasModule.config().drawerHeaderImage)
             withSavedInstance(savedInstanceState)
             onAccountHeaderListener = { view, profile, current ->
                 ChatSDK.ui().startProfileActivity(context, ChatSDK.currentUserID())

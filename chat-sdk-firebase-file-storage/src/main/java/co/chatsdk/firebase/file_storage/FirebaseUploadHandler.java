@@ -61,8 +61,8 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
     }
 
     public static FirebaseStorage storage () {
-        if (ChatSDK.config().firebaseStorageUrl != null) {
-            return FirebaseStorage.getInstance(FirebaseCoreHandler.app(), ChatSDK.config().firebaseStorageUrl);
+        if (FirebaseFileStorageModule.config().firebaseStorageUrl != null) {
+            return FirebaseStorage.getInstance(FirebaseCoreHandler.app(), FirebaseFileStorageModule.config().firebaseStorageUrl);
         } else {
             return FirebaseStorage.getInstance(FirebaseCoreHandler.app());
         }

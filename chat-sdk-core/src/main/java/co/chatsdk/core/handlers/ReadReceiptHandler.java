@@ -8,9 +8,6 @@ import co.chatsdk.core.dao.Thread;
  */
 
 public interface ReadReceiptHandler {
-
-    void updateReadReceipts(Thread thread);
-    void updateReadReceipts(Message message);
     void markRead (Message message);
-
+    void markDelivered (Message message);
 }

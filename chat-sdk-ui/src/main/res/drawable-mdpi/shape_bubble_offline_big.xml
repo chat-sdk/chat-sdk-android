@@ -5,7 +5,7 @@
 
     <stroke
         android:width="4dp"
-        android:color="@color/white"/>
+        android:color="?onlineIndicatorBorderColor"/>
 
     <size
         android:width="40dp"

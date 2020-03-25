@@ -9,14 +9,12 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import firestream.chat.Config;
+import firestream.chat.FirestreamConfig;
 import firestream.chat.chat.Chat;
 import firestream.chat.chat.User;
 import firestream.chat.events.ConnectionEvent;
 import firestream.chat.events.Event;
 import firestream.chat.firebase.rx.MultiQueueSubject;
-import firestream.chat.firebase.service.Paths;
-import firestream.chat.message.Message;
 import firestream.chat.message.Sendable;
 import firestream.chat.types.ContactType;
 import firestream.chat.types.DeliveryReceiptType;
@@ -31,7 +29,7 @@ import io.reactivex.functions.Predicate;
 
 public interface IFireStream extends IAbstractChat {
 
-    void initialize(Context context, @Nullable Config config);
+    void initialize(Context context, @Nullable FirestreamConfig config);
     void initialize(Context context);
     boolean isInitialized();
 

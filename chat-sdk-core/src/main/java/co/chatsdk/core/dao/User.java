@@ -200,13 +200,6 @@ public class User extends AbstractEntity implements UserListItem {
         return metaStringForKey(Keys.AvatarURL);
     }
 
-    public String getAvatarUrlOrDefault(Context context) {
-        if (!StringChecker.isNullOrEmpty(getAvatarURL())) {
-            return getAvatarURL();
-        }
-        return ImageUtils.uriForResourceId(context, ChatSDK.ui().getDefaultProfileImage()).toString();
-    }
-
     public void setAvatarHash(String hash) {
         setMetaString(Keys.AvatarHash, hash, false);
     }
@@ -555,10 +548,10 @@ public class User extends AbstractEntity implements UserListItem {
         }
     }
 
-    public Disposable loadAvatar(ImageView imageView, int width, int height) {
-        return UserImageBuilder.loadAvatar(this, imageView, width, height);
-    }
-    public Single<Bitmap> getAvatarBitmap(int width, int height) {
-        return UserImageBuilder.getAvatarBitmap(this, width, height);
-    }
+//    public Disposable loadAvatar(ImageView imageView, int width, int height) {
+//        return UserImageBuilder.loadAvatar(this, imageView, width, height);
+//    }
+//    public Single<Bitmap> getAvatarBitmap(int width, int height) {
+//        return UserImageBuilder.getAvatarBitmap(this, width, height);
+//    }
 }

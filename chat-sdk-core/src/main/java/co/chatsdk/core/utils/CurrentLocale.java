@@ -9,7 +9,7 @@ import co.chatsdk.core.session.ChatSDK;
 
 public class CurrentLocale {
     public static Locale get() {
-        return get(ChatSDK.shared().context());
+        return get(ChatSDK.ctx());
     }
 
     public static Locale get(Context context){

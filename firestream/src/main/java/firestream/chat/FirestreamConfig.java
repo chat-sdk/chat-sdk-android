@@ -1,5 +1,7 @@
 package firestream.chat;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -7,7 +9,7 @@ import firefly.sdk.chat.R;
 import firestream.chat.namespace.Fire;
 import io.reactivex.functions.Predicate;
 
-public class Config {
+public class FirestreamConfig {
 
     public enum DatabaseType {
         Firestore,
@@ -117,7 +119,7 @@ public class Config {
      * If this is set to false, you will need to be careful if you are
      * using read receipts because the framework won't know whether it
      * has already sent an automatic receipt for a message. To resolve
-     * this there are two options, you can set {@link Config#autoMarkReceived}
+     * this there are two options, you can set {@link FirestreamConfig#autoMarkReceived}
      * to false or you can use the set the read receipt filter
      * {@link FireStream#setMarkReceivedFilter(Predicate)}
      *
@@ -138,7 +140,7 @@ public class Config {
      * the last week. If it is set to null there will be no limit,
      * we will listed to all historic messages
      *
-     * This also is in effect in the case that the {@link Config#startListeningFromLastSentMessageDate }
+     * This also is in effect in the case that the {@link FirestreamConfig#startListeningFromLastSentMessageDate }
      * is set to true, in that case, if there are no messages or receipts in the queue,
      * the listener will be set with this duration ago
      * */
@@ -154,33 +156,78 @@ public class Config {
      */
     public boolean debugEnabled = false;
 
-    public void setRoot(String root) throws Exception {
-        if (pathValid(root)) {
-            this.root = root;
-        } else {
-            throw new Exception(Fire.internal().context().getString(R.string.error_invalid_path));
+    public FirestreamConfig setRoot(String root) {
+        String path = validatePath(root);
+        if (path != null) {
+            this.root = path;
         }
+        return this;
     }
 
-    public void setSandbox(String sandbox) throws Exception {
-        if (pathValid(sandbox)) {
-            this.sandbox = sandbox;
-        } else {
-            throw new Exception(Fire.internal().context().getString(R.string.error_invalid_path));
+    public FirestreamConfig setSandbox(String sandbox) {
+        String path = validatePath(sandbox);
+        if (path != null) {
+            this.sandbox = path;
         }
+        return this;
     }
 
-    protected boolean pathValid(String path) {
-        if (path == null || path.isEmpty()) {
-            return false;
-        }
-        for (int i = 0; i < path.length(); i++) {
-            char c = path.charAt(i);
-            if(!Character.isLetterOrDigit(c) && !String.valueOf(c).equals("_")) {
-                return false;
+    public FirestreamConfig setDatabaseType(DatabaseType type) {
+        this.database = type;
+        return this;
+    }
+
+    public FirestreamConfig setDeliveryReceiptsEnabled(boolean value) {
+        this.deliveryReceiptsEnabled = value;
+        return this;
+    }
+
+    public FirestreamConfig setAutoMarkReceivedEnabled(boolean value) {
+        this.autoMarkReceived = value;
+        return this;
+    }
+
+    public FirestreamConfig setAutoAcceptChatInviteEnabled(boolean value) {
+        this.autoAcceptChatInvite = value;
+        return this;
+    }
+
+    public FirestreamConfig setDeleteMessagesOnReceiptEnabled(boolean value) {
+        this.deleteMessagesOnReceipt = value;
+        return this;
+    }
+    public FirestreamConfig setMessageHistoryLimit(int value) {
+        this.messageHistoryLimit = value;
+        return this;
+    }
+
+
+
+    public FirestreamConfig setStartListeningFromLastSentMessageDateEnabled(boolean value) {
+        this.startListeningFromLastSentMessageDate = value;
+        return this;
+    }
+
+    public FirestreamConfig setListenToMessagesWithTimeAgo(TimePeriod value) {
+        this.listenToMessagesWithTimeAgo = value;
+        return this;
+    }
+
+    protected String validatePath(String path) {
+        if (path != null) {
+            String validPath = path.replaceAll("[^a-zA-Z0-9_]", "");
+            if (!validPath.isEmpty()) {
+                if (!validPath.equals(path)) {
+                    Logger.warn("The root path cannot contain special characters, they were removed so your new root path is: " + validPath);
+                }
+                return validPath;
+            } else {
+                Logger.warn("The root path cannot contain special characters, when removed your root path was empty so the default was used instead");
             }
+        } else {
+            Logger.warn("The root path provided cannot be null, the default was used instead");
         }
-        return true;
+        return null;
     }
 
     public String getRoot() {

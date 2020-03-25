@@ -31,6 +31,7 @@ import butterknife.BindView;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
@@ -48,7 +49,6 @@ import io.reactivex.functions.BiConsumer;
  */
 public class EditThreadActivity extends BaseActivity {
 
-    protected ActionBar actionBar;
     protected String threadEntityID;
 
     protected Thread thread;
@@ -93,11 +93,6 @@ public class EditThreadActivity extends BaseActivity {
     protected void initViews() {
         super.initViews();
 
-        actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setHomeButtonEnabled(true);
-        }
-
         nameTextInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -122,7 +117,7 @@ public class EditThreadActivity extends BaseActivity {
             dm.add(pickerUploader.choosePhoto(this).subscribe(files -> {
                 if (!files.isEmpty()) {
                     showProgressDialog(EditThreadActivity.this.getString(R.string.uploading));
-                    dm.add(pickerUploader.uploadImageFile(files.get(0)).subscribe(result -> {
+                    dm.add(ImageUtils.uploadImageFile(files.get(0)).subscribe(result -> {
                         if (result != null) {
                             updateThreadImageURL(result.url);
                             refreshView();
@@ -147,7 +142,6 @@ public class EditThreadActivity extends BaseActivity {
     protected void refreshView() {
         if (thread != null) {
             String name = thread.getName();
-            actionBar.setTitle(name);
             nameTextInput.setText(name);
         } else {
             fab.setEnabled(false);

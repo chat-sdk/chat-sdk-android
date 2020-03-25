@@ -98,6 +98,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                     Glide.with(this)
                             .load(url)
                             .dontAnimate()
+                            .placeholder(placeholder)
                             .override(Dimen.from(getContext(), R.dimen.small_avatar_width), Dimen.from(getContext(), R.dimen.small_avatar_height))
                             .into(imageView);
                 } else {
@@ -107,13 +108,16 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                             .dontAnimate()
                             .placeholder(placeholder)
                             .error(R.drawable.icn_200_image_message_error)
-                            .override(maxImageWidth(), maxImageWidth()).centerCrop().into(imageView);
+                            .override(maxImageWidth(), maxImageWidth())
+                            .centerCrop()
+                            .into(imageView);
                 }
             }
         });
 
         messagesListAdapter.setLoadMoreListener(this);
         messagesListAdapter.setDateHeadersFormatter(date -> prettyTime.format(date));
+
 
         messagesListAdapter.setOnMessageClickListener(holder -> {
             delegate.onClick(holder.getMessage());
@@ -136,7 +140,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.MessageSendStatusUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
                 .subscribe(networkEvent -> {
-                    Message message = networkEvent.message;
+                    Message message = networkEvent.getMessage();
                     if (networkEvent.typeIs(EventType.MessageAdded)) {
                         addMessageToStartOrUpdate(message);
                         message.markReadIfNecessary();
@@ -145,7 +149,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                         addMessageToStartOrUpdate(message);
                     }
                     if (networkEvent.typeIs(EventType.MessageRemoved)) {
-                        removeMessage(networkEvent.message);
+                        removeMessage(networkEvent.getMessage());
                     }
                     if (networkEvent.typeIs(EventType.MessageReadReceiptUpdated) && ChatSDK.readReceipts() != null && message.getSender().isMe()) {
                         addMessageToStartOrUpdate(message);

@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import co.chatsdk.core.R;
-import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
@@ -23,7 +22,7 @@ public class Strings {
     }
 
     public static String t (int resId) {
-        return t(ChatSDK.shared().context(), resId);
+        return t(ChatSDK.ctx(), resId);
     }
 
     public static String dateTime (Date date) {

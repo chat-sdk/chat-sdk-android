@@ -1,22 +1,26 @@
 package co.chatsdk.ui.view_holders.base;
 
 import android.content.Context;
-import android.os.Build;
+import android.content.res.ColorStateList;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
+import com.stfalcon.chatkit.messages.MessagesListStyle;
 
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.Optional;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.binders.IconBinder;
@@ -60,7 +64,6 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
         super.onBind(message);
 
         ReplyViewBinder.onBind(replyView, replyTextView, replyImageView, message);
-
         OnlineStatusBinder.bind(onlineIndicator, message);
 
         //We can set onClick listener on view from payload
@@ -81,7 +84,6 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
         } else {
             time.setVisibility(View.VISIBLE);
         }
-
     }
 
     public static class Payload {

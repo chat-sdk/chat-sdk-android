@@ -6,6 +6,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -23,7 +24,7 @@ import co.chatsdk.ui.icons.Icons;
 
 public class ReplyView extends ConstraintLayout {
 
-    @BindView(R2.id.imageView) protected PorterShapeImageView imageView;
+    @BindView(R2.id.imageView) protected ImageView imageView;
     @BindView(R2.id.divider) protected View divider;
     @BindView(R2.id.replyTextView) protected TextView replyTextView;
     @BindView(R2.id.cancelButton) protected ImageButton cancelButton;

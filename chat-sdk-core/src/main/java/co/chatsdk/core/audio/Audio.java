@@ -1,25 +1,18 @@
 package co.chatsdk.core.audio;
 
-import android.app.Notification;
 import android.content.Context;
-
-import androidx.annotation.Nullable;
 
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
-import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadManager;
-import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
-import com.google.android.exoplayer2.scheduler.Scheduler;
 import com.google.android.exoplayer2.ui.DownloadNotificationHelper;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 
 import java.io.File;
-import java.util.List;
 
 import co.chatsdk.core.R;
 import co.chatsdk.core.session.ChatSDK;
@@ -60,7 +53,7 @@ public class Audio {
 
     public Audio() {
 
-        databaseProvider = new ExoDatabaseProvider(ChatSDK.shared().context());
+        databaseProvider = new ExoDatabaseProvider(ChatSDK.ctx());
 
         File downloadContentDirectory = new File(getDownloadDirectory(), DOWNLOAD_CONTENT_DIRECTORY);
 

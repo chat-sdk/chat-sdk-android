@@ -16,7 +16,7 @@
         android:layout_marginLeft="@dimen/message_outcoming_bubble_margin_left"
         android:layout_marginStart="@dimen/message_outcoming_bubble_margin_left"
         android:adjustViewBounds="true"
-        app:siShape="@drawable/shape_outcoming_message"
+        app:siShape="?outcomingBubbleDrawable"
         app:siSquare="false"/>
 
     <ImageView
@@ -45,7 +45,8 @@
             android:layout_gravity="end"
             android:layout_marginRight="5dp"
             android:layout_marginEnd="5dp"
-            android:maxLines="1"/>
+            android:maxLines="1"
+            />
 
         <ImageView
             android:id="@+id/readStatus"

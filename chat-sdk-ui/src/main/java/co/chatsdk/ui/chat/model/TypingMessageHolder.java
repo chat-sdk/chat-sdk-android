@@ -1,6 +1,7 @@
 package co.chatsdk.ui.chat.model;
 
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.types.ReadStatus;
 
 public class TypingMessageHolder extends MessageHolder {
 
@@ -15,5 +16,10 @@ public class TypingMessageHolder extends MessageHolder {
     public String getText() {
         return text;
     }
+
+    public ReadStatus getReadStatus() {
+        return ReadStatus.none();
+    }
+
 
 }

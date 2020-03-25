@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:background="@drawable/shape_outcoming_reply"
+            android:background="?outcomingReplyDrawable"
             android:clipChildren="true"
             android:paddingLeft="4dp"
             android:paddingStart="4dp"
@@ -39,7 +39,8 @@
                 android:id="@+id/replyTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:textSize="13sp"
+                android:textSize="?outcomingReplyTextSize"
+                android:textColor="?outcomingReplyTextColor"
                 android:padding="4dp" />
 
             <com.github.siyamed.shapeimageview.mask.PorterShapeImageView
@@ -50,19 +51,11 @@
                 android:layout_gravity="end"
                 android:layout_marginEnd="4dp"
                 android:layout_marginRight="4dp"
-                app:siShape="@drawable/shape_outcoming_reply_image"
+                app:siShape="?outcomingReplyImageDrawable"
                 app:siSquare="false"
                 />
 
         </LinearLayout>
-
-<!--        <RelativeLayout-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content">-->
-<!--            -->
-<!--            -->
-<!--            -->
-<!--        </RelativeLayout>-->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -76,7 +69,7 @@
                 android:layout_marginRight="8dp"
                 android:layout_marginEnd="8dp"
                 android:scaleType="centerInside"
-                app:siShape="@drawable/shape_outcoming_icon"
+                app:siShape="?outcomingIconDrawable"
                 app:siSquare="false" />
 
             <LinearLayout
@@ -115,7 +108,8 @@
             android:layout_gravity="end"
             android:layout_marginRight="5dp"
             android:layout_marginEnd="5dp"
-            android:maxLines="1"/>
+            android:maxLines="1"
+            />
 
         <ImageView
             android:id="@+id/readStatus"

@@ -36,6 +36,7 @@ import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
+import co.chatsdk.ui.module.DefaultUIModule;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -84,7 +85,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected void initViews() {
         super.initViews();
 
-        resetPasswordButton.setVisibility(ChatSDK.config().resetPasswordEnabled ? View.VISIBLE : View.INVISIBLE);
+        resetPasswordButton.setVisibility(DefaultUIModule.config().resetPasswordEnabled ? View.VISIBLE : View.INVISIBLE);
 
         if (!ChatSDK.auth().accountTypeEnabled(AccountDetails.Type.Anonymous)) {
             anonymousButton.setVisibility(View.GONE);

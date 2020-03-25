@@ -7,6 +7,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
+import com.stfalcon.chatkit.messages.MessagesListStyle;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,21 +45,5 @@ public class BaseOutcomingTextMessageViewHolder<T extends MessageHolder>
         MessageBinder.onBindSendStatus(time, message);
         IconBinder.bind(messageIcon, imageLoader, message);
 
-
-//        time.setVisibility(View.VISIBLE);
-//        if (holder.getStatus() == MessageSendStatus.Sent) {
-//            Message nextMessage = message.getNextMessage();
-//
-//            // Hide the time if it's the same as the next message
-//            if (nextMessage != null && format.format(message.getDate().toDate()).equals(format.format(nextMessage.getDate().toDate()))) {
-//                time.setVisibility(View.GONE);
-//            }
-//        } else {
-//        }
-
-
-
     }
-
-
 }

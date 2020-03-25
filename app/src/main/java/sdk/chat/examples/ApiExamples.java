@@ -168,7 +168,7 @@ public class ApiExamples {
      */
     public void getNotificationWhenFileUploaded (Thread thread) {
         ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageSendStatusUpdated)).subscribe(networkEvent -> {
-            MessageSendProgress progress = (MessageSendProgress) networkEvent.data.get(NetworkEvent.MessageSendProgress);
+            MessageSendProgress progress = (MessageSendProgress) networkEvent.getData().get(NetworkEvent.MessageSendProgress);
             if (progress.getStatus() == MessageSendStatus.Uploading) {
                 // BaseMessage type uploading
             }

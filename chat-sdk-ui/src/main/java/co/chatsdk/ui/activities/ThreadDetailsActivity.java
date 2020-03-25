@@ -204,7 +204,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             onBackPressed();
         }
         if (item.getItemId() == R.id.action_edit) {
-            ChatSDK.ui().startEditThreadActivity(ChatSDK.shared().context(), thread.getEntityID());
+            ChatSDK.ui().startEditThreadActivity(ChatSDK.ctx(), thread.getEntityID());
         }
         if (item.getItemId() == R.id.action_mute) {
             if (thread.isMuted()) {

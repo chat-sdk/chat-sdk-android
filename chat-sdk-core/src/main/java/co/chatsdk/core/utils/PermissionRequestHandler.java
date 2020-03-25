@@ -2,8 +2,6 @@ package co.chatsdk.core.utils;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
 
 import java.util.List;
 import androidx.core.content.ContextCompat;
@@ -34,7 +32,7 @@ public class PermissionRequestHandler {
     }
 
     public static boolean permissionGranted(String permission) {
-        return ContextCompat.checkSelfPermission(ChatSDK.shared().context(), permission) != PERMISSION_DENIED;
+        return ContextCompat.checkSelfPermission(ChatSDK.ctx(), permission) != PERMISSION_DENIED;
     }
 
     public static Completable requestRecordAudio(Activity activity) {

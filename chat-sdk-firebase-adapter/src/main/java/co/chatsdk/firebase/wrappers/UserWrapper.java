@@ -7,31 +7,27 @@
 
 package co.chatsdk.firebase.wrappers;
 
+import android.content.Intent;
 import android.net.Uri;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import org.pmw.tinylog.Logger;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
-import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.avatar.HashAvatarGenerator;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
-import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.StorageManager;
 
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.HashMapHelper;
@@ -42,14 +38,7 @@ import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.FirebaseReferenceManager;
 import co.chatsdk.firebase.utils.FirebaseRX;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.CompletableSource;
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
+import io.reactivex.functions.BiConsumer;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -136,8 +125,25 @@ public class UserWrapper {
         if (!StringChecker.isNullOrEmpty(profileURL)) {
             model.setAvatarURL(profileURL);
         }
-
         model.update();
+
+        if (StringChecker.isNullOrEmpty(model.getAvailability())) {
+            model.setAvailability(Availability.Available);
+        }
+
+        // Test to see if the avatar is valid
+        ChatSDK.events().disposeOnLogout(ImageUtils.bitmapForURL(profileURL).subscribe((bitmap, throwable) -> {
+            if (throwable != null) {
+//                ChatSDK.events().disposeOnLogout(new HashAvatarGenerator().downloadAvatar(model).subscribe((s, throwable1) -> {
+//                    if (throwable1 != null) {
+//                        model.setAvatarURL(s);
+//                    }
+//                }));
+//
+                model.setAvatarURL(new HashAvatarGenerator().getAvatarURL(model));
+            }
+        }));
+
     }
 
     public Completable once(){

@@ -11,26 +11,54 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.auth.TwitterAuthProvider;
 
+import org.greenrobot.greendao.annotation.NotNull;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import chatsdk.co.chat_sdk_firebase_ui.R;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.handlers.Module;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.session.Configure;
+import co.chatsdk.core.utils.DisposableMap;
 import co.chatsdk.firebase.FirebaseCoreHandler;
-import co.chatsdk.firebase.FirebaseEventHandler;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by ben on 1/2/18.
  */
 
-public class FirebaseUIModule {
+public class FirebaseUIModule implements Module {
 
-    public static void activate (String... providers) {
+    public static final FirebaseUIModule instance = new FirebaseUIModule();
 
-        ArrayList<AuthUI.IdpConfig> idps = getProviders(providers);
+    public static FirebaseUIModule shared() {
+        return instance;
+    }
+
+    public static FirebaseUIModule shared(@NotNull Configure<Config> configure) {
+        configure.with(instance.config);
+        return instance;
+    }
+
+    public static class Config {
+        public List<String> providers = new ArrayList<>();
+
+        public Config setProviders(String... providers) {
+            this.providers.addAll(Arrays.asList(providers));
+            return this;
+        }
+    }
+
+    DisposableMap dm = new DisposableMap();
+    protected Config config = new Config();
+
+    @Override
+    public void activate() {
+
+        ArrayList<AuthUI.IdpConfig> idps = getProviders(config.providers);
 
         Intent authUILoginIntent = authUI()
                 .createSignInIntentBuilder()
@@ -42,13 +70,12 @@ public class FirebaseUIModule {
 
         ChatSDK.ui().setLoginIntent(authUILoginIntent);
 
-        Disposable d = ChatSDK.events().source()
+        dm.add(ChatSDK.events().source()
                 .filter(NetworkEvent.filterType(EventType.Logout))
-                .subscribe(networkEvent -> authUI().signOut(ChatSDK.shared().context()));
-
+                .subscribe(networkEvent -> authUI().signOut(ChatSDK.ctx())));
     }
 
-    public static ArrayList<AuthUI.IdpConfig> getProviders (String... providers) {
+    protected ArrayList<AuthUI.IdpConfig> getProviders (List<String> providers) {
         ArrayList<AuthUI.IdpConfig> idps = new ArrayList<>();
 
         for(String provider: providers) {
@@ -74,8 +101,13 @@ public class FirebaseUIModule {
         return idps;
     }
 
-    public static AuthUI authUI () {
+    protected AuthUI authUI () {
         return AuthUI.getInstance(FirebaseCoreHandler.app());
+    }
+
+    @Override
+    public String getName() {
+        return "FirebaseUIModule";
     }
 
 }

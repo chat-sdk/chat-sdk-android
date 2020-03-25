@@ -34,7 +34,7 @@ public class BaseImageMessageHandler implements ImageMessageHandler {
         }).setUploadable(new FileUploadable(imageFile, "image.jpg", "image/jpeg", uploadable -> {
             if (uploadable instanceof FileUploadable) {
                 FileUploadable fileUploadable = (FileUploadable) uploadable;
-                fileUploadable.file = new Compressor(ChatSDK.shared().context())
+                fileUploadable.file = new Compressor(ChatSDK.ctx())
                         .setMaxHeight(ChatSDK.config().imageMaxHeight)
                         .setMaxWidth(ChatSDK.config().imageMaxWidth)
                         .compressToFile(fileUploadable.file);

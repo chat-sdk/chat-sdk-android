@@ -23,17 +23,15 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     public ThreadHolder(Thread thread) {
         this.thread = thread;
-
-        ChatSDK.events().source()
-                .filter(NetworkEvent.filterType(EventType.ThreadMarkedRead))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID())).doOnNext(networkEvent -> {
-                    unreadCount = null;
-                }).ignoreElements().subscribe(ChatSDK.events());
     }
 
     @Override
     public String getId() {
         return thread.getEntityID();
+    }
+
+    public void markRead() {
+        unreadCount = null;
     }
 
     @Override

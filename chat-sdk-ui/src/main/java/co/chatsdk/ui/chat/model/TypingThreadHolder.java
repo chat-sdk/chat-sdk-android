@@ -19,4 +19,9 @@ public class TypingThreadHolder extends ThreadHolder {
         return super.getLastMessage();
     }
 
+    @Override
+    public int getUnreadCount() {
+        return 0;
+    }
+
 }

@@ -36,7 +36,7 @@ public class MessageHolder implements IMessage {
 
         previousSenderEqualsSender = previousMessage == null || !message.getSender().equalsEntity(previousMessage.getSender());
 
-        DateFormat format = MessageBinder.messageTimeComparisonDateFormat(ChatSDK.shared().context());
+        DateFormat format = MessageBinder.messageTimeComparisonDateFormat(ChatSDK.ctx());
         showDate = nextMessage == null || !format.format(message.getDate().toDate()).equals(format.format(nextMessage.getDate().toDate()));
         isGroup = message.getThread().typeIs(ThreadType.Group);
     }

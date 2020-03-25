@@ -10,14 +10,14 @@
         android:id="@id/dialogContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground">
+        android:background="?selectableItemBackground">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@id/dialogAvatar"
             android:layout_width="@dimen/dialog_avatar_width"
             android:layout_height="@dimen/dialog_avatar_height"
             android:layout_margin="16dp"
-            app:civ_circle_background_color="@color/white"
+            app:civ_circle_background_color="?avatarBackgroundColor"
             />
 
         <TextView
@@ -66,7 +66,7 @@
                 android:layout_height="24dp"
                 android:layout_marginEnd="7dp"
                 android:layout_marginRight="7dp"
-                app:civ_circle_background_color="@color/white"
+                app:civ_circle_background_color="?avatarBackgroundColor"
                 />
 
             <TextView
@@ -84,8 +84,8 @@
 
             <ImageView
                 android:id="@id/readStatus"
-                android:layout_width="20dp"
-                android:layout_height="10dp"
+                android:layout_width="26dp"
+                android:layout_height="13dp"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true" />
 

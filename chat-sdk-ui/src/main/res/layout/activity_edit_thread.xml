@@ -27,7 +27,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:theme="@style/TextInput"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -35,6 +34,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/nameTextInput"
+            android:theme="@style/TextInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"

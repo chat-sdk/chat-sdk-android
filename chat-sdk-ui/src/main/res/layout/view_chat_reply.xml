@@ -6,24 +6,22 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="50dp"
-    android:background="@color/white">
+    android:background="?replyBackgroundColor">
 
-    <com.github.siyamed.shapeimageview.mask.PorterShapeImageView
+    <ImageView
         android:id="@+id/imageView"
         android:layout_width="50dp"
         android:layout_height="50dp"
         app:layout_constraintBottom_toBottomOf="@+id/replyTextView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/replyTextView"
-        app:siShape="@drawable/shape_incoming_message_bubble"
-        app:siSquare="false"/>
+        app:layout_constraintTop_toTopOf="@+id/replyTextView" />
 
     <View
         android:id="@+id/divider"
         android:layout_width="3dp"
         android:layout_height="match_parent"
         app:layout_constraintStart_toEndOf="@+id/imageView"
-        android:background="@color/primary_green_dark"/>
+        android:background="?replyDividerColor"/>
 
     <TextView
         android:id="@+id/replyTextView"
@@ -31,8 +29,8 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="50dp"
         android:layout_marginRight="50dp"
-        android:padding="4dp"
-        android:textSize="13sp"
+        android:padding="?replyTextPadding"
+        android:textSize="?replyTextSize"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/divider"

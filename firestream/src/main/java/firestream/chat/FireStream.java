@@ -18,7 +18,6 @@ import javax.annotation.Nullable;
 
 import firefly.sdk.chat.R;
 import firestream.chat.events.Event;
-import firestream.chat.events.ListData;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.events.ConnectionEvent;
@@ -26,8 +25,6 @@ import firestream.chat.interfaces.IFireStream;
 import firestream.chat.namespace.Fire;
 
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -86,7 +83,7 @@ public class FireStream extends AbstractChat implements IFireStream {
     /**
      * Current configuration
      */
-    protected Config config;
+    protected FirestreamConfig config;
 
     public static FireStream shared () {
         return instance;
@@ -114,17 +111,17 @@ public class FireStream extends AbstractChat implements IFireStream {
     }
 
     @Override
-    public void initialize(Context context, @Nullable Config config) {
+    public void initialize(Context context, @Nullable FirestreamConfig config) {
         this.context = new WeakReference<>(context);
         if (config == null) {
-            config = new Config();
+            config = new FirestreamConfig();
         }
         this.config = config;
 
-        if (config.database == Config.DatabaseType.Firestore) {
+        if (config.database == FirestreamConfig.DatabaseType.Firestore) {
             firebaseService = new FirestoreService();
         }
-        if (config.database == Config.DatabaseType.Realtime) {
+        if (config.database == FirestreamConfig.DatabaseType.Realtime) {
             firebaseService = new RealtimeService();
         }
     }
@@ -531,7 +528,7 @@ public class FireStream extends AbstractChat implements IFireStream {
         return Paths.messagesPath();
     }
 
-    public Config getConfig() {
+    public FirestreamConfig getConfig() {
         return config;
     }
 

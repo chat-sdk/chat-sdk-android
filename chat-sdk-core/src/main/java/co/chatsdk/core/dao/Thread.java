@@ -448,7 +448,7 @@ public class Thread extends AbstractEntity {
                 for(Message m : unreadMessages) {
                     m.markRead();
                 }
-                ChatSDK.events().source().onNext(NetworkEvent.threadMarkedRead(Thread.this));
+//                ChatSDK.events().source().onNext(NetworkEvent.threadMarkedRead(Thread.this));
             }
         });
     }

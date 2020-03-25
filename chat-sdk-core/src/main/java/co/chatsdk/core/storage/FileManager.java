@@ -11,7 +11,6 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,7 +40,7 @@ public class FileManager {
         } else {
             dir = context.getFilesDir();
         }
-        return dir;
+        return subdir(dir, ChatSDK.config().storageDirectory);
     }
 
     public File cache() {
@@ -52,7 +51,7 @@ public class FileManager {
         } else {
             dir = context.getCacheDir();
         }
-        return dir;
+        return subdir(dir, ChatSDK.config().storageDirectory);
     }
 
     public File subdir(File parent, String name) {

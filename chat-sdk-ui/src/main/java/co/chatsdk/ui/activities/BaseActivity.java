@@ -51,6 +51,7 @@ import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
+import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.utils.AlertUtils;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.CompletableObserver;
@@ -95,8 +96,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
 
         updateExtras(getIntent().getExtras());
 
-        if(ChatSDK.config().theme != 0) {
-            setTheme(ChatSDK.config().theme);
+        if(DefaultUIModule.config().theme != 0) {
+            setTheme(DefaultUIModule.config().theme);
         }
 
 

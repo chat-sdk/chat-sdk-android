@@ -19,8 +19,9 @@
         android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="0dp"
-        android:textColor="@color/message_time"
-        android:fontFamily="sans-serif-thin"
+        android:textColor="?incomingUserNameTextColor"
+        android:fontFamily="?incomingUserNameTextFont"
+        android:textSize="?incomingUserNameTextSize"
         />
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -29,7 +30,7 @@
         android:layout_height="40dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        app:civ_circle_background_color="@color/white"
+        app:civ_circle_background_color="?avatarBackgroundColor"
         />
 
     <!--this view is needed for custom holder-->
@@ -52,7 +53,7 @@
         android:layout_toEndOf="@id/messageUserAvatar"
         android:layout_toRightOf="@id/messageUserAvatar"
         android:adjustViewBounds="true"
-        app:siShape="@drawable/shape_incoming_message_bubble"
+        app:siShape="?incomingBubbleDrawable"
         app:siSquare="false"/>
 
     <ImageView
@@ -75,8 +76,6 @@
         android:layout_below="@id/image"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
-        android:textSize="12sp"
-        android:textColor="@color/message_time"
         />
 
 </RelativeLayout>

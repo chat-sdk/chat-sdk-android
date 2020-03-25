@@ -3,9 +3,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/toolbar"
-    android:minHeight="?attr/actionBarSize"
+    android:minHeight="?actionBarSize"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/primary"
-    app:titleTextColor="@color/white"
+    android:background="?actionBarBackgroundColor"
+    app:titleTextColor="?actionBarTextColor"
     />

@@ -1,8 +1,6 @@
 package co.chatsdk.core.utils;
 
-import android.app.Activity;
 import android.content.Context;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
 import androidx.annotation.DimenRes;
@@ -36,7 +34,7 @@ public class Dimen {
     }
 
     protected static Context context() {
-        return ChatSDK.shared().context();
+        return ChatSDK.ctx();
     }
 
 }

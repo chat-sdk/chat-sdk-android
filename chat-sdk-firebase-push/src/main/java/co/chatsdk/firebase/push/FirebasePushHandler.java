@@ -1,12 +1,6 @@
 package co.chatsdk.firebase.push;
 
-import android.content.SharedPreferences;
-
-import androidx.annotation.NonNull;
-
 import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -15,19 +9,9 @@ import org.pmw.tinylog.Logger;
 
 import java.util.HashMap;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.handlers.PushHandler;
-import co.chatsdk.core.interfaces.BroadcastHandler;
 import co.chatsdk.core.push.AbstractPushHandler;
-import co.chatsdk.core.push.BaseBroadcastHandler;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.firebase.FirebaseCoreHandler;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -74,8 +58,8 @@ public class FirebasePushHandler extends AbstractPushHandler {
     }
 
     public static FirebaseFunctions functions () {
-        if (ChatSDK.config().firebaseFunctionsRegion != null) {
-            return FirebaseFunctions.getInstance(FirebaseCoreHandler.app(), ChatSDK.config().firebaseFunctionsRegion);
+        if (FirebasePushModule.config().firebaseFunctionsRegion != null) {
+            return FirebaseFunctions.getInstance(FirebaseCoreHandler.app(), FirebasePushModule.config().firebaseFunctionsRegion);
         } else {
             return FirebaseFunctions.getInstance(FirebaseCoreHandler.app());
         }

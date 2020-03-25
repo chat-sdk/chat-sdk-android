@@ -27,6 +27,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,11 +128,11 @@ public class SearchActivity extends BaseActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 text = newText;
+                addUserButton.setVisibility(View.GONE);
                 if (newText.length() > 2) {
                     search(newText);
                 } else {
                     adapter.clear();
-                    addUserButton.setVisibility(View.GONE);
                 }
                 return false;
             }
@@ -152,7 +154,9 @@ public class SearchActivity extends BaseActivity {
             dm.add(ChatSDK.core()
                     .getUserForEntityID(text)
                     .flatMapCompletable(user -> ChatSDK.contact().addContact(user, ConnectionType.Contact))
-                    .subscribe(this::finish, this));
+                    .subscribe(this::finish, error -> {
+                        Logger.debug("Errr");
+                    }));
         });
     }
 

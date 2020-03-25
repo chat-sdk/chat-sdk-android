@@ -2,6 +2,8 @@ package co.chatsdk.core.events;
 
 import android.location.Location;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.HashMap;
 
 import co.chatsdk.core.dao.Message;
@@ -18,11 +20,11 @@ import io.reactivex.functions.Predicate;
 public class NetworkEvent {
 
     final public EventType type;
-    public Message message;
-    public Thread thread;
-    public User user;
-    public String text;
-    public HashMap<String, Object> data;
+    protected Message message;
+    protected Thread thread;
+    protected User user;
+    protected String text;
+    protected HashMap<String, Object> data;
 
     public static String MessageSendProgress = "MessageSendProgress";
     public Location location;
@@ -69,9 +71,9 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.ThreadDetailsUpdated, thread);
     }
 
-    public static NetworkEvent threadMarkedRead(Thread thread) {
-        return new NetworkEvent(EventType.ThreadMarkedRead, thread);
-    }
+//    public static NetworkEvent threadMarkedRead(Thread thread) {
+//        return new NetworkEvent(EventType.ThreadMarkedRead, thread);
+//    }
 
     public static NetworkEvent threadMetaUpdated(Thread thread) {
         return new NetworkEvent(EventType.ThreadMetaUpdated, thread);
@@ -205,8 +207,8 @@ public class NetworkEvent {
 
     public static Predicate<NetworkEvent> filterThreadEntityID (final String entityID) {
         return networkEvent -> {
-            if(networkEvent.thread != null) {
-                if (networkEvent.thread.equalsEntityID(entityID)) {
+            if(networkEvent.getThread() != null) {
+                if (networkEvent.getThread().equalsEntityID(entityID)) {
                     return true;
                 }
             }
@@ -216,8 +218,8 @@ public class NetworkEvent {
 
     public static Predicate<NetworkEvent> filterUserEntityID (final String entityID) {
         return networkEvent -> {
-            if(networkEvent.user != null) {
-                if (networkEvent.user.equalsEntityID(entityID)) {
+            if(networkEvent.getUser() != null) {
+                if (networkEvent.getUser().equalsEntityID(entityID)) {
                     return true;
                 }
             }
@@ -227,14 +229,23 @@ public class NetworkEvent {
 
     public static Predicate<NetworkEvent> filterThreadType (final int type) {
         return networkEvent -> {
-            if(networkEvent.thread != null) {
-                Thread thread = networkEvent.thread;
+            if(networkEvent.getThread() != null) {
+                Thread thread = networkEvent.getThread();
                 return thread.typeIs(type);
             }
             return false;
         };
     }
 
+    public static Predicate<NetworkEvent> filterThreadTypeOrNull (final int type) {
+        return networkEvent -> {
+            if(networkEvent.getThread() != null) {
+                Thread thread = networkEvent.getThread();
+                return thread.typeIs(type);
+            }
+            return true;
+        };
+    }
     public static Predicate<NetworkEvent> threadDetailsUpdated () {
         return filterType(
                 EventType.ThreadDetailsUpdated,
@@ -251,6 +262,7 @@ public class NetworkEvent {
                 EventType.ThreadUsersUpdated,
                 EventType.MessageAdded,
                 EventType.MessageRemoved,
+                EventType.MessageReadReceiptUpdated,
                 EventType.UserPresenceUpdated,
                 EventType.UserMetaUpdated // Be careful to check that the user is a member of the thread...
         );
@@ -258,11 +270,11 @@ public class NetworkEvent {
 
 
     public static Predicate<NetworkEvent> filterPrivateThreadsUpdated () {
-        return networkEvent -> threadsUpdated().test(networkEvent) && filterThreadType(ThreadType.Private).test(networkEvent);
+        return networkEvent -> threadsUpdated().test(networkEvent) && filterThreadTypeOrNull(ThreadType.Private).test(networkEvent);
      }
 
     public static Predicate<NetworkEvent> filterPublicThreadsUpdated () {
-        return networkEvent -> threadsUpdated().test(networkEvent) && filterThreadType(ThreadType.Public).test(networkEvent);
+        return networkEvent -> threadsUpdated().test(networkEvent) && filterThreadTypeOrNull(ThreadType.Public).test(networkEvent);
     }
 
     public static Predicate<NetworkEvent> filterContactsChanged () {
@@ -297,6 +309,43 @@ public class NetworkEvent {
         return false;
     }
 
+    public void debug() {
+        String text = "Event: " + type.toString();
+        if (user != null) {
+            text += ", " + user.getEntityID() + " - " + user.getName();
+        }
+        if (thread != null) {
+            text += ", " + thread.getEntityID() + " - " + thread.getName();
+        }
+        if (message != null) {
+            text += ", " + message.getEntityID() + " - " + message.getText();
+        }
+        Logger.debug(text);
+    }
 
+    public Message getMessage() {
+        return message;
+    }
 
+    public Thread getThread() {
+        if (thread != null) {
+            return thread;
+        }
+        if (message != null) {
+            return message.getThread();
+        }
+        return null;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public HashMap<String, Object> getData() {
+        return data;
+    }
 }

@@ -8,7 +8,7 @@ import co.chatsdk.core.session.ChatSDK;
 public class Device {
 
     public static boolean honor() {
-        return honor(ChatSDK.shared().context());
+        return honor(ChatSDK.ctx());
     }
 
     public static boolean honor(Context context) {
@@ -16,7 +16,7 @@ public class Device {
     }
 
     public static boolean nexus() {
-        return nexus(ChatSDK.shared().context());
+        return nexus(ChatSDK.ctx());
     }
 
     public static boolean nexus(Context context) {
@@ -24,11 +24,12 @@ public class Device {
     }
 
     public static boolean named(String name) {
-        return Settings.Secure.getString(ChatSDK.shared().context().getContentResolver(), "bluetooth_name").equals(name);
+        return named(ChatSDK.ctx(), name);
     }
 
     public static boolean named(Context context, String name) {
-        return Settings.Secure.getString(context.getContentResolver(), "bluetooth_name").equals(name);
+        String deviceName = Settings.Secure.getString(context.getContentResolver(), "bluetooth_name");
+        return deviceName != null && deviceName.equals(name);
     }
 
 }

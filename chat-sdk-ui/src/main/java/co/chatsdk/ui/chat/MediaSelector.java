@@ -25,6 +25,7 @@ import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.options.MediaType;
+import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.utils.Cropper;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Single;
@@ -115,6 +116,7 @@ public class MediaSelector {
 
             Matisse.from(activity)
                     .choose(mimeTypeSet)
+                    .showSingleMediaType(true)
                     .captureStrategy(new CaptureStrategy(false, activity.getPackageName() + ".contentprovider", "images"))
                     .theme(R.style.Matisse_Zhihu)
                     .capture(true)
@@ -157,13 +159,13 @@ public class MediaSelector {
     }
 
     protected void processPickedImage(Activity activity, List<Uri> uris) throws Exception {
-        if (!ChatSDK.config().imageCroppingEnabled || cropType == CropType.None || uris.size() > 1) {
+        if (!DefaultUIModule.config().imageCroppingEnabled || cropType == CropType.None || uris.size() > 1) {
 
             ArrayList<File> files = new ArrayList<File>();
             for (Uri uri: uris) {
                 File imageFile = fileFromURI(uri, activity, MediaStore.Images.Media.DATA);
                 if (imageFile != null) {
-                    File compressed = new Compressor(ChatSDK.shared().context())
+                    File compressed = new Compressor(ChatSDK.ctx())
                             .setMaxHeight(width)
                             .setMaxWidth(height)
                             .compressToFile(imageFile);
@@ -235,7 +237,7 @@ public class MediaSelector {
     public void handleImageFiles (Activity activity, List<File> files) {
 
         // Scanning the messageImageView so it would be visible in the gallery images.
-        if (ChatSDK.config().saveImagesToDirectory) {
+        if (DefaultUIModule.config().saveImagesToDirectory) {
             for (File file: files) {
                 ChatSDK.shared().fileManager().addFileToGallery(file);
             }

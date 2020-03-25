@@ -1,10 +1,8 @@
 package co.chatsdk.core.audio;
 
 import android.content.Context;
-import android.media.MediaPlayer;
 import android.net.Uri;
 
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -16,11 +14,8 @@ import org.pmw.tinylog.Logger;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.sql.DataSource;
-
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.CurrentLocale;
-import co.chatsdk.core.utils.DisposableMap;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -35,7 +30,7 @@ import static com.google.android.exoplayer2.Player.STATE_READY;
 
 public class AudioPlayer {
 
-    protected final SimpleExoPlayer player = new SimpleExoPlayer.Builder(ChatSDK.shared().context()).build();
+    protected final SimpleExoPlayer player = new SimpleExoPlayer.Builder(ChatSDK.ctx()).build();
     protected Disposable playingDisposable;
 
     protected PublishSubject<Long> timePublishSubject = PublishSubject.create();
@@ -73,7 +68,7 @@ public class AudioPlayer {
         stop();
         isReady = false;
 
-        Context context = ChatSDK.shared().context();
+        Context context = ChatSDK.ctx();
 
         DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(context,
                 Util.getUserAgent(context, "ChatSDK"));

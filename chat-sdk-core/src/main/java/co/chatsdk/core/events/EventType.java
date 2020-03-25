@@ -16,7 +16,7 @@ public enum EventType {
     MessageSendStatusUpdated,
     ThreadUsersUpdated,
     ThreadUserRoleUpdated,
-    ThreadMarkedRead,
+//    ThreadMarkedRead,
     UserMetaUpdated,
     UserPresenceUpdated,
     ContactAdded,

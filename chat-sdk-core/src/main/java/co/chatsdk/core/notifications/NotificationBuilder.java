@@ -16,7 +16,6 @@ import androidx.annotation.ColorInt;
 import androidx.core.app.NotificationCompat;
 
 import java.lang.ref.WeakReference;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.core.R;
 import co.chatsdk.core.dao.Keys;
@@ -26,10 +25,8 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.core.image.ImageUtils;
-import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
 import io.reactivex.schedulers.Schedulers;
 
 public class NotificationBuilder {
@@ -95,7 +92,7 @@ public class NotificationBuilder {
 
     public NotificationBuilder addOpenChatIntentForMessage(Message message) {
 
-        Context context = ChatSDK.shared().context();
+        Context context = ChatSDK.ctx();
         String threadID = message.getThread().getEntityID();
 
         Intent openChatIntent = new Intent(context, ChatSDK.ui().getChatActivity());

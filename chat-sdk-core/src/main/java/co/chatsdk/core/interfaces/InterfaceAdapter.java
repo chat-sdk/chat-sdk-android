@@ -26,9 +26,6 @@ import co.chatsdk.core.notifications.NotificationDisplayHandler;
  * Created by benjaminsmiley-andrews on 12/07/2017.
  */
 
-// TODO: Currently ChatSDK.ui() is available everywhere. But some functions
-// only need to be called from the UI module. Eventually we want to split
-// This into two services
 public interface InterfaceAdapter {
 
     Fragment privateThreadsFragment();
@@ -135,8 +132,5 @@ public interface InterfaceAdapter {
 
     AvatarGenerator getAvatarGenerator();
     void setAvatarGenerator(AvatarGenerator avatarGenerator);
-
-    void setDefaultProfileImage(@DrawableRes int drawable);
-    @DrawableRes int getDefaultProfileImage();
 
 }

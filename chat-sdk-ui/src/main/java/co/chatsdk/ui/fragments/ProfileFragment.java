@@ -34,6 +34,7 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.binders.AvailabilityHelper;
 import co.chatsdk.ui.icons.Icons;
+import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.views.IconItemView;
 import co.chatsdk.ui.views.SwitchItemView;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -88,20 +89,12 @@ public class ProfileFragment extends BaseFragment {
     }
 
     public void addListeners() {
-        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(networkEvent -> {
-                    if (networkEvent.user.equals(getUser())) {
-                        reloadData();
-                    }
-                }));
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
+                .filter(NetworkEvent.filterUserEntityID(getUser().getEntityID()))
+                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(networkEvent -> {
-                    if (networkEvent.user.equals(getUser())) {
-                        reloadData();
-                    }
+                    reloadData();
                 }));
     }
 
@@ -122,7 +115,7 @@ public class ProfileFragment extends BaseFragment {
     protected void setHeaderImage(@Nullable String url) {
         // Make sure that this runs when the view has dimensions
         rootView.post(() -> {
-            int profileHeader = ChatSDK.config().profileHeaderImage;
+            int profileHeader = DefaultUIModule.config().profileHeaderImage;
             if (url != null) {
                 Glide.with(this)
                         .load(url)
@@ -239,7 +232,7 @@ public class ProfileFragment extends BaseFragment {
         setHeaderImage(user.getHeaderURL());
 
         collapsingToolbar.setTitle(user.getName());
-        Glide.with(this).load(user.getAvatarURL()).dontAnimate().placeholder(ChatSDK.ui().getDefaultProfileImage()).into(avatarImageView);
+        Glide.with(this).load(user.getAvatarURL()).dontAnimate().placeholder(DefaultUIModule.config().defaultProfileImage).into(avatarImageView);
 
         if (StringChecker.isNullOrEmpty(user.getStatus())) {
             statusCardView.setVisibility(View.GONE);

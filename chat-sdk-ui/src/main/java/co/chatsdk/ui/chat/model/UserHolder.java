@@ -1,9 +1,14 @@
 package co.chatsdk.ui.chat.model;
 
+import android.content.Context;
+
 import com.stfalcon.chatkit.commons.models.IUser;
 
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.StringChecker;
+import co.chatsdk.ui.module.DefaultUIModule;
 
 public class UserHolder implements IUser {
 
@@ -29,7 +34,11 @@ public class UserHolder implements IUser {
 
     @Override
     public String getAvatar() {
-        return user.getAvatarUrlOrDefault(ChatSDK.shared().context());
+        String url = user.getAvatarURL();
+        if (url == null) {
+            url =  ImageUtils.uriForResourceId(ChatSDK.ctx(), DefaultUIModule.config().defaultProfileImage).toString();
+        }
+        return url;
     }
 
     @Override

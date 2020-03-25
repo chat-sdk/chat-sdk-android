@@ -22,6 +22,7 @@ import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.icons.Icons;
+import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.utils.ThreadImageBuilder;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -61,7 +62,7 @@ public class ChatActionBar extends AppBarLayout {
     }
 
     public void onClick(View view) {
-        if (ChatSDK.config().threadDetailsEnabled && onClickListener != null) {
+        if (DefaultUIModule.config().threadDetailsEnabled && onClickListener != null) {
             onClickListener.onClick(view);
         }
     }

@@ -29,7 +29,7 @@ public class Tab {
     }
 
     public Tab (int titleResource, Drawable icon, Fragment fragment) {
-        this(titleResource, icon, fragment, ChatSDK.shared().context());
+        this(titleResource, icon, fragment, ChatSDK.ctx());
     }
 
 }

@@ -6,7 +6,7 @@ import firestream.chat.interfaces.IChat;
 import firestream.chat.events.EventType;
 import firestream.chat.namespace.Fire;
 import io.reactivex.disposables.Disposable;
-import firestream.chat.Config;
+import firestream.chat.FirestreamConfig;
 import firestream.chat.chat.User;
 
 import firestream.chat.types.RoleType;
@@ -16,7 +16,7 @@ public class API {
     public API(Context context) {
 
         // Configure the chat
-        Config config = new Config();
+        FirestreamConfig config = new FirestreamConfig();
 
         try {
             // Set the root path

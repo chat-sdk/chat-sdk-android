@@ -43,7 +43,9 @@ import co.chatsdk.ui.binders.AvailabilityHelper;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.fragments.ProfileViewOffsetChangeListener;
 import co.chatsdk.ui.icons.Icons;
+import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.utils.ImagePickerUploader;
+import co.chatsdk.ui.utils.UserImageBuilder;
 import co.chatsdk.ui.views.IconEditView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -98,12 +100,12 @@ public class EditProfileActivity extends BaseActivity {
             userMeta = new HashMap<>(currentUser.metaMap());
         }
 
-        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterUserEntityID(userEntityID))
+                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(networkEvent -> {
-                    if (networkEvent.user.equals(currentUser)) {
-                        reloadData();
-                    }
+                    reloadData();
                 }));
 
         initViews();
@@ -151,7 +153,7 @@ public class EditProfileActivity extends BaseActivity {
     protected void setHeaderImage(@Nullable String url) {
         // Make sure that this runs when the view has dimensions
         root.post(() -> {
-            int profileHeader = ChatSDK.config().profileHeaderImage;
+            int profileHeader = DefaultUIModule.config().profileHeaderImage;
             if (url != null && appbar != null) {
                 // Get the screen width
                 Glide.with(this)
@@ -181,9 +183,9 @@ public class EditProfileActivity extends BaseActivity {
         int height = Dimen.from(this, R.dimen.large_avatar_height);
 
         collapsingToolbar.setTitle(getString(R.string.edit_profile));
-        Glide.with(this).load(currentUser.getAvatarURL()).dontAnimate().placeholder(ChatSDK.ui().getDefaultProfileImage()).into(avatarImageView);
+        Glide.with(this).load(currentUser.getAvatarURL()).dontAnimate().placeholder(DefaultUIModule.config().defaultProfileImage).into(avatarImageView);
 
-        currentUser.loadAvatar(avatarImageView, width, height);
+        UserImageBuilder.loadAvatar(currentUser, avatarImageView, width, height);
 
         setHeaderImage(currentUser.getHeaderURL());
 
@@ -241,18 +243,17 @@ public class EditProfileActivity extends BaseActivity {
         currentUser.setPhoneNumber(phoneNumber);
         currentUser.setEmail(email);
 
-        boolean changed = !userMeta.entrySet().equals(currentUser.metaMap().entrySet());
-        boolean avatarChanged = avatarImageURL != null && !avatarImageURL.equals(currentUser.getAvatarURL());
-
-        // If this is a new avatar, reset the hash code, this will prompt
-        // the XMPP client to update the image
-        if (avatarChanged) {
-            currentUser.setAvatarURL(avatarImageURL, null);
-        }
-
         if (headerImageURL != null) {
             currentUser.setHeaderURL(headerImageURL);
         }
+
+        // If this is a new avatar, reset the hash code, this will prompt
+        // the XMPP client to update the image
+        if (avatarImageURL != null) {
+            currentUser.setAvatarURL(avatarImageURL, null);
+        }
+
+        boolean changed = !userMeta.entrySet().equals(currentUser.metaMap().entrySet());
 
         final Runnable finished = () -> {
             View v = getCurrentFocus();
@@ -263,7 +264,7 @@ public class EditProfileActivity extends BaseActivity {
             finish();
         };
 
-        if (changed || avatarChanged) {
+        if (changed) {
 
             currentUser.update();
 

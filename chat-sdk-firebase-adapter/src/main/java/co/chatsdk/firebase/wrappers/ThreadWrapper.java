@@ -82,10 +82,6 @@ public class ThreadWrapper  {
                     deserialize(snapshot);
                 }
 
-                if (!model.isDeleted()) {
-                    updateReadReceipts();
-                }
-
                 e.onNext(model);
             }));
 
@@ -197,7 +193,6 @@ public class ThreadWrapper  {
                     model.update();
 
                     message.markAsReceived().subscribe(ChatSDK.events());
-                    updateReadReceipts(message.getModel());
 
                     if(ChatSDK.hook() != null) {
                         HashMap<String, Object> data = new HashMap<>();
@@ -479,18 +474,4 @@ public class ThreadWrapper  {
 
         }).subscribeOn(Schedulers.io());
     }
-
-
-    private void updateReadReceipts() {
-        if(ChatSDK.readReceipts() != null) {
-            ChatSDK.readReceipts().updateReadReceipts(model);
-        }
-    }
-
-    private void updateReadReceipts(Message message) {
-        if(ChatSDK.readReceipts() != null) {
-            ChatSDK.readReceipts().updateReadReceipts(message);
-        }
-    }
-
 }

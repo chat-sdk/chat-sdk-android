@@ -28,7 +28,6 @@ import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.icons.Icons;
 import id.zelory.compressor.Compressor;
-import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -81,9 +80,9 @@ public class ThreadImageBuilder {
                 return Single.error(new Throwable(context.getString(R.string.thread_users_have_no_valid_avatar_urls)));
             }
             else if (users.size() == 1) {
-                return users.get(0).getAvatarBitmap(size, size).map(bitmap -> {
+                return UserImageBuilder.getAvatarBitmap(users.get(0), size, size).map(bitmap -> {
                     File imageFile = ImageUtils.saveBitmapToFile(bitmap);
-                    File compressed = new Compressor(ChatSDK.shared().context())
+                    File compressed = new Compressor(ChatSDK.ctx())
                             .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
                             .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
                             .setDestinationDirectoryPath(fm.imageCache().getPath())
@@ -94,7 +93,7 @@ public class ThreadImageBuilder {
             else {
                 return combineBitmapsForUsers(users, size).map(bitmap -> {
                     File imageFile = ImageUtils.saveBitmapToFile(bitmap);
-                    File compressed = new Compressor(ChatSDK.shared().context())
+                    File compressed = new Compressor(ChatSDK.ctx())
                             .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
                             .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
                             .setDestinationDirectoryPath(fm.imageCache().getPath())
@@ -123,7 +122,7 @@ public class ThreadImageBuilder {
                 if(singles.size() >= 4) {
                     break;
                 }
-                singles.add(user.getAvatarBitmap(size, size));
+                singles.add(UserImageBuilder.getAvatarBitmap(user, size, size));
             }
             return combineBitmapSingles(singles, size);
         }).subscribeOn(Schedulers.io());

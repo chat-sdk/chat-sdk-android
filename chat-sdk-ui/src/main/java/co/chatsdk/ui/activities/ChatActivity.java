@@ -152,7 +152,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .filter(networkEvent -> thread.containsUser(networkEvent.user))
+                .filter(networkEvent -> thread.containsUser(networkEvent.getUser()))
                 .subscribe(networkEvent -> {
                     reloadData();
                     chatActionBar.reload(thread);
@@ -162,7 +162,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 .filter(NetworkEvent.filterType(EventType.TypingStateUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> {
-                    String typingText = networkEvent.text;
+                    String typingText = networkEvent.getText();
                     if (typingText != null) {
                         typingText += getString(R.string.typing);
                     }
@@ -175,7 +175,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .filter(NetworkEvent.filterUserEntityID(ChatSDK.currentUserID()))
                 .subscribe(networkEvent -> {
-                    if (ChatSDK.thread().hasVoice(thread, networkEvent.user)) {
+                    if (ChatSDK.thread().hasVoice(thread, networkEvent.getUser())) {
                         showTextInput();
                     } else {
                         hideTextInput();

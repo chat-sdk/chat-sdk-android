@@ -33,6 +33,7 @@ public class Keys {
     public static final String CreationDate = "creation-date";
     public static final String To = "to";
     public static final String From = "from";
+    public static final String Subject = "subject";
 
     // Deprecated in favour of type
     public static final String Type = "type";

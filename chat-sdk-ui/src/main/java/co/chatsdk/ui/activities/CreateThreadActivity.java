@@ -11,6 +11,7 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.module.DefaultUIModule;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class CreateThreadActivity extends SelectContactActivity {
@@ -21,7 +22,7 @@ public class CreateThreadActivity extends SelectContactActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setActionBarTitle(R.string.new_chat);
-        setMultiSelectEnabled(ChatSDK.config().groupsEnabled);
+        setMultiSelectEnabled(DefaultUIModule.config().groupsEnabled);
     }
 
     @Override

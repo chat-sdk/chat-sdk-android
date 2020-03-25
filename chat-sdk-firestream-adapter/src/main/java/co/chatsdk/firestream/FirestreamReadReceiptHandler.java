@@ -70,16 +70,6 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
     }
 
     @Override
-    public void updateReadReceipts(Thread thread) {
-
-    }
-
-    @Override
-    public void updateReadReceipts(Message message) {
-
-    }
-
-    @Override
     public void markRead(Message message) {
         Thread thread = message.getThread();
 
@@ -94,6 +84,12 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
             }
         }
     }
+
+    @Override
+    public void markDelivered(Message message) {
+
+    }
+
     @Override
     public void accept(Throwable throwable) throws Exception {
         throwable.printStackTrace();

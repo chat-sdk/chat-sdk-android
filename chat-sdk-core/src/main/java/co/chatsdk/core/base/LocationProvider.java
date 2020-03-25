@@ -7,7 +7,6 @@ import android.content.IntentSender;
 import android.location.Location;
 import android.os.Looper;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -22,7 +21,6 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.core.R;
 import co.chatsdk.core.session.ChatSDK;
@@ -32,9 +30,7 @@ import co.chatsdk.core.utils.PermissionRequestHandler;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Scheduler;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -53,7 +49,7 @@ public class LocationProvider {
     protected LocationCallback locationCallback;
 
     protected Context context() {
-        return ChatSDK.shared().context();
+        return ChatSDK.ctx();
     }
 
     protected final int ENABLE_LOCATION_SERVICES_REQUEST = 32;

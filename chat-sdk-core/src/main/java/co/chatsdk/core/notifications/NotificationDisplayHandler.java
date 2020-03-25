@@ -17,7 +17,6 @@ import android.os.Build;
 import android.os.PowerManager;
 import co.chatsdk.core.dao.Thread;
 
-import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import co.chatsdk.core.dao.Message;
@@ -31,7 +30,7 @@ public class NotificationDisplayHandler implements Consumer<Throwable> {
 
     public Disposable createMessageNotification(Message message) {
 
-        final Context context = ChatSDK.shared().context();
+        final Context context = ChatSDK.ctx();
 
         if (connectedToAuto(context)) {
             return new NotificationBuilder(context).forMessageAuto(message).build().subscribe(builder -> {

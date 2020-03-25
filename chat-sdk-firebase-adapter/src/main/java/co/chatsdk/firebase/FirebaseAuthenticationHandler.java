@@ -37,7 +37,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     DisposableMap dm = new DisposableMap();
 
     public FirebaseAuthenticationHandler() {
-
         // Handle login and log out automatically
         FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
             // We are connecting for the first time
@@ -52,7 +51,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 }
             }
         });
-
     }
 
     public Completable authenticate() {
@@ -141,7 +139,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
     public Completable authenticateWithUser(final FirebaseUser user) {
         return Completable.defer(() -> {
-
 
             String uid = user.getUid();
 

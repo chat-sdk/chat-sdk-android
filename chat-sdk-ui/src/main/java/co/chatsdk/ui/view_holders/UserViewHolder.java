@@ -24,6 +24,8 @@ import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
 import co.chatsdk.ui.binders.OnlineStatusBinder;
 import co.chatsdk.ui.binders.AvailabilityHelper;
+import co.chatsdk.ui.module.DefaultUIModule;
+import co.chatsdk.ui.utils.UserImageBuilder;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserViewHolder extends RecyclerView.ViewHolder  {
@@ -80,15 +82,15 @@ public class UserViewHolder extends RecyclerView.ViewHolder  {
             statusTextView.setText(item.getStatus());
         }
 
-        Context context = ChatSDK.shared().context();
+        Context context = ChatSDK.ctx();
 
         int width = Dimen.from(context, R.dimen.small_avatar_width);
         int height = Dimen.from(context, R.dimen.small_avatar_height);
 
         if (item instanceof User) {
-            ((User) item).loadAvatar(avatarImageView, width, height);
+            UserImageBuilder.loadAvatar((User) item, avatarImageView, width, height);
         } else {
-            Glide.with(root).load(item.getAvatarURL()).dontAnimate().placeholder(ChatSDK.ui().getDefaultProfileImage()).override(width, height).into(avatarImageView);
+            Glide.with(root).load(item.getAvatarURL()).dontAnimate().placeholder(DefaultUIModule.config().defaultProfileImage).override(width, height).into(avatarImageView);
         }
     }
 

@@ -10,6 +10,7 @@ import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ChatError;
+import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
@@ -24,7 +25,7 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
 
     @Override
     public Observable<User> usersForIndex(String value, int limit) {
-        return usersForIndexes(value, limit, ChatSDK.config().searchIndexes);
+        return usersForIndexes(value, limit, FirebaseModule.config().searchIndexes);
     }
 
     @Override
