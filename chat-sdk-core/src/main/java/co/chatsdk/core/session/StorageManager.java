@@ -1,9 +1,12 @@
 package co.chatsdk.core.session;
 
+import android.os.Looper;
+
 import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.query.Join;
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.greenrobot.greendao.query.WhereCondition;
+import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +26,7 @@ import co.chatsdk.core.dao.UserThreadLinkDao;
 import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.ReadStatus;
+import co.chatsdk.core.utils.TimeLog;
 
 import static co.chatsdk.core.dao.DaoCore.daoSession;
 import static co.chatsdk.core.dao.DaoCore.fetchEntityWithProperty;
@@ -34,6 +38,8 @@ import static co.chatsdk.core.dao.DaoCore.fetchEntityWithProperty;
 public class StorageManager {
 
     public List<Thread> fetchThreadsForCurrentUser() {
+        TimeLog.startTimeLog(new Object(){}.getClass().getEnclosingMethod().getName());
+
         List<Thread> threads = new ArrayList<>();
 
         List<UserThreadLink> links = DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.UserId, ChatSDK.currentUser().getId());
@@ -48,20 +54,29 @@ public class StorageManager {
                 link.delete();
             }
         }
+
+        TimeLog.endTimeLog();
         return threads;
     }
 
     public ReadReceiptUserLink readReceipt(Long messageId, Long userId) {
+        TimeLog.startTimeLog(new Object(){}.getClass().getEnclosingMethod().getName());
+
         QueryBuilder<ReadReceiptUserLink> queryBuilder = daoSession.queryBuilder(ReadReceiptUserLink.class);
         queryBuilder.where(ReadReceiptUserLinkDao.Properties.UserId.eq(userId)).where(ReadReceiptUserLinkDao.Properties.MessageId.eq(messageId));
         List<ReadReceiptUserLink> links = queryBuilder.list();
+
+        TimeLog.endTimeLog();
+
         if (!links.isEmpty()) {
             return links.get(0);
         }
+
         return null;
     }
 
     public <T extends CoreEntity> T fetchOrCreateEntityWithEntityID(Class<T> c, String entityId){
+        TimeLog.startTimeLog(new Object(){}.getClass().getEnclosingMethod().getName());
 
         T entity = DaoCore.fetchEntityWithEntityID(c, entityId);
 //
@@ -70,6 +85,8 @@ public class StorageManager {
             entity.setEntityID(entityId);
             entity = DaoCore.createEntity(entity);
         }
+
+        TimeLog.endTimeLog();
 
         return entity;
     }
@@ -99,6 +116,8 @@ public class StorageManager {
     }
 
     public List<Message> fetchUnreadMessagesForThread (Long threadId) {
+        TimeLog.startTimeLog(new Object(){}.getClass().getEnclosingMethod().getName());
+
         Long currentUserId = ChatSDK.currentUser().getId();
 
         QueryBuilder<Message> qb = daoSession.queryBuilder(Message.class);
@@ -107,7 +126,11 @@ public class StorageManager {
 
         join.where(join.and(ReadReceiptUserLinkDao.Properties.UserId.eq(currentUserId), ReadReceiptUserLinkDao.Properties.Status.notEq(ReadStatus.Read)));
 
-        return qb.list();
+        List<Message> list = qb.list();
+
+        TimeLog.endTimeLog();
+
+        return list;
     }
 
 //    public int fetchUnreadMessageCount(ThreadType threadType) {
@@ -154,11 +177,16 @@ public class StorageManager {
     }
 
     public List<Thread> allThreads () {
+        TimeLog.startTimeLog(new Object(){}.getClass().getEnclosingMethod().getName());
+
         List<UserThreadLink> links =  DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.UserId, ChatSDK.currentUser().getId());
         ArrayList<Thread> threads = new ArrayList<>();
         for(UserThreadLink link : links) {
             threads.add(link.getThread());
         }
+
+        TimeLog.endTimeLog();
+
         return threads;
     }
 
@@ -167,6 +195,7 @@ public class StorageManager {
 //    }
 
     public List<Message> fetchMessagesForThreadWithID (long threadID, int limit, Date olderThan) {
+        TimeLog.startTimeLog(new Object(){}.getClass().getEnclosingMethod().getName());
 
         // If we have a zero date, treat it as null
         if (olderThan != null && olderThan.equals(new Date(0))) {
@@ -190,8 +219,11 @@ public class StorageManager {
             qb.limit(limit);
         }
 
-        return  qb.list();
+        List<Message> list = qb.list();
 
+        TimeLog.endTimeLog();
+
+        return  list;
     }
 
     public void update(CoreEntity entity) {
@@ -201,6 +233,5 @@ public class StorageManager {
     public void delete(CoreEntity entity) {
         DaoCore.deleteEntity(entity);
     }
-
 
 }

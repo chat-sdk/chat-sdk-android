@@ -20,6 +20,8 @@ public class Config {
     public enum IdenticonType {
         FlatHash,
         RoboHash,
+//        Avataaars,
+        Gravatar,
 //        Identicon,
 //        Male,
 //        Female,
@@ -83,6 +85,7 @@ public class Config {
     public boolean publicChatAutoSubscriptionEnabled = false;
 
     public String identiconBaseURL;
+    public IdenticonType identiconType;
 
     public String defaultNamePrefix = "ChatSDK";
     public String defaultName = null;
@@ -354,11 +357,15 @@ public class Config {
     }
 
     public void setIdenticonType(IdenticonType type) {
+        identiconType = type;
         switch (type) {
-            case FlatHash:
-                identiconBaseURL = "http://flathash.com/%s.png";
             case RoboHash:
                 identiconBaseURL = "https://robohash.org/%s.png";
+                break;
+            case FlatHash:
+            default:
+                identiconBaseURL = "http://flathash.com/%s.png";
+                break;
 //            case Identicon:
 //                identiconBaseURL = "https://avatars.dicebear.com/v2/identicon/%s.svg";
 //            case Male:

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="actionBarBackgroundColor" format="reference|color" />
+    <attr name="actionBarTextColor" format="reference|color" />
+
+    <attr name="avatarBorderColor" format="reference|color" />
+    <attr name="avatarBackgroundColor" format="reference|color" />
+    <attr name="dialogUnreadBubbleBorderColor" format="reference|color" />
+    <attr name="onlineIndicatorBorderColor" format="reference|color" />
+    <attr name="onlineIndicatorOnlineColor" format="reference|color" />
+    <attr name="onlineIndicatorOfflineColor" format="reference|color" />
+
+    <attr name="systemMessageBackgroundColor" format="reference|color" />
+    <attr name="systemMessageTextColor" format="reference|color" />
+    <attr name="systemMessageTextSize" format="reference|dimension" />
+    <attr name="systemMessageBubbleDrawable" format="reference" />
+
+    <attr name="replyBackgroundColor" format="reference|color" />
+    <attr name="replyDividerColor" format="reference|color" />
+    <attr name="replyTextSize" format="dimension|reference" />
+    <attr name="replyTextPadding" format="dimension|reference" />
+
+    <attr name="incomingReplyDrawable" format="reference" />
+    <attr name="incomingReplyImageDrawable" format="reference" />
+    <attr name="incomingReplyDividerColor" format="reference|color" />
+    <attr name="incomingReplyBackgroundColor" format="reference|color" />
+    <attr name="incomingReplyTextColor" format="reference|color" />
+    <attr name="incomingReplyTextSize" format="reference|dimension" />
+
+    <attr name="incomingUserNameTextColor" format="reference|color" />
+    <attr name="incomingUserNameTextFont" format="reference|string" />
+    <attr name="incomingUserNameTextSize" format="reference|dimension" />
+    <attr name="incomingIconDrawable" format="reference" />
+
+    <attr name="outcomingReplyDividerColor" format="reference|color" />
+    <attr name="outcomingReplyDrawable" format="reference" />
+    <attr name="outcomingReplyImageDrawable" format="reference" />
+    <attr name="outcomingReplyBackgroundColor" format="reference|color" />
+    <attr name="outcomingReplyTextColor" format="reference|color" />
+    <attr name="outcomingReplyTextSize" format="reference|dimension" />
+
+    <attr name="outcomingIconDrawable" format="reference" />
+
+    <attr name="chatViewDividerColor" format="reference|color" />
+    <attr name="chatViewMessageInputBackgroundColor" format="reference|color" />
+
+    <attr name="logoutButtonColor" format="reference|color" />
+    <attr name="loginButtonColor" format="reference|color" />
+    <attr name="registerButtonColor" format="reference|color" />
+    <attr name="anonymousButtonColor" format="reference|color" />
+    <attr name="resetPasswordButtonTextColor" format="reference|color" />
+    <attr name="resetPasswordButtonColor" format="reference|color" />
+<!--    <attr name="" format="reference|color" />-->
+
+
+</resources>

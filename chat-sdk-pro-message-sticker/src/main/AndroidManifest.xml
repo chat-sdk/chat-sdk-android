@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="co.chatsdk.message.sticker">
+
+    <application
+        android:label="@string/app_name"
+        android:supportsRtl="true">
+        <activity
+            android:name="co.chatsdk.message.sticker.StickerMessageActivity"
+            android:screenOrientation="portrait" />
+    </application>
+
+</manifest>

@@ -7,9 +7,9 @@ import firestream.chat.events.Event;
 import firestream.chat.events.EventType;
 import firestream.chat.namespace.Fire;
 
-import io.reactivex.functions.Predicate;
 import firestream.chat.message.Sendable;
 import firestream.chat.types.SendableType;
+import io.reactivex.functions.Predicate;
 
 public class Filter {
 

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<style name="ChatSDKTheme" parent="Theme.MaterialComponents.Light.Bridge">
+    <item name="colorPrimary">@color/primary</item>
+    <item name="colorPrimaryDark">@color/primary_dark</item>
+    <item name="colorAccent">@color/accent</item>
+    <item name="colorControlNormal">@color/text_primary</item>
+    <item name="windowActionBar">false</item>
+    <item name="android:windowActionBar">false</item>
+    <item name="windowNoTitle">true</item>
+    <item name="android:windowNoTitle">true</item>
+
+    <item name="actionBarBackgroundColor">@color/primary</item>
+    <item name="actionBarTextColor">@color/white</item>
+    <item name="avatarBackgroundColor">@color/white</item>
+    <item name="avatarBorderColor">@color/white</item>
+    <item name="onlineIndicatorBorderColor">@color/white</item>
+    <item name="onlineIndicatorOnlineColor">#38c059</item>
+    <item name="onlineIndicatorOfflineColor">#aaaaaa</item>
+
+    <item name="systemMessageBackgroundColor">@color/gray_very_light</item>
+    <item name="systemMessageTextColor">@color/black</item>
+    <item name="systemMessageBubbleDrawable">@drawable/shape_system_message_bubble</item>
+    <item name="systemMessageTextSize">14dp</item>
+
+    <item name="replyBackgroundColor">@color/white</item>
+    <item name="replyDividerColor">@color/primary_green</item>
+    <item name="replyTextSize">13sp</item>
+    <item name="replyTextPadding">4dp</item>
+
+    <!-- Thread list theme -->
+    <item name="dialogDividerLeftPadding">0dp</item>
+    <item name="dialogTitleTextStyle">bold</item>
+    <item name="dialogUnreadTitleTextStyle">bold</item>
+    <item name="dialogTitleTextSize">16sp</item>
+    <item name="dialogMessageTextSize">15sp</item>
+    <item name="dialogMessageTextColor">@color/gray</item>
+
+    <item name="dialogUnreadMessageTextColor">@color/primary</item>
+    <item name="dialogUnreadBubbleTextColor">@color/white</item>
+    <item name="dialogUnreadBubbleBackgroundColor">@color/primary_green</item>
+    <item name="dialogUnreadBubbleBorderColor">#00000000</item>
+
+    <!-- Message theme -->
+
+    <item name="incomingReplyDrawable">@drawable/shape_incoming_reply</item>
+    <item name="incomingReplyImageDrawable">@drawable/shape_incoming_reply_image</item>
+    <item name="incomingReplyDividerColor">?replyDividerColor</item>
+
+    <item name="incomingReplyTextSize">13sp</item>
+    <item name="incomingReplyTextColor">@color/dark_gray</item>
+
+    <item name="incomingReplyBackgroundColor">@color/incoming_reply</item>
+    <item name="incomingUserNameTextColor">@color/gray_light</item>
+    <item name="incomingUserNameTextFont">sans-serif-thin</item>
+    <item name="incomingUserNameTextSize">14sp</item>
+    <item name="incomingIconDrawable">@drawable/shape_incoming_icon</item>
+
+    <item name="incomingDefaultBubbleColor">@color/gray_very_light</item>
+    <item name="incomingDefaultBubbleSelectedColor">@color/primary_green</item>
+    <item name="incomingDefaultBubblePressedColor">@color/gray_very_light</item>
+    <item name="incomingBubbleDrawable">@drawable/shape_incoming_message_bubble</item>
+
+    <item name="incomingBubblePaddingTop">9dp</item>
+    <item name="incomingBubblePaddingBottom">9dp</item>
+    <item name="incomingBubblePaddingLeft">10dp</item>
+    <item name="incomingBubblePaddingRight">10dp</item>
+    <item name="incomingTimeTextColor">@color/gray_light</item>
+    <item name="incomingTimeTextStyle">italic</item>
+    <item name="incomingTextSize">14sp</item>
+
+    <item name="outcomingReplyDrawable">@drawable/shape_outcoming_reply</item>
+    <item name="outcomingReplyImageDrawable">@drawable/shape_outcoming_reply_image</item>
+    <item name="outcomingReplyDividerColor">?replyDividerColor</item>
+    <item name="outcomingReplyBackgroundColor">@color/white</item>
+    <item name="outcomingReplyTextSize">13sp</item>
+    <item name="outcomingReplyTextColor">@color/dark_gray</item>
+
+    <item name="outcomingIconDrawable">@drawable/shape_outcoming_icon</item>
+
+    <item name="outcomingDefaultBubbleColor">@color/primary</item>
+    <item name="outcomingDefaultBubbleSelectedColor">@color/primary_green</item>
+    <item name="outcomingDefaultBubblePressedColor">@color/primary</item>
+    <item name="outcomingBubbleDrawable">@drawable/shape_outcoming_message_bubble</item>
+
+    <item name="outcomingBubblePaddingTop">9dp</item>
+    <item name="outcomingBubblePaddingBottom">9dp</item>
+    <item name="outcomingBubblePaddingLeft">10dp</item>
+    <item name="outcomingBubblePaddingRight">10dp</item>
+
+    <item name="outcomingTimeTextColor">@color/gray_light</item>
+    <item name="outcomingTimeTextStyle">italic</item>
+    <item name="outcomingTextSize">14sp</item>
+
+    <item name="chatViewDividerColor">@color/gray_light</item>
+    <item name="chatViewMessageInputBackgroundColor">@color/white</item>
+
+    <!--    Button colors-->
+
+    <item name="logoutButtonColor">@color/logout_button_color</item>
+    <item name="loginButtonColor">@color/login_button_color</item>
+    <item name="registerButtonColor">@color/register_button_color</item>
+    <item name="anonymousButtonColor">@color/anonymous_button_color</item>
+    <item name="resetPasswordButtonTextColor">@color/dark_text</item>
+    <item name="resetPasswordButtonColor">@color/reset_password_button_color</item>
+
+</style>
+
+<style name="AppBarLayout" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+
+</style>
+
+<style name="TextInput">
+    <item name="android:textSize">14sp</item>
+    <item name="android:textColor">@color/dark_gray</item>
+</style>
+
+<style name="MaterialButton">
+    <item name="android:layout_height">@dimen/material_button_height</item>
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:textColor">@android:color/white</item>
+    <item name="android:gravity">center</item>
+    <item name="android:layout_weight">0.5</item>
+</style>
+
+<style name="CircleIconStyle">
+    <item name="android:layout_width">@dimen/small_avatar_width</item>
+    <item name="android:layout_height">@dimen/small_avatar_height</item>
+</style>
+
+<style name="CardHeader">
+    <item name="android:textSize">12sp</item>
+    <item name="android:textColor">@color/gray_light</item>
+</style>
+
+<style name="ImagePopupAnimation">
+    <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+    <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+</style>
+
+<style name="LightTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+    <item name="boxStrokeColor">@color/light_input_box_stroke</item>
+    <item name="boxStrokeWidth">1dp</item>
+</style>
+
+</resources>

@@ -4,7 +4,7 @@ android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
 
     defaultConfig {
-        applicationId "co.chatsdk.android.app"
+        applicationId "sdk.chat.android.live"
 
         multiDexEnabled = true
         minSdkVersion Integer.parseInt(project.MIN_SDK)
@@ -68,18 +68,43 @@ android {
 
 dependencies {
 
-    implementation "androidx.multidex:multidex:$androidxMultidexVersion"
-    implementation project(path: ':chat-sdk-ui')
-    implementation project(path: ':chat-sdk-ui-extras')
-    implementation project(path: ':chat-sdk-firebase-adapter')
-    implementation project(path: ':chat-sdk-firebase-push')
-    implementation project(path: ':chat-sdk-firebase-file-storage')
-    implementation project(path: ':chat-sdk-firebase-ui')
-    implementation project(path: ':chat-sdk-profile-pictures')
-    implementation project(path: ':firestream')
-    implementation project(path: ':chat-sdk-firestream-adapter')
+//    implementation "androidx.multidex:multidex:$androidxMultidexVersion"
 
-    implementation 'org.webrtc:google-webrtc:1.0.30039'
+    implementation project(':chat-sdk-core-ui')
+    implementation project(':chat-sdk-firebase-adapter')
+    implementation project(':chat-sdk-firebase-push')
+    implementation project(':chat-sdk-firebase-upload')
+
+    implementation project(':chat-sdk-firestream-adapter')
+
+    implementation project(':chat-sdk-mod-ui-extras')
+    implementation project(':chat-sdk-mod-firebase-ui')
+    implementation project(':chat-sdk-mod-profile-pictures')
+
+    implementation project(':chat-sdk-pro-message-audio')
+    implementation project(':chat-sdk-pro-message-sticker')
+    implementation project(':chat-sdk-pro-message-file')
+    implementation project(':chat-sdk-pro-message-video')
+
+    implementation project(':chat-sdk-pro-encryption')
+    implementation project(':chat-sdk-pro-contact-book')
+
+    implementation project(':chat-sdk-pro-firebase-nearby-users')
+    implementation project(':chat-sdk-pro-firebase-blocking')
+    implementation project(':chat-sdk-pro-firebase-last-online')
+    implementation project(':chat-sdk-pro-firebase-typing-indicator')
+    implementation project(':chat-sdk-pro-firebase-read-receipts')
+
+    api project(path: ':chat-sdk-pro-xmpp-adapter')
+//    api project(path: ':chat-sdk-xmpp-ejabberd-file-storage')
+    api project(path: ':chat-sdk-pro-xmpp-read-receipts')
+
+//    api project(':chat-sdk-image-canvas')
+//
+
+    implementation project(':firestream')
+
+//    implementation 'org.webrtc:google-webrtc:1.0.30039'
 
     implementation "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
     implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
@@ -99,6 +124,9 @@ dependencies {
     implementation 'com.github.adrielcafe:AndroidAudioRecorder:0.3.0'
     implementation 'com.github.adrielcafe:AndroidAudioConverter:0.0.8'
     implementation 'com.google.android.exoplayer:exoplayer:2.11.3'
+
+    // Demo
+    implementation 'com.romandanylyk:pageindicatorview:1.0.3'
 
 }
 

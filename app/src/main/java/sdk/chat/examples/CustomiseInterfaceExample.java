@@ -1,9 +1,7 @@
 package sdk.chat.examples;
 
 import android.content.Context;
-import android.graphics.Color;
 
-import co.chatsdk.android.app.R;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Config;
@@ -15,6 +13,7 @@ import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.module.DefaultUIModule;
+import sdk.chat.android.live.R;
 import sdk.chat.custom.AChatActivity;
 import sdk.chat.custom.APrivateThreadsFragment;
 import sdk.chat.test.MessageTestChatOption;

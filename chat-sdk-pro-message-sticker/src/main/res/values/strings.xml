@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">chat_sdk_sticker_message</string>
+    <string name="sticker_send_error">Sticker could not be sent</string>
+    <string name="unable_to_load_sticker_pack">Unable to load sticker pack</string>
+</resources>

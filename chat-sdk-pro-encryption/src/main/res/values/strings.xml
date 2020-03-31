@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Chat SDK Encryption</string>
+    <string name="encrypted_message">Encrypted Message</string>
+</resources>

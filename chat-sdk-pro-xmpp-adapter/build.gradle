@@ -1,0 +1,55 @@
+apply plugin: 'com.android.library'
+
+android {
+
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+
+    defaultConfig {
+        minSdkVersion Integer.parseInt(project.MIN_SDK)
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+}
+
+dependencies {
+    api fileTree(dir: 'libs', include: ['*.jar'])
+
+    api "id.zelory:compressor:$compressorVersion"
+    implementation "com.google.android.gms:play-services-maps:$playMapsVersion"
+
+    api "org.igniterealtime.smack:smack-android:$smackVersion"
+
+    // Optional for XMPPTCPConnection
+    api "org.igniterealtime.smack:smack-tcp:$smackVersion"
+
+    // Optional for XMPP-IM (RFC 6121) support (Roster, Threaded Chats, …)
+    api "org.igniterealtime.smack:smack-im:$smackVersion"
+
+    // Optional for XMPP extensions support
+    api "org.igniterealtime.smack:smack-extensions:$smackVersion"
+    api "org.igniterealtime.smack:smack-experimental:$smackVersion"
+    api "org.igniterealtime.smack:smack-sasl-provided:$smackVersion"
+
+    implementation "com.miguelcatalan:materialsearchview:$materialSearchVersion"
+
+    implementation "com.jakewharton:butterknife:$butterKnifeVersion"
+    annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
+
+    api project(':chat-sdk-core-ui')
+
+}
+
+configurations {
+    all*.exclude group: 'xpp3', module: 'xpp3'
+}

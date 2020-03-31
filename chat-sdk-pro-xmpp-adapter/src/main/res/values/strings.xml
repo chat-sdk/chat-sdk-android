@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_not_available">Search not available</string>
+    <string name="message_already_exists">Message already exists</string>
+    <string name="login_method_doesnt_exist">Login method does not exist</string>
+    <string name="unable_to_create_thread">Unable to create thread</string>
+
+    <string name="owner">Owner</string>
+    <string name="admin">Admin</string>
+    <string name="member">Member</string>
+    <string name="outcast">Outcast</string>
+    <string name="none">None</string>
+
+    <string name="owner__" formatted="false">Owner%s</string>
+    <string name="admin__" formatted="false">Admin%s</string>
+    <string name="member__" formatted="false">Member%s</string>
+    <string name="outcast__" formatted="false">Outcast%s</string>
+    <string name="none__" formatted="false">None%s</string>
+
+    <string name="moderator">Moderator</string>
+    <string name="participant">Participant</string>
+    <string name="visitor">Visitor</string>
+
+    <string name="no_muc_service_available">No chat service available</string>
+    <string name="could_not_join_muc">Could not join group</string>
+    <string name="room_no_longer_active">Room no longer active</string>
+
+    <string name="xmpp_server_configuration">XMPP Server Configuration</string>
+    <string name="host_address">Host Address</string>
+    <string name="domain">Domain</string>
+    <string name="domain_subtitle">Optional. If not set, the host address will be used</string>
+
+    <string name="port">Port</string>
+    <string name="port_subtitle">Optional. If not set, the default 5222 will be used</string>
+    <string name="port_default">5222</string>
+
+</resources>

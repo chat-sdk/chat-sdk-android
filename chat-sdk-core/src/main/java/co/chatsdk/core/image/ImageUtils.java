@@ -161,7 +161,7 @@ public class ImageUtils {
 
     public static Single<Bitmap> bitmapForURL (final String url, Integer width, Integer height) {
         return Single.create((SingleOnSubscribe<Bitmap>) emitter -> {
-            RequestBuilder<Bitmap> requestBuilder = Glide.with(ChatSDK.ctx()).asBitmap().load(url);
+            RequestBuilder<Bitmap> requestBuilder = Glide.with(ChatSDK.ctx()).asBitmap().dontAnimate().load(url);
             if (width != null && height != null) {
                 requestBuilder = requestBuilder.override(width, height);
             }

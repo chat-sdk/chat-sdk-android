@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">chat_sdk_contact_book</string>
+    <string name="contact_permission_denied">Permission denied. Please allow the app to access your contacts from your phone\'s settings</string>
+    <string name="add_contacts">Add to Contacts</string>
+    <string name="invite_more_friends">Invite more friends</string>
+    <string name="searching">Searching</string>
+    <string name="fetching">Fetching&#8230;</string>
+    <string name="no_contacts_selected">No contacts were selected</string>
+    <string name="send_mail">Send Mail</string>
+    <string name="sms">SMS</string>
+</resources>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="4dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:layout_marginTop="4dp">
+
+    <com.github.siyamed.shapeimageview.mask.PorterShapeImageView
+        android:id="@id/image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/message_outcoming_bubble_margin_left"
+        android:layout_marginStart="@dimen/message_outcoming_bubble_margin_left"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        app:siShape="@drawable/shape_outcoming_message"
+        app:siSquare="false"/>
+
+    <ImageView
+        android:id="@+id/imageOverlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/image"
+        android:layout_alignEnd="@id/image"
+        android:layout_alignRight="@id/image"
+        android:layout_margin="10dp"
+        android:adjustViewBounds="true"
+        />
+
+    <ImageView
+        android:id="@+id/playImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/image"
+        android:layout_alignBottom="@id/image"
+        android:layout_alignStart="@id/image"
+        android:layout_alignLeft="@id/image"
+        android:layout_alignEnd="@id/image"
+        android:layout_alignRight="@id/image"
+        android:layout_margin="50dp"
+        android:adjustViewBounds="true"
+        />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/image"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@id/messageTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginRight="5dp"
+            android:layout_marginEnd="5dp"
+            android:maxLines="1"/>
+
+        <ImageView
+            android:id="@+id/readStatus"
+            android:layout_width="24dp"
+            android:layout_height="12dp"
+            android:layout_gravity="center_vertical" />
+
+    </LinearLayout>
+
+</RelativeLayout>

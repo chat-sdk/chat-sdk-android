@@ -1,5 +1,9 @@
 package co.chatsdk.firestream;
 
+import android.content.Context;
+
+import androidx.annotation.Nullable;
+
 import org.greenrobot.greendao.annotation.NotNull;
 
 import co.chatsdk.core.base.BaseNetworkAdapter;
@@ -26,7 +30,7 @@ public class FirestreamModule implements Module, NetworkAdapterProvider {
     protected FirestreamConfig config = new FirestreamConfig();
 
     @Override
-    public void activate() {
+    public void activate(@Nullable Context context) {
         Fire.stream().initialize(ChatSDK.ctx(), config);
     }
 

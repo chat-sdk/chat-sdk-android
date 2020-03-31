@@ -22,6 +22,7 @@ import org.pmw.tinylog.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
+import co.chatsdk.core.avatar.AvataaarsGenerator;
 import co.chatsdk.core.avatar.HashAvatarGenerator;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
@@ -101,11 +102,11 @@ public class UserWrapper {
         }
 
         // Setting the email.
-        if (!StringChecker.isNullOrEmpty(email) && StringChecker.isNullOrEmpty(model.getEmail())) {
+        if (!StringChecker.isNullOrEmpty(email) && model.getEmail() == null) {
             model.setEmail(email);
         }
 
-        if (!StringChecker.isNullOrEmpty(phoneNumber) && StringChecker.isNullOrEmpty(model.getPhoneNumber())) {
+        if (!StringChecker.isNullOrEmpty(phoneNumber) && model.getPhoneNumber() == null) {
             model.setPhoneNumber(phoneNumber);
         }
 
@@ -134,13 +135,8 @@ public class UserWrapper {
         // Test to see if the avatar is valid
         ChatSDK.events().disposeOnLogout(ImageUtils.bitmapForURL(profileURL).subscribe((bitmap, throwable) -> {
             if (throwable != null) {
-//                ChatSDK.events().disposeOnLogout(new HashAvatarGenerator().downloadAvatar(model).subscribe((s, throwable1) -> {
-//                    if (throwable1 != null) {
-//                        model.setAvatarURL(s);
-//                    }
-//                }));
-//
                 model.setAvatarURL(new HashAvatarGenerator().getAvatarURL(model));
+//                push().subscribe(ChatSDK.events());
             }
         }));
 
@@ -155,6 +151,7 @@ public class UserWrapper {
                 if(hasValue) {
                     deserialize((Map<String, Object>) snapshot.getValue());
                 }
+
                 e.onComplete();
             }).onCancelled(error -> {
                 e.onError(error.toException());
@@ -277,28 +274,19 @@ public class UserWrapper {
     
     public Completable push() {
         return Completable.create(e -> {
-
-            final DatabaseReference ref = ref();
-
-            updateFirebaseUser().subscribe(ChatSDK.events());
-
-            ref.updateChildren(serialize(), (firebaseError, firebase) -> {
+            ref().updateChildren(serialize(), (firebaseError, firebase) -> {
                 if (firebaseError == null) {
-                    // index should be updated whenever the user is pushed
-                    FirebaseEntity.pushUserMetaUpdated(model.getEntityID()).subscribe(ChatSDK.events());
-
-                    Logger.debug("Is this needed?");
-//                    ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(model));
-
                     e.onComplete();
                 } else {
                     e.onError(firebaseError.toException());
                 }
             });
-        }).subscribeOn(Schedulers.io());
+        }).andThen(updateFirebaseUser())
+                .andThen(FirebaseEntity.pushUserMetaUpdated(model.getEntityID()))
+                .subscribeOn(Schedulers.io());
     }
 
-    public Completable updateFirebaseUser () {
+    public Completable updateFirebaseUser() {
         return Completable.create(e -> {
 
             final FirebaseUser user = FirebaseCoreHandler.auth().getCurrentUser();

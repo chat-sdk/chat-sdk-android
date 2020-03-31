@@ -1,0 +1,75 @@
+package sdk.chat.audio;
+
+import android.content.Context;
+
+import java.io.File;
+
+import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
+import cafe.adriel.androidaudioconverter.callback.IConvertCallback;
+import cafe.adriel.androidaudioconverter.model.AudioFormat;
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.handlers.AudioMessageHandler;
+import co.chatsdk.core.rigs.FileUploadable;
+import co.chatsdk.core.rigs.MessageSendRig;
+import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.types.MessageType;
+import co.chatsdk.message.audio.R;
+import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
+
+
+/**
+ * Created by ben on 9/28/17.
+ */
+
+public class BaseAudioMessageHandler implements AudioMessageHandler {
+
+    protected boolean compressionEnabled = false;
+
+    @Override
+    public Completable sendMessage(Context context, final File file, String mimeType, long duration, final Thread thread) {
+        return compressAudio(context, file).flatMapCompletable(file1 -> {
+            return new MessageSendRig(new MessageType(MessageType.Audio), thread, null).setUploadable(new FileUploadable(file1, "recording", mimeType), (message, result) -> {
+                message.setText(ChatSDK.shared().getString(R.string.audio_message));
+                message.setValueForKey(result.url, Keys.MessageAudioURL);
+                message.setValueForKey(duration, Keys.MessageAudioLength);
+                message.update();
+            }).run();
+        });
+    }
+
+    @Override
+    public void setCompressionEnabled(boolean enabled) {
+        compressionEnabled = enabled;
+    }
+
+    public Single<File> compressAudio(Context context, File audioFile) {
+        return Single.defer(() -> {
+            if (!compressionEnabled) {
+                return Single.just(audioFile);
+            }
+            return Single.create(emitter -> {
+                AndroidAudioConverter.with(context).setFile(audioFile).setFormat(AudioFormat.MP3).setCallback(new IConvertCallback() {
+                    @Override
+                    public void onSuccess(File convertedFile) {
+                        emitter.onSuccess(convertedFile);
+                    }
+
+                    @Override
+                    public void onFailure(Exception error) {
+                        emitter.onError(error);
+                    }
+                }).convert();
+            });
+        }).subscribeOn(Schedulers.single());
+    }
+
+    @Override
+    public String textRepresentation(Message message) {
+        return message.stringForKey(Keys.MessageAudioURL);
+    }
+
+}

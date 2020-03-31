@@ -36,6 +36,11 @@ public class ConfigBuilder {
         return this;
     }
 
+    public ConfigBuilder addModules(List<Module> modules) {
+        modules.addAll(modules);
+        return this;
+    }
+
     public ConfigBuilder configure(Configure<Config> configure) {
         configure.with(config);
         return this;

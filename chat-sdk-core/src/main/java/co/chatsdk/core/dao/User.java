@@ -548,10 +548,14 @@ public class User extends AbstractEntity implements UserListItem {
         }
     }
 
-//    public Disposable loadAvatar(ImageView imageView, int width, int height) {
-//        return UserImageBuilder.loadAvatar(this, imageView, width, height);
-//    }
-//    public Single<Bitmap> getAvatarBitmap(int width, int height) {
-//        return UserImageBuilder.getAvatarBitmap(this, width, height);
-//    }
+    public static List<User> convertIfPossible(List<UserListItem> items) {
+        List<User> users = new ArrayList<>();
+        for (UserListItem item: items) {
+            if (item instanceof User) {
+                users.add((User) item);
+            }
+        }
+        return users;
+    }
+
 }
