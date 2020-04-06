@@ -17,7 +17,7 @@ public enum AuthStatus {
             return "Auth with map";
         }
     },
-    HANDLING_F_USER{
+    HANDLING_USER {
         @Override
         public String toString() {
             return "Handling F user";

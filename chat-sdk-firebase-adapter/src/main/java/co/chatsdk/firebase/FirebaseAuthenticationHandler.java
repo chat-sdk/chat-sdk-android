@@ -9,6 +9,7 @@ import com.google.firebase.database.DatabaseError;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.AbstractAuthenticationHandler;
 import co.chatsdk.core.dao.User;
@@ -22,6 +23,8 @@ import co.chatsdk.core.types.ChatError;
 import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
+import io.reactivex.CompletableObserver;
+import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
@@ -120,43 +123,54 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     }
 
     public Completable authenticateWithUser(final FirebaseUser user) {
-        return Single.create((SingleOnSubscribe<UserWrapper>) emitter -> {
-            final Map<String, Object> loginInfoMap = new HashMap<>();
+        return Completable.defer(() -> {
             // Save the authentication ID for the current user
             // Set the current user
 
-            String uid = user.getUid();
+            User cachedUser = ChatSDK.db().fetchUserWithEntityID(user.getUid());
 
-            loginInfoMap.put(AuthKeys.CurrentUserID, uid);
+            // What we do now depends on whether the user exists and whether we are in development mode
+            // If we are in development mode, we will always pull to check to see if the remote data
+            // has been cleared down. If we are in prod mode, if the local user exists we won't
+            // perform this check
 
-            setLoginInfo(loginInfoMap);
+            if (cachedUser != null && (!ChatSDK.config().developmentModeEnabled || isAuthenticatedThisSession())) {
+                completeAuthentication(cachedUser);
+                return Completable.complete();
+            } else {
+                setAuthStatus(AuthStatus.HANDLING_USER);
 
-            setAuthStatus(AuthStatus.HANDLING_F_USER);
-
-            // Do a once() on the user to push its details to firebase.
-            UserWrapper userWrapper = UserWrapper.initWithAuthData(user);
-            emitter.onSuccess(userWrapper);
-
-        }).flatMap((Function<UserWrapper, SingleSource<UserWrapper>>) userWrapper -> userWrapper.once()
-                .toSingle(() -> userWrapper))
-                .flatMapCompletable(userWrapper -> {
-
-            userWrapper.getModel().update();
-
-            ChatSDK.events().impl_currentUserOn(userWrapper.getModel().getEntityID());
-
-            if (ChatSDK.hook() != null) {
-                HashMap<String, Object> data = new HashMap<>();
-                data.put(HookEvent.User, userWrapper.getModel());
-                ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(new CrashReportingCompletableObserver());
+                // Do a once() on the user to push its details to firebase.
+                final UserWrapper userWrapper = UserWrapper.initWithAuthData(user);
+                return userWrapper.dataOnce().flatMapCompletable(value -> {
+                    completeAuthentication(userWrapper.getModel());
+                    if (value.isEmpty() && !ChatSDK.config().disableProfileUpdateOnAuthentication) {
+                        return userWrapper.push();
+                    }
+                    return Completable.complete();
+                });
             }
+        }).andThen(retrieveRemoteConfig()).subscribeOn(Schedulers.io());
+    }
 
-            ChatSDK.core().setUserOnline().subscribe(new CrashReportingCompletableObserver());
+    public void completeAuthentication(User user) {
 
-            authenticatedThisSession = true;
+        user.update();
 
-            return userWrapper.push();
-        }).andThen(retrieveRemoteConfig());
+        addLoginInfoData(AuthKeys.CurrentUserID, user.getEntityID());
+
+        ChatSDK.events().impl_currentUserOn(user.getEntityID());
+
+        if (ChatSDK.hook() != null) {
+            HashMap<String, Object> data = new HashMap<>();
+            data.put(HookEvent.User, user);
+            ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(new CrashReportingCompletableObserver());
+        }
+
+        ChatSDK.core().setUserOnline().subscribe(new CrashReportingCompletableObserver());
+
+        authenticatedThisSession = true;
+
     }
 
     public Boolean isAuthenticated() {

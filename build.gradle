@@ -8,7 +8,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.2'
+        classpath 'com.android.tools.build:gradle:3.6.2'
         classpath "com.google.gms:google-services:4.3.3"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
     }
@@ -18,7 +18,7 @@ ext {
     bintrayVersion = "1.8.4"
     mavenGradleVersion = "2.1"
     androidxAppcompatVersion = "1.0.2"
-    androidxConstraintLayoutVersion = "2.0.0-beta1"
+    androidxConstraintLayoutVersion = "2.0.0-beta4"
     androidxLifecycleExtensionsVersion = "2.1.0"
     androidxRecyclerViewVersion = "1.0.0"
     androidxMultidexVersion = "2.0.1"

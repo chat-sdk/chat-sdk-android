@@ -51,11 +51,17 @@ public class AppObj extends MultiDexApplication {
             Configuration.Builder config = new Configuration.Builder();
 
 //            config.firebaseRootPath("local_test_19");
-            config.firebaseRootPath("live_12_19");
+            config.firebaseRootPath("pre_1");
             config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
             config.publicRoomCreationEnabled(true);
             config.pushNotificationSound("default");
             config.pushNotificationsForPublicChatRoomsEnabled(false);
+
+            config.setDevelopmentModeEnabled(false);
+            config.setDisablePresence(false);
+            config.setDisableProfileUpdateOnAuthentication(false);
+            config.setDisablePublicThreads(true);
+
 //            config.messagesToLoadPerBatch(10);
 
             config.twitterLogin("Kqprq5b6bVeEfcMAGoHzUmB3I", "hPd9HCt3PLnifQFrGHJWi6pSZ5jF7kcHKXuoqB8GJpSDAlVcLq");

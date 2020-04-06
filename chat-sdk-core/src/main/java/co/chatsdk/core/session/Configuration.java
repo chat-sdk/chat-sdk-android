@@ -50,6 +50,11 @@ public class Configuration {
     public String firebaseApp;
     public String firebaseFunctionsRegion;
 
+    public boolean disablePresence = false;
+    public boolean disableProfileUpdateOnAuthentication = false;
+    public boolean developmentModeEnabled = false;
+    public boolean disablePublicThreads = false;
+
     // Should we call disconnect when the app is in the background for more than 5 seconds?
     public boolean disconnectFromFirebaseWhenInBackground = true;
 
@@ -737,6 +742,26 @@ public class Configuration {
 
         public Builder firebaseFunctionsRegion(String firebaseFunctionsRegion) {
             config.firebaseFunctionsRegion = firebaseFunctionsRegion;
+            return this;
+        }
+
+        public Builder setDisablePresence(boolean disablePresence) {
+            config.disablePresence = disablePresence;
+            return this;
+        }
+
+        public Builder setDisableProfileUpdateOnAuthentication(boolean disableProfileUpdateOnAuthentication) {
+            config.disableProfileUpdateOnAuthentication = disableProfileUpdateOnAuthentication;
+            return this;
+        }
+
+        public Builder setDevelopmentModeEnabled(boolean developmentModeEnabled) {
+            config.developmentModeEnabled = developmentModeEnabled;
+            return this;
+        }
+
+        public Builder setDisablePublicThreads(boolean disablePublicThreads) {
+            config.disablePublicThreads = disablePublicThreads;
             return this;
         }
 

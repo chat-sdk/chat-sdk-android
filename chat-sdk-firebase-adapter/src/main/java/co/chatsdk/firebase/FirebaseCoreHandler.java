@@ -100,32 +100,33 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public Completable setUserOnline() {
-
-        User current = ChatSDK.currentUser();
-        if (current != null && StringUtils.isNotEmpty(current.getEntityID())) {
-            return UserWrapper.initWithModel(currentUserModel()).goOnline();
+        if (!ChatSDK.config().disablePresence) {
+            User current = ChatSDK.currentUser();
+            if (current != null && StringUtils.isNotEmpty(current.getEntityID())) {
+                return UserWrapper.initWithModel(currentUserModel()).goOnline();
+            }
+            if (ChatSDK.hook() != null) {
+                ChatSDK.hook().executeHook(HookEvent.UserDidConnect, null).subscribe(new CrashReportingCompletableObserver());;
+            }
         }
-        if (ChatSDK.hook() != null) {
-            ChatSDK.hook().executeHook(HookEvent.UserDidConnect, null).subscribe(new CrashReportingCompletableObserver());;
-        }
-
         return Completable.complete();
     }
 
     public Completable setUserOffline() {
-        User current = ChatSDK.currentUser();
+        if (!ChatSDK.config().disablePresence) {
+            User current = ChatSDK.currentUser();
 
-        Completable completable = Completable.complete();
-        if (ChatSDK.hook() != null) {
-            completable = ChatSDK.hook().executeHook(HookEvent.UserWillDisconnect, null);
+            Completable completable = Completable.complete();
+            if (ChatSDK.hook() != null) {
+                completable = ChatSDK.hook().executeHook(HookEvent.UserWillDisconnect, null);
+            }
+
+            if (current != null && StringUtils.isNotEmpty(current.getEntityID())) {
+                // Update the last online figure then go offline
+                return completable.concatWith(updateLastOnline()
+                        .concatWith(UserWrapper.initWithModel(currentUserModel()).goOffline()));
+            }
         }
-
-        if (current != null && StringUtils.isNotEmpty(current.getEntityID())) {
-            // Update the last online figure then go offline
-            return completable.concatWith(updateLastOnline()
-                    .concatWith(UserWrapper.initWithModel(currentUserModel()).goOffline()));
-        }
-
         return Completable.complete();
     }
 

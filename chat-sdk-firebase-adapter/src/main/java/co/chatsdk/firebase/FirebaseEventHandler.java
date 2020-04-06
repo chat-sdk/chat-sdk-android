@@ -95,41 +95,34 @@ public class FirebaseEventHandler extends AbstractEventHandler {
     }
 
     protected void publicThreadsOn (User user) {
-        String entityID = user.getEntityID();
-        // Remove all users from public threads
-        // These may not have been cleared down when we exited so clear them down and
-        // start again
-//        for(Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
-//            for(User u : thread.getUsers()) {
-//                thread.removeUser(u);
-//            }
-//        }
+        if (!ChatSDK.config().disablePublicThreads) {
 
-        DatabaseReference publicThreadsRef = FirebasePaths.publicThreadsRef();
-        ChildEventListener publicThreadsListener = publicThreadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
-            final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
+            DatabaseReference publicThreadsRef = FirebasePaths.publicThreadsRef();
+            ChildEventListener publicThreadsListener = publicThreadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
+                final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
 
-            // Make sure that we're not in the thread
-            // there's an edge case where the user could kill the app and remain
-            // a member of a public thread
-            if (!ChatSDK.config().publicChatAutoSubscriptionEnabled) {
-                ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).subscribe(new CrashReportingCompletableObserver());
-            }
+                // Make sure that we're not in the thread
+                // there's an edge case where the user could kill the app and remain
+                // a member of a public thread
+                if (!ChatSDK.config().publicChatAutoSubscriptionEnabled) {
+                    ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).subscribe(new CrashReportingCompletableObserver());
+                }
 
-            // Starting to listen to thread changes.
-            thread.on().doOnNext(thread12 -> eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread12))).subscribe(new CrashReportingObserver<>(disposableList));
-            thread.lastMessageOn().doOnNext(thread15 -> eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread15))).subscribe(new CrashReportingObserver<>(disposableList));
-            thread.messagesOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message))).subscribe(new CrashReportingObserver<>(disposableList));
-            thread.messageRemovedOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageRemoved(message.getThread(), message))).subscribe(new CrashReportingObserver<>(disposableList));
-            thread.usersOn().doOnNext(user1 -> eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user1))).subscribe(new CrashReportingObserver<>(disposableList));
+                // Starting to listen to thread changes.
+                thread.on().doOnNext(thread12 -> eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread12))).subscribe(new CrashReportingObserver<>(disposableList));
+                thread.lastMessageOn().doOnNext(thread15 -> eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread15))).subscribe(new CrashReportingObserver<>(disposableList));
+                thread.messagesOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message))).subscribe(new CrashReportingObserver<>(disposableList));
+                thread.messageRemovedOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageRemoved(message.getThread(), message))).subscribe(new CrashReportingObserver<>(disposableList));
+                thread.usersOn().doOnNext(user1 -> eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user1))).subscribe(new CrashReportingObserver<>(disposableList));
 
-            eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
-        }).onChildRemoved((snapshot, hasValue) -> {
-            ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
-            thread.off();
-            eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
-        }));
-        FirebaseReferenceManager.shared().addRef(publicThreadsRef, publicThreadsListener);
+                eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
+            }).onChildRemoved((snapshot, hasValue) -> {
+                ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
+                thread.off();
+                eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
+            }));
+            FirebaseReferenceManager.shared().addRef(publicThreadsRef, publicThreadsListener);
+        }
     }
 
     protected void contactsOn (User user) {
@@ -198,13 +191,14 @@ public class FirebaseEventHandler extends AbstractEventHandler {
     }
 
     protected void publicThreadsOff (User user) {
-        String entityID = user.getEntityID();
-        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.publicThreadsRef());
-        for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
-            ThreadWrapper wrapper = new ThreadWrapper(thread);
-            wrapper.off();
-            wrapper.messagesOff();
-            wrapper.usersOff();
+        if (!ChatSDK.config().disablePublicThreads) {
+            FirebaseReferenceManager.shared().removeListeners(FirebasePaths.publicThreadsRef());
+            for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
+                ThreadWrapper wrapper = new ThreadWrapper(thread);
+                wrapper.off();
+                wrapper.messagesOff();
+                wrapper.usersOff();
+            }
         }
     }
 
