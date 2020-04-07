@@ -2,9 +2,12 @@ package co.chatsdk.firebase;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.core.base.AbstractEventHandler;
 import co.chatsdk.core.dao.DaoCore;
@@ -98,7 +101,15 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         if (!ChatSDK.config().disablePublicThreads) {
 
             DatabaseReference publicThreadsRef = FirebasePaths.publicThreadsRef();
-            ChildEventListener publicThreadsListener = publicThreadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
+
+            Query query = publicThreadsRef.orderByChild(Keys.CreationDate);
+
+            if (ChatSDK.config().publicChatRoomLifetimeMinutes != 0) {
+                double loadRoomsSince = new Date().getTime() - TimeUnit.MINUTES.toMillis(ChatSDK.config().publicChatRoomLifetimeMinutes);
+                query = query.startAt(loadRoomsSince);
+            }
+
+            ChildEventListener publicThreadsListener = query.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
                 final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
 
                 // Make sure that we're not in the thread

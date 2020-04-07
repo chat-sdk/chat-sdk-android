@@ -699,6 +699,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder publicChatRoomLifetimeMinutes (long minutes) {
+            config.publicChatRoomLifetimeMinutes = (int) minutes;
+            return this;
+        }
+
         public Builder locationURLRepresentation (String representation) {
             config.locationURLRepresentation = representation;
             return this;
