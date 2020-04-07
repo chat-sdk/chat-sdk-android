@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 buildscript {
     repositories {
@@ -8,8 +9,6 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:$mavenGradleVersion"
     }
 }
 
@@ -25,6 +24,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    lintOptions {
+        abortOnError false
+    }
+
 }
 
 dependencies {
@@ -33,13 +36,19 @@ dependencies {
 }
 
 ext {
-    bintrayName = 'chat-sdk-profile-pictures'
     libraryName = 'ChatSDKProfilePictures'
     artifact = 'chat-sdk-profile-pictures'
     libraryDescription = 'Chat SDK Profile Pictures'
 }
 
-def bintrayGradleFile = file("$rootProject.rootDir/gradle/bintray.gradle")
-if (bintrayGradleFile.exists()) {
-    apply from: bintrayGradleFile
+publish {
+    userOrg = BINTRAY_USER_ORG
+    groupId = CHAT_SDK_GROUP
+    artifactId = artifact
+    repoName = BINTRAY_REPO
+    publishVersion = CHAT_SDK_VERSION
+    desc = libraryDescription
+    licences = ["GPL-3.0"]
+    uploadName = libraryName
+    website = GIT_URL
 }

@@ -10,7 +10,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.2'
         classpath "com.google.gms:google-services:4.3.3"
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
+        classpath 'com.novoda:bintray-release:0.9.2'
     }
 }
 
@@ -70,4 +70,7 @@ allprojects {
     }
 }
 
+subprojects {
+    tasks.withType(Javadoc).all { enabled = false }
+}
 

@@ -8,12 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:$mavenGradleVersion"
     }
 }
-
-apply plugin: 'com.jfrog.bintray'
 
 android {
 
@@ -27,6 +23,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    lintOptions {
+        abortOnError false
+    }
+
 }
 
 
@@ -39,18 +39,6 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:$playAuthVersion"
     implementation "com.facebook.android:facebook-login:$facebookLoginVersion"
     implementation "com.twitter.sdk.android:twitter:$twitterVersion"
-}
-
-ext {
-    bintrayName = 'chat-sdk-firebase-social-login'
-    libraryName = 'ChatSDKFirebaseSocialLogin'
-    artifact = 'chat-sdk-firebase-social-login'
-    libraryDescription = 'Chat SDK Firebase Social Login'
-}
-
-def bintrayGradleFile = file("$rootProject.rootDir/gradle/bintray.gradle")
-if (bintrayGradleFile.exists()) {
-    apply from: bintrayGradleFile
 }
 
 

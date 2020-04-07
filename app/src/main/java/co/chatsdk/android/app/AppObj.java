@@ -11,6 +11,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.android.app.test.MicroChatSDKTest;
 import co.chatsdk.core.hook.Hook;
@@ -60,7 +61,7 @@ public class AppObj extends MultiDexApplication {
             config.setDevelopmentModeEnabled(false);
             config.setDisablePresence(false);
             config.setDisableProfileUpdateOnAuthentication(false);
-            config.setDisablePublicThreads(true);
+            config.setDisablePublicThreads(false);
 
 //            config.messagesToLoadPerBatch(10);
 
@@ -68,7 +69,8 @@ public class AppObj extends MultiDexApplication {
             config.googleLogin("1088435112418-e3t77t8jl2ucs8efeqs72o696in8soui.apps.googleusercontent.com");
 
             // For the demo version of the client expire rooms after 24 hours
-            config.publicChatRoomLifetimeMinutes(60 * 24);
+//            config.publicChatRoomLifetimeMinutes(60 * 24);
+            config.publicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24));
 //            config.remoteConfigEnabled(true);
 
             ChatSDK.initialize(context, config.build(), FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
