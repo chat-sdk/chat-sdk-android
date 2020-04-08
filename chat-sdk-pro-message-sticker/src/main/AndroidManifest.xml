@@ -5,7 +5,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true">
         <activity
-            android:name="co.chatsdk.message.sticker.StickerMessageActivity"
+            android:name="co.chatsdk.message.sticker.view.StickerMessageActivity"
             android:screenOrientation="portrait" />
     </application>
 

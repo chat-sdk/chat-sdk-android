@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
 
@@ -27,6 +28,25 @@ dependencies {
 
     implementation "com.amitshekhar.android:android-networking:$androidNetworkingVersion"
     implementation "com.github.barteksc:pdfium-android:$pdfiumVersion"
+    implementation "com.droidninja:filepicker:2.2.3"
 
     implementation project(path: ':chat-sdk-core-ui')
+}
+
+ext {
+    libraryName = 'FileMessagePro'
+    artifact = 'pro-message-file'
+    libraryDescription = 'File Message Pro Module'
+}
+
+publish {
+    userOrg = BINTRAY_USER_ORG
+    groupId = CHAT_SDK_GROUP
+    artifactId = artifact
+    repoName = BINTRAY_REPO
+    publishVersion = CHAT_SDK_VERSION
+    desc = libraryDescription
+    licences = ["GPL-3.0"]
+    uploadName = libraryName
+    website = GIT_URL
 }

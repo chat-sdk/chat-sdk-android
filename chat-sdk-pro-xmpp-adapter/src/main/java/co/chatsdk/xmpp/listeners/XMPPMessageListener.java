@@ -10,13 +10,11 @@ import org.pmw.tinylog.Logger;
 
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.xmpp.XMPPManager;
 import co.chatsdk.xmpp.XMPPMessageParser;
+import co.chatsdk.xmpp.utils.XMPPMessageParseHelper;
 import co.chatsdk.xmpp.utils.XMPPMessageWrapper;
-import io.reactivex.disposables.Disposable;
 
 
 public class XMPPMessageListener implements IncomingChatMessageListener, OutgoingChatMessageListener {
@@ -34,11 +32,12 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
             message.setLanguage("en");
         }
 
+
+//        final Thread thread = ChatSDK.db().fetchThreadWithEntityID(from);
         String from = fromJID.asBareJid().toString();
 
-        final Thread thread = ChatSDK.db().fetchThreadWithEntityID(from);
-
         if(isOneToOneMessage(message)) {
+            Thread thread = XMPPMessageParseHelper.getThread(message);
             XMPPMessageParser.addMessageToThread(thread, XMPPMessageWrapper.with(message), from);
 //            Disposable d = XMPPMessageParser.parse(message).subscribe((message1, throwable) -> {
 //            });

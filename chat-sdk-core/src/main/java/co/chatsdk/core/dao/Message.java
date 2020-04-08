@@ -7,6 +7,8 @@ package co.chatsdk.core.dao;
 
 import android.os.AsyncTask;
 
+import androidx.annotation.Nullable;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import org.greenrobot.greendao.DaoException;
@@ -19,12 +21,10 @@ import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Unique;
 import org.joda.time.DateTime;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.lang.Object;
-import java.lang.String;
+import java.util.Map;
 
 import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.events.NetworkEvent;
@@ -35,10 +35,6 @@ import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.DaoDateTimeConverter;
-import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
 
 @Entity
 public class Message extends AbstractEntity {
@@ -205,9 +201,11 @@ public class Message extends AbstractEntity {
         return values;
     }
 
-    public void setMetaValues(HashMap<String, Object> json) {
-        for (String key : json.keySet()) {
-            setMetaValue(key, json.get(key));
+    public void setMetaValues(@Nullable Map<String, Object> json) {
+        if (json != null) {
+            for (String key : json.keySet()) {
+                setMetaValue(key, json.get(key));
+            }
         }
     }
 

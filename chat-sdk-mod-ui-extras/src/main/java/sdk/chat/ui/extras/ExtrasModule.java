@@ -5,12 +5,11 @@ import android.content.Context;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 
-import org.greenrobot.greendao.annotation.NotNull;
-
 import co.chatsdk.core.handlers.Module;
+import sdk.guru.common.BaseConfig;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configure;
-import co.chatsdk.ui.module.UIConfig;
+
 
 public class ExtrasModule implements Module {
 
@@ -20,12 +19,16 @@ public class ExtrasModule implements Module {
         return instance;
     }
 
-    public static ExtrasModule shared(@NotNull Configure<Config> configure) {
-        configure.with(instance.config);
+    public static Config<ExtrasModule> configure() {
+        return instance.config;
+    }
+
+    public static ExtrasModule configure(Configure<Config> config) {
+        config.with(instance.config);
         return instance;
     }
 
-    public static class Config {
+    public static class Config<T> extends BaseConfig<T> {
 
         public boolean drawerEnabled = true;
 
@@ -35,19 +38,23 @@ public class ExtrasModule implements Module {
         @DrawableRes
         public int drawerHeaderImage = R.drawable.header2;
 
-        public Config setDrawerEnabled(boolean value) {
+        public Config(T onBuild) {
+            super(onBuild);
+        }
+
+        public Config<T> setDrawerEnabled(boolean value) {
             drawerEnabled = value;
             return this;
         }
 
-        public Config setDrawerHeaderImage(@DrawableRes int res) {
+        public Config<T> setDrawerHeaderImage(@DrawableRes int res) {
             drawerHeaderImage = res;
             return this;
         }
 
     }
 
-    protected Config config = new Config();
+    protected Config<ExtrasModule> config = new Config<>(this);
 
     @Override
     public void activate(@Nullable Context context) {

@@ -5,7 +5,6 @@ import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MUCAffiliation;
 import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.jivesoftware.smackx.muc.Occupant;
 import org.joda.time.DateTime;
 import org.jxmpp.jid.impl.JidCreate;
 
@@ -36,7 +35,6 @@ import co.chatsdk.xmpp.utils.Role;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
-import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -116,8 +114,26 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
+    public boolean canRemoveUsersFromThread(Thread thread, List<User> users) {
+        if (thread.typeIs(ThreadType.Group)) {
+            int role = XMPPManager.shared().mucManager.getRoleForUser(thread, ChatSDK.currentUser());
+            return Role.isOr(role, Role.Owner, Role.Admin, Role.Moderator);
+        }
+        return false;
+    }
+
+    @Override
     public Completable removeUsersFromThread(Thread thread, List<User> users) {
         return Completable.error(new Throwable("Method not implemented"));
+    }
+
+    @Override
+    public boolean canAddUsersToThread(Thread thread) {
+        if (thread.typeIs(ThreadType.Group)) {
+            int role = XMPPManager.shared().mucManager.getRoleForUser(thread, ChatSDK.currentUser());
+            return !Role.isOr(role, Role.None, Role.Outcast, Role.Visitor);
+        }
+        return false;
     }
 
     @Override
@@ -164,25 +180,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean addUsersEnabled(Thread thread) {
-        if (thread.typeIs(ThreadType.Group)) {
-            int role = XMPPManager.shared().mucManager.getRoleForUser(thread, ChatSDK.currentUser());
-            return !Role.isOr(role, Role.None, Role.Outcast, Role.Visitor);
-        }
-        return false;
-    }
-
-    @Override
-    public boolean removeUsersEnabled(Thread thread) {
-        if (thread.typeIs(ThreadType.Group)) {
-            int role = XMPPManager.shared().mucManager.getRoleForUser(thread, ChatSDK.currentUser());
-            return Role.isOr(role, Role.Owner, Role.Admin, Role.Moderator);
-        }
-        return false;
-    }
-
-    @Override
-    public boolean deleteMessageEnabled(Message message) {
+    public boolean canDeleteMessage(Message message) {
         return false;
     }
 
@@ -306,7 +304,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
         // We can change the moderation status if we are an admin or an owner and they
         // are not a member
-        return Role.isOr(myRole, Role.Owner, Role.Admin) && Role.isOr(theirRole, Role.Member, Role.Moderator);
+        return Role.isOr(myRole, Role.Owner, Role.Admin) && Role.isOr(theirRole, Role.Member, Role.Moderator) && !Role.isOr(theirRole, Role.Owner, Role.Admin);
     }
 
     @Override

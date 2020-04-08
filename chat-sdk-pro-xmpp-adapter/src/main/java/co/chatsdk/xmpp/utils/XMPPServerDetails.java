@@ -8,33 +8,39 @@ import co.chatsdk.core.utils.StringChecker;
 
 public class XMPPServerDetails {
 
-    String user = null;
-    String domain = null;
-    int port = -1;
+    String user;
+
+    String address = null;
+    int port = 0;
+    String resource = null;
 
     // We expect the user in the form:
-    // user@domain:port
-    public XMPPServerDetails (String userAlias) {
+    // user@domain:port/resource
+    public XMPPServerDetails (String userAlias) throws Exception {
 
-        // Get the port
-        int checkForPort = userAlias.indexOf(":");
-        if (checkForPort != -1) {
-            String portString = userAlias.substring(checkForPort + 1);
-            if (!StringChecker.isNullOrEmpty(portString)) {
-                // Set new port.
-                port = Integer.valueOf(portString);
-            }
-            userAlias = userAlias.substring(0, checkForPort - 1);
+        int atIndex = userAlias.indexOf("@");
+        int portIndex = userAlias.indexOf(":");
+        int resourceIndex = userAlias.indexOf("/");
+
+        if (resourceIndex > 0) {
+            resource = userAlias.substring(resourceIndex + 1);
+        } else {
+            resourceIndex = userAlias.length();
         }
 
-        int checkForAt = userAlias.indexOf("@");
-        if(checkForAt != -1) {
-            domain = userAlias.substring(checkForAt + 1);
-            user = userAlias.substring(checkForAt - 1);
+        if (portIndex > 0) {
+            port = Integer.parseInt(userAlias.substring(portIndex + 1, resourceIndex));
+        } else {
+            portIndex = resourceIndex;
         }
-        else {
-            user = userAlias;
+
+        if (atIndex > 0) {
+            address = userAlias.substring(atIndex + 1, portIndex);
+        } else {
+            atIndex = portIndex;
         }
+
+        user = userAlias.substring(0, atIndex);
     }
 
     public boolean hasUser () {
@@ -42,22 +48,38 @@ public class XMPPServerDetails {
     }
 
     public boolean hasPort () {
-        return port != -1;
+        return port != 0;
     }
 
     public boolean hasDomain () {
-        return !StringChecker.isNullOrEmpty(domain);
+        return !StringChecker.isNullOrEmpty(address);
     }
 
     public String getUser() {
         return user;
     }
 
-    public String getDomain() {
-        return domain;
+    public String getAddress() {
+        return address;
     }
 
     public int getPort() {
         return port;
     }
+
+    public XMPPServer getServer() {
+        XMPPServer server = new XMPPServer();
+        if (!StringChecker.isNullOrEmpty(address)) {
+            server.address = address;
+            server.domain = address;
+        }
+        if (port != 0) {
+            server.port = port;
+        }
+        if (!StringChecker.isNullOrEmpty(resource)) {
+            server.resource = resource;
+        }
+        return server;
+    }
+
 }

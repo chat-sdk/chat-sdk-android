@@ -1,8 +1,5 @@
 package co.chatsdk.firebase.file_storage;
 
-import android.net.Uri;
-
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -10,10 +7,8 @@ import com.google.firebase.storage.UploadTask;
 import org.pmw.tinylog.Logger;
 
 import co.chatsdk.core.base.AbstractUploadHandler;
-import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ChatError;
 import co.chatsdk.core.types.FileUploadResult;
-import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.firebase.FirebaseCoreHandler;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;

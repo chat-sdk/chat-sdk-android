@@ -6,13 +6,13 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.GoogleUtils;
-import sdk.chat.examples.BaseExample;
 
 public class ThreadExamples extends BaseExample {
     public ThreadExamples(Context context, ArrayList<User> users) {
@@ -28,14 +28,14 @@ public class ThreadExamples extends BaseExample {
             User user3 = ChatSDK.db().fetchUserWithEntityID("User3 ID");
 
             // Add users
-            if (ChatSDK.thread().addUsersEnabled(thread)) {
+            if (ChatSDK.thread().canAddUsersToThread(thread)) {
                 dm.add(ChatSDK.thread().addUsersToThread(thread, user1, user2).subscribe(() -> {
 
                 }, this));
             }
 
             // Remove users
-            if (ChatSDK.thread().removeUsersEnabled(thread)) {
+            if (ChatSDK.thread().canRemoveUsersFromThread(thread, Arrays.asList(user1, user2))) {
                 dm.add(ChatSDK.thread().removeUsersFromThread(thread, user1, user2).subscribe(() -> {
 
                 }, this));

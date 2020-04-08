@@ -1,13 +1,8 @@
 package co.chatsdk.firebase.utils;
 
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
-import co.chatsdk.firebase.FirebasePaths;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
 
 /**

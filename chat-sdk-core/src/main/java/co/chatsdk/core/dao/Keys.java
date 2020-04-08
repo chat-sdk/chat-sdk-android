@@ -11,8 +11,6 @@ public class Keys {
 
     /* Metadata */
     public static final String Email = "email";
-    public static final String Key = "key";
-    public static final String Value = "value";
     public static final String Phone = "phone";
     public static final String AvatarURL = "pictureURL";
     public static final String HeaderURL = "header-url";
@@ -20,13 +18,8 @@ public class Keys {
     public static final String Availability = "availability";
     public static final String State = "state";
     public static final String PresenceSubscription = "presence-subscription";
-    public static final String Time = "time";
-
-    public static final String UserName = "userName";
 
     // TODO: This will be deprecated in favour of the from variable
-//    public static final String UserFirebaseId = "user-firebase-id";
-    public static final String Color = "color";
     public static final String Name = "name";
     public static final String NameLowercase = "name-lowercase";
     public static final String InvitedBy = "invitedBy";
@@ -37,11 +30,9 @@ public class Keys {
 
     // Deprecated in favour of type
     public static final String Type = "type";
-    public static final String Online = "online";
     public static final String Date = "date";
     public static final String LastOnline = "last-online";
     public static final String Meta = "meta";
-    public static final String Threads = "threads";
     public static final String Users = "users";
     public static final String UID = "uid";
     public static final String Read = "read";

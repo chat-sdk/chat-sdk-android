@@ -1,10 +1,9 @@
 package firestream.chat.events;
 
 import firestream.chat.chat.User;
-import firestream.chat.firebase.service.Keys;
 import firestream.chat.namespace.FireStreamUser;
-import firestream.chat.types.ContactType;
-import firestream.chat.types.RoleType;
+import sdk.guru.common.Event;
+import sdk.guru.common.EventType;
 
 public class UserEvent extends Event {
 

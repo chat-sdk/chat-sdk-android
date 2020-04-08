@@ -1,9 +1,5 @@
 package co.chatsdk.core.rigs;
 
-import android.telecom.Call;
-
-import com.google.android.exoplayer2.C;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,25 +7,18 @@ import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.AbstractThreadHandler;
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.utils.DisposableList;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
-import io.reactivex.MaybeSource;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class MessageSendRig {
@@ -41,8 +30,6 @@ public class MessageSendRig {
     public interface MessageDidCreateUpdateAction {
         void update (Message message);
     }
-
-    protected DisposableList disposableList = new DisposableList();
 
     protected MessageType messageType;
     protected Thread thread;

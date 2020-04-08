@@ -10,7 +10,6 @@ import androidx.cardview.widget.CardView;
 import butterknife.BindView;
 import io.reactivex.Completable;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Action;
 import sdk.chat.android.live.R;
 
 public class DatabaseFragment extends CardViewFragment {

@@ -14,7 +14,6 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.xmpp.XMPPManager;
 import co.chatsdk.xmpp.defines.XMPPDefines;
-import co.chatsdk.xmpp.module.XMPPModule;
 
 public class XMPPReceiptReceivedListener implements ReceiptReceivedListener {
     @Override

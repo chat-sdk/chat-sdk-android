@@ -12,7 +12,7 @@ import co.chatsdk.ui.chat.model.MessageHolder;
 public class ReadStatusViewBinder {
 
     public static void onBind(ImageView view, MessageHolder holder) {
-        if (ChatSDK.readReceipts() == null || !holder.getUser().getUser().isMe() || holder.getReadStatus().is(ReadStatus.none(), ReadStatus.hide())) {
+        if (ChatSDK.readReceipts() == null || !holder.getUser().getUser().isMe() || holder.getReadStatus().is(ReadStatus.hide())) {
             view.setVisibility(View.GONE);
         } else {
             ReadStatus status = holder.getReadStatus();

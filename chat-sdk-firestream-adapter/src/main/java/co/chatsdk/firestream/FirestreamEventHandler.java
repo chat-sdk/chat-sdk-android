@@ -2,27 +2,25 @@ package co.chatsdk.firestream;
 
 import java.util.Date;
 
-import co.chatsdk.core.api.APIHelper;
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.ReadStatus;
-
 import co.chatsdk.firebase.FirebaseEventHandler;
-import firestream.chat.events.Event;
+import sdk.guru.common.Event;
+import sdk.guru.common.EventType;
 import firestream.chat.filter.Filter;
+import sdk.guru.common.DisposableMap;
 import firestream.chat.interfaces.IChat;
-import firestream.chat.events.EventType;
-import firestream.chat.firebase.rx.DisposableMap;
 import firestream.chat.namespace.Fire;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import co.chatsdk.core.dao.Thread;
 import firestream.chat.namespace.FireStreamMessage;
 import firestream.chat.types.RoleType;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 public class FirestreamEventHandler extends FirebaseEventHandler implements Consumer<Throwable> {
 

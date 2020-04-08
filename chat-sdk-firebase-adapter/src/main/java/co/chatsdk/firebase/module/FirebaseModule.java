@@ -2,12 +2,11 @@ package co.chatsdk.firebase.module;
 
 import android.content.Context;
 
-import androidx.annotation.Nullable;
-
 import org.greenrobot.greendao.annotation.NotNull;
 
 import co.chatsdk.core.base.BaseNetworkAdapter;
 import co.chatsdk.core.handlers.Module;
+
 import co.chatsdk.core.session.Configure;
 import co.chatsdk.core.session.NetworkAdapterProvider;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
@@ -20,12 +19,16 @@ public class FirebaseModule implements Module, NetworkAdapterProvider {
         return instance;
     }
 
-    public static FirebaseModule shared(@NotNull Configure<FirebaseConfig> configure) {
-        configure.with(instance.config);
+    public static FirebaseConfig<FirebaseModule> configure() {
+        return instance.config;
+    }
+
+    public static FirebaseModule configure(Configure<FirebaseConfig> config) {
+        config.with(instance.config);
         return instance;
     }
 
-    public FirebaseConfig config = new FirebaseConfig();
+    public FirebaseConfig<FirebaseModule> config = new FirebaseConfig<>(this);
 
     @Override
     public void activate(@NotNull Context context) {

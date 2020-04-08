@@ -3,7 +3,6 @@ package co.chatsdk.core.utils;
 import android.Manifest;
 import android.app.Activity;
 
-import java.util.List;
 import androidx.core.content.ContextCompat;
 
 import com.karumi.dexter.Dexter;
@@ -13,6 +12,8 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import org.pmw.tinylog.Logger;
+
+import java.util.List;
 
 import co.chatsdk.core.R;
 import co.chatsdk.core.session.ChatSDK;

@@ -2,8 +2,6 @@ package co.chatsdk.ui.fragments;
 
 import android.view.MenuItem;
 
-import androidx.core.app.ActivityCompat;
-
 import java.util.List;
 
 import co.chatsdk.core.dao.Thread;

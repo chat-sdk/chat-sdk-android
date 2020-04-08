@@ -21,7 +21,6 @@ import static co.chatsdk.message.sticker.R.raw.stickers;
 public class Configuration {
 
     public static String FolderName = "drawable";
-    public static String Package = "co.chatsdk.message.sticker";
 
     public static ArrayList<StickerPack> getStickerPacks (Context context) throws Exception {
         ArrayList<StickerPack> stickerPacks = new ArrayList<>();

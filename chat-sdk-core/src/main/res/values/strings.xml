@@ -2,11 +2,11 @@
 <resources>
     <string name="app_name" translatable="false">Chat SDK Core</string>
 
-    <string name="image_message">📷  Image</string>
-    <string name="audio_message">🎤  Recording</string>
-    <string name="video_message">📹  Video</string>
-    <string name="sticker_message">Sticker</string>
-    <string name="file_message">📂  File</string>
+    <string name="image_message">📷 Image</string>
+    <string name="audio_message">🎤 Recording</string>
+    <string name="video_message">📹 Video</string>
+    <string name="sticker_message">🙂 Sticker</string>
+    <string name="file_message">📂 File</string>
     <string name="no_name">No Name</string>
 
     <string name="register">Register</string>
@@ -163,7 +163,7 @@
     <string name="sent">Sent</string>
     <string name="failed">Failed</string>
 
-    <string name="choose_video">Choose Video</string>
+    <string name="choose_video">🎞️ Choose Video</string>
     <string name="take_video">📹 Take Video</string>
     <string name="seconds_remaining__" formatted="false">Seconds remaining %d</string>
     <string name="recording_too_short">Recording too short</string>

@@ -3,8 +3,8 @@ package firestream.chat.filter;
 import java.util.Arrays;
 import java.util.List;
 
-import firestream.chat.events.Event;
-import firestream.chat.events.EventType;
+import sdk.guru.common.Event;
+import sdk.guru.common.EventType;
 import firestream.chat.namespace.Fire;
 
 import firestream.chat.message.Sendable;

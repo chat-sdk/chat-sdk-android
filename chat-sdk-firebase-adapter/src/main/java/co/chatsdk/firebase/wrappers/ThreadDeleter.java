@@ -6,18 +6,15 @@ import com.google.firebase.database.ServerValue;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
 
-import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.Thread;
+import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.firebase.FirebasePaths;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.schedulers.Schedulers;
 
 public class ThreadDeleter {

@@ -2,24 +2,21 @@ package co.chatsdk.firestream;
 
 import org.joda.time.DateTime;
 
-import co.chatsdk.core.api.APIHelper;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ReadStatus;
-import firestream.chat.interfaces.IChat;
 import firestream.chat.events.ConnectionEvent;
-import firestream.chat.events.EventType;
-import firestream.chat.firebase.rx.DisposableMap;
+import sdk.guru.common.EventType;
+import sdk.guru.common.DisposableMap;
+import firestream.chat.interfaces.IChat;
 import firestream.chat.message.DeliveryReceipt;
 import firestream.chat.namespace.Fire;
 import firestream.chat.types.DeliveryReceiptType;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 
 public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consumer<Throwable> {

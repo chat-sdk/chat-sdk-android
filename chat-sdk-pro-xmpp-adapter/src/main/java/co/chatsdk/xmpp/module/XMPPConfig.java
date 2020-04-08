@@ -1,63 +1,71 @@
 package co.chatsdk.xmpp.module;
 
-import android.content.Context;
+import sdk.guru.common.BaseConfig;
+import co.chatsdk.xmpp.utils.XMPPServer;
 
-public class XMPPConfig {
+public class XMPPConfig<T> extends BaseConfig<T> {
 
-    public String xmppDomain;
-    public String xmppHostAddress;
-    public int xmppPort;
-    public String xmppResource = "Android";
-    public boolean xmppSslEnabled;
-    public boolean xmppAcceptAllCertificates;
-    public boolean xmppDisableHostNameVerification;
-    public boolean xmppAllowClientSideAuthentication;
-    public boolean xmppCompressionEnabled;
-    public String xmppSecurityMode = "disabled";
-    public int xmppMucMessageHistory = 20;
+    public String domain;
+    public String hostAddress;
+    public int port = 5222;
+    public String resource = null;
+//    public boolean xmppSslEnabled;
+//    public boolean xmppAcceptAllCertificates;
+//    public boolean xmppDisableHostNameVerification;
+//    public boolean xmppAllowClientSideAuthentication;
+    public boolean compressionEnabled;
+    public String securityMode = "disabled";
+    public int mucMessageHistory = 20;
     public boolean debugEnabled = false;
 
-    public String xmppMucServiceName = "conference";
+    public boolean allowServerConfiguration = true;
 
-    /**
-     * In this case the resource will be set to the device's IMEI number
-     *
-     * @param domain
-     * @param hostAddress
-     * @param port
-     * @return
-     */
-    public XMPPConfig xmpp(String domain, String hostAddress, int port) {
-        return xmpp(domain, hostAddress, port, null);
+    public String mucServiceName = "conference";
+
+    public XMPPConfig(T onBuild) {
+        super(onBuild);
     }
 
-    public XMPPConfig xmpp(String domain, String hostAddress, int port, String resource) {
-        return xmpp(domain, hostAddress, port, resource, false);
+    public XMPPConfig<T> setXMPP(String hostAddress) {
+        return setXMPP(hostAddress, 0);
     }
 
-    public XMPPConfig xmpp(String domain, String hostAddress, int port, String resource, boolean sslEnabled) {
-        this.xmppDomain = domain;
-        this.xmppHostAddress = hostAddress;
-        this.xmppPort = port;
-        this.xmppResource = resource;
-        this.xmppSslEnabled = sslEnabled;
+    public XMPPConfig<T> setXMPP(String hostAddress, String domain) {
+        return setXMPP(hostAddress, domain, 0);
+    }
+
+    public XMPPConfig<T> setXMPP(String hostAddress, int port) {
+        return setXMPP(hostAddress, hostAddress, port);
+    }
+
+    public XMPPConfig<T> setXMPP(String hostAddress, String domain, int port) {
+        return setXMPP(hostAddress, domain, port, null);
+    }
+
+    public XMPPConfig<T> setXMPP(String hostAddress, String domain, int port, String resource) {
+        this.hostAddress = hostAddress;
+        this.domain = domain;
+        if (port != 0) {
+            this.port = port;
+        }
+        this.resource = resource;
         return this;
     }
 
-    public XMPPConfig xmppSslEnabled(boolean sslEnabled) {
-        this.xmppSslEnabled = sslEnabled;
+//    public XMPPConfig<T> xmppSslEnabled(boolean sslEnabled) {
+//        this.xmppSslEnabled = sslEnabled;
+//        return this;
+//    }
+
+    public XMPPConfig<T> setMucMessageHistory(int history) {
+        this.mucMessageHistory = history;
         return this;
     }
 
-    public XMPPConfig xmppMucMessageHistory(int history) {
-        this.xmppMucMessageHistory = history;
-        return this;
-    }
-
-    public XMPPConfig xmppDisableHostNameVerification(boolean disableHostNameVerification) {
-        this.xmppDisableHostNameVerification = disableHostNameVerification;
-        return this;
-    }
+//    public XMPPConfig<T> xmppDisableHostNameVerification(boolean disableHostNameVerification) {
+//        this.xmppDisableHostNameVerification = disableHostNameVerification;
+//        return this;
+//    }
 
     /**
      * This setting is not currently implemented
@@ -65,21 +73,21 @@ public class XMPPConfig {
      * @param allowClientSideAuthentication
      * @return
      */
-    public XMPPConfig xmppAllowClientSideAuthentication(boolean allowClientSideAuthentication) {
-        this.xmppAllowClientSideAuthentication = allowClientSideAuthentication;
+//    public XMPPConfig<T> xmppAllowClientSideAuthentication(boolean allowClientSideAuthentication) {
+//        this.xmppAllowClientSideAuthentication = allowClientSideAuthentication;
+//        return this;
+//    }
+//
+    public XMPPConfig<T> setCompressionEnabled(boolean compressionEnabled) {
+        this.compressionEnabled = compressionEnabled;
         return this;
     }
-
-    public XMPPConfig xmppCompressionEnabled(boolean compressionEnabled) {
-        this.xmppCompressionEnabled = compressionEnabled;
-        return this;
-    }
-
-
-    public XMPPConfig xmppAcceptAllCertificates(boolean acceptAllCertificates) {
-        this.xmppAcceptAllCertificates = acceptAllCertificates;
-        return this;
-    }
+//
+//
+//    public XMPPConfig<T> xmppAcceptAllCertificates(boolean acceptAllCertificates) {
+//        this.xmppAcceptAllCertificates = acceptAllCertificates;
+//        return this;
+//    }
 
     /**
      * Set TSL security mode. Allowable values are
@@ -90,17 +98,28 @@ public class XMPPConfig {
      * @param securityMode
      * @return
      */
-    public XMPPConfig xmppSecurityMode(String securityMode) {
-        this.xmppSecurityMode = securityMode;
+    public XMPPConfig<T> setSecurityMode(String securityMode) {
+        this.securityMode = securityMode;
         return this;
     }
 
-    public void setXmppMucServiceName(String xmppMucServiceName) {
-        this.xmppMucServiceName = xmppMucServiceName;
+    public XMPPConfig<T> setMucServiceName(String mucServiceName) {
+        this.mucServiceName = mucServiceName;
+        return this;
     }
 
-    public void setDebugEnabled(boolean debugEnabled) {
+    public XMPPConfig<T> setDebugEnabled(boolean debugEnabled) {
         this.debugEnabled = debugEnabled;
+        return this;
+    }
+
+    public XMPPServer getServer() {
+        return new XMPPServer(hostAddress, domain, port, resource);
+    }
+
+    public XMPPConfig<T> setAllowServerConfiguration(boolean allowServerConfiguration) {
+        this.allowServerConfiguration = allowServerConfiguration;
+        return this;
     }
 
 }

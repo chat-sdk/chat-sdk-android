@@ -9,7 +9,6 @@ import org.greenrobot.greendao.annotation.ToOne;
 import org.joda.time.DateTime;
 
 import co.chatsdk.core.base.AbstractEntity;
-import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.utils.DaoDateTimeConverter;
 
 /**

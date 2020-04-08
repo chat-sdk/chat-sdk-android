@@ -7,8 +7,6 @@ import android.view.ViewGroup;
 
 import androidx.cardview.widget.CardView;
 
-import org.pmw.tinylog.Logger;
-
 import butterknife.BindView;
 import io.reactivex.Completable;
 import io.reactivex.annotations.NonNull;

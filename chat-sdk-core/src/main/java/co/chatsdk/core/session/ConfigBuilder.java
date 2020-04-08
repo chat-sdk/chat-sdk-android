@@ -1,7 +1,5 @@
 package co.chatsdk.core.session;
 
-import android.content.Context;
-
 import org.greenrobot.greendao.annotation.NotNull;
 
 import java.util.ArrayList;
@@ -10,45 +8,44 @@ import java.util.List;
 import co.chatsdk.core.base.BaseNetworkAdapter;
 import co.chatsdk.core.handlers.Module;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
+import sdk.guru.common.BaseConfig;
 
-public class ConfigBuilder {
+public class ConfigBuilder<T> extends BaseConfig<T> {
 
     public Class<? extends BaseNetworkAdapter> networkAdapter = null;
     public Class<? extends InterfaceAdapter> interfaceAdapter = null;
 
-    public Context context;
-
-    public Config config = new Config();
+    public Config<ConfigBuilder<T>> config = new Config<>(this);
 
     public List<Module> modules = new ArrayList<>();
 
-    public ConfigBuilder(@NotNull Class<? extends BaseNetworkAdapter> networkAdapterClass, @NotNull Class<? extends InterfaceAdapter> interfaceAdapterClass) {
+    public ConfigBuilder(T onBuild) {
+        super(onBuild);
+    }
+
+    public ConfigBuilder<T> setNetworkAdapter (@NotNull Class<? extends BaseNetworkAdapter> networkAdapterClass) {
         this.networkAdapter = networkAdapterClass;
+        return this;
+    }
+
+    public ConfigBuilder<T> setInterfaceAdapter (@NotNull Class<? extends InterfaceAdapter> interfaceAdapterClass) {
         this.interfaceAdapter = interfaceAdapterClass;
+        return this;
     }
 
-    public ConfigBuilder(Configure<Config> configure) {
-        configure.with(config);
+    public Config<ConfigBuilder<T>> configure() {
+        return config;
     }
 
-    public ConfigBuilder addModule(Module module) {
+    public ConfigBuilder<T> addModule(Module module) {
         modules.add(module);
         return this;
     }
 
-    public ConfigBuilder addModules(List<Module> modules) {
-        modules.addAll(modules);
+    public ConfigBuilder<T> addModules(List<Module> modules) {
+        this.modules.addAll(modules);
         return this;
     }
 
-    public ConfigBuilder configure(Configure<Config> configure) {
-        configure.with(config);
-        return this;
-    }
-
-    public void activate(@NotNull Context context) throws Exception {
-        this.context = context;
-        ChatSDK.initialize(this);
-    }
 
 }

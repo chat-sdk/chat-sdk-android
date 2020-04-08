@@ -1,28 +1,9 @@
 package co.chatsdk.core.avatar;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-
-
-
-import org.pmw.tinylog.Logger;
-
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.Random;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.image.ImageUploadResult;
-import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.storage.FileManager;
-import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
 
 public class HashAvatarGenerator implements AvatarGenerator {
 

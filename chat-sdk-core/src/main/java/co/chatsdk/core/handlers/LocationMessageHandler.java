@@ -1,8 +1,9 @@
 package co.chatsdk.core.handlers;
 
 import com.google.android.gms.maps.model.LatLng;
-import io.reactivex.Completable;
+
 import co.chatsdk.core.dao.Thread;
+import io.reactivex.Completable;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.

@@ -41,9 +41,9 @@ android {
 }
 
 ext {
-    libraryName = 'ChatSDKUIExtras'
-    artifact = 'chat-sdk-ui-extras'
-    libraryDescription = 'Chat SDK UI Extras'
+    libraryName = 'UIExtrasMod'
+    artifact = 'mod-ui-extras'
+    libraryDescription = 'UI Extras Module'
 }
 
 publish {

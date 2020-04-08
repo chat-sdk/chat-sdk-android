@@ -8,11 +8,7 @@ import java.util.List;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.EventType;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.custom.Customiser;
-import io.reactivex.functions.Consumer;
 
 public class ThreadHolder implements IDialog<MessageHolder> {
 

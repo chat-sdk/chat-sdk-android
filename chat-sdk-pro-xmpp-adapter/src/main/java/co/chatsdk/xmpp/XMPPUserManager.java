@@ -20,7 +20,6 @@ import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
-import org.minidns.record.A;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -29,31 +28,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 
-import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.core.storage.FileManager;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.core.types.KeyValue;
-import co.chatsdk.core.utils.DisposableList;
+
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.xmpp.utils.PresenceHelper;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.DisposableMap;
 
 
 /**
@@ -69,7 +62,7 @@ public class XMPPUserManager {
     public static String ContactGroupName = "Contacts";
 
     private WeakReference<XMPPManager> manager;
-    private DisposableList disposables = new DisposableList();
+    private DisposableMap disposables = new DisposableMap();
 
     public XMPPUserManager(XMPPManager manager){
         this.manager = new WeakReference<>(manager);

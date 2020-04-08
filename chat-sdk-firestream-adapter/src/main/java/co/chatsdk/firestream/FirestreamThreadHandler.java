@@ -12,7 +12,6 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.ThreadMetaValue;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.ReadReceiptHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
@@ -20,17 +19,15 @@ import co.chatsdk.firefly.R;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.message.Sendable;
 import firestream.chat.namespace.Fire;
+import firestream.chat.namespace.FireStreamUser;
+import firestream.chat.types.RoleType;
 import firestream.chat.types.SendableType;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import firestream.chat.namespace.FireStreamUser;
-import firestream.chat.types.RoleType;
 
 public class FirestreamThreadHandler extends AbstractThreadHandler {
 
@@ -215,7 +212,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean deleteMessageEnabled(Message message) {
+    public boolean canDeleteMessage(Message message) {
         if (message.getThread() != null && message.getThread().typeIs(ThreadType.Group)) {
             IChat chat = Fire.stream().getChat(message.getThread().getEntityID());
             if (chat != null && chat.hasPermission(RoleType.admin())) {
@@ -412,7 +409,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean addUsersEnabled(Thread thread) {
+    public boolean canAddUsersToThread(Thread thread) {
         if (thread.typeIs(ThreadType.Group)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
@@ -423,7 +420,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean removeUsersEnabled(Thread thread) {
+    public boolean canRemoveUsersFromThread(Thread thread, List<User> users) {
         if (thread.typeIs(ThreadType.Group)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {

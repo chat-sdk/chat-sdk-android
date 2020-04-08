@@ -2,11 +2,8 @@ package co.chatsdk.core.handlers;
 
 import java.io.File;
 
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.types.MessageSendProgress;
-import io.reactivex.Completable;
-import io.reactivex.Observable;
 import co.chatsdk.core.dao.Thread;
+import io.reactivex.Completable;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.

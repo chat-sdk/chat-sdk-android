@@ -1,6 +1,6 @@
 package firestream.chat.test.contact;
 
-import firestream.chat.events.EventType;
+import sdk.guru.common.EventType;
 import firestream.chat.namespace.Fire;
 import firestream.chat.test.Result;
 import firestream.chat.test.Test;

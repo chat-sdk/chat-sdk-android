@@ -2,14 +2,13 @@ package co.chatsdk.firebase.push;
 
 import android.content.Context;
 
-import androidx.annotation.Nullable;
-
 import org.greenrobot.greendao.annotation.NotNull;
 
 import co.chatsdk.core.handlers.Module;
+import sdk.guru.common.BaseConfig;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configure;
-import co.chatsdk.firebase.module.FirebaseConfig;
+
 
 /**
  * Created by ben on 9/1/17.
@@ -23,22 +22,30 @@ public class FirebasePushModule implements Module {
         return instance;
     }
 
-    public static FirebasePushModule shared(@NotNull Configure<Config> configure) {
-        configure.with(instance.config);
+    public static Config<FirebasePushModule> configure() {
+        return instance.config;
+    }
+
+    public static FirebasePushModule configure(Configure<Config> config) {
+        config.with(instance.config);
         return instance;
     }
 
-    public static class Config {
+    public static class Config<T> extends BaseConfig<T> {
 
         public String firebaseFunctionsRegion;
 
-        public Config firebaseFunctionsRegion(String firebaseFunctionsRegion) {
+        public Config(T onBuild) {
+            super(onBuild);
+        }
+
+        public Config<T> firebaseFunctionsRegion(String firebaseFunctionsRegion) {
             this.firebaseFunctionsRegion = firebaseFunctionsRegion;
             return this;
         }
     }
 
-    protected Config config = new Config();
+    protected Config<FirebasePushModule> config = new Config<>(this);
 
     @Override
     public void activate(@NotNull Context context) {

@@ -3,17 +3,13 @@ package sdk.chat.demo;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 
 import androidx.cardview.widget.CardView;
 
-import co.chatsdk.core.utils.DisposableMap;
+import sdk.guru.common.DisposableMap;
 import co.chatsdk.ui.fragments.BaseFragment;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import sdk.chat.android.live.R;
 
 public abstract class CardViewFragment extends BaseFragment {

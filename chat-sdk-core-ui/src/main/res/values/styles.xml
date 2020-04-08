@@ -52,7 +52,7 @@
 
     <item name="incomingReplyBackgroundColor">@color/incoming_reply</item>
     <item name="incomingUserNameTextColor">@color/gray_light</item>
-    <item name="incomingUserNameTextFont">sans-serif-thin</item>
+    <item name="incomingUserNameTextFont">sans-serif</item>
     <item name="incomingUserNameTextSize">14sp</item>
     <item name="incomingIconDrawable">@drawable/shape_incoming_icon</item>
 

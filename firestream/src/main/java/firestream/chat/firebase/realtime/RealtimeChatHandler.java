@@ -7,21 +7,19 @@ import java.util.HashMap;
 
 import javax.annotation.Nullable;
 
-import firestream.chat.chat.Chat;
 import firestream.chat.chat.Meta;
 import firestream.chat.firebase.generic.Generic;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import firestream.chat.chat.User;
 import firestream.chat.firebase.service.FirebaseChatHandler;
 import firestream.chat.firebase.service.Keys;
-import firestream.chat.firebase.service.Path;
 import firestream.chat.firebase.service.Paths;
 import io.reactivex.functions.Consumer;
+import sdk.guru.firebase.RXRealtime;
+import sdk.guru.firebase.DocumentChange;
 
 public class RealtimeChatHandler extends FirebaseChatHandler {
 
@@ -43,7 +41,7 @@ public class RealtimeChatHandler extends FirebaseChatHandler {
     @Override
     public Observable<Meta> metaOn(String chatId) {
         return new RXRealtime().on(Ref.get(Paths.chatPath(chatId))).flatMapMaybe(change -> {
-            DataSnapshot snapshot = change.snapshot;
+            DataSnapshot snapshot = change.getSnapshot();
             if (snapshot.hasChild(Keys.Meta)) {
                 snapshot = snapshot.child(Keys.Meta);
 

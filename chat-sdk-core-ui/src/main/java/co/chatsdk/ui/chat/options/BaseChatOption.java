@@ -2,16 +2,13 @@ package co.chatsdk.ui.chat.options;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
-import android.widget.Toast;
 
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ChatOption;
-import co.chatsdk.core.utils.DisposableList;
+import sdk.guru.common.DisposableMap;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.icons.Icons;
-import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
-import io.reactivex.Observable;
 
 /**
  * Created by ben on 10/11/17.
@@ -22,7 +19,7 @@ public class BaseChatOption implements ChatOption {
     protected Action action;
     protected String title;
     protected Drawable drawable;
-    protected DisposableList disposableList = new DisposableList();
+    protected DisposableMap dm = new DisposableMap();
 
     public BaseChatOption (String title, Drawable drawable, Action action) {
         this.action = action;
@@ -61,6 +58,6 @@ public class BaseChatOption implements ChatOption {
     }
 
     protected void dispose () {
-        disposableList.dispose();
+        dm.dispose();
     }
 }

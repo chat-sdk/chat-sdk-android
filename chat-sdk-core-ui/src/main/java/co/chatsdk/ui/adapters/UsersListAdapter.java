@@ -12,11 +12,14 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.view_holders.UserViewHolder;

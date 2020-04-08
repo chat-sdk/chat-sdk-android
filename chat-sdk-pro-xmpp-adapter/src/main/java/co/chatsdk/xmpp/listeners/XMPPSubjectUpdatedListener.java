@@ -3,15 +3,12 @@ package co.chatsdk.xmpp.listeners;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.SubjectUpdatedListener;
 import org.jxmpp.jid.EntityFullJid;
-import org.pmw.tinylog.Logger;
-
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Thread;
 
 import java.lang.ref.WeakReference;
 
+import co.chatsdk.core.dao.Keys;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.xmpp.XMPPMUCManager;
 import io.reactivex.disposables.Disposable;
 
 

@@ -1,16 +1,16 @@
 package sdk.chat.test;
 
 import android.content.Context;
-import android.os.Build;
 
 import co.chatsdk.core.session.Config;
 import co.chatsdk.core.utils.Device;
 import co.chatsdk.xmpp.module.XMPPConfig;
+import co.chatsdk.xmpp.module.XMPPModule;
 
 public class Testing {
 
-    public static XMPPConfig myOpenFire(XMPPConfig config) {
-        return config.xmpp("bear", "185.62.137.45", 5222, null);
+    public static XMPPConfig<XMPPModule> myOpenFire(XMPPConfig<XMPPModule> config) {
+        return config.setXMPP( "185.62.137.45", "bear");
     }
 
     public static Config myOpenFire(Context context, Config config) {
@@ -28,7 +28,7 @@ public class Testing {
     }
 
     public static XMPPConfig rameshEJabberd(XMPPConfig config) {
-        return config.xmpp("18.216.137.86", "18.216.137.86", 5222, null);
+        return config.setXMPP("18.216.137.86");
     }
 
     public static Config rameshEJabberd(Context context, Config config) {

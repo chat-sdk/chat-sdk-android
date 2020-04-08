@@ -1,13 +1,10 @@
 package co.chatsdk.ui.chat.options;
 
-import android.content.Intent;
-
 import java.lang.ref.WeakReference;
 
 import co.chatsdk.core.interfaces.ChatOption;
 import co.chatsdk.core.interfaces.ChatOptionsDelegate;
 import co.chatsdk.core.interfaces.ChatOptionsHandler;
-import co.chatsdk.core.session.ChatSDK;
 
 /**
  * Created by ben on 10/11/17.

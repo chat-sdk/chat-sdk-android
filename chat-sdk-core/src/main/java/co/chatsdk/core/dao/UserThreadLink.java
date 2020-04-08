@@ -4,13 +4,12 @@ package co.chatsdk.core.dao;
 
 // KEEP INCLUDES - put your custom includes here
 
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.DaoException;
+import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.ToOne;
 
 import co.chatsdk.core.base.AbstractEntity;
-import co.chatsdk.core.interfaces.CoreEntity;
 
 @org.greenrobot.greendao.annotation.Entity
 public class UserThreadLink extends AbstractEntity {

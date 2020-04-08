@@ -31,9 +31,9 @@ android {
 }
 
 ext {
-    libraryName = 'ChatSDKProfilePictures'
-    artifact = 'chat-sdk-profile-pictures'
-    libraryDescription = 'Chat SDK Profile Pictures'
+    libraryName = 'ProfilePicturesMod'
+    artifact = 'mod-profile-pictures'
+    libraryDescription = 'Profile Pictures Module'
 }
 
 publish {

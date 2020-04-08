@@ -1,8 +1,6 @@
 package co.chatsdk.ui.utils;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
 import com.zhihu.matisse.MimeType;
 
@@ -12,15 +10,10 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import co.chatsdk.core.image.ImageUploadResult;
-import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.chat.MediaSelector;
-import id.zelory.compressor.Compressor;
-import io.reactivex.Maybe;
 import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
 
 public class ImagePickerUploader {
 

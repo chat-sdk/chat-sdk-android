@@ -1,34 +1,19 @@
 package co.chatsdk.core.push;
 
-import android.content.SharedPreferences;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Callable;
 
-import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.EventType;
-import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.PushHandler;
-import co.chatsdk.core.hook.AsyncExecutor;
-import co.chatsdk.core.hook.Executor;
 import co.chatsdk.core.hook.Hook;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.BroadcastHandler;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.StringChecker;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.CompletableSource;
-import io.reactivex.Observer;
-import io.reactivex.functions.Consumer;
-import co.chatsdk.core.dao.Thread;
 import io.reactivex.schedulers.Schedulers;
 
 public abstract class AbstractPushHandler implements PushHandler {

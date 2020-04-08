@@ -37,9 +37,9 @@ android {
 }
 
 ext {
-    libraryName = 'ChatSDKFirebaseFileStorage'
-    artifact = 'chat-sdk-firebase-file-storage'
-    libraryDescription = 'Chat SDK Firebase File Storage'
+    libraryName = 'FirebaseUpload'
+    artifact = 'firebase-upload'
+    libraryDescription = 'Firebase Upload'
 }
 
 publish {

@@ -2,23 +2,14 @@ package firestream.chat.interfaces;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import firestream.chat.chat.Events;
-import firestream.chat.firebase.rx.DisposableMap;
-import firestream.chat.message.Message;
+import sdk.guru.common.DisposableMap;
 import firestream.chat.message.Sendable;
-import firestream.chat.types.DeliveryReceiptType;
 import firestream.chat.types.SendableType;
-import firestream.chat.types.TypingStateType;
-import io.reactivex.Completable;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 public interface IAbstractChat {
 

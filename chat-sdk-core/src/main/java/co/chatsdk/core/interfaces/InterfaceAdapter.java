@@ -4,9 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 
-import androidx.annotation.DrawableRes;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
@@ -18,9 +16,9 @@ import co.chatsdk.core.avatar.AvatarGenerator;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.notifications.NotificationDisplayHandler;
 import co.chatsdk.core.types.SearchActivityType;
 import co.chatsdk.core.ui.ProfileFragmentProvider;
-import co.chatsdk.core.notifications.NotificationDisplayHandler;
 
 /**
  * Created by benjaminsmiley-andrews on 12/07/2017.

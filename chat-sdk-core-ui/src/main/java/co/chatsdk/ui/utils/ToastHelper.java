@@ -1,8 +1,9 @@
 package co.chatsdk.ui.utils;
 
 import android.content.Context;
-import androidx.annotation.StringRes;
 import android.widget.Toast;
+
+import androidx.annotation.StringRes;
 
 /**
  * Created by ben on 9/8/17.

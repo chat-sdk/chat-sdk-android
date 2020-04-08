@@ -9,7 +9,6 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-
 import butterknife.BindView;
 import co.chatsdk.core.hook.Hook;
 import co.chatsdk.core.hook.HookEvent;

@@ -10,30 +10,21 @@ package co.chatsdk.ui.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.tabs.TabLayout;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
-import org.pmw.tinylog.Logger;
-
-import butterknife.BindView;
-import co.chatsdk.core.Tab;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
 import co.chatsdk.ui.icons.Icons;
-import co.chatsdk.ui.utils.ToastHelper;
 
 
 public abstract class MainActivity extends BaseActivity {

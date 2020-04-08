@@ -16,9 +16,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import firestream.chat.events.Event;
+import sdk.guru.common.Event;
 import firestream.chat.events.ListData;
-import firestream.chat.firebase.realtime.RXRealtime;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -27,12 +26,13 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Consumer;
 import firestream.chat.chat.User;
-import firestream.chat.events.EventType;
+import sdk.guru.common.EventType;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.firebase.service.FirebaseCoreHandler;
 import firestream.chat.firebase.service.Path;
 import firestream.chat.message.Sendable;
 import io.reactivex.schedulers.Schedulers;
+import sdk.guru.firestore.RXFirestore;
 
 
 public class FirestoreCoreHandler extends FirebaseCoreHandler {

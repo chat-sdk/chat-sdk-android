@@ -3,8 +3,10 @@ package co.chatsdk.contact;
 import android.content.Context;
 
 import co.chatsdk.core.handlers.Module;
+import sdk.guru.common.BaseConfig;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configure;
+
 
 /**
  * Created by ben on 10/9/17.
@@ -18,8 +20,12 @@ public class ContactBookModule implements Module {
         return instance;
     }
 
-    public static ContactBookModule shared(Configure<Config> configure) {
-        configure.with(instance.config);
+    public static Config<ContactBookModule> configure() {
+        return instance.config;
+    }
+
+    public static ContactBookModule configure(Configure<Config> config) {
+        config.with(instance.config);
         return instance;
     }
 
@@ -33,23 +39,27 @@ public class ContactBookModule implements Module {
         return "ContactBookModule";
     }
 
-    public static class Config {
+    public static class Config<T> extends BaseConfig<T> {
 
         // Contact Book
         public String contactBookInviteContactEmailSubject;
         public String contactBookInviteContactEmailBody;
         public String contactBookInviteContactSmsBody;
 
-        public Config contactBook(String inviteEmailSubject, String inviteEmailBody, String inviteSmsBody) {
-//            this.contactBookInviteContactEmailSubject = inviteEmailSubject;
-//            this.contactBookInviteContactEmailBody = inviteEmailBody;
-//            this.contactBookInviteContactSmsBody = inviteSmsBody;
+        public Config(T onBuild) {
+            super(onBuild);
+        }
+
+        public Config<T> contactBook(String inviteEmailSubject, String inviteEmailBody, String inviteSmsBody) {
+            this.contactBookInviteContactEmailSubject = inviteEmailSubject;
+            this.contactBookInviteContactEmailBody = inviteEmailBody;
+            this.contactBookInviteContactSmsBody = inviteSmsBody;
             return this;
         }
 
     }
 
-    public Config config = new Config();
+    public Config<ContactBookModule> config = new Config<>(this);
 
     public static Config config() {
         return shared().config;

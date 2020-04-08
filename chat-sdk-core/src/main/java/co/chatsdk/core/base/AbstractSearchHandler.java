@@ -2,7 +2,6 @@ package co.chatsdk.core.base;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import co.chatsdk.core.dao.User;

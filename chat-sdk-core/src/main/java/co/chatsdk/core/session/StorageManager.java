@@ -1,15 +1,9 @@
 package co.chatsdk.core.session;
 
-import android.os.Looper;
-
-import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.query.Join;
 import org.greenrobot.greendao.query.QueryBuilder;
-import org.greenrobot.greendao.query.WhereCondition;
-import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -24,7 +18,6 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.dao.UserThreadLink;
 import co.chatsdk.core.dao.UserThreadLinkDao;
 import co.chatsdk.core.interfaces.CoreEntity;
-import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.TimeLog;
 

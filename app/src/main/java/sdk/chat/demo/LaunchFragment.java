@@ -9,6 +9,7 @@ import android.widget.Button;
 import butterknife.BindView;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.fragments.BaseFragment;
+import co.chatsdk.xmpp.utils.ServerKeyStorage;
 import io.reactivex.annotations.NonNull;
 import sdk.chat.android.live.R;
 
@@ -34,9 +35,18 @@ public class LaunchFragment extends BaseFragment {
     @Override
     protected void initViews() {
         button.setOnClickListener(v -> {
+            DemoConfigBuilder.Database database = DemoConfigBuilder.shared().getDatabase();
+            if (database == DemoConfigBuilder.Database.Custom) {
+                if (!new ServerKeyStorage(getContext()).valid()) {
+                    showToast("XMPP Server Address must be set");
+                    return;
+                }
+            }
             DemoConfigBuilder.shared().save(getContext());
             DemoConfigBuilder.shared().setupChatSDK(getContext());
-            ChatSDK.ui().startSplashScreenActivity(getContext());
+
+            dm.add(ChatSDK.auth().logout().subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getContext())));
+
         });
     }
 

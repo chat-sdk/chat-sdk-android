@@ -4,9 +4,9 @@ import android.graphics.Bitmap;
 
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.handlers.UploadHandler;
+import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.FileUploadResult;
-import co.chatsdk.core.image.ImageUtils;
 import io.reactivex.Observable;
 
 /**

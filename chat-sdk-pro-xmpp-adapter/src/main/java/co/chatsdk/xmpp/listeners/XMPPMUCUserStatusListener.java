@@ -8,20 +8,19 @@ import org.jivesoftware.smackx.muc.UserStatusListener;
 import org.jxmpp.jid.Jid;
 import org.pmw.tinylog.Logger;
 
-import co.chatsdk.core.dao.Thread;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.xmpp.R;
 import co.chatsdk.xmpp.XMPPMUCManager;
-import co.chatsdk.xmpp.ui.JidUtil;
+import co.chatsdk.xmpp.utils.JidUtil;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 

@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import firefly.sdk.chat.R;
-import firestream.chat.events.Event;
-import firestream.chat.events.EventType;
+import sdk.guru.common.Event;
+import sdk.guru.common.EventType;
 import firestream.chat.events.ListData;
 import firestream.chat.firebase.rx.MultiQueueSubject;
 import firestream.chat.firebase.service.Keys;

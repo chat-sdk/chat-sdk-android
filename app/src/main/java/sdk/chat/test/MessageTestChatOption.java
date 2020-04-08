@@ -1,16 +1,12 @@
 package sdk.chat.test;
 
-import android.app.Activity;
 import android.graphics.drawable.Drawable;
 
 import java.util.ArrayList;
 
-import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.ui.chat.LocationSelector;
 import co.chatsdk.ui.chat.options.BaseChatOption;
 import io.reactivex.Completable;
-import io.reactivex.Observable;
 
 public class MessageTestChatOption extends BaseChatOption {
 

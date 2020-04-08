@@ -19,7 +19,6 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
-
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,15 +41,9 @@ import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
 import co.chatsdk.ui.icons.Icons;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Observer;
-import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.BiConsumer;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 
 import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL;
 
@@ -118,7 +111,8 @@ public class SearchActivity extends BaseActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (!query.isEmpty()) {
-                    search(query);
+                    text = query.trim();
+                    search(query.trim());
                 } else {
                     adapter.clear();
                 }
@@ -127,10 +121,10 @@ public class SearchActivity extends BaseActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                text = newText;
                 addUserButton.setVisibility(View.GONE);
                 if (newText.length() > 2) {
-                    search(newText);
+                    text = newText.trim();
+                    search(newText.trim());
                 } else {
                     adapter.clear();
                 }
@@ -208,7 +202,7 @@ public class SearchActivity extends BaseActivity {
 
     }
 
-    protected void search(String text) {
+    protected void search(String searchText) {
 
         final List<UserListItem> users = new ArrayList<>();
         final List<User> existingContacts = ChatSDK.contact().contacts();
@@ -219,7 +213,7 @@ public class SearchActivity extends BaseActivity {
 
         users.clear();
 
-        ChatSDK.search().usersForIndex(text)
+        ChatSDK.search().usersForIndex(searchText)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<User>() {
                     @Override
@@ -245,7 +239,7 @@ public class SearchActivity extends BaseActivity {
                         adapter.setUsers(users, true);
                         if (users.size() == 0) {
                             showSnackbar(R.string.search_activity_no_user_found_toast, Snackbar.LENGTH_LONG);
-                            if (!text.isEmpty()) {
+                            if (!searchText.isEmpty()) {
                                 addUserButton.setVisibility(View.VISIBLE);
                             }
                         }

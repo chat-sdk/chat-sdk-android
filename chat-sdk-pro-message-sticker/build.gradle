@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
 
@@ -26,5 +27,24 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(path: ':chat-sdk-core-ui')
-    implementation group: 'com.googlecode.plist', name: 'dd-plist', version: '1.3'
+    implementation "com.googlecode.plist:dd-plist:1.3"
+//    implementation group: 'com.googlecode.plist', name: 'dd-plist', version: '1.3'
+}
+
+ext {
+    libraryName = 'StickerMessagePro'
+    artifact = 'pro-message-sticker'
+    libraryDescription = 'Sticker Message Pro Module'
+}
+
+publish {
+    userOrg = BINTRAY_USER_ORG
+    groupId = CHAT_SDK_GROUP
+    artifactId = artifact
+    repoName = BINTRAY_REPO
+    publishVersion = CHAT_SDK_VERSION
+    desc = libraryDescription
+    licences = ["GPL-3.0"]
+    uploadName = libraryName
+    website = GIT_URL
 }

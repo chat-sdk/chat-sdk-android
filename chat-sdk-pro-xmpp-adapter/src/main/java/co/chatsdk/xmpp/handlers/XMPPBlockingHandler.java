@@ -1,22 +1,18 @@
 package co.chatsdk.xmpp.handlers;
 
 import org.jivesoftware.smackx.blocking.BlockingCommandManager;
-import org.jivesoftware.smackx.mam.MamManager;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 
 import java.util.ArrayList;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.handlers.BlockingHandler;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.StorageManager;
 import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.schedulers.Schedulers;
 
 import static co.chatsdk.xmpp.defines.XMPPDefines.BlockingCommandNamespace;

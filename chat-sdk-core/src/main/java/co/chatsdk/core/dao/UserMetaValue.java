@@ -7,7 +7,6 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToOne;
 
 import co.chatsdk.core.base.AbstractEntity;
-import co.chatsdk.core.interfaces.CoreEntity;
 
 /**
  * Created by ben on 5/17/18.

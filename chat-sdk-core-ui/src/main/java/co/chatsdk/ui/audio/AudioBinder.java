@@ -6,10 +6,8 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
-import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.widget.EditText;
 
 import com.stfalcon.chatkit.messages.MessageInput;
 
@@ -18,9 +16,6 @@ import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 import org.pmw.tinylog.Logger;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import cafe.adriel.androidaudiorecorder.AndroidAudioRecorder;
@@ -30,8 +25,7 @@ import cafe.adriel.androidaudiorecorder.model.AudioSource;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.storage.FileManager;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
-import co.chatsdk.core.utils.CurrentLocale;
-import co.chatsdk.core.utils.DisposableMap;
+import sdk.guru.common.DisposableMap;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.icons.Icons;
@@ -49,7 +43,6 @@ public class AudioBinder {
     protected TextInputDelegate delegate;
     protected DisposableMap dm = new DisposableMap();
     protected MessageInput messageInput;
-    protected EditText editText;
     protected Drawable sendButtonDrawable;
 
     @SuppressLint("ClickableViewAccessibility")
@@ -142,10 +135,10 @@ public class AudioBinder {
 
     }
 
-    protected void updateRecordMode() {
-        if (activity != null && editText != null && permissionsGranted) {
+    public void updateRecordMode() {
+        if (activity != null && messageInput != null && permissionsGranted) {
             boolean keyboardVisible = KeyboardVisibilityEvent.INSTANCE.isKeyboardVisible(activity);
-            boolean isEmpty = editText.getText().toString().isEmpty();
+            boolean isEmpty = messageInput.getInputEditText().getText().toString().isEmpty();
             if (keyboardVisible || !isEmpty) {
                 endRecordingMode();
             } else {
@@ -155,21 +148,16 @@ public class AudioBinder {
     }
 
     protected void startRecordingMode() {
-        if (!audioModeEnabled) {
-            sendButtonDrawable = messageInput.getButton().getDrawable();
-            messageInput.getButton().setImageDrawable(Icons.get(Icons.choose().microphone, R.color.white));
-            messageInput.setEnabled(true);
-            audioModeEnabled = true;
-        }
+        sendButtonDrawable = messageInput.getButton().getDrawable();
+        messageInput.getButton().setImageDrawable(Icons.get(Icons.choose().microphone, R.color.white));
+        messageInput.getButton().setEnabled(true);
+        audioModeEnabled = true;
     }
 
     protected void endRecordingMode() {
-        if (audioModeEnabled) {
-            messageInput.getButton().setImageDrawable(sendButtonDrawable);
-            messageInput.setEnabled(!messageInput.getInputEditText().getText().toString().isEmpty());
-//            messageInput.setImageDrawable(Icons.get(Icons.choose().send, R.color.white));
-            audioModeEnabled = false;
-        }
+        messageInput.getButton().setImageDrawable(sendButtonDrawable);
+        messageInput.setEnabled(!messageInput.getInputEditText().getText().toString().isEmpty());
+        audioModeEnabled = false;
     }
 
 }

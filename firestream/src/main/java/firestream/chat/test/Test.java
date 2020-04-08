@@ -1,10 +1,8 @@
 package firestream.chat.test;
 
-import firestream.chat.firebase.rx.DisposableMap;
-import io.reactivex.Completable;
+import sdk.guru.common.DisposableMap;
 import io.reactivex.Emitter;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 
 public abstract class Test implements Consumer<Throwable> {

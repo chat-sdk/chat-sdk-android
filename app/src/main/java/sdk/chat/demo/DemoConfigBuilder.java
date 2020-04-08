@@ -15,17 +15,17 @@ import co.chatsdk.contact.ContactBookModule;
 import co.chatsdk.core.handlers.Module;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Config;
+
 import co.chatsdk.core.session.Configure;
 import co.chatsdk.firebase.blocking.FirebaseBlockingModule;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.module.FirebaseModule;
-import co.chatsdk.firebase.nearby_users.FirebaseNearbyUsersModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
 import co.chatsdk.firestream.FirestreamModule;
 import co.chatsdk.last_online.FirebaseLastOnlineModule;
 import co.chatsdk.message.file.FileMessageModule;
-import co.chatsdk.message.sticker.StickerMessageModule;
+import co.chatsdk.message.sticker.module.StickerMessageModule;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.read_receipts.FirebaseReadReceiptsModule;
 import co.chatsdk.typing_indicator.FirebaseTypingIndicatorModule;
@@ -33,7 +33,6 @@ import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.module.UIConfig;
 import co.chatsdk.xmpp.module.XMPPModule;
 import co.chatsdk.xmpp.read_receipt.XMPPReadReceiptsModule;
-import firestream.chat.FireStream;
 import firestream.chat.FirestreamConfig;
 import io.reactivex.subjects.PublishSubject;
 import sdk.chat.audio.AudioMessageModule;
@@ -174,51 +173,49 @@ public class DemoConfigBuilder {
     }
 
     public void setupChatSDK(Context context) {
-        String rootPath = "pre_1";
+        List<Module> modules = new ArrayList<>();
+
+        // Backend module
+        if (backend == Backend.FireStream) {
+
+            modules.add(FirestreamModule.configure(config -> config
+                    .setRoot(database == Database.Realtime ? "live_firestream_realtime" : "live_firestream_firestore")
+                    .setSandbox("firestream")
+                    .setStartListeningFromLastSentMessageDateEnabled(false)
+                    .setListenToMessagesWithTimeAgo(FirestreamConfig.TimePeriod.days(7))
+                    .setDatabaseType(database == Database.Realtime ? FirestreamConfig.DatabaseType.Realtime : FirestreamConfig.DatabaseType.Firestore)
+                    .setDeleteMessagesOnReceiptEnabled(false)
+                    .setDeliveryReceiptsEnabled(false)
+            ));
+        }
+        if (backend == Backend.Firebase) {
+            FirebaseModule fb = FirebaseModule.configure()
+                    .setFirebaseRootPath("live_firebase").build();
+
+            modules.add(fb);
+            modules.add(FirebaseBlockingModule.shared());
+            modules.add(FirebaseLastOnlineModule.shared());
+//                modules.add(FirebaseNearbyUsersModule.shared());
+            modules.add(FirebaseReadReceiptsModule.shared());
+            modules.add(FirebaseTypingIndicatorModule.shared());
+
+        }
 
         try {
 
             Configure<UIConfig> uiConfigConfigure = config -> {
-                config.setPublicRoomCreationEnabled(true)
-                .setPublicChatRoomLifetimeMinutes(60 * 24);
+                config.setPublicRoomCreationEnabled(true);
             };
 
-            List<Module> modules = new ArrayList<>();
-
-            // Backend module
-            if (backend == Backend.FireStream) {
-                modules.add(FirestreamModule.shared(config -> config
-                        .setRoot(rootPath)
-                        .setStartListeningFromLastSentMessageDateEnabled(false)
-                        .setListenToMessagesWithTimeAgo(FirestreamConfig.TimePeriod.days(7))
-                        .setDatabaseType(FirestreamConfig.DatabaseType.Realtime)
-                        .setDeleteMessagesOnReceiptEnabled(false)
-                        .setDeliveryReceiptsEnabled(false)
-                ));
-            }
-            if (backend == Backend.Firebase) {
-                modules.add(FirebaseModule.shared(config -> config
-                                .setFirebaseRootPath(rootPath)));
-                modules.add(FirebaseBlockingModule.shared());
-                modules.add(FirebaseLastOnlineModule.shared());
-//                modules.add(FirebaseNearbyUsersModule.shared());
-                modules.add(FirebaseReadReceiptsModule.shared());
-                modules.add(FirebaseTypingIndicatorModule.shared());
-
-            }
             if (backend == Backend.XMPP) {
-                modules.add(XMPPModule.shared(config -> {
-                    if (database == Database.OpenFire) {
-                        Testing.myOpenFire(config);
-                    }
-                }, uiConfigConfigure));
+                modules.add(Testing.myOpenFire(XMPPModule.configure()).build().configureUI(uiConfigConfigure));
                 modules.add(XMPPReadReceiptsModule.shared());
             } else {
-                modules.add(DefaultUIModule.shared(uiConfigConfigure));
+                modules.add(DefaultUIModule.configure(uiConfigConfigure));
             }
 
             if (loginStyle == LoginStyle.FirebaseUI) {
-                modules.add(FirebaseUIModule.shared(config -> config
+                modules.add(FirebaseUIModule.configure(config -> config
                             .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)
                 ));
             }
@@ -226,14 +223,16 @@ public class DemoConfigBuilder {
                 modules.add(ExtrasModule.shared());
             }
 
-            ChatSDK.configure(config -> config
+            ChatSDK.builder().configure()
 
                     // Configure the library
                     .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
+                    .setPublicChatRoomLifetimeMinutes(60 * 24)
                     .setAnonymousLoginEnabled(false)
                     .setDebugModeEnabled(true)
                     .setRemoteConfigEnabled(true)
-                    .setIdenticonType(Config.IdenticonType.Gravatar))
+                    .setIdenticonType(Config.IdenticonType.Gravatar)
+                    .build()
 
                     .addModules(modules)
 
@@ -250,6 +249,7 @@ public class DemoConfigBuilder {
                     .addModule(VideoMessageModule.shared())
 
                     // Activate
+                    .build()
                     .activate(context);
 
         }

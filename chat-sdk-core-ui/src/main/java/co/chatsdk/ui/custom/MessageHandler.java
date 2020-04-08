@@ -19,10 +19,10 @@ import co.chatsdk.ui.chat.model.MessageHolder;
 import co.chatsdk.ui.chat.model.SystemMessageHolder;
 import co.chatsdk.ui.view_holders.IncomingImageMessageViewHolder;
 import co.chatsdk.ui.view_holders.IncomingTextMessageViewHolder;
-import co.chatsdk.ui.view_holders.SystemMessageViewHolder;
-import co.chatsdk.ui.view_holders.OutcomingTextMessageViewHolder;
-import co.chatsdk.ui.view_holders.base.BaseIncomingTextMessageViewHolder;
 import co.chatsdk.ui.view_holders.OutcomingImageMessageViewHolder;
+import co.chatsdk.ui.view_holders.OutcomingTextMessageViewHolder;
+import co.chatsdk.ui.view_holders.SystemMessageViewHolder;
+import co.chatsdk.ui.view_holders.base.BaseIncomingTextMessageViewHolder;
 
 public class MessageHandler implements IMessageHandler {
 

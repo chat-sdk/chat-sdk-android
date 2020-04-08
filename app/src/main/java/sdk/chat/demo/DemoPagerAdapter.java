@@ -3,17 +3,14 @@ package sdk.chat.demo;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentStatePagerAdapter;
-
-import org.minidns.record.A;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DemoPagerAdapter extends FragmentStatePagerAdapter {
 
-    public List<Fragment> fragments = new ArrayList<>();
+    private List<Fragment> fragments = new ArrayList<>();
 
     public DemoPagerAdapter(@NonNull FragmentManager fm, int behavior) {
         super(fm, behavior);
@@ -38,5 +35,18 @@ public class DemoPagerAdapter extends FragmentStatePagerAdapter {
             return POSITION_UNCHANGED;
         }
         return POSITION_NONE;
+    }
+
+    public void setFragments(List<Fragment> fragments) {
+        this.fragments.clear();
+        this.fragments.addAll(fragments);
+    }
+
+    public void add(Fragment fragment) {
+        fragments.add(fragment);
+    }
+
+    public List<Fragment> get() {
+        return fragments;
     }
 }

@@ -12,6 +12,11 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.appbar.AppBarLayout;
 
+import org.ocpsoft.prettytime.PrettyTime;
+
+import java.util.Date;
+import java.util.Locale;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import co.chatsdk.core.dao.Thread;
@@ -21,10 +26,14 @@ import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
+import co.chatsdk.ui.activities.ChatActivity;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.utils.ThreadImageBuilder;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 public class ChatActionBar extends AppBarLayout {
 
@@ -35,6 +44,8 @@ public class ChatActionBar extends AppBarLayout {
     @BindView(R2.id.searchImageView) protected ImageView searchImageView;
     @BindView(R2.id.toolbar) protected Toolbar toolbar;
     @BindView(R2.id.appBarLayout) protected AppBarLayout appBarLayout;
+
+    protected Disposable lastOnlineDisposable;
 
     public ChatActionBar(Context context) {
         super(context);
@@ -81,7 +92,33 @@ public class ChatActionBar extends AppBarLayout {
     public void setSubtitleText(Thread thread, String text) {
         if (StringChecker.isNullOrEmpty(text)) {
             if (thread.typeIs(ThreadType.Private1to1)) {
-                text = getContext().getString(R.string.tap_here_for_contact_info);
+                if (thread.otherUser() != null) {
+                    if (ChatSDK.lastOnline() != null) {
+                        if (lastOnlineDisposable != null) {
+                            lastOnlineDisposable.dispose();
+                        }
+                        lastOnlineDisposable = ChatSDK.lastOnline().getLastOnline(thread.otherUser())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe((date, throwable) -> {
+                                    if (throwable == null && date != null) {
+                                        Locale current = getResources().getConfiguration().locale;
+                                        PrettyTime pt = new PrettyTime(current);
+                                        if (thread.otherUser().getIsOnline()) {
+                                            subtitleTextView.setText(getContext().getString(R.string.online));
+                                        } else {
+                                            subtitleTextView.setText(String.format(getContext().getString(R.string.last_seen__), pt.format(date)));
+                                        }
+                                    }
+                                });
+                    } else {
+                        if (thread.otherUser().getIsOnline()) {
+                            text = getContext().getString(R.string.online);
+                        }
+                    }
+                }
+                if (StringChecker.isNullOrEmpty(text)) {
+                    text = getContext().getString(R.string.tap_here_for_contact_info);
+                }
             } else {
                 text = thread.getUserListString();
             }

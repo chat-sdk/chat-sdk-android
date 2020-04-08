@@ -1,23 +1,14 @@
 package co.chatsdk.core.base;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.ContactHandler;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.CompletableSource;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by benjaminsmiley-andrews on 24/05/2017.

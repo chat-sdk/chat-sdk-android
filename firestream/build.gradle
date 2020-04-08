@@ -38,8 +38,11 @@ publish {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api project(':sdk-guru-common')
+    api project(':sdk-guru-firebase')
+    api project(':sdk-guru-firestore')
 
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
     implementation "com.google.firebase:firebase-firestore:$firebaseFirestoreVersion"
     implementation "com.google.firebase:firebase-auth:$firebaseAuthVersion"
     implementation "com.google.firebase:firebase-database:$firebaseDatabaseVersion"

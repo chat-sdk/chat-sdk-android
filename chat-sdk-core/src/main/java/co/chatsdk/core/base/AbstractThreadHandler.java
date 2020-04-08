@@ -4,38 +4,26 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.core.R;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.dao.sorter.ThreadsSorter;
 import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.handlers.CoreHandler;
 import co.chatsdk.core.handlers.ThreadHandler;
 import co.chatsdk.core.interfaces.SystemMessageType;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.rigs.MessageSendRig;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import co.chatsdk.core.types.ReadStatus;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.CompletableSource;
 import io.reactivex.Single;
-import io.reactivex.SingleSource;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -167,6 +155,11 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     }
 
     @Override
+    public boolean canAddUsersToThread(Thread thread) {
+        return thread.typeIs(ThreadType.PrivateGroup) && thread.getCreator() != null && thread.getCreator().isMe();
+    }
+
+    @Override
     public Completable addUsersToThread(Thread thread, User... users) {
         return addUsersToThread(thread, Arrays.asList(users));
     }
@@ -174,6 +167,11 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable removeUsersFromThread(Thread thread, User... users) {
         return removeUsersFromThread(thread, Arrays.asList(users));
+    }
+
+    @Override
+    public boolean canRemoveUsersFromThread(Thread thread, List<User> users) {
+        return thread.typeIs(ThreadType.PrivateGroup) && thread.getCreator() != null && thread.getCreator().isMe();
     }
 
     @Override
@@ -283,7 +281,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     }
 
     @Override
-    public boolean deleteMessageEnabled(Message message) {
+    public boolean canDeleteMessage(Message message) {
         return message.getSender().isMe();
     }
 
@@ -294,16 +292,6 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             completables.add(deleteMessage(message));
         }
         return Completable.merge(completables);
-    }
-
-    @Override
-    public boolean addUsersEnabled(Thread thread) {
-        return thread.typeIs(ThreadType.PrivateGroup) && thread.getCreator() != null && thread.getCreator().isMe();
-    }
-
-    @Override
-    public boolean removeUsersEnabled(Thread thread) {
-        return thread.typeIs(ThreadType.PrivateGroup) && thread.getCreator() != null && thread.getCreator().isMe();
     }
 
     @Override

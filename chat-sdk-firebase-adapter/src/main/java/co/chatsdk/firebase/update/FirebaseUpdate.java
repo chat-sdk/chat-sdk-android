@@ -2,9 +2,6 @@ package co.chatsdk.firebase.update;
 
 import com.google.firebase.database.DatabaseReference;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 public class FirebaseUpdate {
 
     public DatabaseReference ref;

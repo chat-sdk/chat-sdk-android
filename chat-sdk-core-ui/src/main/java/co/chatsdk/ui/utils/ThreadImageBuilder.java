@@ -8,7 +8,6 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 
-
 import org.pmw.tinylog.Logger;
 
 import java.io.File;
@@ -19,11 +18,11 @@ import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.Dimen;
-import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.storage.FileManager;
+import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.icons.Icons;

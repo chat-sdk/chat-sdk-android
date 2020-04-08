@@ -4,15 +4,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 
 import java.util.HashMap;
-import java.util.concurrent.Callable;
 
-import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.firebase.FirebasePaths;
-import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 

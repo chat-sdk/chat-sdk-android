@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 import androidx.core.app.RemoteInput;
 
 import co.chatsdk.core.dao.Thread;
-
 import co.chatsdk.core.session.ChatSDK;
 
 

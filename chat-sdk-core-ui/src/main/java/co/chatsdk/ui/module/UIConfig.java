@@ -1,14 +1,12 @@
 package co.chatsdk.ui.module;
 
-import android.graphics.Color;
-
-import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StyleRes;
 
+import sdk.guru.common.BaseConfig;
 import co.chatsdk.ui.R;
 
-public class UIConfig {
+public class UIConfig<T> extends BaseConfig<T> {
 
     /**
      * The theme to use in all activities
@@ -25,11 +23,6 @@ public class UIConfig {
     @DrawableRes
     public int defaultProfileImage = R.drawable.icn_100_profile;
 
-    // Rooms that are older than this will be hidden
-    // Zero is infinite lifetime
-    // Default - 7 days
-    public int publicChatRoomLifetimeMinutes = 60 * 24 * 7;
-
     public boolean resetPasswordEnabled = true;
 
     // Message types
@@ -44,71 +37,91 @@ public class UIConfig {
 
     public String dateFormat = "HH:mm";
 
+    public String usernameHint = null;
+
     public boolean imageCroppingEnabled = true;
 
+    public UIConfig(T onBuild) {
+        super(onBuild);
+    }
 
-    public UIConfig setTheme(@StyleRes int theme) {
+    public UIConfig<T> setTheme(@StyleRes int theme) {
         this.theme = theme;
         return this;
     }
 
-    public UIConfig setImageCroppingEnabled(boolean enabled) {
+    public UIConfig<T> setImageCroppingEnabled(boolean enabled) {
         this.imageCroppingEnabled = enabled;
         return this;
     }
 
-    public UIConfig setResetPasswordEnabled(boolean resetPasswordEnabled) {
+    public UIConfig<T> setResetPasswordEnabled(boolean resetPasswordEnabled) {
         this.resetPasswordEnabled = resetPasswordEnabled;
         return this;
     }
 
-    public UIConfig setPublicRoomCreationEnabled(boolean value) {
+    public UIConfig<T> setPublicRoomCreationEnabled(boolean value) {
         this.publicRoomCreationEnabled = value;
         return this;
     }
 
-//    public UIConfig unreadMessagesCountForPublicChatRoomsEnabled(boolean value) {
+//    public UIConfig<T> unreadMessagesCountForPublicChatRoomsEnabled(boolean value) {
 //        this.unreadMessagesCountForPublicChatRoomsEnabled = value;
 //        return this;
 //    }
 
-    public UIConfig setImageMessagesEnabled(boolean value) {
+    public UIConfig<T> setImageMessagesEnabled(boolean value) {
         this.imageMessagesEnabled = value;
         return this;
     }
 
-    public UIConfig setLocationMessagesEnabled(boolean value) {
+    public UIConfig<T> setLocationMessagesEnabled(boolean value) {
         this.locationMessagesEnabled = value;
         return this;
     }
 
-    public UIConfig setGroupsEnabled(boolean value) {
+    public UIConfig<T> setGroupsEnabled(boolean value) {
         this.groupsEnabled = value;
         return this;
     }
 
-    public UIConfig setThreadDetailsEnabled(boolean value) {
+    public UIConfig<T> setThreadDetailsEnabled(boolean value) {
         this.threadDetailsEnabled = value;
         return this;
     }
 
-    public UIConfig setSaveImagesToDirectoryEnabled(boolean value) {
+    public UIConfig<T> setSaveImagesToDirectoryEnabled(boolean value) {
         this.saveImagesToDirectory = value;
         return this;
     }
 
-    public UIConfig setPublicChatRoomLifetimeMinutes (int minutes) {
-        this.publicChatRoomLifetimeMinutes = minutes;
-        return this;
-    }
-
-    public UIConfig setDateFormat(String format) {
+    public UIConfig<T> setDateFormat(String format) {
         this.dateFormat = format;
         return this;
     }
 
-    public UIConfig setSetDefaultProfileImage(@DrawableRes int res) {
+    public UIConfig<T> setSetDefaultProfileImage(@DrawableRes int res) {
         this.defaultProfileImage = res;
+        return this;
+    }
+
+    public UIConfig<T> setProfileHeaderImage(int profileHeaderImage) {
+        this.profileHeaderImage = profileHeaderImage;
+        return this;
+    }
+
+    public UIConfig<T> setDefaultProfileImage(int defaultProfileImage) {
+        this.defaultProfileImage = defaultProfileImage;
+        return this;
+    }
+
+    public UIConfig<T> setSaveImagesToDirectory(boolean saveImagesToDirectory) {
+        this.saveImagesToDirectory = saveImagesToDirectory;
+        return this;
+    }
+
+    public UIConfig<T> setUsernameHint(String usernameHint) {
+        this.usernameHint = usernameHint;
         return this;
     }
 

@@ -1,6 +1,6 @@
 package firestream.chat.chat;
 
-import firestream.chat.events.Event;
+import sdk.guru.common.Event;
 import firestream.chat.message.Sendable;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;

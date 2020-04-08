@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
@@ -27,11 +28,23 @@ dependencies {
 
     implementation 'com.virgilsecurity.sdk:crypto-android:5.0.2@aar'
     implementation 'com.virgilsecurity.sdk:sdk:5.0.9'
+    implementation project(path: ':chat-sdk-core')
+}
 
-    if(project.hasProperty('useLocal')) {
-        implementation project(path: ':chat-sdk-core')
-    }
-    else {
-        implementation "sdk.chat:chat-sdk-core:$project.CHAT_SDK_VERSION"
-    }
+ext {
+    libraryName = 'EncryptionPro'
+    artifact = 'pro-encryption'
+    libraryDescription = 'Encryption Pro Module'
+}
+
+publish {
+    userOrg = BINTRAY_USER_ORG
+    groupId = CHAT_SDK_GROUP
+    artifactId = artifact
+    repoName = BINTRAY_REPO
+    publishVersion = CHAT_SDK_VERSION
+    desc = libraryDescription
+    licences = ["GPL-3.0"]
+    uploadName = libraryName
+    website = GIT_URL
 }

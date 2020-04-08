@@ -2,11 +2,9 @@ package co.chatsdk.xmpp.utils;
 
 import androidx.annotation.Nullable;
 
-import org.bouncycastle.math.raw.Mod;
 import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MUCAffiliation;
 import org.jivesoftware.smackx.muc.MUCRole;
-import org.jivesoftware.smackx.muc.Occupant;
 
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.xmpp.R;

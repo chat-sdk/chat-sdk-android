@@ -5,10 +5,9 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.StandardExtensionElement;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.receipts.DeliveryReceipt;
-import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
-import co.chatsdk.core.dao.Thread;
 
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.xmpp.XMPPManager;
 import co.chatsdk.xmpp.defines.XMPPDefines;

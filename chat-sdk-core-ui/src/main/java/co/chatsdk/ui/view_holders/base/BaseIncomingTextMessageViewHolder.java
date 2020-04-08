@@ -1,20 +1,13 @@
 package co.chatsdk.ui.view_holders.base;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
-import com.stfalcon.chatkit.messages.MessagesListStyle;
 
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;

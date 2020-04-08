@@ -25,7 +25,6 @@ import java.util.List;
 import co.chatsdk.core.R;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
-import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.core.utils.PermissionRequestHandler;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -34,6 +33,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.DisposableMap;
 
 /**
  * Created by Pepe on 01/25/19.
@@ -44,7 +44,7 @@ public class LocationProvider {
     protected final FusedLocationProviderClient locationClient;
     protected final LocationRequest locationUpdatesRequest;
     protected final SettingsClient settingsClient;
-    protected final DisposableList disposableList = new DisposableList();
+    protected final DisposableMap disposableList = new DisposableMap();
 
     protected LocationCallback locationCallback;
 

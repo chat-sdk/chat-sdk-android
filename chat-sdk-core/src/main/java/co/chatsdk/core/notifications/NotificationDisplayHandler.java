@@ -15,11 +15,11 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.PowerManager;
-import co.chatsdk.core.dao.Thread;
 
 import androidx.core.app.NotificationManagerCompat;
 
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.session.ChatSDK;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;

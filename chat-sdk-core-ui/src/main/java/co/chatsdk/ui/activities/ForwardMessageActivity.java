@@ -11,11 +11,11 @@ import java.util.List;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
-import co.chatsdk.core.dao.Thread;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class ForwardMessageActivity extends SelectContactActivity {

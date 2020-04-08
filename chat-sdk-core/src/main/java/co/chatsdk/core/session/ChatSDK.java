@@ -6,21 +6,15 @@ import android.content.SharedPreferences;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
-import org.greenrobot.greendao.annotation.NotNull;
 import org.pmw.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
-import java.util.concurrent.Callable;
 
-import co.chatsdk.core.base.LocationProvider;
 import co.chatsdk.core.base.BaseNetworkAdapter;
+import co.chatsdk.core.base.LocationProvider;
 import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.EventType;
-import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.AudioMessageHandler;
 import co.chatsdk.core.handlers.AuthenticationHandler;
 import co.chatsdk.core.handlers.BlockingHandler;
@@ -46,21 +40,10 @@ import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.handlers.UploadHandler;
 import co.chatsdk.core.handlers.VideoMessageHandler;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.notifications.NotificationDisplayHandler;
-import co.chatsdk.core.types.ReadStatus;
-import co.chatsdk.core.utils.AppBackgroundMonitor;
-
 import co.chatsdk.core.storage.FileManager;
+import co.chatsdk.core.utils.AppBackgroundMonitor;
 import co.chatsdk.core.utils.TimeLog;
-import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.plugins.RxJavaPlugins;
-import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -69,11 +52,15 @@ import io.reactivex.schedulers.Schedulers;
 
 public class ChatSDK {
 
+    public static ChatSDK shared() {
+        return instance;
+    }
+    private static final ChatSDK instance = new ChatSDK();
+
     public static String Preferences = "chat_sdk_preferences";
 
-    private static final ChatSDK instance = new ChatSDK();
     protected WeakReference<Context> context;
-    public Config config;
+    public Config config = new Config<>(this);
 
     protected InterfaceAdapter interfaceAdapter;
     protected StorageManager storageManager;
@@ -81,6 +68,8 @@ public class ChatSDK {
 
     protected LocationProvider locationProvider;
     protected FileManager fileManager;
+
+    protected ConfigBuilder<ChatSDK> builder;
 
     protected ChatSDK () {
     }
@@ -97,24 +86,25 @@ public class ChatSDK {
      * @param interfaceAdapterClass
      * @return
      */
-    public static ConfigBuilder configure(@Nullable Class<? extends BaseNetworkAdapter> networkAdapterClass, @Nullable Class<? extends InterfaceAdapter> interfaceAdapterClass) {
-        return new ConfigBuilder(networkAdapterClass, interfaceAdapterClass);
+    public static ConfigBuilder<ChatSDK> configure(@Nullable Class<? extends BaseNetworkAdapter> networkAdapterClass, @Nullable Class<? extends InterfaceAdapter> interfaceAdapterClass) {
+        shared().builder = new ConfigBuilder<>(shared());
+        return shared().builder.setNetworkAdapter(networkAdapterClass).setInterfaceAdapter(interfaceAdapterClass);
     }
 
     /**
      * Configure and let modules provide the interface and network adapters. We will loop over the modules and see if they provide each adapter,
      * the first that does will be used and any subsequent provider will be ignored.
-     * @param configure
      * @return
      */
-    public static ConfigBuilder configure(Configure<Config> configure) {
-        return new ConfigBuilder(configure);
+    public static ConfigBuilder<ChatSDK> builder() {
+         shared().builder = new ConfigBuilder<>(shared());
+        return shared().builder;
     }
 
-    public static ChatSDK initialize(ConfigBuilder builder) throws Exception {
+    public void activate(Context context) throws Exception {
 
-        shared().setContext(builder.context);
-        shared().config = builder.config;
+        setContext(context);
+        config = builder.config;
 
         Class<? extends BaseNetworkAdapter> networkAdapter = builder.networkAdapter;
         if (builder.networkAdapter != null) {
@@ -149,42 +139,43 @@ public class ChatSDK {
         }
 
         if (networkAdapter != null) {
-            shared().setNetworkAdapter(networkAdapter.getConstructor().newInstance());
+            setNetworkAdapter(networkAdapter.getConstructor().newInstance());
         } else {
             throw new Exception("The network adapter cannot be null. A network adapter must be defined using ChatSDK.configure(...) or by a module");
         }
 
         if (interfaceAdapter != null) {
             Constructor<? extends InterfaceAdapter> constructor = interfaceAdapter.getConstructor(Context.class);
-            Object[] parameters = {builder.context};
+            Object[] parameters = {context};
 
-            shared().setInterfaceAdapter(constructor.newInstance(parameters));
+            setInterfaceAdapter(constructor.newInstance(parameters));
         } else {
             throw new Exception("The interface adapter cannot be null. An interface adapter must be defined using ChatSDK.configure(...) or by a module");
         }
 
         DaoCore.init(ctx());
 
-        shared().storageManager = new StorageManager();
-        shared().locationProvider = new LocationProvider();
+        storageManager = new StorageManager();
+        locationProvider = new LocationProvider();
 
         // Monitor the app so if it goes into the background we know
         AppBackgroundMonitor.shared().setEnabled(true);
 
         RxJavaPlugins.setErrorHandler(ChatSDK.events());
 
-        shared().fileManager = new FileManager(builder.context);
+        fileManager = new FileManager(context);
 
         for (Module module: builder.modules) {
-            module.activate(shared().context());
+            module.activate(context);
             Logger.info("Module " + module.getName() + " activated successfully");
         }
 
-        return shared();
     }
 
-    public static ChatSDK shared() {
-        return instance;
+    public static ChatSDK initialize(ConfigBuilder builder) throws Exception {
+
+
+        return shared();
     }
 
     public static Context ctx() {
@@ -213,7 +204,7 @@ public class ChatSDK {
         return context.get();
     }
 
-    public static Config config () {
+    public static Config<ChatSDK> config() {
         return shared().config;
     }
 

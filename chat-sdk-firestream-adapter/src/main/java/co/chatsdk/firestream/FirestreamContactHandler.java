@@ -4,9 +4,9 @@ import co.chatsdk.core.base.BaseContactHandler;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.types.ConnectionType;
 import firestream.chat.namespace.Fire;
-import io.reactivex.Completable;
 import firestream.chat.namespace.FireStreamUser;
 import firestream.chat.types.ContactType;
+import io.reactivex.Completable;
 
 public class FirestreamContactHandler extends BaseContactHandler {
 

@@ -12,11 +12,11 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import firestream.chat.events.Event;
-import firestream.chat.events.EventType;
+import sdk.guru.common.Event;
+import sdk.guru.common.EventType;
 import firestream.chat.events.ListData;
 import firestream.chat.filter.Filter;
-import firestream.chat.firebase.rx.DisposableMap;
+import sdk.guru.common.DisposableMap;
 import firestream.chat.interfaces.IAbstractChat;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;

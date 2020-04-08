@@ -1,7 +1,6 @@
 package sdk.chat.ui.extras
 
 import android.content.res.Configuration
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
@@ -147,7 +146,11 @@ class MainDrawActivity : MainActivity() {
             identifier = 1
             name = StringHolder(user.name)
             description = StringHolder(user.status)
-            icon = ImageHolder(user.avatarURL)
+            if(user.avatarURL != null) {
+                icon = ImageHolder(user.avatarURL)
+            } else {
+                icon = ImageHolder(DefaultUIModule.config().defaultProfileImage)
+            }
         }
         // Create the AccountHeader
     }

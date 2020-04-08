@@ -7,23 +7,20 @@
 
 package co.chatsdk.ui.fragments;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.fragment.app.DialogFragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import com.google.android.material.snackbar.Snackbar;
 
 import butterknife.ButterKnife;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.DisposableMap;
+import sdk.guru.common.DisposableMap;
 import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.utils.AlertUtils;
 import co.chatsdk.ui.utils.ToastHelper;

@@ -3,7 +3,7 @@ package firestream.chat.examples;
 import android.content.Context;
 
 import firestream.chat.interfaces.IChat;
-import firestream.chat.events.EventType;
+import sdk.guru.common.EventType;
 import firestream.chat.namespace.Fire;
 import io.reactivex.disposables.Disposable;
 import firestream.chat.FirestreamConfig;

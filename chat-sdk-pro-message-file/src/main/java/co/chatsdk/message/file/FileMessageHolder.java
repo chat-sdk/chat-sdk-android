@@ -4,26 +4,14 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.os.Environment;
 import android.webkit.MimeTypeMap;
 
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.DownloadListener;
 import com.stfalcon.chatkit.commons.models.MessageContentType;
-
-import org.pmw.tinylog.Logger;
-
-import java.io.File;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.chat.model.MessageHolder;
-import io.reactivex.Single;
-import io.reactivex.SingleSource;
-import io.reactivex.functions.Function;
 
 public class FileMessageHolder extends MessageHolder implements MessageContentType {
 

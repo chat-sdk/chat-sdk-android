@@ -2,9 +2,12 @@ package co.chatsdk.firebase;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.core.base.AbstractEventHandler;
 import co.chatsdk.core.dao.DaoCore;
@@ -16,10 +19,19 @@ import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
+import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.utils.Generic;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
+import io.reactivex.ObservableSource;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import sdk.guru.common.EventType;
+import sdk.guru.firebase.DocumentChange;
+import sdk.guru.firebase.RXRealtime;
 
 /**
  * Created by benjaminsmiley-andrews on 10/05/2017.
@@ -59,52 +71,57 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         String entityID = user.getEntityID();
 
         final DatabaseReference threadsRef = FirebasePaths.userThreadsRef(entityID);
-        ChildEventListener threadsListener = threadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
-            if(hasValue) {
-                final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
-                if (!thread.getModel().typeIs(ThreadType.Public)) {
-                    thread.getModel().addUser(user);
 
-                    threadWrapperOn(thread);
-
-                    eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
-                }
+        new RXRealtime().childOn(threadsRef).flatMapCompletable(change -> {
+            final ThreadWrapper thread = new ThreadWrapper(change.getSnapshot().getKey());
+            if (change.getType() == EventType.Added && !thread.getModel().typeIs(ThreadType.Public)) {
+                thread.getModel().addUser(user);
+                threadWrapperOn(thread);
+                eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
             }
-        }).onChildRemoved((snapshot, hasValue) -> {
-            if (hasValue) {
-                ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
+            if (change.getType() == EventType.Removed) {
                 thread.off();
-                dm.add(thread.deleteThread().subscribe(() -> {
+                return thread.deleteThread().doOnComplete(() -> {
                     eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
-                }, this));
+                });
             }
-        }));
-        FirebaseReferenceManager.shared().addRef(threadsRef, threadsListener);
+            return Completable.complete();
+
+        }).subscribe(this);
     }
 
     protected void publicThreadsOn (User user) {
+        if (!FirebaseModule.config().disablePublicThreads) {
+            DatabaseReference publicThreadsRef = FirebasePaths.publicThreadsRef();
 
-        DatabaseReference publicThreadsRef = FirebasePaths.publicThreadsRef();
-        ChildEventListener publicThreadsListener = publicThreadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
-            final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
+            Query query = publicThreadsRef.orderByChild(Keys.CreationDate);
 
-            // Make sure that we're not in the thread
-            // there's an edge case where the user could kill the app and remain
-            // a member of a public thread
-            if (!ChatSDK.config().publicChatAutoSubscriptionEnabled) {
-                ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).subscribe(ChatSDK.events());
+            if (ChatSDK.config().publicChatRoomLifetimeMinutes != 0) {
+                double loadRoomsSince = new Date().getTime() - TimeUnit.MINUTES.toMillis(ChatSDK.config().publicChatRoomLifetimeMinutes);
+                query = query.startAt(loadRoomsSince);
             }
 
-            threadWrapperOn(thread);
+            ChildEventListener publicThreadsListener = query.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
+                final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
 
-            eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
+                // Make sure that we're not in the thread
+                // there's an edge case where the user could kill the app and remain
+                // a member of a public thread
+                if (!ChatSDK.config().publicChatAutoSubscriptionEnabled) {
+                    ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).subscribe(ChatSDK.events());
+                }
 
-        }).onChildRemoved((snapshot, hasValue) -> {
-            ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
-            thread.off();
-            eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
-        }));
-        FirebaseReferenceManager.shared().addRef(publicThreadsRef, publicThreadsListener);
+                threadWrapperOn(thread);
+
+                eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
+
+            }).onChildRemoved((snapshot, hasValue) -> {
+                ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
+                thread.off();
+                eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
+            }));
+            FirebaseReferenceManager.shared().addRef(publicThreadsRef, publicThreadsListener);
+        }
     }
 
     protected void threadWrapperOn(ThreadWrapper thread) {
@@ -183,12 +200,14 @@ public class FirebaseEventHandler extends AbstractEventHandler {
     }
 
     protected void publicThreadsOff (User user) {
-        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.publicThreadsRef());
-        for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
-            ThreadWrapper wrapper = new ThreadWrapper(thread);
-            wrapper.off();
-            wrapper.messagesOff();
-            wrapper.usersOff();
+        if (!FirebaseModule.config().disablePublicThreads) {
+            FirebaseReferenceManager.shared().removeListeners(FirebasePaths.publicThreadsRef());
+            for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
+                ThreadWrapper wrapper = new ThreadWrapper(thread);
+                wrapper.off();
+                wrapper.messagesOff();
+                wrapper.usersOff();
+            }
         }
     }
 

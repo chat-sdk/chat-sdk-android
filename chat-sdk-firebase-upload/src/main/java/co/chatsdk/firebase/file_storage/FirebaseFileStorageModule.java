@@ -2,14 +2,13 @@ package co.chatsdk.firebase.file_storage;
 
 import android.content.Context;
 
-import androidx.annotation.Nullable;
-
 import org.greenrobot.greendao.annotation.NotNull;
 
 import co.chatsdk.core.handlers.Module;
+import sdk.guru.common.BaseConfig;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configure;
-import co.chatsdk.firebase.module.FirebaseConfig;
+
 
 /**
  * Created by ben on 9/1/17.
@@ -23,21 +22,29 @@ public class FirebaseFileStorageModule implements Module {
         return instance;
     }
 
-    public static FirebaseFileStorageModule shared(@NotNull Configure<Config> configure) {
-        configure.with(instance.config);
+    public static Config<FirebaseFileStorageModule> configure() {
+        return instance.config;
+    }
+
+    public static FirebaseFileStorageModule configure(Configure<Config> config) {
+        config.with(instance.config);
         return instance;
     }
 
-    public static class Config {
+    public static class Config<T> extends BaseConfig<T> {
         public String firebaseStorageUrl;
 
-        public Config firebaseStorageURL(String firebaseStorage) {
+        public Config(T onBuild) {
+            super(onBuild);
+        }
+
+        public Config<T> firebaseStorageURL(String firebaseStorage) {
             this.firebaseStorageUrl = firebaseStorage;
             return this;
         }
     }
 
-    protected Config config = new Config();
+    protected Config<FirebaseFileStorageModule> config = new Config<>(this);
 
     @Override
     public void activate(@NotNull Context context) {

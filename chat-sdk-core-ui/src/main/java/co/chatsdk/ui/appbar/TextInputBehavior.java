@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+
 import co.chatsdk.ui.views.ChatView;
 
 public class TextInputBehavior extends CoordinatorLayout.Behavior<View> {

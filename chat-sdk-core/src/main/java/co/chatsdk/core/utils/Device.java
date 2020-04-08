@@ -28,8 +28,12 @@ public class Device {
     }
 
     public static boolean named(Context context, String name) {
-        String deviceName = Settings.Secure.getString(context.getContentResolver(), "bluetooth_name");
+        String deviceName = name(context);
         return deviceName != null && deviceName.equals(name);
+    }
+
+    public static String name(Context context) {
+        return Settings.Secure.getString(context.getContentResolver(), "bluetooth_name");
     }
 
 }

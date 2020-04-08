@@ -1,4 +1,6 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.jakewharton.butterknife'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
 
@@ -52,4 +54,22 @@ dependencies {
 
 configurations {
     all*.exclude group: 'xpp3', module: 'xpp3'
+}
+
+ext {
+    libraryName = 'XMPPAdapterPro'
+    artifact = 'pro-xmpp-adapter'
+    libraryDescription = 'XMPP Adapter Pro Module'
+}
+
+publish {
+    userOrg = BINTRAY_USER_ORG
+    groupId = CHAT_SDK_GROUP
+    artifactId = artifact
+    repoName = BINTRAY_REPO
+    publishVersion = CHAT_SDK_VERSION
+    desc = libraryDescription
+    licences = ["GPL-3.0"]
+    uploadName = libraryName
+    website = GIT_URL
 }

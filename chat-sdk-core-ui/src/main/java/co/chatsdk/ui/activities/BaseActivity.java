@@ -17,6 +17,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.transition.Explode;
+import android.util.TypedValue;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -26,16 +33,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.transition.Explode;
-import android.util.TypedValue;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-
-import com.google.android.material.snackbar.Snackbar;
-
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
@@ -44,25 +41,22 @@ import java.util.HashMap;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.ActivityResult;
 import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
-import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
 import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.utils.AlertUtils;
-import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import sdk.guru.common.DisposableMap;
 
 public abstract class BaseActivity extends AppCompatActivity implements Consumer<Throwable>, CompletableObserver {
 
     // This is a list of extras that are passed to the login view
     protected HashMap<String, Object> extras = new HashMap<>();
-    protected DisposableList dm = new DisposableList();
+    protected DisposableMap dm = new DisposableMap();
 
     protected AlertUtils alert;
 
@@ -102,7 +96,9 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
 
 
         // Setting the default task description.
-        setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
+        if (getTaskDescriptionBitmap() != null) {
+            setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
+        }
     }
 
     protected void initViews() {
@@ -139,7 +135,10 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
      * @return the bitmap that will be used for the screen overview also called the recents apps.
      **/
     protected Bitmap getTaskDescriptionBitmap(){
-        return BitmapFactory.decodeResource(getResources(), ChatSDK.config().logoDrawableResourceID);
+        if (ChatSDK.config() != null) {
+            return BitmapFactory.decodeResource(getResources(), ChatSDK.config().logoDrawableResourceID);
+        }
+        return null;
     }
 
     protected int getTaskDescriptionColor(){

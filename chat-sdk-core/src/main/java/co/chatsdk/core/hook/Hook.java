@@ -1,13 +1,8 @@
 package co.chatsdk.core.hook;
 
 import java.util.HashMap;
-import java.util.concurrent.Callable;
 
-import co.chatsdk.core.events.NetworkEvent;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.CompletableSource;
 
 /**
  * Created by ben on 9/13/17.

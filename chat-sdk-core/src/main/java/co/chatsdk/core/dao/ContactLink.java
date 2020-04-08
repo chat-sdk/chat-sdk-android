@@ -4,14 +4,13 @@ package co.chatsdk.core.dao;
 
 // KEEP INCLUDES - put your token includes here
 
+import org.greenrobot.greendao.DaoException;
+import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.ToOne;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.DaoException;
 
 import co.chatsdk.core.base.AbstractEntity;
-import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.types.ConnectionType;
 
 @org.greenrobot.greendao.annotation.Entity

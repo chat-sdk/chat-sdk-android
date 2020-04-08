@@ -33,5 +33,16 @@
     <string name="port">Port</string>
     <string name="port_subtitle">Optional. If not set, the default 5222 will be used</string>
     <string name="port_default">5222</string>
+    <string name="resource">Resource</string>
+    <string name="resource_subtitle">Optional. Name of this device</string>
+    <string name="advanced_configuration">Advanced Configuration</string>
+    <string name="user_jid">User JID</string>
+
+    <string name="connecting_to__as__" formatted="false">Connecting to %s as %s</string>
+    <string name="no_server_specificed">No default XMPP server is specified</string>
+    <string name="xmpp_server_must_be_specified">An XMPP server must be specified</string>
+    <string name="cannot_connect">An XMPP server must be specified</string>
+    <string name="registration_not_supported">An XMPP server must be specified</string>
+
 
 </resources>

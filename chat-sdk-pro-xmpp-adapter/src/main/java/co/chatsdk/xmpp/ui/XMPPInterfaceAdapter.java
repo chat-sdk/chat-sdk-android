@@ -7,6 +7,7 @@ import java.util.List;
 
 import co.chatsdk.core.Tab;
 import co.chatsdk.ui.BaseInterfaceAdapter;
+import co.chatsdk.xmpp.activities.XMPPLoginActivity;
 
 /**
  * Created by benjaminsmiley-andrews on 12/07/2017.
@@ -17,6 +18,7 @@ public class XMPPInterfaceAdapter extends BaseInterfaceAdapter {
     public XMPPInterfaceAdapter(Context context) {
         super(context);
 //        searchActivity = XMPPSearchActivity.class;
+        loginActivity = XMPPLoginActivity.class;
     }
 
     @Override
@@ -29,4 +31,6 @@ public class XMPPInterfaceAdapter extends BaseInterfaceAdapter {
 
         return tabs;
     }
+
+
 }

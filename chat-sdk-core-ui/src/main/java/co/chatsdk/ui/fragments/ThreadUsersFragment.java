@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -23,15 +25,12 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
 import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.PublishSubject;
 
@@ -209,9 +208,8 @@ public class ThreadUsersFragment extends BaseFragment {
                 dm.add(ChatSDK.thread().setRole(newRole, thread, user).subscribe(() -> {
                     ToastHelper.show(getActivity(), R.string.success);
                 }, this));
-            } else {
-                dialog.dismiss();
             }
+            dialog.dismiss();
         });
 
         rolesDialog = builder.show();
@@ -272,7 +270,7 @@ public class ThreadUsersFragment extends BaseFragment {
             }
         }
 
-        if (ChatSDK.thread().canChangeVoice(thread, ChatSDK.currentUser())) {
+        if (ChatSDK.thread().canChangeVoice(thread, user)) {
             if (ChatSDK.thread().hasVoice(thread, user)) {
                 options.add(new Option(R.string.revoke_voice, user1 -> {
                     dm.add(ChatSDK.thread().revokeVoice(thread, user1).subscribe(() -> {
@@ -289,7 +287,7 @@ public class ThreadUsersFragment extends BaseFragment {
         }
 
         // Remove a user from the group
-        if (ChatSDK.thread().removeUsersEnabled(thread)) {
+        if (ChatSDK.thread().canRemoveUsersFromThread(thread, Collections.singletonList(user))) {
             options.add(new Option(R.string.remove_from_group, u -> {
                 dm.add(ChatSDK.thread().removeUsersFromThread(thread, u).subscribe(() -> {
                     ToastHelper.show(getActivity(), R.string.success);

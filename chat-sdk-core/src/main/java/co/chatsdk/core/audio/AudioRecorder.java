@@ -1,8 +1,6 @@
 package co.chatsdk.core.audio;
 
 import android.media.MediaRecorder;
-import android.os.Build;
-import android.os.Environment;
 
 import org.pmw.tinylog.Logger;
 

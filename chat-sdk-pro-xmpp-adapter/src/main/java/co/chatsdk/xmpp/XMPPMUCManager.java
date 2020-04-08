@@ -1,6 +1,5 @@
 package co.chatsdk.xmpp;
 
-import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
 import org.jivesoftware.smackx.muc.Affiliate;
@@ -28,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -36,24 +34,18 @@ import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.CurrentLocale;
-import co.chatsdk.core.utils.DisposableList;
-import co.chatsdk.core.utils.DisposableMap;
+import sdk.guru.common.DisposableMap;
 import co.chatsdk.xmpp.listeners.XMPPChatParticipantListener;
 import co.chatsdk.xmpp.listeners.XMPPMUCMessageListener;
 import co.chatsdk.xmpp.listeners.XMPPMUCUserStatusListener;
-import co.chatsdk.xmpp.listeners.XMPPMessageListener;
 import co.chatsdk.xmpp.listeners.XMPPSubjectUpdatedListener;
 import co.chatsdk.xmpp.module.XMPPModule;
-import co.chatsdk.xmpp.ui.JidUtil;
+import co.chatsdk.xmpp.utils.JidUtil;
 import co.chatsdk.xmpp.utils.PresenceHelper;
 import co.chatsdk.xmpp.utils.Role;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -70,7 +62,7 @@ public class XMPPMUCManager {
     protected HashMap<String, XMPPMUCUserStatusListener> userStatusListeners = new HashMap<>();
     protected HashMap<String, XMPPMUCMessageListener> messageListeners = new HashMap<>();
 
-    private DisposableMap dm = new DisposableList();
+    private DisposableMap dm = new DisposableMap();
 
     public XMPPMUCManager (XMPPManager manager_) {
         manager = new WeakReference<>(manager_);
@@ -175,7 +167,7 @@ public class XMPPMUCManager {
                     config.requestHistorySince(lastMessageDate);
                 }
                 else {
-                    config.requestMaxStanzasHistory(XMPPModule.config().xmppMucMessageHistory);
+                    config.requestMaxStanzasHistory(XMPPModule.config().mucMessageHistory);
                 }
 
                 XMPPMUCMessageListener chatMessageListener = getMessageListener(thread.getEntityID());

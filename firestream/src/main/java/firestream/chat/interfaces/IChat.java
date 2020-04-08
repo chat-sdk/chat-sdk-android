@@ -8,10 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import firestream.chat.chat.User;
-import firestream.chat.events.Event;
-import firestream.chat.events.UserEvent;
+import sdk.guru.common.Event;
 import firestream.chat.firebase.rx.MultiQueueSubject;
-import firestream.chat.message.Message;
 import firestream.chat.message.Sendable;
 import firestream.chat.namespace.FireStreamUser;
 import firestream.chat.types.DeliveryReceiptType;

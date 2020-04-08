@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <fragment
-        android:name="co.chatsdk.message.sticker.StickerMessageFragment"
+        android:name="co.chatsdk.message.sticker.view.StickerMessageFragment"
         android:id="@+id/fragment_sticker"
         android:layout_width="match_parent"
         android:layout_height="match_parent">

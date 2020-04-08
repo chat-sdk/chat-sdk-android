@@ -17,7 +17,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import firefly.sdk.chat.R;
-import firestream.chat.events.Event;
+import sdk.guru.common.Event;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.events.ConnectionEvent;
@@ -34,7 +34,7 @@ import io.reactivex.schedulers.Schedulers;
 import firestream.chat.chat.AbstractChat;
 import firestream.chat.chat.Chat;
 import firestream.chat.chat.User;
-import firestream.chat.events.EventType;
+import sdk.guru.common.EventType;
 import firestream.chat.filter.Filter;
 import firestream.chat.firebase.firestore.FirestoreService;
 import firestream.chat.firebase.realtime.RealtimeService;

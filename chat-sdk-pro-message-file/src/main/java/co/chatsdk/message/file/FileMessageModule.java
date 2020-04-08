@@ -66,17 +66,19 @@ public class FileMessageModule implements Module {
 
             @Override
             public void onClick(Activity activity, View rootView, Message message) {
-                String url = (String) message.valueForKey(Keys.MessageFileURL);
-                Uri uri = Uri.parse(url);
-                final String mimeType = message.stringForKey(Keys.MessageMimeType);
+                if (message.getMessageType().is(MessageType.File)) {
+                    String url = (String) message.valueForKey(Keys.MessageFileURL);
+                    Uri uri = Uri.parse(url);
+                    final String mimeType = message.stringForKey(Keys.MessageMimeType);
 
-                try {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setDataAndType(Uri.parse(uri.toString()), mimeType);
-                    activity.startActivity(intent);
-                } catch (ActivityNotFoundException e) {
-                    Logger.debug(e);
-                    activity.startActivity(Intent.createChooser(new Intent(Intent.ACTION_VIEW, uri), activity.getText(R.string.open_with)));
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setDataAndType(Uri.parse(uri.toString()), mimeType);
+                        activity.startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        Logger.debug(e);
+                        activity.startActivity(Intent.createChooser(new Intent(Intent.ACTION_VIEW, uri), activity.getText(R.string.open_with)));
+                    }
                 }
             }
 
@@ -84,7 +86,8 @@ public class FileMessageModule implements Module {
             public void onLongClick(Activity activity, View rootView, Message message) {
 
             }
-        });    }
+        });
+    }
 
     @Override
     public String getName() {

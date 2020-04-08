@@ -2,8 +2,6 @@ package co.chatsdk.ui.binders;
 
 import android.content.Context;
 
-import androidx.core.content.ContextCompat;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -10,7 +10,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Space;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
@@ -18,7 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
@@ -28,7 +26,6 @@ import com.jaredrummler.materialspinner.MaterialSpinner;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.BindView;
 import co.chatsdk.core.dao.Keys;

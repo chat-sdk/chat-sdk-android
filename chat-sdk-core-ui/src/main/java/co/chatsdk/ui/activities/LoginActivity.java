@@ -15,14 +15,12 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -37,6 +35,7 @@ import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.module.DefaultUIModule;
+import co.chatsdk.ui.module.UIConfig;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
@@ -97,6 +96,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
         if (!StringChecker.isNullOrEmpty(ChatSDK.config().debugPassword)) {
             passwordTextInput.setText(ChatSDK.config().debugPassword);
+        }
+
+        if (DefaultUIModule.config().usernameHint != null) {
+            usernameTextInputLayout.setHint(DefaultUIModule.config().usernameHint);
         }
 
         appIconImageView.setImageResource(ChatSDK.config().logoDrawableResourceID);

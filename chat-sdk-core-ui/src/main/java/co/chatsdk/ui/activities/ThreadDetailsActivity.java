@@ -25,7 +25,6 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 
-
 import butterknife.BindView;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
@@ -192,7 +191,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             menu.removeItem(R.id.action_mute);
         }
 
-        if (!ChatSDK.thread().addUsersEnabled(thread)) {
+        if (!ChatSDK.thread().canAddUsersToThread(thread)) {
             menu.removeItem(R.id.action_add_users);
         }
 

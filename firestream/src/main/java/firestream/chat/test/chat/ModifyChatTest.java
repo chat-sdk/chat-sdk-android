@@ -5,11 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import firestream.chat.events.Event;
+import sdk.guru.common.Event;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.chat.User;
-import firestream.chat.events.EventType;
-import firestream.chat.events.UserEvent;
+import sdk.guru.common.EventType;
 import firestream.chat.namespace.Fire;
 import firestream.chat.test.Result;
 import firestream.chat.test.Test;

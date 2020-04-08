@@ -2,17 +2,16 @@ package co.chatsdk.xmpp.module;
 
 import android.content.Context;
 
-import androidx.annotation.Nullable;
-
 import co.chatsdk.core.base.BaseNetworkAdapter;
 import co.chatsdk.core.handlers.Module;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
-import co.chatsdk.core.session.ChatSDK;
+
 import co.chatsdk.core.session.Configure;
 import co.chatsdk.core.session.InterfaceAdapterProvider;
 import co.chatsdk.core.session.NetworkAdapterProvider;
 import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.module.UIConfig;
+import co.chatsdk.xmpp.R;
 import co.chatsdk.xmpp.handlers.XMPPNetworkAdapter;
 import co.chatsdk.xmpp.ui.XMPPInterfaceAdapter;
 
@@ -28,19 +27,22 @@ public class XMPPModule implements Module, NetworkAdapterProvider, InterfaceAdap
         return instance;
     }
 
-    public static XMPPModule shared(Configure<XMPPConfig> configure, @Nullable Configure<UIConfig> configureUI) {
-        configure.with(instance.config);
-        if (configureUI != null) {
-            configureUI.with(DefaultUIModule.config());
-        }
+    public static XMPPConfig<XMPPModule> configure() {
+        return instance.config;
+    }
+
+    public XMPPModule configureUI(Configure<UIConfig> configure) {
+        configure.with(DefaultUIModule.config());
         return instance;
     }
 
-    public XMPPConfig config = new XMPPConfig();
+    public XMPPConfig<XMPPModule> config = new XMPPConfig<>(this);
 
     @Override
     public void activate(Context context) {
-
+        if ( DefaultUIModule.config().usernameHint == null) {
+            DefaultUIModule.config().usernameHint = context.getString(R.string.user_jid);
+        }
     }
 
     @Override

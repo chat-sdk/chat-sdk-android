@@ -5,10 +5,10 @@
         android:label="@string/app_name"
         android:supportsRtl="true">
 
-        <activity android:name=".ui.XMPPSearchActivity"
+        <activity android:name=".activities.XMPPConfigureActivity"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".ui.XMPPAddUserByJIDActivity"
+        <activity android:name=".activities.XMPPLoginActivity"
             android:screenOrientation="portrait">
         </activity>
 

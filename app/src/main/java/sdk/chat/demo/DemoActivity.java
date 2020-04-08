@@ -1,14 +1,11 @@
 package sdk.chat.demo;
 
-import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.animation.Animation;
+import android.os.Handler;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
 import com.rd.PageIndicatorView;
@@ -23,8 +20,6 @@ import butterknife.BindView;
 import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.xmpp.fragments.XMPPConfigureFragment;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import sdk.chat.android.live.R;
 
@@ -39,6 +34,8 @@ public class DemoActivity extends BaseActivity {
     @BindView(R.id.pageIndicatorView)
     PageIndicatorView pageIndicatorView;
 
+    BaseFragment currentFragment = null;
+
     @Override
     protected int getLayout() {
         return R.layout.activity_demo;
@@ -52,58 +49,70 @@ public class DemoActivity extends BaseActivity {
     protected WelcomeFragment welcomeFragment = new WelcomeFragment();
     protected XMPPServerFragment xmppServerFragment = new XMPPServerFragment();
     protected XMPPConfigureFragment xmppConfigureFragment = new XMPPConfigureFragment();
+    protected InfoFragment infoFragment = new InfoFragment();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         adapter = new DemoPagerAdapter(getSupportFragmentManager(), BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-        adapter.fragments.add(welcomeFragment);
-        adapter.fragments.add(styleFragment);
-        adapter.fragments.add(backendFragment);
-
-        DemoConfigBuilder.shared().load(this);
-        updateBackend(DemoConfigBuilder.shared().backend);
-
-        adapter.notifyDataSetChanged();
+        adapter.add(welcomeFragment);
+        adapter.add(infoFragment);
+        adapter.add(styleFragment);
+        adapter.add(backendFragment);
 
         viewPager.setAdapter(adapter);
 
         dm.add(DemoConfigBuilder.shared().updated.subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(s -> {
-            Set<Fragment> fragmentSet = new HashSet<>(adapter.fragments);
-            if (s == DemoConfigBuilder.Updated.Backend) {
+            Set<Fragment> fragmentSet = new HashSet<>(adapter.get());
 
-                adapter.fragments.subList(3, adapter.fragments.size()).clear();
+            List<Fragment> fragments = new ArrayList<>(adapter.get());
+
+            if (s == DemoConfigBuilder.Updated.Backend || s == DemoConfigBuilder.Updated.All) {
+
+                fragments.subList(4, fragments.size()).clear();
 
                 DemoConfigBuilder.Backend backend = DemoConfigBuilder.shared().backend;
 
                 if (backend != null) {
-                    updateBackend(backend);
-                    adapter.fragments.add(launchFragment);
+
+                    if (backend == DemoConfigBuilder.Backend.XMPP) {
+                        fragments.add(xmppServerFragment);
+                    } else {
+                        fragments.add(firebaseLoginTypeFragment);
+                        if(backend == DemoConfigBuilder.Backend.FireStream) {
+                            fragments.add(databaseFragment);
+                        }
+                    }
+
+                    fragments.add(launchFragment);
                 }
             }
 
-            if (s == DemoConfigBuilder.Updated.Database && DemoConfigBuilder.shared().backend == DemoConfigBuilder.Backend.XMPP) {
+            if ((s == DemoConfigBuilder.Updated.Database && DemoConfigBuilder.shared().backend == DemoConfigBuilder.Backend.XMPP) || s == DemoConfigBuilder.Updated.All) {
                 DemoConfigBuilder.Database database = DemoConfigBuilder.shared().database;
                 if (database == DemoConfigBuilder.Database.Custom) {
                     // Add an extra step
-                    if (!adapter.fragments.contains(xmppConfigureFragment)) {
-                        adapter.fragments.add(adapter.fragments.size() - 1, xmppConfigureFragment);
+                    if (!fragments.contains(xmppConfigureFragment)) {
+                        fragments.add(fragments.size() - 1, xmppConfigureFragment);
                     }
                 } else {
-                    adapter.fragments.remove(xmppConfigureFragment);
+                    fragments.remove(xmppConfigureFragment);
                 }
             }
 
-            if (!fragmentSet.equals(new HashSet<>(adapter.fragments))) {
-                viewPager.post(() -> {
+            if (!fragmentSet.equals(new HashSet<>(fragments))) {
+                Handler mainHandler = new Handler(DemoActivity.this.getMainLooper());
+                mainHandler.post(() -> {
+                    adapter.setFragments(fragments);
                     adapter.notifyDataSetChanged();
-                    pageIndicatorView.setCount(adapter.fragments.size());
+                    pageIndicatorView.setCount(fragments.size());
                 });
             }
         }));
 
-//        DemoConfigBuilder.shared().updated.onNext(DemoConfigBuilder.Updated.Backend);
+        DemoConfigBuilder.shared().load(this);
+        DemoConfigBuilder.shared().updated.onNext(DemoConfigBuilder.Updated.All);
 
         pageIndicatorView.setSelectedColor(ContextCompat.getColor(this, R.color.chat_orange));
         pageIndicatorView.setUnselectedColor(ContextCompat.getColor(this, R.color.light_grey));
@@ -120,8 +129,12 @@ public class DemoActivity extends BaseActivity {
             @Override
             public void onPageSelected(int position) {
                 pageIndicatorView.setSelection(position);
-                BaseFragment fragment = (BaseFragment) adapter.fragments.get(position);
+                BaseFragment fragment = (BaseFragment) adapter.get().get(position);
                 fragment.setTabVisibility(true);
+                if (currentFragment != null) {
+                    currentFragment.setTabVisibility(false);
+                }
+                currentFragment = fragment;
             }
 
             @Override
@@ -130,17 +143,5 @@ public class DemoActivity extends BaseActivity {
             }
         });
 
-    }
-
-
-    public void updateBackend(DemoConfigBuilder.Backend backend) {
-        if (backend == DemoConfigBuilder.Backend.XMPP) {
-            adapter.fragments.add(xmppServerFragment);
-        } else {
-            adapter.fragments.add(firebaseLoginTypeFragment);
-            if(backend == DemoConfigBuilder.Backend.FireStream) {
-                adapter.fragments.add(databaseFragment);
-            }
-        }
     }
 }

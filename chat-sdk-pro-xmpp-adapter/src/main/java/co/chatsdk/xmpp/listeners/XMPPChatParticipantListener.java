@@ -10,10 +10,8 @@ import org.jxmpp.jid.Jid;
 import java.lang.ref.WeakReference;
 
 import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.xmpp.XMPPMUCManager;
-import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.disposables.Disposable;
 
 /**

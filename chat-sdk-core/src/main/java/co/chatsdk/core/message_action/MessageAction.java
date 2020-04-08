@@ -4,7 +4,6 @@ import android.app.Activity;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import co.chatsdk.core.dao.Message;

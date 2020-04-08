@@ -9,12 +9,7 @@ import com.google.android.gms.location.LocationServices;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.ref.WeakReference;
-
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.PublishSubject;
 
 public class LocationFinder {

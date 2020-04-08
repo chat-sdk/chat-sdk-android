@@ -10,8 +10,8 @@ package co.chatsdk.core.dao.sorter;
 
 import java.util.Comparator;
 
-import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.DaoCore;
+import co.chatsdk.core.dao.Message;
 
 public class MessageSorter implements Comparator<Message> {
 

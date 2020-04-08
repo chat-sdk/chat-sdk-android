@@ -3,10 +3,13 @@ package co.chatsdk.firebase.nearby_users;
 import android.content.Context;
 
 import androidx.fragment.app.Fragment;
+
 import co.chatsdk.core.Tab;
 import co.chatsdk.core.handlers.Module;
+import sdk.guru.common.BaseConfig;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configure;
+
 
 /**
  * Created by pepe on 08.03.18.
@@ -20,12 +23,16 @@ public class FirebaseNearbyUsersModule implements Module {
         return instance;
     }
 
-    public static FirebaseNearbyUsersModule shared(Configure<Config> configure) {
-        configure.with(instance.config);
+    public static Config<FirebaseNearbyUsersModule> configure() {
+        return instance.config;
+    }
+
+    public static FirebaseNearbyUsersModule configure(Configure<Config> config) {
+        config.with(instance.config);
         return instance;
     }
 
-    public Config config = new Config();
+    public Config<FirebaseNearbyUsersModule> config = new Config<>(this);
 
     @Override
     public void activate(Context context) {
@@ -37,7 +44,7 @@ public class FirebaseNearbyUsersModule implements Module {
         return "FirebaseNearbyUsersModule";
     }
 
-    public static class Config {
+    public static class Config<T> extends BaseConfig<T> {
 
         // Maximum distance to pick up nearby users
         public int maxDistance = 50000;
@@ -45,12 +52,16 @@ public class FirebaseNearbyUsersModule implements Module {
         // How much distance must be moved to update the server with our new location
         public int minimumLocationChangeToUpdateServer = 50;
 
-        public Config nearbyUserMaxDistance (int maxDistance) {
+        public Config(T onBuild) {
+            super(onBuild);
+        }
+
+        public Config<T> nearbyUserMaxDistance (int maxDistance) {
             this.maxDistance = maxDistance;
             return this;
         }
 
-        public Config nearbyUsersMinimumLocationChangeToUpdateServer (int minimumDistance) {
+        public Config<T> nearbyUsersMinimumLocationChangeToUpdateServer (int minimumDistance) {
             this.minimumLocationChangeToUpdateServer = minimumDistance;
             return this;
         }

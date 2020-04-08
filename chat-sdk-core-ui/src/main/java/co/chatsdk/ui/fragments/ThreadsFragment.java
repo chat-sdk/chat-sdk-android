@@ -21,7 +21,6 @@ import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -29,7 +28,6 @@ import butterknife.BindView;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.dao.sorter.ThreadsSorter;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;

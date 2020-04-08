@@ -45,14 +45,14 @@ public class PublicThreadsFragment extends ThreadsFragment {
     protected List<Thread> getThreads() {
         List<Thread> threads =  ChatSDK.thread().getThreads(ThreadType.Public);
 
-        if (DefaultUIModule.config().publicChatRoomLifetimeMinutes == 0) {
+        if (ChatSDK.config().publicChatRoomLifetimeMinutes == 0) {
             return threads;
         } else {
             // Do we need to filter the list to remove old chat rooms?
             long now = new Date().getTime();
             List<Thread> filtered = new ArrayList<>();
             for (Thread t : threads) {
-                if (t.getCreationDate() == null || now - t.getCreationDate().getTime() < DefaultUIModule.config().publicChatRoomLifetimeMinutes * 60000) {
+                if (t.getCreationDate() == null || now - t.getCreationDate().getTime() < ChatSDK.config().publicChatRoomLifetimeMinutes * 60000) {
                     filtered.add(t);
                 }
             }

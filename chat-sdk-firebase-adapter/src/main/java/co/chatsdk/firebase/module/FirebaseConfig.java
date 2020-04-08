@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.session.Config;
+import sdk.guru.common.BaseConfig;
 
-public class FirebaseConfig {
+public class FirebaseConfig<T> extends BaseConfig<T> {
 
     // Firebase
     public String firebaseRootPath = "default";
@@ -16,16 +16,26 @@ public class FirebaseConfig {
     public String firebaseDatabaseUrl;
     public String firebaseApp;
 
+    public boolean disableClientProfileUpdate = false;
+    public boolean developmentModeEnabled = false;
+    public boolean disablePublicThreads = false;
+
+    public boolean enableCompatibilityWithV4 = false;
+
+    public boolean enableWebCompatibility = false;
+
     final public List<String> searchIndexes = new ArrayList<>();
 
-    public FirebaseConfig() {
+    public FirebaseConfig(T onBuild) {
+        super(onBuild);
+
         searchIndexes.add(Keys.Name);
         searchIndexes.add(Keys.Email);
         searchIndexes.add(Keys.Phone);
         searchIndexes.add(Keys.NameLowercase);
     }
 
-    public FirebaseConfig firebase(String rootPath) {
+    public FirebaseConfig<T> firebase(String rootPath) {
 
         if (rootPath != null && rootPath.length() > 0 && !rootPath.substring(rootPath.length() - 1).equals('/')) {
             rootPath += "/";
@@ -36,12 +46,12 @@ public class FirebaseConfig {
         return this;
     }
 
-    public FirebaseConfig setFirebaseDatabaseURL(String firebaseDatabaseUrl) {
+    public FirebaseConfig<T> setFirebaseDatabaseURL(String firebaseDatabaseUrl) {
         this.firebaseDatabaseUrl = firebaseDatabaseUrl;
         return this;
     }
 
-    public FirebaseConfig setFirebaseRootPath(String rootPath) {
+    public FirebaseConfig<T> setFirebaseRootPath(String rootPath) {
         String path = validatePath(rootPath);
         if (path != null) {
             this.firebaseRootPath = path;
@@ -66,14 +76,39 @@ public class FirebaseConfig {
         return null;
     }
 
-    public FirebaseConfig setFirebaseApp(String firebaseApp) {
+    public FirebaseConfig<T> setFirebaseApp(String firebaseApp) {
         this.firebaseApp = firebaseApp;
         return this;
     }
 
-    public FirebaseConfig setSearchIndexes(List<String> indexes) {
+    public FirebaseConfig<T> setSearchIndexes(List<String> indexes) {
         this.searchIndexes.clear();
         this.searchIndexes.addAll(indexes);
+        return this;
+    }
+
+    public FirebaseConfig<T> setDisableClientProfileUpdate(boolean disableClientProfileUpdate) {
+        this.disableClientProfileUpdate = disableClientProfileUpdate;
+        return this;
+    }
+
+    public FirebaseConfig<T> setDevelopmentModeEnabled(boolean developmentModeEnabled) {
+        this.developmentModeEnabled = developmentModeEnabled;
+        return this;
+    }
+
+    public FirebaseConfig<T> setDisablePublicThreads(boolean disablePublicThreads) {
+        this.disablePublicThreads = disablePublicThreads;
+        return this;
+    }
+
+    public FirebaseConfig<T> setEnableCompatibilityWithV4(boolean enabled) {
+        this.enableCompatibilityWithV4 = enabled;
+        return this;
+    }
+
+    public FirebaseConfig<T> setEnableWebCompatibility(boolean enableWebCompatibility) {
+        this.enableWebCompatibility = enableWebCompatibility;
         return this;
     }
 

@@ -4,13 +4,10 @@ import android.content.Context;
 
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.Config;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
-import co.chatsdk.firestream.FireStreamNetworkAdapter;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
-import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.module.DefaultUIModule;
 import sdk.chat.android.live.R;
@@ -26,27 +23,28 @@ public class CustomiseInterfaceExample extends BaseExample {
         // explore them yourself by looking at the Configuration builder.
         try {
 
-            ChatSDK.configure(config -> config
+            ChatSDK.builder().configure()
 
                     // Configure the library
                     .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
                     .setAnonymousLoginEnabled(false)
                     .setDebugModeEnabled(true)
-                    .setLogoDrawableResourceID(R.drawable.ic_launcher_big))
+                    .setLogoDrawableResourceID(R.drawable.ic_launcher_big)
+                    .setPublicChatRoomLifetimeMinutes(60 * 24)
+                    .build()
 
                     // Add the network adapter module
-                    .addModule(FirebaseModule.shared(config -> config
+                    .addModule(FirebaseModule.configure(config -> config
                             .setFirebaseRootPath("rootPath")
                     ))
 
                     // Add the UI module
-                    .addModule(DefaultUIModule.shared(config -> config
+                    .addModule(DefaultUIModule.configure(config -> config
                             .setPublicRoomCreationEnabled(true)
-                            .setPublicChatRoomLifetimeMinutes(60 * 24)
                             .setTheme(R.style.CustomChatSDKTheme)
                     ))
 
-                    .addModule(ExtrasModule.shared(config -> config
+                    .addModule(ExtrasModule.configure(config -> config
                             .setDrawerEnabled(true)
                     ))
 
@@ -70,6 +68,7 @@ public class CustomiseInterfaceExample extends BaseExample {
 //                    ))
 
                     // Activate
+                    .build()
                     .activate(context);
 
             // Override the chat activity

@@ -5,7 +5,6 @@ import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import io.reactivex.functions.Predicate;
-import sdk.chat.examples.BaseExample;
 
 public class UserExamples extends BaseExample {
 

@@ -2,7 +2,6 @@ package co.chatsdk.xmpp;
 
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.StandardExtensionElement;
-import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smackx.delay.packet.DelayInformation;
 import org.joda.time.DateTime;
 
@@ -11,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
@@ -63,6 +61,7 @@ public class XMPPMessageParser {
     public static Message addMessageToThread(Thread thread, final XMPPMessageWrapper xmppMessage, String from) {
         Message message = buildMessage(xmppMessage, from);
         thread.addMessage(message);
+        updateReadReceipts(message, xmppMessage);
         return message;
     }
 
@@ -108,6 +107,11 @@ public class XMPPMessageParser {
         message.setSender(user);
         message.update();
 
+
+        return message;
+    }
+
+    public static void updateReadReceipts(Message message, XMPPMessageWrapper xmr) {
         // As soon as the message is received, we can set it as read
         if (message.getSender().isMe()) {
             message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new DateTime());
@@ -117,7 +121,5 @@ public class XMPPMessageParser {
             }
             message.markDelivered();
         }
-
-        return message;
     }
 }

@@ -63,11 +63,13 @@ public class VideoMessageModule implements Module {
 
             @Override
             public void onClick(Activity activity, View rootView, Message message) {
-                String videoURL = (String) message.valueForKey(Keys.MessageVideoURL);
-                if(videoURL != null) {
-                    Intent intent = new Intent(activity, PlayVideoActivity.class);
-                    intent.putExtra(Keys.IntentKeyFilePath, videoURL);
-                    activity.startActivity(intent);
+                if (message.getMessageType().is(MessageType.Video)) {
+                    String videoURL = (String) message.valueForKey(Keys.MessageVideoURL);
+                    if(videoURL != null) {
+                        Intent intent = new Intent(activity, PlayVideoActivity.class);
+                        intent.putExtra(Keys.IntentKeyFilePath, videoURL);
+                        activity.startActivity(intent);
+                    }
                 }
             }
 

@@ -4,7 +4,6 @@ import android.content.Context;
 
 import co.chatsdk.core.handlers.Module;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.xmpp.module.XMPPModule;
 
 public class XMPPReadReceiptsModule implements Module {
 

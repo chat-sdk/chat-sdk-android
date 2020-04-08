@@ -2,7 +2,7 @@ package firestream.chat.chat;
 
 import java.util.HashMap;
 
-import firestream.chat.events.Event;
+import sdk.guru.common.Event;
 import firestream.chat.events.ListData;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.namespace.Fire;

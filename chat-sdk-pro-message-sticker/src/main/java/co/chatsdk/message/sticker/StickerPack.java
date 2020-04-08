@@ -3,11 +3,14 @@ package co.chatsdk.message.sticker;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import co.chatsdk.message.sticker.view.StickerListItem;
+
 /**
  * Created by ben on 10/11/17.
  */
 
 public class StickerPack implements StickerListItem {
+
     public Integer imageResourceId;
     private ArrayList<Sticker> stickers = new ArrayList<>();
 

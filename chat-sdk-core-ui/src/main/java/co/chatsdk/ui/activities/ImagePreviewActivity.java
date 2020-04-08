@@ -19,11 +19,6 @@ import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 
-
-import butterknife.BindView;
-import co.chatsdk.ui.R2;
-import co.chatsdk.ui.activities.BaseActivity;
-
 public class ImagePreviewActivity extends BaseActivity {
 
     protected Animator currentAnimator;

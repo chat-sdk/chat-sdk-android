@@ -1,20 +1,10 @@
 package co.chatsdk.xmpp.handlers;
 
-import org.minidns.record.A;
-
-import java.util.concurrent.Callable;
-
 import co.chatsdk.core.base.BaseContactHandler;
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.ConnectionType;
 import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Completable;
-import io.reactivex.CompletableObserver;
-import io.reactivex.CompletableSource;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 
 

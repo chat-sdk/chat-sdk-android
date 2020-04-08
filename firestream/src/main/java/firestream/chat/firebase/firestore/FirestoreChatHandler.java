@@ -1,20 +1,14 @@
 package firestream.chat.firebase.firestore;
 
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.firestore.DocumentSnapshot;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
 import javax.annotation.Nullable;
 
 import firestream.chat.chat.Meta;
-import firestream.chat.firebase.generic.Generic;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import firestream.chat.chat.User;
@@ -23,7 +17,7 @@ import firestream.chat.firebase.service.Paths;
 import firestream.chat.firebase.service.Path;
 import firestream.chat.firebase.service.FirebaseChatHandler;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
+import sdk.guru.firestore.RXFirestore;
 
 public class FirestoreChatHandler extends FirebaseChatHandler {
 

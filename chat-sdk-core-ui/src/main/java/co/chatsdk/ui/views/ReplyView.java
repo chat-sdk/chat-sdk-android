@@ -13,8 +13,6 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.bumptech.glide.Glide;
-import com.github.siyamed.shapeimageview.mask.PorterShapeImageView;
-
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

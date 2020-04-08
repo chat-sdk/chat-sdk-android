@@ -1,7 +1,7 @@
 package sdk.chat.examples;
 
-import co.chatsdk.core.utils.DisposableMap;
 import io.reactivex.functions.Consumer;
+import sdk.guru.common.DisposableMap;
 
 public class BaseExample implements Consumer<Throwable> {
 

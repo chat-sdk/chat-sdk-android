@@ -1,6 +1,5 @@
 package sdk.chat.demo;
 
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
@@ -11,13 +10,9 @@ import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 
-import org.jivesoftware.smackx.xhtmlim.packet.XHTMLExtension;
-
 import butterknife.BindView;
-import co.chatsdk.ui.fragments.BaseFragment;
 import io.reactivex.Completable;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Consumer;
 import sdk.chat.android.live.R;
 
 public class BackendFragment extends CardViewFragment {

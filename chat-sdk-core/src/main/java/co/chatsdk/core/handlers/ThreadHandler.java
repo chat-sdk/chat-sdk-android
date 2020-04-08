@@ -7,9 +7,7 @@ import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.SystemMessageType;
-import co.chatsdk.core.types.MessageSendProgress;
 import io.reactivex.Completable;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 
 /**
@@ -27,16 +25,18 @@ public interface ThreadHandler {
     Single<Thread> createThread(String name, List<User> users, int type);
     Single<Thread> createThread(String name, List<User> users, int type, String entityID);
     Single<Thread> createThread(String name, List<User> users, int type, String entityID, String imageURL);
+
     /**
      * Remove users from a thread
      */
-    boolean removeUsersEnabled(Thread thread);
+    boolean canRemoveUsersFromThread(Thread thread, List<User> users);
     Completable removeUsersFromThread(Thread thread, List<User> users);
     Completable removeUsersFromThread(Thread thread, User... users);
     /**
      * Add users to a thread
      */
-    boolean addUsersEnabled(Thread thread);
+
+    boolean canAddUsersToThread(Thread thread);
     Completable addUsersToThread(Thread thread, List<User> users);
     Completable addUsersToThread(Thread thread, User... users);
     /**
@@ -58,7 +58,7 @@ public interface ThreadHandler {
     Completable deleteMessage (Message message);
     Completable deleteMessages (Message... messages);
     Completable deleteMessages (List<Message> messages);
-    boolean deleteMessageEnabled (Message message);
+    boolean canDeleteMessage(Message message);
 
     /**
      * Send different types of text to a particular thread

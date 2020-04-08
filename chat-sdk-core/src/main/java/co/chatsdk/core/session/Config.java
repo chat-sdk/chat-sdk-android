@@ -6,16 +6,18 @@ import org.pmw.tinylog.Level;
 import org.pmw.tinylog.Logger;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import co.chatsdk.core.R;
 import co.chatsdk.core.interfaces.CrashHandler;
+import sdk.guru.common.BaseConfig;
 
 /**
  * Created by ben on 10/17/17.
  */
 
-public class Config {
+public class Config<T> extends BaseConfig<T> {
 
     public enum IdenticonType {
         FlatHash,
@@ -49,6 +51,11 @@ public class Config {
 
     // Google
     public String googleMapsApiKey;
+
+    // Rooms that are older than this will be hidden
+    // Zero is infinite lifetime
+    // Default - 7 days
+    public int publicChatRoomLifetimeMinutes = 60 * 24 * 7;
 
     // Should we call disconnect when the app is in the background for more than 5 seconds?
     public boolean disconnectFromFirebaseWhenInBackground = true;
@@ -110,7 +117,11 @@ public class Config {
 
     public HashMap<String, Object> customProperties = new HashMap<>();
 
-    public Config() {
+    public boolean disablePresence = false;
+
+    public Config(T onBuild) {
+        super(onBuild);
+
         updateDefaultName();
         setIdenticonType(IdenticonType.FlatHash);
     }
@@ -124,10 +135,10 @@ public class Config {
     }
 
     public void updateDefaultName() {
-        defaultName = defaultNamePrefix + String.valueOf(new Random().nextInt(1000));
+        defaultName = defaultNamePrefix + new Random().nextInt(1000);
     }
 
-    public void updateRemoteConfig(HashMap<String, Object> config) {
+    public void updateRemoteConfig(Map<String, Object> config) {
         for (String key : config.keySet()) {
             setRemoteConfigValue(key, config.get(key));
         }
@@ -141,7 +152,7 @@ public class Config {
         remote.put(key, value);
     }
 
-    public Config setDebugModeEnabled(boolean debug) {
+    public Config<T> setDebugModeEnabled(boolean debug) {
         this.debug = debug;
         if (debug) {
             Logger.getConfiguration().level(Level.DEBUG).activate();
@@ -149,52 +160,52 @@ public class Config {
         return this;
     }
 
-    public Config setDebugUsername(String username) {
+    public Config<T> setDebugUsername(String username) {
         this.debugUsername = username;
         return this;
     }
 
-    public Config setDebugPassword(String password) {
+    public Config<T> setDebugPassword(String password) {
         this.debugPassword = password;
         return this;
     }
 
-    public Config setGoogleMaps(String mapsApiKey) {
+    public Config<T> setGoogleMaps(String mapsApiKey) {
         this.googleMapsApiKey = mapsApiKey;
         return this;
     }
 
-    public Config setReplyFromNotificationEnabled(boolean enabled) {
+    public Config<T> setReplyFromNotificationEnabled(boolean enabled) {
         this.replyFromNotificationEnabled = enabled;
         return this;
     }
 
-    public Config setDisconnectFromFirebaseWhenInBackground(boolean disconnect) {
+    public Config<T> setDisconnectFromFirebaseWhenInBackground(boolean disconnect) {
         this.disconnectFromFirebaseWhenInBackground = disconnect;
         return this;
     }
 
-    public Config setAnonymousLoginEnabled(boolean value) {
+    public Config<T> setAnonymousLoginEnabled(boolean value) {
         this.anonymousLoginEnabled = value;
         return this;
     }
 
-    public Config setPushNotificationAction(String action) {
+    public Config<T> setPushNotificationAction(String action) {
         this.pushNotificationAction = action;
         return this;
     }
 
-    public Config setShowEmptyChats(boolean showEmpty) {
+    public Config<T> setShowEmptyChats(boolean showEmpty) {
         this.showEmptyChats = showEmpty;
         return this;
     }
 
-    public Config setInboundPushHandlingEnabled(boolean enabled) {
+    public Config<T> setInboundPushHandlingEnabled(boolean enabled) {
         this.inboundPushHandlingEnabled = enabled;
         return this;
     }
 
-    public Config setReuseDeleted1to1Threads(boolean reuse) {
+    public Config<T> setReuseDeleted1to1Threads(boolean reuse) {
         this.reuseDeleted1to1Threads = reuse;
         return this;
     }
@@ -203,88 +214,88 @@ public class Config {
      * @deprecated use {@link #localPushNotificationsForPublicChatRoomsEnabled}
      */
     @Deprecated
-    public Config setPushNotificationsForPublicChatRoomsEnabled(boolean value) {
+    public Config<T> setPushNotificationsForPublicChatRoomsEnabled(boolean value) {
         this.localPushNotificationsForPublicChatRoomsEnabled = value;
         return this;
     }
 
-    public Config setLocalPushNotificationsForPublicChatRoomsEnabled(boolean value) {
+    public Config<T> setLocalPushNotificationsForPublicChatRoomsEnabled(boolean value) {
         this.localPushNotificationsForPublicChatRoomsEnabled = value;
         return this;
     }
 
-    public Config setRemoteConfigEnabled(boolean value) {
+    public Config<T> setRemoteConfigEnabled(boolean value) {
         this.remoteConfigEnabled = value;
         return this;
     }
 
-    public Config setMessageHistoryDownloadLimit (int downloadLimit) {
+    public Config<T> setMessageHistoryDownloadLimit (int downloadLimit) {
         this.messageHistoryDownloadLimit = downloadLimit;
         return this;
     }
 
-    public Config setMessageDeletionListenerLimit (int limit) {
+    public Config<T> setMessageDeletionListenerLimit (int limit) {
         this.messageDeletionListenerLimit = limit;
         return this;
     }
 
-    public Config setContactsToLoadPerBatch (int number) {
+    public Config<T> setContactsToLoadPerBatch (int number) {
         this.contactsToLoadPerBatch = number;
         return this;
     }
 
-    public Config setMessagesToLoadPerBatch(int number) {
+    public Config<T> setMessagesToLoadPerBatch(int number) {
         this.messagesToLoadPerBatch = number;
         return this;
     }
 
-    public Config setBackgroundPushTestModeEnabled(boolean enabled) {
+    public Config<T> setBackgroundPushTestModeEnabled(boolean enabled) {
         this.backgroundPushTestModeEnabled = enabled;
         return this;
     }
 
-    public Config setCrashHandler(CrashHandler handler) {
+    public Config<T> setCrashHandler(CrashHandler handler) {
         this.crashHandler = handler;
         return this;
     }
 
-    public Config setClientPushEnabled(boolean clientPushEnabled) {
+    public Config<T> setClientPushEnabled(boolean clientPushEnabled) {
         this.clientPushEnabled = clientPushEnabled;
         return this;
     }
 
-    public Config setShowLocalNotifications(boolean show) {
+    public Config<T> setShowLocalNotifications(boolean show) {
         this.showLocalNotifications = show;
         return this;
     }
 
-    public Config setMaxImageWidth(int value) {
+    public Config<T> setMaxImageWidth(int value) {
         this.imageMaxWidth = value;
         return this;
     }
 
-    public Config setMaxImageHeight(int value) {
+    public Config<T> setMaxImageHeight(int value) {
         this.imageMaxHeight = value;
         return this;
     }
 
-    public Config setMaxThumbnailDimensions(int value) {
+    public Config<T> setMaxThumbnailDimensions(int value) {
         this.imageMaxThumbnailDimension = value;
         return this;
     }
 
-    public Config setDefaultNamePrefix(String value) {
+    public Config<T> setDefaultNamePrefix(String value) {
         this.defaultNamePrefix = value;
         this.updateDefaultName();
         return this;
     }
 
-    public Config setDefaultName(String value) {
+    public Config<T> setDefaultName(String value) {
         this.defaultName = value;
         return this;
     }
 
-    public Config setLogoDrawableResourceID(int resource) {
+    public Config<T> setLogoDrawableResourceID(int resource) {
         this.logoDrawableResourceID = resource;
         return this;
     }
@@ -293,42 +304,42 @@ public class Config {
         return this.logoDrawableResourceID != R.drawable.ic_launcher_big;
     }
 
-    public Config setDefaultUserAvatarUrl(String value) {
+    public Config<T> setDefaultUserAvatarUrl(String value) {
         this.defaultUserAvatarURL = value;
         return this;
     }
 
-    public Config addCustomSetting(String key, Object value) {
+    public Config<T> addCustomSetting(String key, Object value) {
         this.customProperties.put(key, value);
         return this;
     }
 
-    public Config setPushNotificationImageDefaultResourceId(int resourceId) {
+    public Config<T> setPushNotificationImageDefaultResourceId(int resourceId) {
         this.pushNotificationImageDefaultResourceId = resourceId;
         return this;
     }
 
-    public Config setOnlySendPushToOfflineUsers(boolean value) {
+    public Config<T> setOnlySendPushToOfflineUsers(boolean value) {
         this.onlySendPushToOfflineUsers = value;
         return this;
     }
 
-    public Config setPushNotificationSound(String sound) {
+    public Config<T> setPushNotificationSound(String sound) {
         this.pushNotificationSound = sound;
         return this;
     }
 
-    public Config setPushNotificationColor(String hexColor) {
+    public Config<T> setPushNotificationColor(String hexColor) {
         this.pushNotificationColor = Color.parseColor(hexColor);
         return this;
     }
 
-    public Config setPushNotificationColor(int color) {
+    public Config<T> setPushNotificationColor(int color) {
         this.pushNotificationColor = color;
         return this;
     }
 
-    public Config setLocationURLRepresentation (String representation) {
+    public Config<T> setLocationURLRepresentation (String representation) {
         this.locationURLRepresentation = representation;
         return this;
     }
@@ -337,26 +348,27 @@ public class Config {
      * @deprecated use {@link #setPublicChatAutoSubscriptionEnabled(boolean)}
      */
     @Deprecated
-    public Config setRemoveUserFromPublicThreadOnExit (boolean remove) {
+    public Config<T> setRemoveUserFromPublicThreadOnExit (boolean remove) {
         this.publicChatAutoSubscriptionEnabled = !remove;
         return this;
     }
 
-    public Config setPublicChatAutoSubscriptionEnabled(boolean enabled) {
+    public Config<T> setPublicChatAutoSubscriptionEnabled(boolean enabled) {
         this.publicChatAutoSubscriptionEnabled = enabled;
         return this;
     }
 
-    public Config setStorageDirectory(String value) {
+    public Config<T> setStorageDirectory(String value) {
         this.storageDirectory = value;
         return this;
     }
 
-    public void setIdenticonBaseURL(String identiconBaseURL) {
+    public Config<T> setIdenticonBaseURL(String identiconBaseURL) {
         this.identiconBaseURL = identiconBaseURL;
+        return this;
     }
 
-    public void setIdenticonType(IdenticonType type) {
+    public Config<T> setIdenticonType(IdenticonType type) {
         identiconType = type;
         switch (type) {
             case RoboHash:
@@ -373,6 +385,17 @@ public class Config {
 //            case Female:
 //                identiconBaseURL = "https://avatars.dicebear.com/v2/female/%s.svg";
         }
+        return this;
+    }
+
+    public Config<T> setPublicChatRoomLifetimeMinutes (int minutes) {
+        this.publicChatRoomLifetimeMinutes = minutes;
+        return this;
+    }
+
+    public Config<T> setDisablePresence(boolean disablePresence) {
+        this.disablePresence = disablePresence;
+        return this;
     }
 
 }

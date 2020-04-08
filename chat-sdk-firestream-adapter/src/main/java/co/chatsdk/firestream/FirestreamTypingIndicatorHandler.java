@@ -1,20 +1,16 @@
 package co.chatsdk.firestream;
 
-import co.chatsdk.core.api.APIHelper;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.handlers.TypingIndicatorHandler;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
-import firestream.chat.firebase.rx.DisposableMap;
-import firestream.chat.interfaces.IChat;
 import firestream.chat.events.ConnectionEvent;
-import firestream.chat.firebase.rx.DisposableList;
+import firestream.chat.interfaces.IChat;
 import firestream.chat.namespace.Fire;
-import io.reactivex.Completable;
 import firestream.chat.types.TypingStateType;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.Completable;
 
 public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler {
 

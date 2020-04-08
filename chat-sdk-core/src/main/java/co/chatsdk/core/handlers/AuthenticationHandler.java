@@ -1,7 +1,5 @@
 package co.chatsdk.core.handlers;
 
-import java.util.Map;
-
 import co.chatsdk.core.types.AccountDetails;
 import io.reactivex.Completable;
 

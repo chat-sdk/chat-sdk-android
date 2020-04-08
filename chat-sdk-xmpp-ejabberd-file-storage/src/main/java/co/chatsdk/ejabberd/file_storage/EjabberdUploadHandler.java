@@ -25,7 +25,7 @@ import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.FileUploadResult;
 import co.chatsdk.core.types.MessageType;
-import co.chatsdk.core.utils.DisposableList;
+
 import co.chatsdk.core.utils.ImageBuilder;
 import co.chatsdk.core.utils.ImageUtils;
 import co.chatsdk.xmpp.XMPPManager;

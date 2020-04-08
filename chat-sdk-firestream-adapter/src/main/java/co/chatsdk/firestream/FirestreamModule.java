@@ -9,8 +9,10 @@ import org.greenrobot.greendao.annotation.NotNull;
 import co.chatsdk.core.base.BaseNetworkAdapter;
 import co.chatsdk.core.handlers.Module;
 import co.chatsdk.core.session.ChatSDK;
+
 import co.chatsdk.core.session.Configure;
 import co.chatsdk.core.session.NetworkAdapterProvider;
+import co.chatsdk.firebase.module.FirebaseModule;
 import firestream.chat.FirestreamConfig;
 import firestream.chat.namespace.Fire;
 
@@ -22,8 +24,9 @@ public class FirestreamModule implements Module, NetworkAdapterProvider {
         return instance;
     }
 
-    public static FirestreamModule shared(@NotNull Configure<FirestreamConfig> configure) {
+    public static FirestreamModule configure(Configure<FirestreamConfig> configure) {
         configure.with(instance.config);
+        FirebaseModule.config().setFirebaseRootPath(instance.config.getRoot());
         return instance;
     }
 

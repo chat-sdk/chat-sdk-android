@@ -3,14 +3,14 @@ package sdk.chat.examples;
 import android.content.Context;
 import android.content.Intent;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.fragment.app.Fragment;
+
+import java.io.File;
+import java.util.List;
 
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
+import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
@@ -18,7 +18,6 @@ import co.chatsdk.core.hook.Hook;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.BroadcastHandler;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.types.MessageSendProgress;
 import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;

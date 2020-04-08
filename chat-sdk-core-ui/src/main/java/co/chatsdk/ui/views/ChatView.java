@@ -6,13 +6,9 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 
-import co.chatsdk.core.utils.Dimen;
-import co.chatsdk.ui.R2;
-
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
-
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
@@ -32,8 +28,10 @@ import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendProgress;
-import co.chatsdk.core.utils.DisposableMap;
+import co.chatsdk.core.utils.Dimen;
+import sdk.guru.common.DisposableMap;
 import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
 import co.chatsdk.ui.chat.model.MessageHolder;
 import co.chatsdk.ui.custom.Customiser;
 import io.reactivex.android.schedulers.AndroidSchedulers;

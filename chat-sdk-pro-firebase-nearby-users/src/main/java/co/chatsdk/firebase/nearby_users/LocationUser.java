@@ -3,7 +3,6 @@ package co.chatsdk.firebase.nearby_users;
 import com.firebase.geofire.GeoLocation;
 
 import co.chatsdk.core.dao.User;
-import co.chatsdk.core.interfaces.CoreEntity;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
 

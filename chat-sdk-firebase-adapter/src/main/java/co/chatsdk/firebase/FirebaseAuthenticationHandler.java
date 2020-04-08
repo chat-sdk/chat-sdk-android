@@ -8,7 +8,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.HashMap;
-import java.util.concurrent.Callable;
+import java.util.Map;
 
 import co.chatsdk.core.base.AbstractAuthenticationHandler;
 import co.chatsdk.core.dao.User;
@@ -17,11 +17,11 @@ import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.AccountDetails;
 import co.chatsdk.core.types.ChatError;
-import co.chatsdk.core.utils.DisposableMap;
+import sdk.guru.common.DisposableMap;
+import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.utils.Generic;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -124,7 +124,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             if (ChatSDK.config().remoteConfigEnabled) {
                 FirebasePaths.configRef().addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
                     if (hasValue && snapshot.getValue() instanceof HashMap) {
-                        HashMap<String, Object> map = snapshot.getValue(Generic.hashMapStringObject());
+                        Map<String, Object> map = snapshot.getValue(Generic.mapStringObject());
                         if (map != null) {
                             ChatSDK.config().updateRemoteConfig(map);
                         }
@@ -140,28 +140,37 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     public Completable authenticateWithUser(final FirebaseUser user) {
         return Completable.defer(() -> {
 
-            String uid = user.getUid();
+            User cachedUser = ChatSDK.db().fetchUserWithEntityID(user.getUid());
 
-            saveCurrentUserEntityID(uid);
+            if (cachedUser != null && (FirebaseModule.config().developmentModeEnabled || isAuthenticatedThisSession())) {
+                completeAuthentication(cachedUser);
+                return Completable.complete();
+            }
 
             // Do a once() on the user to push its details to firebase.
             UserWrapper userWrapper = UserWrapper.initWithAuthData(user);
-            return userWrapper.push().concatWith(userWrapper.on()).doOnComplete(() -> {
-
-                ChatSDK.events().impl_currentUserOn(userWrapper.getModel().getEntityID());
-
-                if (ChatSDK.hook() != null) {
-                    HashMap<String, Object> data = new HashMap<>();
-                    data.put(HookEvent.User, userWrapper.getModel());
-                    ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(ChatSDK.events());
-                }
-
-                ChatSDK.core().setUserOnline().subscribe(ChatSDK.events());
-
-                authenticatedThisSession = true;
+            return userWrapper.push().doOnComplete(() -> {
+                completeAuthentication(userWrapper.getModel());
             });
-        }).andThen(retrieveRemoteConfig()).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+        }).andThen(retrieveRemoteConfig()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+    }
+
+    protected void completeAuthentication(User user) {
+
+        saveCurrentUserEntityID(user.getEntityID());
+
+        ChatSDK.events().impl_currentUserOn(user.getEntityID());
+
+        if (ChatSDK.hook() != null) {
+            HashMap<String, Object> data = new HashMap<>();
+            data.put(HookEvent.User, user);
+            ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(ChatSDK.events());
+        }
+
+        ChatSDK.core().setUserOnline().subscribe(ChatSDK.events());
+
+        authenticatedThisSession = true;
+
     }
 
     public Boolean isAuthenticated() {

@@ -1,11 +1,11 @@
 package co.chatsdk.core.utils;
 
-import java.util.ArrayList;
-
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
+
+import java.util.ArrayList;
 
 import co.chatsdk.core.session.ChatSDK;
 

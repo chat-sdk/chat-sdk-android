@@ -1,24 +1,9 @@
 package co.chatsdk.ui.chat.options;
 
-import android.app.Activity;
 import android.graphics.drawable.Drawable;
 
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageSendProgress;
-import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.ui.chat.LocationSelector;
-import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.CompletableSource;
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Single;
-import io.reactivex.functions.BiConsumer;
-import io.reactivex.functions.Function;
 
 /**
  * Created by ben on 10/11/17.

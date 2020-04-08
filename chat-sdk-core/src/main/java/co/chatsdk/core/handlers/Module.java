@@ -2,8 +2,6 @@ package co.chatsdk.core.handlers;
 
 import android.content.Context;
 
-import androidx.annotation.Nullable;
-
 import org.greenrobot.greendao.annotation.NotNull;
 
 /**

@@ -17,7 +17,6 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
@@ -26,14 +25,12 @@ import co.chatsdk.core.dao.ReadReceiptUserLink;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.ReadStatus;
-
 import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.R;
+import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.utils.Generic;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.schedulers.Schedulers;
 
 public class MessageWrapper  {
@@ -69,6 +66,11 @@ public class MessageWrapper  {
         values.put(Keys.To, getTo());
         values.put(Keys.From, model.getSender().getEntityID());
 
+        if (FirebaseModule.config().enableCompatibilityWithV4) {
+            values.put("user-firebase-id", model.getSender().getEntityID());
+            values.put("json_v2", model.getMetaValuesAsMap());
+        }
+
         return values;
     }
 
@@ -93,14 +95,14 @@ public class MessageWrapper  {
         return null;
     }
 
-    void deserialize(DataSnapshot snapshot) {
+    private void deserialize(DataSnapshot snapshot) {
 
         if (snapshot.getValue() == null) {
             return;
         }
 
         if (snapshot.hasChild(Keys.Meta)) {
-            model.setMetaValues(snapshot.child(Keys.Meta).getValue(Generic.hashMapStringObject()));
+            model.setMetaValues(snapshot.child(Keys.Meta).getValue(Generic.mapStringObject()));
         } else {
             Logger.debug("");
 //            model.setText("");
@@ -128,7 +130,7 @@ public class MessageWrapper  {
             User user = DaoCore.fetchEntityWithEntityID(User.class, senderID);
             if (user == null) {
                 user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, senderID);
-                UserWrapper.initWithModel(user).once();
+                ChatSDK.core().userOn(user).subscribe(ChatSDK.events());
             }
 
             model.setSender(user);

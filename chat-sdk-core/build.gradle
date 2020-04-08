@@ -40,9 +40,9 @@ greendao {
 }
 
 ext {
-    libraryName = 'ChatSDKCore'
-    artifact = 'chat-sdk-core'
-    libraryDescription = 'Chat SDK Core'
+    libraryName = 'Core'
+    artifact = 'core'
+    libraryDescription = 'Core'
 }
 
 publish {
@@ -60,6 +60,7 @@ publish {
 dependencies {
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    api project(':sdk-guru-common')
 
     implementation "com.google.android.gms:play-services-maps:$playMapsVersion"
     implementation "com.google.android.gms:play-services-location:$playLocationVersion"

@@ -1,6 +1,5 @@
 package co.chatsdk.ui.view_holders.base;
 
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 

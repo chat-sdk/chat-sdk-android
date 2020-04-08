@@ -7,39 +7,41 @@
 
 package co.chatsdk.firebase.wrappers;
 
-import android.content.Intent;
 import android.net.Uri;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import org.pmw.tinylog.Logger;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
-import co.chatsdk.core.avatar.AvataaarsGenerator;
 import co.chatsdk.core.avatar.HashAvatarGenerator;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.session.ChatSDK;
-
-import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.HashMapHelper;
+import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.firebase.FirebaseCoreHandler;
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebaseEventListener;
 import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.FirebaseReferenceManager;
+import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.utils.FirebaseRX;
+import co.chatsdk.firebase.utils.Generic;
 import io.reactivex.Completable;
-import io.reactivex.functions.BiConsumer;
+import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -55,16 +57,7 @@ public class UserWrapper {
     public static UserWrapper initWithModel(User user){
         return new UserWrapper(user);
     }
-    
-    public static UserWrapper initWithSnapshot(DataSnapshot snapshot){
-        return new UserWrapper(snapshot);
-    }
 
-    public static UserWrapper initWithEntityId(String entityId){
-        User model = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, entityId);
-        return initWithModel(model);
-    }
-    
     private UserWrapper(FirebaseUser authData){
         model = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, authData.getUid());
         updateUserFromAuthData(authData);
@@ -75,10 +68,14 @@ public class UserWrapper {
     }
     
     public UserWrapper(DataSnapshot snapshot){
-        model = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
-        deserialize((Map<String, Object>) snapshot.getValue());
+        this(snapshot.getKey());
+        deserializeMeta(snapshot.child(Keys.Meta).getValue(Generic.mapStringObject()));
     }
-    
+
+    public UserWrapper(String entityID) {
+        model = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, entityID);
+    }
+
     /**
      * Note - Change was removing of online values as set online and online time.
      * * * * */
@@ -142,23 +139,23 @@ public class UserWrapper {
 
     }
 
-    public Completable once(){
-        return Completable.create(e -> {
-
-            final DatabaseReference ref = ref();
-
-            ref.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-                if(hasValue) {
-                    deserialize((Map<String, Object>) snapshot.getValue());
-                }
-
-                e.onComplete();
-            }).onCancelled(error -> {
-                e.onError(error.toException());
-            }));
-
-        }).subscribeOn(Schedulers.io());
-    }
+//    public Completable once(){
+//        return Completable.create(e -> {
+//
+//            final DatabaseReference ref = ref();
+//
+//            ref.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+//                if(hasValue) {
+//                    deserialize((Map<String, Object>) snapshot.getValue());
+//                }
+//
+//                e.onComplete();
+//            }).onCancelled(error -> {
+//                e.onError(error.toException());
+//            }));
+//
+//        }).subscribeOn(Schedulers.io());
+//    }
 
     public Completable metaOn() {
         return Completable.create(emitter -> {
@@ -168,7 +165,7 @@ public class UserWrapper {
             } else {
                 ValueEventListener listener = userMetaRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
                     if (hasValue && snapshot.getValue() instanceof Map) {
-                        deserializeMeta((Map<String, Object>) snapshot.getValue());
+                        deserializeMeta(snapshot.getValue(Generic.mapStringObject()));
                         emitter.onComplete();
                     } else {
                         emitter.onError(new Throwable("User doesn't exist"));
@@ -181,22 +178,12 @@ public class UserWrapper {
         }).subscribeOn(Schedulers.io());
     }
 
-
-    public void metaOff(){
+    public void metaOff() {
         DatabaseReference userMetaRef = FirebasePaths.userMetaRef(model.getEntityID());
         FirebaseReferenceManager.shared().removeListeners(userMetaRef);
     }
 
-    protected void deserialize(Map<String, Object> value){
-
-        if (value != null)
-        {
-            // The entity update is called in the deserializeMeta.
-            deserializeMeta((Map<String, Object>) value.get(FirebasePaths.MetaPath));
-        }
-    }
-
-    protected void deserializeMeta(Map<String, Object> value){
+    public void deserializeMeta(Map<String, Object> value){
         if (value != null) {
             Map<String, String> oldData = model.metaMap();
 
@@ -219,7 +206,7 @@ public class UserWrapper {
         return Completable.mergeArray(onlineOn(), metaOn());
     }
 
-    public Completable onlineOn () {
+    public Completable onlineOn() {
         return Completable.create(emitter -> {
             DatabaseReference ref = FirebasePaths.userOnlineRef(model.getEntityID());
             if (FirebaseReferenceManager.shared().isOn(ref)) {
@@ -243,6 +230,22 @@ public class UserWrapper {
 
                 FirebaseReferenceManager.shared().addRef(ref, listener);
             }
+        }).subscribeOn(Schedulers.io());
+    }
+
+    public Single<Map<String, Object>> dataOnce() {
+        return Single.create((SingleOnSubscribe<Map<String, Object>>) emitter -> {
+            final DatabaseReference ref = metaRef();
+
+            ref.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                if(hasValue) {
+                    emitter.onSuccess(snapshot.getValue(Generic.mapStringObject()));
+                }
+                emitter.onSuccess(new HashMap<>());
+            }).onCancelled(error -> {
+                emitter.onError(error.toException());
+            }));
+
         }).subscribeOn(Schedulers.io());
     }
 
@@ -271,19 +274,30 @@ public class UserWrapper {
 
         return values;
     }
-    
+
+    /**
+     * Reads are cheaper than writes, so read from the user first to see if
+     * the data is different to the local data. If it's not, then push the data
+     * @return completable
+     */
     public Completable push() {
-        return Completable.create(e -> {
-            ref().updateChildren(serialize(), (firebaseError, firebase) -> {
-                if (firebaseError == null) {
-                    e.onComplete();
-                } else {
-                    e.onError(firebaseError.toException());
-                }
-            });
-        }).andThen(updateFirebaseUser())
-                .andThen(FirebaseEntity.pushUserMetaUpdated(model.getEntityID()))
-                .subscribeOn(Schedulers.io());
+        return dataOnce().flatMapCompletable(data -> {
+            boolean needsUpdate = !new HashSet<>(data.values()).equals(new HashSet<>(model.metaMap().values()));
+            if (needsUpdate && !FirebaseModule.config().disableClientProfileUpdate) {
+                return Completable.create(emitter -> ref().updateChildren(serialize(), (firebaseError, firebase) -> {
+                    if (firebaseError == null) {
+                        emitter.onComplete();
+                    } else {
+                        emitter.onError(firebaseError.toException());
+                    }
+                })).andThen(updateFirebaseUser())
+                        .andThen(FirebaseEntity.pushUserMetaUpdated(model.getEntityID()))
+                        .subscribeOn(Schedulers.io());
+            } else {
+                deserializeMeta(data);
+            }
+            return Completable.complete();
+        });
     }
 
     public Completable updateFirebaseUser() {
@@ -306,6 +320,10 @@ public class UserWrapper {
     
     public DatabaseReference ref(){
         return FirebasePaths.userRef(model.getEntityID());
+    }
+
+    public DatabaseReference metaRef(){
+        return FirebasePaths.userMetaRef(model.getEntityID());
     }
 
     /**

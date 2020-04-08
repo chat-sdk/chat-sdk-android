@@ -12,7 +12,9 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import firestream.chat.events.Event;
+import io.reactivex.MaybeSource;
+import io.reactivex.functions.Function;
+import sdk.guru.common.Event;
 import firestream.chat.events.ListData;
 import firestream.chat.firebase.generic.Generic;
 import firestream.chat.namespace.Fire;
@@ -29,16 +31,18 @@ import firestream.chat.message.Sendable;
 
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import sdk.guru.firebase.RXRealtime;
+import sdk.guru.firebase.DocumentChange;
 
 public class RealtimeCoreHandler extends FirebaseCoreHandler {
 
     @Override
     public Observable<Event<ListData>> listChangeOn(Path path) {
-        return new RXRealtime().childOn(Ref.get(path)).flatMapMaybe(change -> {
-            DataSnapshot snapshot = change.snapshot;
+        return new RXRealtime().childOn(Ref.get(path)).flatMapMaybe((Function<DocumentChange, MaybeSource<Event<ListData>>>) change -> {
+            DataSnapshot snapshot = change.getSnapshot();
             HashMap<String, Object> data = snapshot.getValue(Generic.hashMapStringObject());
             if (data != null) {
-                return Maybe.just(new Event<>(new ListData(change.snapshot.getKey(), data), change.type));
+                return Maybe.just(new Event<>(new ListData(change.getSnapshot().getKey(), data), change.getType()));
             }
             return Maybe.empty();
         });
@@ -167,9 +171,9 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
             query = query.limitToLast(limit);
             emitter.onSuccess(query);
         }).subscribeOn(Schedulers.io()).flatMapObservable(query -> new RXRealtime().childOn(query).flatMapMaybe(change -> {
-            Sendable sendable = sendableFromSnapshot(change.snapshot);
+            Sendable sendable = sendableFromSnapshot(change.getSnapshot());
             if (sendable != null) {
-                return Maybe.just(new Event<>(sendable, change.type));
+                return Maybe.just(new Event<>(sendable, change.getType()));
             }
             return Maybe.empty();
         }));

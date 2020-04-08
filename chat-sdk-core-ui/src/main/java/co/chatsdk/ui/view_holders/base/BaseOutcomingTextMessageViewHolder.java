@@ -7,7 +7,6 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
-import com.stfalcon.chatkit.messages.MessagesListStyle;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

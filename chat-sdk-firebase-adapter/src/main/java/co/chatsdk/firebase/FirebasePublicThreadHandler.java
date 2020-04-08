@@ -4,7 +4,6 @@ package co.chatsdk.firebase;
 import java.util.HashMap;
 
 import co.chatsdk.core.base.AbstractPublicThreadHandler;
-import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.ThreadType;

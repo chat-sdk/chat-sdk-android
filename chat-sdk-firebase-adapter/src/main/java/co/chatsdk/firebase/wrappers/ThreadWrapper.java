@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.dao.DaoCore;
 import co.chatsdk.core.dao.Keys;
@@ -33,11 +34,11 @@ import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.types.MessageSendStatus;
-
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebaseEventListener;
 import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.FirebaseReferenceManager;
+import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.utils.Generic;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -47,6 +48,10 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.Event;
+import sdk.guru.common.EventType;
+import sdk.guru.firebase.DocumentChange;
+import sdk.guru.firebase.RXRealtime;
 
 public class ThreadWrapper  {
 
@@ -97,20 +102,20 @@ public class ThreadWrapper  {
         return FirebasePaths.threadMessagesRef(model.getEntityID());
     }
 
-    public Completable once () {
-        return Completable.create(e -> {
-
-            DatabaseReference metaRef = FirebasePaths.threadMetaRef(model.getEntityID());
-
-            metaRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-                if(hasValue) {
-                    deserialize(snapshot);
-                }
-                e.onComplete();
-            }));
-
-        }).subscribeOn(Schedulers.io());
-    }
+//    public Completable once () {
+//        return Completable.create(e -> {
+//
+//            DatabaseReference metaRef = FirebasePaths.threadMetaRef(model.getEntityID());
+//
+//            metaRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+//                if(hasValue) {
+//                    deserialize(snapshot);
+//                }
+//                e.onComplete();
+//            }));
+//
+//        }).subscribeOn(Schedulers.io());
+//    }
 
     /**
      * Stop listening to thread details change
@@ -229,7 +234,7 @@ public class ThreadWrapper  {
         return Observable.create((ObservableOnSubscribe<Thread>) e -> {
             DatabaseReference ref = FirebasePaths.threadMetaRef(model.getEntityID());
             FirebaseReferenceManager.shared().addRef(ref, ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-                HashMap<String, Object> map = snapshot.getValue(Generic.hashMapStringObject());
+                Map<String, Object> map = snapshot.getValue(Generic.mapStringObject());
                 if (map != null) {
                     model.setMetaValues(map);
                 }
@@ -276,37 +281,98 @@ public class ThreadWrapper  {
      * Start listening to users added to this thread.
      **/
     public Observable<User> usersOn() {
-        return Observable.create((ObservableOnSubscribe<User>) e -> {
-
+        return Observable.defer(() -> {
             final DatabaseReference ref = FirebasePaths.threadUsersRef(model.getEntityID());
 
             if(FirebaseReferenceManager.shared().isOn(ref)) {
-                e.onComplete();
-                return;
+                return Completable.complete().toObservable();
             }
 
-            ChildEventListener listener = ref.addChildEventListener(new FirebaseEventListener()
-                    .onChildAdded((snapshot, s, hasValue) -> {
-                        final UserWrapper user = new UserWrapper(snapshot);
-                        model.addUser(user.getModel());
+            RXRealtime realtime = new RXRealtime();
+            Observable<User> observable = realtime.childOn(ref).map(change -> {
+                final UserWrapper user = new UserWrapper(change.getSnapshot().getKey());
 
-                        ChatSDK.core().userOn(user.getModel()).subscribe(() -> e.onNext(user.getModel()), e::onError);
-
-                    }).onChildRemoved((snapshot, hasValue) -> {
-                        UserWrapper user = new UserWrapper(snapshot);
-                        // We don't call meta off because we may have other therads
-                        // with this user
-                        model.removeUser(user.getModel());
-                        e.onNext(user.getModel());
-            }).onChildChanged((snapshot, s, hasValue) -> {
-                Boolean muted = snapshot.child(Keys.Mute).getValue(Boolean.class);
-                if (muted != null) {
-                    model.setMuted(muted);
+                if (change.getType() == EventType.Added) {
+                    model.addUser(user.getModel());
                 }
-            }));
+                if (change.getType() == EventType.Removed) {
+                    model.removeUser(user.getModel());
+                }
+                if (change.getType() == EventType.Modified) {
+                    Boolean muted = change.getSnapshot().child(Keys.Mute).getValue(Boolean.class);
+                    if (muted != null) {
+                        model.setMuted(muted);
+                    }
+                }
 
-            FirebaseReferenceManager.shared().addRef(ref, listener);
+                return new Event<>(user.getModel(), change.getType());
+
+            }).flatMap((Function<Event<User>, ObservableSource<User>>) userEvent -> {
+                if (userEvent.typeIs(EventType.Added)) {
+                    return ChatSDK.core().userOn(userEvent.get()).toSingle(() -> {
+                        return userEvent.get();
+                    }).toObservable();
+                }
+                return Observable.just(userEvent.get());
+            });
+
+            FirebaseReferenceManager.shared().addRef(ref, realtime.getChildListener());
+
+            return observable;
+
         }).subscribeOn(Schedulers.io());
+
+//        return Observable.create((ObservableOnSubscribe<User>) e -> {
+//
+//            final DatabaseReference ref = FirebasePaths.threadUsersRef(model.getEntityID());
+//
+//            if(FirebaseReferenceManager.shared().isOn(ref)) {
+//                e.onComplete();
+//                return;
+//            }
+//
+//            new RXRealtime().childOn(ref).flatMap(change -> {
+//
+//                final UserWrapper user = new UserWrapper(change.getSnapshot().getKey());
+//
+//                if (change.getType() == EventType.Added) {
+//                    model.addUser(user.getModel());
+//                }
+//                if (change.getType() == EventType.Removed) {
+//                    model.removeUser(user.getModel());
+//                }
+//
+//                //
+//                return null;
+//            });
+//
+//            ChildEventListener listener = ref.addChildEventListener(new FirebaseEventListener()
+//                    .onChildAdded((snapshot, s, hasValue) -> {
+//                        final UserWrapper user = new UserWrapper(snapshot.getKey());
+//                        model.addUser(user.getModel());
+//
+//                        ChatSDK.core().userOn(user.getModel()).subscribe(() -> e.onNext(user.getModel()), e::onError);
+//
+//                    }).onChildRemoved((snapshot, hasValue) -> {
+//                        UserWrapper user = new UserWrapper(snapshot);
+//                        // We don't call meta off because we may have other therads
+//                        // with this user
+//                        model.removeUser(user.getModel());
+//                        e.onNext(user.getModel());
+//            }).onChildChanged((snapshot, s, hasValue) -> {
+//                Boolean muted = snapshot.child(Keys.Mute).getValue(Boolean.class);
+//                if (muted != null) {
+//                    model.setMuted(muted);
+//                }
+//            }));
+//
+//            FirebaseReferenceManager.shared().addRef(ref, listener);
+//        }).flatMap(new Function<User, ObservableSource<User>>() {
+//            @Override
+//            public ObservableSource<User> apply(User user) throws Exception {
+//                return ChatSDK.core().userOn(user);
+//            }
+//        }).subscribeOn(Schedulers.io());
     }
 
     /**
@@ -458,6 +524,13 @@ public class ThreadWrapper  {
             if (model.getEntityID() == null || model.getEntityID().length() == 0) {
                 model.setEntityID(FirebasePaths.threadRef().push().getKey());
                 model.update();
+            }
+
+            if (FirebaseModule.config().enableCompatibilityWithV4) {
+                DatabaseReference ref = FirebasePaths.threadRef(model.getEntityID());
+                ref.updateChildren(new HashMap<String, Object>() {{
+                    put("details", serialize());
+                }});
             }
 
             DatabaseReference metaRef = FirebasePaths.threadMetaRef(model.getEntityID());

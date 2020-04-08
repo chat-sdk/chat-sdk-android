@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import co.chatsdk.core.interfaces.UserListItem;
@@ -21,10 +20,9 @@ import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
-import co.chatsdk.ui.binders.OnlineStatusBinder;
 import co.chatsdk.ui.binders.AvailabilityHelper;
+import co.chatsdk.ui.binders.OnlineStatusBinder;
 import co.chatsdk.ui.module.DefaultUIModule;
-import co.chatsdk.ui.utils.UserImageBuilder;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserViewHolder extends RecyclerView.ViewHolder  {

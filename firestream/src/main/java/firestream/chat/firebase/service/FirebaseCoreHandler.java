@@ -6,7 +6,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import firestream.chat.events.Event;
+import sdk.guru.common.Event;
 import firestream.chat.events.ListData;
 import io.reactivex.Completable;
 import io.reactivex.Observable;

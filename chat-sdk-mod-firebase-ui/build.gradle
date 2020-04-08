@@ -37,9 +37,9 @@ android {
 }
 
 ext {
-    libraryName = 'ChatSDKFirebaseUI'
-    artifact = 'chat-sdk-firebase-ui'
-    libraryDescription = 'Chat SDK Firebase UI'
+    libraryName = 'FirebaseUIMod'
+    artifact = 'mod-firebase-ui'
+    libraryDescription = 'Firebase UI Module'
 }
 
 publish {

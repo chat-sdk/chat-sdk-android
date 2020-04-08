@@ -2,6 +2,8 @@ package co.chatsdk.message.sticker;
 
 import java.lang.ref.WeakReference;
 
+import co.chatsdk.message.sticker.view.StickerListItem;
+
 /**
  * Created by ben on 10/11/17.
  */

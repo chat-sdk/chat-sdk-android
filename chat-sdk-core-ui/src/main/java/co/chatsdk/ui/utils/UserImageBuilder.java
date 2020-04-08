@@ -8,7 +8,6 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.image.ImageUtils;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.module.DefaultUIModule;
-import co.chatsdk.ui.module.UIConfig;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 

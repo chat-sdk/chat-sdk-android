@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 
 import co.chatsdk.core.handlers.Module;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
+
 import co.chatsdk.core.session.Configure;
 import co.chatsdk.core.session.InterfaceAdapterProvider;
 import co.chatsdk.ui.BaseInterfaceAdapter;
@@ -18,12 +19,16 @@ public class DefaultUIModule implements Module, InterfaceAdapterProvider {
         return instance;
     }
 
-    public static DefaultUIModule shared(Configure<UIConfig> configure) {
-        configure.with(instance.config);
+    public static UIConfig<DefaultUIModule> configure() {
+        return instance.config;
+    }
+
+    public static DefaultUIModule configure(Configure<UIConfig> config) {
+        config.with(instance.config);
         return instance;
     }
 
-    public UIConfig config = new UIConfig();
+    public UIConfig<DefaultUIModule> config = new UIConfig<>(this);
 
     @Override
     public void activate(@Nullable Context context) {

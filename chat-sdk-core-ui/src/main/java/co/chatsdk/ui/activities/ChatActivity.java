@@ -23,7 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
-
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.stfalcon.chatkit.messages.MessageInput;
 
@@ -87,6 +86,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @BindView(R2.id.viewContainer) protected CoordinatorLayout viewContainer;
     @BindView(R2.id.searchView) protected MaterialSearchView searchView;
     @BindView(R2.id.root) protected FrameLayout root;
+
+    AudioBinder audioBinder = null;
 
     protected @LayoutRes
     int getLayout() {
@@ -225,10 +226,14 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             hideTextInput();
         }
 
-        input.setInputListener(input -> {
-            sendMessage(String.valueOf(input));
-            return true;
-        });
+        if (ChatSDK.audioMessage() != null) {
+            audioBinder = new AudioBinder(this, this, input);
+        } else {
+            input.setInputListener(input -> {
+                sendMessage(String.valueOf(input));
+                return true;
+            });
+        }
 
         input.setAttachmentsListener(this::showOptions);
 
@@ -250,10 +255,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         chatActionBar.setOnClickListener(v -> openThreadDetailsActivity());
         setSupportActionBar(chatActionBar.getToolbar());
         chatActionBar.reload(thread);
-
-        if (ChatSDK.audioMessage() != null) {
-            new AudioBinder(this, this, input);
-        }
 
     }
 
@@ -325,26 +326,14 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     .subscribe(this);
         }
 
-        if (thread.typeIs(ThreadType.Private1to1) && thread.otherUser() != null && ChatSDK.lastOnline() != null) {
-            dm.add(ChatSDK.lastOnline().getLastOnline(thread.otherUser())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe((date, throwable) -> {
-                        if (throwable == null && date != null) {
-                            Locale current = getResources().getConfiguration().locale;
-                            PrettyTime pt = new PrettyTime(current);
-                            if (thread.otherUser().getIsOnline()) {
-                                chatActionBar.setSubtitleText(thread, ChatActivity.this.getString(R.string.online));
-                            } else {
-                                chatActionBar.setSubtitleText(thread, String.format(getString(R.string.last_seen__), pt.format(date)));
-                            }
-                        }
-                    }));
-        } else {
-            chatActionBar.setSubtitleText(thread, null);
-        }
+        chatActionBar.setSubtitleText(thread, null);
 
         // Show a local notification if the text is from a different thread
         ChatSDK.ui().setLocalNotificationHandler(thread -> !thread.getEntityID().equals(this.thread.getEntityID()));
+
+        if (audioBinder != null) {
+            audioBinder.updateRecordMode();
+        }
 
     }
 
@@ -416,7 +405,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             // Check that the messages could be deleted
             boolean canBeDeleted = true;
             for (Message message : chatView.getSelectedMessages()) {
-                if (!ChatSDK.thread().deleteMessageEnabled(message)) {
+                if (!ChatSDK.thread().canDeleteMessage(message)) {
                     canBeDeleted = false;
                 }
             }

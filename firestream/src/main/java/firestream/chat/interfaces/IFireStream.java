@@ -13,7 +13,7 @@ import firestream.chat.FirestreamConfig;
 import firestream.chat.chat.Chat;
 import firestream.chat.chat.User;
 import firestream.chat.events.ConnectionEvent;
-import firestream.chat.events.Event;
+import sdk.guru.common.Event;
 import firestream.chat.firebase.rx.MultiQueueSubject;
 import firestream.chat.message.Sendable;
 import firestream.chat.types.ContactType;

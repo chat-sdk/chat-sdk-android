@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="sdk.chat.android.live">
+    package="sdk.chat.android.live"
+    >
 
     <!--    If you wanted to remove permissions -->
     <!--    <uses-permission-->
@@ -19,21 +20,22 @@
         android:theme="@style/ChatSDKTheme"
         android:name="sdk.chat.MainApplication"
         android:hardwareAccelerated="true"
-        tools:replace="allowBackup">
+        tools:replace="allowBackup"
+        >
 
-        <activity android:name="sdk.chat.demo.DemoActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-<!--        <activity android:name="co.chatsdk.ui.activities.SplashScreenActivity">-->
+<!--        <activity android:name="sdk.chat.demo.DemoActivity">-->
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->
 <!--                <category android:name="android.intent.category.LAUNCHER" />-->
 <!--            </intent-filter>-->
 <!--        </activity>-->
+
+        <activity android:name="co.chatsdk.ui.activities.SplashScreenActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
 
         <!--        Remove Android Auto-->

@@ -5,7 +5,6 @@ import com.google.firebase.database.DatabaseReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import co.chatsdk.core.base.BaseHookHandler;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.handlers.BlockingHandler;
 import co.chatsdk.core.hook.Hook;
@@ -14,8 +13,6 @@ import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.firebase.FirebaseEventListener;
 import co.chatsdk.firebase.FirebasePaths;
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 
 /**
  * Created by pepe on 08.03.18.

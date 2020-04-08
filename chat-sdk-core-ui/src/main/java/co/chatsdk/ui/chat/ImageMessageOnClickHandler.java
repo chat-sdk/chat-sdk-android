@@ -1,17 +1,12 @@
 package co.chatsdk.ui.chat;
 
 import android.app.Activity;
-import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.provider.MediaStore;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupWindow;
+
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.views.PopupImageView;

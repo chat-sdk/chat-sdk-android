@@ -4,7 +4,6 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
-import org.pmw.tinylog.Logger;
 
 import java.util.HashMap;
 
@@ -12,7 +11,6 @@ import co.chatsdk.core.dao.User;
 import co.chatsdk.core.defines.Availability;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.ui.binders.AvailabilityHelper;
 import co.chatsdk.xmpp.XMPPManager;
 
 

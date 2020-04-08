@@ -2,12 +2,7 @@ package co.chatsdk.firebase.nearby_users;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.location.Location;
-
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -19,10 +14,8 @@ import co.chatsdk.core.hook.HookEvent;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.AppBackgroundMonitor;
 import co.chatsdk.core.utils.PermissionRequestHandler;
-import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 public class LocationUpdater {
 

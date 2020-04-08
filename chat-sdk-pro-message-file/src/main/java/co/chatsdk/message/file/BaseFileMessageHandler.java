@@ -1,11 +1,7 @@
 package co.chatsdk.message.file;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.ParcelFileDescriptor;
-import android.view.View;
 
 import com.shockwave.pdfium.PdfDocument;
 import com.shockwave.pdfium.PdfiumCore;
@@ -14,8 +10,6 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 
-import co.chatsdk.core.base.AbstractMessageViewHolder;
-import co.chatsdk.core.base.AbstractThreadHandler;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.Thread;
@@ -23,12 +17,7 @@ import co.chatsdk.core.handlers.FileMessageHandler;
 import co.chatsdk.core.rigs.BitmapUploadable;
 import co.chatsdk.core.rigs.FileUploadable;
 import co.chatsdk.core.rigs.MessageSendRig;
-import co.chatsdk.core.rigs.Uploadable;
-import co.chatsdk.core.rx.ObservableConnector;
 import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.FileUploadResult;
-import co.chatsdk.core.types.MessageSendProgress;
-import co.chatsdk.core.types.MessageSendStatus;
 import co.chatsdk.core.types.MessageType;
 import io.reactivex.Completable;
 

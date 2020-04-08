@@ -10,7 +10,7 @@ import java.util.List;
 import firestream.chat.FirestreamConfig;
 import firestream.chat.chat.User;
 import firestream.chat.events.ConnectionEvent;
-import firestream.chat.firebase.rx.DisposableMap;
+import sdk.guru.common.DisposableMap;
 import firestream.chat.namespace.Fire;
 import firestream.chat.test.chat.CreateChatTest;
 import firestream.chat.test.chat.MessageChatTest;

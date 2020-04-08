@@ -1,9 +1,6 @@
 package co.chatsdk.firestream;
 
-import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
-import firestream.chat.FirestreamConfig;
-import firestream.chat.namespace.Fire;
 
 public class FireStreamNetworkAdapter extends FirebaseNetworkAdapter {
 
