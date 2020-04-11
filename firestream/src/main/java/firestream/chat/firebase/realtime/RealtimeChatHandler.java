@@ -18,8 +18,7 @@ import firestream.chat.firebase.service.FirebaseChatHandler;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.firebase.service.Paths;
 import io.reactivex.functions.Consumer;
-import sdk.guru.firebase.RXRealtime;
-import sdk.guru.firebase.DocumentChange;
+import sdk.guru.realtime.RXRealtime;
 
 public class RealtimeChatHandler extends FirebaseChatHandler {
 

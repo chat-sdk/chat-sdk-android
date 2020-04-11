@@ -4,7 +4,7 @@ import android.graphics.drawable.Drawable;
 
 import java.util.ArrayList;
 
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.chat.options.BaseChatOption;
 import io.reactivex.Completable;
 

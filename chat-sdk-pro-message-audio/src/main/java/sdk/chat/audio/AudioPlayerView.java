@@ -17,7 +17,7 @@ import com.google.android.exoplayer2.Player;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import co.chatsdk.core.audio.AudioPlayer;
+import sdk.chat.core.audio.AudioPlayer;
 import sdk.guru.common.DisposableMap;
 import co.chatsdk.message.audio.R;
 import co.chatsdk.message.audio.R2;

@@ -23,14 +23,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import butterknife.BindView;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.EventType;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.SearchActivityType;
-import co.chatsdk.core.utils.UserListItemConverter;
+import co.chatsdk.ui.utils.DialogUtils;
+import io.reactivex.functions.Action;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.EventType;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.ConnectionType;
+import sdk.chat.core.types.SearchActivityType;
+import sdk.chat.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
@@ -96,7 +100,14 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         }
         listOnLongClickListenerDisposable = adapter.onLongClickObservable().subscribe(o -> {
             if (o instanceof User) {
-                onLongClickSubject.onNext((User) o);
+                final User user = (User) o;
+                onLongClickSubject.onNext(user);
+
+                DialogUtils.showToastDialog(getContext(), R.string.delete_contact, 0, R.string.delete, R.string.cancel, () -> {
+                    ChatSDK.contact()
+                            .deleteContact(user, ConnectionType.Contact)
+                            .subscribe(ContactsFragment.this);
+                }, null);
             }
         });
 
@@ -110,19 +121,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
     }
 
     public void startProfileActivity(String userEntityID) {
-
-//        Pair<View, String> p1 = Pair.create(view.findViewById(R.id.dialogAvatar), "imageView");
-//        Pair<View, String> p2 = Pair.create(view.findViewById(R.id.dialogName), "titleTextView");
-//
-//        Bundle bundle = null;
-//        Activity activity = getActivity();
-//        if (activity != null) {
-//            bundle = ActivityOptionsCompat.
-//                    makeSceneTransitionAnimation(activity, p1, p2).toBundle();
-//        }
-
         ChatSDK.ui().startProfileActivity(getContext(), userEntityID);
-
     }
 
     public void initViews() {
@@ -139,7 +138,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.add_menu, menu);
-        menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, R.color.app_bar_icon_color));
+        menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, Icons.shared().actionBarIconColor));
     }
 
     @Override

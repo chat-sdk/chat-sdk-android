@@ -8,9 +8,9 @@ import android.webkit.MimeTypeMap;
 
 import com.stfalcon.chatkit.commons.models.MessageContentType;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.chat.model.MessageHolder;
 
 public class FileMessageHolder extends MessageHolder implements MessageContentType {

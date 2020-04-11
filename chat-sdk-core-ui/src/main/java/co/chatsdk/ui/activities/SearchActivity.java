@@ -32,10 +32,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.interfaces.UserListItem;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.ConnectionType;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.interfaces.UserListItem;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.ConnectionType;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
@@ -172,7 +172,7 @@ public class SearchActivity extends BaseActivity {
         getMenuInflater().inflate(R.menu.activity_search_menu, menu);
 
         MenuItem item = menu.findItem(R.id.action_search);
-        item.setIcon(Icons.get(Icons.choose().search, R.color.app_bar_icon_color));
+        item.setIcon(Icons.get(Icons.choose().search, Icons.shared().actionBarIconColor));
 
         searchView.setMenuItem(item);
 

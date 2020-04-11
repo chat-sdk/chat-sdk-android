@@ -5,7 +5,7 @@ import android.content.Context;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.defines.Availability;
+import sdk.chat.core.defines.Availability;
 import co.chatsdk.ui.R;
 
 /**

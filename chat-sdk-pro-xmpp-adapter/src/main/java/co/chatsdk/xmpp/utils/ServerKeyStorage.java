@@ -2,7 +2,7 @@ package co.chatsdk.xmpp.utils;
 
 import android.content.Context;
 
-import co.chatsdk.core.utils.StringChecker;
+import sdk.chat.core.utils.StringChecker;
 
 public class ServerKeyStorage extends KeyStorage {
 

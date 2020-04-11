@@ -76,13 +76,12 @@ public class Chat extends AbstractChat implements IChat {
 
         // If delivery receipts are enabled, send the delivery receipt
         if (Fire.internal().getConfig().deliveryReceiptsEnabled) {
-            dm.add(getSendableEvents()
+            getSendableEvents()
                     .getMessages()
                     .pastAndNewEvents()
                     .filter(deliveryReceiptFilter())
                     .flatMapCompletable(messageEvent -> markReceived(messageEvent.get()))
-                    .doOnError(this)
-                    .subscribe());
+                    .subscribe(this);
         }
 
         dm.add(listChangeOn(Paths.chatUsersPath(id)).subscribe(listEvent -> {

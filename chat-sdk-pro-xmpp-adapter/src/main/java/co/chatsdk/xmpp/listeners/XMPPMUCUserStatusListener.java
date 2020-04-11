@@ -14,10 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.xmpp.R;
 import co.chatsdk.xmpp.XMPPMUCManager;
 import co.chatsdk.xmpp.utils.JidUtil;
@@ -171,7 +171,7 @@ public class XMPPMUCUserStatusListener implements UserStatusListener {
             if (affiliate.getJid().equals(myJid)) {
                 String role = ChatSDK.thread().roleForUser(thread.get(), currentUser);
                 // My affiliation has changed
-                String message = String.format(ChatSDK.shared().getString(co.chatsdk.core.R.string.role_changed_to__), role);
+                String message = String.format(ChatSDK.getString(co.chatsdk.core.R.string.role_changed_to__), role);
                 ChatSDK.thread().sendLocalSystemMessage(message, thread.get());
             }
         } catch (Exception e) {
@@ -190,16 +190,16 @@ public class XMPPMUCUserStatusListener implements UserStatusListener {
                 String message = null;
                 MUCRole newRole = affiliate.getRole();
                 if (old == MUCRole.participant && newRole == MUCRole.moderator) {
-                    message = String.format(ChatSDK.shared().getString(co.chatsdk.core.R.string.__granted), ChatSDK.shared().getString(R.string.moderator));
+                    message = String.format(ChatSDK.getString(co.chatsdk.core.R.string.__granted), ChatSDK.getString(R.string.moderator));
                 }
                 if (old == MUCRole.moderator && newRole == MUCRole.participant) {
-                    message = String.format(ChatSDK.shared().getString(co.chatsdk.core.R.string.__revoked), ChatSDK.shared().getString(R.string.moderator));
+                    message = String.format(ChatSDK.getString(co.chatsdk.core.R.string.__revoked), ChatSDK.getString(R.string.moderator));
                 }
                 if (old == MUCRole.visitor && newRole == MUCRole.participant) {
-                    message = String.format(ChatSDK.shared().getString(co.chatsdk.core.R.string.__granted), ChatSDK.shared().getString(R.string.participant));
+                    message = String.format(ChatSDK.getString(co.chatsdk.core.R.string.__granted), ChatSDK.getString(R.string.participant));
                 }
                 if (old == MUCRole.participant && newRole == MUCRole.visitor) {
-                    message = String.format(ChatSDK.shared().getString(co.chatsdk.core.R.string.__revoked), ChatSDK.shared().getString(R.string.participant));
+                    message = String.format(ChatSDK.getString(co.chatsdk.core.R.string.__revoked), ChatSDK.getString(R.string.participant));
                 }
                 if (message != null) {
                     ChatSDK.thread().sendLocalSystemMessage(message, thread.get());

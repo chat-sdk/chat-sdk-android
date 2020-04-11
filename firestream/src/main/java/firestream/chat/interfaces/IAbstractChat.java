@@ -5,13 +5,15 @@ import java.util.Date;
 import java.util.List;
 
 import firestream.chat.chat.Events;
+import io.reactivex.CompletableObserver;
+import io.reactivex.functions.Consumer;
 import sdk.guru.common.DisposableMap;
 import firestream.chat.message.Sendable;
 import firestream.chat.types.SendableType;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 
-public interface IAbstractChat {
+public interface IAbstractChat extends Consumer<Throwable>, CompletableObserver {
 
     /**
      * Connect to the chat

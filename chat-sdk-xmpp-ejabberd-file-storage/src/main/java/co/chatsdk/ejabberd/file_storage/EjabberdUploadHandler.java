@@ -18,16 +18,16 @@ import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import co.chatsdk.core.base.AbstractUploadHandler;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.hook.Hook;
-import co.chatsdk.core.hook.HookEvent;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.FileUploadResult;
-import co.chatsdk.core.types.MessageType;
+import sdk.chat.core.base.AbstractUploadHandler;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.FileUploadResult;
+import sdk.chat.core.types.MessageType;
 
-import co.chatsdk.core.utils.ImageBuilder;
-import co.chatsdk.core.utils.ImageUtils;
+import sdk.chat.core.utils.ImageBuilder;
+import sdk.chat.core.utils.ImageUtils;
 import co.chatsdk.xmpp.XMPPManager;
 import co.chatsdk.xmpp.iq.CustomIQ;
 import io.reactivex.Completable;

@@ -26,10 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import co.chatsdk.core.events.EventType;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.interfaces.UserListItem;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.events.EventType;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.interfaces.UserListItem;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;
@@ -78,7 +78,7 @@ public abstract class SelectContactActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuItem item = menu.add(Menu.NONE, R.id.action_search, 0, getString(R.string.search));
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(Icons.get(Icons.choose().search, R.color.app_bar_icon_color));
+        item.setIcon(Icons.get(Icons.choose().search, Icons.shared().actionBarIconColor));
         return super.onCreateOptionsMenu(menu);
     }
 

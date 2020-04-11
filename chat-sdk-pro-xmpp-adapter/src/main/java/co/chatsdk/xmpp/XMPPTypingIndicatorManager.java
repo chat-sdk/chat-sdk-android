@@ -7,11 +7,11 @@ import org.jivesoftware.smackx.chatstates.packet.ChatStateExtension;
 import java.util.HashMap;
 import java.util.Map;
 
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
 
 /**
  * Created by ben on 8/16/17.

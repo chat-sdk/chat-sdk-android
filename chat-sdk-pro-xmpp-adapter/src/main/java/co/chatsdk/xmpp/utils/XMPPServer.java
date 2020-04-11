@@ -2,10 +2,9 @@ package co.chatsdk.xmpp.utils;
 
 import android.content.Context;
 
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.Device;
-import co.chatsdk.core.utils.StringChecker;
-import co.chatsdk.xmpp.XMPPManager;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.Device;
+import sdk.chat.core.utils.StringChecker;
 import co.chatsdk.xmpp.module.XMPPModule;
 
 public class XMPPServer {

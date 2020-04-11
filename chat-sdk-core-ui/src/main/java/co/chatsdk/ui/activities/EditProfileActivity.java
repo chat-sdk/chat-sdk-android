@@ -28,12 +28,12 @@ import java.io.File;
 import java.util.HashMap;
 
 import butterknife.BindView;
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.EventType;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.Dimen;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.EventType;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.Dimen;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.binders.AvailabilityHelper;
@@ -139,9 +139,9 @@ public class EditProfileActivity extends BaseActivity {
             }, this));
         });
 
-        doneFab.setImageDrawable(Icons.get(Icons.choose().check, R.color.app_bar_icon_color));
+        doneFab.setImageDrawable(Icons.get(Icons.choose().check, Icons.shared().actionBarIconColor));
         doneFab.setOnClickListener(v -> saveAndExit());
-        logoutFab.setImageDrawable(Icons.get(Icons.choose().logout, R.color.app_bar_icon_color));
+        logoutFab.setImageDrawable(Icons.get(Icons.choose().logout, Icons.shared().actionBarIconColor));
         logoutFab.setOnClickListener(v -> logout());
 
         reloadData();

@@ -5,7 +5,7 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.dao.Keys;
+import sdk.chat.core.dao.Keys;
 import sdk.guru.common.BaseConfig;
 
 public class FirebaseConfig<T> extends BaseConfig<T> {

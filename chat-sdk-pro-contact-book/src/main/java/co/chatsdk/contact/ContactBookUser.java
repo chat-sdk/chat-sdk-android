@@ -2,9 +2,10 @@ package co.chatsdk.contact;
 
 import java.util.ArrayList;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.interfaces.UserListItem;
-import co.chatsdk.core.utils.StringChecker;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.interfaces.UserListItem;
+import sdk.chat.core.utils.StringChecker;
 
 /**
  * Created by ben on 10/9/17.
@@ -15,7 +16,7 @@ public class ContactBookUser implements UserListItem {
     private ArrayList<Name> names = new ArrayList<>();
     private ArrayList<String> emailAddresses = new ArrayList<>();
     private ArrayList<String> phoneNumbers = new ArrayList<>();
-    private String entityID;
+    private User user;
 
     public ArrayList<String> getEmailAddresses() {
         return emailAddresses;
@@ -34,11 +35,14 @@ public class ContactBookUser implements UserListItem {
     }
 
     public String getEntityID() {
-        return entityID;
+        if (user != null) {
+            return user.getEntityID();
+        }
+        return null;
     }
 
-    public void setEntityID(String entityID) {
-        this.entityID = entityID;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public ArrayList<Name> getNames() {
@@ -64,11 +68,11 @@ public class ContactBookUser implements UserListItem {
             }
         }
 
-        for(Name name : names) {
-            if(!StringChecker.isNullOrEmpty(name.fullName())) {
-                indexes.add(new SearchIndex(Keys.Name, name.fullName()));
-            }
-        }
+//        for(Name name : names) {
+//            if(!StringChecker.isNullOrEmpty(name.fullName())) {
+//                indexes.add(new SearchIndex(Keys.Name, name.fullName()));
+//            }
+//        }
 
         return indexes;
     }
@@ -87,21 +91,48 @@ public class ContactBookUser implements UserListItem {
 
     @Override
     public String getStatus() {
+        if (user != null) {
+            return user.getStatus();
+        }
         return "";
     }
 
     @Override
     public String getAvailability() {
+        if (user != null) {
+            return user.getAvailability();
+        }
         return "";
     }
 
     @Override
     public String getAvatarURL() {
-        return null;
+        if (user != null) {
+            return user.getAvatarURL();
+        }
+        return "";
     }
 
     @Override
     public Boolean getIsOnline() {
+        if (user != null) {
+            return user.getIsOnline();
+        }
+        return false;
+    }
+
+    public boolean isUser(User user) {
+        // Check to see if we have a details match
+        for (String address: emailAddresses) {
+            if (address.equals(user.getEmail())) {
+                return true;
+            }
+        }
+        for (String phone: phoneNumbers) {
+            if (phone.equals(user.getPhoneNumber())) {
+                return true;
+            }
+        }
         return false;
     }
 }

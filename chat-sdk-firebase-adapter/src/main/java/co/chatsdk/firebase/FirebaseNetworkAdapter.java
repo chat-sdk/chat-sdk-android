@@ -1,6 +1,6 @@
 package co.chatsdk.firebase;
 
-import co.chatsdk.core.base.BaseNetworkAdapter;
+import sdk.chat.core.base.BaseNetworkAdapter;
 
 /**
  * Created by benjaminsmiley-andrews on 03/05/2017.

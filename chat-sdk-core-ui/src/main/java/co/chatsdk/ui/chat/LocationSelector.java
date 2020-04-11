@@ -6,9 +6,9 @@ import com.google.android.gms.maps.model.LatLng;
 
 import org.greenrobot.greendao.annotation.NotNull;
 
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.Dimen;
-import co.chatsdk.core.utils.GoogleUtils;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.Dimen;
+import sdk.chat.core.utils.GoogleUtils;
 import co.chatsdk.ui.R;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;

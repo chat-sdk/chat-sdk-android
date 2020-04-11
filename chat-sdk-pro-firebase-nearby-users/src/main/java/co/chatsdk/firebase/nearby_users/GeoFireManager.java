@@ -11,9 +11,9 @@ import com.google.firebase.database.DatabaseReference;
 
 import org.pmw.tinylog.Logger;
 
-import co.chatsdk.core.hook.Hook;
-import co.chatsdk.core.hook.HookEvent;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.firebase.FirebasePaths;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;

@@ -14,8 +14,8 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import java.util.List;
 
-import co.chatsdk.core.Tab;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.Tab;
+import sdk.chat.core.session.ChatSDK;
 
 /**
  * Created by itzik on 6/16/2014.

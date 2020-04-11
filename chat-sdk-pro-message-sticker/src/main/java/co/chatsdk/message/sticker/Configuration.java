@@ -10,7 +10,7 @@ import com.dd.plist.PropertyListParser;
 
 import java.util.ArrayList;
 
-import co.chatsdk.core.utils.StringChecker;
+import sdk.chat.core.utils.StringChecker;
 
 import static co.chatsdk.message.sticker.R.raw.stickers;
 

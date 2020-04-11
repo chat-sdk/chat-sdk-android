@@ -14,7 +14,7 @@
         android:hardwareAccelerated="true"
         >
 
-        <service android:name="co.chatsdk.core.notifications.MessagingService" />
+        <service android:name="sdk.chat.core.notifications.MessagingService" />
 
         <meta-data android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />

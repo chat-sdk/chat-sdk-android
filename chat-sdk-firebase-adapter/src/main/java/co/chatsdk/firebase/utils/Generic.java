@@ -16,11 +16,15 @@ public class Generic {
         return new GenericTypeIndicator<Map<String, Object>>() {};
     }
 
+    public static GenericTypeIndicator<Map<String, String>> mapStringString() {
+        return new GenericTypeIndicator<Map<String, String>>() {};
+    }
+
 //    public static GenericTypeIndicator<Map<String, Map<String, Object>>> mapStringMapStringObject() {
 //        return new GenericTypeIndicator<Map<String, Map<String, Object>>>() {};
 //    }
 
-    public static GenericTypeIndicator<HashMap<String, HashMap<String, Long>>> readReceiptHashMap() {
-        return new GenericTypeIndicator<HashMap<String, HashMap<String, Long>>>() {};
+    public static GenericTypeIndicator<Map<String, Map<String, Long>>> readReceiptHashMap() {
+        return new GenericTypeIndicator<Map<String, Map<String, Long>>>() {};
     }
 }

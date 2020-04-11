@@ -9,7 +9,7 @@ package co.chatsdk.firebase;
 
 import com.google.firebase.database.DatabaseReference;
 
-import co.chatsdk.core.dao.Keys;
+import sdk.chat.core.dao.Keys;
 import co.chatsdk.firebase.module.FirebaseModule;
 
 public class FirebasePaths{

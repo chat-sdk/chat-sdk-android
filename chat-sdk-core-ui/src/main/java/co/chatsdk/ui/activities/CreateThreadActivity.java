@@ -7,10 +7,10 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.interfaces.UserListItem;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.interfaces.UserListItem;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.module.DefaultUIModule;
 import io.reactivex.android.schedulers.AndroidSchedulers;

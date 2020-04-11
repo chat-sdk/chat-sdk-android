@@ -1,6 +1,6 @@
 package co.chatsdk.ui.chat.model;
 
-import co.chatsdk.core.dao.Thread;
+import sdk.chat.core.dao.Thread;
 
 public class TypingThreadHolder extends ThreadHolder {
 

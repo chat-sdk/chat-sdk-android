@@ -8,51 +8,47 @@
 package co.chatsdk.ui.utils;
 
 import android.app.AlertDialog;
+import android.app.admin.DnsEvent;
 import android.content.Context;
+import android.content.DialogInterface;
+
+import androidx.annotation.StringRes;
 
 import java.util.concurrent.Callable;
 
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.session.ChatSDK;
 
-@Deprecated
 public class DialogUtils {
 
-    public static void showToastDialog(Context context, String title, String alert, String p, String n, final Callable neg, final Callable pos){
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+    public static void showToastDialog(Context context, @StringRes int title, @StringRes int message, @StringRes int positive, @StringRes int negative, Runnable positiveAction, Runnable negativeAction) {
 
-        // set title if not null
-        if (title != null && !title.equals("")) {
-            alertDialogBuilder.setTitle(title);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        if (title != 0) {
+            builder.setTitle(title);
+        }
+        if (message != 0) {
+            builder.setMessage(message);
+        }
+        if (positive != 0) {
+            builder.setPositiveButton(positive, (dialog, which) -> {
+                if (positiveAction != null) {
+                    positiveAction.run();
+                }
+                dialog.dismiss();
+            });
+        }
+        if (negative != 0) {
+            builder.setNegativeButton(negative, (dialog, which) -> {
+                if (negativeAction != null) {
+                    negativeAction.run();
+                }
+                dialog.dismiss();
+            });
         }
 
-        // set dialog text
-        alertDialogBuilder
-                .setMessage(alert)
-                .setCancelable(false)
-                .setPositiveButton(p, (dialog, id) -> {
-                    if (pos != null)
-                        try {
-                            pos.call();
-                        } catch (Exception e) {
-                            ChatSDK.events().onError(e);
-                        }
-                    dialog.dismiss();
-                })
-                .setNegativeButton(n, (dialog, id) -> {
-                    // if this button is clicked, just close
-                    // the dialog box and do nothing
-                    if (neg != null)
-                        try {
-                            neg.call();
-                        } catch (Exception e) {
-                            ChatSDK.events().onError(e);
-                        }
-
-                    dialog.cancel();
-                });
-
         // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
+        AlertDialog alertDialog = builder.create();
 
         // show it
         alertDialog.show();

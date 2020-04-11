@@ -8,16 +8,16 @@ import android.provider.MediaStore;
 import java.io.File;
 import java.util.ArrayList;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.handlers.VideoMessageHandler;
-import co.chatsdk.core.rigs.BitmapUploadable;
-import co.chatsdk.core.rigs.FileUploadable;
-import co.chatsdk.core.rigs.MessageSendRig;
-import co.chatsdk.core.rigs.Uploadable;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageType;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.handlers.VideoMessageHandler;
+import sdk.chat.core.rigs.BitmapUploadable;
+import sdk.chat.core.rigs.FileUploadable;
+import sdk.chat.core.rigs.MessageSendRig;
+import sdk.chat.core.rigs.Uploadable;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageType;
 import co.chatsdk.message.video.R;
 import io.reactivex.Completable;
 
@@ -50,7 +50,7 @@ public class BaseVideoMessageHandler implements VideoMessageHandler {
         return new MessageSendRig(new MessageType(MessageType.Video), thread, message -> {
             message.setValueForKey(thumb.getWidth(), Keys.MessageImageWidth);
             message.setValueForKey(thumb.getHeight(), Keys.MessageImageHeight);
-            message.setText(ChatSDK.shared().getString(R.string.video_message));
+            message.setText(ChatSDK.getString(R.string.video_message));
         }).setUploadables(uploadables, (message, result) -> {
             if(result.mimeType.equals(imageMimeType)) {
                 message.setValueForKey(result.url, Keys.MessageImageURL);

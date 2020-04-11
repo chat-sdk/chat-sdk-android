@@ -4,9 +4,9 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.fragments.ProfileFragment;
 import co.chatsdk.ui.utils.ToastHelper;

@@ -10,8 +10,7 @@ import androidx.annotation.LayoutRes;
 import com.google.android.material.button.MaterialButton;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
-import co.chatsdk.core.utils.StringChecker;
+import sdk.chat.core.utils.StringChecker;
 import co.chatsdk.ui.activities.LoginActivity;
 import co.chatsdk.xmpp.R;
 import co.chatsdk.xmpp.R2;

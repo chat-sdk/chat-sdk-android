@@ -6,8 +6,8 @@ import org.jxmpp.jid.impl.JidCreate;
 import java.util.Calendar;
 import java.util.Date;
 
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.handlers.LastOnlineHandler;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.handlers.LastOnlineHandler;
 import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Completable;
 import io.reactivex.Single;

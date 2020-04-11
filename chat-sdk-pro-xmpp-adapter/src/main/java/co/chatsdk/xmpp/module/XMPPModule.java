@@ -2,13 +2,13 @@ package co.chatsdk.xmpp.module;
 
 import android.content.Context;
 
-import co.chatsdk.core.base.BaseNetworkAdapter;
-import co.chatsdk.core.handlers.Module;
-import co.chatsdk.core.interfaces.InterfaceAdapter;
+import sdk.chat.core.base.BaseNetworkAdapter;
+import sdk.chat.core.handlers.Module;
+import sdk.chat.core.interfaces.InterfaceAdapter;
 
-import co.chatsdk.core.session.Configure;
-import co.chatsdk.core.session.InterfaceAdapterProvider;
-import co.chatsdk.core.session.NetworkAdapterProvider;
+import sdk.chat.core.session.Configure;
+import sdk.chat.core.session.InterfaceAdapterProvider;
+import sdk.chat.core.session.NetworkAdapterProvider;
 import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.module.UIConfig;
 import co.chatsdk.xmpp.R;

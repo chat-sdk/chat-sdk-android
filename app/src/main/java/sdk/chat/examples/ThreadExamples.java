@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.GoogleUtils;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.GoogleUtils;
 
 public class ThreadExamples extends BaseExample {
     public ThreadExamples(Context context, ArrayList<User> users) {

@@ -10,9 +10,9 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import butterknife.BindView;
-import co.chatsdk.core.hook.Hook;
-import co.chatsdk.core.hook.HookEvent;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 
@@ -47,18 +47,11 @@ public class SplashScreenActivity extends BaseActivity {
     protected void startNextActivity() {
         if (ChatSDK.auth().isAuthenticatedThisSession()) {
             startMainActivity();
-        } else if (ChatSDK.auth().isAuthenticated()) {
+        } else if (ChatSDK.auth().isAuthenticated() || ChatSDK.auth().isAuthenticating()) {
             startProgressBar();
-            if (ChatSDK.auth().isAuthenticating()) {
-                ChatSDK.hook().addHook(Hook.sync(data -> {
-                    stopProgressBar();
-                    startMainActivity();
-                }, true), HookEvent.DidAuthenticate);
-            } else {
-                dm.add(ChatSDK.auth().authenticate()
-                        .doFinally(this::stopProgressBar)
-                        .subscribe(this::startMainActivity, throwable -> startLoginActivity()));
-            }
+            dm.add(ChatSDK.auth().authenticate()
+                    .doFinally(this::stopProgressBar)
+                    .subscribe(this::startMainActivity, throwable -> startLoginActivity()));
         } else {
             startLoginActivity();
         }

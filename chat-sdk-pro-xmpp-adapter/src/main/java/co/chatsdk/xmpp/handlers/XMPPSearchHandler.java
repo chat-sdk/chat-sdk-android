@@ -2,8 +2,8 @@ package co.chatsdk.xmpp.handlers;
 
 import org.pmw.tinylog.Logger;
 
-import co.chatsdk.core.base.AbstractSearchHandler;
-import co.chatsdk.core.dao.User;
+import sdk.chat.core.base.AbstractSearchHandler;
+import sdk.chat.core.dao.User;
 import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Observable;
 

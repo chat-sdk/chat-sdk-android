@@ -19,7 +19,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import sdk.guru.common.DisposableMap;
-import co.chatsdk.core.utils.PermissionRequestHandler;
+import sdk.chat.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.icons.Icons;

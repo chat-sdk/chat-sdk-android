@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import co.chatsdk.core.dao.Keys;
+import sdk.chat.core.dao.Keys;
 import co.chatsdk.message.sticker.R;
 import co.chatsdk.ui.activities.BaseActivity;
 

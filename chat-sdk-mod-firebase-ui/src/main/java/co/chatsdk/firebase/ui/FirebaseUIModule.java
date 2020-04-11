@@ -16,12 +16,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import chatsdk.co.chat_sdk_firebase_ui.R;
-import co.chatsdk.core.events.EventType;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.handlers.Module;
+import sdk.chat.core.events.EventType;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.handlers.Module;
 import sdk.guru.common.BaseConfig;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.Configure;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.session.Configure;
 import sdk.guru.common.DisposableMap;
 import co.chatsdk.firebase.FirebaseCoreHandler;
 

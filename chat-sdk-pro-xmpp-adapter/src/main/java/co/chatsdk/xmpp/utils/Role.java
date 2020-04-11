@@ -6,7 +6,7 @@ import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MUCAffiliation;
 import org.jivesoftware.smackx.muc.MUCRole;
 
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.xmpp.R;
 
 public class Role {
@@ -27,62 +27,62 @@ public class Role {
         MUCRole role = intToRole(roleInt);
 
         if (affiliation == MUCAffiliation.owner) {
-            return ChatSDK.shared().getString(R.string.owner__);
+            return ChatSDK.getString(R.string.owner__);
         }
         if (affiliation == MUCAffiliation.admin) {
-            return ChatSDK.shared().getString(R.string.admin);
+            return ChatSDK.getString(R.string.admin);
         }
         if (role == MUCRole.moderator) {
-            return ChatSDK.shared().getString(R.string.moderator);
+            return ChatSDK.getString(R.string.moderator);
         }
         if (affiliation == MUCAffiliation.member) {
-            return ChatSDK.shared().getString(R.string.member);
+            return ChatSDK.getString(R.string.member);
         }
         if (role == MUCRole.participant) {
-            return ChatSDK.shared().getString(R.string.participant);
+            return ChatSDK.getString(R.string.participant);
         }
         if (role == MUCRole.visitor) {
-            return ChatSDK.shared().getString(R.string.visitor);
+            return ChatSDK.getString(R.string.visitor);
         }
         if (affiliation == MUCAffiliation.outcast) {
-            return ChatSDK.shared().getString(R.string.outcast);
+            return ChatSDK.getString(R.string.outcast);
         }
-        return ChatSDK.shared().getString(R.string.none);
+        return ChatSDK.getString(R.string.none);
     }
 
     public static String toString(MUCAffiliation affiliation) {
         return toString(affiliation, null);
 //
 //        if (affiliation == MUCAffiliation.owner) {
-//            return ChatSDK.shared().getString(R.string.owner);
+//            return ChatSDK.getString(R.string.owner);
 //        }
 //        if (affiliation == MUCAffiliation.admin) {
-//            return ChatSDK.shared().getString(R.string.admin);
+//            return ChatSDK.getString(R.string.admin);
 //        }
 //        if (affiliation == MUCAffiliation.member) {
-//            return ChatSDK.shared().getString(R.string.member);
+//            return ChatSDK.getString(R.string.member);
 //        }
 //        if (affiliation == MUCAffiliation.outcast) {
-//            return ChatSDK.shared().getString(R.string.outcast);
+//            return ChatSDK.getString(R.string.outcast);
 //        }
-//        return ChatSDK.shared().getString(R.string.none);
+//        return ChatSDK.getString(R.string.none);
     }
 
     public static String toString(MUCAffiliation affiliation, @Nullable MUCRole role) {
         String affiliationString;
         if (affiliation == MUCAffiliation.owner) {
-            affiliationString = ChatSDK.shared().getString(R.string.owner__);
+            affiliationString = ChatSDK.getString(R.string.owner__);
         }
         else if (affiliation == MUCAffiliation.admin) {
-            affiliationString = ChatSDK.shared().getString(R.string.admin__);
+            affiliationString = ChatSDK.getString(R.string.admin__);
         }
         else if (affiliation == MUCAffiliation.member) {
-            affiliationString = ChatSDK.shared().getString(R.string.member__);
+            affiliationString = ChatSDK.getString(R.string.member__);
         }
         else if (affiliation == MUCAffiliation.outcast) {
-            affiliationString = ChatSDK.shared().getString(R.string.outcast__);
+            affiliationString = ChatSDK.getString(R.string.outcast__);
         } else {
-//            affiliationString = ChatSDK.shared().getString(R.string.none);
+//            affiliationString = ChatSDK.getString(R.string.none);
             affiliationString = null;
         }
 //        if (role != null) {
@@ -95,40 +95,40 @@ public class Role {
 
     public static String toString(MUCRole role) {
         if (role == MUCRole.moderator) {
-            return ChatSDK.shared().getString(R.string.moderator);
+            return ChatSDK.getString(R.string.moderator);
         }
         if (role == MUCRole.participant) {
-            return ChatSDK.shared().getString(R.string.participant);
+            return ChatSDK.getString(R.string.participant);
         }
         if (role == MUCRole.visitor) {
-            return ChatSDK.shared().getString(R.string.visitor);
+            return ChatSDK.getString(R.string.visitor);
         }
-        return ChatSDK.shared().getString(R.string.none);
+        return ChatSDK.getString(R.string.none);
     }
 //    public static int fromString(String string) {
 //        if (string != null) {
-//            if (string.equals(ChatSDK.shared().getString(R.string.owner))) {
+//            if (string.equals(ChatSDK.getString(R.string.owner))) {
 //                return Owner;
 //            }
-//            if (string.equals(ChatSDK.shared().getString(R.string.admin))) {
+//            if (string.equals(ChatSDK.getString(R.string.admin))) {
 //                return Admin;
 //            }
-//            if (string.equals(ChatSDK.shared().getString(R.string.moderator))) {
+//            if (string.equals(ChatSDK.getString(R.string.moderator))) {
 //                return Moderator;
 //            }
-//            if (string.equals(ChatSDK.shared().getString(R.string.member))) {
+//            if (string.equals(ChatSDK.getString(R.string.member))) {
 //                return MUCAffiliation.outcast;
 //            }
-//            if (string.equals(ChatSDK.shared().getString(R.string.participant))) {
+//            if (string.equals(ChatSDK.getString(R.string.participant))) {
 //                return MUCAffiliation.outcast;
 //            }
-//            if (string.equals(ChatSDK.shared().getString(R.string.visitor))) {
+//            if (string.equals(ChatSDK.getString(R.string.visitor))) {
 //                return MUCAffiliation.outcast;
 //            }
-//            if (string.equals(ChatSDK.shared().getString(R.string.outcast))) {
+//            if (string.equals(ChatSDK.getString(R.string.outcast))) {
 //                return MUCAffiliation.outcast;
 //            }
-//            if (string.equals(ChatSDK.shared().getString(R.string.outcast))) {
+//            if (string.equals(ChatSDK.getString(R.string.outcast))) {
 //                return MUCAffiliation.outcast;
 //            }
 //        }
@@ -139,16 +139,16 @@ public class Role {
 
     public static MUCAffiliation affiliationFromString(String string) {
         if (string != null) {
-            if (string.equals(ChatSDK.shared().getString(R.string.owner))) {
+            if (string.equals(ChatSDK.getString(R.string.owner))) {
                 return MUCAffiliation.owner;
             }
-            if (string.equals(ChatSDK.shared().getString(R.string.admin))) {
+            if (string.equals(ChatSDK.getString(R.string.admin))) {
                 return MUCAffiliation.admin;
             }
-            if (string.equals(ChatSDK.shared().getString(R.string.member))) {
+            if (string.equals(ChatSDK.getString(R.string.member))) {
                 return MUCAffiliation.member;
             }
-            if (string.equals(ChatSDK.shared().getString(R.string.outcast))) {
+            if (string.equals(ChatSDK.getString(R.string.outcast))) {
                 return MUCAffiliation.outcast;
             }
             return MUCAffiliation.none;
@@ -158,13 +158,13 @@ public class Role {
 
     public static MUCRole roleFromString(String string) {
         if (string != null) {
-            if (string.equals(ChatSDK.shared().getString(R.string.moderator))) {
+            if (string.equals(ChatSDK.getString(R.string.moderator))) {
                 return MUCRole.moderator;
             }
-            if (string.equals(ChatSDK.shared().getString(R.string.participant))) {
+            if (string.equals(ChatSDK.getString(R.string.participant))) {
                 return MUCRole.participant;
             }
-            if (string.equals(ChatSDK.shared().getString(R.string.visitor))) {
+            if (string.equals(ChatSDK.getString(R.string.visitor))) {
                 return MUCRole.visitor;
             }
             return MUCRole.none;

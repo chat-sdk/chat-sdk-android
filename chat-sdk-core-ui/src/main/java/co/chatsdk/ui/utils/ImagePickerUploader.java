@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import co.chatsdk.core.image.ImageUploadResult;
-import co.chatsdk.core.image.ImageUtils;
-import co.chatsdk.core.utils.PermissionRequestHandler;
+import sdk.chat.core.image.ImageUploadResult;
+import sdk.chat.core.image.ImageUtils;
+import sdk.chat.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.chat.MediaSelector;
 import io.reactivex.Single;
 

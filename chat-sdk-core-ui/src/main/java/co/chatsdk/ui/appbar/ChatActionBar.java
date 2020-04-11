@@ -14,26 +14,23 @@ import com.google.android.material.appbar.AppBarLayout;
 
 import org.ocpsoft.prettytime.PrettyTime;
 
-import java.util.Date;
 import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.StringChecker;
-import co.chatsdk.core.utils.Strings;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.StringChecker;
+import sdk.chat.core.utils.Strings;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
-import co.chatsdk.ui.activities.ChatActivity;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.utils.ThreadImageBuilder;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 public class ChatActionBar extends AppBarLayout {
 
@@ -69,7 +66,7 @@ public class ChatActionBar extends AppBarLayout {
         titleTextView.setOnClickListener(this::onClick);
         imageView.setOnClickListener(this::onClick);
         subtitleTextView.setOnClickListener(this::onClick);
-        searchImageView.setImageDrawable(Icons.get(Icons.choose().search, R.color.app_bar_icon_color));
+        searchImageView.setImageDrawable(Icons.get(Icons.choose().search, Icons.shared().actionBarIconColor));
     }
 
     public void onClick(View view) {

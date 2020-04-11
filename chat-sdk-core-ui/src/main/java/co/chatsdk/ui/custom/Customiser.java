@@ -9,7 +9,7 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.dao.Message;
+import sdk.chat.core.dao.Message;
 import co.chatsdk.ui.chat.model.MessageHolder;
 
 public class Customiser implements IMessageHandler {

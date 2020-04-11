@@ -8,8 +8,13 @@ import java.util.concurrent.TimeUnit;
 import firefly.sdk.chat.R;
 import firestream.chat.namespace.Fire;
 import io.reactivex.functions.Predicate;
+import sdk.guru.common.BaseConfig;
 
-public class FirestreamConfig {
+public class FirestreamConfig<T> extends BaseConfig<T> {
+
+    public FirestreamConfig(T onBuild) {
+        super(onBuild);
+    }
 
     public enum DatabaseType {
         Firestore,
@@ -156,7 +161,7 @@ public class FirestreamConfig {
      */
     public boolean debugEnabled = false;
 
-    public FirestreamConfig setRoot(String root) {
+    public FirestreamConfig<T> setRoot(String root) {
         String path = validatePath(root);
         if (path != null) {
             this.root = path;
@@ -164,7 +169,7 @@ public class FirestreamConfig {
         return this;
     }
 
-    public FirestreamConfig setSandbox(String sandbox) {
+    public FirestreamConfig<T> setSandbox(String sandbox) {
         String path = validatePath(sandbox);
         if (path != null) {
             this.sandbox = path;
@@ -172,43 +177,43 @@ public class FirestreamConfig {
         return this;
     }
 
-    public FirestreamConfig setDatabaseType(DatabaseType type) {
+    public FirestreamConfig<T> setDatabaseType(DatabaseType type) {
         this.database = type;
         return this;
     }
 
-    public FirestreamConfig setDeliveryReceiptsEnabled(boolean value) {
+    public FirestreamConfig<T> setDeliveryReceiptsEnabled(boolean value) {
         this.deliveryReceiptsEnabled = value;
         return this;
     }
 
-    public FirestreamConfig setAutoMarkReceivedEnabled(boolean value) {
+    public FirestreamConfig<T> setAutoMarkReceivedEnabled(boolean value) {
         this.autoMarkReceived = value;
         return this;
     }
 
-    public FirestreamConfig setAutoAcceptChatInviteEnabled(boolean value) {
+    public FirestreamConfig<T> setAutoAcceptChatInviteEnabled(boolean value) {
         this.autoAcceptChatInvite = value;
         return this;
     }
 
-    public FirestreamConfig setDeleteMessagesOnReceiptEnabled(boolean value) {
+    public FirestreamConfig<T> setDeleteMessagesOnReceiptEnabled(boolean value) {
         this.deleteMessagesOnReceipt = value;
         return this;
     }
-    public FirestreamConfig setMessageHistoryLimit(int value) {
+    public FirestreamConfig<T> setMessageHistoryLimit(int value) {
         this.messageHistoryLimit = value;
         return this;
     }
 
 
 
-    public FirestreamConfig setStartListeningFromLastSentMessageDateEnabled(boolean value) {
+    public FirestreamConfig<T> setStartListeningFromLastSentMessageDateEnabled(boolean value) {
         this.startListeningFromLastSentMessageDate = value;
         return this;
     }
 
-    public FirestreamConfig setListenToMessagesWithTimeAgo(TimePeriod value) {
+    public FirestreamConfig<T> setListenToMessagesWithTimeAgo(TimePeriod value) {
         this.listenToMessagesWithTimeAgo = value;
         return this;
     }

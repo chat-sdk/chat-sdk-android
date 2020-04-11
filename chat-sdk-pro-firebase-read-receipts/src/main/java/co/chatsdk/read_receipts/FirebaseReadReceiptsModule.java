@@ -4,10 +4,10 @@ import android.content.Context;
 
 import java.util.concurrent.TimeUnit;
 
-import co.chatsdk.core.handlers.Module;
+import sdk.chat.core.handlers.Module;
 import sdk.guru.common.BaseConfig;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.Configure;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.session.Configure;
 
 
 /**
@@ -34,13 +34,19 @@ public class FirebaseReadReceiptsModule implements Module {
     public static class Config<T> extends BaseConfig<T> {
 
         public long maxAge = TimeUnit.DAYS.toMillis(7);
+        public int maxMessagesPerThread = 20;
 
         public Config(T onBuild) {
             super(onBuild);
         }
 
-        public Config<T> readReceiptMaxAge(long millis) {
+        public Config<T> setMaxAge(long millis) {
             this.maxAge = millis;
+            return this;
+        }
+
+        public Config<T> setMaxMessagesPerThread(int maxMessages) {
+            this.maxMessagesPerThread = maxMessages;
             return this;
         }
     }

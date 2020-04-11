@@ -8,9 +8,9 @@ import org.jivesoftware.smackx.chatstates.packet.ChatStateExtension;
 import org.jxmpp.jid.EntityBareJid;
 import org.pmw.tinylog.Logger;
 
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.xmpp.XMPPManager;
 import co.chatsdk.xmpp.XMPPMessageParser;
 import co.chatsdk.xmpp.utils.XMPPMessageParseHelper;

@@ -9,29 +9,25 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-import co.chatsdk.core.base.AbstractEventHandler;
-import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.hook.HookEvent;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.ConnectionType;
+import sdk.chat.core.base.AbstractEventHandler;
+import sdk.chat.core.dao.DaoCore;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.ConnectionType;
 import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.utils.Generic;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
-import io.reactivex.ObservableSource;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import sdk.guru.common.EventType;
-import sdk.guru.firebase.DocumentChange;
-import sdk.guru.firebase.RXRealtime;
+import sdk.guru.realtime.RealtimeEventListener;
+import sdk.guru.realtime.RealtimeReferenceManager;
+import sdk.guru.realtime.RXRealtime;
 
 /**
  * Created by benjaminsmiley-andrews on 10/05/2017.
@@ -54,7 +50,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
             if(ChatSDK.hook() != null) {
                 HashMap<String, Object> data = new HashMap<>();
                 data.put(HookEvent.User, user);
-                ChatSDK.hook().executeHook(HookEvent.UserOn, data).doOnError(this).subscribe();
+                ChatSDK.hook().executeHook(HookEvent.UserOn, data).doOnError(this).subscribe(ChatSDK.events());
             }
 
             threadsOn(user);
@@ -101,7 +97,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
                 query = query.startAt(loadRoomsSince);
             }
 
-            ChildEventListener publicThreadsListener = query.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
+            ChildEventListener publicThreadsListener = query.addChildEventListener(new RealtimeEventListener().onChildAdded((snapshot, s, hasValue) -> {
                 final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
 
                 // Make sure that we're not in the thread
@@ -120,7 +116,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
                 thread.off();
                 eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
             }));
-            FirebaseReferenceManager.shared().addRef(publicThreadsRef, publicThreadsListener);
+            RealtimeReferenceManager.shared().addRef(publicThreadsRef, publicThreadsListener);
         }
     }
 
@@ -139,7 +135,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
 
         DatabaseReference ref = FirebasePaths.userContactsRef(user.getEntityID());
 
-        ref.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
+        ref.addChildEventListener(new RealtimeEventListener().onChildAdded((snapshot, s, hasValue) -> {
             if (hasValue) {
                 User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
 
@@ -148,13 +144,13 @@ public class FirebaseEventHandler extends AbstractEventHandler {
                     Long type = data.get(Keys.Type);
                     if (type != null) {
                         ConnectionType connectionType = ConnectionType.values()[type.intValue()];
-                        dm.add(ChatSDK.contact().addContactLocal(contact, connectionType).doOnError(this).subscribe());
+                        dm.add(ChatSDK.contact().addContactLocal(contact, connectionType).subscribe());
                     }
                 }
             }
         }));
 
-        ref.addChildEventListener(new FirebaseEventListener().onChildRemoved((snapshot, hasValue) -> {
+        ref.addChildEventListener(new RealtimeEventListener().onChildRemoved((snapshot, hasValue) -> {
             if (hasValue) {
                 User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
 
@@ -190,7 +186,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
 
     protected void threadsOff (User user) {
         String entityID = user.getEntityID();
-        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.userThreadsRef(entityID));
+        RealtimeReferenceManager.shared().removeListeners(FirebasePaths.userThreadsRef(entityID));
         for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Private)) {
             ThreadWrapper wrapper = new ThreadWrapper(thread);
             wrapper.off();
@@ -201,7 +197,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
 
     protected void publicThreadsOff (User user) {
         if (!FirebaseModule.config().disablePublicThreads) {
-            FirebaseReferenceManager.shared().removeListeners(FirebasePaths.publicThreadsRef());
+            RealtimeReferenceManager.shared().removeListeners(FirebasePaths.publicThreadsRef());
             for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
                 ThreadWrapper wrapper = new ThreadWrapper(thread);
                 wrapper.off();

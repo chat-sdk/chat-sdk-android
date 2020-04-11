@@ -5,11 +5,12 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.utils.DialogUtils;
@@ -28,15 +29,14 @@ public class PublicThreadsFragment extends ThreadsFragment {
     public void initViews() {
         super.initViews();
 
-        dm.add(getOnLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
-                getResources().getString(R.string.cancel), null, () -> {
+        dm.add(getOnLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), 0, R.string.alert_delete_thread, R.string.delete,
+                R.string.cancel, null, () -> {
                     dm.add(ChatSDK.thread().deleteThread(thread)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(() -> {
                                 clearData();
                                 reloadData();
                             }, throwable -> ToastHelper.show(getContext(), throwable.getLocalizedMessage())));
-                    return null;
                 })));
     }
 
@@ -52,7 +52,7 @@ public class PublicThreadsFragment extends ThreadsFragment {
             long now = new Date().getTime();
             List<Thread> filtered = new ArrayList<>();
             for (Thread t : threads) {
-                if (t.getCreationDate() == null || now - t.getCreationDate().getTime() < ChatSDK.config().publicChatRoomLifetimeMinutes * 60000) {
+                if (t.getCreationDate() == null || now - t.getCreationDate().getTime() < TimeUnit.MINUTES.toMillis(ChatSDK.config().publicChatRoomLifetimeMinutes)) {
                     filtered.add(t);
                 }
             }

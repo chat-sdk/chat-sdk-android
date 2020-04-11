@@ -8,19 +8,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import org.pmw.tinylog.Logger;
 
 import java.util.Date;
-import java.util.concurrent.Callable;
 
-import co.chatsdk.core.base.AbstractCoreHandler;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.hook.HookEvent;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.base.AbstractCoreHandler;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Single;
-import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
+import sdk.guru.realtime.RealtimeEventListener;
 
 
 /**
@@ -83,7 +81,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public void goOnline() {
         super.goOnline();
-        FirebasePaths.firebaseRawRef().child(".info/connected").addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+        FirebasePaths.firebaseRawRef().child(".info/connected").addListenerForSingleValueEvent(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
             if (hasValue) {
                 Logger.debug("Already online!");
             } else {
@@ -120,6 +118,13 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             final User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, entityID);
             return userOn(user).toSingle(() -> user);
         });
+    }
+
+    @Override
+    public User getUserNowForEntityID(String entityID) {
+        final User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, entityID);
+        userOn(user).subscribe(ChatSDK.events());
+        return user;
     }
 
     public static FirebaseApp app () {

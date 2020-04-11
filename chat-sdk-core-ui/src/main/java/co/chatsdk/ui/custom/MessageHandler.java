@@ -7,10 +7,10 @@ import android.view.View;
 import com.google.android.gms.maps.model.LatLng;
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageType;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageType;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ImageMessageOnClickHandler;
 import co.chatsdk.ui.chat.LocationMessageOnClickHandler;

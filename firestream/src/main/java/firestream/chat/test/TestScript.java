@@ -10,6 +10,7 @@ import java.util.List;
 import firestream.chat.FirestreamConfig;
 import firestream.chat.chat.User;
 import firestream.chat.events.ConnectionEvent;
+import firestream.chat.interfaces.IFireStream;
 import sdk.guru.common.DisposableMap;
 import firestream.chat.namespace.Fire;
 import firestream.chat.test.chat.CreateChatTest;
@@ -32,7 +33,7 @@ public class TestScript {
 
     public TestScript(Context context, String rootPath) {
 
-        FirestreamConfig config = new FirestreamConfig();
+        FirestreamConfig<IFireStream> config = new FirestreamConfig<>(Fire.stream());
         try {
             config.setRoot(rootPath);
         } catch (Exception e) {

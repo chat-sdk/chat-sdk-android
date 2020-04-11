@@ -4,10 +4,10 @@ import org.joda.time.DateTime;
 
 import java.util.HashMap;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageSendStatus;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageSendStatus;
 import firestream.chat.message.Sendable;
 import io.reactivex.Single;
 

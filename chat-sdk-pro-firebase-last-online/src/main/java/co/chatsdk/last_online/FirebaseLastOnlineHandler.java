@@ -5,10 +5,10 @@ import com.google.firebase.database.ServerValue;
 
 import java.util.Date;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.handlers.LastOnlineHandler;
-import co.chatsdk.firebase.FirebaseEventListener;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.handlers.LastOnlineHandler;
+import sdk.guru.realtime.RealtimeEventListener;
 import co.chatsdk.firebase.FirebasePaths;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -16,7 +16,7 @@ import io.reactivex.Single;
 public class FirebaseLastOnlineHandler implements LastOnlineHandler {
     @Override
     public Single<Date> getLastOnline(User user) {
-        return Single.create(emitter -> ref(user).addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+        return Single.create(emitter -> ref(user).addListenerForSingleValueEvent(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
             if (hasValue && snapshot.getValue() instanceof Long) {
                 Long timestamp = (Long) snapshot.getValue();
                 emitter.onSuccess(new Date(timestamp));

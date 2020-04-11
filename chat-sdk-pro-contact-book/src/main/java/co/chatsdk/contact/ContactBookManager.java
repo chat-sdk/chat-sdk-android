@@ -10,10 +10,18 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.Callable;
 
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.rx.ObservableConnector;
-import co.chatsdk.core.session.ChatSDK;
+import io.reactivex.ObservableSource;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.rx.ObservableConnector;
+import sdk.chat.core.session.ChatSDK;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
@@ -24,40 +32,43 @@ import io.reactivex.schedulers.Schedulers;
 
 public class ContactBookManager {
 
-    public static ArrayList<ContactBookUser> getContactList(Context context) {
+    public static Single<List<ContactBookUser>> getContactList(Context context) {
+        return Single.create((SingleOnSubscribe<List<ContactBookUser>>) emitter -> {
 
-        ContentResolver resolver = context.getContentResolver();
-        Cursor cursor = resolver.query(
-                ContactsContract.Contacts.CONTENT_URI,
-                null, null, null, null);
+            ContentResolver resolver = context.getContentResolver();
+            Cursor cursor = resolver.query(
+                    ContactsContract.Contacts.CONTENT_URI,
+                    null, null, null, null);
 
-        ArrayList<ContactBookUser> users = new ArrayList<>();
+            ArrayList<ContactBookUser> users = new ArrayList<>();
 
-        if ((cursor != null ? cursor.getCount() : 0) > 0) {
-            while (cursor.moveToNext()) {
+            if ((cursor != null ? cursor.getCount() : 0) > 0) {
+                while (cursor.moveToNext()) {
 
-                ContactBookUser user = new ContactBookUser();
+                    ContactBookUser user = new ContactBookUser();
 
-                String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                    String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
 
-                addNamesToUser(resolver, id, user);
-                addPhoneNumbersToUser(resolver, id, user);
-                addEmailsToUser(resolver, id, user);
+                    addNamesToUser(resolver, id, user);
+                    addPhoneNumbersToUser(resolver, id, user);
+                    addEmailsToUser(resolver, id, user);
 
-                if(user.isContactable()) {
-                    users.add(user);
+                    if(user.isContactable()) {
+                        users.add(user);
+                    }
                 }
             }
-        }
 
-        if(cursor != null){
-            cursor.close();
-        }
+            if(cursor != null){
+                cursor.close();
+            }
 
-        Comparator<ContactBookUser> comparator = (u1, u2) -> u1.getName().compareToIgnoreCase(u2.getName());
-        Collections.sort(users, comparator);
+            Comparator<ContactBookUser> comparator = (u1, u2) -> u1.getName().compareToIgnoreCase(u2.getName());
+            Collections.sort(users, comparator);
 
-        return users;
+            emitter.onSuccess(users);
+
+        }).subscribeOn(Schedulers.computation()).observeOn(AndroidSchedulers.mainThread());
     }
 
     private static void addNamesToUser (ContentResolver resolver, String id, ContactBookUser user) {
@@ -111,9 +122,8 @@ public class ContactBookManager {
         emailCursor.close();
     }
 
-    public static Observable<SearchResult> searchServer(final ArrayList<ContactBookUser> contactBookUsers) {
-        return Observable.create((ObservableOnSubscribe<SearchResult>) e -> {
-
+    public static Observable<SearchResult> searchServer(final List<ContactBookUser> contactBookUsers) {
+        return Observable.defer(() -> {
             ArrayList<Observable<SearchResult>> observables = new ArrayList<>();
 
             // Loop over all the contacts and then each search index
@@ -122,28 +132,22 @@ public class ContactBookManager {
 
                 for(SearchIndex index : finalContactBookUser.getSearchIndexes()) {
 
-                    Logger.debug("Index: " + index.key + ", value: " + index.value);
-
                     // Search on search for each index in turn then map these results onto
                     // the search result property so we have access to both the user and the
                     // contact book user
                     observables.add(ChatSDK.search().usersForIndex(index.value, 1, index.key).map(user -> {
-                        finalContactBookUser.setEntityID(user.getEntityID());
+                        finalContactBookUser.setUser(user);
                         return new SearchResult(user, finalContactBookUser);
                     }));
-
-                    e.onNext(new SearchResult(null, finalContactBookUser));
                 }
             }
 
-            // Connect the merged observables to the outer observable. This will retain the benefit
-            // of lazy initialization
-            new ObservableConnector().connect(Observable.merge(observables), e);
-        }).subscribeOn(Schedulers.single());
+            return Observable.merge(observables);
+        }).subscribeOn(Schedulers.io());
     }
 
     public static Observable<SearchResult> searchServer(Context context) {
-        return searchServer(getContactList(context));
+        return getContactList(context).flatMapObservable(ContactBookManager::searchServer).subscribeOn(Schedulers.io());
     }
 
     public static class SearchResult {

@@ -1,6 +1,6 @@
 package co.chatsdk.xmpp.handlers;
 
-import co.chatsdk.core.base.BaseNetworkAdapter;
+import sdk.chat.core.base.BaseNetworkAdapter;
 
 /**
  * Created by benjaminsmiley-andrews on 03/07/2017.

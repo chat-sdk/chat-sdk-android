@@ -5,10 +5,10 @@ import android.content.Context;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 
-import co.chatsdk.core.handlers.Module;
+import sdk.chat.core.handlers.Module;
 import sdk.guru.common.BaseConfig;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.Configure;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.session.Configure;
 
 
 public class ExtrasModule implements Module {

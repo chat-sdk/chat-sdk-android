@@ -9,12 +9,12 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.interfaces.UserListItem;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.interfaces.UserListItem;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 

@@ -7,10 +7,10 @@ import org.jxmpp.jid.parts.Localpart;
 
 import java.util.ArrayList;
 
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.defines.Availability;
-import co.chatsdk.core.handlers.BlockingHandler;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.defines.Availability;
+import sdk.chat.core.handlers.BlockingHandler;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Completable;
 import io.reactivex.schedulers.Schedulers;

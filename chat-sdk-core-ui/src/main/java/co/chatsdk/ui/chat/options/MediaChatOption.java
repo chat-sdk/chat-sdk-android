@@ -5,7 +5,7 @@ import android.graphics.drawable.Drawable;
 import java.io.File;
 import java.util.ArrayList;
 
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.chat.MediaSelector;
 import io.reactivex.Completable;
 

@@ -1,8 +1,8 @@
 package co.chatsdk.firestream;
 
-import co.chatsdk.core.base.BaseContactHandler;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.types.ConnectionType;
+import sdk.chat.core.base.BaseContactHandler;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.types.ConnectionType;
 import firestream.chat.namespace.Fire;
 import firestream.chat.namespace.FireStreamUser;
 import firestream.chat.types.ContactType;

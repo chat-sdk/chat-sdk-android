@@ -2,8 +2,8 @@ package sdk.chat.test;
 
 import android.content.Context;
 
-import co.chatsdk.core.session.Config;
-import co.chatsdk.core.utils.Device;
+import sdk.chat.core.session.Config;
+import sdk.chat.core.utils.Device;
 import co.chatsdk.xmpp.module.XMPPConfig;
 import co.chatsdk.xmpp.module.XMPPModule;
 

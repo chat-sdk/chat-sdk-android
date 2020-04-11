@@ -7,7 +7,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
-import co.chatsdk.core.utils.Dimen;
+import sdk.chat.core.utils.Dimen;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.model.MessageHolder;
 

@@ -17,12 +17,12 @@ import androidx.fragment.app.Fragment;
 
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.events.EventType;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.events.EventType;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.icons.Icons;
 
@@ -119,7 +119,7 @@ public abstract class MainActivity extends BaseActivity {
         if (searchEnabled()) {
             getMenuInflater().inflate(R.menu.activity_search_menu, menu);
             MenuItem item = menu.findItem(R.id.action_search);
-            item.setIcon(Icons.get(Icons.choose().search, R.color.app_bar_icon_color));
+            item.setIcon(Icons.get(Icons.choose().search, Icons.shared().actionBarIconColor));
             searchView().setMenuItem(item);
         }
 

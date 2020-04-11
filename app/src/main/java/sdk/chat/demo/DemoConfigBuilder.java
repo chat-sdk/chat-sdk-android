@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import co.chatsdk.contact.ContactBookModule;
-import co.chatsdk.core.handlers.Module;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.Config;
+import sdk.chat.core.handlers.Module;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.session.Config;
 
-import co.chatsdk.core.session.Configure;
+import sdk.chat.core.session.Configure;
 import co.chatsdk.firebase.blocking.FirebaseBlockingModule;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.module.FirebaseModule;

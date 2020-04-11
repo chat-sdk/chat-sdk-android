@@ -1,11 +1,11 @@
 package co.chatsdk.message.sticker.integration;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.handlers.StickerMessageHandler;
-import co.chatsdk.core.rigs.MessageSendRig;
-import co.chatsdk.core.types.MessageType;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.handlers.StickerMessageHandler;
+import sdk.chat.core.rigs.MessageSendRig;
+import sdk.chat.core.types.MessageType;
 import io.reactivex.Completable;
 
 /**

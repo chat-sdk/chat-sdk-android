@@ -13,14 +13,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.Callable;
 
 import butterknife.BindView;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.interfaces.UserListItem;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.ConnectionType;
-import co.chatsdk.core.utils.PermissionRequestHandler;
+import io.reactivex.CompletableSource;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.interfaces.UserListItem;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.ConnectionType;
+import sdk.chat.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.adapters.UsersListAdapter;
 import io.reactivex.Completable;
@@ -28,6 +37,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import sdk.chat.core.utils.StringChecker;
 
 /**
  * Created by ben on 10/9/17.
@@ -35,13 +45,8 @@ import io.reactivex.schedulers.Schedulers;
 
 public class ContactBookSearchActivity extends BaseActivity {
 
-    String contactsHeader;
-    String inviteHeader;
-
     protected UsersListAdapter adapter;
     @BindView(R2.id.recyclerView) protected RecyclerView recyclerView;
-
-    @BindView(R2.id.button) protected Button button;
 
     @Override
     protected int getLayout() {
@@ -51,20 +56,22 @@ public class ContactBookSearchActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        contactsHeader = getString(R.string.contacts);
-        inviteHeader = getString(R.string.invite_more_friends);
-
-        getSupportActionBar().setHomeButtonEnabled(true);
-
+        initViews();
+        setActionBarTitle(R.string.add_user_from_contacts);
     }
-
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        adapter = new UsersListAdapter(true);
+        adapter = new UsersListAdapter(null, false, user -> {
+            if (user.getEntityID() != null) {
+                return getString(R.string.add_contacts);
+            } else {
+                return getString(R.string.send_invite);
+            }
+        });
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(true);
@@ -78,92 +85,52 @@ public class ContactBookSearchActivity extends BaseActivity {
         // Clear the list of users
         adapter.clear();
 
-        // Add the two header threads
-//        adapter.addHeader(contactsHeader);
-//        adapter.addHeader(inviteHeader);
-
         // TODO: Invite user
 
         dm.add(adapter.onClickObservable().subscribe(item -> {
-//            if(item instanceof User) {
-//                adapter.toggleSelection(item);
-//            }
-            if (item instanceof ContactBookUser) {
+            if (item.getEntityID() == null) {
                 inviteUser((ContactBookUser) item);
+            } else {
+                User user = ChatSDK.core().getUserNowForEntityID(item.getEntityID());
+                ChatSDK.contact().addContact(user, ConnectionType.Contact)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnComplete(() -> {
+                            showToast(R.string.contact_added);
+                            adapter.getItems().remove(item);
+                            adapter.notifyDataSetChanged();
+                        })
+                        .subscribe(this);
             }
         }));
 
         hideKeyboard();
         dialog.dismiss();
 
-        dm.add(loadUsersFromContactBook().observeOn(AndroidSchedulers.mainThread()).subscribe(contactBookUsers -> {
-
-            adapter.notifyDataSetChanged();
-
-            final ProgressDialog dialog1 = new ProgressDialog(ContactBookSearchActivity.this);
-            dialog1.setMessage(getString(R.string.fetching));
-            dialog1.show();
-
-            dm.add(ContactBookManager.searchServer(contactBookUsers)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnComplete(() -> {
-                        // Remove any phone book users where the entity id is set (because they already exist on the server...)
-                        ArrayList<Object> copy = new ArrayList<>(adapter.getItems());
-                        Iterator<Object> iterator = copy.iterator();
-
-                        while (iterator.hasNext()) {
-                            Object o = iterator.next();
-                            if (o instanceof ContactBookUser) {
-                                ContactBookUser user = (ContactBookUser) o;
-                                if (user.getEntityID() != null) {
-                                    adapter.getItems().remove(o);
-                                }
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
-
-                        dialog1.dismiss();
-                    })
-                    .subscribe(value -> {
-                        if (value.user != null) {
-                            // Add the user just before the invite header
-                            int indexOfHeader = adapter.getItems().indexOf(inviteHeader);
-                            adapter.addUser(value.user, indexOfHeader, true);
-                            dialog1.dismiss();
-                        }
-                    }, this));
-        }));
+        loadUsersFromContactBook().observeOn(AndroidSchedulers.mainThread()).flatMapCompletable(contactBookUsers -> {
+            return ContactBookManager.searchServer(contactBookUsers).observeOn(AndroidSchedulers.mainThread()).doOnNext(value -> {
+                sortList();
+            }).ignoreElements();
+        }).subscribe(this);
 
         dialog.setOnCancelListener(dialog1 -> dm.dispose());
 
-        button.setOnClickListener(v -> {
+    }
 
-            if (adapter.getSelectedCount() == 0) {
-                showToast(getString(R.string.no_contacts_selected));
-                return;
+    protected void sortList() {
+        Collections.sort(adapter.getItems(), (o1, o2) -> {
+            Boolean b1 = o1.getEntityID() != null;
+            Boolean b2 = o2.getEntityID() != null;
+            int result = b2.compareTo(b1);
+            if (result == 0) {
+                String n1 = o1.getName();
+                n1 = n1 != null ? n1 : "";
+                String n2 = o2.getName();
+                n2 = n2 != null ? n2 : "";
+                result = n1.compareTo(n2);
             }
-
-            ArrayList<Completable> completables = new ArrayList<>();
-
-            for (UserListItem u : adapter.getSelectedUsers()) {
-                if (u instanceof User) {
-                    completables.add(ChatSDK.contact().addContact((User) u, ConnectionType.Contact));
-                }
-            }
-
-            final ProgressDialog dialog12 = new ProgressDialog(ContactBookSearchActivity.this);
-            dialog12.setMessage(getString(R.string.alert_save_contact));
-            dialog12.show();
-
-            dm.add(Completable.merge(completables)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(() -> {
-                        dialog12.dismiss();
-                        finish();
-                    }, toastOnErrorConsumer()));
+            return result;
         });
-
-
+        adapter.notifyDataSetChanged();
     }
 
     private void sendEmail(String emailAddress, String subject, String body) {
@@ -213,7 +180,7 @@ public class ContactBookSearchActivity extends BaseActivity {
             items[i++] = title;
         }
 
-        builder.setTitle("Invite Contact").setItems(items, (dialogInterface, i1) -> {
+        builder.setTitle(getString(R.string.invite_contact)).setItems(items, (dialogInterface, i1) -> {
             // Launch the appropriate context
             runnables.get(i1).run();
         });
@@ -221,16 +188,29 @@ public class ContactBookSearchActivity extends BaseActivity {
         builder.show();
     }
 
-    private Single<ArrayList<ContactBookUser>> loadUsersFromContactBook() {
-        return Single.create((SingleOnSubscribe<ArrayList<ContactBookUser>>) e -> {
-            dm.add(PermissionRequestHandler.requestReadContact(ContactBookSearchActivity.this).subscribe(() -> {
-                ArrayList<ContactBookUser> contactBookUsers = ContactBookManager.getContactList(ContactBookSearchActivity.this);
+    private Single<List<ContactBookUser>> loadUsersFromContactBook() {
+        return PermissionRequestHandler.requestReadContact(ContactBookSearchActivity.this).andThen(Single.defer((Callable<SingleSource<List<ContactBookUser>>>) () -> {
+            return ContactBookManager.getContactList(getApplicationContext()).map(contactBookUsers -> {
+                List<User> contacts = ChatSDK.contact().contacts();
+
                 for (ContactBookUser u : contactBookUsers) {
-                    adapter.addUser(u);
+                    // Check to see if this user is already in our contacts
+                    boolean exists = false;
+                    for (User user: contacts) {
+                        if (u.isUser(user)) {
+                            exists = true;
+                            break;
+                        }
+                    }
+                    if (!exists) {
+                        adapter.addUser(u);
+                    }
                 }
-                e.onSuccess(contactBookUsers);
-            }, toastOnErrorConsumer()));
-        }).subscribeOn(Schedulers.single());
+                adapter.notifyDataSetChanged();
+
+                return contactBookUsers;
+            });
+        })).subscribeOn(Schedulers.io());
     }
 
 }

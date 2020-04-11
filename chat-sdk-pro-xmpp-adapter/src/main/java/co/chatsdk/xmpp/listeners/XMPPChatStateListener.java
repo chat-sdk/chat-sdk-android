@@ -5,8 +5,8 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smackx.chatstates.ChatState;
 import org.jivesoftware.smackx.chatstates.ChatStateListener;
 
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.xmpp.XMPPManager;
 
 public class XMPPChatStateListener implements ChatStateListener {

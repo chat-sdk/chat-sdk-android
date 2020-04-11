@@ -8,19 +8,15 @@ import android.os.Build;
 import android.provider.MediaStore;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import co.chatsdk.core.dao.Thread;
+import sdk.chat.core.dao.Thread;
 
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
-import co.chatsdk.ui.activities.ChatActivity;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.ui.chat.options.BaseChatOption;
-import droidninja.filepicker.FilePickerBuilder;
-import droidninja.filepicker.FilePickerConst;
 import io.reactivex.Completable;
 
 import static android.app.Activity.RESULT_OK;

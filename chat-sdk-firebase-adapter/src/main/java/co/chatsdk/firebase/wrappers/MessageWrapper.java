@@ -17,33 +17,40 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
-import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.ReadReceiptUserLink;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.hook.HookEvent;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.ReadStatus;
+import io.reactivex.CompletableSource;
+import sdk.chat.core.dao.DaoCore;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.ReadReceiptUserLink;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.ReadStatus;
 import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.R;
 import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.utils.Generic;
 import io.reactivex.Completable;
 import io.reactivex.schedulers.Schedulers;
+import sdk.guru.realtime.RXRealtime;
 
 public class MessageWrapper  {
 
     private Message model;
 
-    public MessageWrapper(Message model){
+    public MessageWrapper(Message model) {
         this.model = model;
     }
 
-    public MessageWrapper(DataSnapshot snapshot){
+    public MessageWrapper(DataSnapshot snapshot) {
         this.model = ChatSDK.db().fetchOrCreateEntityWithEntityID(Message.class, snapshot.getKey());
         deserialize(snapshot);
+    }
+
+    public MessageWrapper(String entityID) {
+        this.model = ChatSDK.db().fetchOrCreateEntityWithEntityID(Message.class, entityID);
     }
 
     Map<String, Object> serialize() {
@@ -136,7 +143,7 @@ public class MessageWrapper  {
             model.setSender(user);
         }
 
-        HashMap<String, HashMap<String, Long>> readMap = snapshot.child(Keys.Read).getValue(Generic.readReceiptHashMap());
+        Map<String, Map<String, Long>> readMap = snapshot.child(Keys.Read).getValue(Generic.readReceiptHashMap());
         if (readMap != null) {
             updateReadReceipts(readMap);
         }
@@ -144,12 +151,12 @@ public class MessageWrapper  {
         model.update();
     }
 
-    public void updateReadReceipts (HashMap<String, HashMap<String, Long>> map) {
+    public void updateReadReceipts (Map<String, Map<String, Long>> map) {
         for(String key : map.keySet()) {
 
             User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, key);
 
-            HashMap<String, Long> statusMap = map.get(key);
+            Map<String, Long> statusMap = map.get(key);
 
             if (statusMap != null) {
 
@@ -195,7 +202,7 @@ public class MessageWrapper  {
             if (model.getThread() != null) {
                 return push();
             } else {
-                return Completable.error(new Throwable(ChatSDK.shared().getString(R.string.message_doesnt_have_a_thread)));
+                return Completable.error(ChatSDK.getException(R.string.message_doesnt_have_a_thread));
             }
         }).subscribeOn(Schedulers.io());
     }
@@ -232,40 +239,32 @@ public class MessageWrapper  {
     }
 
     public Completable setReadStatus (ReadStatus status) {
-        return Completable.create(emitter -> {
-
+        return Completable.defer(() -> {
             if (model.getSender().isMe()) {
-                emitter.onComplete();
-                return;
+                return Completable.complete();
             }
 
-            if (!model.getThread().containsUser(ChatSDK.currentUser())) {
-                return;
+            User currentUser = ChatSDK.currentUser();
+
+            if (!model.getThread().containsUser(currentUser)) {
+                return Completable.complete();
             }
 
-            String entityID = ChatSDK.currentUserID();
+            if(model.setUserReadStatus(ChatSDK.currentUser(), status, new DateTime())) {
 
-            ReadStatus currentStatus = model.readStatusForUser(ChatSDK.currentUser());
+                Map<String, Object> map = new HashMap<String, Object>() {{
+                    put(Keys.Status, status.getValue());
+                    put(Keys.Date, ServerValue.TIMESTAMP);
+                }};
 
-            if (currentStatus.getValue() >= status.getValue()) {
-                emitter.onComplete();
-                return;
+                DatabaseReference ref = FirebasePaths.threadMessagesReadRef(model.getThread().getEntityID(), model.getEntityID()).child(currentUser.getEntityID());
+                RXRealtime realtime = new RXRealtime();
+                Completable completable = realtime.set(ref, map);
+                realtime.addToReferenceManager();
+
+                return completable;
             }
-
-            model.setUserReadStatus(ChatSDK.currentUser(), status, new DateTime());
-
-            HashMap<String, Object> map = new HashMap<>();
-            map.put(Keys.Status, status.getValue());
-            map.put(Keys.Date, ServerValue.TIMESTAMP);
-
-            DatabaseReference ref = FirebasePaths.threadMessagesReadRef(model.getThread().getEntityID(), model.getEntityID());
-            ref.child(entityID).setValue(map, (databaseError, databaseReference) -> {
-                if (databaseError == null) {
-                    emitter.onComplete();
-                } else {
-                    emitter.onError(databaseError.toException());
-                }
-            });
+            return Completable.complete();
 
         }).subscribeOn(Schedulers.io());
     }

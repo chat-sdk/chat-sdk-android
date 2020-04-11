@@ -8,16 +8,17 @@ import android.widget.ImageView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import co.chatsdk.core.events.EventType
-import co.chatsdk.core.events.NetworkEvent
-import co.chatsdk.core.interfaces.LocalNotificationHandler
-import co.chatsdk.core.session.ChatSDK
+import sdk.chat.core.events.EventType
+import sdk.chat.core.events.NetworkEvent
+import sdk.chat.core.interfaces.LocalNotificationHandler
+import sdk.chat.core.session.ChatSDK
 import co.chatsdk.ui.activities.MainActivity
 import co.chatsdk.ui.fragments.BaseFragment
 import co.chatsdk.ui.icons.Icons
 import co.chatsdk.ui.interfaces.SearchSupported
 import co.chatsdk.ui.module.DefaultUIModule
 import com.bumptech.glide.Glide
+import com.miguelcatalan.materialsearchview.MaterialSearchView
 import com.mikepenz.materialdrawer.holder.ImageHolder
 import com.mikepenz.materialdrawer.holder.StringHolder
 import com.mikepenz.materialdrawer.model.DividerDrawerItem
@@ -33,6 +34,9 @@ import com.mikepenz.materialdrawer.widget.AccountHeaderView
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import kotlinx.android.synthetic.main.activity_main_drawer.*
+import sdk.chat.core.hook.Executor
+import sdk.chat.core.hook.Hook
+import sdk.chat.core.hook.HookEvent
 
 class MainDrawActivity : MainActivity() {
 
@@ -53,6 +57,8 @@ class MainDrawActivity : MainActivity() {
         super.onCreate(savedInstanceState)
         setContentView(layout)
 
+        initViews()
+
         dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated, EventType.MessageAdded)).subscribe(Consumer {
             // Refresh the read count
             slider.updateName(privateThreadItem.identifier, privateTabName())
@@ -67,6 +73,14 @@ class MainDrawActivity : MainActivity() {
             headerView.updateProfile(profile)
             updateHeaderBackground()
         }))
+
+        ChatSDK.hook().addHook(Hook.sync(Executor {
+            headerView.post {
+                updateProfile()
+                headerView.updateProfile(profile)
+                updateHeaderBackground()
+            }
+        }), HookEvent.DidAuthenticate);
 
         DrawerImageLoader.init(object : AbstractDrawerImageLoader() {
             override fun set(imageView: ImageView, uri: Uri, placeholder: Drawable, tag: String?) {
@@ -264,7 +278,7 @@ class MainDrawActivity : MainActivity() {
         (currentFragment as SearchSupported).filter(text)
     }
 
-    override fun searchView(): com.miguelcatalan.materialsearchview.MaterialSearchView {
+    override fun searchView(): MaterialSearchView {
         return searchView
     }
 
@@ -274,8 +288,8 @@ class MainDrawActivity : MainActivity() {
         }
     }
 
-    override fun initViews() {
-    }
+//    override fun initViews() {
+//    }
 
     override fun clearData() {
         for (tab in ChatSDK.ui().tabs()) {

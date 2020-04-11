@@ -23,6 +23,6 @@ include 'app',
         'chat-sdk-pro-xmpp-adapter',
         'chat-sdk-pro-xmpp-read-receipts',
         'sdk-guru-common',
-        'sdk-guru-firebase',
+        'sdk-guru-realtime',
         'sdk-guru-firestore',
         'firestream'

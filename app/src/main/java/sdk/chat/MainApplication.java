@@ -7,9 +7,11 @@ import com.google.firebase.auth.PhoneAuthProvider;
 
 import org.pmw.tinylog.Logger;
 
+import java.util.concurrent.TimeUnit;
+
 import co.chatsdk.contact.ContactBookModule;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.Config;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.session.Config;
 import co.chatsdk.firebase.blocking.FirebaseBlockingModule;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.module.FirebaseModule;
@@ -26,6 +28,8 @@ import co.chatsdk.xmpp.module.XMPPModule;
 import co.chatsdk.xmpp.read_receipt.XMPPReadReceiptsModule;
 import io.reactivex.disposables.Disposable;
 import sdk.chat.audio.AudioMessageModule;
+import sdk.chat.core.session.Configure;
+import sdk.chat.core.utils.Device;
 import sdk.chat.message.video.VideoMessageModule;
 import sdk.chat.test.Testing;
 import sdk.chat.ui.extras.ExtrasModule;
@@ -54,7 +58,7 @@ public class MainApplication extends Application {
                     .setDebugModeEnabled(true)
                     .setRemoteConfigEnabled(true)
                     .setIdenticonType(Config.IdenticonType.Gravatar)
-                    .setPublicChatRoomLifetimeMinutes(60 * 24)
+                    .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                     .build()
 
                     // Add the network adapter module
@@ -91,7 +95,11 @@ public class MainApplication extends Application {
 //                    .addModule(XMPPModule.shared(Testing::myOpenFire, config -> config
 //                            .setResetPasswordEnabled(false)))
 
-                    .addModule(ExtrasModule.shared())
+                    .addModule(ExtrasModule.configure(config -> {
+                        if (Device.nexus()) {
+                            config.setDrawerEnabled(false);
+                        }
+                    }))
 
 //                    .addModule(FirestreamModule.shared(config -> config
 //                            .setRoot(rootPath)
@@ -145,7 +153,7 @@ public class MainApplication extends Application {
                     .setDebugModeEnabled(true)
                     .setRemoteConfigEnabled(true)
                     .setIdenticonType(Config.IdenticonType.Gravatar)
-                    .setPublicChatRoomLifetimeMinutes(60 * 24)
+                    .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                     .setDisablePresence(false)
                     .build()
 

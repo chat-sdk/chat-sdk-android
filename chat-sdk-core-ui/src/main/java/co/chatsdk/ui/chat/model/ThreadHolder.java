@@ -5,9 +5,9 @@ import com.stfalcon.chatkit.commons.models.IDialog;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
 import co.chatsdk.ui.custom.Customiser;
 
 public class ThreadHolder implements IDialog<MessageHolder> {
@@ -32,7 +32,13 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     @Override
     public String getDialogPhoto() {
-        return thread.getImageUrl();
+        String url = thread.getImageUrl();
+        if (url == null) {
+            if (getUsers().size() == 1) {
+                url = getUsers().get(0).getAvatar();
+            }
+        }
+        return url;
     }
 
     @Override

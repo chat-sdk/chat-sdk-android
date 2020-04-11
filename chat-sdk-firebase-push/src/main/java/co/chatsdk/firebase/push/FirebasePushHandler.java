@@ -9,7 +9,7 @@ import org.pmw.tinylog.Logger;
 
 import java.util.HashMap;
 
-import co.chatsdk.core.push.AbstractPushHandler;
+import sdk.chat.core.push.AbstractPushHandler;
 import co.chatsdk.firebase.FirebaseCoreHandler;
 import io.reactivex.Completable;
 import io.reactivex.schedulers.Schedulers;

@@ -39,7 +39,7 @@ publish {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api project(':sdk-guru-common')
-    api project(':sdk-guru-firebase')
+    api project(':sdk-guru-realtime')
     api project(':sdk-guru-firestore')
 
     implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"

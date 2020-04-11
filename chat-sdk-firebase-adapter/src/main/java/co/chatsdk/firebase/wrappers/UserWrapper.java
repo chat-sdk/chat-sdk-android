@@ -13,7 +13,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
@@ -23,19 +22,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import co.chatsdk.core.avatar.HashAvatarGenerator;
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.defines.Availability;
-import co.chatsdk.core.image.ImageUtils;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.HashMapHelper;
-import co.chatsdk.core.utils.StringChecker;
+import sdk.chat.core.avatar.HashAvatarGenerator;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.defines.Availability;
+import sdk.chat.core.image.ImageUtils;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.HashMapHelper;
+import sdk.chat.core.utils.StringChecker;
 import co.chatsdk.firebase.FirebaseCoreHandler;
 import co.chatsdk.firebase.FirebaseEntity;
-import co.chatsdk.firebase.FirebaseEventListener;
+import sdk.guru.realtime.RealtimeEventListener;
 import co.chatsdk.firebase.FirebasePaths;
-import co.chatsdk.firebase.FirebaseReferenceManager;
+import sdk.guru.realtime.RealtimeReferenceManager;
 import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.utils.FirebaseRX;
 import co.chatsdk.firebase.utils.Generic;
@@ -144,7 +143,7 @@ public class UserWrapper {
 //
 //            final DatabaseReference ref = ref();
 //
-//            ref.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+//            ref.addListenerForSingleValueEvent(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
 //                if(hasValue) {
 //                    deserialize((Map<String, Object>) snapshot.getValue());
 //                }
@@ -160,10 +159,10 @@ public class UserWrapper {
     public Completable metaOn() {
         return Completable.create(emitter -> {
             final DatabaseReference userMetaRef = FirebasePaths.userMetaRef(model.getEntityID());
-            if (FirebaseReferenceManager.shared().isOn(userMetaRef)) {
+            if (RealtimeReferenceManager.shared().isOn(userMetaRef)) {
                 emitter.onComplete();
             } else {
-                ValueEventListener listener = userMetaRef.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                ValueEventListener listener = userMetaRef.addValueEventListener(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
                     if (hasValue && snapshot.getValue() instanceof Map) {
                         deserializeMeta(snapshot.getValue(Generic.mapStringObject()));
                         emitter.onComplete();
@@ -173,14 +172,14 @@ public class UserWrapper {
                 }).onCancelled(error -> {
                     emitter.onError(error.toException());
                 }));
-                FirebaseReferenceManager.shared().addRef(userMetaRef, listener);
+                RealtimeReferenceManager.shared().addRef(userMetaRef, listener);
             }
         }).subscribeOn(Schedulers.io());
     }
 
     public void metaOff() {
         DatabaseReference userMetaRef = FirebasePaths.userMetaRef(model.getEntityID());
-        FirebaseReferenceManager.shared().removeListeners(userMetaRef);
+        RealtimeReferenceManager.shared().removeListeners(userMetaRef);
     }
 
     public void deserializeMeta(Map<String, Object> value){
@@ -209,10 +208,10 @@ public class UserWrapper {
     public Completable onlineOn() {
         return Completable.create(emitter -> {
             DatabaseReference ref = FirebasePaths.userOnlineRef(model.getEntityID());
-            if (FirebaseReferenceManager.shared().isOn(ref)) {
+            if (RealtimeReferenceManager.shared().isOn(ref)) {
                 emitter.onComplete();
             } else {
-                ValueEventListener listener = ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+                ValueEventListener listener = ref.addValueEventListener(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
 
                     Boolean available = false;
                     if(hasValue) {
@@ -228,7 +227,7 @@ public class UserWrapper {
                     emitter.onError(error.toException());
                 }));
 
-                FirebaseReferenceManager.shared().addRef(ref, listener);
+                RealtimeReferenceManager.shared().addRef(ref, listener);
             }
         }).subscribeOn(Schedulers.io());
     }
@@ -237,7 +236,7 @@ public class UserWrapper {
         return Single.create((SingleOnSubscribe<Map<String, Object>>) emitter -> {
             final DatabaseReference ref = metaRef();
 
-            ref.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+            ref.addListenerForSingleValueEvent(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
                 if(hasValue) {
                     emitter.onSuccess(snapshot.getValue(Generic.mapStringObject()));
                 }
@@ -256,7 +255,7 @@ public class UserWrapper {
 
     public void onlineOff () {
         DatabaseReference ref = FirebasePaths.userOnlineRef(model.getEntityID());
-        FirebaseReferenceManager.shared().removeListeners(ref);
+        RealtimeReferenceManager.shared().removeListeners(ref);
     }
 
     Map<String, Object> serialize() {

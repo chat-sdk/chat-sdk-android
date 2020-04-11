@@ -4,11 +4,11 @@ import com.google.firebase.database.DatabaseReference;
 
 import java.util.HashMap;
 
-import co.chatsdk.core.base.BaseContactHandler;
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.ConnectionType;
+import sdk.chat.core.base.BaseContactHandler;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.ConnectionType;
 import io.reactivex.Completable;
 import io.reactivex.schedulers.Schedulers;
 

@@ -1,6 +1,6 @@
 package sdk.chat.custom;
 
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.session.ChatSDK;
 
 public class AConfigurator {
 

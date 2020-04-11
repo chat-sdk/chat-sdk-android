@@ -36,7 +36,7 @@ import firestream.chat.types.SendableType;
  * This class handles common elements of a conversation bit it 1-to-1 or group.
  * Mainly sending and receiving messages.
  */
-public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat {
+public abstract class AbstractChat implements IAbstractChat {
 
     /**
      * Store the disposables so we can dispose of all of them when the user logs out
@@ -52,16 +52,6 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
      * A list of all sendables received
      */
     protected ArrayList<Sendable> sendables = new ArrayList<>();
-
-    /**
-     * Error handler method so we can redirect all errors to the error events
-     * @param throwable - the events error
-     * @throws Exception
-     */
-    @Override
-    public void accept(Throwable throwable) throws Exception {
-        events.errors.onError(throwable);
-    }
 
     /**
      * Start listening to the current message reference and retrieve all messages
@@ -416,6 +406,30 @@ public abstract class AbstractChat implements Consumer<Throwable>, IAbstractChat
             add(Filter.notFromMe());
             add(Filter.byEventType(EventType.Added));
         }});
+    }
+
+    @Override
+    public void onSubscribe(Disposable d) {
+        dm.add(d);
+    }
+
+    @Override
+    public void onComplete() {
+
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        events.publishThrowable().onNext(e);
+    }
+
+    /**
+     * Error handler method so we can redirect all errors to the error events
+     * @param throwable - the events error
+     */
+    @Override
+    public void accept(Throwable throwable) {
+        onError(throwable);
     }
 
 }

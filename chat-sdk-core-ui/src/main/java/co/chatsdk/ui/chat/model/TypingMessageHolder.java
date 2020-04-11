@@ -1,7 +1,7 @@
 package co.chatsdk.ui.chat.model;
 
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.types.ReadStatus;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.types.ReadStatus;
 
 public class TypingMessageHolder extends MessageHolder {
 

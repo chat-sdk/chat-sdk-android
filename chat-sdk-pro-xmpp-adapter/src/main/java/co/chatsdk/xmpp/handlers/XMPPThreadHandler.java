@@ -15,18 +15,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import co.chatsdk.core.base.AbstractThreadHandler;
-import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.push.AbstractPushHandler;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageSendStatus;
-import co.chatsdk.core.types.MessageType;
-import co.chatsdk.core.types.ReadStatus;
+import sdk.chat.core.base.AbstractThreadHandler;
+import sdk.chat.core.dao.DaoCore;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.push.AbstractPushHandler;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageSendStatus;
+import sdk.chat.core.types.MessageType;
+import sdk.chat.core.types.ReadStatus;
 import co.chatsdk.xmpp.R;
 import co.chatsdk.xmpp.XMPPMUCManager;
 import co.chatsdk.xmpp.XMPPManager;
@@ -106,7 +106,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                 users.remove(currentUser);
                 return XMPPManager.shared().mucManager.createRoom(name, "", users);
             } else {
-                return Single.error(new Exception(ChatSDK.shared().getString(R.string.unable_to_create_thread)));
+                return Single.error(ChatSDK.getException(R.string.unable_to_create_thread));
             }
 
         }).subscribeOn(Schedulers.io());
@@ -380,7 +380,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
             if (newAffiliation != null) {
                 return XMPPManager.shared().mucManager.setRole(thread, user, newAffiliation);
             }
-            return Completable.error(new Throwable(ChatSDK.shared().getString(R.string.permission_denied)));
+            return Completable.error(ChatSDK.getException(R.string.permission_denied));
         }).subscribeOn(Schedulers.io());
     }
 

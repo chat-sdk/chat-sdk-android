@@ -10,15 +10,15 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.handlers.FileMessageHandler;
-import co.chatsdk.core.rigs.BitmapUploadable;
-import co.chatsdk.core.rigs.FileUploadable;
-import co.chatsdk.core.rigs.MessageSendRig;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageType;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.handlers.FileMessageHandler;
+import sdk.chat.core.rigs.BitmapUploadable;
+import sdk.chat.core.rigs.FileUploadable;
+import sdk.chat.core.rigs.MessageSendRig;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageType;
 import io.reactivex.Completable;
 
 /**

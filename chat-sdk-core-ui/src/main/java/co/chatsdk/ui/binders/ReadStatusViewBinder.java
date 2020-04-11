@@ -3,9 +3,9 @@ package co.chatsdk.ui.binders;
 import android.view.View;
 import android.widget.ImageView;
 
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageSendStatus;
-import co.chatsdk.core.types.ReadStatus;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageSendStatus;
+import sdk.chat.core.types.ReadStatus;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.model.MessageHolder;
 

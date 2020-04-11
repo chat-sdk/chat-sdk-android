@@ -8,4 +8,7 @@
     <string name="no_contacts_selected">No contacts were selected</string>
     <string name="send_mail">Send Mail</string>
     <string name="sms">SMS</string>
+    <string name="send_invite">Send Invite</string>
+    <string name="invite_contact">Invite Contact</string>
+    <string name="add_user_from_contacts">Add user from Contacts</string>
 </resources>

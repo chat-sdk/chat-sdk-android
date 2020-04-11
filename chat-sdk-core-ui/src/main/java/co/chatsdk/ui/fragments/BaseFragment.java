@@ -19,7 +19,7 @@ import androidx.annotation.StringRes;
 import androidx.fragment.app.DialogFragment;
 
 import butterknife.ButterKnife;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.session.ChatSDK;
 import sdk.guru.common.DisposableMap;
 import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.utils.AlertUtils;

@@ -29,15 +29,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.image.ImageUtils;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.storage.FileManager;
-import co.chatsdk.core.types.ConnectionType;
-import co.chatsdk.core.types.KeyValue;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.image.ImageUtils;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.storage.FileManager;
+import sdk.chat.core.types.ConnectionType;
+import sdk.chat.core.types.KeyValue;
 
-import co.chatsdk.core.utils.StringChecker;
+import sdk.chat.core.utils.StringChecker;
 import co.chatsdk.xmpp.utils.PresenceHelper;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Completable;

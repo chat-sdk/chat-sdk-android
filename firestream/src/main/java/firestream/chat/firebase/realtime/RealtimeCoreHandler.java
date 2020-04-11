@@ -31,8 +31,8 @@ import firestream.chat.message.Sendable;
 
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import sdk.guru.firebase.RXRealtime;
-import sdk.guru.firebase.DocumentChange;
+import sdk.guru.realtime.RXRealtime;
+import sdk.guru.realtime.DocumentChange;
 
 public class RealtimeCoreHandler extends FirebaseCoreHandler {
 

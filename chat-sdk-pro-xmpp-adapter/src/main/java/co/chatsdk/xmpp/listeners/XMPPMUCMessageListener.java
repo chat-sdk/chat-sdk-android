@@ -8,9 +8,9 @@ import org.pmw.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
 
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.xmpp.XMPPMUCManager;
 import co.chatsdk.xmpp.XMPPManager;
 import co.chatsdk.xmpp.XMPPMessageParser;

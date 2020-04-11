@@ -2,8 +2,8 @@ package co.chatsdk.xmpp.utils;
 
 import org.jivesoftware.smack.packet.Message;
 
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.session.ChatSDK;
 
 public class XMPPMessageWrapper {
 

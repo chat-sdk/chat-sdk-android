@@ -4,11 +4,11 @@ import org.jivesoftware.smack.packet.Message;
 
 import java.util.Date;
 
-import co.chatsdk.core.dao.DaoCore;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.DaoCore;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
 
 public class XMPPMessageParseHelper {
 

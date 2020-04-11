@@ -4,11 +4,11 @@ import android.content.Context;
 
 import androidx.fragment.app.Fragment;
 
-import co.chatsdk.core.Tab;
-import co.chatsdk.core.handlers.Module;
+import sdk.chat.core.Tab;
+import sdk.chat.core.handlers.Module;
 import sdk.guru.common.BaseConfig;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.session.Configure;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.session.Configure;
 
 
 /**

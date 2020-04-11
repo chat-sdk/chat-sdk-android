@@ -2,9 +2,9 @@ package co.chatsdk.xmpp.read_receipt;
 
 import org.jivesoftware.smack.packet.Stanza;
 
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.handlers.ReadReceiptHandler;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.handlers.ReadReceiptHandler;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.xmpp.XMPPManager;
 
 public class XMPPReadReceiptHandler implements ReadReceiptHandler {

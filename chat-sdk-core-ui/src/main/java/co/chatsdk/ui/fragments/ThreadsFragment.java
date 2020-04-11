@@ -25,13 +25,13 @@ import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.EventType;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.Dimen;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.EventType;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.Dimen;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.chat.model.ThreadHolder;
@@ -172,7 +172,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.add_menu, menu);
-        menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, R.color.app_bar_icon_color));
+        menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, Icons.shared().actionBarIconColor));
         if (!allowThreadCreation()) {
             menu.removeItem(R.id.action_add);
         }

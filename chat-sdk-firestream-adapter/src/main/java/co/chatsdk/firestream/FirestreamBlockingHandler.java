@@ -1,6 +1,6 @@
 package co.chatsdk.firestream;
 
-import co.chatsdk.core.handlers.BlockingHandler;
+import sdk.chat.core.handlers.BlockingHandler;
 import firestream.chat.chat.User;
 import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;

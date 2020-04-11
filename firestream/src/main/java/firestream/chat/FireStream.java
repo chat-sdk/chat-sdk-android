@@ -17,6 +17,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import firefly.sdk.chat.R;
+import io.reactivex.CompletableObserver;
+import io.reactivex.disposables.Disposable;
 import sdk.guru.common.Event;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.interfaces.IChat;
@@ -114,7 +116,7 @@ public class FireStream extends AbstractChat implements IFireStream {
     public void initialize(Context context, @Nullable FirestreamConfig config) {
         this.context = new WeakReference<>(context);
         if (config == null) {
-            config = new FirestreamConfig();
+            config = new FirestreamConfig<>(this);
         }
         this.config = config;
 
@@ -155,22 +157,21 @@ public class FireStream extends AbstractChat implements IFireStream {
             stream = stream.filter(Filter.eventBySendableType(SendableType.typingState(), SendableType.presence()));
         }
         // If deletion is enabled, we don't filter so we delete all the message types
-        dm.add(stream.map(Event::get).flatMapCompletable(this::deleteSendable).subscribe());
+        stream.map(Event::get).flatMapCompletable(this::deleteSendable).subscribe(this);
 
         // DELIVERY RECEIPTS
 
-        dm.add(getSendableEvents()
+        getSendableEvents()
                 .getMessages()
                 .pastAndNewEvents()
                 .filter(deliveryReceiptFilter())
                 .flatMapCompletable(event -> markReceived(event.get()))
-                .doOnError(this)
-                .subscribe());
+                .subscribe(this);
 
         // If message deletion is disabled, send a received receipt to ourself for each message. This means
         // that when we add a childListener, we only get new messages
         if (!config.deleteMessagesOnReceipt && config.startListeningFromLastSentMessageDate) {
-            dm.add(getSendableEvents()
+            getSendableEvents()
                     .getMessages()
                     .pastAndNewEvents()
                     .filter(Filter.notFromMe())
@@ -178,17 +179,17 @@ public class FireStream extends AbstractChat implements IFireStream {
 
                     return sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), event.get().getId());
 
-            }).doOnError(this).subscribe());
+            }).subscribe(this);
         }
 
         // INVITATIONS
 
-        dm.add(getSendableEvents().getInvitations().pastAndNewEvents().flatMapCompletable(event -> {
+        getSendableEvents().getInvitations().pastAndNewEvents().flatMapCompletable(event -> {
             if (config.autoAcceptChatInvite) {
                 return event.get().accept();
             }
             return Completable.complete();
-        }).doOnError(this).subscribe());
+        }).subscribe(this);
 
         // BLOCKED USERS
 
@@ -601,4 +602,5 @@ public class FireStream extends AbstractChat implements IFireStream {
     public Completable unmute(String id) {
         return getFirebaseService().core.unmute(Paths.userMutedPath().child(id));
     }
+
 }

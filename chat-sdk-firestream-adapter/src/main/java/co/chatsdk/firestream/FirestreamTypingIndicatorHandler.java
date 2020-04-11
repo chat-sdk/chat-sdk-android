@@ -1,11 +1,11 @@
 package co.chatsdk.firestream;
 
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.handlers.TypingIndicatorHandler;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.handlers.TypingIndicatorHandler;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
 import firestream.chat.events.ConnectionEvent;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.namespace.Fire;

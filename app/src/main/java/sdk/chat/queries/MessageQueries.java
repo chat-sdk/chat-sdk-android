@@ -5,11 +5,11 @@ import org.greenrobot.greendao.query.QueryBuilder;
 import java.util.Date;
 import java.util.List;
 
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.MessageDao;
-import co.chatsdk.core.dao.Thread;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.MessageDao;
+import sdk.chat.core.dao.Thread;
 
-import static co.chatsdk.core.dao.DaoCore.daoSession;
+import static sdk.chat.core.dao.DaoCore.daoSession;
 
 public class MessageQueries {
 

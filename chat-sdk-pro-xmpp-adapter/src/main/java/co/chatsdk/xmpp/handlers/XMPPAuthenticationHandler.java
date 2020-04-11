@@ -6,13 +6,20 @@ import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.stringprep.XmppStringprepException;
+import org.minidns.record.A;
 import org.pmw.tinylog.Logger;
 
-import co.chatsdk.core.base.AbstractAuthenticationHandler;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.AccountDetails;
+import java.util.concurrent.Callable;
+
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.CompletableSource;
+import io.reactivex.functions.Action;
+import sdk.chat.core.base.AbstractAuthenticationHandler;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.AccountDetails;
 import co.chatsdk.xmpp.R;
 import co.chatsdk.xmpp.XMPPManager;
 import co.chatsdk.xmpp.utils.KeyStorage;
@@ -40,60 +47,71 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
     }
 
     @Override
+    public Completable authenticate() {
+        return Completable.defer(() -> {
+
+            if (isAuthenticatedThisSession()) {
+                return Completable.complete();
+            }
+            if (!isAuthenticated()) {
+                return Completable.error(ChatSDK.getException(R.string.authentication_required));
+            }
+            if (!isAuthenticating()) {
+                AccountDetails details = cachedAccountDetails();
+                if (details.areValid()) {
+                    authenticating = authenticate(details);
+                } else {
+                    return Completable.error(new Exception());
+                }
+            }
+            return authenticating;
+        }).doOnComplete(this::setAuthStateToIdle)
+                .subscribeOn(Schedulers.io());
+    }
+
+    @Override
     public Completable authenticate (final AccountDetails details) {
-        return Completable.create(e -> {
-            // If we'recyclerView already authenticated just finish
-            if(XMPPManager.shared().isConnectedAndAuthenticated()) {
-                e.onComplete();
-                return;
+        return Completable.defer(() -> {
+            if (isAuthenticatedThisSession() || isAuthenticated()) {
+                return Completable.error(ChatSDK.getException(R.string.already_authenticated));
             }
+            else if (!isAuthenticating()) {
+                authenticating = Completable.defer(() -> {
+                    // If we'recyclerView already authenticated just finish
+                    if(XMPPManager.shared().isConnectedAndAuthenticated()) {
+                        return Completable.complete();
+                    }
 
-            switch (details.type) {
-                case Username:
-                    XMPPManager.shared().login(details.username, details.password).subscribe(new CompletableObserver() {
-                        @Override
-                        public void onSubscribe(@NonNull Disposable d) {}
+                    switch (details.type) {
+                        case Username:
+                            return XMPPManager.shared().login(details.username, details.password).andThen(Completable.defer(() -> {
+                                keyStorage.save(details.username, details.password);
 
-                        @Override
-                        public void onComplete() {
+                                if(!details.username.contains("@")) {
+                                    details.username = details.username + "@" + XMPPManager.shared().getDomain();
+                                }
 
-                            keyStorage.save(details.username, details.password);
-
-                            if(!details.username.contains("@")) {
-                                details.username = details.username + "@" + XMPPManager.shared().getDomain();
-                            }
-
-                            Logger.debug("Authentication Complete");
-
-                            try {
-                                userAuthenticationCompletedWithJID(JidCreate.bareFrom(details.username));
-                                Logger.debug("Setup tasks complete");
-                                e.onComplete();
-                            }
-                            catch (XmppStringprepException ex) {
-                                e.onError(ex);
-                            }
-                        }
-
-                        @Override
-                        public void onError(@NonNull Throwable ex) {
-                            e.onError(ex);
-                        }
-                    });
-                    break;
-                case Register:
-                    XMPPManager.shared().register(details.username, details.password).subscribe(() -> {
-                        // Once the account is created, authenticate the user
-                        details.type = AccountDetails.Type.Username;
-                        authenticate(details).subscribe(() -> e.onComplete(), throwable -> e.onError(throwable));
-                    }, throwable -> {
-                        e.onError(throwable);
-                    });
-                    break;
-                default:
-                    e.onError(new Throwable(ChatSDK.shared().context().getString(R.string.login_method_doesnt_exist)));
+                                try {
+                                    userAuthenticationCompletedWithJID(JidCreate.bareFrom(details.username));
+                                    return Completable.complete();
+                                }
+                                catch (XmppStringprepException ex) {
+                                    return Completable.error(ex);
+                                }
+                            }));
+                        case Register:
+                            return XMPPManager.shared().register(details.username, details.password).andThen(Completable.defer(() -> {
+                                details.type = AccountDetails.Type.Username;
+                                return authenticate(details);
+                            }));
+                        default:
+                            return Completable.error(ChatSDK.getException(R.string.login_method_doesnt_exist));
+                    }
+                });
             }
-        }).subscribeOn(Schedulers.io());
+            return authenticating;
+        }).doOnComplete(this::setAuthStateToIdle)
+                .subscribeOn(Schedulers.io());
     }
 
     private void userAuthenticationCompletedWithJID (Jid jid) {
@@ -121,17 +139,6 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
         }
     }
 
-    @Override
-    public Completable authenticate() {
-        return Completable.defer(() -> {
-            AccountDetails details = cachedAccountDetails();
-            if (details.areValid()) {
-                return authenticate(details);
-            }
-            return Completable.error(new Exception());
-        });
-    }
-
     public AccountDetails cachedAccountDetails () {
         return AccountDetails.username(keyStorage.get(KeyStorage.UsernameKey), keyStorage.get(KeyStorage.PasswordKey));
     }
@@ -144,20 +151,21 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
 
     @Override
     public Completable logout() {
+        return Completable.create(emitter -> {
+            if(ChatSDK.push() != null) {
+                ChatSDK.push().unsubscribeToPushChannel(ChatSDK.currentUser().getPushChannel());
+            }
+            XMPPManager.shared().logout();
 
-        if(ChatSDK.push() != null) {
-            ChatSDK.push().unsubscribeToPushChannel(ChatSDK.currentUser().getPushChannel());
-        }
-        XMPPManager.shared().logout();
+            clearSavedCurrentUserEntityID();
+            keyStorage.clear();
 
-        clearSavedCurrentUserEntityID();
-        keyStorage.clear();
+            ChatSDK.events().source().onNext(NetworkEvent.logout());
 
-        ChatSDK.events().source().onNext(NetworkEvent.logout());
+            authenticatedThisSession = false;
 
-        authenticatedThisSession = false;
-
-        return Completable.complete();
+            emitter.onComplete();
+        });
     }
 
     // TODO: Implement this

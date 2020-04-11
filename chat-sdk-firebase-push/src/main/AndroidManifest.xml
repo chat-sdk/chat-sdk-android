@@ -28,7 +28,7 @@
         </service>
 
         <receiver
-            android:name="co.chatsdk.core.push.DefaultBroadcastReceiver"
+            android:name="sdk.chat.core.push.DefaultBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND"
             android:enabled="true"
             android:exported="true">

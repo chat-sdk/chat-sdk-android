@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageSendProgress;
-import co.chatsdk.core.types.MessageSendStatus;
-import co.chatsdk.core.types.ReadStatus;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageSendProgress;
+import sdk.chat.core.types.MessageSendStatus;
+import sdk.chat.core.types.ReadStatus;
 import co.chatsdk.ui.binders.MessageBinder;
 
 public class MessageHolder implements IMessage {

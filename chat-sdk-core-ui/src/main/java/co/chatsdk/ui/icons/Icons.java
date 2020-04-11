@@ -1,12 +1,18 @@
 package co.chatsdk.ui.icons;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.TypedValue;
 
+import androidx.annotation.AttrRes;
+import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
+import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 
 import com.mikepenz.iconics.IconicsDrawable;
@@ -15,7 +21,7 @@ import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial;
 
 import java.lang.ref.WeakReference;
 
-import co.chatsdk.core.utils.Dimen;
+import sdk.chat.core.utils.Dimen;
 import co.chatsdk.ui.R;
 
 public class Icons {
@@ -26,6 +32,9 @@ public class Icons {
     public static Icons shared() {
         return instance;
     }
+
+    public @ColorRes int actionBarIconColor = R.color.app_bar_icon_color;
+    public @ColorRes int chatOptionIconColor = R.color.white;
 
     public void setContext(Context context) {
         this.context = new WeakReference<>(context);
@@ -98,15 +107,15 @@ public class Icons {
         return icon;
     }
 
-    public static Drawable get(IconicsDrawable icon, @ColorRes int colorRes, int width, int height) {
+    public static Drawable get(IconicsDrawable icon, int colorRes, int width, int height) {
         return get(context(), icon, colorRes, width, height);
     }
 
-    public static Drawable getLarge(IconicsDrawable icon, @ColorRes int colorRes) {
+    public static Drawable getLarge(IconicsDrawable icon, int colorRes) {
         return get(context(), icon, colorRes, Dimen.from(R.dimen.large_icon_width), Dimen.from(R.dimen.large_icon_height));
     }
 
-    public static Drawable get(Context context, IconicsDrawable drawable, @ColorRes int colorRes, int width, int height) {
+    public static Drawable get(Context context, IconicsDrawable drawable, int colorRes, int width, int height) {
         int color = ContextCompat.getColor(context, colorRes);
         drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_OVER));
 

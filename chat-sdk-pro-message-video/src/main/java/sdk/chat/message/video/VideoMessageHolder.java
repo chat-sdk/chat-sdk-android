@@ -2,8 +2,8 @@ package sdk.chat.message.video;
 
 import com.stfalcon.chatkit.commons.models.MessageContentType;
 
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.chat.model.ImageMessageHolder;
 
 public class VideoMessageHolder extends ImageMessageHolder implements MessageContentType {
@@ -16,7 +16,7 @@ public class VideoMessageHolder extends ImageMessageHolder implements MessageCon
 
     @Override
     public String getText() {
-        return ChatSDK.shared().getString(co.chatsdk.ui.R.string.video_message);
+        return ChatSDK.getString(co.chatsdk.ui.R.string.video_message);
     }
 
 }

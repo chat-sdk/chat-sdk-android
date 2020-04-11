@@ -52,7 +52,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     api project(':chat-sdk-core')
-    api project(':sdk-guru-firebase')
+    api project(':sdk-guru-realtime')
 
     api "com.google.firebase:firebase-core:$firebaseCoreVersion"
     api "com.google.firebase:firebase-database:$firebaseDatabaseVersion"

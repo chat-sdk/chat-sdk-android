@@ -2,8 +2,10 @@ package sdk.chat.examples;
 
 import android.content.Context;
 
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
+import java.util.concurrent.TimeUnit;
+
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
@@ -30,7 +32,7 @@ public class CustomiseInterfaceExample extends BaseExample {
                     .setAnonymousLoginEnabled(false)
                     .setDebugModeEnabled(true)
                     .setLogoDrawableResourceID(R.drawable.ic_launcher_big)
-                    .setPublicChatRoomLifetimeMinutes(60 * 24)
+                    .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                     .build()
 
                     // Add the network adapter module

@@ -2,14 +2,14 @@ package co.chatsdk.firestream;
 
 import java.util.Date;
 
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.ConnectionType;
-import co.chatsdk.core.types.ReadStatus;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.ConnectionType;
+import sdk.chat.core.types.ReadStatus;
 import co.chatsdk.firebase.FirebaseEventHandler;
 import sdk.guru.common.Event;
 import sdk.guru.common.EventType;
@@ -172,7 +172,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
         dm.add(Fire.stream().getContactEvents().subscribe(userEvent -> {
             User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEvent.get().getId());
             if (userEvent.typeIs(EventType.Added)) {
-                dm.add(ChatSDK.contact().addContactLocal(contact, ConnectionType.Contact).doOnError(this).subscribe());
+                ChatSDK.contact().addContactLocal(contact, ConnectionType.Contact).subscribe(this);
             }
             if (userEvent.typeIs(EventType.Removed)) {
                 ChatSDK.contact().deleteContactLocal(contact, ConnectionType.Contact);
@@ -202,7 +202,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
     }
 
     @Override
-    public void accept(Throwable throwable) throws Exception {
+    public void accept(Throwable throwable) {
         throwable.printStackTrace();
     }
 

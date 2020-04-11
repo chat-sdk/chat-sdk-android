@@ -19,11 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.image.ImageUploadResult;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.PermissionRequestHandler;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.image.ImageUploadResult;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.activities.ImagePreviewActivity;
 import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.icons.Icons;
@@ -211,7 +211,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
             return super.onCreateOptionsMenu(menu);
 
         getMenuInflater().inflate(R.menu.add_menu, menu);
-        addMenuItem = menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, R.color.app_bar_icon_color));
+        addMenuItem = menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, Icons.shared().actionBarIconColor));
         addMenuItem.setVisible(shouldShowAddButton(ChatSDK.profilePictures().fromUser(getUser())));
 
         return super.onCreateOptionsMenu(menu);

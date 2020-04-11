@@ -2,9 +2,9 @@ package co.chatsdk.ui.chat.options;
 
 import java.lang.ref.WeakReference;
 
-import co.chatsdk.core.interfaces.ChatOption;
-import co.chatsdk.core.interfaces.ChatOptionsDelegate;
-import co.chatsdk.core.interfaces.ChatOptionsHandler;
+import sdk.chat.core.interfaces.ChatOption;
+import sdk.chat.core.interfaces.ChatOptionsDelegate;
+import sdk.chat.core.interfaces.ChatOptionsHandler;
 
 /**
  * Created by ben on 10/11/17.

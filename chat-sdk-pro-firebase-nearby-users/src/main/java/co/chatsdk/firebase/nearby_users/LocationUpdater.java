@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import co.chatsdk.core.hook.Hook;
-import co.chatsdk.core.hook.HookEvent;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.AppBackgroundMonitor;
-import co.chatsdk.core.utils.PermissionRequestHandler;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.AppBackgroundMonitor;
+import sdk.chat.core.utils.PermissionRequestHandler;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 

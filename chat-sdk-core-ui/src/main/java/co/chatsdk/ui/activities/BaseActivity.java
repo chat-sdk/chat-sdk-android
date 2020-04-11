@@ -41,9 +41,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.ActivityResult;
-import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.ActivityResult;
+import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.utils.AlertUtils;

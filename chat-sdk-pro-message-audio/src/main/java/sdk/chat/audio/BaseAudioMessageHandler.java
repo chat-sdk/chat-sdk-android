@@ -7,14 +7,14 @@ import java.io.File;
 import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
 import cafe.adriel.androidaudioconverter.callback.IConvertCallback;
 import cafe.adriel.androidaudioconverter.model.AudioFormat;
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.handlers.AudioMessageHandler;
-import co.chatsdk.core.rigs.FileUploadable;
-import co.chatsdk.core.rigs.MessageSendRig;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageType;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.handlers.AudioMessageHandler;
+import sdk.chat.core.rigs.FileUploadable;
+import sdk.chat.core.rigs.MessageSendRig;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageType;
 import co.chatsdk.message.audio.R;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -33,7 +33,7 @@ public class BaseAudioMessageHandler implements AudioMessageHandler {
     public Completable sendMessage(Context context, final File file, String mimeType, long duration, final Thread thread) {
         return compressAudio(context, file).flatMapCompletable(file1 -> {
             return new MessageSendRig(new MessageType(MessageType.Audio), thread, null).setUploadable(new FileUploadable(file1, "recording", mimeType), (message, result) -> {
-                message.setText(ChatSDK.shared().getString(R.string.audio_message));
+                message.setText(ChatSDK.getString(R.string.audio_message));
                 message.setValueForKey(result.url, Keys.MessageAudioURL);
                 message.setValueForKey(duration, Keys.MessageAudioLength);
                 message.update();

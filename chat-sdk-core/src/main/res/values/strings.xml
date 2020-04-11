@@ -101,6 +101,7 @@
     <string name="contact_deleted">Contact deleted</string>
     <string name="contact_added">Contact added</string>
     <string name="contact">Contact</string>
+    <string name="delete_contact">Delete Contact</string>
     <string name="user_blocked">User blocked</string>
     <string name="user_unblocked">User unblocked</string>
     <string name="user_entity_id_not_set">User Entity ID not set</string>
@@ -173,5 +174,8 @@
     <string name="__granted" formatted="false">%s Granted</string>
     <string name="__revoked" formatted="false">%s Revoked</string>
     <string name="__left_the_group" formatted="false">%s left the group</string>
+
+    <string name="already_authenticated">Already authenticated, logout before trying to re-authenticate</string>
+    <string name="authentication_required">Authentication required</string>
 
 </resources>

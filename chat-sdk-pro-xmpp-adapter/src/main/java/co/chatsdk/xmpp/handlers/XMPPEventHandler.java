@@ -1,6 +1,6 @@
 package co.chatsdk.xmpp.handlers;
 
-import co.chatsdk.core.base.AbstractEventHandler;
+import sdk.chat.core.base.AbstractEventHandler;
 
 /**
  * Created by benjaminsmiley-andrews on 01/07/2017.

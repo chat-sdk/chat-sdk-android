@@ -2,9 +2,9 @@ package co.chatsdk.xmpp.handlers;
 
 import org.jxmpp.jid.impl.JidCreate;
 
-import co.chatsdk.core.base.AbstractCoreHandler;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.base.AbstractCoreHandler;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -71,5 +71,20 @@ public class XMPPCoreHandler extends AbstractCoreHandler {
             final User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, jid);
             return userOn(user).toSingle(() -> user);
         });
+    }
+
+    @Override
+    public User getUserNowForEntityID(String entityID) {
+
+        String jid = entityID;
+
+        if (!jid.contains(XMPPManager.shared().getDomain())) {
+            jid += "@" + XMPPManager.shared().getDomain();
+        }
+
+        final User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, jid);
+        userOn(user).subscribe(ChatSDK.events());
+
+        return user;
     }
 }

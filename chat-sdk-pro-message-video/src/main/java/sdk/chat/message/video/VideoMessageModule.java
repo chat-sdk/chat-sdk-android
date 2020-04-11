@@ -7,11 +7,11 @@ import android.view.View;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.handlers.Module;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageType;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.handlers.Module;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageType;
 import co.chatsdk.message.video.R;
 import co.chatsdk.ui.chat.model.MessageHolder;
 import co.chatsdk.ui.chat.options.MediaChatOption;

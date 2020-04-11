@@ -10,17 +10,17 @@ import java.util.Date;
 import java.util.Random;
 import java.util.UUID;
 
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.hook.Hook;
-import co.chatsdk.core.hook.HookEvent;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageSendStatus;
-import co.chatsdk.core.types.MessageType;
-import co.chatsdk.core.types.ReadStatus;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageSendStatus;
+import sdk.chat.core.types.MessageType;
+import sdk.chat.core.types.ReadStatus;
 
 public class DummyData {
 

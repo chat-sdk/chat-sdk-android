@@ -6,9 +6,9 @@ import androidx.fragment.app.Fragment;
 
 import java.util.List;
 
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.ConnectionType;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.ConnectionType;
 import io.reactivex.functions.Action;
 
 public class SearchAndContactExamples extends BaseExample {

@@ -2,8 +2,8 @@ package co.chatsdk.ui.custom;
 
 import androidx.fragment.app.Fragment;
 
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.ui.ProfileFragmentProvider;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.ui.ProfileFragmentProvider;
 import co.chatsdk.ui.fragments.ProfileFragment;
 
 public class BaseProfileFragmentProvider implements ProfileFragmentProvider {

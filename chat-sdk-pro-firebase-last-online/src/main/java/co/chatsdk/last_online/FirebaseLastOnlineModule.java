@@ -2,8 +2,8 @@ package co.chatsdk.last_online;
 
 import android.content.Context;
 
-import co.chatsdk.core.handlers.Module;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.handlers.Module;
+import sdk.chat.core.session.ChatSDK;
 
 public class FirebaseLastOnlineModule implements Module {
 

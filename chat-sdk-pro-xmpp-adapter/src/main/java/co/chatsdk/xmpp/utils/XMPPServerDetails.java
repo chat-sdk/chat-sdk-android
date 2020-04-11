@@ -1,6 +1,6 @@
 package co.chatsdk.xmpp.utils;
 
-import co.chatsdk.core.utils.StringChecker;
+import sdk.chat.core.utils.StringChecker;
 
 /**
  * Created by ben on 10/26/17.

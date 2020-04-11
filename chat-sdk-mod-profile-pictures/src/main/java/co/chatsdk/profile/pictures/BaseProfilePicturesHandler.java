@@ -8,11 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.handlers.ProfilePicturesHandler;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.HashMapHelper;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.handlers.ProfilePicturesHandler;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.HashMapHelper;
 
 /**
  * Created by Pepe on 01/12/19.

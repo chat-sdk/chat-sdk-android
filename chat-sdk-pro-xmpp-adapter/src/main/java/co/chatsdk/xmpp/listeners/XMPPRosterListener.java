@@ -8,9 +8,9 @@ import org.pmw.tinylog.Logger;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.ConnectionType;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.ConnectionType;
 import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;

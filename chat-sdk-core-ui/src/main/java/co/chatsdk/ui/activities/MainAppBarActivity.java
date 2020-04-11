@@ -17,8 +17,8 @@ import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import java.util.List;
 
 import butterknife.BindView;
-import co.chatsdk.core.Tab;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.Tab;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.PagerAdapterTabs;
@@ -114,7 +114,7 @@ public class MainAppBarActivity extends MainActivity {
     public void onStart() {
         super.onStart();
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setHomeAsUpIndicator(Icons.get(Icons.choose().user, R.color.app_bar_icon_color));
+            getSupportActionBar().setHomeAsUpIndicator(Icons.get(Icons.choose().user, Icons.shared().actionBarIconColor));
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }

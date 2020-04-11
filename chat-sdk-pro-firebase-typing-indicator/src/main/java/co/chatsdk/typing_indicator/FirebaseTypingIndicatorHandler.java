@@ -4,19 +4,25 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.handlers.TypingIndicatorHandler;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.firebase.FirebaseEventListener;
+import co.chatsdk.firebase.utils.Generic;
+import io.reactivex.functions.Consumer;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.handlers.TypingIndicatorHandler;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
+import sdk.guru.realtime.DocumentChange;
+import sdk.guru.realtime.RealtimeEventListener;
 import co.chatsdk.firebase.FirebasePaths;
-import co.chatsdk.firebase.FirebaseReferenceManager;
+import sdk.guru.realtime.RealtimeEventListener;
+import sdk.guru.realtime.RealtimeReferenceManager;
 import co.chatsdk.firebase.utils.FirebaseRX;
 import io.reactivex.Completable;
+import sdk.guru.realtime.RXRealtime;
 
 /**
  * Created by KyleKrueger on 01.07.2017.
@@ -25,7 +31,6 @@ import io.reactivex.Completable;
 public class FirebaseTypingIndicatorHandler implements TypingIndicatorHandler {
 
     private Timer timer;
-    private final long typingTimeout  = 3000;
     private boolean typing = false;
 
     @Override
@@ -34,26 +39,31 @@ public class FirebaseTypingIndicatorHandler implements TypingIndicatorHandler {
         DatabaseReference ref = FirebasePaths.threadRef(thread.getEntityID())
                 .child(FirebasePaths.TypingPath);
 
-        ValueEventListener typingListener = ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-            String message = null;
-            if(hasValue && snapshot.getValue() instanceof HashMap) {
-                HashMap<String, String> data = (HashMap<String, String>) snapshot.getValue();
-                if(data.keySet().size() == 1 && data.get(ChatSDK.currentUser().getEntityID()) != null) {
+        if (!RealtimeReferenceManager.shared().isOn(ref)) {
+
+            RXRealtime realtime = new RXRealtime();
+            realtime.on(ref).doOnNext(change -> {
+
+                String message = null;
+                Map<String, String> data = change.getSnapshot().getValue(Generic.mapStringString());
+                if (data != null) {
                     // In this case we are typing
-                }
-                else {
-                    if (thread.typeIs(ThreadType.Private1to1)) {
-                        message = "";
+                    if(data.keySet().size() != 1 || data.get(ChatSDK.currentUser().getEntityID()) == null) {
+                        if (thread.typeIs(ThreadType.Private1to1)) {
+                            message = "";
+                        }
+                        else {
+                            message = typingMessageForNames(data);
+                        }
                     }
-                    else {
-                        message = typingMessageForNames(data);
-                    }
                 }
-            }
-            NetworkEvent networkEvent = NetworkEvent.typingStateChanged(message, thread);
-            ChatSDK.events().source().onNext(networkEvent);
-        }));
-        FirebaseReferenceManager.shared().addRef(ref, typingListener);
+
+                NetworkEvent networkEvent = NetworkEvent.typingStateChanged(message, thread);
+                ChatSDK.events().source().onNext(networkEvent);
+
+            }).ignoreElements().subscribe(ChatSDK.events());
+            realtime.addToReferenceManager();
+        }
 
     }
 
@@ -61,7 +71,7 @@ public class FirebaseTypingIndicatorHandler implements TypingIndicatorHandler {
     public void typingOff(Thread thread) {
         DatabaseReference ref = FirebasePaths.threadRef(thread.getEntityID())
                 .child(FirebasePaths.TypingPath);
-        FirebaseReferenceManager.shared().removeListeners(ref);
+        RealtimeReferenceManager.shared().removeListeners(ref);
     }
 
     @Override
@@ -92,7 +102,7 @@ public class FirebaseTypingIndicatorHandler implements TypingIndicatorHandler {
             public void run() {
                 stopTyping(thread);
             }
-        }, typingTimeout);
+        }, FirebaseTypingIndicatorModule.config().typingTimeout);
     }
 
     private Completable startTyping(Thread thread) {
@@ -110,7 +120,7 @@ public class FirebaseTypingIndicatorHandler implements TypingIndicatorHandler {
         return FirebaseRX.remove(ref);
     }
 
-    public String typingMessageForNames(HashMap<String, String> usersTyping) {
+    public String typingMessageForNames(Map<String, String> usersTyping) {
         String message = "";
 
         for (String key : usersTyping.keySet()) {

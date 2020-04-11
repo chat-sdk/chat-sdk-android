@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import butterknife.BindView;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.xmpp.utils.ServerKeyStorage;
 import io.reactivex.annotations.NonNull;

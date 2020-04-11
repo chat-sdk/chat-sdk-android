@@ -6,9 +6,9 @@ import org.jxmpp.jid.EntityFullJid;
 
 import java.lang.ref.WeakReference;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.session.ChatSDK;
 import io.reactivex.disposables.Disposable;
 
 

@@ -4,10 +4,10 @@ import android.view.MenuItem;
 
 import java.util.List;
 
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.utils.DialogUtils;
 import co.chatsdk.ui.utils.ToastHelper;
@@ -25,15 +25,14 @@ public class PrivateThreadsFragment extends ThreadsFragment {
     public void initViews() {
         super.initViews();
 
-        dm.add(getOnLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), "", getResources().getString(R.string.alert_delete_thread), getResources().getString(R.string.delete),
-                getResources().getString(R.string.cancel), null, () -> {
+        dm.add(getOnLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), 0, R.string.alert_delete_thread, R.string.delete,
+                R.string.cancel, null, () -> {
                     dm.add(ChatSDK.thread().deleteThread(thread)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(() -> {
                                 clearData();
                                 reloadData();
                             }, throwable -> ToastHelper.show(getContext(), throwable.getLocalizedMessage())));
-                    return null;
                 })));
     }
 

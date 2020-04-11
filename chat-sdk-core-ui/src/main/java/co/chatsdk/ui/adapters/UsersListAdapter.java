@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import co.chatsdk.core.interfaces.UserListItem;
+import sdk.chat.core.interfaces.UserListItem;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.view_holders.UserViewHolder;
 import io.reactivex.Observable;
@@ -68,13 +69,14 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    @NonNull
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_user_row, parent, false);
         return new UserViewHolder(view, multiSelectEnabled, subtitleProvider);
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
 
         UserViewHolder viewHolder = (UserViewHolder) holder;
         UserListItem item = items.get(position);
@@ -185,7 +187,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      * *
      */
     protected void sortList(List<UserListItem> list) {
-        Comparator comparator = (Comparator<UserListItem>) (u1, u2) -> {
+        Comparator<UserListItem> comparator = (u1, u2) -> {
             boolean u1online = u1.getIsOnline();
             boolean u2online = u2.getIsOnline();
             if (u1online != u2online) {

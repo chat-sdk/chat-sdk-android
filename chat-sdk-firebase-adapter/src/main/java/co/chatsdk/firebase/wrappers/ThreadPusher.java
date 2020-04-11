@@ -5,10 +5,10 @@ import com.google.firebase.database.ServerValue;
 
 import java.util.HashMap;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.firebase.FirebasePaths;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;

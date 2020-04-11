@@ -3,7 +3,7 @@ package co.chatsdk.firebase;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 
-import co.chatsdk.core.utils.StringChecker;
+import sdk.chat.core.utils.StringChecker;
 import co.chatsdk.firebase.module.FirebaseModule;
 import io.reactivex.Completable;
 import io.reactivex.schedulers.Schedulers;

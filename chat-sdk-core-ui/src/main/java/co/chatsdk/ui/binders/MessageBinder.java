@@ -6,8 +6,8 @@ import android.widget.TextView;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import co.chatsdk.core.types.MessageSendStatusFormatter;
-import co.chatsdk.core.utils.CurrentLocale;
+import sdk.chat.core.types.MessageSendStatusFormatter;
+import sdk.chat.core.utils.CurrentLocale;
 import co.chatsdk.ui.chat.model.MessageHolder;
 import co.chatsdk.ui.module.DefaultUIModule;
 

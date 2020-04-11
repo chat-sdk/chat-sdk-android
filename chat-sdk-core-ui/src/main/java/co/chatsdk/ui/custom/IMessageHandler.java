@@ -6,7 +6,7 @@ import android.view.View;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import co.chatsdk.core.dao.Message;
+import sdk.chat.core.dao.Message;
 import co.chatsdk.ui.chat.model.MessageHolder;
 
 /**

@@ -3,9 +3,9 @@ package co.chatsdk.xmpp.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.session.ChatSDK;
 
-import static co.chatsdk.core.session.ChatSDK.Preferences;
+import static sdk.chat.core.session.ChatSDK.Preferences;
 
 /**
  * Created by benjaminsmiley-andrews on 04/07/2017.

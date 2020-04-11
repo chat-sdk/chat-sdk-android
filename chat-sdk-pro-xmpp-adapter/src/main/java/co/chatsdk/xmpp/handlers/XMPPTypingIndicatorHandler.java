@@ -9,9 +9,9 @@ import org.jivesoftware.smackx.chatstates.packet.ChatStateExtension;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jxmpp.jid.impl.JidCreate;
 
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.handlers.TypingIndicatorHandler;
-import co.chatsdk.core.interfaces.ThreadType;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.handlers.TypingIndicatorHandler;
+import sdk.chat.core.interfaces.ThreadType;
 import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Completable;
 import io.reactivex.schedulers.Schedulers;

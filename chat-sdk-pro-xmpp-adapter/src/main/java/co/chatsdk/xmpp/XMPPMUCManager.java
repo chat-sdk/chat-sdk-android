@@ -28,12 +28,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.CurrentLocale;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.CurrentLocale;
 import sdk.guru.common.DisposableMap;
 import co.chatsdk.xmpp.listeners.XMPPChatParticipantListener;
 import co.chatsdk.xmpp.listeners.XMPPMUCMessageListener;
@@ -234,7 +234,7 @@ public class XMPPMUCManager {
                     return Completable.merge(completables).toSingle(() -> thread);
                 });
             }
-            return Single.error(new Throwable(ChatSDK.shared().getString(R.string.could_not_join_muc)));
+            return Single.error(ChatSDK.getException(R.string.could_not_join_muc));
 
         }).doOnSuccess(thread -> {
             ChatSDK.events().source().onNext(NetworkEvent.threadAdded(thread));
@@ -271,7 +271,7 @@ public class XMPPMUCManager {
             try {
                 manager.get().bookmarkManager().removeBookmarkedConference(bookmark.getJid());
                 Thread thread = threadForRoomID(bookmark.getJid().toString());
-                ChatSDK.thread().sendLocalSystemMessage(ChatSDK.shared().getString(R.string.room_no_longer_active), thread);
+                ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(R.string.room_no_longer_active), thread);
                 // TODO: Handle this
             } catch (Exception e) {}
         }
@@ -311,7 +311,7 @@ public class XMPPMUCManager {
         if(services.size() > 0) {
             return services.get(0).toString();
         } else {
-            throw new Exception(ChatSDK.shared().getString(R.string.no_muc_service_available));
+            throw ChatSDK.getException(R.string.no_muc_service_available);
         }
     }
 
@@ -446,7 +446,7 @@ public class XMPPMUCManager {
                     emitter.onComplete();
                 }
             } else {
-                emitter.onError(new Throwable(ChatSDK.shared().getString(R.string.permission_denied)));
+                emitter.onError(ChatSDK.getException(R.string.permission_denied));
             }
         }).subscribeOn(Schedulers.io());
     }
@@ -463,7 +463,7 @@ public class XMPPMUCManager {
                     emitter.onComplete();
                 }
             } else {
-                emitter.onError(new Throwable(ChatSDK.shared().getString(R.string.permission_denied)));
+                emitter.onError(ChatSDK.getException(R.string.permission_denied));
             }
         }).subscribeOn(Schedulers.io());
     }
@@ -476,7 +476,7 @@ public class XMPPMUCManager {
                 chat.grantVoice(affiliate.getNick());
                 emitter.onComplete();
             } else {
-                emitter.onError(new Throwable(ChatSDK.shared().getString(R.string.permission_denied)));
+                emitter.onError(ChatSDK.getException(R.string.permission_denied));
             }
         }).subscribeOn(Schedulers.io());
     }
@@ -489,7 +489,7 @@ public class XMPPMUCManager {
                 chat.revokeVoice(affiliate.getNick());
                 emitter.onComplete();
             } else {
-                emitter.onError(new Throwable(ChatSDK.shared().getString(R.string.permission_denied)));
+                emitter.onError(ChatSDK.getException(R.string.permission_denied));
             }
         }).subscribeOn(Schedulers.io());
     }

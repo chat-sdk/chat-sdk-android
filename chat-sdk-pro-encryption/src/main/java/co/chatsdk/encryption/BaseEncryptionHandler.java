@@ -16,22 +16,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.EventType;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.handlers.EncryptionHandler;
-import co.chatsdk.core.hook.Hook;
-import co.chatsdk.core.hook.HookEvent;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.MessageSendProgress;
-import co.chatsdk.core.types.MessageSendStatus;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.EventType;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.handlers.EncryptionHandler;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageSendProgress;
+import sdk.chat.core.types.MessageSendStatus;
 import io.reactivex.Completable;
 import io.reactivex.disposables.Disposable;
 
-import static co.chatsdk.core.session.ChatSDK.currentUser;
+import static sdk.chat.core.session.ChatSDK.currentUser;
 
 public class BaseEncryptionHandler implements EncryptionHandler {
 

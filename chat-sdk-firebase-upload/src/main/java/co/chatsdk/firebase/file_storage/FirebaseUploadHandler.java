@@ -6,9 +6,8 @@ import com.google.firebase.storage.UploadTask;
 
 import org.pmw.tinylog.Logger;
 
-import co.chatsdk.core.base.AbstractUploadHandler;
-import co.chatsdk.core.types.ChatError;
-import co.chatsdk.core.types.FileUploadResult;
+import sdk.chat.core.base.AbstractUploadHandler;
+import sdk.chat.core.types.FileUploadResult;
 import co.chatsdk.firebase.FirebaseCoreHandler;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
@@ -46,7 +45,7 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
                     e.onNext(result);
                     e.onComplete();
                 });
-            }).addOnFailureListener(error -> e.onError(ChatError.getError(ChatError.Code.FIREBASE_STORAGE_EXCEPTION, error.getMessage())));
+            }).addOnFailureListener(e::onError);
 
         }).subscribeOn(Schedulers.io());
     }

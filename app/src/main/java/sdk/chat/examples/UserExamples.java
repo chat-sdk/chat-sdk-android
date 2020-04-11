@@ -1,9 +1,12 @@
 package sdk.chat.examples;
 
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.EventType;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.session.ChatSDK;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.EventType;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.session.ChatSDK;
 import io.reactivex.functions.Predicate;
 
 public class UserExamples extends BaseExample {
@@ -50,6 +53,12 @@ public class UserExamples extends BaseExample {
             // Handle event
         }));
 
+    }
+
+    public User fetchUserWithEntityID(String entityID) {
+        User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, entityID);
+        ChatSDK.core().userOn(user).subscribe(ChatSDK.events());
+        return user;
     }
 
 }

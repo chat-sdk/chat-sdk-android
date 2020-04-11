@@ -12,7 +12,7 @@ import android.widget.VideoView;
 import androidx.annotation.Nullable;
 
 import butterknife.BindView;
-import co.chatsdk.core.dao.Keys;
+import sdk.chat.core.dao.Keys;
 import co.chatsdk.message.video.R;
 import co.chatsdk.message.video.R2;
 import co.chatsdk.ui.activities.BaseActivity;

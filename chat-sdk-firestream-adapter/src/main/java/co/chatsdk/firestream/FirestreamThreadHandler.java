@@ -6,15 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import co.chatsdk.core.base.AbstractThreadHandler;
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.ThreadMetaValue;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.handlers.ReadReceiptHandler;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.base.AbstractThreadHandler;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadMetaValue;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.handlers.ReadReceiptHandler;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.firefly.R;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.message.Sendable;
@@ -254,7 +254,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                     return chat.setRole(new FireStreamUser(user.getEntityID()), RoleType.reverseMap().get(role));
                 }
             }
-            return Completable.error(new Throwable(ChatSDK.shared().getString(R.string.feature_not_supported)));
+            return Completable.error(ChatSDK.getException(R.string.feature_not_supported));
         }).subscribeOn(Schedulers.io());
     }
 

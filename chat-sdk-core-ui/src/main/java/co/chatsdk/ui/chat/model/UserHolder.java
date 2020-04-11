@@ -2,9 +2,9 @@ package co.chatsdk.ui.chat.model;
 
 import com.stfalcon.chatkit.commons.models.IUser;
 
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.image.ImageUtils;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.image.ImageUtils;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.module.DefaultUIModule;
 
 public class UserHolder implements IUser {

@@ -1,7 +1,6 @@
 package co.chatsdk.xmpp;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -40,11 +39,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import co.chatsdk.core.hook.HookEvent;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
 
-import co.chatsdk.core.utils.StringChecker;
+import sdk.chat.core.utils.StringChecker;
 import co.chatsdk.xmpp.enums.ConnectionStatus;
 import co.chatsdk.xmpp.listeners.XMPPCarbonCopyReceivedListener;
 import co.chatsdk.xmpp.listeners.XMPPChatStateListener;
@@ -53,14 +52,11 @@ import co.chatsdk.xmpp.listeners.XMPPMessageListener;
 import co.chatsdk.xmpp.listeners.XMPPReceiptReceivedListener;
 import co.chatsdk.xmpp.listeners.XMPPReconnectionListener;
 import co.chatsdk.xmpp.listeners.XMPPRosterListener;
-import co.chatsdk.xmpp.module.XMPPConfig;
 import co.chatsdk.xmpp.module.XMPPModule;
 import co.chatsdk.xmpp.utils.PresenceHelper;
 import co.chatsdk.xmpp.utils.ServerKeyStorage;
 import co.chatsdk.xmpp.utils.XMPPServer;
-import co.chatsdk.xmpp.utils.XMPPServerDetails;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
@@ -507,7 +503,7 @@ public class XMPPManager {
         return Completable.defer(() -> {
             XMPPServer server = getCurrentServer(ChatSDK.ctx());
             if (server == null) {
-                return Completable.error(new Throwable(ChatSDK.shared().getString(R.string.xmpp_server_must_be_specified)));
+                return Completable.error(ChatSDK.getException(R.string.xmpp_server_must_be_specified));
             }
             return openConnection(server, userJID, password).flatMapCompletable(xmppConnection -> {
 
@@ -515,7 +511,7 @@ public class XMPPManager {
                     return userManager.updateUserFromVCard(xmppConnection.getUser().asBareJid()).toCompletable();
                 }
                 else {
-                    return Completable.error(new Exception(ChatSDK.shared().getString(R.string.cannot_connect)));
+                    return Completable.error(ChatSDK.getException(R.string.cannot_connect));
                 }
             });
         }).subscribeOn(Schedulers.io());
@@ -530,14 +526,14 @@ public class XMPPManager {
         return Completable.defer(() -> {
             XMPPServer server = getCurrentServer(ChatSDK.ctx());
             if (server == null) {
-                return Completable.error(new Throwable(ChatSDK.shared().getString(R.string.xmpp_server_must_be_specified)));
+                return Completable.error(ChatSDK.getException(R.string.xmpp_server_must_be_specified));
             }
             return openRegistrationConnection(server).flatMapCompletable(xmppConnection -> {
 
                 AccountManager accountManager = accountManager();
                 if (!accountManager.supportsAccountCreation()) {
                     getConnection().disconnect();
-                    return Completable.error(new Exception(ChatSDK.shared().getString(R.string.registration_not_supported)));
+                    return Completable.error(ChatSDK.getException(R.string.registration_not_supported));
                 }
                 try {
                     accountManager.sensitiveOperationOverInsecureConnection(true);

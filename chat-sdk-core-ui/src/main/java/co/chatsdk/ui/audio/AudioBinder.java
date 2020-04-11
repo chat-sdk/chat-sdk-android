@@ -22,11 +22,11 @@ import cafe.adriel.androidaudiorecorder.AndroidAudioRecorder;
 import cafe.adriel.androidaudiorecorder.model.AudioChannel;
 import cafe.adriel.androidaudiorecorder.model.AudioSampleRate;
 import cafe.adriel.androidaudiorecorder.model.AudioSource;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.storage.FileManager;
-import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.storage.FileManager;
+import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import sdk.guru.common.DisposableMap;
-import co.chatsdk.core.utils.PermissionRequestHandler;
+import sdk.chat.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.interfaces.TextInputDelegate;
@@ -50,6 +50,8 @@ public class AudioBinder {
         this.activity = activity;
         this.messageInput = messageInput;
         this.delegate = delegate;
+
+        sendButtonDrawable = messageInput.getButton().getDrawable();
 
         messageInput.setInputListener(input -> {
             if (audioModeEnabled) {
@@ -148,7 +150,6 @@ public class AudioBinder {
     }
 
     protected void startRecordingMode() {
-        sendButtonDrawable = messageInput.getButton().getDrawable();
         messageInput.getButton().setImageDrawable(Icons.get(Icons.choose().microphone, R.color.white));
         messageInput.getButton().setEnabled(true);
         audioModeEnabled = true;

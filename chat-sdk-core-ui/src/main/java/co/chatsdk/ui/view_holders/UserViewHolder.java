@@ -13,10 +13,10 @@ import com.bumptech.glide.Glide;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import co.chatsdk.core.interfaces.UserListItem;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.Dimen;
-import co.chatsdk.core.utils.StringChecker;
+import sdk.chat.core.interfaces.UserListItem;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.Dimen;
+import sdk.chat.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.adapters.UsersListAdapter;

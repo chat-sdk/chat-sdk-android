@@ -8,7 +8,7 @@ import androidx.annotation.StringRes;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.session.ChatSDK;
 import io.reactivex.functions.Consumer;
 
 public class AlertUtils implements Consumer<Throwable> {

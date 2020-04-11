@@ -5,12 +5,12 @@ import com.google.firebase.database.DatabaseReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.handlers.BlockingHandler;
-import co.chatsdk.core.hook.Hook;
-import co.chatsdk.core.hook.HookEvent;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.firebase.FirebaseEventListener;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.handlers.BlockingHandler;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.session.ChatSDK;
+import sdk.guru.realtime.RealtimeEventListener;
 import co.chatsdk.firebase.FirebasePaths;
 import io.reactivex.Completable;
 
@@ -32,7 +32,7 @@ public class FirebaseBlockingHandler implements BlockingHandler {
 
     void on () {
         DatabaseReference ref = this.ref();
-        ref.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
+        ref.addChildEventListener(new RealtimeEventListener().onChildAdded((snapshot, s, hasValue) -> {
             if (hasValue) {
                 if (!blockedUserEntityIDs.contains(snapshot.getKey())) {
                     blockedUserEntityIDs.add(snapshot.getKey());

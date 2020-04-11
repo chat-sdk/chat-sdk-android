@@ -26,29 +26,27 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.stfalcon.chatkit.messages.MessageInput;
 
-import org.ocpsoft.prettytime.PrettyTime;
 import org.pmw.tinylog.Logger;
 
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Locale;
 
 import butterknife.BindView;
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.events.EventType;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.handlers.TypingIndicatorHandler;
-import co.chatsdk.core.interfaces.ChatOption;
-import co.chatsdk.core.interfaces.ChatOptionsDelegate;
-import co.chatsdk.core.interfaces.ChatOptionsHandler;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.EventType;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.handlers.TypingIndicatorHandler;
+import sdk.chat.core.interfaces.ChatOption;
+import sdk.chat.core.interfaces.ChatOptionsDelegate;
+import sdk.chat.core.interfaces.ChatOptionsHandler;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.appbar.ChatActionBar;
@@ -393,10 +391,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if (!chatView.getSelectedMessages().isEmpty()) {
             getMenuInflater().inflate(R.menu.activity_chat_actions_menu, menu);
 
-            menu.findItem(R.id.action_copy).setIcon(Icons.get(Icons.choose().copy, R.color.app_bar_icon_color));
-            menu.findItem(R.id.action_delete).setIcon(Icons.get(Icons.choose().delete, R.color.app_bar_icon_color));
-            menu.findItem(R.id.action_forward).setIcon(Icons.get(Icons.choose().forward, R.color.app_bar_icon_color));
-            menu.findItem(R.id.action_reply).setIcon(Icons.get(Icons.choose().reply, R.color.app_bar_icon_color));
+            menu.findItem(R.id.action_copy).setIcon(Icons.get(Icons.choose().copy, Icons.shared().actionBarIconColor));
+            menu.findItem(R.id.action_delete).setIcon(Icons.get(Icons.choose().delete, Icons.shared().actionBarIconColor));
+            menu.findItem(R.id.action_forward).setIcon(Icons.get(Icons.choose().forward, Icons.shared().actionBarIconColor));
+            menu.findItem(R.id.action_reply).setIcon(Icons.get(Icons.choose().reply, Icons.shared().actionBarIconColor));
 
             if (chatView.getSelectedMessages().size() != 1) {
                 menu.removeItem(R.id.action_reply);
@@ -415,6 +413,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
             chatActionBar.hideText();
         } else {
+
+            if (ChatSDK.thread().canAddUsersToThread(thread)) {
+                getMenuInflater().inflate(R.menu.add_menu, menu);
+                menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, Icons.shared().actionBarIconColor));
+            }
+
             chatActionBar.showText();
         }
 
@@ -458,11 +462,14 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             ChatSDK.ui().startForwardMessageActivityForResult(this, thread, messages, messageForwardActivityCode);
             clearSelection();
         }
-        ;
 
         if (id == R.id.action_reply) {
             Message message = chatView.getSelectedMessages().get(0);
             replyView.show(message.getSender().getName(), message.imageURL(), message.getText());
+        }
+
+        if (id == R.id.action_add) {
+            ChatSDK.ui().startAddUsersToThreadActivity(this, thread.getEntityID());
         }
 
         return super.onOptionsItemSelected(item);

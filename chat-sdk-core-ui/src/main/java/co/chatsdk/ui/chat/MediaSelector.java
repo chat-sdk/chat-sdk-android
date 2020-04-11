@@ -20,9 +20,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
-import co.chatsdk.core.utils.PermissionRequestHandler;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
+import sdk.chat.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.options.MediaType;
 import co.chatsdk.ui.module.DefaultUIModule;

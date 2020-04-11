@@ -5,15 +5,16 @@ import com.google.firebase.database.Query;
 
 import java.util.HashMap;
 
-import co.chatsdk.core.base.AbstractSearchHandler;
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.base.AbstractSearchHandler;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
+import sdk.guru.realtime.RealtimeEventListener;
 
 /**
  * Created by benjaminsmiley-andrews on 24/05/2017.
@@ -32,7 +33,7 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
 
             if (finalValue.replace(" ", "").isEmpty())
             {
-                e.onError(new Exception(ChatSDK.shared().getString(R.string.search_field_empty)));
+                e.onError(ChatSDK.getException(R.string.search_field_empty));
                 return;
             }
 
@@ -49,7 +50,7 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
 
             query.keepSynced(true);
 
-            query.addListenerForSingleValueEvent(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
+            query.addListenerForSingleValueEvent(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
                 if (hasValue) {
                     Object valueObject = snapshot.getValue();
                     if (valueObject instanceof HashMap) {

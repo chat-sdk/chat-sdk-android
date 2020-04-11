@@ -29,13 +29,12 @@ import com.google.android.material.textfield.TextInputLayout;
 import org.pmw.tinylog.Logger;
 
 import butterknife.BindView;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.AccountDetails;
-import co.chatsdk.core.utils.StringChecker;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.AccountDetails;
+import sdk.chat.core.utils.StringChecker;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.module.DefaultUIModule;
-import co.chatsdk.ui.module.UIConfig;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 

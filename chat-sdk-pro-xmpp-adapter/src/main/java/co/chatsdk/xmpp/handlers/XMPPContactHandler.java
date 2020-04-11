@@ -1,8 +1,8 @@
 package co.chatsdk.xmpp.handlers;
 
-import co.chatsdk.core.base.BaseContactHandler;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.types.ConnectionType;
+import sdk.chat.core.base.BaseContactHandler;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.types.ConnectionType;
 import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Completable;
 import io.reactivex.schedulers.Schedulers;

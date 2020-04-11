@@ -3,11 +3,11 @@ package co.chatsdk.firebase;
 
 import java.util.HashMap;
 
-import co.chatsdk.core.base.AbstractPublicThreadHandler;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.dao.User;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.base.AbstractPublicThreadHandler;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.firebase.wrappers.ThreadPusher;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;

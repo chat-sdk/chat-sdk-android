@@ -2,7 +2,9 @@ package firestream.chat.examples;
 
 import android.content.Context;
 
+import firestream.chat.FireStream;
 import firestream.chat.interfaces.IChat;
+import firestream.chat.interfaces.IFireStream;
 import sdk.guru.common.EventType;
 import firestream.chat.namespace.Fire;
 import io.reactivex.disposables.Disposable;
@@ -16,7 +18,7 @@ public class API {
     public API(Context context) {
 
         // Configure the chat
-        FirestreamConfig config = new FirestreamConfig();
+        FirestreamConfig<IFireStream> config = new FirestreamConfig<>(Fire.stream());
 
         try {
             // Set the root path

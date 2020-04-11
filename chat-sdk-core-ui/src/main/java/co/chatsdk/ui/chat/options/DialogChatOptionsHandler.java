@@ -5,9 +5,9 @@ import android.app.AlertDialog;
 
 import java.util.List;
 
-import co.chatsdk.core.interfaces.ChatOption;
-import co.chatsdk.core.interfaces.ChatOptionsDelegate;
-import co.chatsdk.core.session.ChatSDK;
+import sdk.chat.core.interfaces.ChatOption;
+import sdk.chat.core.interfaces.ChatOptionsDelegate;
+import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 
 /**

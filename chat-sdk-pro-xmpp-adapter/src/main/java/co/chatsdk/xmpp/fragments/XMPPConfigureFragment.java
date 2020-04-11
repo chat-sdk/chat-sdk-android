@@ -11,8 +11,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import butterknife.BindView;
-import co.chatsdk.core.utils.Device;
-import co.chatsdk.core.utils.StringChecker;
+import sdk.chat.core.utils.Device;
+import sdk.chat.core.utils.StringChecker;
 import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.xmpp.R;
 import co.chatsdk.xmpp.R2;

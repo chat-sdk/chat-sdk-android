@@ -4,11 +4,11 @@ import android.content.Context;
 
 import org.greenrobot.greendao.annotation.NotNull;
 
-import co.chatsdk.core.base.BaseNetworkAdapter;
-import co.chatsdk.core.handlers.Module;
+import sdk.chat.core.base.BaseNetworkAdapter;
+import sdk.chat.core.handlers.Module;
 
-import co.chatsdk.core.session.Configure;
-import co.chatsdk.core.session.NetworkAdapterProvider;
+import sdk.chat.core.session.Configure;
+import sdk.chat.core.session.NetworkAdapterProvider;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 
 public class FirebaseModule implements Module, NetworkAdapterProvider {

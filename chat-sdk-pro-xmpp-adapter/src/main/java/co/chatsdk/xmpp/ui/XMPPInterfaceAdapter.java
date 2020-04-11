@@ -5,7 +5,7 @@ import android.content.Context;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.core.Tab;
+import sdk.chat.core.Tab;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 import co.chatsdk.xmpp.activities.XMPPLoginActivity;
 

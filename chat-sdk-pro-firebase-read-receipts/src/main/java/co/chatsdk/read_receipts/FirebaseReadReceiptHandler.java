@@ -6,19 +6,24 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import co.chatsdk.core.dao.Message;
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.events.NetworkEvent;
-import co.chatsdk.core.handlers.ReadReceiptHandler;
-import co.chatsdk.core.hook.Hook;
-import co.chatsdk.core.hook.HookEvent;
-import co.chatsdk.core.interfaces.ThreadType;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.types.ReadStatus;
-import co.chatsdk.firebase.FirebaseEventListener;
+import io.reactivex.functions.Consumer;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.handlers.ReadReceiptHandler;
+import sdk.chat.core.hook.Executor;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.ReadStatus;
+import sdk.guru.realtime.DocumentChange;
+import sdk.guru.realtime.RXRealtime;
+import sdk.guru.realtime.RealtimeEventListener;
 import co.chatsdk.firebase.FirebasePaths;
-import co.chatsdk.firebase.FirebaseReferenceManager;
+import sdk.guru.realtime.RealtimeReferenceManager;
 import co.chatsdk.firebase.utils.Generic;
 import co.chatsdk.firebase.wrappers.MessageWrapper;
 
@@ -28,23 +33,28 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
         ChatSDK.hook().addHook(Hook.sync(data -> {
             for (Thread t: ChatSDK.db().fetchThreadsForCurrentUser()) {
                 if(readReceiptsEnabledForThread(t)) {
-                    List<Message> messages = ChatSDK.db().fetchMessagesForThreadWithID(t.getId(), 20, null);
+                    List<Message> messages = ChatSDK.db().fetchMessagesForThreadWithID(t.getId(), FirebaseReadReceiptsModule.config().maxMessagesPerThread, null);
                     for(Message message : messages) {
                         this.updateReadReceipts(message);
                     }
                 }
             }
         }), HookEvent.DidAuthenticate);
+
+        ChatSDK.hook().addHook(Hook.sync(data -> {
+            Message message = (Message) data.get(HookEvent.Message);
+            updateReadReceipts(message);
+        }), HookEvent.MessageReceived);
     }
 
-    public void updateReadReceipts(Thread thread) {
-        if(readReceiptsEnabledForThread(thread)) {
-            List<Message> messages = ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), 20, null);
-            for(Message message : messages) {
-                this.updateReadReceipts(message);
-            }
-        }
-    }
+//    public void updateReadReceipts(Thread thread) {
+//        if(readReceiptsEnabledForThread(thread)) {
+//            List<Message> messages = ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), 20, null);
+//            for(Message message : messages) {
+//                this.updateReadReceipts(message);
+//            }
+//        }
+//    }
 
     public void updateReadReceipts(Message message) {
         if(message.getSender().isMe()) {
@@ -72,7 +82,7 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
         return message.getSender().isMe() && readReceiptsEnabledForMessage(message);
     }
 
-    private boolean shouldMarkReadReceipt (Message message) {
+    private boolean shouldMarkReadReceipt(Message message) {
         return !message.getSender().isMe() && readReceiptsEnabledForMessage(message);
     }
 
@@ -84,8 +94,8 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
      * @param message
      * @return
      */
-    private boolean readReceiptsEnabledForMessage (Message message) {
-        boolean enabled =  readReceiptsEnabledForThread(message.getThread()) &&
+    private boolean readReceiptsEnabledForMessage(Message message) {
+        boolean enabled = readReceiptsEnabledForThread(message.getThread()) &&
                 message.getDate().isAfter(new Date().getTime() - FirebaseReadReceiptsModule.config().maxAge);
         if (enabled) {
             ReadStatus status = message.getReadStatus();
@@ -100,10 +110,13 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
 
     private void messageReadReceiptsOn(final Message message) {
         DatabaseReference ref = messageRef(message);
-        if(!FirebaseReferenceManager.shared().isOn(ref)) {
-            ValueEventListener listener = ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-                if(hasValue && snapshot.getValue() instanceof HashMap) {
-                    HashMap<String, HashMap<String, Long>> map = snapshot.getValue(Generic.readReceiptHashMap());
+        if(!RealtimeReferenceManager.shared().isOn(ref)) {
+
+            RXRealtime realtime = new RXRealtime();
+            realtime.on(ref).doOnNext(change -> {
+                if (change.getSnapshot().getValue() != null) {
+
+                    Map<String, Map<String, Long>> map = change.getSnapshot().getValue(Generic.readReceiptHashMap());
                     if (map != null) {
                         new MessageWrapper(message).updateReadReceipts(map);
                     }
@@ -117,20 +130,18 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
                         messageReadReceiptsOff(message);
                     }
                 }
+            }).ignoreElements().subscribe(ChatSDK.events());
+            realtime.addToReferenceManager();
 
-            }));
-            FirebaseReferenceManager.shared().addRef(ref, listener);
         }
      }
 
-    private void messageReadReceiptsOff (Message message) {
+    private void messageReadReceiptsOff(Message message) {
         DatabaseReference ref = messageRef(message);
-        if (FirebaseReferenceManager.shared().isOn(ref)) {
-            FirebaseReferenceManager.shared().removeListeners(ref);
-        }
+        RealtimeReferenceManager.shared().removeListeners(ref);
     }
 
-    private DatabaseReference messageRef (Message message) {
+    private DatabaseReference messageRef(Message message) {
         return FirebasePaths.threadMessagesReadRef(message.getThread().getEntityID(), message.getEntityID());
     }
 

@@ -3,10 +3,10 @@ package co.chatsdk.message.sticker.integration;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 
-import co.chatsdk.core.dao.Keys;
-import co.chatsdk.core.session.ChatSDK;
-import co.chatsdk.core.utils.ActivityResultPushSubjectHolder;
-import co.chatsdk.core.utils.StringChecker;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
+import sdk.chat.core.utils.StringChecker;
 import co.chatsdk.message.sticker.R;
 import co.chatsdk.message.sticker.view.StickerMessageActivity;
 import co.chatsdk.ui.chat.options.BaseChatOption;

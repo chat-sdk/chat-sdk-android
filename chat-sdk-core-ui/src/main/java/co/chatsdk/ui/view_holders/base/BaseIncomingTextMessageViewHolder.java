@@ -14,7 +14,7 @@ import java.text.DateFormat;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import co.chatsdk.core.dao.User;
+import sdk.chat.core.dao.User;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.binders.IconBinder;
 import co.chatsdk.ui.binders.MessageBinder;

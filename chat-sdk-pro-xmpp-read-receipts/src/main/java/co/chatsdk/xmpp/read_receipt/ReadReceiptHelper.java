@@ -7,8 +7,8 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.receipts.DeliveryReceipt;
 import org.jxmpp.jid.impl.JidCreate;
 
-import co.chatsdk.core.dao.Thread;
-import co.chatsdk.core.interfaces.ThreadType;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.interfaces.ThreadType;
 import co.chatsdk.xmpp.XMPPManager;
 import co.chatsdk.xmpp.defines.XMPPDefines;
 
