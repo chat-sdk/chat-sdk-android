@@ -146,6 +146,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     completeAuthentication(userWrapper.getModel());
                     if (value.isEmpty() && !ChatSDK.config().disableProfileUpdateOnAuthentication) {
                         return userWrapper.push();
+                    } else {
+                        userWrapper.deserialize(value);
                     }
                     return Completable.complete();
                 });

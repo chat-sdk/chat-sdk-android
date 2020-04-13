@@ -172,7 +172,7 @@ public class MessageWrapper  {
             if (user == null)
             {
                 user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, senderID);
-                UserWrapper.initWithModel(user).once();
+                ChatSDK.core().userOn(user).subscribe(new CrashReportingCompletableObserver());
             }
 
             model.setSender(user);

@@ -14,6 +14,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.Date;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.AbstractCoreHandler;
 import co.chatsdk.core.dao.User;
@@ -27,11 +28,13 @@ import co.chatsdk.core.utils.CrashReportingCompletableObserver;
 import co.chatsdk.core.utils.DisposableList;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
@@ -100,34 +103,40 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public Completable setUserOnline() {
-        if (!ChatSDK.config().disablePresence) {
-            User current = ChatSDK.currentUser();
-            if (current != null && StringUtils.isNotEmpty(current.getEntityID())) {
-                return UserWrapper.initWithModel(currentUserModel()).goOnline();
+        return Completable.defer(() -> {
+            if (!ChatSDK.config().disablePresence) {
+                User current = ChatSDK.currentUser();
+                if (current != null && StringUtils.isNotEmpty(current.getEntityID())) {
+                    return UserWrapper.initWithModel(currentUserModel()).goOnline();
+                }
             }
+            return Completable.complete();
+        }).doOnComplete(() -> {
             if (ChatSDK.hook() != null) {
                 ChatSDK.hook().executeHook(HookEvent.UserDidConnect, null).subscribe(new CrashReportingCompletableObserver());;
             }
-        }
-        return Completable.complete();
+        }).subscribeOn(Schedulers.io());
     }
 
     public Completable setUserOffline() {
-        if (!ChatSDK.config().disablePresence) {
-            User current = ChatSDK.currentUser();
+        return Completable.defer(() -> {
+            if (!ChatSDK.config().disablePresence) {
 
-            Completable completable = Completable.complete();
-            if (ChatSDK.hook() != null) {
-                completable = ChatSDK.hook().executeHook(HookEvent.UserWillDisconnect, null);
-            }
+                User current = ChatSDK.currentUser();
 
-            if (current != null && StringUtils.isNotEmpty(current.getEntityID())) {
-                // Update the last online figure then go offline
-                return completable.concatWith(updateLastOnline()
-                        .concatWith(UserWrapper.initWithModel(currentUserModel()).goOffline()));
+                Completable completable = Completable.complete();
+                if (ChatSDK.hook() != null) {
+                    completable = ChatSDK.hook().executeHook(HookEvent.UserWillDisconnect, null);
+                }
+
+                if (current != null && !current.getEntityID().isEmpty()) {
+                    // Update the last online figure then go offline
+                    return completable.concatWith(updateLastOnline()
+                            .concatWith(UserWrapper.initWithModel(current).goOffline()));
+                }
             }
-        }
-        return Completable.complete();
+            return Completable.complete();
+        }).subscribeOn(Schedulers.io());
     }
 
     public void goOffline() {

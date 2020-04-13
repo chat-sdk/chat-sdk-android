@@ -197,7 +197,7 @@ public class UserWrapper {
     }
 
 
-    void deserialize(Map<String, Object> value){
+    public void deserialize(Map<String, Object> value){
 
         if (value != null)
         {

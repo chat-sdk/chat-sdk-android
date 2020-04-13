@@ -59,7 +59,7 @@ public class AppObj extends MultiDexApplication {
             config.pushNotificationsForPublicChatRoomsEnabled(false);
 
             config.setDevelopmentModeEnabled(false);
-            config.setDisablePresence(false);
+            config.setDisablePresence(true);
             config.setDisableProfileUpdateOnAuthentication(false);
             config.setDisablePublicThreads(false);
 
