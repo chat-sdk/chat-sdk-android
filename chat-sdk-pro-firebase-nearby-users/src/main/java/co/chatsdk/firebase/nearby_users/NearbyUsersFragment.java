@@ -1,21 +1,25 @@
 package co.chatsdk.firebase.nearby_users;
 
+import android.Manifest;
 import android.os.Bundle;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
+import android.widget.TextView;
 
+import androidx.annotation.LayoutRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.firebase.geofire.GeoLocation;
+import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 import butterknife.BindView;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
@@ -29,6 +33,7 @@ import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import sdk.chat.core.utils.PermissionRequestHandler;
 
 /**
  * Created by Erk on 30.03.2016.
@@ -37,17 +42,15 @@ public class NearbyUsersFragment extends BaseFragment {
 
     protected UsersListAdapter adapter;
 
-    @BindView(R2.id.progressBar)
-    protected ProgressBar progressBar;
-
     @BindView(R2.id.recyclerView)
     protected RecyclerView recyclerView;
 
-    protected LocationUpdater updater;
-
-    protected Disposable listOnClickListenerDisposable;
+    @BindView(R2.id.textView)
+    protected TextView textView;
 
     protected ArrayList<LocationUser> locationUsers = new ArrayList<>();
+
+    protected Disposable listOnClickListenerDisposable;
 
     public static NearbyUsersFragment newInstance() {
         NearbyUsersFragment f = new NearbyUsersFragment();
@@ -60,38 +63,26 @@ public class NearbyUsersFragment extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        dm.add(GeoFireManager.shared().allEvents().observeOn(AndroidSchedulers.mainThread()).flatMapCompletable(geoEvent -> {
+        GeoFireManager.shared().allEvents().doOnNext(geoEvent -> {
             if (geoEvent.item.isType(GeoItem.USER)) {
                 String entityID = geoEvent.item.entityID;
-                User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, entityID);
+                User user = ChatSDK.core().getUserNowForEntityID(entityID);
                 if (!user.isMe()) {
                     LocationUser lu = getLocationUser(entityID);
 
                     if (geoEvent.type.equals(GeoEvent.Type.Entered) && lu == null) {
-                        locationUsers.add(new LocationUser(user, geoEvent.location));
+                        locationUsers.add(new LocationUser(user, geoEvent.getLocation()));
                     }
                     if (geoEvent.type.equals(GeoEvent.Type.Exited) && lu != null) {
                         locationUsers.remove(lu);
                     }
                     if (geoEvent.type.equals(GeoEvent.Type.Moved) && lu != null) {
-                        lu.location = geoEvent.location;
+                        lu.location = geoEvent.getLocation();
                     }
+                    reloadData();
                 }
-                return ChatSDK.core().userOn(user);
             }
-            return Completable.complete();
-        }).subscribe(this::reloadData, throwable -> {
-            throwable.printStackTrace();
-            if (Looper.myLooper() != null) {
-                ToastHelper.show(getContext(), throwable.getLocalizedMessage());
-            }
-        }));
-
-        updater = new LocationUpdater(getActivity(), currentUserItem());
-
-        ChatSDK.hook().addHook(Hook.sync(data -> {
-            GeoFireManager.shared().removeItem(currentUserItem());
-        }), HookEvent.UserWillDisconnect);
+        }).doOnError(this).ignoreElements().subscribe(this);
 
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
@@ -102,21 +93,30 @@ public class NearbyUsersFragment extends BaseFragment {
                 .subscribe(networkEvent -> reloadData(), throwable -> ToastHelper.show(getContext(), throwable.getLocalizedMessage())));
     }
 
+    public void start() {
+        LocationHandler.shared().start();
+        textView.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+    }
+
+    public void permissionError(Throwable t) {
+        textView.setVisibility(View.VISIBLE);
+        textView.setText(t.getLocalizedMessage());
+        recyclerView.setVisibility(View.GONE);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-
-        rootView = inflater.inflate(R.layout.fragment_nearby_users, null);
 
         adapter = new UsersListAdapter();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
 
-        this.reloadData();
+//        this.reloadData();
 
-        return rootView;
+        return view;
     }
 
     @Override
@@ -129,46 +129,60 @@ public class NearbyUsersFragment extends BaseFragment {
 
     }
 
-    private GeoItem currentUserItem () {
-        return new GeoItem(ChatSDK.currentUser().getEntityID(), GeoItem.USER);
-    }
-
     @Override
     public void clearData() {
 
     }
 
+    public void setTabVisibility (boolean isVisible) {
+        if (isVisible) {
+            updatePermissions();
+//            reloadData();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updatePermissions();
+    }
+
+    public void updatePermissions() {
+        if (getActivity() != null) {
+            PermissionRequestHandler
+                    .requestLocationAccess(getActivity()).doOnComplete(this::start)
+                    .doOnError(this::permissionError).subscribe(this);
+        }
+    }
+
     @Override
     public void reloadData() {
-        // Build a list of location Users
-        ArrayList<LocationUser> users = new ArrayList<>();
+        if (adapter != null) {
 
-        if (updater.currentLocation() != null) {
+            // Build a list of location Users
+            ArrayList<LocationUser> users = new ArrayList<>();
+
             for (LocationUser lu : locationUsers) {
-                lu.referenceLocation = new GeoLocation(updater.currentLocation().getLatitude(), updater.currentLocation().getLongitude());
-                if (lu.distanceToReference() < FirebaseNearbyUsersModule.config().maxDistance) {
+                if (lu.distanceToMe() < FirebaseNearbyUsersModule.config().maxDistance && lu.getIsOnline()) {
                     users.add(lu);
                 }
             }
-        }
 
-        Collections.sort(users, (o1, o2) -> (int) Math.round(o1.distanceToReference() - o2.distanceToReference()));
+            Collections.sort(users, (o1, o2) -> (int) Math.round(o1.distanceToMe() - o2.distanceToMe()));
 
-        ArrayList<UserListItem> items = new ArrayList<>();
-        for (LocationUser lu : users) {
-            items.add(lu);
-        }
+            ArrayList<UserListItem> items = new ArrayList<>(users);
 
-        adapter.setUsers(items);
-        if(listOnClickListenerDisposable != null) {
-            listOnClickListenerDisposable.dispose();
-        }
-        listOnClickListenerDisposable = adapter.onClickObservable().subscribe(o -> {
-            if(o instanceof LocationUser) {
-                final User clickedUser = ((LocationUser) o).user;
-                ChatSDK.ui().startProfileActivity(getContext(), clickedUser.getEntityID());
+            adapter.setUsers(items);
+            if(listOnClickListenerDisposable != null) {
+                listOnClickListenerDisposable.dispose();
             }
-        });
+            listOnClickListenerDisposable = adapter.onClickObservable().subscribe(o -> {
+                if(o instanceof LocationUser) {
+                    final User clickedUser = ((LocationUser) o).user;
+                    ChatSDK.ui().startProfileActivity(getContext(), clickedUser.getEntityID());
+                }
+            });
+        }
     }
 
     public LocationUser getLocationUser(String entityID) {

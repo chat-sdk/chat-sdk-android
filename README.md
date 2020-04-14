@@ -1,7 +1,7 @@
 # Chat SDK for Android
 ### Open Source Messaging framework for Android
 
-![Main Image](https://raw.githubusercontent.com/chat-sdk/chat-sdk-android/master/graphics/android-phone-images.png)
+![Main Image](https://media.giphy.com/media/L05Bq9WHSP3PUH6uTF/giphy.gif)
 
 Chat SDK is a fully featured open source instant messaging framework for Android. Chat SDK is fully featured, scalable and flexible and follows the following key principles:
 
@@ -18,8 +18,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 
 ## Technical details
 
-- **Multiple backend support** [Firestore](https://firebase.google.com/), [Firebase](https://firebase.google.com/), [ejabberd](https://www.ejabberd.im/), [OpenFire](https://www.igniterealtime.org/projects/openfire/)
-- **Backend -** [FireStream]()
+- **Multiple Backends Support** [Firestore](https://firebase.google.com/), [Firebase](https://firebase.google.com/), [ejabberd](https://www.ejabberd.im/), [OpenFire](https://www.igniterealtime.org/projects/openfire/)
 - **Persistence -** [GreenDao](http://greenrobot.org/greendao/)
 - **Reactive -** [RXAndroid](https://github.com/ReactiveX/RxAndroid)
 - **Java 8** supports Java 8 and lamda expressions
@@ -27,21 +26,96 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 
 ## Features
 
-- Powered by Firebase Firestore or Realtime database
-- Private and group messages
+- Powered by Firebase Firestore, Realtime database or XMPP
+- Private and group messages [⇘GIF](https://giphy.com/gifs/chat-sdk-group-chat-l10OaBC7ce7zaJKvDe)
 - Public chat rooms
 - Username / password, Facebook, Twitter, Anonymous and custom login
 - Phone number authentication
 - Push notifications (using FCM)
-- Text, Image and Location messages
-- Forward, Reply, Copy and Delete messages
-- User profiles
-- User search
-- Firebase UI
+- Text, Image [⇘GIF](https://giphy.com/gifs/chat-sdk-image-message-MXLfUgTh3LFjVzC1BV) and Location [⇘GIF](https://giphy.com/gifs/chat-sdk-location-message-gM0wVTbTnG0H8JQuBS) messages
+- Forward, Reply [⇘GIF](https://giphy.com/gifs/hQpGyo24gxYFqLPj2E), Copy and Delete [⇘GIF](https://giphy.com/gifs/iD616avkpifElZ6IRl) messages
+- Tabbar [⇘GIF](https://giphy.com/gifs/chat-sdk-tabbar-ln715cYWiX9yYVEkCm) or Drawer [⇘GIF](https://giphy.com/gifs/eNRDygZZ7q9n4Yqk3b) layout
+- User Profiles [⇘GIF](https://giphy.com/gifs/profile-chat-sdk-UVZIcvzSjBy6ZrJq7E)
+- User Search [⇘gif](https://giphy.com/gifs/search-chat-sdk-ducLm14OeuX0pUzVEl)
+- Contacts [⇘GIF](https://giphy.com/gifs/profile-chat-sdk-UVZIcvzSjBy6ZrJq7E)
+- Firebase UI [⇘GIF](https://giphy.com/gifs/chat-sdk-firebase-ui-hrps78wBSz49QXbuv3)
 - [iOS Version](https://github.com/chat-sdk/chat-sdk-ios)
 - [Web Version](https://github.com/chat-sdk/chat-sdk-web)
 
-## Hire us to build your next app
+Visit our [Animated GIF Gallery](https://giphy.com/channel/chat-sdk) to see all the features.
+
+## Pro Features
+
+Sponsor us on either Github Sponsors or Paetron and get these features:
+
+### 🥉 Bronze Tier
+
+- Typing indicator [⇘GIF](https://giphy.com/gifs/typing-chat-sdk-KxcLVS0IFrRtsM2OjR)
+- Read receipts
+- Last online indicator
+- Audio messages [⇘GIF](https://giphy.com/gifs/hQPw2GZ7dXKlnW8gBb)
+- Video messages [⇘GIF]()
+- Sticker messages [⇘GIF](https://giphy.com/gifs/chat-sdk-LmlI3CJtrHhhTkVGAY)
+- User blocking [⇘GIF](https://giphy.com/gifs/blocking-chat-sdk-SSiqIHMBddhbyt5US9)
+
+### 🥈 Silver Tier
+
+All bronze level modules plus:
+
+- File Messages [⇘GIF](https://giphy.com/gifs/chat-sdk-file-message-ihAaHtT8POJElt47A7)
+- End-to-end encryption
+- Contact book integration [⇘GIF](https://giphy.com/gifs/TgbLHgDIwcuGX9SDuV)
+- Location based chat [⇘GIF](https://giphy.com/gifs/chat-sdk-nearby-users-J5qXSwAhkjLx0Aqk4O)
+
+### 🥇 Gold Tier
+
+All silver level modules plus:
+
+- XMPP Server Support
+
+The XMPP module allows the Chat SDK client to connect to all the popular XMPP servers: ejabberd, OpenFire, Tigase, Prosody, MongooseIM. For more details of the XMPP module visit our XMPP site [here](http://xmpp.app). 
+
+### 🦸 Pro Tier
+
+You can use all the Gold, Silver and Bronze tier modules in an unlimited number of apps published by you or your clients.
+
+#### How it works
+
+Just sponsor us on Github sponsors or Paetron and then add the modules to your app using Gradle.  
+
+#### Open source license
+
+If you need the module source code, that can also be arranged. Please visit ... to see the different licenses available. 
+
+## Community
+
++ **Discord:** If you need support, join our [Server](https://discord.gg/zbv2RP)
++ **Support the project:** [Patreon](https://www.patreon.com/chatsdk) or [Github Sponsors](https://github.com/sponsors/chat-sdk) 🙏 and get access to premium modules
++ **Upvote:** our advert on [StackOverflow](https://meta.stackoverflow.com/questions/394409/open-source-advertising-1h-2020/396154#396154)
++ **Contribute by writing code:** Email the [Contributing
+Document](https://github.com/chat-sdk/chat-sdk-ios/blob/master/CONTRIBUTING.md) to [**team@sdk.chat**](mailto:team@sdk.chat)
++ **Give us a star** on Github ⭐
++ **Upvoting us:** [Product Hunt](https://www.producthunt.com/posts/chat-sdk)
++ **Tweet:** about your Chat SDK project using [@chat_sdk](https://mobile.twitter.com/chat_sdk) 
+
+You can also help us by:
+
++ Providing feedback and feature requests
++ Reporting bugs
++ Fixing bugs
++ Writing documentation
+
+## Documentation
+### Getting started
+
+- Setup
+- Add Chat SDK to a new project
+- Add Chat SDK to a Firebase project
+
+### API and Customization
+
+
+## Hire our team to build your next app
 
 We are now taking on projects, we are a team of full stack developers who are Firebase experts.
 For more information check out our [consulting site](https://chat-sdk.github.io/hire-us/). 
@@ -55,24 +129,7 @@ For more information check out our [consulting site](https://chat-sdk.github.io/
 - [API Documentation](https://github.com/chat-sdk/docs)
 - [Code Examples](https://github.com/chat-sdk/chat-sdk-android/blob/master/app/src/main/java/co/chatsdk/android/app/ApiExamples.java)
 
-## Performance and Scalability
 
-These are the average Firebase hosting costs calculated using the Firebase Database Profiling tool. Firebase charge 1 USD per GB of data downloaded (excluding images or files). We've tabulated a few common operations and how many of them can be performed per 1 USD of monthly hosting cost:
-
-- Messages Received (1kb) = 1,000,000
-- Logins (10kb) = 100,000
-- Profile Update (0.2kb) = 5,000,000
-- User search (2kb) = 500,000 
-
-What's possible on the Firebase free plan (10GB / month):
-
-**500k logins, 5 million messages.** 
-
-What's possible on the Flame plan (20GB / month / 20 USD):
-
-**1 million logins, 10 million messages.**
-
-The real-time database will support up to **100k concurrent users**. From our experience, 1 concurrent connection is enough to support 10 users per minute. That means that at peak capacity, the Chat SDK could support **1 million users per minute** and well over **20 million monthly users**. 
 
 ## Modules
 
@@ -100,28 +157,9 @@ Paid:
 
 ## Support the project
 
-We would love to work full time developing the open source. At the moment we have to spend a substantial amount of time doing other consulting work to cover our costs. If you like what we're doing and would like to support us to focus more of our time on the open source project we would be very grateful. 
-
-+ Support us directly on [Patreon](https://www.patreon.com/chatsdk) 🙏
-+ Giving us a Github star ⭐
-+ Upvoting our page on [Product Hunt](https://www.producthunt.com/posts/chat-sdk)
-+ Tweet about the project using [@chat_sdk](https://mobile.twitter.com/chat_sdk) 
  
  
 ## Get involved!
-We're very excited about the project and we're looking for other people to get involved. Over time we would like to make the best messaging framework for mobile. Helping us could involve any of the following:
-
-+ Providing feedback and feature requests
-+ Reporting bugs
-+ Fixing bugs
-+ Writing documentation
-+ Improving the user interface
-+ Help us update the library to use Swift
-+ Helping to write adapters for other services such as Layer, Pusher, Pubnub etc... 
-+ Write a tutorial - **we pay $100** for quality tutorials
-
-If you're interested please review the [Contributing
-Document](https://github.com/chat-sdk/chat-sdk-ios/blob/master/CONTRIBUTING.md) for details of our development flow and the CLA then email me at [**team@sdk.chat**](mailto:team@sdk.chat).
 
 ## Apps that use Chat SDK
 
@@ -140,181 +178,7 @@ This repository contains a fully functional version of the Chat SDK which is con
 
 We provide extensive documentation on Github but if you’re a non-technical user or want to save yourself some work you can take advantage of our [setup and integration service](http://chatsdk.co/downloads/chat-sdk-setup-service/).
 
-## Adding the Chat SDK to your project
-###### Quick start guide - it takes about 10 minutes!
 
-Integration with an existing project is simple. You can add the core libraries using Gradle. 
-
-### Gradle
-
-Until the project is published in jCenter, you will need to include the repository manually:
-
-```
-repositories {
-    maven { url "https://jitpack.io" }
-    maven { url "http://dl.bintray.com/chat-sdk/chatkit" }
-    maven { url "http://dl.bintray.com/chat-sdk/matisse"}
-    maven { url "http://dl.bintray.com/chat-sdk/dexter"}
-    maven { url "https://dl.bintray.com/mikepenz/maven" }
-    maven { url "https://dl.bintray.com/chat-sdk/keyboardvisibilityevent" }
-}
-```
-
-Then add this to your `dependencies` area:
-
-```
-implementation 'sdk.chat:chat-sdk-core:4.8.9'
-implementation 'sdk.chat:chat-sdk-ui:4.8.9'
-implementation 'sdk.chat:chat-sdk-firebase-adapter:4.8.9'
-implementation 'sdk.chat:chat-sdk-firebase-ui:4.8.9'
-
-// If you want the main draw activity
-implementation 'sdk.chat:chat-sdk-ui-extras:4.8.9'
-
-// Neede for push notifications
-implementation 'sdk.chat:chat-sdk-firebase-push:4.8.9'
-
-// Needed for file uploads
-implementation 'sdk.chat:chat-sdk-firebase-file-storage:4.8.9'
-
-// Allows users to upload multiple profile pictures
-implementation 'sdk.chat:chat-sdk-profile-pictures:4.8.9'
-```
-
-You may also need to enable Java 8:
-
-```
-compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
-}
-```
-
-You can also add the [modules manually](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually) by downloading source code and importing the modules to Android Studio. 
-
-Firebase depends on Google Services so we need to apply the google services plugin. This will read the **Google Services** file that we will add during Firebase setup. Add this to your top level `build.gradle` file.
-
-```
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.google.gms:google-services:4.3.3'
-    }
-}
-```
-
-Add this to the end of your app level `build.gradle` file:
-
-```
-apply plugin: 'com.google.gms.google-services'
-```
-
-#### Android X
-
-Make sure you've added the following to your `gradle.properties` file:
-
-```
-android.useAndroidX=true
-android.enableJetifier=true
-```
-
-### Initializing the Chat SDK
-
-Now open your applications's main class and find the `onCreate` method. Add the following to setup the Chat SDK:
-
-```
-Context context = getApplicationContext();
-
-try {
-
-    // Create a new configuration
-    Configuration config = new Configuration.Builder()
-            .firebaseRootPath("dev")
-            .googleMaps("Your Key")
-            .build();
-
-    // Initialize the Chat SDK
-    ChatSDK.initialize(context, config, FirebaseNetworkAdapter.class, BaseInterfaceAdapter.class);
-    
-} catch (Exception e) {
-    // Handle any exceptions
-    e.printStackTrace();
-} finally {
-    // Enable FirebaseUI with email and phone auth
-    FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);
-  
-    // File storage is needed for profile image upload and image messages
-    FirebaseFileStorageModule.activate();
-
-    // Push notification module
-    FirebasePushModule.activate();
-    
-    // Enable multiple profile pictures per user
-    ProfilePicturesModule.activate();
-
-    // Activate any other modules you need.
-    // ...
-}
-
-``` 
-
-Activate the core Chat SDK modules and any other modules you need. See the module setup guide for more information. 
-
-Launch the Chat SDK login activity by adding this to your `AndroidManifest.xml`:
-
-```
-<activity android:name="co.chatsdk.ui.activities.SplashScreenActivity">
-    <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-    </intent-filter>
-</activity>
-```
-
-Or if you want to launch the activity manually, you can do it using:
-
-```
-ChatSDK.ui().startSplashScreenActivity(context);
-``` 
-
-## Firebase Setup
-
-1. Go to the [Firebase](http://firebase.com/) website and sign up or log in
-2. Go to the [Firebase console](https://console.firebase.google.com/) and make a new project
-3. Click **Add project**
-4. Choose a name and a location
-5. Click **Settings** (the gear icon). On the General tab, click **Add App -> Add Firebase to your Android app**
-6. Enter your package name - found in your app's `build.gradle` file, app name and SHA-1 key (optional)
-7. Download the **google-services.json** file and add it to your app project. It should be added inside the `app` folder.
-8. In the Firebase dashboard click **Authentication -> Sign-in method** and enable all the appropriate methods 
-9. Enable the security rules: [Enabling Security Rules](https://github.com/chat-sdk/chat-sdk-firebase).
-10. Enable push notifications: [Push Notifications](https://github.com/chat-sdk/chat-sdk-firebase)
-
-### Enabling location messages
-
-The Chat SDK needs two google services to support location messages. The [Google Places API](https://developers.google.com/places/) to select the location and the [Google Static Maps API](https://developers.google.com/maps/documentation/static-maps/) to display the location.
-
-Add the following during the configuration stage:
-
-```
-builder.googleMaps("YOUR GOOGLE MAPS STATIC API KEY");
-```
-
-You will also need to add your Google Places API key to the app manifest:
-
-```
-<meta-data android:name="com.google.android.geo.API_KEY" android:value="YOUR GOOGLE PLACES API KEY"/>
-```
->**Note:**
-> You need to enable billing in your google cloud console or else you will not be able to view map images in your messages, For more information visit the [Google usage and billing support page](https://developers.google.com/places/web-service/usage-and-billing#important-enable-billing)
-
-You can disable location messages using the `builder.locationMessagesEnabled(false)` option. 
-
-### Conclusion
-
-Congratulations! 🎉🎉 You've just turned your app into a fully featured instant messenger! Keep reading below to learn how to further customize the Chat SDK.
 
 # Next Steps
 

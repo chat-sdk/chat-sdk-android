@@ -1,12 +1,18 @@
 package co.chatsdk.firebase;
 
+import androidx.annotation.NonNull;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import co.chatsdk.firebase.utils.FirebaseRX;
 import sdk.chat.core.base.AbstractThreadHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
@@ -26,6 +32,7 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import sdk.guru.realtime.RealtimeEventListener;
 
 /**
  * Created by benjaminsmiley-andrews on 25/05/2017.
@@ -99,6 +106,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             for (final User u : users) {
 
                 DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(u.getEntityID()).child(Keys.Status);
+
                 DatabaseReference userThreadsRef = FirebasePaths.userThreadsRef(u.getEntityID()).child(thread.getEntityID()).child(Keys.InvitedBy);
 
                 if (userThreadLinkType == UserThreadLinkTypeAddUser) {

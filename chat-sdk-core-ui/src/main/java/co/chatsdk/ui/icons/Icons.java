@@ -35,6 +35,7 @@ public class Icons {
 
     public @ColorRes int actionBarIconColor = R.color.app_bar_icon_color;
     public @ColorRes int chatOptionIconColor = R.color.white;
+    public @ColorRes int tabIconColor = R.color.tab_icon_color;
 
     public void setContext(Context context) {
         this.context = new WeakReference<>(context);

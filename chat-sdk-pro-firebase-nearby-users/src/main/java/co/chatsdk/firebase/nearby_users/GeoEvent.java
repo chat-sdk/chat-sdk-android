@@ -11,12 +11,17 @@ public class GeoEvent {
     }
 
     public GeoItem item;
-    public GeoLocation location;
     public Type type;
 
-    public GeoEvent (GeoItem item, GeoLocation location, Type type) {
+    public GeoEvent (GeoItem item, Type type) {
         this.item = item;
-        this.location = location;
         this.type = type;
+    }
+
+    public GeoLocation getLocation() {
+        if (item != null) {
+            return item.getLocation();
+        }
+        return null;
     }
 }

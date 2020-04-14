@@ -466,6 +466,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if (id == R.id.action_reply) {
             Message message = chatView.getSelectedMessages().get(0);
             replyView.show(message.getSender().getName(), message.imageURL(), message.getText());
+            input.requestFocus();
         }
 
         if (id == R.id.action_add) {

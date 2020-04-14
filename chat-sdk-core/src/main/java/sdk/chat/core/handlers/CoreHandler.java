@@ -58,7 +58,9 @@ import io.reactivex.Single;
     * Get a a user object. This will fetch or create a user object and try to
     * update it from the server. The user will be returned immediately and
     * it will be updated at some point in the future when the server
-    * responds
+    * responds. When the user is updated, the client will update anyway
+    * because UserMetaUpdated and UserPresenceUpdated network events will be
+    * emitted
     * @param entityID of user
     * @return user
     */

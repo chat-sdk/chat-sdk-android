@@ -41,7 +41,7 @@
         android:layout_alignLeft="@id/image"
         android:layout_alignEnd="@id/image"
         android:layout_alignRight="@id/image"
-        android:layout_margin="50dp"
+        android:layout_margin="80dp"
         android:adjustViewBounds="true"
         />
 

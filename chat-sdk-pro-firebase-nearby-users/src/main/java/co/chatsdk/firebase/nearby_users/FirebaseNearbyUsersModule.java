@@ -1,11 +1,21 @@
 package co.chatsdk.firebase.nearby_users;
 
 import android.content.Context;
+import android.location.Location;
 
 import androidx.fragment.app.Fragment;
 
+import com.firebase.geofire.GeoFire;
+
+import java.util.concurrent.TimeUnit;
+
+import co.chatsdk.ui.icons.Icons;
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.Tab;
 import sdk.chat.core.handlers.Module;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.guru.common.BaseConfig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
@@ -37,6 +47,51 @@ public class FirebaseNearbyUsersModule implements Module {
     @Override
     public void activate(Context context) {
         ChatSDK.ui().addTab(nearbyUsersTab(), 2);
+        LocationHandler.shared().initialize(context);
+
+        ChatSDK.hook().addHook(Hook.sync(data -> {
+
+            // When we get the first location update, then start listening for new users
+            ChatSDK.events().disposeOnLogout(LocationHandler.shared().once().subscribe(location -> {
+                GeoFireManager.shared().startListeningForItems(location.getLatitude(), location.getLongitude(), config().maxDistance);
+            }));
+
+            // Add the current user
+            GeoItemManager.shared().addTrackedItem(currentUser());
+
+        }), HookEvent.DidAuthenticate);
+
+        ChatSDK.hook().addHook(Hook.sync(data -> {
+            GeoFireManager.shared().stopListeningForItems();
+        }), HookEvent.WillLogout);
+
+        ChatSDK.hook().addHook(Hook.sync(data -> {
+            GeoItemManager.shared().remove(currentUser());
+        }), HookEvent.UserWillDisconnect);
+
+        AppBackgroundMonitor.shared().addListener(new AppBackgroundMonitor.Listener() {
+            @Override
+            public void didStart() {
+                if (ChatSDK.auth().isAuthenticatedThisSession()) {
+                    GeoItemManager.shared().addTrackedItem(currentUser());
+                }
+             }
+
+            @Override
+            public void didStop() {
+//                if (ChatSDK.auth().isAuthenticatedThisSession()) {
+//                    GeoItemManager.shared().removeFromGeoFire(new GeoItem(ChatSDK.currentUser().getEntityID(), GeoItem.USER));
+//                }
+            }
+        });
+
+
+//        LocationHandler.shared()
+
+    }
+
+    protected GeoItem currentUser() {
+        return new GeoItem(ChatSDK.currentUser().getEntityID(), GeoItem.USER);
     }
 
     @Override
@@ -46,31 +101,86 @@ public class FirebaseNearbyUsersModule implements Module {
 
     public static class Config<T> extends BaseConfig<T> {
 
-        // Maximum distance to pick up nearby users
+        /**
+         * Maximum distance to pick up nearby users
+         */
         public int maxDistance = 50000;
 
-        // How much distance must be moved to update the server with our new location
-        public int minimumLocationChangeToUpdateServer = 50;
+        /**
+         * How much distance must be moved to update the server with our new location
+         */
+        public int minRefreshDistance = 50;
+
+        /**
+         * Minimum refresh time in seconds
+         */
+        public long minRefreshTime = 1;
+
+        /**
+         * If this custom property is set it should contain an Double which is the number
+         * of meters within which the exact distance isn't displayed. For example, if this
+         * is set to 1000, if a user is within 1000m their exact distance won't be displayed
+         * and <1000 will be displayed instead.
+         */
+        public double minimumDisplayResolution = 100;
+
+        /**
+         * Low data mode will minimise the data used
+         */
+        public boolean lowDataMode = false;
 
         public Config(T onBuild) {
             super(onBuild);
         }
 
-        public Config<T> nearbyUserMaxDistance (int maxDistance) {
+        /**
+         * Set the max distance
+         * @param maxDistance in meters
+         * @return builder
+         */
+        public Config<T> setMaxDistance (int maxDistance) {
             this.maxDistance = maxDistance;
             return this;
         }
 
-        public Config<T> nearbyUsersMinimumLocationChangeToUpdateServer (int minimumDistance) {
-            this.minimumLocationChangeToUpdateServer = minimumDistance;
+        /**
+         * Set the minimum refresh distance
+         * @param minimumDistance in meters
+         * @return builder
+         */
+        public Config<T> setMinRefreshDistance (int minimumDistance) {
+            this.minRefreshDistance = minimumDistance;
+            return this;
+        }
+
+        /**
+         * Set the minimum refresh distance
+         * @param minRefreshTime in seconds
+         * @return builder
+         */
+        public Config<T> setMinRefreshTime (int minRefreshTime) {
+            this.minRefreshTime = minRefreshTime;
+            return this;
+        }
+
+        /**
+         /**
+         * If this custom property is set it should contain an Double which is the number
+         * of meters within which the exact distance isn't displayed. For example, if this
+         * is set to 1000, if a user is within 1000m their exact distance won't be displayed
+         * and <1000 will be displayed instead.
+         * @param minimumDisplayResolution in meters
+         * @return builder
+         */
+        public Config<T> setMinimumDisplayResolution (double minimumDisplayResolution) {
+            this.minimumDisplayResolution = minimumDisplayResolution;
             return this;
         }
 
     }
 
     public static Tab nearbyUsersTab() {
-        Context context = ChatSDK.shared().context();
-        return new Tab(R.string.nearby_users, context.getResources().getDrawable(R.drawable.nearby_users), nearbyUsersFragment());
+        return new Tab(R.string.nearby_users, Icons.get(Icons.choose().location, Icons.shared().tabIconColor), nearbyUsersFragment());
     }
 
     public static Fragment nearbyUsersFragment() {

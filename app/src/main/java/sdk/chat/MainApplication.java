@@ -10,6 +10,7 @@ import org.pmw.tinylog.Logger;
 import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.contact.ContactBookModule;
+import co.chatsdk.firebase.nearby_users.FirebaseNearbyUsersModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Config;
 import co.chatsdk.firebase.blocking.FirebaseBlockingModule;
@@ -186,11 +187,11 @@ public class MainApplication extends Application {
                     .addModule(VideoMessageModule.shared())
                     .addModule(FirebaseBlockingModule.shared())
                     .addModule(FirebaseLastOnlineModule.shared())
-//                    .addModule(FirebaseNearbyUsersModule.shared())
+                    .addModule(FirebaseNearbyUsersModule.shared())
                     .addModule(FirebaseReadReceiptsModule.shared())
                     .addModule(FirebaseTypingIndicatorModule.shared())
 
-                    .addModule(ExtrasModule.shared())
+//                    .addModule(ExtrasModule.shared())
 
                     .addModule(FirebaseUIModule.configure()
                             .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)

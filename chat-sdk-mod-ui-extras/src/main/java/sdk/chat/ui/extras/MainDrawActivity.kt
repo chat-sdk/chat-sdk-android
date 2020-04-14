@@ -66,12 +66,11 @@ class MainDrawActivity : MainActivity() {
 
         // Update the user details
         dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.UserMetaUpdated)).filter(NetworkEvent.filterCurrentUser()).subscribe(Consumer {
-            // Refresh the read count
-            // Create the AccountHeader
-//            buildHeader(false, savedInstanceState)
-            updateProfile()
-            headerView.updateProfile(profile)
-            updateHeaderBackground()
+            headerView.post {
+                updateProfile()
+                headerView.updateProfile(profile)
+                updateHeaderBackground()
+            }
         }))
 
         ChatSDK.hook().addHook(Hook.sync(Executor {

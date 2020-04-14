@@ -87,7 +87,7 @@ public class ThreadWrapper  {
 
                 e.onNext(model);
             }));
-
+            
             RealtimeReferenceManager.shared().addRef(metaRef, listener);
 
             if(ChatSDK.typingIndicator() != null) {

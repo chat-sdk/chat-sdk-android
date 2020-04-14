@@ -11,6 +11,11 @@ import com.google.firebase.database.DatabaseReference;
 
 import org.pmw.tinylog.Logger;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
@@ -20,6 +25,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.ReplaySubject;
+import sdk.chat.core.utils.AppBackgroundMonitor;
 
 /**
  * Created by ben on 4/3/18.
@@ -27,7 +33,6 @@ import io.reactivex.subjects.ReplaySubject;
 
 public class GeoFireManager {
 
-    protected GeoLocation location;
     protected GeoQuery query;
 
     protected PublishSubject<GeoEvent> eventPublishSubject = PublishSubject.create();
@@ -35,21 +40,18 @@ public class GeoFireManager {
 
     protected static GeoFireManager shared = new GeoFireManager();
 
+    protected Map<String, GeoItem> itemMap = new HashMap<>();
+
     public static GeoFireManager shared () {
         return shared;
     }
 
+
     public GeoFireManager () {
 
         ChatSDK.hook().addHook(Hook.sync(data -> {
-            location = null;
             query.removeAllListeners();
         }), HookEvent.DidLogout);
-
-        ChatSDK.hook().addHook(Hook.sync(data -> {
-            location = null;
-        }), HookEvent.UserWillDisconnect);
-
     }
 
     public void startListeningForItems(double latitude, double longitude, float radius) {
@@ -63,17 +65,17 @@ public class GeoFireManager {
         GeoQueryEventListener listener = new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String id, GeoLocation location) {
-                onNext(new GeoEvent(new GeoItem(id), location, GeoEvent.Type.Entered));
+                updateItem(id, location, GeoEvent.Type.Entered);
             }
 
             @Override
             public void onKeyExited(String id) {
-                onNext(new GeoEvent(new GeoItem(id), location, GeoEvent.Type.Exited));
+                updateItem(id, null, GeoEvent.Type.Exited);
             }
 
             @Override
             public void onKeyMoved(String id, GeoLocation location) {
-                onNext(new GeoEvent(new GeoItem(id), location, GeoEvent.Type.Moved));
+                updateItem(id, location, GeoEvent.Type.Moved);
             }
 
             @Override
@@ -85,6 +87,21 @@ public class GeoFireManager {
 
         query.addGeoQueryEventListener(listener);
 
+    }
+
+    protected void updateItem(String id, GeoLocation location, GeoEvent.Type type) {
+        GeoItem item = itemMap.get(id);
+        if (type == GeoEvent.Type.Entered && item == null) {
+            item = new GeoItem(id, location);
+            itemMap.put(id, item);
+        }
+        if (type == GeoEvent.Type.Moved && item != null) {
+            item.setLocation(location);
+        }
+        if (type == GeoEvent.Type.Exited) {
+            itemMap.remove(id);
+        }
+        onNext(new GeoEvent(item, type));
     }
 
     protected void onNext (GeoEvent event) {
@@ -109,33 +126,6 @@ public class GeoFireManager {
 
     public void removeItem(GeoItem item) {
         ref().child(item.getID()).removeValue();
-    }
-
-    public boolean updateLocation (double latitude, double longitude) {
-        if (location != null) {
-            // Work out the distance between the new location and the old one
-            double distance = distanceBetween(new GeoLocation(latitude, longitude), location);
-            if (distance < FirebaseNearbyUsersModule.config().minimumLocationChangeToUpdateServer) {
-                return false;
-            }
-        }
-
-        location = new GeoLocation(latitude, longitude);
-        startListeningForItems(latitude, longitude, FirebaseNearbyUsersModule.config().maxDistance);
-
-        return true;
-    }
-
-    public boolean addItemAtCurrentLocation(GeoItem item) {
-        return addItemAtCurrentLocation(item, true);
-    }
-
-    public boolean addItemAtCurrentLocation(GeoItem item, boolean removeOnDisconnect) {
-        if (location != null) {
-            addItem(item, location.latitude, location.longitude, removeOnDisconnect);
-            return true;
-        }
-        return false;
     }
 
     public void addItem(GeoItem item, double latitude, double longitude) {
@@ -177,5 +167,9 @@ public class GeoFireManager {
 
         return l0.distanceTo(l1);
 
+    }
+
+    Map<String, GeoItem> getItemMap() {
+        return itemMap;
     }
 }

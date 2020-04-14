@@ -28,12 +28,17 @@ import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
 
 public class PermissionRequestHandler {
 
-    public static boolean recordPermissionGranted() {
-        return permissionGranted(Manifest.permission.RECORD_AUDIO);
-    }
-
     public static boolean permissionGranted(String permission) {
         return ContextCompat.checkSelfPermission(ChatSDK.ctx(), permission) != PERMISSION_DENIED;
+    }
+
+    public static boolean permissionGranted(String... permissions) {
+        for (String permission: permissions) {
+            if (!permissionGranted(permission)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static Completable requestRecordAudio(Activity activity) {

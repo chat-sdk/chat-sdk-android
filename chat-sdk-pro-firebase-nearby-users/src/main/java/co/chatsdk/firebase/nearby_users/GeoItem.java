@@ -1,5 +1,7 @@
 package co.chatsdk.firebase.nearby_users;
 
+import com.firebase.geofire.GeoLocation;
+
 public class GeoItem {
 
     public static String USER = "user";
@@ -10,9 +12,16 @@ public class GeoItem {
     // Set this as the default for backwards compatibility
     protected String type = USER;
 
+    protected GeoLocation location = null;
+
     public GeoItem (String entityID, String type) {
         this.entityID = entityID;
         this.type = type;
+    }
+
+    public GeoItem (String id, GeoLocation location) {
+        this(id);
+        this.location = location;
     }
 
     public GeoItem (String id) {
@@ -41,5 +50,16 @@ public class GeoItem {
         return type;
     }
 
+    @Override
+    public boolean equals(Object item) {
+        return item instanceof GeoItem && entityID.equals(((GeoItem)item).getEntityID());
+    }
 
+    public GeoLocation getLocation() {
+        return location;
+    }
+
+    public void setLocation(GeoLocation location) {
+        this.location = location;
+    }
 }

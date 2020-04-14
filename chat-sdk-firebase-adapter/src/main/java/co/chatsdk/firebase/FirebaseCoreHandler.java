@@ -8,7 +8,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import org.pmw.tinylog.Logger;
 
 import java.util.Date;
+import java.util.concurrent.Callable;
 
+import io.reactivex.CompletableSource;
 import sdk.chat.core.base.AbstractCoreHandler;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.hook.HookEvent;
@@ -92,12 +94,12 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public Completable updateLastOnline() {
-        return Completable.create(e -> {
-            User currentUser = ChatSDK.currentUser();
-            currentUser.setLastOnline(new Date());
-            currentUser.update();
-            e.onComplete();
-        }).concatWith(pushUser()).subscribeOn(Schedulers.io());
+        return Completable.defer(() -> {
+            if (ChatSDK.lastOnline() != null) {
+                return ChatSDK.lastOnline().setLastOnline(currentUser());
+            }
+            return Completable.complete();
+        }).subscribeOn(Schedulers.io());
     }
 
     public Completable userOn(final User user) {

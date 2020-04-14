@@ -157,7 +157,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab privateThreadsTab() {
         if (privateThreadsTab == null) {
-            privateThreadsTab = new Tab(String.format(context.get().getString(R.string.conversations__), ""), Icons.get(Icons.choose().chat, R.color.tab_icon_color), privateThreadsFragment());
+            privateThreadsTab = new Tab(String.format(context.get().getString(R.string.conversations__), ""), Icons.get(Icons.choose().chat, Icons.shared().tabIconColor), privateThreadsFragment());
         }
         return privateThreadsTab;
     }
@@ -165,7 +165,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab publicThreadsTab() {
         if (publicThreadsTab == null) {
-            publicThreadsTab = new Tab(context.get().getString(R.string.chat_rooms), Icons.get(Icons.choose().publicChat, R.color.tab_icon_color), publicThreadsFragment());
+            publicThreadsTab = new Tab(context.get().getString(R.string.chat_rooms), Icons.get(Icons.choose().publicChat, Icons.shared().tabIconColor), publicThreadsFragment());
         }
         return publicThreadsTab;
     }
@@ -173,7 +173,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab contactsTab() {
         if (contactsTab == null) {
-            contactsTab = new Tab(context.get().getString(R.string.contacts), Icons.get(Icons.choose().contact, R.color.tab_icon_color), contactsFragment());
+            contactsTab = new Tab(context.get().getString(R.string.contacts), Icons.get(Icons.choose().contact, Icons.shared().tabIconColor), contactsFragment());
         }
         return contactsTab;
     }

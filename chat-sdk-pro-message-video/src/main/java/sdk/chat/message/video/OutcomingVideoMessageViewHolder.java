@@ -15,6 +15,6 @@ public class OutcomingVideoMessageViewHolder extends BaseOutcomingImageMessageVi
 
     public OutcomingVideoMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
-        playImageView.setImageDrawable(Icons.getLarge(Icons.choose().play, R.color.white));
+        playImageView.setImageDrawable(Icons.getLarge(Icons.choose().play, R.color.gray_very_light));
     }
 }

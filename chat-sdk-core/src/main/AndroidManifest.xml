@@ -1,5 +1,4 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="co.chatsdk.core">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -15,9 +14,6 @@
         >
 
         <service android:name="sdk.chat.core.notifications.MessagingService" />
-
-        <meta-data android:name="com.google.android.gms.car.application"
-            android:resource="@xml/automotive_app_desc" />
 
     </application>
 

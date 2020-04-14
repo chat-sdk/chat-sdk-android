@@ -2,10 +2,12 @@ package co.chatsdk.message.file;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,8 +52,10 @@ public class FileChatOption extends BaseChatOption {
 
                         File file = fileFromURI(fileUri, activity, MediaStore.Files.FileColumns.DATA);
 
+                        String name = getFileName(fileUri);
+
                         // Send the file
-                        dm.add(ChatSDK.fileMessage().sendMessageWithFile(file.getName(), mimeType, file, thread)
+                        dm.add(ChatSDK.fileMessage().sendMessageWithFile(name, mimeType, file, thread)
                                 .subscribe(emitter::onComplete, emitter::onError));
                     }
                 }
@@ -73,6 +77,29 @@ public class FileChatOption extends BaseChatOption {
 
             activity.startActivityForResult(chooser, CHOOSE_FILE);
         });
+    }
+
+    protected String getFileName(Uri uri) {
+        // Get the Uri of the selected file
+        String uriString = uri.toString();
+        File myFile = new File(uriString);
+        String path = myFile.getAbsolutePath();
+        String displayName = null;
+
+        if (uriString.startsWith("content://")) {
+            Cursor cursor = null;
+            try {
+                cursor = ChatSDK.ctx().getContentResolver().query(uri, null, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        } else if (uriString.startsWith("file://")) {
+            displayName = myFile.getName();
+        }
+        return displayName;
     }
 
     protected File fileFromURI (Uri uri, Activity activity, String name) throws IOException {
