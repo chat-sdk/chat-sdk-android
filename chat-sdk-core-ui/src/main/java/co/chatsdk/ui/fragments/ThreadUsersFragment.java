@@ -111,7 +111,7 @@ public class ThreadUsersFragment extends BaseFragment {
             if (ChatSDK.thread().rolesEnabled(thread) && user instanceof User) {
                 String role = ChatSDK.thread().roleForUser(thread, (User) user);
                 if (role != null) {
-                    return role;
+                    return ChatSDK.thread().localizeRole(role);
                 }
             }
             return user.getStatus();
@@ -198,10 +198,12 @@ public class ThreadUsersFragment extends BaseFragment {
         builder.setTitle(R.string.change_role);
 
         final List<String> roles = ChatSDK.thread().availableRoles(thread, user);
+        final List<String> localizedRoles = ChatSDK.thread().localizeRoles(roles);
+
         final String currentRole = ChatSDK.thread().roleForUser(thread, user);
         int checked = roles.indexOf(currentRole);
 
-        builder.setSingleChoiceItems(ChatSDK.thread().availableRoles(thread, user).toArray(new String[0]), checked, (dialog, which) -> {
+        builder.setSingleChoiceItems(localizedRoles.toArray(new String[0]), checked, (dialog, which) -> {
             String newRole = roles.get(which);
             if (!newRole.equals(currentRole)) {
                 dm.add(ChatSDK.thread().setRole(newRole, thread, user).subscribe(() -> {

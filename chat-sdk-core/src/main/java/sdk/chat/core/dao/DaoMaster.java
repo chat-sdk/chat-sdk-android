@@ -30,6 +30,7 @@ public class DaoMaster extends AbstractDaoMaster {
         UserDao.createTable(db, ifNotExists);
         UserMetaValueDao.createTable(db, ifNotExists);
         UserThreadLinkDao.createTable(db, ifNotExists);
+        UserThreadLinkMetaValueDao.createTable(db, ifNotExists);
     }
 
     /** Drops underlying database table using DAOs. */
@@ -43,6 +44,7 @@ public class DaoMaster extends AbstractDaoMaster {
         UserDao.dropTable(db, ifExists);
         UserMetaValueDao.dropTable(db, ifExists);
         UserThreadLinkDao.dropTable(db, ifExists);
+        UserThreadLinkMetaValueDao.dropTable(db, ifExists);
     }
 
     /**
@@ -70,6 +72,7 @@ public class DaoMaster extends AbstractDaoMaster {
         registerDaoClass(UserDao.class);
         registerDaoClass(UserMetaValueDao.class);
         registerDaoClass(UserThreadLinkDao.class);
+        registerDaoClass(UserThreadLinkMetaValueDao.class);
     }
 
     public DaoSession newSession() {

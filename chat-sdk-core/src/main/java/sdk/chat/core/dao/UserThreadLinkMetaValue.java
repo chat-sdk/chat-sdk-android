@@ -1,49 +1,68 @@
 package sdk.chat.core.dao;
 
-import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToOne;
+import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.DaoException;
 
-import sdk.chat.core.base.AbstractEntity;
-
-/**
- * Created by ben on 5/17/18.
- */
+import sdk.chat.core.interfaces.CoreEntity;
 
 @Entity
-public class UserMetaValue implements MetaValue {
+public class UserThreadLinkMetaValue implements MetaValue {
 
-    @Id
-    private Long id;
+    @Id private Long id;
 
     private String key;
     private String value;
 
-    private Long userId;
+    private Long userThreadLinkId;
 
-    @ToOne(joinProperty = "userId")
-    private User user;
+    @ToOne(joinProperty = "userThreadLinkId")
+    private UserThreadLink userThreadLink;
 
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
 
     /** Used for active entity operations. */
-    @Generated(hash = 2030443077)
-    private transient UserMetaValueDao myDao;
+    @Generated(hash = 421818365)
+    private transient UserThreadLinkMetaValueDao myDao;
 
-    @Generated(hash = 129952477)
-    public UserMetaValue(Long id, String key, String value, Long userId) {
+    @Generated(hash = 1472740785)
+    public UserThreadLinkMetaValue(Long id, String key, String value,
+            Long userThreadLinkId) {
         this.id = id;
         this.key = key;
         this.value = value;
-        this.userId = userId;
+        this.userThreadLinkId = userThreadLinkId;
     }
 
-    @Generated(hash = 1661261771)
-    public UserMetaValue() {
+    @Generated(hash = 1776174827)
+    public UserThreadLinkMetaValue() {
+    }
+
+    @Generated(hash = 1100632231)
+    private transient Long userThreadLink__resolvedKey;
+
+    @Override
+    public String getKey() {
+        return key;
+    }
+
+    @Override
+    public String getValue() {
+        return value;
+    }
+
+    @Override
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    @Override
+    public void setValue(String value) {
+        this.value = value;
     }
 
     public Long getId() {
@@ -54,59 +73,42 @@ public class UserMetaValue implements MetaValue {
         this.id = id;
     }
 
-    public String getKey() {
-        return this.key;
+    public Long getUserThreadLinkId() {
+        return this.userThreadLinkId;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setUserThreadLinkId(Long userThreadLinkId) {
+        this.userThreadLinkId = userThreadLinkId;
     }
-
-    public String getValue() {
-        return this.value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public Long getUserId() {
-        return this.userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    @Generated(hash = 251390918)
-    private transient Long user__resolvedKey;
 
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 859885876)
-    public User getUser() {
-        Long __key = this.userId;
-        if (user__resolvedKey == null || !user__resolvedKey.equals(__key)) {
+    @Generated(hash = 644626697)
+    public UserThreadLink getUserThreadLink() {
+        Long __key = this.userThreadLinkId;
+        if (userThreadLink__resolvedKey == null
+                || !userThreadLink__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            UserDao targetDao = daoSession.getUserDao();
-            User userNew = targetDao.load(__key);
+            UserThreadLinkDao targetDao = daoSession.getUserThreadLinkDao();
+            UserThreadLink userThreadLinkNew = targetDao.load(__key);
             synchronized (this) {
-                user = userNew;
-                user__resolvedKey = __key;
+                userThreadLink = userThreadLinkNew;
+                userThreadLink__resolvedKey = __key;
             }
         }
-        return user;
+        return userThreadLink;
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1065606912)
-    public void setUser(User user) {
+    @Generated(hash = 1883455290)
+    public void setUserThreadLink(UserThreadLink userThreadLink) {
         synchronized (this) {
-            this.user = user;
-            userId = user == null ? null : user.getId();
-            user__resolvedKey = userId;
+            this.userThreadLink = userThreadLink;
+            userThreadLinkId = userThreadLink == null ? null
+                    : userThreadLink.getId();
+            userThreadLink__resolvedKey = userThreadLinkId;
         }
     }
 
@@ -147,10 +149,11 @@ public class UserMetaValue implements MetaValue {
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1457790970)
+    @Generated(hash = 92934671)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getUserMetaValueDao() : null;
+        myDao = daoSession != null ? daoSession.getUserThreadLinkMetaValueDao()
+                : null;
     }
 
 }

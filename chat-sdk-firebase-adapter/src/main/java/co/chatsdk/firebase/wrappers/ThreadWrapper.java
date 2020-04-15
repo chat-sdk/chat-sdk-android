@@ -20,7 +20,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
+import io.reactivex.CompletableSource;
+import io.reactivex.ObservableEmitter;
 import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
@@ -34,6 +37,7 @@ import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
 import co.chatsdk.firebase.FirebaseEntity;
+import sdk.guru.realtime.DocumentChange;
 import sdk.guru.realtime.RealtimeEventListener;
 import co.chatsdk.firebase.FirebasePaths;
 import sdk.guru.realtime.RealtimeReferenceManager;
@@ -87,7 +91,7 @@ public class ThreadWrapper  {
 
                 e.onNext(model);
             }));
-            
+
             RealtimeReferenceManager.shared().addRef(metaRef, listener);
 
             if(ChatSDK.typingIndicator() != null) {
@@ -492,5 +496,36 @@ public class ThreadWrapper  {
             });
 
         }).subscribeOn(Schedulers.io());
+    }
+
+    public Completable setPermission(String userEntityID, String permission) {
+        return Completable.defer(() -> new RXRealtime().set(FirebasePaths.threadUserPermissionRef(model.getEntityID(), userEntityID), permission));
+    }
+
+    public Completable setPermissions(Map<String, String> userEntityIDPermissionMap) {
+        return Completable.defer(() -> new RXRealtime().set(FirebasePaths.threadPermissionsRef(model.getEntityID()), userEntityIDPermissionMap));
+    }
+
+    public Observable<Thread> permissionsOn() {
+        return Observable.defer(() -> {
+            DatabaseReference ref = FirebasePaths.threadPermissionsRef(model.getEntityID());
+            if (RealtimeReferenceManager.shared().isOn(ref)) {
+                return Observable.never();
+            }
+            RXRealtime realtime = new RXRealtime();
+            Observable<Thread> observable = realtime.childOn(ref).map(change -> {
+                if (change.getSnapshot().exists()) {
+                    model.setPermission(change.getSnapshot().getKey(), change.getSnapshot().getValue(String.class));
+                }
+                return model;
+            });
+            realtime.addToReferenceManager();
+            return observable;
+        }).subscribeOn(Schedulers.io());
+    }
+
+    public void permissionsOff() {
+        DatabaseReference ref = FirebasePaths.threadPermissionsRef(model.getEntityID());
+        RealtimeReferenceManager.shared().removeListeners(ref);
     }
 }

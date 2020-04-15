@@ -246,6 +246,11 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         return new ArrayList<>();
     }
 
+    @Override
+    public List<String> localizeRoles(List<String> roles) {
+        return null;
+    }
+
     public Completable setRole(String role, Thread thread, User user) {
         return Completable.defer(() -> {
             if (rolesEnabled(thread, user)) {

@@ -1,16 +1,11 @@
-package co.chatsdk.firebase.nearby_users;
+package sdk.chat.location;
 
 import android.content.Context;
-import android.location.Location;
 
 import androidx.fragment.app.Fragment;
 
-import com.firebase.geofire.GeoFire;
-
-import java.util.concurrent.TimeUnit;
-
+import co.chatsdk.firebase.nearby_users.R;
 import co.chatsdk.ui.icons.Icons;
-import io.reactivex.functions.Consumer;
 import sdk.chat.core.Tab;
 import sdk.chat.core.handlers.Module;
 import sdk.chat.core.hook.Hook;
@@ -63,10 +58,13 @@ public class FirebaseNearbyUsersModule implements Module {
 
         ChatSDK.hook().addHook(Hook.sync(data -> {
             GeoFireManager.shared().stopListeningForItems();
+            GeoItemManager.shared().remove(currentUser());
         }), HookEvent.WillLogout);
 
         ChatSDK.hook().addHook(Hook.sync(data -> {
-            GeoItemManager.shared().remove(currentUser());
+            if (currentUser() != null) {
+                GeoItemManager.shared().remove(currentUser());
+            }
         }), HookEvent.UserWillDisconnect);
 
         AppBackgroundMonitor.shared().addListener(new AppBackgroundMonitor.Listener() {

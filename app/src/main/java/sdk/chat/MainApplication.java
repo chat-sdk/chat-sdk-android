@@ -10,7 +10,7 @@ import org.pmw.tinylog.Logger;
 import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.contact.ContactBookModule;
-import co.chatsdk.firebase.nearby_users.FirebaseNearbyUsersModule;
+import sdk.chat.location.FirebaseNearbyUsersModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Config;
 import co.chatsdk.firebase.blocking.FirebaseBlockingModule;
@@ -29,7 +29,6 @@ import co.chatsdk.xmpp.module.XMPPModule;
 import co.chatsdk.xmpp.read_receipt.XMPPReadReceiptsModule;
 import io.reactivex.disposables.Disposable;
 import sdk.chat.audio.AudioMessageModule;
-import sdk.chat.core.session.Configure;
 import sdk.chat.core.utils.Device;
 import sdk.chat.message.video.VideoMessageModule;
 import sdk.chat.test.Testing;
@@ -49,7 +48,7 @@ public class MainApplication extends Application {
     }
 
     public void setupChatSDK() {
-        String rootPath = "pre_1";
+        String rootPath = "pre_2";
 
         try {
 

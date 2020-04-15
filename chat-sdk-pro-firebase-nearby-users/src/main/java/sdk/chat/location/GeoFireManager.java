@@ -1,4 +1,4 @@
-package co.chatsdk.firebase.nearby_users;
+package sdk.chat.location;
 
 import android.location.Location;
 
@@ -11,9 +11,7 @@ import com.google.firebase.database.DatabaseReference;
 
 import org.pmw.tinylog.Logger;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import sdk.chat.core.hook.Hook;
@@ -25,7 +23,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.ReplaySubject;
-import sdk.chat.core.utils.AppBackgroundMonitor;
 
 /**
  * Created by ben on 4/3/18.
@@ -48,10 +45,6 @@ public class GeoFireManager {
 
 
     public GeoFireManager () {
-
-        ChatSDK.hook().addHook(Hook.sync(data -> {
-            query.removeAllListeners();
-        }), HookEvent.DidLogout);
     }
 
     public void startListeningForItems(double latitude, double longitude, float radius) {

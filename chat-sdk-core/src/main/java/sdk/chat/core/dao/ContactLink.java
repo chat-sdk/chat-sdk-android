@@ -14,7 +14,7 @@ import sdk.chat.core.base.AbstractEntity;
 import sdk.chat.core.types.ConnectionType;
 
 @org.greenrobot.greendao.annotation.Entity
-public class ContactLink  extends AbstractEntity {
+public class ContactLink {
 
     @Id
     private Long id;
@@ -87,12 +87,6 @@ public class ContactLink  extends AbstractEntity {
 
     public void setType(Integer type) {
         this.type = type;
-    }
-
-    public void setEntityID (String entityID) {}
-
-    public String getEntityID () {
-        return id.toString();
     }
 
     public void setLinkOwnerUserDaoId(Long linkOwnerUserDaoId) {

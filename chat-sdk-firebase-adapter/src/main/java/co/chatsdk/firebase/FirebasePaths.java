@@ -9,6 +9,8 @@ package co.chatsdk.firebase;
 
 import com.google.firebase.database.DatabaseReference;
 
+import java.security.Permissions;
+
 import sdk.chat.core.dao.Keys;
 import co.chatsdk.firebase.module.FirebaseModule;
 
@@ -27,7 +29,7 @@ public class FirebasePaths{
     public static final String ReadPath = Keys.Read;
     public static final String LocationPath = "location";
     public static final String ConfigPath = "config";
-
+    public static final String PermissionsPath = "permissions";
 
     /* Not sure if this the wanted implementation but its give the same result as the objective-C code.*/
     /** @return The main databse ref.*/
@@ -87,6 +89,14 @@ public class FirebasePaths{
 
     public static DatabaseReference threadUsersRef(String firebaseId){
         return threadRef().child(firebaseId).child(UsersPath);
+    }
+
+    public static DatabaseReference threadPermissionsRef(String firebaseId){
+        return threadRef().child(firebaseId).child(PermissionsPath);
+    }
+
+    public static DatabaseReference threadUserPermissionRef(String firebaseId, String userEntityID){
+        return threadRef().child(firebaseId).child(PermissionsPath).child(userEntityID);
     }
 
     public static DatabaseReference threadLastMessageRef(String firebaseId){

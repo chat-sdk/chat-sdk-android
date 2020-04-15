@@ -20,7 +20,7 @@ public class FirebaseConfig<T> extends BaseConfig<T> {
     public boolean developmentModeEnabled = false;
     public boolean disablePublicThreads = false;
 
-    public boolean enableCompatibilityWithV4 = false;
+    public boolean enableCompatibilityWithV4 = true;
 
     public boolean enableWebCompatibility = false;
 

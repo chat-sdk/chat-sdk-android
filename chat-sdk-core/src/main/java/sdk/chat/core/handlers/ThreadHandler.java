@@ -110,6 +110,10 @@ public interface ThreadHandler {
     Completable setRole(String role, Thread thread, User user);
     List<String> availableRoles(Thread thread, User user);
 
+    List<String> localizeRoles(List<String> roles);
+    String localizeRole(String role);
+    List<String> localizeRoles(String... roles);
+
     // Moderation
     Completable grantVoice(Thread thread, User user);
     Completable revokeVoice(Thread thread, User user);

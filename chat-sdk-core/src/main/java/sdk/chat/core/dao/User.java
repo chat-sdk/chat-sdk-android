@@ -387,9 +387,7 @@ public class User extends AbstractEntity implements UserListItem {
 
     @Keep
     public UserMetaValue metaValueForKey(String key) {
-        ArrayList<MetaValue> values = new ArrayList<>();
-        values.addAll(getMetaValues());
-        return(UserMetaValue) MetaValueHelper.metaValueForKey(key, values);
+        return MetaValueHelper.metaValueForKey(key, getMetaValues());
     }
 
     public boolean hasThread(Thread thread){

@@ -1,4 +1,4 @@
-package co.chatsdk.firebase.nearby_users;
+package sdk.chat.location;
 
 import com.firebase.geofire.GeoLocation;
 

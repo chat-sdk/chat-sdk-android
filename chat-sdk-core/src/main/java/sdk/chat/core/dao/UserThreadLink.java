@@ -5,19 +5,31 @@ package sdk.chat.core.dao;
 // KEEP INCLUDES - put your custom includes here
 
 import org.greenrobot.greendao.DaoException;
+import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.JoinEntity;
+import org.greenrobot.greendao.annotation.Keep;
+import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
 
-import sdk.chat.core.base.AbstractEntity;
+import java.util.ArrayList;
+import java.util.List;
 
-@org.greenrobot.greendao.annotation.Entity
-public class UserThreadLink extends AbstractEntity {
+import sdk.chat.core.base.AbstractEntity;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.session.ChatSDK;
+
+@Entity
+public class UserThreadLink {
 
     @Id
     private Long id;
     private Long userId;
     private Long threadId;
+
+    @ToMany(referencedJoinProperty = "userThreadLinkId")
+    private List<UserThreadLinkMetaValue> metaValues;
 
     @ToOne(joinProperty = "userId")
     private User user;
@@ -44,16 +56,7 @@ public class UserThreadLink extends AbstractEntity {
     private transient Long user__resolvedKey;
     @Generated(hash = 1974258785)
     private transient Long thread__resolvedKey;
-
-    public void setEntityID (String entityID) {
-
-    }
-
-    public String getEntityID () {
-        return id.toString();
-    }
-
-
+    
     public Long getId() {
         return this.id;
     }
@@ -174,5 +177,59 @@ public class UserThreadLink extends AbstractEntity {
         myDao = daoSession != null ? daoSession.getUserThreadLinkDao() : null;
     }
 
+    /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 532971758)
+    public List<UserThreadLinkMetaValue> getMetaValues() {
+        if (metaValues == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            UserThreadLinkMetaValueDao targetDao = daoSession.getUserThreadLinkMetaValueDao();
+            List<UserThreadLinkMetaValue> metaValuesNew = targetDao
+                    ._queryUserThreadLink_MetaValues(id);
+            synchronized (this) {
+                if (metaValues == null) {
+                    metaValues = metaValuesNew;
+                }
+            }
+        }
+        return metaValues;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 365870950)
+    public synchronized void resetMetaValues() {
+        metaValues = null;
+    }
+
+    @Keep
+    public UserThreadLinkMetaValue metaValueForKey (String key) {
+        return MetaValueHelper.metaValueForKey(key, getMetaValues());
+    }
+
+    @Keep
+    public boolean setMetaValue (String key, String value) {
+        UserThreadLinkMetaValue metaValue = metaValueForKey(key);
+
+        if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {
+            if (metaValue == null) {
+                metaValue = ChatSDK.db().createEntity(UserThreadLinkMetaValue.class);
+                metaValue.setUserThreadLinkId(this.getId());
+                getMetaValues().add(metaValue);
+            }
+
+            metaValue.setValue(value);
+            metaValue.setKey(key);
+            metaValue.update();
+            update();
+
+            return true;
+        }
+        return false;
+    }
 
 }

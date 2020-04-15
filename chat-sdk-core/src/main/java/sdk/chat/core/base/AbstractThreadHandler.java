@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -228,41 +229,6 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     }
 
     @Override
-    public Completable mute(Thread thread) {
-        return Completable.complete();
-    }
-
-    @Override
-    public Completable unmute(Thread thread) {
-        return Completable.complete();
-    }
-
-    @Override
-    public boolean rolesEnabled(Thread thread) {
-        return false;
-    }
-
-    @Override
-    public boolean canChangeRole(Thread thread, User user) {
-        return false;
-    }
-
-    @Override
-    public String roleForUser(Thread thread, User user) {
-        return null;
-    }
-
-    @Override
-    public Completable setRole(String role, Thread thread, User user) {
-        return Completable.error(ChatSDK.getException(R.string.feature_not_supported));
-    }
-
-    @Override
-    public List<String> availableRoles(Thread thread, User user) {
-        return new ArrayList<>();
-    }
-
-    @Override
     public Completable deleteThread(Thread thread) {
         return Completable.create(emitter -> {
             for (Message m: thread.getMessages()) {
@@ -306,6 +272,42 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     }
 
     // Moderation
+
+    @Override
+    public Completable mute(Thread thread) {
+        return Completable.complete();
+    }
+
+    @Override
+    public Completable unmute(Thread thread) {
+        return Completable.complete();
+    }
+
+    @Override
+    public boolean rolesEnabled(Thread thread) {
+        return false;
+    }
+
+    @Override
+    public boolean canChangeRole(Thread thread, User user) {
+        return false;
+    }
+
+    @Override
+    public String roleForUser(Thread thread, User user) {
+        return null;
+    }
+
+    @Override
+    public Completable setRole(String role, Thread thread, User user) {
+        return Completable.error(ChatSDK.getException(R.string.feature_not_supported));
+    }
+
+    @Override
+    public List<String> availableRoles(Thread thread, User user) {
+        return new ArrayList<>();
+    }
+
     @Override
     public Completable grantVoice(Thread thread, User user) {
         return Completable.create(emitter -> {
@@ -358,4 +360,12 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return false;
     }
 
+    public String localizeRole(String role) {
+        return localizeRoles(Collections.singletonList(role)).get(0);
+    }
+
+    @Override
+    public List<String> localizeRoles(String... roles) {
+        return localizeRoles(Arrays.asList(roles));
+    }
 }

@@ -13,7 +13,7 @@ import sdk.chat.core.base.AbstractEntity;
  */
 
 @Entity
-public class ThreadMetaValue extends AbstractEntity implements MetaValue {
+public class ThreadMetaValue implements MetaValue {
 
     @Id
     private Long id;
@@ -151,15 +151,5 @@ public class ThreadMetaValue extends AbstractEntity implements MetaValue {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getThreadMetaValueDao() : null;
-    }
-
-
-    @Override
-    public void setEntityID(String entityID) {
-    }
-
-    @Override
-    public String getEntityID() {
-        return null;
     }
 }

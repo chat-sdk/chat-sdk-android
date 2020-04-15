@@ -223,9 +223,7 @@ public class Message extends AbstractEntity {
     }
 
     protected MetaValue metaValue (String key) {
-        ArrayList<MetaValue> values = new ArrayList<>();
-        values.addAll(getMetaValues());
-        return MetaValueHelper.metaValueForKey(key, values);
+        return MetaValueHelper.metaValueForKey(key, getMetaValues());
     }
 
     public Object valueForKey (String key) {

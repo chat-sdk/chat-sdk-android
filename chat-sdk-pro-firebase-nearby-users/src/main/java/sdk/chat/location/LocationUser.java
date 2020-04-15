@@ -1,4 +1,4 @@
-package co.chatsdk.firebase.nearby_users;
+package sdk.chat.location;
 
 import android.location.Location;
 
@@ -6,7 +6,6 @@ import com.firebase.geofire.GeoLocation;
 
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.UserListItem;
-import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.CurrentLocale;
 
 /**

@@ -1,11 +1,10 @@
-package co.chatsdk.firebase.nearby_users;
+package sdk.chat.location;
 
 import android.location.Location;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.functions.Consumer;
 import sdk.guru.common.DisposableMap;
 
 public class GeoItemManager {

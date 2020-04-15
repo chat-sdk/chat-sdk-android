@@ -16,7 +16,7 @@ import sdk.chat.core.utils.DaoDateTimeConverter;
  */
 
 @Entity
-public class ReadReceiptUserLink extends AbstractEntity {
+public class ReadReceiptUserLink {
 
     @Id
     private Long id;
@@ -63,16 +63,6 @@ public class ReadReceiptUserLink extends AbstractEntity {
 
     public Integer getStatus() {
         return this.status;
-    }
-
-    @Override
-    public void setEntityID(String entityID) {
-        setId(Long.parseLong(entityID));
-    }
-
-    @Override
-    public String getEntityID() {
-        return Long.toString(id);
     }
 
     @Generated(hash = 251390918)

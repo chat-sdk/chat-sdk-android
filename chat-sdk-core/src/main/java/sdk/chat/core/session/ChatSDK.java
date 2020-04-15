@@ -11,6 +11,7 @@ import org.pmw.tinylog.Logger;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.chat.core.base.LocationProvider;
 import sdk.chat.core.dao.DaoCore;

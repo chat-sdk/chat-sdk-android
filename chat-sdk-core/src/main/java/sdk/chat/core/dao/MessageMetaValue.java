@@ -9,7 +9,7 @@ import org.greenrobot.greendao.annotation.ToOne;
 import sdk.chat.core.base.AbstractEntity;
 
 @Entity
-public class MessageMetaValue extends AbstractEntity implements MetaValue {
+public class MessageMetaValue implements MetaValue {
 
     @Id
     private Long id;
@@ -63,16 +63,6 @@ public class MessageMetaValue extends AbstractEntity implements MetaValue {
     @Override
     public void setValue(String value) {
         this.value = value;
-    }
-
-    @Override
-    public void setEntityID(String entityID) {
-
-    }
-
-    @Override
-    public String getEntityID() {
-        return null;
     }
 
     public Long getId() {

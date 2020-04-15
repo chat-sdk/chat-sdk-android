@@ -12,12 +12,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import co.chatsdk.firebase.moderation.Permission;
 import co.chatsdk.firebase.utils.FirebaseRX;
 import sdk.chat.core.base.AbstractThreadHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.firebase.update.FirebaseUpdate;
@@ -283,6 +285,95 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     public Completable joinThread(Thread thread) {
         return null;
+    }
+
+    @Override
+    public boolean rolesEnabled(Thread thread) {
+        return thread.typeIs(ThreadType.PrivateGroup);
+    }
+
+    @Override
+    public boolean canChangeRole(Thread thread, User user) {
+        String myRole = thread.getPermission(ChatSDK.currentUserID());
+        String role = thread.getPermission(user.getEntityID());
+
+        // We need to have a higher permission level than them
+        if (Permission.level(myRole) > Permission.level(role)) {
+            return Permission.isOr(myRole, Permission.Owner, Permission.Admin);
+        }
+        return false;
+    }
+
+    @Override
+    public String roleForUser(Thread thread, User user) {
+        String role = thread.getPermission(user.getEntityID());
+        if (role == null) {
+            role = Permission.Member;
+        }
+        return Permission.toLocalized(role);
+    }
+
+    @Override
+    public Completable setRole(String role, Thread thread, User user) {
+        role = Permission.fromLocalized(role);
+        return new ThreadWrapper(thread).setPermission(user.getEntityID(), role);
+    }
+
+    @Override
+    public List<String> availableRoles(Thread thread, User user) {
+        return Permission.allLocalized();
+    }
+
+    @Override
+    public List<String> localizeRoles(List<String> roles) {
+        List<String> localized = new ArrayList<>();
+        for (String role: roles) {
+            localized.add(Permission.toLocalized(role));
+        }
+        return localized;
+    }
+
+    // Moderation
+    @Override
+    public Completable grantVoice(Thread thread, User user) {
+        return Completable.complete();
+    }
+
+    @Override
+    public Completable revokeVoice(Thread thread, User user) {
+        return Completable.complete();
+    }
+
+    @Override
+    public boolean hasVoice(Thread thread, User user) {
+        String role = thread.getPermission(user.getEntityID());
+        return Permission.isOr(role, Permission.Owner, Permission.Admin, Permission.Member);
+    }
+
+    @Override
+    public boolean canChangeVoice(Thread thread, User user) {
+        return false;
+    }
+
+    @Override
+    public Completable grantModerator(Thread thread, User user) {
+        return Completable.complete();
+    }
+
+    @Override
+    public Completable revokeModerator(Thread thread, User user) {
+        return Completable.complete();
+    }
+
+    @Override
+    public boolean canChangeModerator(Thread thread, User user) {
+        return false;
+    }
+
+    @Override
+    public boolean isModerator(Thread thread, User user) {
+        String role = thread.getPermission(user.getEntityID());
+        return Permission.isOr(role, Permission.Owner, Permission.Admin);
     }
 
 }

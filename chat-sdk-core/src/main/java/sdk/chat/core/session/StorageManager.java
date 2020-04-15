@@ -84,7 +84,7 @@ public class StorageManager {
         return entity;
     }
 
-    public <T extends CoreEntity> T createEntity (Class<T> c) {
+    public <T> T createEntity (Class<T> c) {
         T entity = DaoCore.getEntityForClass(c);
         DaoCore.createEntity(entity);
         return entity;
@@ -223,7 +223,7 @@ public class StorageManager {
         DaoCore.updateEntity(entity);
     }
 
-    public void delete(CoreEntity entity) {
+    public void delete(Object entity) {
         DaoCore.deleteEntity(entity);
     }
 

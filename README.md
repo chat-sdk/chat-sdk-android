@@ -36,7 +36,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - Forward, Reply [⇘GIF](https://giphy.com/gifs/hQpGyo24gxYFqLPj2E), Copy and Delete [⇘GIF](https://giphy.com/gifs/iD616avkpifElZ6IRl) messages
 - Tabbar [⇘GIF](https://giphy.com/gifs/chat-sdk-tabbar-ln715cYWiX9yYVEkCm) or Drawer [⇘GIF](https://giphy.com/gifs/eNRDygZZ7q9n4Yqk3b) layout
 - User Profiles [⇘GIF](https://giphy.com/gifs/profile-chat-sdk-UVZIcvzSjBy6ZrJq7E)
-- User Search [⇘gif](https://giphy.com/gifs/search-chat-sdk-ducLm14OeuX0pUzVEl)
+- User Search [⇘GIF](https://giphy.com/gifs/search-chat-sdk-ducLm14OeuX0pUzVEl)
 - Contacts [⇘GIF](https://giphy.com/gifs/profile-chat-sdk-UVZIcvzSjBy6ZrJq7E)
 - Firebase UI [⇘GIF](https://giphy.com/gifs/chat-sdk-firebase-ui-hrps78wBSz49QXbuv3)
 - [iOS Version](https://github.com/chat-sdk/chat-sdk-ios)
@@ -54,7 +54,7 @@ Sponsor us on either Github Sponsors or Paetron and get these features:
 - Read receipts
 - Last online indicator
 - Audio messages [⇘GIF](https://giphy.com/gifs/hQPw2GZ7dXKlnW8gBb)
-- Video messages [⇘GIF]()
+- Video messages [⇘GIF](https://giphy.com/gifs/chat-sdk-video-message-U72VXhWW9wIdMcRX4D)
 - Sticker messages [⇘GIF](https://giphy.com/gifs/chat-sdk-LmlI3CJtrHhhTkVGAY)
 - User blocking [⇘GIF](https://giphy.com/gifs/blocking-chat-sdk-SSiqIHMBddhbyt5US9)
 

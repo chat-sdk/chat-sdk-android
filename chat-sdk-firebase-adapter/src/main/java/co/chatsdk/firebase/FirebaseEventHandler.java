@@ -127,7 +127,8 @@ public class FirebaseEventHandler extends AbstractEventHandler {
                thread.metaOn().ignoreElements(),
                thread.messagesOn().ignoreElements(),
                thread.messageRemovedOn().ignoreElements(),
-               thread.usersOn().ignoreElements()
+               thread.usersOn().ignoreElements(),
+               thread.permissionsOn().ignoreElements()
        )).subscribe(this);
     }
 
@@ -192,6 +193,8 @@ public class FirebaseEventHandler extends AbstractEventHandler {
             wrapper.off();
             wrapper.messagesOff();
             wrapper.usersOff();
+            wrapper.metaOff();
+            wrapper.permissionsOff();
         }
     }
 

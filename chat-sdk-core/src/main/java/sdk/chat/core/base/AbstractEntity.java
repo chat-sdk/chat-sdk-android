@@ -6,6 +6,7 @@ import java.util.List;
 import sdk.chat.core.interfaces.CoreEntity;
 
 public abstract class AbstractEntity implements CoreEntity {
+
     @Override
     public boolean equalsEntity(CoreEntity entity) {
         return equalsEntityID(entity.getEntityID());

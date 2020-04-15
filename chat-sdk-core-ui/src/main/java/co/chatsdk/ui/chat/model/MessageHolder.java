@@ -116,7 +116,7 @@ public class MessageHolder implements IMessage {
     }
 
     public boolean showNames() {
-        return isGroup && previousSenderEqualsSender;
+        return isGroup && !previousSenderEqualsSender;
     }
 
     public boolean showDate() {

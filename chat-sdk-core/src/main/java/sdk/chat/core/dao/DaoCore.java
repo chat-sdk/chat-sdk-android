@@ -110,7 +110,7 @@ public class DaoCore {
         else return null;
     }
 
-    public static <T extends CoreEntity> T fetchEntityWithProperties(Class<T> c, Property properties[], Object... values){
+    public static <T> T fetchEntityWithProperties(Class<T> c, Property properties[], Object... values){
         List<T> list = fetchEntitiesWithPropertiesAndOrder(c, null, -1, properties, values);
 
         if (list == null || list.size() == 0)
@@ -126,23 +126,23 @@ public class DaoCore {
     }
 
     /** Fetch a list of entities for a given property and value.*/
-    public static <T extends CoreEntity> List<T> fetchEntitiesWithProperty(Class<T> c, Property property, Object value){
+    public static <T> List<T> fetchEntitiesWithProperty(Class<T> c, Property property, Object value){
         QueryBuilder<T> qb = daoSession.queryBuilder(c);
         qb.where(property.eq(value));
         return qb.list();
     }
 
     /** Fetch a list of entities for a given properties and values.*/
-    public static <T extends CoreEntity> List<T> fetchEntitiesWithProperties(Class<T> c, Property properties[], Object... values){
+    public static <T> List<T> fetchEntitiesWithProperties(Class<T> c, Property properties[], Object... values){
         return fetchEntitiesWithPropertiesAndOrder(c, null, -1, properties, values);
     }
 
     /** Fetch a list of entities for a given property and value. Entities are arrange by given order.*/
-    public static <T extends CoreEntity> List<T> fetchEntitiesWithPropertyAndOrder(Class<T> c, Property whereOrder, int order, Property property, Object value){
+    public static <T> List<T> fetchEntitiesWithPropertyAndOrder(Class<T> c, Property whereOrder, int order, Property property, Object value){
         return fetchEntitiesWithPropertiesAndOrder(c, whereOrder, order, new Property[]{property}, value);
     }
 
-    public static <T extends CoreEntity> List<T>  fetchEntitiesWithPropertiesAndOrder(Class<T> c, Property whereOrder, int order, Property properties[], Object... values){
+    public static <T> List<T>  fetchEntitiesWithPropertiesAndOrder(Class<T> c, Property whereOrder, int order, Property properties[], Object... values){
 
         if (values == null || properties == null)
             throw new NullPointerException("You must have at least one value and one property");
@@ -205,7 +205,7 @@ public class DaoCore {
 //    }
 
     /* Update, Create and Delete*/
-    public static  <T extends CoreEntity> T createEntity(T entity){
+    public static  <T> T createEntity(T entity){
         if (entity == null) {
             return null;
         }
@@ -215,7 +215,7 @@ public class DaoCore {
         return entity;
     }
 
-    public static <T extends CoreEntity> T deleteEntity(T entity){
+    public static <T> T deleteEntity(T entity){
         if (entity == null) {
             return null;
         }
@@ -260,7 +260,7 @@ public class DaoCore {
         return false;
     }
 
-    @SuppressWarnings("unchecked") public static <T extends CoreEntity> T getEntityForClass(Class<T> c){
+    @SuppressWarnings("unchecked") public static <T> T getEntityForClass(Class<T> c){
         // Create the new entity.
         Class<T> clazz;
         T o = null;

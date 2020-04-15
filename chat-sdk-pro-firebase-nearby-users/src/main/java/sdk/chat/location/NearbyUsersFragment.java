@@ -1,37 +1,28 @@
-package co.chatsdk.firebase.nearby_users;
+package sdk.chat.location;
 
-import android.Manifest;
 import android.os.Bundle;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.LayoutRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 import butterknife.BindView;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
+import co.chatsdk.firebase.nearby_users.R;
+import co.chatsdk.firebase.nearby_users.R2;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
-import sdk.chat.core.hook.Hook;
-import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.adapters.UsersListAdapter;
 import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.Completable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import sdk.chat.core.utils.PermissionRequestHandler;
 

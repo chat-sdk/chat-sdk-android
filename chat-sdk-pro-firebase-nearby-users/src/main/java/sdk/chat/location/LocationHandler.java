@@ -1,28 +1,20 @@
-package co.chatsdk.firebase.nearby_users;
+package sdk.chat.location;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Bundle;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.PublishSubject;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
@@ -99,6 +91,9 @@ public class LocationHandler {
     }
 
     protected void updateLocation(Location newLocation) {
+        if (newLocation == null) {
+            return;
+        }
         if (location == null || location.distanceTo(newLocation) > FirebaseNearbyUsersModule.config().minRefreshDistance) {
             location = newLocation;
             onLocationUpdateWhenMinDistance.onNext(location);

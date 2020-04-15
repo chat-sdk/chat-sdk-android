@@ -65,6 +65,7 @@ public class Keys {
     // CoreUser details
     public static final String Location = "location";
     public static final String Status = "status";
+    public static final String Permission = "permission";
 
     public static final String IntentKeyUserEntityID = "user-entity-id";
     public static final String IntentKeyUserEntityIDList = "user-entity-id-list";

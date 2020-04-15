@@ -4,7 +4,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 
 import java.util.HashMap;
+import java.util.concurrent.Callable;
 
+import co.chatsdk.firebase.moderation.Permission;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.interfaces.ThreadType;
@@ -29,40 +31,44 @@ public class ThreadPusher {
     }
 
     public Single<Thread> push () {
-        if (push) {
-            if (thread.typeIs(ThreadType.Public)) {
-                return new ThreadWrapper(thread).push()
-                        .doOnError(throwable -> {
-                            thread.delete();
-                        })
-                        .andThen((SingleSource<Thread>) observer -> {
-                            thread.update();
-                            // Add the thread to the list of public threads
-                            DatabaseReference publicThreadRef = FirebasePaths.publicThreadsRef()
-                                    .child(thread.getEntityID());
+        return Single.defer((Callable<SingleSource<Thread>>) () -> {
+            if (push) {
+                if (thread.typeIs(ThreadType.Public)) {
+                    return new ThreadWrapper(thread).push()
+                            .doOnError(throwable -> {
+                                thread.delete();
+                            })
+                            .andThen((SingleSource<Thread>) observer -> {
+                                thread.update();
+                                // Add the thread to the list of public threads
+                                DatabaseReference publicThreadRef = FirebasePaths.publicThreadsRef()
+                                        .child(thread.getEntityID());
 
-                            HashMap<String, Object> value = new HashMap<>();
-                            value.put(Keys.CreationDate, ServerValue.TIMESTAMP);
+                                HashMap<String, Object> value = new HashMap<>();
+                                value.put(Keys.CreationDate, ServerValue.TIMESTAMP);
 
-                            publicThreadRef.setValue(value, (databaseError, databaseReference) -> {
-                                if (databaseError == null) {
-                                    observer.onSuccess(thread);
-                                } else {
-                                    thread.delete();
-                                    observer.onError(databaseError.toException());
-                                }
+                                publicThreadRef.setValue(value, (databaseError, databaseReference) -> {
+                                    if (databaseError == null) {
+                                        observer.onSuccess(thread);
+                                    } else {
+                                        thread.delete();
+                                        observer.onError(databaseError.toException());
+                                    }
+                                });
                             });
-                        });
+                } else {
+                    ThreadWrapper wrapper = new ThreadWrapper(thread);
+                    return wrapper.push()
+                            .doOnError(throwable -> {
+                                thread.delete();
+                            })
+                            .andThen(wrapper.setPermission(ChatSDK.currentUserID(), Permission.Owner))
+                            .andThen(ChatSDK.thread().addUsersToThread(thread, thread.getUsers()))
+                            .toSingle(() -> thread);
+                }
             } else {
-                return new ThreadWrapper(thread).push()
-                        .doOnError(throwable -> {
-                            thread.delete();
-                        })
-                        .concatWith(ChatSDK.thread().addUsersToThread(thread, thread.getUsers()))
-                        .toSingle(() -> thread);
+                return Single.just(thread);
             }
-        } else {
-            return Single.just(thread);
-        }
+        });
     }
 }
