@@ -51,6 +51,7 @@ import co.chatsdk.core.notifications.NotificationDisplayHandler;
 import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.AppBackgroundMonitor;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.plugins.RxJavaPlugins;
 import timber.log.Timber;
 
 /**
@@ -95,6 +96,8 @@ public class ChatSDK {
         shared().storageManager = new StorageManager();
 
         shared().locationProvider = new LocationProvider();
+
+        RxJavaPlugins.setErrorHandler(ChatSDK::logError);
 
         shared().handleLocalNotifications();
         // Monitor the app so if it goes into the background we know
