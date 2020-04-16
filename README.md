@@ -151,9 +151,12 @@ Until the project is published in jCenter, you will need to include the reposito
 
 ```
 repositories {
-    maven { url "http://dl.bintray.com/chat-sdk/chat-sdk-android" }
-    maven { url "https://maven.google.com" }
     maven { url "https://jitpack.io" }
+    maven { url "http://dl.bintray.com/chat-sdk/chatkit" }
+    maven { url "http://dl.bintray.com/chat-sdk/matisse"}
+    maven { url "http://dl.bintray.com/chat-sdk/dexter"}
+    maven { url "https://dl.bintray.com/mikepenz/maven" }
+    maven { url "https://dl.bintray.com/chat-sdk/keyboardvisibilityevent" }
 }
 ```
 

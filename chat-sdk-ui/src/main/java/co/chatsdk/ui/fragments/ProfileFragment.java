@@ -83,7 +83,6 @@ public class ProfileFragment extends BaseFragment {
         }
 
         initViews();
-        addListeners();
 
         return view;
     }
@@ -300,7 +299,7 @@ public class ProfileFragment extends BaseFragment {
     }
 
     protected User getUser() {
-        return user != null ? user : ChatSDK.currentUser();
+        return user;
     }
 
     public void showEditProfileScreen() {
@@ -330,6 +329,7 @@ public class ProfileFragment extends BaseFragment {
 
     public void setUser(User user) {
         this.user = user;
+        addListeners();
         reloadData();
     }
 

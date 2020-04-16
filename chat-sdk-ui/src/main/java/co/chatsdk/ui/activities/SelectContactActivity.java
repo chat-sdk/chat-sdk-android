@@ -27,9 +27,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
-import co.chatsdk.core.dao.User;
 import co.chatsdk.core.events.EventType;
 import co.chatsdk.core.events.NetworkEvent;
+import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.UserListItemConverter;
 import co.chatsdk.ui.R;
@@ -100,7 +100,7 @@ public abstract class SelectContactActivity extends BaseActivity {
     protected void initViews() {
         super.initViews();
         fab.setOnClickListener(v -> {
-            doneButtonPressed(UserListItemConverter.toUserList(adapter.getSelectedUsers()));
+            doneButtonPressed(adapter.getSelectedUsers());
         });
         fab.setImageDrawable(Icons.get(Icons.choose().check, R.color.fab_icon_color));
     }
@@ -113,20 +113,6 @@ public abstract class SelectContactActivity extends BaseActivity {
 
         loadData();
 
-        dm.add(adapter.onClickObservable().subscribe(item -> {
-            if (item instanceof User) {
-                if (multiSelectEnabled) {
-                    adapter.toggleSelection(item);
-                    userSelectionChanged(getUserList());
-                } else {
-                    doneButtonPressed(Arrays.asList((User) item));
-                }
-            }
-        }));
-    }
-
-    protected List<User> getUserList() {
-        return UserListItemConverter.toUserList(adapter.getSelectedUsers());
     }
 
     protected void loadData() {
@@ -138,11 +124,7 @@ public abstract class SelectContactActivity extends BaseActivity {
         super.onPause();
     }
 
-    protected void userSelectionChanged(List<User> users) {
-        refreshDoneButtonVisibility();
-    }
-
-    abstract protected void doneButtonPressed(List<User> users);
+    abstract protected void doneButtonPressed(List<UserListItem> users);
 
     @Override
     public void onBackPressed() {
@@ -153,6 +135,15 @@ public abstract class SelectContactActivity extends BaseActivity {
         multiSelectEnabled = enabled;
         refreshDoneButtonVisibility();
         adapter.setMultiSelectEnabled(enabled);
+        if(enabled) {
+            dm.add(adapter.onToggleObserver().subscribe(items -> {
+                refreshDoneButtonVisibility();
+            }));
+        } else {
+            dm.add(adapter.onClickObservable().subscribe(item -> {
+                refreshDoneButtonVisibility();
+            }));
+        }
     }
 
     public void refreshDoneButtonVisibility() {

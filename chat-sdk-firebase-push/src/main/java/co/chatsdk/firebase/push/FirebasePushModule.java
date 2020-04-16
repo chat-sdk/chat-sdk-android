@@ -1,5 +1,9 @@
 package co.chatsdk.firebase.push;
 
+import android.content.Context;
+
+import androidx.annotation.Nullable;
+
 import org.greenrobot.greendao.annotation.NotNull;
 
 import co.chatsdk.core.handlers.Module;
@@ -36,7 +40,8 @@ public class FirebasePushModule implements Module {
 
     protected Config config = new Config();
 
-    public void activate () {
+    @Override
+    public void activate(@NotNull Context context) {
         ChatSDK.a().push = new FirebasePushHandler();
     }
 

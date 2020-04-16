@@ -158,6 +158,13 @@ public class SearchActivity extends BaseActivity {
                         Logger.debug("Errr");
                     }));
         });
+
+        adapter.onToggleObserver().doOnNext(userListItems -> {
+            refreshDoneButton();
+        }).ignoreElements().subscribe(this);
+
+        fab.setOnClickListener(v -> done());
+
     }
 
     @Override
@@ -195,10 +202,6 @@ public class SearchActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        dm.add(adapter.onClickObservable().subscribe(item -> adapter.toggleSelection(item)));
-
-        fab.setOnClickListener(v -> done());
 
         refreshDoneButton();
         searchView.showSearch(false);
@@ -254,8 +257,8 @@ public class SearchActivity extends BaseActivity {
 
         ArrayList<Completable> completables = new ArrayList<>();
 
-        for (UserListItem u : adapter.getSelectedUsers()) {
-            if (u instanceof User && !((User) u).isMe()) {
+        for (User u : User.convertIfPossible(adapter.getSelectedUsers())) {
+            if (!u.isMe()) {
                 completables.add(ChatSDK.contact().addContact((User) u, ConnectionType.Contact));
             }
         }

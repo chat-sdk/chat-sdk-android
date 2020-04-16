@@ -277,28 +277,19 @@ public class UserWrapper {
     
     public Completable push() {
         return Completable.create(e -> {
-
-            final DatabaseReference ref = ref();
-
-            updateFirebaseUser().subscribe(ChatSDK.events());
-
-            ref.updateChildren(serialize(), (firebaseError, firebase) -> {
+            ref().updateChildren(serialize(), (firebaseError, firebase) -> {
                 if (firebaseError == null) {
-                    // index should be updated whenever the user is pushed
-                    FirebaseEntity.pushUserMetaUpdated(model.getEntityID()).subscribe(ChatSDK.events());
-
-                    Logger.debug("Is this needed?");
-//                    ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(model));
-
                     e.onComplete();
                 } else {
                     e.onError(firebaseError.toException());
                 }
             });
-        }).subscribeOn(Schedulers.io());
+        }).andThen(updateFirebaseUser())
+                .andThen(FirebaseEntity.pushUserMetaUpdated(model.getEntityID()))
+                .subscribeOn(Schedulers.io());
     }
 
-    public Completable updateFirebaseUser () {
+    public Completable updateFirebaseUser() {
         return Completable.create(e -> {
 
             final FirebaseUser user = FirebaseCoreHandler.auth().getCurrentUser();

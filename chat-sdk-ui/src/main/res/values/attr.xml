@@ -2,8 +2,10 @@
 <resources>
     <attr name="actionBarBackgroundColor" format="reference|color" />
     <attr name="actionBarTextColor" format="reference|color" />
+
+    <attr name="avatarBorderColor" format="reference|color" />
     <attr name="avatarBackgroundColor" format="reference|color" />
-    <attr name="unreadMessageIndicatorColor" format="reference|color" />
+    <attr name="dialogUnreadBubbleBorderColor" format="reference|color" />
     <attr name="onlineIndicatorBorderColor" format="reference|color" />
     <attr name="onlineIndicatorOnlineColor" format="reference|color" />
     <attr name="onlineIndicatorOfflineColor" format="reference|color" />
@@ -41,5 +43,14 @@
 
     <attr name="chatViewDividerColor" format="reference|color" />
     <attr name="chatViewMessageInputBackgroundColor" format="reference|color" />
+
+    <attr name="logoutButtonColor" format="reference|color" />
+    <attr name="loginButtonColor" format="reference|color" />
+    <attr name="registerButtonColor" format="reference|color" />
+    <attr name="anonymousButtonColor" format="reference|color" />
+    <attr name="resetPasswordButtonTextColor" format="reference|color" />
+    <attr name="resetPasswordButtonColor" format="reference|color" />
+<!--    <attr name="" format="reference|color" />-->
+
 
 </resources>

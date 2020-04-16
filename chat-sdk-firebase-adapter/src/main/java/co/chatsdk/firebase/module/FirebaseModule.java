@@ -1,5 +1,9 @@
 package co.chatsdk.firebase.module;
 
+import android.content.Context;
+
+import androidx.annotation.Nullable;
+
 import org.greenrobot.greendao.annotation.NotNull;
 
 import co.chatsdk.core.base.BaseNetworkAdapter;
@@ -24,7 +28,7 @@ public class FirebaseModule implements Module, NetworkAdapterProvider {
     public FirebaseConfig config = new FirebaseConfig();
 
     @Override
-    public void activate() {
+    public void activate(@NotNull Context context) {
 
     }
 

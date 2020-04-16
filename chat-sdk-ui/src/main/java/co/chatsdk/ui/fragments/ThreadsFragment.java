@@ -18,6 +18,8 @@ import com.bumptech.glide.Glide;
 import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -83,7 +85,11 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 .filter(mainEventFilter())
                 .subscribe(networkEvent -> {
                     if (networkEvent.typeIs(EventType.ThreadAdded, EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated, EventType.MessageReadReceiptUpdated)) {
-                        addOrUpdateThread(networkEvent.getThread());
+                        if (networkEvent.getThread() != null) {
+                            addOrUpdateThread(networkEvent.getThread());
+                        } else {
+                            Logger.debug("Stop");
+                        }
                     }
                     if (networkEvent.typeIs(EventType.UserMetaUpdated, EventType.UserPresenceUpdated)) {
                         reloadData();
@@ -91,7 +97,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                         removeThread(networkEvent.getThread());
                     } else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved)) {
                         if (networkEvent.getMessage() != null) {
-                            updateMessage(networkEvent.getMessage());
+                            updateMessage(networkEvent.getMessage(), networkEvent.typeIs(EventType.MessageRemoved));
                         }
                     } else {
                         reloadData();
@@ -232,11 +238,15 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         dialogsListAdapter.updateItemById(holder);
     }
 
-    protected void updateMessage(Message message) {
+    protected void updateMessage(Message message, boolean didRemove) {
         ThreadHolder holder = threadHolderHashMap.get(message.getThread());
         if (holder != null) {
             holder.setLastMessage(null);
-            dialogsListAdapter.updateDialogWithMessage(message.getThread().getEntityID(), Customiser.shared().onNewMessageHolder(message));
+            if (didRemove) {
+                dialogsListAdapter.updateItemById(holder);
+            } else {
+                dialogsListAdapter.updateDialogWithMessage(message.getThread().getEntityID(), Customiser.shared().onNewMessageHolder(message));
+            }
         } else {
             holder = getOrCreateThreadHolder(message.getThread());
             dialogsListAdapter.addItem(holder);

@@ -12,6 +12,7 @@ import java.util.List;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Message;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.core.dao.Thread;
@@ -64,8 +65,8 @@ public class ForwardMessageActivity extends SelectContactActivity {
     }
 
     @Override
-    protected void doneButtonPressed(List<User> users) {
-        dm.add(ChatSDK.thread().createThread(users).flatMapCompletable(thread -> ChatSDK.thread().forwardMessages(thread, messages))
+    protected void doneButtonPressed(List<UserListItem> users) {
+        dm.add(ChatSDK.thread().createThread(User.convertIfPossible(users)).flatMapCompletable(thread -> ChatSDK.thread().forwardMessages(thread, messages))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> {
                     setResult(Activity.RESULT_OK);

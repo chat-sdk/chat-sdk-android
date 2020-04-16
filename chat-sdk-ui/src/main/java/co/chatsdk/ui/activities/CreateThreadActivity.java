@@ -7,8 +7,11 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.interfaces.CoreEntity;
+import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.module.DefaultUIModule;
@@ -31,12 +34,7 @@ public class CreateThreadActivity extends SelectContactActivity {
     }
 
     @Override
-    protected void userSelectionChanged (List<User> users) {
-        super.userSelectionChanged(users);
-    }
-
-    @Override
-    protected void doneButtonPressed(List<User> users) {
+    protected void doneButtonPressed(List<UserListItem> users) {
         if (adapter.getSelectedCount() == 0) {
             showSnackbar(getString(R.string.select_at_least_one_user));
             return;
@@ -45,7 +43,7 @@ public class CreateThreadActivity extends SelectContactActivity {
         // If there are more than 2 users then show a dialog to enter the name
         if(users.size() > 1) {
             ArrayList<String> userEntityIDs = new ArrayList<>();
-            for (User u : users) {
+            for (UserListItem u : users) {
                 userEntityIDs.add(u.getEntityID());
             }
 //            finish();
@@ -56,10 +54,10 @@ public class CreateThreadActivity extends SelectContactActivity {
         }
     }
 
-    protected void createAndOpenThread (String name, List<User> users) {
+    protected void createAndOpenThread (String name, List<UserListItem> users) {
         showProgressDialog(getString(R.string.creating_thread));
         dm.add(ChatSDK.thread()
-                .createThread(name, users)
+                .createThread(name, User.convertIfPossible(users))
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnEvent((thread, throwable) -> dismissProgressDialog())
                 .subscribe(thread -> {

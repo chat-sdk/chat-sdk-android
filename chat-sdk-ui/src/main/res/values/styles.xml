@@ -13,7 +13,7 @@
     <item name="actionBarBackgroundColor">@color/primary</item>
     <item name="actionBarTextColor">@color/white</item>
     <item name="avatarBackgroundColor">@color/white</item>
-    <item name="unreadMessageIndicatorColor">@color/white</item>
+    <item name="avatarBorderColor">@color/white</item>
     <item name="onlineIndicatorBorderColor">@color/white</item>
     <item name="onlineIndicatorOnlineColor">#38c059</item>
     <item name="onlineIndicatorOfflineColor">#aaaaaa</item>
@@ -27,6 +27,19 @@
     <item name="replyDividerColor">@color/primary_green</item>
     <item name="replyTextSize">13sp</item>
     <item name="replyTextPadding">4dp</item>
+
+    <!-- Thread list theme -->
+    <item name="dialogDividerLeftPadding">0dp</item>
+    <item name="dialogTitleTextStyle">bold</item>
+    <item name="dialogUnreadTitleTextStyle">bold</item>
+    <item name="dialogTitleTextSize">16sp</item>
+    <item name="dialogMessageTextSize">15sp</item>
+    <item name="dialogMessageTextColor">@color/gray</item>
+
+    <item name="dialogUnreadMessageTextColor">@color/primary</item>
+    <item name="dialogUnreadBubbleTextColor">@color/white</item>
+    <item name="dialogUnreadBubbleBackgroundColor">@color/primary_green</item>
+    <item name="dialogUnreadBubbleBorderColor">#00000000</item>
 
     <!-- Message theme -->
 
@@ -82,7 +95,18 @@
     <item name="chatViewDividerColor">@color/gray_light</item>
     <item name="chatViewMessageInputBackgroundColor">@color/white</item>
 
-    <!--    <item name="outcomingDefaultBubbleColor">@color/red</item>-->
+    <!--    Button colors-->
+
+    <item name="logoutButtonColor">@color/logout_button_color</item>
+    <item name="loginButtonColor">@color/login_button_color</item>
+    <item name="registerButtonColor">@color/register_button_color</item>
+    <item name="anonymousButtonColor">@color/anonymous_button_color</item>
+    <item name="resetPasswordButtonTextColor">@color/dark_text</item>
+    <item name="resetPasswordButtonColor">@color/reset_password_button_color</item>
+
+</style>
+
+<style name="AppBarLayout" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
 
 </style>
 

@@ -22,7 +22,6 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.view_holders.UserViewHolder;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
-import co.chatsdk.core.dao.User;
 
 public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -39,7 +38,7 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         String subtitle(UserListItem user);
     }
 
-    protected SubtitleProvider subtitleProvider = null;
+    protected SubtitleProvider subtitleProvider;
 
     public UsersListAdapter() {
         this(null, false, null);
@@ -80,12 +79,29 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         viewHolder.bind(item);
 
         if (multiSelectEnabled) {
-            viewHolder.setChecked(selectedUsersPositions.get(position));
+            if (!selectedUsersPositions.get(position)) {
+                viewHolder.getCheckbox().setChecked(false);
+            }
+
+            viewHolder.getCheckbox().setOnClickListener(v -> {
+                if (viewHolder.getCheckbox().isChecked()) {
+                    selectedUsersPositions.put(position, true);
+                } else {
+                    selectedUsersPositions.delete(position);
+                }
+                onToggleSubject.onNext(getSelectedUsers());
+            });
         }
 
-        viewHolder.itemView.setOnClickListener(view -> onClickSubject.onNext(item));
+        viewHolder.itemView.setOnClickListener(view -> {
+            if (!multiSelectEnabled) {
+                onClickSubject.onNext(item);
+            }
+        });
         viewHolder.itemView.setOnLongClickListener(view -> {
-            onLongClickSubject.onNext(item);
+            if (!multiSelectEnabled) {
+                onLongClickSubject.onNext(item);
+            }
             return true;
         });
 
@@ -185,48 +201,6 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         Collections.sort(list, comparator);
     }
 
-    /**
-     * Toggle the selection state of a list item for a given position
-     *
-     * @param position the position in the list of the item that need to be toggled
-     *                 <p>
-     *                 notifyDataSetChanged will be called.
-     *                 *
-     */
-    public boolean toggleSelection(int position) {
-        boolean selected = setViewSelected(position, !selectedUsersPositions.get(position));
-        onToggleSubject.onNext(getSelectedUsers());
-        return selected;
-    }
-
-    public boolean toggleSelection(Object object) {
-        int position = items.indexOf(object);
-        return toggleSelection(position);
-    }
-
-    /**
-     * Set the selection state of a list item for a given position and value
-     *
-     * @param position the position in the list of the item that need to be toggled.
-     * @param selected pass true for selecting the view, false will remove the view from the selectedUsersPositions
-     *                 *
-     */
-    public boolean setViewSelected(int position, boolean selected) {
-        UserListItem user = getItem(position);
-        if (user != null) {
-            if (selected) {
-                selectedUsersPositions.put(position, true);
-            } else {
-                selectedUsersPositions.delete(position);
-            }
-            // Is this needed?
-            notifyItemChanged(position);
-
-            return selected;
-        }
-        return false;
-    }
-
     public SparseBooleanArray getSelectedUsersPositions() {
         return selectedUsersPositions;
     }
@@ -237,19 +211,6 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      */
     public int getSelectedCount() {
         return selectedUsersPositions.size();
-    }
-
-    /**
-     * Select all users
-     * <p>
-     * notifyDataSetChanged will be called.
-     */
-    public void selectAll() {
-        for (int i = 0; i < items.size(); i++) {
-            setViewSelected(i, true);
-        }
-
-        notifyDataSetChanged();
     }
 
     /**

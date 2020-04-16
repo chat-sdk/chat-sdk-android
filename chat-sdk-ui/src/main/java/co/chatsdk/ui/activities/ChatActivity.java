@@ -186,9 +186,15 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         chatView.enableSelectionMode(count -> {
             invalidateOptionsMenu();
+            updateOptionsButton();
         });
 
     }
+
+    public void updateOptionsButton() {
+        input.findViewById(R.id.attachmentButton).setVisibility(chatView.getSelectedMessages().isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
 
     public void hideTextInput() {
         input.setVisibility(View.GONE);
@@ -434,7 +440,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if (id == R.id.action_delete) {
             List<Message> messages = chatView.getSelectedMessages();
             ChatSDK.thread().deleteMessages(messages).subscribe(this);
-            chatView.clearSelection();
+            clearSelection();
         }
         if (id == R.id.action_copy) {
             chatView.copySelectedMessagesText(this, holder -> {
@@ -461,7 +467,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 }
             }));
             ChatSDK.ui().startForwardMessageActivityForResult(this, thread, messages, messageForwardActivityCode);
-            chatView.clearSelection();
+            clearSelection();
         }
         ;
 
@@ -471,6 +477,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void clearSelection() {
+        chatView.clearSelection();
+        updateOptionsButton();
     }
 
     /**

@@ -11,6 +11,7 @@ import org.pmw.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.base.LocationProvider;
 import co.chatsdk.core.base.BaseNetworkAdapter;
@@ -51,9 +52,15 @@ import co.chatsdk.core.types.ReadStatus;
 import co.chatsdk.core.utils.AppBackgroundMonitor;
 
 import co.chatsdk.core.storage.FileManager;
+import co.chatsdk.core.utils.TimeLog;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.plugins.RxJavaPlugins;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -169,7 +176,7 @@ public class ChatSDK {
         shared().fileManager = new FileManager(builder.context);
 
         for (Module module: builder.modules) {
-            module.activate();
+            module.activate(shared().context());
             Logger.info("Module " + module.getName() + " activated successfully");
         }
 
@@ -184,8 +191,18 @@ public class ChatSDK {
         return shared().context();
     }
 
-    public SharedPreferences getPreferences () {
-        return context.get().getSharedPreferences(Preferences, Context.MODE_PRIVATE);
+    public SharedPreferences getPreferences() {
+//        return Single.defer(new Callable<SingleSource<? extends SharedPreferences>>() {
+//            @Override
+//            public SingleSource<? extends SharedPreferences> call() throws Exception {
+//                return Single.just(context.get().getSharedPreferences(Preferences, Context.MODE_PRIVATE));
+//            }
+//        }).subscribeOn(Schedulers.io());
+
+        TimeLog.startTimeLog(new Object(){}.getClass().getEnclosingMethod().getName());
+        SharedPreferences preferences = context.get().getSharedPreferences(Preferences, Context.MODE_PRIVATE);
+        TimeLog.endTimeLog();
+        return preferences;
     }
 
     public String getString(@StringRes int stringId) {

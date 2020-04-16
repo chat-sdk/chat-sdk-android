@@ -3,6 +3,8 @@ package co.chatsdk.firebase.ui;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.annotation.Nullable;
+
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FacebookAuthProvider;
@@ -56,7 +58,7 @@ public class FirebaseUIModule implements Module {
     protected Config config = new Config();
 
     @Override
-    public void activate() {
+    public void activate(@Nullable Context context) {
 
         ArrayList<AuthUI.IdpConfig> idps = getProviders(config.providers);
 
@@ -72,7 +74,7 @@ public class FirebaseUIModule implements Module {
 
         dm.add(ChatSDK.events().source()
                 .filter(NetworkEvent.filterType(EventType.Logout))
-                .subscribe(networkEvent -> authUI().signOut(ChatSDK.ctx())));
+                .subscribe(networkEvent -> authUI().signOut(context)));
     }
 
     protected ArrayList<AuthUI.IdpConfig> getProviders (List<String> providers) {

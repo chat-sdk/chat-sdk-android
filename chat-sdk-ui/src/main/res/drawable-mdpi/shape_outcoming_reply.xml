@@ -11,7 +11,7 @@
                 android:topLeftRadius="@dimen/reply_corner_radius"
                 android:topRightRadius="@dimen/reply_corner_radius" />
 
-            <solid android:color="?attr/outcomingReplyDividerColor"/>
+            <solid android:color="?outcomingReplyDividerColor"/>
         </shape>
     </item>
 

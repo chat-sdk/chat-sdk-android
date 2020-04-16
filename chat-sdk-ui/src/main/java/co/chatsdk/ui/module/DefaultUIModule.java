@@ -1,5 +1,9 @@
 package co.chatsdk.ui.module;
 
+import android.content.Context;
+
+import androidx.annotation.Nullable;
+
 import co.chatsdk.core.handlers.Module;
 import co.chatsdk.core.interfaces.InterfaceAdapter;
 import co.chatsdk.core.session.Configure;
@@ -22,7 +26,7 @@ public class DefaultUIModule implements Module, InterfaceAdapterProvider {
     public UIConfig config = new UIConfig();
 
     @Override
-    public void activate() {
+    public void activate(@Nullable Context context) {
 
     }
 

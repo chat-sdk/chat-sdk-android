@@ -146,6 +146,8 @@ public class MainAppBarActivity extends MainActivity {
                 ((BaseFragment) tabs.get(i).fragment).setTabVisibility(i == tab.getPosition());
             }
         }
+
+        searchView.closeSearch();
     }
 
     public Tab currentTab() {

@@ -8,9 +8,11 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import co.chatsdk.core.base.AbstractEntity;
 import co.chatsdk.core.dao.Keys;
 import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.dao.User;
+import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -50,7 +52,7 @@ public class AddUsersToThreadActivity extends SelectContactActivity {
     }
 
     @Override
-    protected void doneButtonPressed(List<User> users) {
+    protected void doneButtonPressed(List<UserListItem> users) {
         if (adapter.getSelectedCount() == 0) {
             showToast(getString(R.string.select_at_least_one_user));
             return;
@@ -58,7 +60,7 @@ public class AddUsersToThreadActivity extends SelectContactActivity {
 
         showProgressDialog( getString(R.string.adding_users));
 
-        dm.add(ChatSDK.thread().addUsersToThread(thread, users)
+        dm.add(ChatSDK.thread().addUsersToThread(thread, User.convertIfPossible(users))
                 .observeOn(AndroidSchedulers.mainThread())
                 .doFinally(() -> {
                     dismissProgressDialog();

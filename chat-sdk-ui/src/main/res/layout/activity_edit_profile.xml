@@ -13,14 +13,15 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:fitsSystemWindows="true"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        app:theme="@style/AppBarLayout"
+        >
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/collapsingToolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:contentScrim="?attr/colorPrimary"
+            app:contentScrim="?colorPrimary"
             app:collapsedTitleGravity="center_vertical|start"
             app:expandedTitleGravity="center_horizontal|top"
             app:expandedTitleMarginTop="12dp"
@@ -39,9 +40,9 @@
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_height="?actionBarSize"
                 app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+                >
 
             </androidx.appcompat.widget.Toolbar>
 
@@ -106,8 +107,7 @@
                         android:layout_height="wrap_content"
                         android:theme="@style/CardHeader"
                         android:paddingBottom="4dp"
-                        android:text="@string/status"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+                        />
 
                     <EditText
                         android:id="@+id/statusEditText"
@@ -194,13 +194,13 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
-        android:backgroundTint="@color/logout_button_color"
+        android:backgroundTint="?logoutButtonColor"
         android:backgroundTintMode="src_atop"
         app:layout_anchor="@id/appbar"
         app:borderWidth="0dp"
         app:elevation="6dp"
         app:layout_anchorGravity="bottom|start"
-        app:rippleColor="@color/logout_button_color"/>
+        app:rippleColor="?logoutButtonColor"/>
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/avatarImageView"
@@ -209,8 +209,8 @@
             app:layout_anchor="@id/appbar"
             app:layout_anchorGravity="center|bottom"
             app:civ_border_width="5dp"
-            app:civ_circle_background_color="@color/white"
-            app:civ_border_color="@color/white"
+            app:civ_circle_background_color="?avatarBackgroundColor"
+            app:civ_border_color="?avatarBorderColor"
             />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -14,7 +14,6 @@ import com.bumptech.glide.Glide;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import co.chatsdk.core.dao.User;
 import co.chatsdk.core.interfaces.UserListItem;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.utils.Dimen;
@@ -52,9 +51,6 @@ public class UserViewHolder extends RecyclerView.ViewHolder  {
         this.provider = provider;
 
         this.multiSelectEnabled = multiSelectEnabled;
-
-        // Clicks are handled at the list item level
-        checkbox.setClickable(false);
     }
 
     public void bind(UserListItem item) {
@@ -87,15 +83,15 @@ public class UserViewHolder extends RecyclerView.ViewHolder  {
         int width = Dimen.from(context, R.dimen.small_avatar_width);
         int height = Dimen.from(context, R.dimen.small_avatar_height);
 
-        if (item instanceof User) {
-            UserImageBuilder.loadAvatar((User) item, avatarImageView, width, height);
-        } else {
-            Glide.with(root).load(item.getAvatarURL()).dontAnimate().placeholder(DefaultUIModule.config().defaultProfileImage).override(width, height).into(avatarImageView);
-        }
+        Glide.with(root)
+                .load(item.getAvatarURL())
+                .dontAnimate()
+                .placeholder(DefaultUIModule.config().defaultProfileImage)
+                .override(width, height)
+                .into(avatarImageView);
     }
 
-    public void setChecked(boolean checked) {
-        checkbox.setChecked(checked);
+    public CheckBox getCheckbox() {
+        return checkbox;
     }
-
 }

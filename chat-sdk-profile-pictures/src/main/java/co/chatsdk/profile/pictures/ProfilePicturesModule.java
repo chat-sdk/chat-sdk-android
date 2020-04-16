@@ -1,5 +1,9 @@
 package co.chatsdk.profile.pictures;
 
+import android.content.Context;
+
+import androidx.annotation.Nullable;
+
 import co.chatsdk.core.handlers.Module;
 import co.chatsdk.core.session.ChatSDK;
 
@@ -15,7 +19,7 @@ public class ProfilePicturesModule implements Module {
         return instance;
     }
 
-    public void activate () {
+    public void activate (@Nullable Context context) {
         ChatSDK.a().profilePictures = new BaseProfilePicturesHandler();
     }
 

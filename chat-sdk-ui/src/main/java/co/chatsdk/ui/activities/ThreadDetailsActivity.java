@@ -32,6 +32,7 @@ import co.chatsdk.core.dao.Thread;
 import co.chatsdk.core.events.NetworkEvent;
 import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
+import co.chatsdk.core.utils.Dimen;
 import co.chatsdk.core.utils.StringChecker;
 import co.chatsdk.core.utils.Strings;
 import co.chatsdk.ui.R;
@@ -115,7 +116,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             threadImageView.setOnClickListener(v -> zoomImageFromThumbnail(threadImageView, thread.getImageUrl()));
             Glide.with(this).load(thread.getImageUrl()).dontAnimate().into(threadImageView);
         } else {
-            ThreadImageBuilder.load(threadImageView, thread);
+            ThreadImageBuilder.load(threadImageView, thread, Dimen.from(this, R.dimen.large_avatar_width));
             threadImageView.setOnClickListener(null);
         }
 

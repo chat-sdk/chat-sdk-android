@@ -69,7 +69,7 @@ public class ThreadImageBuilder {
             // We make a hash code for the user list and their image URLs
             // that means that if the users haven't changed, we can reaload
             // the same image split image we created before
-            final String hashCode = hashCodeForMixedUserAvatar(users);
+            final String hashCode = hashCodeForMixedUserAvatar(users, size);
             File cachedImage = new File(fm.imageCache(), hashCode);
             if(cachedImage.exists()) {
                 return Single.just(Uri.fromFile(cachedImage));
@@ -86,7 +86,7 @@ public class ThreadImageBuilder {
                             .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
                             .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
                             .setDestinationDirectoryPath(fm.imageCache().getPath())
-                            .compressToFile(imageFile, hashCodeForMixedUserAvatar(users));
+                            .compressToFile(imageFile, hashCodeForMixedUserAvatar(users, size));
                     return Uri.fromFile(compressed);
                 });
             }
@@ -97,20 +97,21 @@ public class ThreadImageBuilder {
                             .setMaxHeight(ChatSDK.config().imageMaxThumbnailDimension)
                             .setMaxWidth(ChatSDK.config().imageMaxThumbnailDimension)
                             .setDestinationDirectoryPath(fm.imageCache().getPath())
-                            .compressToFile(imageFile, hashCodeForMixedUserAvatar(users));
+                            .compressToFile(imageFile, hashCodeForMixedUserAvatar(users, size));
                     return Uri.fromFile(compressed);
                 });
             }
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    public static String hashCodeForMixedUserAvatar(List<User> users) {
+    public static String hashCodeForMixedUserAvatar(List<User> users, int size) {
         Collections.sort(users,(o1, o2) -> o1.getEntityID().compareTo( o2.getEntityID()));
 
         StringBuilder name = new StringBuilder();
         for (User u: users) {
             name.append(u.getEntityID()).append(u.getAvatarURL());
         }
+        name.append(size);
         Logger.debug("Thread hash code: " + name.toString().hashCode());
         return String.valueOf(name.toString().hashCode());
     }

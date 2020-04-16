@@ -1,5 +1,9 @@
 package co.chatsdk.firebase.file_storage;
 
+import android.content.Context;
+
+import androidx.annotation.Nullable;
+
 import org.greenrobot.greendao.annotation.NotNull;
 
 import co.chatsdk.core.handlers.Module;
@@ -36,7 +40,7 @@ public class FirebaseFileStorageModule implements Module {
     protected Config config = new Config();
 
     @Override
-    public void activate() {
+    public void activate(@NotNull Context context) {
         ChatSDK.a().upload = new FirebaseUploadHandler();
     }
 

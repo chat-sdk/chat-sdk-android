@@ -1,6 +1,9 @@
 package sdk.chat.ui.extras;
 
+import android.content.Context;
+
 import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
 
 import org.greenrobot.greendao.annotation.NotNull;
 
@@ -47,7 +50,7 @@ public class ExtrasModule implements Module {
     protected Config config = new Config();
 
     @Override
-    public void activate() {
+    public void activate(@Nullable Context context) {
         if (config.drawerEnabled) {
             ChatSDK.ui().setMainActivity(MainDrawActivity.class);
         }
