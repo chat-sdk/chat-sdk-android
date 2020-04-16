@@ -13,7 +13,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 /**
  * Created by benjaminsmiley-andrews on 24/05/2017.
@@ -51,6 +51,6 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
             emitter.onSuccess(new ThreadPusher(thread, true));
 
         }).flatMap((Function<ThreadPusher, SingleSource<Thread>>) ThreadPusher::push)
-                .subscribeOn(Schedulers.io());
+                .subscribeOn(RX.io());
     }
 }

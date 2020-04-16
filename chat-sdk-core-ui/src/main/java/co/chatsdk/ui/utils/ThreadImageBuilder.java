@@ -31,7 +31,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 /**
  * Created by benjaminsmiley-andrews on 12/06/2017.
@@ -100,7 +100,7 @@ public class ThreadImageBuilder {
                     return Uri.fromFile(compressed);
                 });
             }
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(RX.computation()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public static String hashCodeForMixedUserAvatar(List<User> users, int size) {
@@ -125,7 +125,7 @@ public class ThreadImageBuilder {
                 singles.add(UserImageBuilder.getAvatarBitmap(user, size, size));
             }
             return combineBitmapSingles(singles, size);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.quick());
     }
 
     public static Single<Bitmap> combineBitmapSingles(final List<Single<Bitmap>> singles, final int size) {
@@ -137,7 +137,7 @@ public class ThreadImageBuilder {
                     .toSingle(() -> {
                         return ImageUtils.getMixImagesBitmap(size, size, bitmaps);
                     });
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.computation());
     }
 
     public static Single<Bitmap> combineBitmaps(final List<String> urls, final int size) {
@@ -151,7 +151,7 @@ public class ThreadImageBuilder {
                 singles.add(ImageUtils.bitmapForURL(url, size, size));
             }
             return combineBitmapSingles(singles, size);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.computation());
     }
 
     public static Drawable defaultDrawable(Thread thread) {

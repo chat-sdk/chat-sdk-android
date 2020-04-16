@@ -23,20 +23,27 @@ import androidx.annotation.DrawableRes;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
+import com.google.android.exoplayer2.C;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Callable;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.SingleSource;
+import sdk.chat.core.rigs.FileUploadable;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.storage.FileManager;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
+import sdk.chat.core.types.FileUploadResult;
+import sdk.guru.common.RX;
 
 
 public class ImageUtils {
@@ -157,7 +164,7 @@ public class ImageUtils {
         return bitmapForURL(url, null, null);
     }
 
-    public static Single<Bitmap> bitmapForURL (final String url, Integer width, Integer height) {
+    public static Single<Bitmap> bitmapForURL(final String url, Integer width, Integer height) {
         return Single.create((SingleOnSubscribe<Bitmap>) emitter -> {
             RequestBuilder<Bitmap> requestBuilder = Glide.with(ChatSDK.ctx()).asBitmap().dontAnimate().load(url);
             if (width != null && height != null) {
@@ -165,23 +172,23 @@ public class ImageUtils {
             }
             Bitmap bitmap = requestBuilder.submit().get();
             emitter.onSuccess(bitmap);
-
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(RX.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public static Single<ImageUploadResult> uploadImageFile(File file) {
-        return Single.create((SingleOnSubscribe<Bitmap>) emitter -> {
+        return Observable.defer((Callable<ObservableSource<FileUploadResult>>) () -> {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inPreferredConfig = Bitmap.Config.ARGB_8888;
             final Bitmap image = BitmapFactory.decodeFile(file.getPath(), options);
-            emitter.onSuccess(image);
-        }).flatMapObservable(ChatSDK.upload()::uploadImage).flatMapMaybe(fileUploadResult -> {
+            return ChatSDK.upload().uploadImage(image);
+        }).subscribeOn(RX.computation())
+                .flatMapMaybe(fileUploadResult -> {
             if (fileUploadResult.urlValid()) {
                 return Maybe.just(new ImageUploadResult(fileUploadResult.url, file.getPath()));
             } else {
                 return Maybe.empty();
             }
-        }).firstElement().toSingle().subscribeOn(Schedulers.io());
+        }).firstElement().toSingle();
     }
 }
 

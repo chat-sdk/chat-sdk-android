@@ -18,7 +18,7 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public class ModifyChatTest extends Test {
 
@@ -233,7 +233,7 @@ public class ModifyChatTest extends Test {
 
             }
 
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public static List<User> users() {

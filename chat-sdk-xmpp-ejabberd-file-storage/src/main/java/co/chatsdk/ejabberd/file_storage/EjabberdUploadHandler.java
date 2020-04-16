@@ -41,7 +41,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
 
@@ -170,7 +170,7 @@ public class EjabberdUploadHandler extends AbstractUploadHandler {
                     emitter.onError(anError);
                 }
             });
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable upload (byte [] file, String md5, final String encodedURL, String fileId) throws Exception {

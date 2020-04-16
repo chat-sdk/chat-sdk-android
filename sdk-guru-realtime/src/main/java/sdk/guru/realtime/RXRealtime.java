@@ -24,7 +24,7 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public class RXRealtime implements Action, Consumer<Throwable> {
 
@@ -50,7 +50,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
                     emitter.onError(databaseError.toException());
                 }
             });
-        }).doOnDispose(this).subscribeOn(Schedulers.io());
+        }).doOnDispose(this).subscribeOn(RX.io());
     }
 
     public Observable<DocumentChange> childOn(Query ref) {
@@ -69,7 +69,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
                     emitter.onNext(new DocumentChange(snapshot, EventType.Modified));
                 }
             }).onCancelled(error -> emitter.onError(error.toException())));
-        }).doOnDispose(this).subscribeOn(Schedulers.io());
+        }).doOnDispose(this).subscribeOn(RX.io());
     }
 
     public Single<String> add(DatabaseReference ref, Object data) {
@@ -94,7 +94,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
                 task = childRef.setValue(data);
             }
             task.addOnSuccessListener(aVoid -> emitter.onSuccess(id)).addOnFailureListener(emitter::onError);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable delete(DatabaseReference ref) {
@@ -104,7 +104,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
             } else {
                 emitter.onComplete();
             }
-        })).subscribeOn(Schedulers.io());
+        })).subscribeOn(RX.io());
     }
 
     public Completable set(DatabaseReference ref, Object data) {
@@ -114,7 +114,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
             emitter.onError(e);
         }).addOnCanceledListener(() -> {
             emitter.onError(new Exception("Write cancelled"));
-        })).subscribeOn(Schedulers.io());
+        })).subscribeOn(RX.io());
     }
 
     public Completable update(DatabaseReference ref, HashMap<String, Object> data) {
@@ -124,7 +124,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
             } else {
                 emitter.onComplete();
             }
-        })).subscribeOn(Schedulers.io());
+        })).subscribeOn(RX.io());
     }
     public Single<Optional<DataSnapshot>> get(Query ref) {
         return Single.defer((Callable<SingleSource<? extends Optional<DataSnapshot>>>) () -> {
@@ -143,7 +143,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
                     emitter.onError(databaseError.toException());
                 }
             }));
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override

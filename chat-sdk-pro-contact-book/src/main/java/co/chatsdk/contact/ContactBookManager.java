@@ -24,7 +24,7 @@ import sdk.chat.core.rx.ObservableConnector;
 import sdk.chat.core.session.ChatSDK;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 /**
  * Created by ben on 10/9/17.
@@ -68,7 +68,7 @@ public class ContactBookManager {
 
             emitter.onSuccess(users);
 
-        }).subscribeOn(Schedulers.computation()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(RX.computation()).observeOn(AndroidSchedulers.mainThread());
     }
 
     private static void addNamesToUser (ContentResolver resolver, String id, ContactBookUser user) {
@@ -143,11 +143,11 @@ public class ContactBookManager {
             }
 
             return Observable.merge(observables);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public static Observable<SearchResult> searchServer(Context context) {
-        return getContactList(context).flatMapObservable(ContactBookManager::searchServer).subscribeOn(Schedulers.io());
+        return getContactList(context).flatMapObservable(ContactBookManager::searchServer).subscribeOn(RX.io());
     }
 
     public static class SearchResult {

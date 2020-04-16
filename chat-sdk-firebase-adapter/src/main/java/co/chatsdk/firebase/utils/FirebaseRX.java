@@ -3,7 +3,7 @@ package co.chatsdk.firebase.utils;
 import com.google.firebase.database.DatabaseReference;
 
 import io.reactivex.Completable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 /**
  * Created by ben on 9/27/17.
@@ -19,7 +19,7 @@ public class FirebaseRX {
             else {
                 e.onComplete();
             }
-        })).subscribeOn(Schedulers.io());
+        })).subscribeOn(RX.io());
     }
 
     public static Completable set (final DatabaseReference ref, final Object value) {
@@ -39,6 +39,6 @@ public class FirebaseRX {
             if(onDisconnectRemoveValue) {
                 ref.onDisconnect().removeValue();
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 }

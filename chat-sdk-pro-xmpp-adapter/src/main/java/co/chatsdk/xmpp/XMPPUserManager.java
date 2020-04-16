@@ -45,7 +45,7 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import sdk.guru.common.DisposableMap;
 
 
@@ -77,7 +77,7 @@ public class XMPPUserManager {
                 e.onNext(entry);
             }
             e.onComplete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
 //    public Observable<User> getAllAddedUsers() {
@@ -90,7 +90,7 @@ public class XMPPUserManager {
             String [] groups = {ContactGroupName};
             roster.createEntry(JidCreate.bareFrom(user.getEntityID()), user.getName(), groups);
             e.onComplete();
-        }).concatWith(subscribeToUser(user)).subscribeOn(Schedulers.io());
+        }).concatWith(subscribeToUser(user)).subscribeOn(RX.io());
     }
 
     public Completable removeUserFromRoster (final User user) {
@@ -107,7 +107,7 @@ public class XMPPUserManager {
                 roster.removeEntry(entry);
             }
             e.onComplete();
-        }).concatWith(unsubscribeFromUser(user)).subscribeOn(Schedulers.io());
+        }).concatWith(unsubscribeFromUser(user)).subscribeOn(RX.io());
     }
 
     public Single<List<KeyValue>> getAvailableSearchFields () {
@@ -119,7 +119,7 @@ public class XMPPUserManager {
                 stringFields.add(new KeyValue(f.getVariable(), f.getLabel()));
             }
             return stringFields;
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Single<Jid> getSearchService () {
@@ -145,7 +145,7 @@ public class XMPPUserManager {
             else {
                 emitter.onError(new Throwable(ChatSDK.shared().context().getString(R.string.search_not_available)));
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Observable<Jid> searchUser(final String searchIndex, final String searchValue) {
@@ -189,7 +189,7 @@ public class XMPPUserManager {
                 }
             }
             return jids;
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Single<User> updateUserFromVCard (final Jid jid) {
@@ -213,7 +213,7 @@ public class XMPPUserManager {
                 }
             }
             return Single.just(user);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     protected VCard vCardForUser(String userEntityID) throws Exception {
@@ -233,7 +233,7 @@ public class XMPPUserManager {
 //            VCard vCard = vCardManager.loadVCard(jid.asEntityBareJidIfPossible());
 //
 //            e.onSuccess(vCard);
-//        }).subscribeOn(Schedulers.io());
+//        }).subscribeOn(RX.io());
 //    }
 
     public Completable subscribeToUser (final User user) {
@@ -242,7 +242,7 @@ public class XMPPUserManager {
             request.setTo(user.getEntityID());
             manager.get().getConnection().sendStanza(request);
             e.onComplete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable unsubscribeFromUser (final User user) {
@@ -251,7 +251,7 @@ public class XMPPUserManager {
             request.setTo(user.getEntityID());
             manager.get().getConnection().sendStanza(request);
             e.onComplete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     /**
@@ -402,7 +402,7 @@ public class XMPPUserManager {
             }
 
 
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable loadContactsFromRoster () {
@@ -445,7 +445,7 @@ public class XMPPUserManager {
                     }
                 }
             });
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable updateUserFromRoster (final User user) {
@@ -460,7 +460,7 @@ public class XMPPUserManager {
             Presence presence = roster.getPresence(jid.asBareJid());
             PresenceHelper.updateUserFromPresence(user, presence);
 
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable addContact (Jid jid) {

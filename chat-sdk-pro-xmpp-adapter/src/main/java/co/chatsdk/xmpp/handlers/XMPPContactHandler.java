@@ -5,7 +5,7 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.types.ConnectionType;
 import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Completable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 
 /**
@@ -23,7 +23,7 @@ public class XMPPContactHandler extends BaseContactHandler {
             else {
                 return Completable.complete();
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override
@@ -35,6 +35,6 @@ public class XMPPContactHandler extends BaseContactHandler {
             else {
                 return Completable.complete();
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 }

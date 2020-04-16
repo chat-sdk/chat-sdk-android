@@ -27,7 +27,7 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 
 /**
@@ -66,7 +66,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
             }
             return authenticating;
         }).doOnComplete(this::setAuthStateToIdle)
-                .subscribeOn(Schedulers.io());
+                .subscribeOn(RX.io());
     }
 
     @Override
@@ -111,7 +111,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
             }
             return authenticating;
         }).doOnComplete(this::setAuthStateToIdle)
-                .subscribeOn(Schedulers.io());
+                .subscribeOn(RX.io());
     }
 
     private void userAuthenticationCompletedWithJID (Jid jid) {
@@ -174,7 +174,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
         return Completable.create(emitter -> {
             XMPPManager.shared().accountManager().changePassword(newPassword);
             emitter.onComplete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override

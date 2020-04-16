@@ -26,4 +26,6 @@ public interface SearchHandler {
 
     Observable<User> usersForIndexes(final String value, int limit, final String... indexes);
     Observable<User> usersForIndexes(String value, int limit, List<String> indexes);
+
+    boolean canAddUserById();
 }

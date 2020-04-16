@@ -38,6 +38,11 @@ public class MainAppBarActivity extends MainActivity {
     @BindView(R2.id.root) protected FrameLayout root;
 
     @Override
+    protected @LayoutRes int getLayout() {
+        return R.layout.activity_view_pager;
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -60,11 +65,6 @@ public class MainAppBarActivity extends MainActivity {
     @Override
     protected MaterialSearchView searchView() {
         return searchView;
-    }
-
-    protected @LayoutRes
-    int getLayout() {
-        return R.layout.activity_view_pager;
     }
 
     protected void initViews() {

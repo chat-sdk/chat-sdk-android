@@ -20,7 +20,7 @@ import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.firebase.FirebasePaths;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.ReplaySubject;
 
@@ -103,11 +103,11 @@ public class GeoFireManager {
     }
 
     public Observable<GeoEvent> events () {
-        return eventPublishSubject.subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        return eventPublishSubject.subscribeOn(RX.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public Observable<GeoEvent> allEvents () {
-        return eventReplaySubject.subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread());
+        return eventReplaySubject.subscribeOn(RX.single()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public void stopListeningForItems() {

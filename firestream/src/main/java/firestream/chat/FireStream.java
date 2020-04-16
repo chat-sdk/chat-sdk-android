@@ -32,7 +32,7 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import firestream.chat.chat.AbstractChat;
 import firestream.chat.chat.Chat;
 import firestream.chat.chat.User;
@@ -437,7 +437,7 @@ public class FireStream extends AbstractChat implements IFireStream {
         // We remove the chat from our list of chats, when that completes,
         // we will remove our self from the chat roster
         return getFirebaseService().chat.leaveChat(chat.getId())
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(RX.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
@@ -445,7 +445,7 @@ public class FireStream extends AbstractChat implements IFireStream {
     public Completable joinChat(IChat chat) {
         return getFirebaseService().chat
                 .joinChat(chat.getId())
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(RX.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
@@ -503,7 +503,7 @@ public class FireStream extends AbstractChat implements IFireStream {
 
     @Override
     public Observable<ConnectionEvent> getConnectionEvents() {
-        return connectionEvents.subscribeOn(Schedulers.io()).hide();
+        return connectionEvents.subscribeOn(RX.io()).hide();
     }
 
     //

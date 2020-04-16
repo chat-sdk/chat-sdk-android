@@ -33,7 +33,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import sdk.guru.realtime.RealtimeEventListener;
 
 /**
@@ -137,21 +137,21 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             for (User u : users) {
                 FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe(ChatSDK.events());
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable mute(Thread thread) {
         return Completable.create(emitter -> {
             DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(ChatSDK.currentUserID()).child(Keys.Mute);
             threadUsersRef.setValue(true).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable unmute(Thread thread) {
         return Completable.create(emitter -> {
             DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(ChatSDK.currentUserID()).child(Keys.Mute);
             threadUsersRef.setValue(false).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable removeUsersFromThread(final Thread thread, List<User> users) {
@@ -259,13 +259,13 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             e.onSuccess(new ThreadPusher(thread, true));
 
         }).flatMap((Function<ThreadPusher, SingleSource<Thread>>) ThreadPusher::push)
-                .subscribeOn(Schedulers.io());
+                .subscribeOn(RX.io());
     }
 
     public Completable deleteThread(Thread thread) {
         return Completable.defer(() -> {
             return new ThreadWrapper(thread).deleteThread();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     protected void pushForMessage(final Message message) {

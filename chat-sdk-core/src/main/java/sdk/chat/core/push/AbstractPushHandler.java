@@ -14,7 +14,7 @@ import sdk.chat.core.interfaces.BroadcastHandler;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.StringChecker;
 import io.reactivex.Completable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public abstract class AbstractPushHandler implements PushHandler {
 
@@ -127,7 +127,7 @@ public abstract class AbstractPushHandler implements PushHandler {
         return Completable.create(emitter -> {
             channelManager.addChannel(channel);
             emitter.onComplete();
-        }).subscribeOn(Schedulers.io());
+        });
     }
 
     @Override
@@ -135,7 +135,7 @@ public abstract class AbstractPushHandler implements PushHandler {
         return Completable.create(emitter -> {
             channelManager.removeChannel(channel);
             emitter.onComplete();
-        }).subscribeOn(Schedulers.io());
+        });
     }
 
 }

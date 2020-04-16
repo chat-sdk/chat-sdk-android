@@ -62,7 +62,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import sdk.guru.common.DisposableMap;
 
 /**
@@ -282,7 +282,7 @@ public class XMPPManager {
                 connection.disconnect();
                 e.onError(exception);
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Single<XMPPConnection> openConnection(final XMPPServer server, final String jid, final String password){
@@ -310,7 +310,7 @@ public class XMPPManager {
                 connection.disconnect();
                 e.onError(exception);
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     private void addListeners() {
@@ -514,7 +514,7 @@ public class XMPPManager {
                     return Completable.error(ChatSDK.getException(R.string.cannot_connect));
                 }
             });
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
 
     }
 
@@ -545,7 +545,7 @@ public class XMPPManager {
                     return Completable.error(exception);
                 }
             });
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public void logout() {

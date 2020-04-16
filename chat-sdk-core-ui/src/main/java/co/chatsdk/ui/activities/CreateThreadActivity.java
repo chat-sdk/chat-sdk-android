@@ -53,11 +53,9 @@ public class CreateThreadActivity extends SelectContactActivity {
     }
 
     protected void createAndOpenThread (String name, List<UserListItem> users) {
-        showProgressDialog(getString(R.string.creating_thread));
         dm.add(ChatSDK.thread()
                 .createThread(name, User.convertIfPossible(users))
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnEvent((thread, throwable) -> dismissProgressDialog())
                 .subscribe(thread -> {
                     ChatSDK.ui().startChatActivityForID(this, thread.getEntityID());
                     finish();

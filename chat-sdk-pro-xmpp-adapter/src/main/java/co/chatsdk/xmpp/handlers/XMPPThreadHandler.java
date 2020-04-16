@@ -35,7 +35,7 @@ import co.chatsdk.xmpp.utils.Role;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 
 /**
@@ -109,7 +109,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                 return Single.error(ChatSDK.getException(R.string.unable_to_create_thread));
             }
 
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
 
     }
 
@@ -161,7 +161,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override
@@ -171,7 +171,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                 return XMPPManager.shared().mucManager.joinRoom(thread.getEntityID()).ignoreElement();
             }
             return Completable.complete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override
@@ -240,7 +240,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
             message.setMessageStatus(MessageSendStatus.Sent);
 
             emitter.onComplete();
-        }).doOnComplete(() -> message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new DateTime())).subscribeOn(Schedulers.io());
+        }).doOnComplete(() -> message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new DateTime())).subscribeOn(RX.io());
     }
 
     @Override
@@ -261,12 +261,12 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     // Moderation
     @Override
     public Completable grantVoice(Thread thread, User user) {
-        return XMPPManager.shared().mucManager.grantVoice(thread, user).concatWith(super.grantVoice(thread, user)).subscribeOn(Schedulers.io());
+        return XMPPManager.shared().mucManager.grantVoice(thread, user).concatWith(super.grantVoice(thread, user)).subscribeOn(RX.io());
     }
 
     @Override
     public Completable revokeVoice(Thread thread, User user) {
-        return XMPPManager.shared().mucManager.revokeVoice(thread, user).concatWith(super.revokeVoice(thread, user)).subscribeOn(Schedulers.io());
+        return XMPPManager.shared().mucManager.revokeVoice(thread, user).concatWith(super.revokeVoice(thread, user)).subscribeOn(RX.io());
     }
 
     @Override
@@ -289,12 +289,12 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
     public Completable grantModerator(Thread thread, User user) {
-        return XMPPManager.shared().mucManager.grantModerator(thread, user).subscribeOn(Schedulers.io());
+        return XMPPManager.shared().mucManager.grantModerator(thread, user).subscribeOn(RX.io());
     }
 
     @Override
     public Completable revokeModerator(Thread thread, User user) {
-        return XMPPManager.shared().mucManager.revokeModerator(thread, user).subscribeOn(Schedulers.io());
+        return XMPPManager.shared().mucManager.revokeModerator(thread, user).subscribeOn(RX.io());
     }
 
     @Override
@@ -381,7 +381,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                 return XMPPManager.shared().mucManager.setRole(thread, user, newAffiliation);
             }
             return Completable.error(ChatSDK.getException(R.string.permission_denied));
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
 }

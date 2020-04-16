@@ -12,7 +12,7 @@ import firestream.chat.test.TestScript;
 import firestream.chat.types.RoleType;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public class CreateChatTest extends Test {
 
@@ -73,7 +73,7 @@ public class CreateChatTest extends Test {
                 complete();
 
             }, this));
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public static String chatName() {

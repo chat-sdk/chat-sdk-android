@@ -8,7 +8,7 @@ import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 /**
  * Created by benjaminsmiley-andrews on 01/07/2017.
@@ -21,7 +21,7 @@ public class XMPPCoreHandler extends AbstractCoreHandler {
         return Completable.defer(() -> {
             XMPPManager.shared().sendOnlinePresence();
             return XMPPManager.shared().userManager.updateMyvCardWithUser(ChatSDK.currentUser());
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override

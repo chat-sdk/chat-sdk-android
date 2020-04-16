@@ -30,7 +30,7 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import sdk.guru.common.Optional;
 import sdk.guru.realtime.DocumentChange;
 import sdk.guru.realtime.RXRealtime;
@@ -72,7 +72,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 authenticating = authenticateWithUser(FirebaseCoreHandler.auth().getCurrentUser());
             }
             return authenticating;
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override
@@ -111,7 +111,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     }
                 })
                         .flatMapCompletable(this::authenticateWithUser)
-                        .subscribeOn(Schedulers.io());
+                        .subscribeOn(RX.io());
             }
             return authenticating;
         });
@@ -134,7 +134,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             } else {
                 return Completable.complete();
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable authenticateWithUser(final FirebaseUser user) {
@@ -152,7 +152,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             return userWrapper.push().doOnComplete(() -> {
                 completeAuthentication(userWrapper.getModel());
             });
-        }).andThen(retrieveRemoteConfig()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+        }).andThen(retrieveRemoteConfig()).subscribeOn(RX.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     protected void completeAuthentication(User user) {
@@ -196,7 +196,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                     user.updatePassword(newPassword).addOnCompleteListener(resultHandler);
                 })
-                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+                .subscribeOn(RX.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public Completable logout() {
@@ -226,7 +226,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     } else {
                         return Completable.complete();
                     }
-                })).subscribeOn(Schedulers.io());
+                })).subscribeOn(RX.io());
     }
 
     public Completable sendPasswordResetMail(final String email) {
@@ -242,7 +242,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                     FirebaseCoreHandler.auth().sendPasswordResetEmail(email).addOnCompleteListener(resultHandler);
 
-                }).subscribeOn(Schedulers.io());
+                }).subscribeOn(RX.io());
     }
 
     // TODO: Allow users to turn anonymous login off or on in settings

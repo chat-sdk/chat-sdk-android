@@ -51,6 +51,11 @@ public class NearbyUsersFragment extends BaseFragment {
     }
 
     @Override
+    protected int getLayout() {
+        return R.layout.fragment_nearby_users;
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -108,11 +113,6 @@ public class NearbyUsersFragment extends BaseFragment {
 //        this.reloadData();
 
         return view;
-    }
-
-    @Override
-    protected int getLayout() {
-        return R.layout.fragment_nearby_users;
     }
 
     @Override

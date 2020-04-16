@@ -21,7 +21,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public class RXFirestore implements Action {
 
@@ -36,7 +36,7 @@ public class RXFirestore implements Action {
                     emitter.onNext(snapshot);
                 }
             });
-        }).doOnDispose(this).subscribeOn(Schedulers.io());
+        }).doOnDispose(this).subscribeOn(RX.io());
     }
 
     public Observable<DocumentChange> on(@NonNull Query ref) {
@@ -48,7 +48,7 @@ public class RXFirestore implements Action {
                     }
                 }
             });
-        }).doOnDispose(this).subscribeOn(Schedulers.io());
+        }).doOnDispose(this).subscribeOn(RX.io());
     }
 
     public Single<String> add(CollectionReference ref, Object data) {
@@ -62,28 +62,28 @@ public class RXFirestore implements Action {
                 newId.accept(docRef.getId());
             }
             docRef.set(data).addOnSuccessListener(aVoid -> emitter.onSuccess(docRef.getId())).addOnFailureListener(emitter::onError);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable delete(DocumentReference ref) {
         return Completable.create(emitter -> ref.delete()
                 .addOnSuccessListener(aVoid -> emitter.onComplete())
                 .addOnFailureListener(emitter::onError))
-                .subscribeOn(Schedulers.io());
+                .subscribeOn(RX.io());
     }
 
     public Completable set(DocumentReference ref, Object data) {
         return Completable.create(emitter -> ref.set(data)
                 .addOnSuccessListener(aVoid -> emitter.onComplete())
                 .addOnFailureListener(emitter::onError))
-                .subscribeOn(Schedulers.io());
+                .subscribeOn(RX.io());
     }
 
     public Completable update(DocumentReference ref, HashMap<String, Object> data) {
         return Completable.create(emitter -> ref.update(data)
                 .addOnSuccessListener(aVoid -> emitter.onComplete())
                 .addOnFailureListener(emitter::onError))
-                .subscribeOn(Schedulers.io());
+                .subscribeOn(RX.io());
     }
 
     public Single<Optional<QuerySnapshot>> get(Query ref) {
@@ -94,7 +94,7 @@ public class RXFirestore implements Action {
                 emitter.onSuccess(new Optional<>());
             }
         }).addOnFailureListener(emitter::onError))
-                .subscribeOn(Schedulers.io());
+                .subscribeOn(RX.io());
     }
 
     public Single<Optional<DocumentSnapshot>> get(DocumentReference ref) {
@@ -105,7 +105,7 @@ public class RXFirestore implements Action {
                 emitter.onSuccess(new Optional<>());
             }
         }).addOnFailureListener(emitter::onError))
-                .subscribeOn(Schedulers.io());
+                .subscribeOn(RX.io());
     }
 
     @Override

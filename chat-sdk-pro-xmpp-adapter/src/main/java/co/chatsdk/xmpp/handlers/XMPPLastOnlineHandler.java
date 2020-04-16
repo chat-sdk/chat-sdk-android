@@ -12,7 +12,7 @@ import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 /**
  * Created by ben on 8/16/17.
@@ -26,7 +26,7 @@ public class XMPPLastOnlineHandler implements LastOnlineHandler {
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.SECOND, - (int) activity.getIdleTime());
             e.onSuccess(calendar.getTime());
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override

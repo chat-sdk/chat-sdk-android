@@ -58,6 +58,11 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     @BindView(R2.id.root) protected ScrollView root;
 
     @Override
+    protected @LayoutRes int getLayout() {
+        return R.layout.activity_thread_details;
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -84,11 +89,6 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             nameTextView.setVisibility(View.VISIBLE);
         }
 
-    }
-
-    protected @LayoutRes
-    int getLayout() {
-        return R.layout.activity_thread_details;
     }
 
     protected void initViews() {

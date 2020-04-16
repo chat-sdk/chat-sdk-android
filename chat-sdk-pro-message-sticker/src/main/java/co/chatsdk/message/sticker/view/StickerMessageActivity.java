@@ -17,6 +17,11 @@ public class StickerMessageActivity extends BaseActivity {
     StickerMessageFragment fragment;
 
     @Override
+    protected int getLayout() {
+        return R.layout.activity_sticker;
+    }
+
+    @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -27,11 +32,6 @@ public class StickerMessageActivity extends BaseActivity {
             setResult(Activity.RESULT_OK, result);
             finish();
         });
-    }
-
-    @Override
-    protected int getLayout() {
-        return R.layout.activity_sticker;
     }
 
     @Override

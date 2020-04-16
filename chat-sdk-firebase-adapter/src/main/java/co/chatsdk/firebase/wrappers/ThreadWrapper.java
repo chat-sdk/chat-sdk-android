@@ -50,7 +50,7 @@ import io.reactivex.ObservableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import sdk.guru.common.Event;
 import sdk.guru.common.EventType;
 import sdk.guru.realtime.RXRealtime;
@@ -97,7 +97,7 @@ public class ThreadWrapper  {
             if(ChatSDK.typingIndicator() != null) {
                 ChatSDK.typingIndicator().typingOn(model);
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public DatabaseReference messagesRef () {
@@ -116,7 +116,7 @@ public class ThreadWrapper  {
 //                e.onComplete();
 //            }));
 //
-//        }).subscribeOn(Schedulers.io());
+//        }).subscribeOn(RX.io());
 //    }
 
     /**
@@ -148,7 +148,7 @@ public class ThreadWrapper  {
                 }
             }));
             RealtimeReferenceManager.shared().addRef(query, removedListener);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     /**
@@ -219,7 +219,7 @@ public class ThreadWrapper  {
                 }
             }));
             RealtimeReferenceManager.shared().addRef(messagesRef(), listener);
-        })).subscribeOn(Schedulers.io());
+        })).subscribeOn(RX.io());
     }
 
 
@@ -242,7 +242,7 @@ public class ThreadWrapper  {
                 }
                 e.onNext(model);
             })));
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable pushMeta() {
@@ -270,7 +270,7 @@ public class ThreadWrapper  {
                 e.onComplete();
             }
 
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public void metaOff () {
@@ -322,7 +322,7 @@ public class ThreadWrapper  {
 
             return observable;
 
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     /**
@@ -356,7 +356,7 @@ public class ThreadWrapper  {
                 }
             }));
 
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     //Note - Maybe should treat group thread and one on one thread the same
@@ -365,7 +365,7 @@ public class ThreadWrapper  {
      * We mark the thread as deleted and mark the user in the thread users ref as deleted.
      **/
     public Completable deleteThread() {
-        return new ThreadDeleter(model).execute().subscribeOn(Schedulers.io());
+        return new ThreadDeleter(model).execute().subscribeOn(RX.io());
     }
 
     public Single<List<Message>> loadMoreMessages(final Date fromDate, final Integer numberOfMessages){
@@ -405,7 +405,7 @@ public class ThreadWrapper  {
                     e.onSuccess(new ArrayList<>());
                 }
             }));
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     /**
@@ -495,7 +495,7 @@ public class ThreadWrapper  {
                 }
             });
 
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable setPermission(String userEntityID, String permission) {
@@ -521,7 +521,7 @@ public class ThreadWrapper  {
             });
             realtime.addToReferenceManager();
             return observable;
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public void permissionsOff() {

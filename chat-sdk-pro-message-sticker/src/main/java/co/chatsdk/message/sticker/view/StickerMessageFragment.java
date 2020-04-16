@@ -42,6 +42,11 @@ public class StickerMessageFragment extends BaseFragment {
     }
 
     @Override
+    protected int getLayout() {
+        return R.layout.fragment_sticker;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
@@ -93,11 +98,6 @@ public class StickerMessageFragment extends BaseFragment {
         }
 
         return view;
-    }
-
-    @Override
-    protected int getLayout() {
-        return R.layout.fragment_sticker;
     }
 
     @Override

@@ -14,7 +14,7 @@ import sdk.chat.core.handlers.TypingIndicatorHandler;
 import sdk.chat.core.interfaces.ThreadType;
 import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Completable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 /**
  * Created by benjaminsmiley-andrews on 11/07/2017.
@@ -71,7 +71,7 @@ public class XMPPTypingIndicatorHandler implements TypingIndicatorHandler {
                 }
             }
             e.onComplete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
 }

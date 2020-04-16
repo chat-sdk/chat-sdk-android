@@ -59,8 +59,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @BindView(R2.id.dialogsList) protected DialogsList dialogsList;
     @BindView(R2.id.root) protected RelativeLayout root;
 
-    protected @LayoutRes
-    int getLayout() {
+    @Override
+    protected @LayoutRes int getLayout() {
         return R.layout.fragment_threads;
     }
 

@@ -41,7 +41,7 @@ import co.chatsdk.firebase.utils.Generic;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 
 
@@ -153,7 +153,7 @@ public class UserWrapper {
 //                e.onError(error.toException());
 //            }));
 //
-//        }).subscribeOn(Schedulers.io());
+//        }).subscribeOn(RX.io());
 //    }
 
     public Completable metaOn() {
@@ -174,7 +174,7 @@ public class UserWrapper {
                 }));
                 RealtimeReferenceManager.shared().addRef(userMetaRef, listener);
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public void metaOff() {
@@ -229,7 +229,7 @@ public class UserWrapper {
 
                 RealtimeReferenceManager.shared().addRef(ref, listener);
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Single<Map<String, Object>> dataOnce() {
@@ -245,7 +245,7 @@ public class UserWrapper {
                 emitter.onError(error.toException());
             }));
 
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public void off() {
@@ -291,7 +291,7 @@ public class UserWrapper {
                     }
                 })).andThen(updateFirebaseUser())
                         .andThen(FirebaseEntity.pushUserMetaUpdated(model.getEntityID()))
-                        .subscribeOn(Schedulers.io());
+                        .subscribeOn(RX.io());
             } else {
                 deserializeMeta(data);
             }
@@ -314,7 +314,7 @@ public class UserWrapper {
             final UserProfileChangeRequest changeRequest = builder.build();
 
             user.updateProfile(changeRequest).addOnCompleteListener(task -> e.onComplete());
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
     
     public DatabaseReference ref(){

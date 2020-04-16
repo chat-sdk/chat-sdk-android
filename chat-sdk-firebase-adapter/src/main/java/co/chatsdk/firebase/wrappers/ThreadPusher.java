@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.concurrent.Callable;
 
 import co.chatsdk.firebase.moderation.Permission;
+import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.interfaces.ThreadType;
@@ -62,7 +64,12 @@ public class ThreadPusher {
                             .doOnError(throwable -> {
                                 thread.delete();
                             })
-                            .andThen(wrapper.setPermission(ChatSDK.currentUserID(), Permission.Owner))
+                            .andThen(Completable.defer(() -> {
+                                if (thread.typeIs(ThreadType.Group)) {
+                                    return wrapper.setPermission(ChatSDK.currentUserID(), Permission.Owner);
+                                }
+                                return Completable.complete();
+                            }))
                             .andThen(ChatSDK.thread().addUsersToThread(thread, thread.getUsers()))
                             .toSingle(() -> thread);
                 }

@@ -8,8 +8,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.core.R;
+import io.reactivex.SingleSource;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -25,7 +27,7 @@ import sdk.chat.core.types.MessageType;
 import sdk.chat.core.types.ReadStatus;
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 
 /**
@@ -41,7 +43,9 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
     @Override
     public Single<List<Message>> loadMoreMessagesForThread(final Date fromDate, final Thread thread, boolean loadFromServer) {
-        return Single.just(ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), ChatSDK.config().messagesToLoadPerBatch + 1, fromDate)).subscribeOn(Schedulers.io());
+        return Single.defer(() -> {
+            return Single.just(ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), ChatSDK.config().messagesToLoadPerBatch + 1, fromDate));
+        }).subscribeOn(RX.db());
     }
 
     /**
@@ -110,7 +114,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             newMessage.setMetaValues(message.getMetaValuesAsMap());
             newMessage.setMessageStatus(MessageSendStatus.WillSend);
             return sendMessage(newMessage);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.db());
     }
 
     @Override
@@ -238,7 +242,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             thread.setDeleted(true);
 
             emitter.onComplete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.db());
     }
 
     @Override
@@ -268,7 +272,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             newMessage.setValueForKey(reply, Keys.Reply);
             newMessage.setMessageStatus(MessageSendStatus.WillSend);
             return sendMessage(newMessage);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.db());
     }
 
     // Moderation
@@ -313,7 +317,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.create(emitter -> {
             ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
             emitter.onComplete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.quick());
     }
 
     @Override
@@ -321,7 +325,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.create(emitter -> {
             ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
             emitter.onComplete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.quick());
     }
 
     @Override
@@ -339,7 +343,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.create(emitter -> {
             ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
             emitter.onComplete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.quick());
     }
 
     @Override
@@ -347,7 +351,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.create(emitter -> {
             ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
             emitter.onComplete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.quick());
     }
 
     @Override
@@ -368,4 +372,10 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     public List<String> localizeRoles(String... roles) {
         return localizeRoles(Arrays.asList(roles));
     }
+
+    @Override
+    public List<String> localizeRoles(List<String> roles) {
+        return roles;
+    }
+
 }

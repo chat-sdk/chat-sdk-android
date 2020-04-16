@@ -27,7 +27,7 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public class NotificationBuilder {
 
@@ -235,7 +235,7 @@ public class NotificationBuilder {
             }
 
             emitter.onSuccess(builder);
-        }).subscribeOn(Schedulers.io()).flatMap(this::loadLargeIconFromURL);
+        }).subscribeOn(RX.quick()).flatMap(this::loadLargeIconFromURL);
     }
 
     public Single<NotificationCompat.Builder> loadLargeIconFromURL(final NotificationCompat.Builder builder) {
@@ -251,7 +251,7 @@ public class NotificationBuilder {
                 });
             }
             return Single.just(builder);
-        });
+        }).subscribeOn(RX.quick());
     }
 
     public Bitmap scaleLargeIcon(Bitmap bitmap) {

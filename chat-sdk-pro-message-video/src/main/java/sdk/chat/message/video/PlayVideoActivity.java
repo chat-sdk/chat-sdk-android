@@ -29,6 +29,11 @@ public class PlayVideoActivity extends BaseActivity implements MediaPlayer.OnCom
     RelativeLayout root;
 
     @Override
+    protected int getLayout() {
+        return R.layout.activity_video_player;
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle bundle) {
         super.onCreate(bundle);
 
@@ -45,11 +50,6 @@ public class PlayVideoActivity extends BaseActivity implements MediaPlayer.OnCom
         if (!playFile(videoPath)) return;
 
         videoView.start();
-    }
-
-    @Override
-    protected int getLayout() {
-        return R.layout.activity_video_player;
     }
 
     protected void onNewIntent(Intent intent) {

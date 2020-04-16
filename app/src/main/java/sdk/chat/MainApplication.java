@@ -10,6 +10,15 @@ import org.pmw.tinylog.Logger;
 import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.contact.ContactBookModule;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import sdk.guru.common.RX;
+import sdk.chat.core.session.Configure;
 import sdk.chat.location.FirebaseNearbyUsersModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Config;
@@ -45,6 +54,7 @@ public class MainApplication extends Application {
         super.onCreate();
 //        xmpp();
         firebase();
+
     }
 
     public void setupChatSDK() {
@@ -155,6 +165,7 @@ public class MainApplication extends Application {
                     .setIdenticonType(Config.IdenticonType.Gravatar)
                     .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                     .setDisablePresence(false)
+                    .setSendSystemMessageWhenRoleChanges(false)
                     .build()
 
                     // Add the network adapter module
@@ -190,7 +201,11 @@ public class MainApplication extends Application {
                     .addModule(FirebaseReadReceiptsModule.shared())
                     .addModule(FirebaseTypingIndicatorModule.shared())
 
-//                    .addModule(ExtrasModule.shared())
+                    .addModule(ExtrasModule.configure(config -> {
+                        if (Device.honor(this)) {
+                            config.setDrawerEnabled(false);
+                        }
+                    }))
 
                     .addModule(FirebaseUIModule.configure()
                             .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)
@@ -210,7 +225,7 @@ public class MainApplication extends Application {
         catch (Exception e) {
             e.printStackTrace();
             Logger.debug("Error");
-            assert(false);
+            assert(e == null);
         }
 
         Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {

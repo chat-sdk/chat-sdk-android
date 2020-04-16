@@ -63,9 +63,8 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
     @BindView(R2.id.recyclerView) protected RecyclerView recyclerView;
     @BindView(R2.id.root) protected FrameLayout root;
 
-
-    protected @LayoutRes
-    int getLayout() {
+    @Override
+    protected @LayoutRes int getLayout() {
         return R.layout.fragment_contacts;
     }
 

@@ -32,13 +32,14 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import sdk.guru.common.DisposableMap;
 
 /**
  * Created by Pepe on 01/25/19.
  */
 
+@Deprecated
 public class LocationProvider {
 
     protected final FusedLocationProviderClient locationClient;
@@ -105,7 +106,7 @@ public class LocationProvider {
                     }
                 }
             });
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.computation());
     }
 
     public Observable<Location> requestLocationUpdates(Activity activity, long interval, int distance) {
@@ -137,7 +138,7 @@ public class LocationProvider {
                     activity.runOnUiThread(() -> {
                         locationClient.requestLocationUpdates(locationUpdatesRequest, locationCallback, Looper.myLooper());
                     });
-                }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()));
+                }).subscribeOn(RX.io()).observeOn(AndroidSchedulers.mainThread()));
     }
 
     @SuppressLint("MissingPermission")
@@ -151,7 +152,7 @@ public class LocationProvider {
                     emitter.onError(new Error(context().getResources().getString(R.string.location_is_null)));
                 }
             }).addOnFailureListener(emitter::onError);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
 
         return PermissionRequestHandler.requestLocationAccess(activity)
                 .andThen(getLocation);

@@ -8,7 +8,7 @@ import java.lang.ref.WeakReference;
 import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.xmpp.XMPPManager;
 import co.chatsdk.xmpp.enums.ConnectionStatus;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import io.reactivex.subjects.BehaviorSubject;
 
 /**
@@ -23,7 +23,7 @@ public class XMPPConnectionListener implements ConnectionListener {
 
     public XMPPConnectionListener (XMPPManager manager) {
         rosterListener = new XMPPRosterListener(manager);
-        connectionStatusSource.subscribeOn(Schedulers.io());
+        connectionStatusSource.subscribeOn(RX.io());
         this.manager = new WeakReference<>(manager);
     }
 

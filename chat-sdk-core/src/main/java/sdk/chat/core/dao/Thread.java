@@ -240,28 +240,30 @@ public class Thread extends AbstractEntity {
         return query.list();
     }
 
-    public void addMessage (Message message) {
+    public void addMessage(Message message) {
         addMessage(message, true);
     }
 
-    public void addMessage (Message message, boolean notify) {
+    public void addMessage(Message message, boolean notify) {
         message.setThreadId(this.getId());
         List<Message> messages = getMessages();
-        if (!messages.isEmpty()) {
-            Message previousMessage = messages.get(messages.size() - 1);
-            previousMessage.setNextMessage(message);
-            previousMessage.update();
-            message.setPreviousMessage(previousMessage);
-            if (notify) {
-                ChatSDK.events().source().onNext(NetworkEvent.messageUpdated(previousMessage));
+        if (!messages.contains(message)) {
+            if (!messages.isEmpty()) {
+                Message previousMessage = messages.get(messages.size() - 1);
+                previousMessage.setNextMessage(message);
+                previousMessage.update();
+                message.setPreviousMessage(previousMessage);
+                if (notify) {
+                    ChatSDK.events().source().onNext(NetworkEvent.messageUpdated(previousMessage));
+                }
             }
-        }
-        getMessages().add(message);
-        message.update();
-        update();
-        refresh();
-        if (notify) {
-            ChatSDK.events().source().onNext(NetworkEvent.messageAdded(message));
+            getMessages().add(message);
+            message.update();
+            update();
+            refresh();
+            if (notify) {
+                ChatSDK.events().source().onNext(NetworkEvent.messageAdded(message));
+            }
         }
     }
 
@@ -755,7 +757,7 @@ public class Thread extends AbstractEntity {
     }
 
     public void setPermission(String userEntityID, String permission) {
-        setPermission(userEntityID, permission, true, true);
+        setPermission(userEntityID, permission, true, ChatSDK.config().sendSystemMessageWhenRoleChanges);
     }
 
     public void setPermission(String userEntityID, String permission, boolean notify, boolean sendSystemMessage) {
@@ -765,7 +767,7 @@ public class Thread extends AbstractEntity {
             if (link != null) {
                 if(link.setMetaValue(Keys.Permission, permission) && notify) {
                     ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(this, user));
-                    if (sendSystemMessage) {
+                    if (sendSystemMessage && user.isMe()) {
                         String message = String.format(ChatSDK.getString(co.chatsdk.core.R.string.role_changed_to__), ChatSDK.thread().localizeRole(permission));
                         ChatSDK.thread().sendLocalSystemMessage(message, this);
                     }

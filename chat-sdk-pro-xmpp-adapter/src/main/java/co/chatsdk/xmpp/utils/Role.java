@@ -27,7 +27,7 @@ public class Role {
         MUCRole role = intToRole(roleInt);
 
         if (affiliation == MUCAffiliation.owner) {
-            return ChatSDK.getString(R.string.owner__);
+            return ChatSDK.getString(R.string.owner);
         }
         if (affiliation == MUCAffiliation.admin) {
             return ChatSDK.getString(R.string.admin);
@@ -51,46 +51,23 @@ public class Role {
     }
 
     public static String toString(MUCAffiliation affiliation) {
-        return toString(affiliation, null);
-//
-//        if (affiliation == MUCAffiliation.owner) {
-//            return ChatSDK.getString(R.string.owner);
-//        }
-//        if (affiliation == MUCAffiliation.admin) {
-//            return ChatSDK.getString(R.string.admin);
-//        }
-//        if (affiliation == MUCAffiliation.member) {
-//            return ChatSDK.getString(R.string.member);
-//        }
-//        if (affiliation == MUCAffiliation.outcast) {
-//            return ChatSDK.getString(R.string.outcast);
-//        }
-//        return ChatSDK.getString(R.string.none);
-    }
-
-    public static String toString(MUCAffiliation affiliation, @Nullable MUCRole role) {
         String affiliationString;
         if (affiliation == MUCAffiliation.owner) {
-            affiliationString = ChatSDK.getString(R.string.owner__);
+            affiliationString = ChatSDK.getString(R.string.owner);
         }
         else if (affiliation == MUCAffiliation.admin) {
-            affiliationString = ChatSDK.getString(R.string.admin__);
+            affiliationString = ChatSDK.getString(R.string.admin);
         }
         else if (affiliation == MUCAffiliation.member) {
-            affiliationString = ChatSDK.getString(R.string.member__);
+            affiliationString = ChatSDK.getString(R.string.member);
         }
         else if (affiliation == MUCAffiliation.outcast) {
-            affiliationString = ChatSDK.getString(R.string.outcast__);
+            affiliationString = ChatSDK.getString(R.string.outcast);
         } else {
 //            affiliationString = ChatSDK.getString(R.string.none);
             affiliationString = null;
         }
-//        if (role != null) {
-//            return String.format(affiliationString, " (" + toString(role) + ")");
-//        } else {
-//            return String.format(affiliationString, "");
-//        }
-        return String.format(affiliationString, "");
+        return affiliationString;
     }
 
     public static String toString(MUCRole role) {

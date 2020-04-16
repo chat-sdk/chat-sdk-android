@@ -13,7 +13,7 @@ import sdk.chat.core.handlers.BlockingHandler;
 import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Completable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 import static co.chatsdk.xmpp.defines.XMPPDefines.BlockingCommandNamespace;
 
@@ -46,7 +46,7 @@ public class XMPPBlockingHandler implements BlockingHandler {
 
                 e.onComplete();
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override
@@ -63,7 +63,7 @@ public class XMPPBlockingHandler implements BlockingHandler {
 
                 return XMPPManager.shared().userManager.updateUserFromVCard(jid).ignoreElement();
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override

@@ -9,7 +9,7 @@ import firestream.chat.test.Test;
 import firestream.chat.test.TestScript;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public class DeleteContactTest extends Test {
 
@@ -33,5 +33,5 @@ public class DeleteContactTest extends Test {
                 }
 
             }, this));
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }}

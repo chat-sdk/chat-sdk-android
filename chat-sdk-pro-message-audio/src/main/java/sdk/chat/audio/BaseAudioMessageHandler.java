@@ -18,7 +18,7 @@ import sdk.chat.core.types.MessageType;
 import co.chatsdk.message.audio.R;
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 
 /**
@@ -64,7 +64,7 @@ public class BaseAudioMessageHandler implements AudioMessageHandler {
                     }
                 }).convert();
             });
-        }).subscribeOn(Schedulers.single());
+        }).subscribeOn(RX.single());
     }
 
     @Override

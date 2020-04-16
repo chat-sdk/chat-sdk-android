@@ -1,5 +1,6 @@
 package sdk.chat.core.base;
 
+import io.reactivex.Scheduler;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.EventType;
@@ -15,7 +16,7 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import io.reactivex.subjects.PublishSubject;
 
 public abstract class AbstractEventHandler implements EventHandler {
@@ -36,7 +37,7 @@ public abstract class AbstractEventHandler implements EventHandler {
             localNotificationDisposable.dispose();
         }
 
-        localNotificationDisposable = sourceOnMain()
+        localNotificationDisposable = sourceOn(RX.quick())
                 .filter(NetworkEvent.filterType(EventType.MessageAdded))
                 .subscribe(networkEvent -> {
                     Message message = networkEvent.getMessage();
@@ -47,7 +48,7 @@ public abstract class AbstractEventHandler implements EventHandler {
                                 ReadStatus status = message.readStatusForUser(ChatSDK.currentUser());
                                 if (!message.isRead() && !status.is(ReadStatus.delivered()) && !status.is(ReadStatus.read())) {
                                     // Only show the alert if we'recyclerView not on the private threads tab
-                                    ChatSDK.ui().notificationDisplayHandler().createMessageNotification(message);
+                                    RX.onMain(() -> ChatSDK.ui().notificationDisplayHandler().createMessageNotification(message));
                                 }
                             }
                         }
@@ -56,16 +57,20 @@ public abstract class AbstractEventHandler implements EventHandler {
 
     }
 
-    public PublishSubject<NetworkEvent> source () {
+    public PublishSubject<NetworkEvent> source() {
         return eventSource;
     }
 
     public Observable<NetworkEvent> sourceOnMain () {
-        return source().hide().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+        return source().hide().observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public Observable<NetworkEvent> sourceOn (Scheduler scheduler) {
+        return source().hide().observeOn(scheduler);
     }
 
     public Observable<Throwable> errorSourceOnMain() {
-        return errorSource.hide().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+        return errorSource.hide().observeOn(AndroidSchedulers.mainThread());
     }
 
     public void accept(Throwable t) throws Exception {

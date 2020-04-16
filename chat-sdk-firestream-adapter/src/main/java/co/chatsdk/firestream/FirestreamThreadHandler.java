@@ -27,7 +27,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public class FirestreamThreadHandler extends AbstractThreadHandler {
 
@@ -135,7 +135,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
             }
         }
 
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override
@@ -173,7 +173,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 return Completable.concat(changes);
             }
             return Completable.complete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override
@@ -188,7 +188,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 return chat.setCustomData(data);
             }
             return Completable.complete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override
@@ -208,7 +208,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
             return Completable.complete();
         }).doOnComplete(() -> {
             message.getThread().removeMessage(message);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override
@@ -246,11 +246,6 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         return new ArrayList<>();
     }
 
-    @Override
-    public List<String> localizeRoles(List<String> roles) {
-        return null;
-    }
-
     public Completable setRole(String role, Thread thread, User user) {
         return Completable.defer(() -> {
             if (rolesEnabled(thread, user)) {
@@ -260,7 +255,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.error(ChatSDK.getException(R.string.feature_not_supported));
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override
@@ -281,7 +276,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
             }
             return Completable.complete();
         }).doOnComplete(() -> thread.setMuted(true))
-                .subscribeOn(Schedulers.io());
+                .subscribeOn(RX.io());
     }
 
     public Completable unmute(Thread thread) {
@@ -296,7 +291,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        }).doOnComplete(() -> thread.setMuted(false)).subscribeOn(Schedulers.io());
+        }).doOnComplete(() -> thread.setMuted(false)).subscribeOn(RX.io());
     }
 
     public Completable removeUsersFromThread(final Thread thread, List<User> users) {
@@ -312,7 +307,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable addUsersToThread(final Thread thread, final List<User> users) {
@@ -328,7 +323,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override
@@ -344,7 +339,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override
@@ -410,7 +405,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Single.just(localMessages);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override

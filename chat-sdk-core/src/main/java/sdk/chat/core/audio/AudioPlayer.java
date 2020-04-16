@@ -19,7 +19,7 @@ import sdk.chat.core.utils.CurrentLocale;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import io.reactivex.subjects.PublishSubject;
 
 import static com.google.android.exoplayer2.Player.STATE_READY;
@@ -55,7 +55,7 @@ public class AudioPlayer {
         player.setPlayWhenReady(true);
 
         playingDisposable = Observable.interval(0, 30, TimeUnit.MILLISECONDS)
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(RX.single())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aLong -> {
                     if (player.isPlaying()) {

@@ -69,7 +69,7 @@ public class HashAvatarGenerator implements AvatarGenerator {
 //                }).flatMap((Function<File, SingleSource<ImageUploadResult>>) ImageUtils::uploadImageFile)
 //                        .map(imageUploadResult -> imageUploadResult.url);
 //            }
-//        }).subscribeOn(Schedulers.io());
+//        }).subscribeOn(RX.io());
 //    }
 
 }

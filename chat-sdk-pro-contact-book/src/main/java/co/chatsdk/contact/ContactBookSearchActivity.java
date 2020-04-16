@@ -36,7 +36,7 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import sdk.chat.core.utils.StringChecker;
 
 /**
@@ -210,7 +210,7 @@ public class ContactBookSearchActivity extends BaseActivity {
 
                 return contactBookUsers;
             });
-        })).subscribeOn(Schedulers.io());
+        })).subscribeOn(RX.io());
     }
 
 }

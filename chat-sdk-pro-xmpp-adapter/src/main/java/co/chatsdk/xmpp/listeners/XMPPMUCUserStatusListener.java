@@ -22,7 +22,7 @@ import co.chatsdk.xmpp.R;
 import co.chatsdk.xmpp.XMPPMUCManager;
 import co.chatsdk.xmpp.utils.JidUtil;
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public class XMPPMUCUserStatusListener implements UserStatusListener {
 
@@ -132,7 +132,7 @@ public class XMPPMUCUserStatusListener implements UserStatusListener {
 
             updateMembershipMap();
             ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread.get(), ChatSDK.currentUser()));
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public void updateMembershipMap() {

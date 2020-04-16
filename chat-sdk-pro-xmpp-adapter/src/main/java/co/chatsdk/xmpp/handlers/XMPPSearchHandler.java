@@ -35,4 +35,8 @@ public class XMPPSearchHandler extends AbstractSearchHandler {
         }
     }
 
+    public boolean canAddUserById() {
+        return true;
+    }
+
 }

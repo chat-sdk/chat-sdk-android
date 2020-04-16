@@ -71,8 +71,7 @@ public class ThreadUsersFragment extends BaseFragment {
     }
 
     @Override
-    protected @LayoutRes
-    int getLayout() {
+    protected @LayoutRes int getLayout() {
         return R.layout.fragment_contacts;
     }
 

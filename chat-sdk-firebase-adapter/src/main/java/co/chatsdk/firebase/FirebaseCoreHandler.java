@@ -19,7 +19,7 @@ import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import sdk.guru.realtime.RealtimeEventListener;
 
 
@@ -36,7 +36,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public Completable pushUser() {
-        return Completable.defer(() -> new UserWrapper(ChatSDK.currentUser()).push()).subscribeOn(Schedulers.io());
+        return Completable.defer(() -> new UserWrapper(ChatSDK.currentUser()).push()).subscribeOn(RX.io());
     }
 
     public Completable setUserOnline() {
@@ -52,7 +52,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             if (ChatSDK.hook() != null) {
                 ChatSDK.hook().executeHook(HookEvent.UserDidConnect, null).subscribe(ChatSDK.events());
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable setUserOffline() {
@@ -73,7 +73,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                 }
             }
             return Completable.complete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public void goOffline() {
@@ -99,7 +99,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                 return ChatSDK.lastOnline().setLastOnline(currentUser());
             }
             return Completable.complete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable userOn(final User user) {

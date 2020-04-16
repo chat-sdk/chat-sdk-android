@@ -10,7 +10,7 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ConnectionType;
 import io.reactivex.Completable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public class FirebaseContactHandler extends BaseContactHandler {
 
@@ -27,7 +27,7 @@ public class FirebaseContactHandler extends BaseContactHandler {
                     emitter.onError(databaseError.toException());
                 }
             });
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     @Override
@@ -41,7 +41,7 @@ public class FirebaseContactHandler extends BaseContactHandler {
                     emitter.onError(databaseError.toException());
                 }
             });
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
 }

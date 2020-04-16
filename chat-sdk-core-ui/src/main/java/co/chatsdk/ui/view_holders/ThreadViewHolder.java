@@ -35,10 +35,7 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
             onlineIndicator.setVisibility(View.GONE);
         }
 
-        MessageHolder lastMessageHolder = dialog.getLastMessage();
-        if (lastMessageHolder != null) {
-            ReadStatusViewBinder.onBind(readStatus, lastMessageHolder);
-        }
+        ReadStatusViewBinder.onBind(readStatus, dialog.getLastMessage());
     }
 
 }

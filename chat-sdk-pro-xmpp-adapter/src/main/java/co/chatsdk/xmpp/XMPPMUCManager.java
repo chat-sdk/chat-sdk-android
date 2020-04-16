@@ -46,7 +46,7 @@ import co.chatsdk.xmpp.utils.Role;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 
 /**
@@ -144,7 +144,7 @@ public class XMPPMUCManager {
 
             return Completable.merge(comp).andThen(joinRoom(roomID));
 
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Single<Thread> joinRoom (String roomJID) throws Exception {
@@ -238,7 +238,7 @@ public class XMPPMUCManager {
 
         }).doOnSuccess(thread -> {
             ChatSDK.events().source().onNext(NetworkEvent.threadAdded(thread));
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Single<String> getRoomName (MultiUserChat chat) {
@@ -247,7 +247,7 @@ public class XMPPMUCManager {
             String name = info.getName();
             emitter.onSuccess(name);
 
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Resourcepart nickname() {
@@ -297,7 +297,7 @@ public class XMPPMUCManager {
             chat.invite(JidCreate.entityBareFrom(user.getEntityID()), "");
             chat.grantMembership(jid);
             e.onComplete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     private String generateRoomId(String name) throws Exception {
@@ -380,7 +380,7 @@ public class XMPPMUCManager {
         return Single.create((SingleOnSubscribe<List<Affiliate>>)emitter -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
             emitter.onSuccess(getAffiliates(chat));
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public List<Affiliate> getAffiliates(MultiUserChat chat) {
@@ -431,7 +431,7 @@ public class XMPPMUCManager {
 //                }
 //            }
 //            emitter.onComplete();
-//        }).subscribeOn(Schedulers.io());
+//        }).subscribeOn(RX.io());
 //    }
 
     public Completable grantModerator(Thread thread, User user) {
@@ -448,7 +448,7 @@ public class XMPPMUCManager {
             } else {
                 emitter.onError(ChatSDK.getException(R.string.permission_denied));
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable revokeModerator(Thread thread, User user) {
@@ -465,7 +465,7 @@ public class XMPPMUCManager {
             } else {
                 emitter.onError(ChatSDK.getException(R.string.permission_denied));
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable grantVoice(Thread thread, User user) {
@@ -478,7 +478,7 @@ public class XMPPMUCManager {
             } else {
                 emitter.onError(ChatSDK.getException(R.string.permission_denied));
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable revokeVoice(Thread thread, User user) {
@@ -491,7 +491,7 @@ public class XMPPMUCManager {
             } else {
                 emitter.onError(ChatSDK.getException(R.string.permission_denied));
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable setRole(Thread thread, User user, MUCAffiliation affiliation) {
@@ -513,7 +513,7 @@ public class XMPPMUCManager {
                 }
             }
             return refreshRoomAffiliation(chat);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable refreshRoomAffiliation(MultiUserChat chat) {
@@ -523,7 +523,7 @@ public class XMPPMUCManager {
                 return listener.updateAffiliates().ignoreElement();
             }
             return Completable.complete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public XMPPMUCUserStatusListener getUserStatusListener(String threadEntityID) {

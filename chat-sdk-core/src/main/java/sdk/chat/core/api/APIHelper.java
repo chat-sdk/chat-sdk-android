@@ -4,11 +4,11 @@ import android.content.Context;
 
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
+import sdk.guru.common.RX;
 import sdk.chat.core.session.ChatSDK;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
 
 @Deprecated
 public class APIHelper {
@@ -40,6 +40,7 @@ public class APIHelper {
         return Single.create((SingleOnSubscribe<User>) emitter -> {
             User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEntityID);
             emitter.onSuccess(user);
-        }).flatMap(user -> ChatSDK.core().userOn(user).toSingle(() -> user)).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.db())
+                .flatMap(user -> ChatSDK.core().userOn(user).toSingle(() -> user));
     }
 }

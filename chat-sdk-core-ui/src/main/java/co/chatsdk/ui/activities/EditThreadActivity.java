@@ -40,6 +40,7 @@ import co.chatsdk.ui.utils.ThreadImageBuilder;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.BiConsumer;
+import sdk.chat.core.utils.StringChecker;
 
 /**
  * Created by Pepe Becker on 09/05/18.
@@ -129,7 +130,11 @@ public class EditThreadActivity extends BaseActivity {
     }
 
     protected void updateSaveButtonState() {
-        fab.setEnabled(!nameTextInput.getText().toString().isEmpty());
+        if (!StringChecker.isNullOrEmpty(nameTextInput.getText())) {
+            fab.show();
+        } else {
+            fab.hide();
+        }
     }
 
     protected void updateThreadImageURL(String url) {
@@ -140,8 +145,6 @@ public class EditThreadActivity extends BaseActivity {
         if (thread != null) {
             String name = thread.getName();
             nameTextInput.setText(name);
-        } else {
-            fab.setEnabled(false);
         }
         if (threadImageURL != null) {
             Glide.with(this).load(threadImageURL).dontAnimate().into(threadImageView);

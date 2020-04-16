@@ -15,7 +15,7 @@ import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.firebase.FirebasePaths;
 import io.reactivex.Completable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public class ThreadDeleter {
 
@@ -37,7 +37,7 @@ public class ThreadDeleter {
                     return deleteMessages().andThen(ChatSDK.thread().removeUsersFromThread(thread, ChatSDK.currentUser()));
                 }
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable deleteMessages() {
@@ -51,7 +51,7 @@ public class ThreadDeleter {
             thread.update();
             thread.refresh();
             emitter.onComplete();
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     protected Completable deleteOneToOneThread() {
@@ -77,7 +77,7 @@ public class ThreadDeleter {
                     emitter.onComplete();
                 }
             });
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
 }

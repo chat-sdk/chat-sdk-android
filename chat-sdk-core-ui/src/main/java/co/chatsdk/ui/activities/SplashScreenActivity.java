@@ -25,6 +25,11 @@ public class SplashScreenActivity extends BaseActivity {
     @BindView(R2.id.root) protected ConstraintLayout root;
 
     @Override
+    protected @LayoutRes int getLayout() {
+        return R.layout.activity_splash_screen;
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -75,12 +80,6 @@ public class SplashScreenActivity extends BaseActivity {
 //        progressBar.setVisibility(View.GONE);
         progressBar.setProgress(0);
         progressBar.setIndeterminate(false);
-    }
-
-
-    protected @LayoutRes
-    int getLayout() {
-        return R.layout.activity_splash_screen;
     }
 
 }

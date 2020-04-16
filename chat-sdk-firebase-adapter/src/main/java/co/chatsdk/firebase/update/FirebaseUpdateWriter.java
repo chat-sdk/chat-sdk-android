@@ -8,7 +8,7 @@ import java.util.HashMap;
 import co.chatsdk.firebase.FirebasePaths;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public class FirebaseUpdateWriter {
 
@@ -51,7 +51,7 @@ public class FirebaseUpdateWriter {
             } else {
                 emitter.onError(databaseError.toException());
             }
-        })).subscribeOn(Schedulers.io());
+        })).subscribeOn(RX.io());
     }
 
     public Single<DatabaseReference> update (HashMap<String, Object> data) {
@@ -61,7 +61,7 @@ public class FirebaseUpdateWriter {
             } else {
                 emitter.onError(databaseError.toException());
             }
-        })).subscribeOn(Schedulers.io());
+        })).subscribeOn(RX.io());
     }
 
     protected DatabaseReference ref () {

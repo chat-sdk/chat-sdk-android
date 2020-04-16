@@ -5,6 +5,7 @@ import android.widget.ImageView;
 
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
+import sdk.chat.core.types.MessageType;
 import sdk.chat.core.types.ReadStatus;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.model.MessageHolder;
@@ -12,7 +13,7 @@ import co.chatsdk.ui.chat.model.MessageHolder;
 public class ReadStatusViewBinder {
 
     public static void onBind(ImageView view, MessageHolder holder) {
-        if (ChatSDK.readReceipts() == null || !holder.getUser().getUser().isMe() || holder.getReadStatus().is(ReadStatus.hide())) {
+        if (ChatSDK.readReceipts() == null || holder == null || holder.getMessage().getMessageType().is(MessageType.System) || !holder.getUser().getUser().isMe() || holder.getReadStatus().is(ReadStatus.hide())) {
             view.setVisibility(View.GONE);
         } else {
             ReadStatus status = holder.getReadStatus();

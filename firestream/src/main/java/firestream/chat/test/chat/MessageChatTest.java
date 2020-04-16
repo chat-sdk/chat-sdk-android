@@ -28,7 +28,7 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public class MessageChatTest extends Test {
 
@@ -280,7 +280,7 @@ public class MessageChatTest extends Test {
                 }));
 
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public static Message message() {

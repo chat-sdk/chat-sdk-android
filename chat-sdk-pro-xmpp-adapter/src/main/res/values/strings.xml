@@ -11,11 +11,11 @@
     <string name="outcast">Outcast</string>
     <string name="none">None</string>
 
-    <string name="owner__" formatted="false">Owner%s</string>
-    <string name="admin__" formatted="false">Admin%s</string>
-    <string name="member__" formatted="false">Member%s</string>
-    <string name="outcast__" formatted="false">Outcast%s</string>
-    <string name="none__" formatted="false">None%s</string>
+<!--    <string name="owner__" formatted="false">Owner%s</string>-->
+<!--    <string name="admin__" formatted="false">Admin%s</string>-->
+<!--    <string name="member__" formatted="false">Member%s</string>-->
+<!--    <string name="outcast__" formatted="false">Outcast%s</string>-->
+<!--    <string name="none__" formatted="false">None%s</string>-->
 
     <string name="moderator">Moderator</string>
     <string name="participant">Participant</string>

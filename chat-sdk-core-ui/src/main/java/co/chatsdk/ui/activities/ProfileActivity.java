@@ -20,6 +20,11 @@ public class ProfileActivity extends BaseActivity {
     protected User user;
 
     @Override
+    protected int getLayout() {
+        return R.layout.activity_profile;
+    }
+
+    @Override
     protected void onCreate (@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -37,11 +42,6 @@ public class ProfileActivity extends BaseActivity {
         ToastHelper.show(this, R.string.user_entity_id_not_set);
         finish();
 
-    }
-
-    @Override
-    protected int getLayout() {
-        return R.layout.activity_profile;
     }
 
     @Override

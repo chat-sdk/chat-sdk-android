@@ -13,7 +13,7 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ConnectionType;
 import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Observable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import io.reactivex.subjects.PublishSubject;
 
 
@@ -62,6 +62,6 @@ public class XMPPRosterListener implements RosterListener {
     }
 
     public Observable<Presence> getPresenceEvents() {
-        return presenceEventSource.subscribeOn(Schedulers.io()).hide();
+        return presenceEventSource.subscribeOn(RX.io()).hide();
     }
 }

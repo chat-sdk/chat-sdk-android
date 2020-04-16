@@ -10,7 +10,7 @@ import firestream.chat.test.TestScript;
 import firestream.chat.types.ContactType;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public class AddContactTest extends Test {
 
@@ -35,7 +35,7 @@ public class AddContactTest extends Test {
                     complete();
                 }
             }, this));
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
 }

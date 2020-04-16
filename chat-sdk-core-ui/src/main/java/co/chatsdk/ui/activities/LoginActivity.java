@@ -59,6 +59,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     @BindView(R2.id.root) protected ConstraintLayout root;
 
     @Override
+    protected @LayoutRes int getLayout() {
+        return R.layout.activity_login;
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initViews();
@@ -73,11 +78,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             getSupportActionBar().hide();
         }
 
-    }
-
-    protected @LayoutRes
-    int getLayout() {
-        return R.layout.activity_login;
     }
 
     protected void initViews() {

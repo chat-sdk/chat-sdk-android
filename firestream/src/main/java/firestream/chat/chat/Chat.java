@@ -23,7 +23,7 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import io.reactivex.subjects.BehaviorSubject;
 import firestream.chat.message.DeliveryReceipt;
 import firestream.chat.message.Message;
@@ -101,7 +101,7 @@ public class Chat extends AbstractChat implements IChat {
         // Handle name and image change
         dm.add(Fire.internal().getFirebaseService().chat
                 .metaOn(getId())
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(RX.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(newMeta -> {
                     if (newMeta != null) {
@@ -266,7 +266,7 @@ public class Chat extends AbstractChat implements IChat {
                 completables.add(Fire.stream().sendInvitation(user.id, InvitationType.chat(), id));
             }
         }
-        return Completable.merge(completables).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+        return Completable.merge(completables).subscribeOn(RX.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
@@ -320,7 +320,7 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Observable<String> getNameChangeEvents() {
-        return nameChangedEvents.subscribeOn(Schedulers.io()).hide();
+        return nameChangedEvents.subscribeOn(RX.io()).hide();
     }
 
     @Override
@@ -330,7 +330,7 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Observable<HashMap<String, Object>> getCustomDataChangedEvents() {
-        return customDataChangedEvents.subscribeOn(Schedulers.io()).hide();
+        return customDataChangedEvents.subscribeOn(RX.io()).hide();
     }
 
     @Override
@@ -466,7 +466,7 @@ public class Chat extends AbstractChat implements IChat {
             return chat.addUsers(true, usersToAdd)
                     .toSingle(() -> chat);
 
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(RX.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     public boolean hasPermission(RoleType required) {

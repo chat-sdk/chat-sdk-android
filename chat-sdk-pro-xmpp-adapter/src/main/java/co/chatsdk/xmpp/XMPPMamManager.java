@@ -12,7 +12,7 @@ import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public class XMPPMamManager {
 
@@ -45,7 +45,7 @@ public class XMPPMamManager {
             } catch (Exception e) {
                 emitter.onError(e);
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     protected boolean currentDomain (Message m) {

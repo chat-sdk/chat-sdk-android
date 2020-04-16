@@ -31,9 +31,8 @@ import firestream.chat.firebase.service.Keys;
 import firestream.chat.firebase.service.FirebaseCoreHandler;
 import firestream.chat.firebase.service.Path;
 import firestream.chat.message.Sendable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import sdk.guru.firestore.RXFirestore;
-
 
 public class FirestoreCoreHandler extends FirebaseCoreHandler {
 
@@ -72,7 +71,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
                 batch.set(docRef, dataProvider.data(u));
             }
             emitter.onSuccess(batch);
-        }).flatMapCompletable(this::runBatch).subscribeOn(Schedulers.io());
+        }).flatMapCompletable(this::runBatch).subscribeOn(RX.io());
     }
 
     @Override
@@ -86,7 +85,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
                 batch.update(docRef, dataProvider.data(u));
             }
             emitter.onSuccess(batch);
-        }).flatMapCompletable(this::runBatch).subscribeOn(Schedulers.io());
+        }).flatMapCompletable(this::runBatch).subscribeOn(RX.io());
     }
 
     @Override
@@ -100,7 +99,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
                 batch.delete(docRef);
             }
             emitter.onSuccess(batch);
-        }).flatMapCompletable(this::runBatch).subscribeOn(Schedulers.io());
+        }).flatMapCompletable(this::runBatch).subscribeOn(RX.io());
     }
 
     @Override
@@ -126,7 +125,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             }
 
             emitter.onSuccess(query);
-        }).subscribeOn(Schedulers.io()).flatMap(query -> new RXFirestore().get(query)).map(optional -> {
+        }).subscribeOn(RX.io()).flatMap(query -> new RXFirestore().get(query)).map(optional -> {
             ArrayList<Sendable> sendables = new ArrayList<>();
             if (!optional.isEmpty()) {
                 QuerySnapshot snapshots = optional.get();
@@ -156,7 +155,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             query = query.limit(1);
 
             emitter.onSuccess(query);
-        }).subscribeOn(Schedulers.io()).flatMap(query -> new RXFirestore().get(query).map(snapshots -> {
+        }).subscribeOn(RX.io()).flatMap(query -> new RXFirestore().get(query).map(snapshots -> {
             if (!snapshots.isEmpty()) {
                 if (snapshots.get().getDocumentChanges().size() > 0) {
                     DocumentChange change = snapshots.get().getDocumentChanges().get(0);
@@ -188,7 +187,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             query.limit(limit);
 
             emitter.onSuccess(query);
-        }).subscribeOn(Schedulers.io()).flatMapObservable(query -> new RXFirestore().on(query).flatMapMaybe(change -> {
+        }).subscribeOn(RX.io()).flatMapObservable(query -> new RXFirestore().on(query).flatMapMaybe(change -> {
             DocumentSnapshot ds = change.getDocument();
             if (ds.exists()) {
                 Sendable sendable = ds.toObject(Sendable.class, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE);
@@ -219,7 +218,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             batch.commit().addOnCompleteListener(task -> {
                 emitter.onComplete();
             }).addOnFailureListener(emitter::onError);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public static EventType typeForDocumentChange(DocumentChange change) {

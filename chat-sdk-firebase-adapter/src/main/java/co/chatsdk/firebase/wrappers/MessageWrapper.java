@@ -33,7 +33,7 @@ import co.chatsdk.firebase.R;
 import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.utils.Generic;
 import io.reactivex.Completable;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import sdk.guru.realtime.RXRealtime;
 
 public class MessageWrapper  {
@@ -194,7 +194,7 @@ public class MessageWrapper  {
                     e.onError(firebaseError.toException());
                 }
             });
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
     
     public Completable send() {
@@ -204,7 +204,7 @@ public class MessageWrapper  {
             } else {
                 return Completable.error(ChatSDK.getException(R.string.message_doesnt_have_a_thread));
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public Completable delete() {
@@ -218,7 +218,7 @@ public class MessageWrapper  {
                     e.onError(new Throwable(databaseError.getMessage()));
                 }
             });
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
     
     private DatabaseReference ref() {
@@ -266,6 +266,6 @@ public class MessageWrapper  {
             }
             return Completable.complete();
 
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 }

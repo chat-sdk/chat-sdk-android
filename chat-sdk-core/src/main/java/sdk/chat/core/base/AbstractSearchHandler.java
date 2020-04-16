@@ -39,4 +39,8 @@ public abstract class AbstractSearchHandler implements SearchHandler {
         return usersForIndexes(value, limit, Arrays.asList(indexes));
     }
 
+    public boolean canAddUserById() {
+        return false;
+    }
+
 }

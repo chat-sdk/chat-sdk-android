@@ -13,7 +13,7 @@ import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import sdk.guru.realtime.RealtimeEventListener;
 
 /**
@@ -82,7 +82,7 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
                 }
             }));
 
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
 }

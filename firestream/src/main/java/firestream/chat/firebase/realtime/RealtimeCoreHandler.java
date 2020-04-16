@@ -30,7 +30,7 @@ import firestream.chat.firebase.service.Path;
 import firestream.chat.message.Sendable;
 
 import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import sdk.guru.realtime.RXRealtime;
 import sdk.guru.realtime.DocumentChange;
 
@@ -97,7 +97,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
             }
 
             emitter.onSuccess(query);
-        }).subscribeOn(Schedulers.io()).flatMap(query -> new RXRealtime().get(query)).map(optional -> {
+        }).subscribeOn(RX.io()).flatMap(query -> new RXRealtime().get(query)).map(optional -> {
             ArrayList<Sendable> sendables = new ArrayList<>();
             if (!optional.isEmpty()) {
                 DataSnapshot snapshot = optional.get();
@@ -124,7 +124,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
             query = query.limitToLast(1);
 
             emitter.onSuccess(query);
-        }).subscribeOn(Schedulers.io()).flatMap(query -> new RXRealtime().get(query).map(snapshot -> {
+        }).subscribeOn(RX.io()).flatMap(query -> new RXRealtime().get(query).map(snapshot -> {
             if (!snapshot.isEmpty()) {
                 Sendable sendable = sendableFromSnapshot(snapshot.get());
                 if (sendable.getDate() != null) {
@@ -170,7 +170,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
             }
             query = query.limitToLast(limit);
             emitter.onSuccess(query);
-        }).subscribeOn(Schedulers.io()).flatMapObservable(query -> new RXRealtime().childOn(query).flatMapMaybe(change -> {
+        }).subscribeOn(RX.io()).flatMapObservable(query -> new RXRealtime().childOn(query).flatMapMaybe(change -> {
             Sendable sendable = sendableFromSnapshot(change.getSnapshot());
             if (sendable != null) {
                 return Maybe.just(new Event<>(sendable, change.getType()));
@@ -205,7 +205,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
 
            Task<Void> task = Ref.db().getReference().updateChildren(data);
             task.addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     protected List<String> idsForUsers(List<? extends User> users) {

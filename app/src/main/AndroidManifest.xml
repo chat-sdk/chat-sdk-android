@@ -23,6 +23,14 @@
         tools:replace="allowBackup"
         >
 
+
+<!--                <activity android:name="sdk.chat.custom.EmptyActivity">-->
+<!--                    <intent-filter>-->
+<!--                        <action android:name="android.intent.action.MAIN" />-->
+<!--                        <category android:name="android.intent.category.LAUNCHER" />-->
+<!--                    </intent-filter>-->
+<!--                </activity>-->
+
 <!--        <activity android:name="sdk.chat.demo.DemoActivity">-->
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->

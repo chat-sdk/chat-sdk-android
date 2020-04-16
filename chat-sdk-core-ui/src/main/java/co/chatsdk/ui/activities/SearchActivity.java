@@ -64,8 +64,8 @@ public class SearchActivity extends BaseActivity {
 
     protected String text = "";
 
-    protected @LayoutRes
-    int getLayout() {
+    @Override
+    protected @LayoutRes int getLayout() {
         return R.layout.activity_search;
     }
 
@@ -231,7 +231,7 @@ public class SearchActivity extends BaseActivity {
                     @Override
                     public void onError(@NonNull Throwable e) {
                         showSnackbar(e.getLocalizedMessage());
-                        addUserButton.setVisibility(View.VISIBLE);
+                        showAddUserButton();
                     }
 
                     @Override
@@ -240,11 +240,17 @@ public class SearchActivity extends BaseActivity {
                         if (users.size() == 0) {
                             showSnackbar(R.string.search_activity_no_user_found_toast, Snackbar.LENGTH_LONG);
                             if (!searchText.isEmpty()) {
-                                addUserButton.setVisibility(View.VISIBLE);
+                                showAddUserButton();
                             }
                         }
                     }
                 });
+    }
+
+    public void showAddUserButton() {
+        if (ChatSDK.search().canAddUserById()) {
+            addUserButton.setVisibility(View.VISIBLE);
+        }
     }
 
     protected void done() {

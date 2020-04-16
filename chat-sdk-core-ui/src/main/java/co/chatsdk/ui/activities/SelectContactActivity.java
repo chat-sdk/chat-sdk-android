@@ -50,6 +50,11 @@ public abstract class SelectContactActivity extends BaseActivity {
     @BindView(R2.id.root) protected ConstraintLayout root;
 
     @Override
+    protected @LayoutRes int getLayout() {
+        return R.layout.activity_select_contacts;
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -88,11 +93,6 @@ public abstract class SelectContactActivity extends BaseActivity {
             ChatSDK.ui().startSearchActivity(this);
         }
         return true;
-    }
-
-    protected @LayoutRes
-    int getLayout() {
-        return R.layout.activity_select_contacts;
     }
 
     protected void initViews() {

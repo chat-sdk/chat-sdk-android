@@ -102,6 +102,8 @@ public class Config<T> extends BaseConfig<T> {
 
     public String defaultUserAvatarURL = null;
 
+    public boolean sendSystemMessageWhenRoleChanges = true;
+
     // If we are representing a location as a URL, which service should we use? Google Maps is the default
     public String locationURLRepresentation = "https://www.google.com/maps/search/?api=1&query=%f,%f";
 
@@ -396,6 +398,11 @@ public class Config<T> extends BaseConfig<T> {
 
     public Config<T> setDisablePresence(boolean disablePresence) {
         this.disablePresence = disablePresence;
+        return this;
+    }
+
+    public Config<T> setSendSystemMessageWhenRoleChanges(boolean value) {
+        this.sendSystemMessageWhenRoleChanges = value;
         return this;
     }
 

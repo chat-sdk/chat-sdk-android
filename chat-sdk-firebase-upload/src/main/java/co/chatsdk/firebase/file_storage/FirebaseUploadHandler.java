@@ -11,7 +11,7 @@ import sdk.chat.core.types.FileUploadResult;
 import co.chatsdk.firebase.FirebaseCoreHandler;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 /**
  * Created by Erk on 26.07.2016.
@@ -47,7 +47,7 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
                 });
             }).addOnFailureListener(e::onError);
 
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.io());
     }
 
     public boolean shouldUploadAvatar () {
@@ -60,7 +60,6 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
         } else {
             return FirebaseStorage.getInstance(FirebaseCoreHandler.app());
         }
-
     }
 
 }

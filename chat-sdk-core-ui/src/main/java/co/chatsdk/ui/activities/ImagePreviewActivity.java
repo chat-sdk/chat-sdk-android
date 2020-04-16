@@ -35,6 +35,11 @@ public class ImagePreviewActivity extends BaseActivity {
     protected boolean minimizeOnClick = true;
 
     @Override
+    protected @LayoutRes int getLayout() {
+        return 0;
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -42,11 +47,6 @@ public class ImagePreviewActivity extends BaseActivity {
         setupViews();
 
         shortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
-    }
-
-    protected @LayoutRes
-    int getLayout() {
-        return 0;
     }
 
     protected void setupViews() {

@@ -20,7 +20,7 @@ import butterknife.BindView;
 import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.xmpp.fragments.XMPPConfigureFragment;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 import sdk.chat.android.live.R;
 
 import static androidx.fragment.app.FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT;
@@ -63,7 +63,7 @@ public class DemoActivity extends BaseActivity {
 
         viewPager.setAdapter(adapter);
 
-        dm.add(DemoConfigBuilder.shared().updated.subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(s -> {
+        dm.add(DemoConfigBuilder.shared().updated.subscribeOn(RX.io()).observeOn(RX.io()).subscribe(s -> {
             Set<Fragment> fragmentSet = new HashSet<>(adapter.get());
 
             List<Fragment> fragments = new ArrayList<>(adapter.get());

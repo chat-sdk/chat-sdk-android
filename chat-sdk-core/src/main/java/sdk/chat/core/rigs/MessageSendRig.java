@@ -19,7 +19,7 @@ import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
+import sdk.guru.common.RX;
 
 public class MessageSendRig {
 
@@ -72,26 +72,25 @@ public class MessageSendRig {
 
     public Completable run() {
         return Completable.defer(() -> {
+            createMessage();
             if (uploadables.isEmpty()) {
-                return Single.just(createMessage()).ignoreElement().concatWith(send());
+                return send();
             } else {
-                return Single.just(createMessage()).flatMapCompletable(message -> {
-                    // First pass back an empty result so that we add the cell to the table view
-                    message.setMessageStatus(MessageSendStatus.Uploading);
+                // First pass back an empty result so that we add the cell to the table view
+                message.setMessageStatus(MessageSendStatus.Uploading);
 
-                    ArrayList<Uploadable> compressedUploadables = new ArrayList<>();
+                ArrayList<Uploadable> compressedUploadables = new ArrayList<>();
 
-                    for (Uploadable item : uploadables) {
-                        compressedUploadables.add(item.compress());
-                    }
+                for (Uploadable item : uploadables) {
+                    compressedUploadables.add(item.compress());
+                }
 
-                    uploadables.clear();
-                    uploadables.addAll(compressedUploadables);
+                uploadables.clear();
+                uploadables.addAll(compressedUploadables);
 
-                    return Completable.complete();
-                }).concatWith(uploadFiles()).concatWith(send());
+                return uploadFiles().andThen(send());
             }
-        }).subscribeOn(Schedulers.io());
+        }).subscribeOn(RX.quick());
     }
 
     protected Message createMessage() {
@@ -103,17 +102,14 @@ public class MessageSendRig {
     }
 
     protected Completable send() {
-        return Completable.defer(new Callable<CompletableSource>() {
-            @Override
-            public CompletableSource call() throws Exception {
-                message.setMessageStatus(MessageSendStatus.WillSend);
-                if (local) {
-                    return Completable.complete();
-                } else {
-                    return ChatSDK.thread().sendMessage(message);
-                }
+        return Completable.defer(() -> {
+            message.setMessageStatus(MessageSendStatus.WillSend);
+            if (local) {
+                return Completable.complete();
+            } else {
+                return ChatSDK.thread().sendMessage(message);
             }
-        }).subscribeOn(Schedulers.io())
+        }).subscribeOn(RX.quick())
                 .doOnComplete(() -> message.setMessageStatus(MessageSendStatus.Sent))
                 .doOnError(throwable -> message.setMessageStatus(MessageSendStatus.Failed));
     }
@@ -144,9 +140,9 @@ public class MessageSendRig {
                 }).firstElement().ignoreElement());
             }
             emitter.onSuccess(completables);
-        }).flatMapCompletable(Completable::merge).doOnComplete(() -> {
+        }).subscribeOn(RX.quick()).flatMapCompletable(Completable::merge).doOnComplete(() -> {
             message.setMessageStatus(MessageSendStatus.DidUpload);
-        }).subscribeOn(Schedulers.io());
+        });
     }
 
 }

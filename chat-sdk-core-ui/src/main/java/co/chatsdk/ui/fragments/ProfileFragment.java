@@ -68,8 +68,8 @@ public class ProfileFragment extends BaseFragment {
     @BindView(R2.id.avatarContainerLayout) protected RelativeLayout avatarContainerLayout;
     @BindView(R2.id.root) protected CoordinatorLayout root;
 
-    protected @LayoutRes
-    int getLayout() {
+    @Override
+    protected @LayoutRes int getLayout() {
         return R.layout.fragment_profile;
     }
 

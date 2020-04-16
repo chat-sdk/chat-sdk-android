@@ -80,6 +80,11 @@ public class EditProfileActivity extends BaseActivity {
     protected String avatarImageURL = null;
     protected String headerImageURL = null;
 
+    protected @LayoutRes
+    int getLayout() {
+        return R.layout.activity_edit_profile;
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,11 +111,6 @@ public class EditProfileActivity extends BaseActivity {
                 }));
 
         initViews();
-    }
-
-    protected @LayoutRes
-    int getLayout() {
-        return R.layout.activity_edit_profile;
     }
 
     protected void initViews() {

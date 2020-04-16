@@ -53,6 +53,11 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
     @BindView(R2.id.root) protected LinearLayout root;
 
     @Override
+    protected @LayoutRes int getLayout() {
+        return R.layout.activity_profile_pictures;
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -79,12 +84,6 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
         setActionBarTitle(R.string.profile);
         initViews();
 
-    }
-
-    @Override
-    protected @LayoutRes
-    int getLayout() {
-        return R.layout.activity_profile_pictures;
     }
 
     @Override
