@@ -19,6 +19,13 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     public ThreadHolder(Thread thread) {
         this.thread = thread;
+        update();
+    }
+
+    public void update() {
+        getUnreadCount();
+        getLastMessage();
+        getUsers();
     }
 
     @Override

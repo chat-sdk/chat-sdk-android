@@ -36,7 +36,7 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.module.DefaultUIModule;
 import io.reactivex.Completable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 
 
 /**
@@ -181,7 +181,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         showProgressDialog(getString(R.string.connecting));
 
         dm.add(ChatSDK.auth().authenticate(details)
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .doFinally(() -> {
                     authenticating = false;
                 })
@@ -274,7 +274,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         builder.setPositiveButton(getString(R.string.submit), (dialog, which) -> {
             showOrUpdateProgressDialog(getString(R.string.requesting));
-            dm.add(requestNewPassword(input.getText().toString()).observeOn(AndroidSchedulers.mainThread()).subscribe(() -> {
+            dm.add(requestNewPassword(input.getText().toString()).observeOn(RX.main()).subscribe(() -> {
                 dismissProgressDialog();
                 showToast(getString(R.string.password_reset_success));
             }, throwable -> {

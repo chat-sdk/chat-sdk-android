@@ -38,7 +38,7 @@ import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.utils.ImagePickerUploader;
 import co.chatsdk.ui.utils.ThreadImageBuilder;
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import io.reactivex.functions.BiConsumer;
 import sdk.chat.core.utils.StringChecker;
 
@@ -181,11 +181,11 @@ public class EditThreadActivity extends BaseActivity {
             // If we aren't adding users then this is a public thread
             if (users.isEmpty()) {
                 dm.add(ChatSDK.publicThread().createPublicThreadWithName(threadName, null, null, threadImageURL)
-                        .observeOn(AndroidSchedulers.mainThread())
+                        .observeOn(RX.main())
                         .subscribe(consumer));
             } else {
                 dm.add(ChatSDK.thread().createThread(threadName, users, ThreadType.PrivateGroup, null, threadImageURL)
-                        .observeOn(AndroidSchedulers.mainThread())
+                        .observeOn(RX.main())
                         .subscribe(consumer));
             }
         } else {

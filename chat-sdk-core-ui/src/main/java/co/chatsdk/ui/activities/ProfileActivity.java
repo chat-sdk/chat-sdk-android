@@ -4,12 +4,14 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.fragments.ProfileFragment;
 import co.chatsdk.ui.utils.ToastHelper;
+import sdk.guru.common.RX;
 
 /**
  * Created by ben on 8/23/17.
@@ -31,16 +33,25 @@ public class ProfileActivity extends BaseActivity {
         String userEntityID = getIntent().getStringExtra(Keys.IntentKeyUserEntityID);
 
         if (userEntityID != null && !userEntityID.isEmpty()) {
-            user =  ChatSDK.db().fetchUserWithEntityID(userEntityID);
-            if (user != null) {
-                ProfileFragment fragment = (ProfileFragment) getSupportFragmentManager().findFragmentById(R.id.profileFragment);
-                fragment.setUser(user);
-                return;
-            }
+            ChatSDK.db().fetchUserWithEntityIDAsync(userEntityID).observeOn(RX.main()).doOnSuccess(user -> {
+                if (user != null) {
+                    ProfileFragment fragment = (ProfileFragment) getSupportFragmentManager().findFragmentById(R.id.profileFragment);
+                    fragment.setUser(user);
+                } else {
+                    ToastHelper.show(this, R.string.user_entity_id_not_set);
+                    finish();
+                }
+            }).ignoreElement().subscribe(this);
+
+//            user =  ChatSDK.db().fetchUserWithEntityID(userEntityID);
+//            if (user != null) {
+//                ProfileFragment fragment = (ProfileFragment) getSupportFragmentManager().findFragmentById(R.id.profileFragment);
+//                fragment.setUser(user);
+//                return;
+//            }
         }
 
-        ToastHelper.show(this, R.string.user_entity_id_not_set);
-        finish();
+//        finish();
 
     }
 

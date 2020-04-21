@@ -1,9 +1,10 @@
 package sdk.chat.core.handlers;
 
+import io.reactivex.Completable;
 import sdk.chat.core.dao.Message;
 
 public interface EncryptionHandler {
 
-    void encrypt (Message message);
-    void decrypt (Message message);
+    Completable encrypt (Message message);
+    Completable decrypt (Message message);
 }

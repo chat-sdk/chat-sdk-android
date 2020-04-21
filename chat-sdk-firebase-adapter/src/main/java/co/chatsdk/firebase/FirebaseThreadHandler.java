@@ -11,9 +11,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.firebase.moderation.Permission;
+import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.utils.FirebaseRX;
+import io.reactivex.CompletableSource;
 import sdk.chat.core.base.AbstractThreadHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
@@ -76,7 +79,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 });
             }
             return Single.just(localMessages);
-        });
+        }).subscribeOn(RX.db());
     }
 
     /**
@@ -130,14 +133,16 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 }
             }
             emitter.onSuccess(updateWriter);
-        }).flatMap((Function<FirebaseUpdateWriter, SingleSource<?>>) FirebaseUpdateWriter::execute)
+        }).subscribeOn(RX.db()).flatMap((Function<FirebaseUpdateWriter, SingleSource<?>>) FirebaseUpdateWriter::execute)
                 .ignoreElement()
                 .doOnComplete(() -> {
-            FirebaseEntity.pushThreadUsersUpdated(thread.getEntityID()).subscribe(ChatSDK.events());
-            for (User u : users) {
-                FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe(ChatSDK.events());
-            }
-        }).subscribeOn(RX.io());
+                    if (FirebaseModule.config().enableWebCompatibility) {
+                        FirebaseEntity.pushThreadUsersUpdated(thread.getEntityID()).subscribe(ChatSDK.events());
+                        for (User u : users) {
+                            FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe(ChatSDK.events());
+                        }
+                    }
+        });
     }
 
     public Completable mute(Thread thread) {
@@ -258,14 +263,13 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             // Save the thread to the database.
             e.onSuccess(new ThreadPusher(thread, true));
 
-        }).flatMap((Function<ThreadPusher, SingleSource<Thread>>) ThreadPusher::push)
-                .subscribeOn(RX.io());
+        }).subscribeOn(RX.db()).flatMap(ThreadPusher::push);
     }
 
     public Completable deleteThread(Thread thread) {
         return Completable.defer(() -> {
             return new ThreadWrapper(thread).deleteThread();
-        }).subscribeOn(RX.io());
+        });
     }
 
     protected void pushForMessage(final Message message) {
@@ -294,6 +298,10 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean canChangeRole(Thread thread, User user) {
+        if (!ChatSDK.config().rolesEnabled || !thread.typeIs(ThreadType.PrivateGroup)) {
+            return false;
+        }
+
         String myRole = thread.getPermission(ChatSDK.currentUserID());
         String role = thread.getPermission(user.getEntityID());
 
@@ -314,9 +322,11 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable setRole(String role, Thread thread, User user) {
-        role = Permission.fromLocalized(role);
-        return new ThreadWrapper(thread).setPermission(user.getEntityID(), role);
+    public Completable setRole(final String role, Thread thread, User user) {
+        return Completable.defer(() -> {
+//            role = Permission.fromLocalized(role);
+            return new ThreadWrapper(thread).setPermission(user.getEntityID(), role);
+        });
     }
 
     @Override
@@ -372,8 +382,9 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean isModerator(Thread thread, User user) {
-        String role = thread.getPermission(user.getEntityID());
-        return Permission.isOr(role, Permission.Owner, Permission.Admin);
+        return false;
+//        String role = thread.getPermission(user.getEntityID());
+//        return Permission.isOr(role, Permission.Owner, Permission.Admin);
     }
 
 }

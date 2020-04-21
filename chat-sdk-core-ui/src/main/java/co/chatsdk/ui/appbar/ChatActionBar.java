@@ -14,13 +14,22 @@ import com.google.android.material.appbar.AppBarLayout;
 
 import org.ocpsoft.prettytime.PrettyTime;
 
+import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.Callable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.core.utils.Strings;
 import co.chatsdk.ui.R;
@@ -29,8 +38,9 @@ import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.utils.ThreadImageBuilder;
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import io.reactivex.disposables.Disposable;
+import sdk.guru.common.RX;
 
 public class ChatActionBar extends AppBarLayout {
 
@@ -42,7 +52,7 @@ public class ChatActionBar extends AppBarLayout {
     @BindView(R2.id.toolbar) protected Toolbar toolbar;
     @BindView(R2.id.appBarLayout) protected AppBarLayout appBarLayout;
 
-    protected Disposable lastOnlineDisposable;
+    final PrettyTime pt = new PrettyTime(CurrentLocale.get());
 
     public ChatActionBar(Context context) {
         super(context);
@@ -86,41 +96,35 @@ public class ChatActionBar extends AppBarLayout {
         this.onClickListener = onClickListener;
     }
 
-    public void setSubtitleText(Thread thread, String text) {
+    public void setSubtitleText(Thread thread, final String text) {
         if (StringChecker.isNullOrEmpty(text)) {
-            if (thread.typeIs(ThreadType.Private1to1)) {
-                if (thread.otherUser() != null) {
-                    if (ChatSDK.lastOnline() != null) {
-                        if (lastOnlineDisposable != null) {
-                            lastOnlineDisposable.dispose();
-                        }
-                        lastOnlineDisposable = ChatSDK.lastOnline().getLastOnline(thread.otherUser())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe((date, throwable) -> {
-                                    if (throwable == null && date != null) {
-                                        Locale current = getResources().getConfiguration().locale;
-                                        PrettyTime pt = new PrettyTime(current);
-                                        if (thread.otherUser().getIsOnline()) {
-                                            subtitleTextView.setText(getContext().getString(R.string.online));
-                                        } else {
-                                            subtitleTextView.setText(String.format(getContext().getString(R.string.last_seen__), pt.format(date)));
-                                        }
-                                    }
-                                });
-                    } else {
-                        if (thread.otherUser().getIsOnline()) {
-                            text = getContext().getString(R.string.online);
+            ChatSDK.events().disposeOnLogout(Single.defer((Callable<SingleSource<String>>) () -> {
+                if (thread.typeIs(ThreadType.Private1to1)) {
+                    if (thread.otherUser() != null) {
+                        if (ChatSDK.lastOnline() != null) {
+                            return ChatSDK.lastOnline().getLastOnline(thread.otherUser()).map(date -> {
+                                if (thread.otherUser().getIsOnline()) {
+                                    return getContext().getString(R.string.online);
+                                } else {
+                                    return String.format(getContext().getString(R.string.last_seen__), pt.format(date));
+                                }
+                            });
+                        } else {
+                            if (thread.otherUser().getIsOnline()) {
+                                return Single.just(getContext().getString(R.string.online));
+                            }
                         }
                     }
+                    return Single.just(getContext().getString(R.string.tap_here_for_contact_info));
+                } else {
+                    return Single.just(thread.getUserListString());
                 }
-                if (StringChecker.isNullOrEmpty(text)) {
-                    text = getContext().getString(R.string.tap_here_for_contact_info);
-                }
-            } else {
-                text = thread.getUserListString();
-            }
+            }).subscribeOn(RX.computation()).observeOn(RX.main()).subscribe(output -> {
+                subtitleTextView.setText(output);
+            }));
+        } else {
+            subtitleTextView.setText(text);
         }
-        subtitleTextView.setText(text);
     }
 
     public void hideText() {

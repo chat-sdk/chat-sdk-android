@@ -74,7 +74,7 @@ public interface ThreadHandler {
 
     Completable replyToMessage(Thread thread, Message message, String reply);
 
-    int getUnreadMessagesAmount(boolean onePerThread);
+    Single<Integer> getUnreadMessagesAmount(boolean onePerThread);
 
     // TODO: Consider making this a PThread for consistency
     /**

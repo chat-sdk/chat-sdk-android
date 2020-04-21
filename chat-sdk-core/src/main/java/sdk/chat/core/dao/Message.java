@@ -25,7 +25,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.base.AbstractEntity;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
@@ -122,22 +126,16 @@ public class Message extends AbstractEntity {
         return false;
     }
 
+    public Single<Boolean> isReadAsync() {
+        return MessageAsync.isRead(this);
+    }
+
     public void markReadIfNecessary() {
-        if (!isRead()) {
-            markRead();
-        }
+        MessageAsync.markReadIfNecessaryAsync(this);
     }
 
     public void markRead() {
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (ChatSDK.readReceipts() != null) {
-                    ChatSDK.readReceipts().markRead(Message.this);
-                }
-                setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new DateTime());
-            }
-        });
+        MessageAsync.markRead(this);
     }
 
     public boolean isDelivered () {
@@ -154,14 +152,7 @@ public class Message extends AbstractEntity {
     }
 
     public void markDelivered() {
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (!isRead()) {
-                    setUserReadStatus(ChatSDK.currentUser(), ReadStatus.delivered(), new DateTime());
-                }
-            }
-        });
+        MessageAsync.markDelivered(this);
     }
 
     @Override

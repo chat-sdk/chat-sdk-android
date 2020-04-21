@@ -1,38 +1,20 @@
 package sdk.chat.custom;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 
-import org.reactivestreams.Publisher;
-
-import java.io.File;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Maybe;
-import io.reactivex.MaybeEmitter;
 import io.reactivex.MaybeOnSubscribe;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.Nullable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import sdk.chat.core.image.ImageUploadResult;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.FileUploadResult;
 import sdk.guru.common.RX;
 
 public class EmptyActivity extends Activity {
@@ -58,7 +40,7 @@ public class EmptyActivity extends Activity {
 //            public SingleSource<?> apply(Object o) throws Exception {
 //                return c();
 //            }
-//        }).ignoreElement().andThen(d()).observeOn(AndroidSchedulers.mainThread()).subscribe(o -> {
+//        }).ignoreElement().andThen(d()).observeOn(RX.main()).subscribe(o -> {
 //            System.out.println(">>>>>>>>> finish :" + Thread.currentThread().getName());
 //        });
 
@@ -73,7 +55,7 @@ public class EmptyActivity extends Activity {
             return Observable.create((ObservableOnSubscribe<String>) emitter -> {
                 System.out.println(">>>>>>>>> b :" + Thread.currentThread().getName());
                 emitter.onNext("A");
-            }).subscribeOn(RX.firebase());
+            }).subscribeOn(RX.pool());
         }).flatMapMaybe(fileUploadResult -> {
             System.out.println(">>>>>>>>> c :" + Thread.currentThread().getName());
             return Maybe.create((MaybeOnSubscribe<String>) emitter -> {

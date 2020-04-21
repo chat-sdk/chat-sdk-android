@@ -17,7 +17,7 @@ import io.reactivex.ObservableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import io.reactivex.functions.Function;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.rx.ObservableConnector;
@@ -34,6 +34,7 @@ public class ContactBookManager {
 
     public static Single<List<ContactBookUser>> getContactList(Context context) {
         return Single.create((SingleOnSubscribe<List<ContactBookUser>>) emitter -> {
+            Logger.debug("Get contact list");
 
             ContentResolver resolver = context.getContentResolver();
             Cursor cursor = resolver.query(
@@ -68,7 +69,7 @@ public class ContactBookManager {
 
             emitter.onSuccess(users);
 
-        }).subscribeOn(RX.computation()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(RX.computation());
     }
 
     private static void addNamesToUser (ContentResolver resolver, String id, ContactBookUser user) {
@@ -125,6 +126,7 @@ public class ContactBookManager {
     public static Observable<SearchResult> searchServer(final List<ContactBookUser> contactBookUsers) {
         return Observable.defer(() -> {
             ArrayList<Observable<SearchResult>> observables = new ArrayList<>();
+            Logger.debug("Search from contacts");
 
             // Loop over all the contacts and then each search index
             for(int i = 0; i < contactBookUsers.size(); i++) {
@@ -143,7 +145,7 @@ public class ContactBookManager {
             }
 
             return Observable.merge(observables);
-        }).subscribeOn(RX.io());
+        }).subscribeOn(RX.computation());
     }
 
     public static Observable<SearchResult> searchServer(Context context) {

@@ -13,7 +13,7 @@ import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.module.DefaultUIModule;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 
 public class CreateThreadActivity extends SelectContactActivity {
 
@@ -55,7 +55,7 @@ public class CreateThreadActivity extends SelectContactActivity {
     protected void createAndOpenThread (String name, List<UserListItem> users) {
         dm.add(ChatSDK.thread()
                 .createThread(name, User.convertIfPossible(users))
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .subscribe(thread -> {
                     ChatSDK.ui().startChatActivityForID(this, thread.getEntityID());
                     finish();

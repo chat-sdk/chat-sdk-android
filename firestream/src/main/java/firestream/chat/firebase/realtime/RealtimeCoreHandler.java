@@ -97,7 +97,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
             }
 
             emitter.onSuccess(query);
-        }).subscribeOn(RX.io()).flatMap(query -> new RXRealtime().get(query)).map(optional -> {
+        }).flatMap(query -> new RXRealtime().get(query)).map(optional -> {
             ArrayList<Sendable> sendables = new ArrayList<>();
             if (!optional.isEmpty()) {
                 DataSnapshot snapshot = optional.get();
@@ -124,7 +124,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
             query = query.limitToLast(1);
 
             emitter.onSuccess(query);
-        }).subscribeOn(RX.io()).flatMap(query -> new RXRealtime().get(query).map(snapshot -> {
+        }).flatMap(query -> new RXRealtime().get(query).map(snapshot -> {
             if (!snapshot.isEmpty()) {
                 Sendable sendable = sendableFromSnapshot(snapshot.get());
                 if (sendable.getDate() != null) {
@@ -170,7 +170,7 @@ public class RealtimeCoreHandler extends FirebaseCoreHandler {
             }
             query = query.limitToLast(limit);
             emitter.onSuccess(query);
-        }).subscribeOn(RX.io()).flatMapObservable(query -> new RXRealtime().childOn(query).flatMapMaybe(change -> {
+        }).flatMapObservable(query -> new RXRealtime().childOn(query).flatMapMaybe(change -> {
             Sendable sendable = sendableFromSnapshot(change.getSnapshot());
             if (sendable != null) {
                 return Maybe.just(new Event<>(sendable, change.getType()));

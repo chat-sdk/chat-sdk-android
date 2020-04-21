@@ -4,6 +4,7 @@ import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.AccountDetails;
+import sdk.guru.common.RX;
 
 public class AuthExamples extends BaseExample {
 
@@ -26,7 +27,7 @@ public class AuthExamples extends BaseExample {
         ChatSDK.auth().isAuthenticatedThisSession();
 
         // Logout
-        dm.add(ChatSDK.auth().logout().subscribe(() -> {
+        dm.add(ChatSDK.auth().logout().observeOn(RX.main()).subscribe(() -> {
             // Handle completion
         }, this));
 

@@ -25,6 +25,7 @@ import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import sdk.guru.common.EventType;
+import sdk.guru.common.RX;
 import sdk.guru.realtime.RealtimeEventListener;
 import sdk.guru.realtime.RealtimeReferenceManager;
 import sdk.guru.realtime.RXRealtime;

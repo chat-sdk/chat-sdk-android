@@ -12,6 +12,8 @@ import android.widget.Toast;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,7 +37,7 @@ import co.chatsdk.ui.adapters.UsersListAdapter;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import sdk.guru.common.RX;
 import sdk.chat.core.utils.StringChecker;
 
@@ -58,11 +60,6 @@ public class ContactBookSearchActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         initViews();
         setActionBarTitle(R.string.add_user_from_contacts);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
 
         adapter = new UsersListAdapter(null, false, user -> {
             if (user.getEntityID() != null) {
@@ -78,12 +75,14 @@ public class ContactBookSearchActivity extends BaseActivity {
         recyclerView.setDrawingCacheEnabled(true);
         recyclerView.setItemViewCacheSize(30);
 
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setMessage(getString(R.string.searching));
-        dialog.show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         // Clear the list of users
-        adapter.clear();
+//        adapter.clear();
 
         // TODO: Invite user
 
@@ -93,7 +92,7 @@ public class ContactBookSearchActivity extends BaseActivity {
             } else {
                 User user = ChatSDK.core().getUserNowForEntityID(item.getEntityID());
                 ChatSDK.contact().addContact(user, ConnectionType.Contact)
-                        .observeOn(AndroidSchedulers.mainThread())
+                        .observeOn(RX.main())
                         .doOnComplete(() -> {
                             showToast(R.string.contact_added);
                             adapter.getItems().remove(item);
@@ -104,15 +103,16 @@ public class ContactBookSearchActivity extends BaseActivity {
         }));
 
         hideKeyboard();
-        dialog.dismiss();
 
-        loadUsersFromContactBook().observeOn(AndroidSchedulers.mainThread()).flatMapCompletable(contactBookUsers -> {
-            return ContactBookManager.searchServer(contactBookUsers).observeOn(AndroidSchedulers.mainThread()).doOnNext(value -> {
-                sortList();
-            }).ignoreElements();
-        }).subscribe(this);
-
-        dialog.setOnCancelListener(dialog1 -> dm.dispose());
+        if (adapter.getItems().isEmpty()) {
+            dm.add(loadUsersFromContactBook().doOnError(throwable -> finish())
+                    .subscribe(contactBookUsers -> {
+                        ContactBookManager.searchServer(contactBookUsers).observeOn(RX.computation()).doOnNext(value -> {
+                            Logger.debug("Sort list");
+                            sortList();
+                        }).subscribe();
+                    }));
+        }
 
     }
 
@@ -130,7 +130,7 @@ public class ContactBookSearchActivity extends BaseActivity {
             }
             return result;
         });
-        adapter.notifyDataSetChanged();
+        RX.main().scheduleDirect(() -> adapter.notifyDataSetChanged());
     }
 
     private void sendEmail(String emailAddress, String subject, String body) {
@@ -189,28 +189,35 @@ public class ContactBookSearchActivity extends BaseActivity {
     }
 
     private Single<List<ContactBookUser>> loadUsersFromContactBook() {
-        return PermissionRequestHandler.requestReadContact(ContactBookSearchActivity.this).andThen(Single.defer((Callable<SingleSource<List<ContactBookUser>>>) () -> {
-            return ContactBookManager.getContactList(getApplicationContext()).map(contactBookUsers -> {
-                List<User> contacts = ChatSDK.contact().contacts();
+        return PermissionRequestHandler.requestReadContact(this)
+                .andThen(ContactBookManager.getContactList(getApplicationContext())
+                        .map(contactBookUsers -> {
+                        List<User> contacts = ChatSDK.contact().contacts();
 
-                for (ContactBookUser u : contactBookUsers) {
-                    // Check to see if this user is already in our contacts
-                    boolean exists = false;
-                    for (User user: contacts) {
-                        if (u.isUser(user)) {
-                            exists = true;
-                            break;
+                        final List<ContactBookUser> toAdd = new ArrayList<>();
+
+                        for (ContactBookUser u : contactBookUsers) {
+                            // Check to see if this user is already in our contacts
+                            boolean exists = false;
+                            for (User user: contacts) {
+                                if (u.isUser(user)) {
+                                    exists = true;
+                                    break;
+                                }
+                            }
+                            if (!exists) {
+                                toAdd.add(u);
+                            }
                         }
-                    }
-                    if (!exists) {
-                        adapter.addUser(u);
-                    }
-                }
-                adapter.notifyDataSetChanged();
 
-                return contactBookUsers;
-            });
-        })).subscribeOn(RX.io());
+                        RX.main().scheduleDirect(() -> {
+                            for (ContactBookUser u: toAdd) {
+                                adapter.addUser(u);
+                            }
+                            adapter.notifyDataSetChanged();
+                        });
+
+                        return contactBookUsers;
+                    }).subscribeOn(RX.computation()));
     }
-
 }

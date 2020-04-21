@@ -36,7 +36,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public Completable pushUser() {
-        return Completable.defer(() -> new UserWrapper(ChatSDK.currentUser()).push()).subscribeOn(RX.io());
+        return Completable.defer(() -> new UserWrapper(ChatSDK.currentUser()).push());
     }
 
     public Completable setUserOnline() {
@@ -52,7 +52,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             if (ChatSDK.hook() != null) {
                 ChatSDK.hook().executeHook(HookEvent.UserDidConnect, null).subscribe(ChatSDK.events());
             }
-        }).subscribeOn(RX.io());
+        }).subscribeOn(RX.db());
     }
 
     public Completable setUserOffline() {
@@ -73,7 +73,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                 }
             }
             return Completable.complete();
-        }).subscribeOn(RX.io());
+        });
     }
 
     public void goOffline() {
@@ -99,7 +99,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
                 return ChatSDK.lastOnline().setLastOnline(currentUser());
             }
             return Completable.complete();
-        }).subscribeOn(RX.io());
+        });
     }
 
     public Completable userOn(final User user) {
@@ -119,7 +119,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         return Single.defer(() -> {
             final User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, entityID);
             return userOn(user).toSingle(() -> user);
-        });
+        }).subscribeOn(RX.db());
     }
 
     @Override

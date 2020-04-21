@@ -9,19 +9,32 @@ import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.Base64;
 
+import org.pmw.tinylog.Logger;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.CompletableSource;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.handlers.EncryptionHandler;
+import sdk.chat.core.hook.AsyncExecutor;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.ThreadType;
@@ -30,8 +43,11 @@ import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
 import io.reactivex.Completable;
 import io.reactivex.disposables.Disposable;
+import sdk.guru.common.DisposableMap;
+import sdk.guru.common.RX;
 
 import static sdk.chat.core.session.ChatSDK.currentUser;
+import static sdk.chat.core.session.ChatSDK.readReceipts;
 
 public class BaseEncryptionHandler implements EncryptionHandler {
 
@@ -41,6 +57,8 @@ public class BaseEncryptionHandler implements EncryptionHandler {
     public static String PublicKeys = "public-keys";
     public final VirgilCrypto virgilCrypto = new VirgilCrypto();
     public static String EncryptedMessageKey = "encrypted-message";
+
+    protected DisposableMap dm = new DisposableMap();
 
     // Public chat encryption enabled
 
@@ -63,46 +81,42 @@ public class BaseEncryptionHandler implements EncryptionHandler {
 //            e.printStackTrace();
 //        }
 
-        Hook decryptionHook = Hook.sync(data -> {
-            Object message = data.get(HookEvent.Message);
-            if (message instanceof Message) {
-                System.out.println("Message: " + ((Message) message).getText());
-                decrypt((Message) message);
+        Hook decryptionHook = Hook.async(data -> {
+            Object messageObject = data.get(HookEvent.Message);
+            if (messageObject instanceof Message) {
+                Message message = (Message) messageObject;
+                Logger.debug("Decrypt Message: " + message.getText());
+                return decrypt(message);
             }
+            return Completable.complete();
         });
         ChatSDK.hook().addHook(decryptionHook, HookEvent.MessageReceived);
 
-        Disposable d = ChatSDK.events().source().filter(NetworkEvent.
-                filterType(EventType.MessageSendStatusUpdated)).subscribe(networkEvent -> {
-                    MessageSendProgress progress = networkEvent.getMessageSendProgress();
-                    if (progress.getStatus() == MessageSendStatus.WillSend) {
-                        encrypt(networkEvent.getMessage());
-                    }
-                });
+        Hook encryptHook = Hook.async(data -> {
+            Object messageObject = data.get(HookEvent.Message);
+            if (messageObject instanceof Message) {
+                Message message = (Message) messageObject;
+                Logger.debug("Encrypt Message: " + message.getText());
+                return encrypt(message);
+            }
+            return Completable.complete();
+        });
+        ChatSDK.hook().addHook(encryptHook, HookEvent.MessageWillSend);
 
         Hook auth = Hook.async(data -> {
-            return Completable.create(emitter -> {
-                // This code will run here, when the user is logged in
-                // Must upload the user's public key to the user'r profile
-                User currentUser = currentUser();
-
-                try {
-                    VirgilKeyPair keyPair = getKeys(currentUser.getEntityID());
-                    byte [] identifierBytes = keyPair.getPublicKey().getIdentifier();
-                    String identifierString = Base64.encode(identifierBytes);
-                    String identifierEncoded = URLEncoder.encode(identifierString, "UTF-8");
-                    VirgilPublicKey publicKey = keyPair.getPublicKey();
-                    byte [] publicKeyBytes = virgilCrypto.exportPublicKey(publicKey);
-                    String encodedPublicKey = Base64.encode(publicKeyBytes);
-                    currentUser().setMetaString(PublicKeys + "/" + identifierEncoded, encodedPublicKey);
-                    ChatSDK.core().pushUser().subscribe(ChatSDK.events());
-                    emitter.onComplete();
-                }
-                catch (Exception e) {
-                    emitter.onError(e);
-                }
-            });
+            return getKeys(ChatSDK.currentUserID()).flatMapCompletable(keyPair -> {
+                byte [] identifierBytes = keyPair.getPublicKey().getIdentifier();
+                String identifierString = Base64.encode(identifierBytes);
+                String identifierEncoded = URLEncoder.encode(identifierString, "UTF-8");
+                VirgilPublicKey publicKey = keyPair.getPublicKey();
+                byte [] publicKeyBytes = virgilCrypto.exportPublicKey(publicKey);
+                String encodedPublicKey = Base64.encode(publicKeyBytes);
+                currentUser().setMetaString(PublicKeys + "/" + identifierEncoded, encodedPublicKey);
+                ChatSDK.core().pushUser().subscribe(ChatSDK.events());
+                return Completable.complete();
+            }).subscribeOn(RX.computation());
         });
+
         ChatSDK.hook().addHook(auth, HookEvent.DidAuthenticate);
 
     }
@@ -110,68 +124,68 @@ public class BaseEncryptionHandler implements EncryptionHandler {
     //Checking if the key was saved before. If so, the key is retrieved. If not, the key is generated and stored.
 
 
-    public VirgilKeyPair getKeys(String entityID) throws Exception {
+    public Single<VirgilKeyPair> getKeys(String entityID) {
+        return Single.create((SingleOnSubscribe<VirgilKeyPair>) emitter -> {
+            // We can have multiple private keys because we can have multiple users on one device
+            // Append the users entity iD to the private key key
 
-        // We can have multiple private keys because we can have multiple users on one device
-        // Append the users entity iD to the private key key
+            String privateKeyString = ChatSDK.shared().getPreferences().getString(MyPrivateKey + entityID, null);
+            String publicKeyString = ChatSDK.shared().getPreferences().getString(MyPublicKey + entityID, null);
 
-        String privateKeyString = ChatSDK.shared().getPreferences().getString(MyPrivateKey + entityID, null);
-        String publicKeyString = ChatSDK.shared().getPreferences().getString(MyPublicKey + entityID, null);
+            VirgilKeyPair keyPair;
 
-        VirgilKeyPair keyPair;
+            if (privateKeyString == null || privateKeyString.isEmpty() || publicKeyString == null || publicKeyString.isEmpty()) {
 
-        if (privateKeyString == null || privateKeyString.isEmpty() || publicKeyString == null || publicKeyString.isEmpty()) {
+                keyPair = virgilCrypto.generateKeys();
+                VirgilPublicKey publicKey = keyPair.getPublicKey();
+                VirgilPrivateKey privateKey = keyPair.getPrivateKey();
 
-            keyPair = virgilCrypto.generateKeys();
-            VirgilPublicKey publicKey = keyPair.getPublicKey();
-            VirgilPrivateKey privateKey = keyPair.getPrivateKey();
+                byte [] privateKeyBytes = virgilCrypto.exportPrivateKey(privateKey);
+                privateKeyString = Base64.encode(privateKeyBytes);
+                byte [] publicKeyBytes = virgilCrypto.exportPublicKey(publicKey);
+                publicKeyString = Base64.encode(publicKeyBytes);
 
-            byte [] privateKeyBytes = virgilCrypto.exportPrivateKey(privateKey);
-            privateKeyString = Base64.encode(privateKeyBytes);
-            byte [] publicKeyBytes = virgilCrypto.exportPublicKey(publicKey);
-            publicKeyString = Base64.encode(publicKeyBytes);
+                ChatSDK.shared().getPreferences().edit().putString(MyPrivateKey + entityID, privateKeyString).apply();
+                ChatSDK.shared().getPreferences().edit().putString(MyPublicKey + entityID, publicKeyString).apply();
 
-            ChatSDK.shared().getPreferences().edit().putString(MyPrivateKey + entityID, privateKeyString).apply();
-            ChatSDK.shared().getPreferences().edit().putString(MyPublicKey + entityID, publicKeyString).apply();
+            }
+            else {
 
-        }
-        else {
+                byte [] privateKeyBytes = Base64.decode(privateKeyString);
+                byte [] publicKeyBytes = Base64.decode(publicKeyString);
 
-            byte [] privateKeyBytes = Base64.decode(privateKeyString);
-            byte [] publicKeyBytes = Base64.decode(publicKeyString);
+                VirgilPrivateKey privateKey = virgilCrypto.importPrivateKey(privateKeyBytes);
+                VirgilPublicKey publicKey = virgilCrypto.importPublicKey(publicKeyBytes);
+                keyPair = new VirgilKeyPair(publicKey, privateKey);
+            }
 
-            VirgilPrivateKey privateKey = virgilCrypto.importPrivateKey(privateKeyBytes);
-            VirgilPublicKey publicKey = virgilCrypto.importPublicKey(publicKeyBytes);
-            keyPair = new VirgilKeyPair(publicKey, privateKey);
-        }
-
-        return keyPair;
+            emitter.onSuccess(keyPair);
+        }).subscribeOn(RX.computation());
     }
 
     // Here is where we actually encrypt and decrypt the messages;
 
     @Override
-    public void encrypt(Message message) {
-        try {
-            List<VirgilPublicKey> publicKeyList = extractPublicKeys(message);
-            if (publicKeyList.size() > 0) {
-                // Get the message meta data as bytes
-                byte [] metaData = mapToBytes(message.getMetaValuesAsMap());
+    public Completable encrypt(Message message) {
+        return extractPublicKeys(message).flatMapCompletable(new Function<List<VirgilPublicKey>, CompletableSource>() {
+            @Override
+            public CompletableSource apply(List<VirgilPublicKey> publicKeyList) throws Exception {
+                if (publicKeyList.size() > 0) {
+                    // Get the message meta data as bytes
+                    byte[] metaData = mapToBytes(message.getMetaValuesAsMap());
 
-                byte [] encryptedMessage = virgilCrypto.encrypt(metaData, publicKeyList);
-                String encryptedMessageString = Base64.encode(encryptedMessage);
+                    byte[] encryptedMessage = virgilCrypto.encrypt(metaData, publicKeyList);
+                    String encryptedMessageString = Base64.encode(encryptedMessage);
 
-                HashMap<String, Object> newMessageMeta = new HashMap<>();
-                newMessageMeta.put(Keys.MessageText, ChatSDK.shared().context().getString(R.string.encrypted_message));
-                newMessageMeta.put(EncryptedMessageKey, encryptedMessageString);
+                    HashMap<String, Object> newMessageMeta = new HashMap<>();
+                    newMessageMeta.put(Keys.MessageText, ChatSDK.shared().context().getString(R.string.encrypted_message));
+                    newMessageMeta.put(EncryptedMessageKey, encryptedMessageString);
 
-                message.setMetaValues(newMessageMeta);
+                    message.setMetaValues(newMessageMeta);
+                }
+                return Completable.complete();
             }
-        }
-        catch (Exception e) {
-            // What do we do if there are no public keys? Create an error message on the screen
-            e.printStackTrace();
-        }
+        }).subscribeOn(RX.computation());
     }
 
     protected byte [] mapToBytes(Map<String, Object> map) throws IOException {
@@ -186,79 +200,84 @@ public class BaseEncryptionHandler implements EncryptionHandler {
         return gson.fromJson(json, new TypeToken<HashMap<String, Object>>(){}.getType());
     }
 
-    protected List<VirgilPublicKey> extractPublicKeys (Message message) throws CryptoException {
-        List<VirgilPublicKey> publicKeyList = new ArrayList<>();
+    protected Single<List<VirgilPublicKey>> extractPublicKeys (Message message) {
+        return Single.create((SingleOnSubscribe<List<VirgilPublicKey>>) emitter -> {
+            List<VirgilPublicKey> publicKeyList = new ArrayList<>();
 
-        if (message.getThread().typeIs(ThreadType.Public)) {
-            Object commonPublicKeyObject = ChatSDK.config().getRemoteConfigValue("public-key");
-            if (commonPublicKeyObject instanceof String) {
-                String commonPublicKey = (String) commonPublicKeyObject;
-                if (!commonPublicKey.isEmpty()) {
-                    byte[] keyBytes = Base64.decode(commonPublicKey);
-                    VirgilPublicKey virgilPublicKey = virgilCrypto.importPublicKey(keyBytes);
-                    publicKeyList.add(virgilPublicKey);
+            if (message.getThread().typeIs(ThreadType.Public)) {
+                Object commonPublicKeyObject = ChatSDK.config().getRemoteConfigValue("public-key");
+                if (commonPublicKeyObject instanceof String) {
+                    String commonPublicKey = (String) commonPublicKeyObject;
+                    if (!commonPublicKey.isEmpty()) {
+                        byte[] keyBytes = Base64.decode(commonPublicKey);
+                        VirgilPublicKey virgilPublicKey = virgilCrypto.importPublicKey(keyBytes);
+                        publicKeyList.add(virgilPublicKey);
+                    }
                 }
-            }
-        } else {
-            List<User> users = message.getThread().getUsers();
-            for (User u : users) {
-                // Loop over meta values and see if any key matches your pattern like "public-key"
-                // Key could look like public-key-[identifier]
-                Map<String, String> meta = u.metaMap();
+            } else {
+                List<User> users = message.getThread().getUsers();
+                for (User u : users) {
+                    // Loop over meta values and see if any key matches your pattern like "public-key"
+                    // Key could look like public-key-[identifier]
+                    Map<String, String> meta = u.metaMap();
 
-                for (String key : meta.keySet()) {
-                    if (key.contains(PublicKeys + "/")) {
-                        String publicKey = meta.get(key);
-                        if (publicKey != null && !publicKey.isEmpty()) {
-                            byte[] keyBytes = Base64.decode(publicKey);
-                            VirgilPublicKey virgilPublicKey = virgilCrypto.importPublicKey(keyBytes);
-                            publicKeyList.add(virgilPublicKey);
+                    for (String key : meta.keySet()) {
+                        if (key.contains(PublicKeys + "/")) {
+                            String publicKey = meta.get(key);
+                            if (publicKey != null && !publicKey.isEmpty()) {
+                                byte[] keyBytes = Base64.decode(publicKey);
+                                VirgilPublicKey virgilPublicKey = virgilCrypto.importPublicKey(keyBytes);
+                                publicKeyList.add(virgilPublicKey);
+                            }
                         }
                     }
                 }
             }
-        }
-
-        return publicKeyList;
+            emitter.onSuccess(publicKeyList);
+        }).subscribeOn(RX.computation());
     }
 
     @Override
-    public void decrypt(Message message) {
-        try {
+    public Completable decrypt(Message message) {
+        return Completable.defer(() -> {
 
             if (message.getThread() == null) {
-                return;
+                return Completable.complete();
             }
 
-            VirgilPrivateKey privateKey = null;
+            return privateKeyFor(message).flatMapCompletable(virgilPrivateKey -> {
 
+                String encryptedMessageString = message.stringForKey(EncryptedMessageKey);
+                if (!encryptedMessageString.isEmpty()) {
+                    byte [] encryptedMessageData = Base64.decode(encryptedMessageString);
+                    byte [] decryptedMessageData = virgilCrypto.decrypt(encryptedMessageData, virgilPrivateKey);
+                    HashMap<String, Object> metaData = bytesToMap(decryptedMessageData);
+                    message.setMetaValues(metaData);
+                }
+                return Completable.complete();
+            }).subscribeOn(RX.computation());
+
+        }).doOnError(throwable -> {
+            message.getThread().removeMessage(message);
+        }).subscribeOn(RX.computation());
+
+    }
+
+    protected Single<VirgilPrivateKey> privateKeyFor(final Message message) {
+        return Single.defer(() -> {
             if (message.getThread().typeIs(ThreadType.Public)) {
                 Object commonPrivateKeyObject = ChatSDK.config().getRemoteConfigValue("private-key");
                 if (commonPrivateKeyObject instanceof String) {
                     String commonPrivateKey = (String) commonPrivateKeyObject;
                     if (!commonPrivateKey.isEmpty()) {
                         byte[] keyBytes = Base64.decode(commonPrivateKey);
-                        privateKey = virgilCrypto.importPrivateKey(keyBytes);
+                        return Single.just(virgilCrypto.importPrivateKey(keyBytes));
                     }
                 }
             } else {
-                VirgilKeyPair keyPair = getKeys(ChatSDK.currentUser().getEntityID());
-                privateKey = keyPair.getPrivateKey();
+                return getKeys(ChatSDK.currentUserID()).map(VirgilKeyPair::getPrivateKey);
             }
-
-            String encryptedMessageString = message.stringForKey(EncryptedMessageKey);
-            if (!encryptedMessageString.isEmpty()) {
-                byte [] encryptedMessageData = Base64.decode(encryptedMessageString);
-                byte [] decryptedMessageData = virgilCrypto.decrypt(encryptedMessageData, privateKey);
-                HashMap<String, Object> metaData = bytesToMap(decryptedMessageData);
-
-                message.setMetaValues(metaData);
-                message.update();
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            message.getThread().removeMessage(message);
-        }
+            return Single.error(new Throwable("No private key available"));
+        }).subscribeOn(RX.computation());
     }
 }

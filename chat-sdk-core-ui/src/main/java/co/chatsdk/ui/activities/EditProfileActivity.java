@@ -45,7 +45,8 @@ import co.chatsdk.ui.utils.ImagePickerUploader;
 import co.chatsdk.ui.utils.UserImageBuilder;
 import co.chatsdk.ui.views.IconEditView;
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
+import sdk.guru.common.RX;
 
 /**
  * Created by ben on 8/14/17.
@@ -105,7 +106,7 @@ public class EditProfileActivity extends BaseActivity {
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterUserEntityID(userEntityID))
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .subscribe(networkEvent -> {
                     reloadData();
                 }));
@@ -218,7 +219,7 @@ public class EditProfileActivity extends BaseActivity {
 
     protected void logout() {
         dm.add(ChatSDK.auth().logout()
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .subscribe(() -> ChatSDK.ui().startSplashScreenActivity(this), this));
     }
 
@@ -268,7 +269,7 @@ public class EditProfileActivity extends BaseActivity {
 
             showOrUpdateProgressDialog(getString(R.string.alert_save_contact));
             dm.add(ChatSDK.core().pushUser()
-                    .observeOn(AndroidSchedulers.mainThread())
+                    .observeOn(RX.main())
                     .subscribe(() -> {
                         dismissProgressDialog();
                         finished.run();

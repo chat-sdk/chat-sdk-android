@@ -43,8 +43,9 @@ import sdk.chat.core.handlers.VideoMessageHandler;
 import sdk.chat.core.interfaces.InterfaceAdapter;
 import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.utils.AppBackgroundMonitor;
-import sdk.chat.core.utils.TimeLog;
 import io.reactivex.plugins.RxJavaPlugins;
+import sdk.guru.common.BiAction;
+import sdk.guru.common.RX;
 
 
 /**
@@ -103,8 +104,8 @@ public class ChatSDK {
     }
 
     public void activate(Context context) throws Exception {
-
         setContext(context);
+
         config = builder.config();
 
         Class<? extends BaseNetworkAdapter> networkAdapter = builder.networkAdapter;

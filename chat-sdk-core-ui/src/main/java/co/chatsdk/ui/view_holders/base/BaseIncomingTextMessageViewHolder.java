@@ -40,6 +40,7 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
 
     public BaseIncomingTextMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
+
         this.itemView = itemView;
         bindButterKnife();
 

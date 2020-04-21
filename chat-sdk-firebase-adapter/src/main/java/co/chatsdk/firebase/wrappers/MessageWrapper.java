@@ -17,9 +17,7 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
-import io.reactivex.CompletableSource;
 import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;

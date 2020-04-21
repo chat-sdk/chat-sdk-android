@@ -65,8 +65,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                 }
             }
             return authenticating;
-        }).doOnComplete(this::setAuthStateToIdle)
-                .subscribeOn(RX.io());
+        }).doOnComplete(this::setAuthStateToIdle);
     }
 
     @Override
@@ -110,8 +109,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                 });
             }
             return authenticating;
-        }).doOnComplete(this::setAuthStateToIdle)
-                .subscribeOn(RX.io());
+        }).doOnComplete(this::setAuthStateToIdle);
     }
 
     private void userAuthenticationCompletedWithJID (Jid jid) {
@@ -165,7 +163,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
             authenticatedThisSession = false;
 
             emitter.onComplete();
-        });
+        }).subscribeOn(RX.computation());
     }
 
     // TODO: Implement this

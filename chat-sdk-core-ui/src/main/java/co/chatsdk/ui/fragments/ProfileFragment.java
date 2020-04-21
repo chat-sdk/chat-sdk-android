@@ -37,7 +37,7 @@ import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.views.IconItemView;
 import co.chatsdk.ui.views.SwitchItemView;
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 
 /**
  * Created by ben on 8/15/17.
@@ -90,7 +90,7 @@ public class ProfileFragment extends BaseFragment {
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterUserEntityID(getUser().getEntityID()))
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .subscribe(networkEvent -> {
                     reloadData();
                 }));
@@ -138,7 +138,7 @@ public class ProfileFragment extends BaseFragment {
         if (getUser().isMe()) return;
 
         dm.add(ChatSDK.blocking().blockUser(getUser().getEntityID())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .subscribe(() -> {
                     showSnackbar(R.string.user_blocked);
                 }, this));
@@ -148,7 +148,7 @@ public class ProfileFragment extends BaseFragment {
         if (getUser().isMe()) return;
 
         dm.add(ChatSDK.blocking().unblockUser(getUser().getEntityID())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .subscribe(() -> {
                     showSnackbar(R.string.user_unblocked);
                 }, this));
@@ -169,7 +169,7 @@ public class ProfileFragment extends BaseFragment {
         if (getUser().isMe()) return;
 
         dm.add(ChatSDK.contact().addContact(getUser(), ConnectionType.Contact)
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .subscribe(() -> {
                     showSnackbar(R.string.contact_added);
                 }, this));
@@ -179,7 +179,7 @@ public class ProfileFragment extends BaseFragment {
         if (getUser().isMe()) return;
 
         dm.add(ChatSDK.contact().deleteContact(getUser(), ConnectionType.Contact)
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .subscribe(() -> {
                     showSnackbar(R.string.contact_deleted);
                 }, this));
@@ -307,7 +307,7 @@ public class ProfileFragment extends BaseFragment {
 
     public void startChat() {
         dm.add(ChatSDK.thread().createThread("", user, ChatSDK.currentUser())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .doFinally(() -> {
                     startingChat = false;
                 })

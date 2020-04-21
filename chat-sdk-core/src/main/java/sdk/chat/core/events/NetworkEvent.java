@@ -276,6 +276,7 @@ public class NetworkEvent {
                 EventType.MessageRemoved,
                 EventType.MessageReadReceiptUpdated,
                 EventType.UserPresenceUpdated,
+                EventType.TypingStateUpdated,
                 EventType.UserMetaUpdated // Be careful to check that the user is a member of the thread...
         );
     }

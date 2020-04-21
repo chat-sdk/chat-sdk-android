@@ -29,7 +29,7 @@ import co.chatsdk.ui.chat.MediaSelector;
 import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.utils.ImagePickerUploader;
 import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 
 /**
  * Created by Pepe on 01/12/19.
@@ -185,7 +185,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
                     }
                     updateGallery();
                     dm.add(ChatSDK.core().pushUser()
-                            .observeOn(AndroidSchedulers.mainThread())
+                            .observeOn(RX.main())
                             .subscribe(() -> {
                             }, this));
                 }

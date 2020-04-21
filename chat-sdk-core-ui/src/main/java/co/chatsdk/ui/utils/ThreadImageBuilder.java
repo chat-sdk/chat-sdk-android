@@ -29,7 +29,7 @@ import co.chatsdk.ui.icons.Icons;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import io.reactivex.disposables.Disposable;
 import sdk.guru.common.RX;
 
@@ -100,7 +100,7 @@ public class ThreadImageBuilder {
                     return Uri.fromFile(compressed);
                 });
             }
-        }).subscribeOn(RX.computation()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(RX.computation()).observeOn(RX.main());
     }
 
     public static String hashCodeForMixedUserAvatar(List<User> users, int size) {
@@ -125,7 +125,7 @@ public class ThreadImageBuilder {
                 singles.add(UserImageBuilder.getAvatarBitmap(user, size, size));
             }
             return combineBitmapSingles(singles, size);
-        }).subscribeOn(RX.quick());
+        });
     }
 
     public static Single<Bitmap> combineBitmapSingles(final List<Single<Bitmap>> singles, final int size) {

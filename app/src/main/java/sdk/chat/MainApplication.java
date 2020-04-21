@@ -10,15 +10,8 @@ import org.pmw.tinylog.Logger;
 import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.contact.ContactBookModule;
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.ObservableSource;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import sdk.guru.common.RX;
-import sdk.chat.core.session.Configure;
+import sdk.guru.common.BiAction;
 import sdk.chat.location.FirebaseNearbyUsersModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Config;
@@ -52,15 +45,17 @@ public class MainApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        try {
+            firebase();
 //        xmpp();
-        firebase();
+        } catch (Exception e) {
+
+        }
 
     }
 
-    public void setupChatSDK() {
+    public void setupChatSDK() throws Exception {
         String rootPath = "pre_2";
-
-        try {
 
             ChatSDK.builder().configure()
                     .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
@@ -74,8 +69,8 @@ public class MainApplication extends Application {
                     // Add the network adapter module
                     .addModule(
                             FirebaseModule.configure()
-                            .setFirebaseRootPath(rootPath)
-                            .build()
+                                    .setFirebaseRootPath(rootPath)
+                                    .build()
                     )
 
                     // Add the UI module
@@ -134,108 +129,87 @@ public class MainApplication extends Application {
 
 //            ChatSDK.ui().addChatOption(new MessageTestChatOption("BaseMessage Burst"));
 
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            Logger.debug("Error");
-            assert(false);
-        }
+
+
+
+    }
+
+    public void firebase() throws Exception {
+        String rootPath = "pre_2";
+
+        ChatSDK.builder().configure()
+                .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
+                .setAnonymousLoginEnabled(false)
+                .setDebugModeEnabled(true)
+                .setRemoteConfigEnabled(true)
+                .setIdenticonType(Config.IdenticonType.Gravatar)
+                .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
+                .setDisablePresence(false)
+                .setSendSystemMessageWhenRoleChanges(false)
+                .build()
+
+                // Add the network adapter module
+                .addModule(
+                        FirebaseModule.configure()
+                                .setFirebaseRootPath(rootPath)
+                                .setDisableClientProfileUpdate(false)
+                                .setEnableCompatibilityWithV4(true)
+                                .setDevelopmentModeEnabled(true)
+                                .build()
+                )
+
+                // Add the UI module
+                .addModule(DefaultUIModule.configure()
+                        .setPublicRoomCreationEnabled(true)
+                        .build()
+                )
+
+                // Add modules to handle file uploads, push notifications
+                .addModule(FirebaseFileStorageModule.shared())
+                .addModule(FirebasePushModule.shared())
+                .addModule(ProfilePicturesModule.shared())
+
+                .addModule(ContactBookModule.shared())
+//                    .addModule(EncryptionModule.shared())
+                .addModule(FileMessageModule.shared())
+                .addModule(AudioMessageModule.shared())
+                .addModule(StickerMessageModule.shared())
+                .addModule(VideoMessageModule.shared())
+                .addModule(FirebaseBlockingModule.shared())
+                .addModule(FirebaseLastOnlineModule.shared())
+                .addModule(FirebaseNearbyUsersModule.shared())
+                .addModule(FirebaseReadReceiptsModule.shared())
+                .addModule(FirebaseTypingIndicatorModule.shared())
+
+                .addModule(ExtrasModule.configure(config -> {
+                    if (Device.honor(this)) {
+                        config.setDrawerEnabled(false);
+                    }
+                }))
+
+                .addModule(FirebaseUIModule.configure()
+                        .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)
+                        .build()
+                )
+
+                // Activate
+                .build()
+                .activate(this);
 
         Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {
 
         });
 
-        d = ChatSDK.events().errorSourceOnMain().subscribe(throwable -> {
-            //
-            throwable.printStackTrace();
+        d = ChatSDK.events().errorSourceOnMain().subscribe(t -> {
+            t.printStackTrace();
         });
-
-    }
-
-    public void firebase() {
-        String rootPath = "pre_2";
-
-        try {
-
-            ChatSDK.builder().configure()
-                    .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
-                    .setAnonymousLoginEnabled(false)
-                    .setDebugModeEnabled(true)
-                    .setRemoteConfigEnabled(true)
-                    .setIdenticonType(Config.IdenticonType.Gravatar)
-                    .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
-                    .setDisablePresence(false)
-                    .setSendSystemMessageWhenRoleChanges(false)
-                    .build()
-
-                    // Add the network adapter module
-                    .addModule(
-                            FirebaseModule.configure()
-                                    .setFirebaseRootPath(rootPath)
-                                    .setDisableClientProfileUpdate(false)
-                                    .setDevelopmentModeEnabled(false)
-                                    .setEnableCompatibilityWithV4(true)
-                                    .build()
-                    )
-
-                    // Add the UI module
-                    .addModule(DefaultUIModule.configure()
-                            .setPublicRoomCreationEnabled(true)
-                            .build()
-                    )
-
-                    // Add modules to handle file uploads, push notifications
-                    .addModule(FirebaseFileStorageModule.shared())
-                    .addModule(FirebasePushModule.shared())
-                    .addModule(ProfilePicturesModule.shared())
-
-                    .addModule(ContactBookModule.shared())
-//                    .addModule(EncryptionModule.shared())
-                    .addModule(FileMessageModule.shared())
-                    .addModule(AudioMessageModule.shared())
-                    .addModule(StickerMessageModule.shared())
-                    .addModule(VideoMessageModule.shared())
-                    .addModule(FirebaseBlockingModule.shared())
-                    .addModule(FirebaseLastOnlineModule.shared())
-                    .addModule(FirebaseNearbyUsersModule.shared())
-                    .addModule(FirebaseReadReceiptsModule.shared())
-                    .addModule(FirebaseTypingIndicatorModule.shared())
-
-                    .addModule(ExtrasModule.configure(config -> {
-                        if (Device.honor(this)) {
-                            config.setDrawerEnabled(false);
-                        }
-                    }))
-
-                    .addModule(FirebaseUIModule.configure()
-                            .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)
-                            .build()
-                    )
-
-                    // Activate
-                    .build()
-                    .activate(this);
 
 //            TestScript.run(context, config.firebaseRootPath);
 //            new DummyData(200, 50);
 
 //            ChatSDK.ui().addChatOption(new MessageTestChatOption("BaseMessage Burst"));
 
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            Logger.debug("Error");
-            assert(e == null);
-        }
 
-        Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {
-
-        });
-
-        d = ChatSDK.events().errorSourceOnMain().subscribe(throwable -> {
-            //
-            throwable.printStackTrace();
-        });
 
     }
     public void xmpp() {

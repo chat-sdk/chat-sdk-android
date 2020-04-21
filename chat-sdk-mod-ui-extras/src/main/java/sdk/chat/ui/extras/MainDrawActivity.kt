@@ -31,12 +31,14 @@ import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader
 import com.mikepenz.materialdrawer.util.DrawerImageLoader
 import com.mikepenz.materialdrawer.util.updateName
 import com.mikepenz.materialdrawer.widget.AccountHeaderView
+import io.reactivex.Single
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import kotlinx.android.synthetic.main.activity_main_drawer.*
 import sdk.chat.core.hook.Executor
 import sdk.chat.core.hook.Hook
 import sdk.chat.core.hook.HookEvent
+import sdk.guru.common.RX
 
 class MainDrawActivity : MainActivity() {
 
@@ -61,7 +63,9 @@ class MainDrawActivity : MainActivity() {
 
         dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated, EventType.MessageAdded)).subscribe(Consumer {
             // Refresh the read count
-            slider.updateName(privateThreadItem.identifier, privateTabName())
+            dm.add(privateTabName().subscribe(Consumer {
+                slider.updateName(privateThreadItem.identifier, it)
+            }))
         }))
 
         // Update the user details
@@ -116,7 +120,10 @@ class MainDrawActivity : MainActivity() {
                 itemAdapter.add(item)
                 if(tab.fragment === ChatSDK.ui().privateThreadsFragment()) {
                     privateThreadItem = item
-                    slider.updateName(privateThreadItem.identifier, privateTabName())
+
+                    dm.add(privateTabName().subscribe(Consumer {
+                        slider.updateName(privateThreadItem.identifier, it)
+                    }))
                 }
                 if(tab.fragment === ChatSDK.ui().publicThreadsFragment()) {
                     publicThreadItem = item
@@ -128,7 +135,7 @@ class MainDrawActivity : MainActivity() {
             onDrawerItemClickListener = { v, drawerItem, position ->
                 // Logout item
                 if(drawerItem  === logoutItem) {
-                    ChatSDK.auth().logout().doOnComplete(Action { ChatSDK.ui().startSplashScreenActivity(this@MainDrawActivity) }).subscribe(this@MainDrawActivity)
+                    ChatSDK.auth().logout().observeOn(RX.main()).doOnComplete(Action { ChatSDK.ui().startSplashScreenActivity(this@MainDrawActivity) }).subscribe(this@MainDrawActivity)
                 } else if(drawerItem  === profileItem) {
                     ChatSDK.ui().startProfileActivity(context, ChatSDK.currentUserID())
                 } else {
@@ -142,14 +149,8 @@ class MainDrawActivity : MainActivity() {
         setFragmentForPosition(0);
     }
 
-    protected fun privateTabName(): StringHolder {
-        val unread = ChatSDK.thread().getUnreadMessagesAmount(false);
-        val tab = ChatSDK.ui().privateThreadsTab();
-        if (unread == 0) {
-            return StringHolder(tab.title)
-        } else {
-            return StringHolder(String.format(tab.title, " (" + unread + ")"))
-        }
+    protected fun privateTabName(): Single<StringHolder> {
+        return KotlinHelper.privateTabName().observeOn(RX.main())
     }
 
     protected fun updateProfile() {

@@ -50,7 +50,7 @@ public class Events {
      * @return events of messages
      */
     public Observable<Event<FireStreamMessage>> getFireStreamMessages() {
-        return messages.map(messageEvent -> messageEvent.to(FireStreamMessage.fromMessage(messageEvent.get()))).subscribeOn(RX.io()).hide();
+        return messages.map(messageEvent -> messageEvent.to(FireStreamMessage.fromMessage(messageEvent.get()))).hide();
     }
 
     /**
@@ -58,7 +58,7 @@ public class Events {
      * @return
      */
     public Observable<Throwable> getErrors() {
-        return errors.subscribeOn(RX.io()).hide();
+        return errors.hide();
     }
 
     public MultiQueueSubject<Event<DeliveryReceipt>> getDeliveryReceipts() {

@@ -19,7 +19,7 @@ import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.firebase.FirebasePaths;
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import sdk.guru.common.RX;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.ReplaySubject;
@@ -103,11 +103,11 @@ public class GeoFireManager {
     }
 
     public Observable<GeoEvent> events () {
-        return eventPublishSubject.subscribeOn(RX.single()).observeOn(AndroidSchedulers.mainThread());
+        return eventPublishSubject.observeOn(RX.main());
     }
 
     public Observable<GeoEvent> allEvents () {
-        return eventReplaySubject.subscribeOn(RX.single()).observeOn(AndroidSchedulers.mainThread());
+        return eventReplaySubject.observeOn(RX.main());
     }
 
     public void stopListeningForItems() {
@@ -126,17 +126,19 @@ public class GeoFireManager {
     }
 
     public void addItem(GeoItem item, double latitude, double longitude, boolean removeOnDisconnect) {
-        GeoLocation location = new GeoLocation(latitude, longitude);
-        geoFireRef().setLocation(item.getID(), location, (key, error) -> {
-            Logger.debug("Location updated");
+        RX.io().scheduleDirect(() -> {
+            GeoLocation location = new GeoLocation(latitude, longitude);
+            geoFireRef().setLocation(item.getID(), location, (key, error) -> {
+                Logger.debug("Location updated");
 
-            // Remove the location data when we disconnect
-            if (removeOnDisconnect) {
-                ref().child(item.getID()).onDisconnect().removeValue((databaseError, databaseReference) -> {
-                    // Success
-                    Logger.debug("Did add listener");
-                });
-            }
+                // Remove the location data when we disconnect
+                if (removeOnDisconnect) {
+                    ref().child(item.getID()).onDisconnect().removeValue((databaseError, databaseReference) -> {
+                        // Success
+                        Logger.debug("Did add listener");
+                    });
+                }
+            });
         });
     }
 
@@ -148,7 +150,7 @@ public class GeoFireManager {
         return FirebasePaths.firebaseRef().child(FirebasePaths.LocationPath);
     }
 
-    public static double distanceBetween (GeoLocation g0, GeoLocation g1) {
+    public static double distanceBetween(GeoLocation g0, GeoLocation g1) {
         // Work out the distance between the new location and the old one
         Location l0 = new Location("L0");
         l0.setLatitude(g0.latitude);

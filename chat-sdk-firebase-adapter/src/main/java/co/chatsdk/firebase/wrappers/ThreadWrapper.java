@@ -20,10 +20,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
-import io.reactivex.CompletableSource;
-import io.reactivex.ObservableEmitter;
+import io.reactivex.functions.Action;
 import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
@@ -37,7 +35,6 @@ import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
 import co.chatsdk.firebase.FirebaseEntity;
-import sdk.guru.realtime.DocumentChange;
 import sdk.guru.realtime.RealtimeEventListener;
 import co.chatsdk.firebase.FirebasePaths;
 import sdk.guru.realtime.RealtimeReferenceManager;
@@ -116,7 +113,7 @@ public class ThreadWrapper  {
 //                e.onComplete();
 //            }));
 //
-//        }).subscribeOn(RX.io());
+//        }).subscribeOn(RX.firebaseIO());
 //    }
 
     /**
@@ -201,21 +198,14 @@ public class ThreadWrapper  {
 
                     message.markAsReceived().subscribe(ChatSDK.events());
 
-                    if(ChatSDK.hook() != null) {
-                        HashMap<String, Object> data = new HashMap<>();
-                        data.put(HookEvent.Message, message.getModel());
-                        data.put(HookEvent.IsNew_Boolean, newMessage);
-                        ChatSDK.hook().executeHook(HookEvent.MessageReceived, data).subscribe(ChatSDK.events());
-                    }
-
-                    // If we remove this, then the thread will update twice for each text.
-                    // That can fix a bug if the user's system time is wrong
-                    // For encryption, we want to refresh the thread after the message has been successfully delivered
-                    // This is because there was a bug whereby the message show show on the thread as "EncryptedMessage" for a second
-                    if (newMessage || ChatSDK.encryption() != null) {
-                        emitter.onNext(message.getModel());
-                    }
-
+                    ChatSDK.hook().executeHook(HookEvent.MessageReceived, new HashMap<String, Object>() {{
+                        put(HookEvent.Message, message.getModel());
+                        put(HookEvent.IsNew_Boolean, newMessage);
+                    }}).doOnComplete(() -> {
+                        if (newMessage) {
+                            emitter.onNext(message.getModel());
+                        }
+                    }).subscribe(ChatSDK.events());
                 }
             }));
             RealtimeReferenceManager.shared().addRef(messagesRef(), listener);

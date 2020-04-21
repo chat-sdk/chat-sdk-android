@@ -71,7 +71,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
                 batch.set(docRef, dataProvider.data(u));
             }
             emitter.onSuccess(batch);
-        }).flatMapCompletable(this::runBatch).subscribeOn(RX.io());
+        }).flatMapCompletable(this::runBatch);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
                 batch.update(docRef, dataProvider.data(u));
             }
             emitter.onSuccess(batch);
-        }).flatMapCompletable(this::runBatch).subscribeOn(RX.io());
+        }).flatMapCompletable(this::runBatch);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
                 batch.delete(docRef);
             }
             emitter.onSuccess(batch);
-        }).flatMapCompletable(this::runBatch).subscribeOn(RX.io());
+        }).flatMapCompletable(this::runBatch);
     }
 
     @Override
@@ -125,7 +125,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             }
 
             emitter.onSuccess(query);
-        }).subscribeOn(RX.io()).flatMap(query -> new RXFirestore().get(query)).map(optional -> {
+        }).flatMap(query -> new RXFirestore().get(query)).map(optional -> {
             ArrayList<Sendable> sendables = new ArrayList<>();
             if (!optional.isEmpty()) {
                 QuerySnapshot snapshots = optional.get();
@@ -155,7 +155,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             query = query.limit(1);
 
             emitter.onSuccess(query);
-        }).subscribeOn(RX.io()).flatMap(query -> new RXFirestore().get(query).map(snapshots -> {
+        }).flatMap(query -> new RXFirestore().get(query).map(snapshots -> {
             if (!snapshots.isEmpty()) {
                 if (snapshots.get().getDocumentChanges().size() > 0) {
                     DocumentChange change = snapshots.get().getDocumentChanges().get(0);
@@ -187,7 +187,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             query.limit(limit);
 
             emitter.onSuccess(query);
-        }).subscribeOn(RX.io()).flatMapObservable(query -> new RXFirestore().on(query).flatMapMaybe(change -> {
+        }).flatMapObservable(query -> new RXFirestore().on(query).flatMapMaybe(change -> {
             DocumentSnapshot ds = change.getDocument();
             if (ds.exists()) {
                 Sendable sendable = ds.toObject(Sendable.class, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE);

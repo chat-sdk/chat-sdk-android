@@ -32,8 +32,16 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import butterknife.BindView;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.subjects.PublishSubject;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -57,7 +65,9 @@ import co.chatsdk.ui.interfaces.TextInputDelegate;
 import co.chatsdk.ui.views.ChatView;
 import co.chatsdk.ui.views.ReplyView;
 import io.reactivex.Completable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
+import sdk.guru.common.Optional;
+import sdk.guru.common.RX;
 
 public class ChatActivity extends BaseActivity implements TextInputDelegate, ChatOptionsDelegate, ChatView.Delegate {
 
@@ -74,7 +84,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     protected Thread thread;
 
-    protected Bundle bundle;
+//    protected Bundle bundle;
 
     @BindView(R2.id.chatActionBar) protected ChatActionBar chatActionBar;
     @BindView(R2.id.chatView) protected ChatView chatView;
@@ -84,6 +94,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @BindView(R2.id.viewContainer) protected CoordinatorLayout viewContainer;
     @BindView(R2.id.searchView) protected MaterialSearchView searchView;
     @BindView(R2.id.root) protected FrameLayout root;
+
+    protected Single<Optional<Thread>> threadSingle = null;
 
     AudioBinder audioBinder = null;
 
@@ -96,9 +108,42 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (!updateThreadFromBundle(savedInstanceState)) {
-            return;
-        }
+        getThread(savedInstanceState).doOnSuccess(threadOptional -> {
+            if (!threadOptional.isEmpty()) {
+                initViews();
+            } else {
+                finish();
+            }
+        }).ignoreElement().subscribe(this);
+    }
+
+    public void updateOptionsButton() {
+        input.findViewById(R.id.attachmentButton).setVisibility(chatView.getSelectedMessages().isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+
+    public void hideTextInput() {
+        input.setVisibility(View.GONE);
+        divider.setVisibility(View.GONE);
+    }
+
+    public void showTextInput() {
+        input.setVisibility(View.VISIBLE);
+        divider.setVisibility(View.VISIBLE);
+    }
+
+    public void hideReplyView() {
+        chatView.clearSelection();
+        replyView.hide();
+    }
+
+    @Override
+    protected Bitmap getTaskDescriptionBitmap() {
+        return super.getTaskDescriptionBitmap();
+    }
+
+    protected void initViews() {
+        super.initViews();
 
         chatView.setDelegate(this);
 
@@ -135,7 +180,47 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             }
         });
 
-        initViews();
+        chatView.initViews();
+
+        chatView.enableSelectionMode(count -> {
+            invalidateOptionsMenu();
+            updateOptionsButton();
+        });
+
+        if (!ChatSDK.thread().hasVoice(thread, ChatSDK.currentUser())) {
+            hideTextInput();
+        }
+
+        if (ChatSDK.audioMessage() != null) {
+            audioBinder = new AudioBinder(this, this, input);
+        } else {
+            input.setInputListener(input -> {
+                sendMessage(String.valueOf(input));
+                return true;
+            });
+        }
+
+        input.setAttachmentsListener(this::showOptions);
+
+        input.setTypingListener(new MessageInput.TypingListener() {
+            @Override
+            public void onStartTyping() {
+                startTyping();
+            }
+
+            @Override
+            public void onStopTyping() {
+                stopTyping();
+            }
+        });
+
+        replyView.setOnCancelListener(v -> hideReplyView());
+
+        // Action bar
+        chatActionBar.setOnClickListener(v -> openThreadDetailsActivity());
+        setSupportActionBar(chatActionBar.getToolbar());
+        chatActionBar.reload(thread);
+
 
         setChatState(TypingIndicatorHandler.State.active);
 
@@ -181,81 +266,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     }
                 }));
 
-        thread.markRead();
+        thread.markReadAsync().subscribe();
 
-        chatView.enableSelectionMode(count -> {
-            invalidateOptionsMenu();
-            updateOptionsButton();
-        });
-
+        invalidateOptionsMenu();
     }
-
-    public void updateOptionsButton() {
-        input.findViewById(R.id.attachmentButton).setVisibility(chatView.getSelectedMessages().isEmpty() ? View.VISIBLE : View.GONE);
-    }
-
-
-    public void hideTextInput() {
-        input.setVisibility(View.GONE);
-        divider.setVisibility(View.GONE);
-    }
-
-    public void showTextInput() {
-        input.setVisibility(View.VISIBLE);
-        divider.setVisibility(View.VISIBLE);
-    }
-
-    public void hideReplyView() {
-        chatView.clearSelection();
-        replyView.hide();
-    }
-
-    @Override
-    protected Bitmap getTaskDescriptionBitmap() {
-        return super.getTaskDescriptionBitmap();
-    }
-
-    protected void initViews() {
-        super.initViews();
-
-        chatView.initViews();
-
-        if (!ChatSDK.thread().hasVoice(thread, ChatSDK.currentUser())) {
-            hideTextInput();
-        }
-
-        if (ChatSDK.audioMessage() != null) {
-            audioBinder = new AudioBinder(this, this, input);
-        } else {
-            input.setInputListener(input -> {
-                sendMessage(String.valueOf(input));
-                return true;
-            });
-        }
-
-        input.setAttachmentsListener(this::showOptions);
-
-        input.setTypingListener(new MessageInput.TypingListener() {
-            @Override
-            public void onStartTyping() {
-                startTyping();
-            }
-
-            @Override
-            public void onStopTyping() {
-                stopTyping();
-            }
-        });
-
-        replyView.setOnCancelListener(v -> hideReplyView());
-
-        // Action bar
-        chatActionBar.setOnClickListener(v -> openThreadDetailsActivity());
-        setSupportActionBar(chatActionBar.getToolbar());
-        chatActionBar.reload(thread);
-
-    }
-
 
     /**
      * Send text text
@@ -278,7 +292,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     }
 
     protected void handleMessageSend(Completable completable) {
-        completable.observeOn(AndroidSchedulers.mainThread()).subscribe(this);
+        completable.observeOn(RX.main()).subscribe(this);
     }
 
     @Override
@@ -292,15 +306,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-//        dm.add(PermissionRequestHandler.requestRecordAudio(this).subscribe(() -> {
-//
-//        }, throwable -> ToastHelper.show(this, throwable.getLocalizedMessage())));
-
-    }
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//    }
 
     protected void reloadData() {
         chatView.notifyDataSetChanged();
@@ -310,28 +319,24 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onResume() {
         super.onResume();
 
-
         removeUserFromChatOnExit = !ChatSDK.config().publicChatAutoSubscriptionEnabled;
 
-        if (!updateThreadFromBundle(bundle)) {
-            return;
-        }
+        getThread(null).doOnSuccess(threadOptional -> {
+            if (thread != null && thread.typeIs(ThreadType.Public)) {
+                User currentUser = ChatSDK.currentUser();
+                ChatSDK.thread().addUsersToThread(thread, currentUser).subscribe();
+            }
 
-        if (thread != null && thread.typeIs(ThreadType.Public)) {
-            User currentUser = ChatSDK.currentUser();
-            ChatSDK.thread().addUsersToThread(thread, currentUser)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(this);
-        }
+            chatActionBar.setSubtitleText(thread, null);
 
-        chatActionBar.setSubtitleText(thread, null);
+            // Show a local notification if the text is from a different thread
+            ChatSDK.ui().setLocalNotificationHandler(thread -> !thread.getEntityID().equals(this.thread.getEntityID()));
 
-        // Show a local notification if the text is from a different thread
-        ChatSDK.ui().setLocalNotificationHandler(thread -> !thread.getEntityID().equals(this.thread.getEntityID()));
+            if (audioBinder != null) {
+                audioBinder.updateRecordMode();
+            }
 
-        if (audioBinder != null) {
-            audioBinder.updateRecordMode();
-        }
+        }).ignoreElement().subscribe();
 
     }
 
@@ -354,7 +359,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if (thread != null && thread.typeIs(ThreadType.Public) && (removeUserFromChatOnExit || thread.isMuted())) {
             ChatSDK.thread()
                     .removeUsersFromThread(thread, ChatSDK.currentUser())
-                    .observeOn(AndroidSchedulers.mainThread()).subscribe(this);
+                    .observeOn(RX.main()).subscribe(this);
         }
     }
 
@@ -373,12 +378,16 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        if (!updateThreadFromBundle(intent.getExtras()))
-            return;
-
-        clear();
-        chatView.onLoadMore(0, 0);
-        chatActionBar.reload(thread);
+        thread = null;
+        getThread(intent.getExtras()).doOnSuccess(threadOptional -> {
+            if (!threadOptional.isEmpty()) {
+                clear();
+                chatView.onLoadMore(0, 0);
+                chatActionBar.reload(thread);
+            } else {
+                finish();
+            }
+        }).ignoreElement().subscribe(this);
     }
 
     public void clear() {
@@ -387,41 +396,46 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        if (thread != null) {
+            if (!chatView.getSelectedMessages().isEmpty()) {
 
-        if (!chatView.getSelectedMessages().isEmpty()) {
-            getMenuInflater().inflate(R.menu.activity_chat_actions_menu, menu);
+                chatActionBar.hideSearchIcon();
 
-            menu.findItem(R.id.action_copy).setIcon(Icons.get(Icons.choose().copy, Icons.shared().actionBarIconColor));
-            menu.findItem(R.id.action_delete).setIcon(Icons.get(Icons.choose().delete, Icons.shared().actionBarIconColor));
-            menu.findItem(R.id.action_forward).setIcon(Icons.get(Icons.choose().forward, Icons.shared().actionBarIconColor));
-            menu.findItem(R.id.action_reply).setIcon(Icons.get(Icons.choose().reply, Icons.shared().actionBarIconColor));
+                getMenuInflater().inflate(R.menu.activity_chat_actions_menu, menu);
 
-            if (chatView.getSelectedMessages().size() != 1) {
-                menu.removeItem(R.id.action_reply);
-            }
+                menu.findItem(R.id.action_copy).setIcon(Icons.get(Icons.choose().copy, Icons.shared().actionBarIconColor));
+                menu.findItem(R.id.action_delete).setIcon(Icons.get(Icons.choose().delete, Icons.shared().actionBarIconColor));
+                menu.findItem(R.id.action_forward).setIcon(Icons.get(Icons.choose().forward, Icons.shared().actionBarIconColor));
+                menu.findItem(R.id.action_reply).setIcon(Icons.get(Icons.choose().reply, Icons.shared().actionBarIconColor));
 
-            // Check that the messages could be deleted
-            boolean canBeDeleted = true;
-            for (Message message : chatView.getSelectedMessages()) {
-                if (!ChatSDK.thread().canDeleteMessage(message)) {
-                    canBeDeleted = false;
+                if (chatView.getSelectedMessages().size() != 1) {
+                    menu.removeItem(R.id.action_reply);
                 }
-            }
-            if (!canBeDeleted) {
-                menu.removeItem(R.id.action_delete);
-            }
 
-            chatActionBar.hideText();
-        } else {
+                // Check that the messages could be deleted
+                boolean canBeDeleted = true;
+                for (Message message : chatView.getSelectedMessages()) {
+                    if (!ChatSDK.thread().canDeleteMessage(message)) {
+                        canBeDeleted = false;
+                    }
+                }
+                if (!canBeDeleted) {
+                    menu.removeItem(R.id.action_delete);
+                }
 
-            if (ChatSDK.thread().canAddUsersToThread(thread)) {
-                getMenuInflater().inflate(R.menu.add_menu, menu);
-                menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, Icons.shared().actionBarIconColor));
+                chatActionBar.hideText();
+            } else {
+
+                chatActionBar.showSearchIcon();
+
+                if (ChatSDK.thread().canAddUsersToThread(thread)) {
+                    getMenuInflater().inflate(R.menu.add_menu, menu);
+                    menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, Icons.shared().actionBarIconColor));
+                }
+
+                chatActionBar.showText();
             }
-
-            chatActionBar.showText();
         }
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -488,34 +502,30 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         ChatSDK.ui().startThreadDetailsActivity(this, thread.getEntityID());
     }
 
-    /**
-     * Get the current thread from the bundle bundle, CoreThread could be in the getIntent or in onNewIntent.
-     */
-    protected boolean updateThreadFromBundle(Bundle bundle) {
+    protected Single<Optional<Thread>> getThread(final Bundle inputBundle) {
+        return Single.defer(() -> {
+            if (thread != null) {
+                return Single.just(new Optional<>(thread));
+            } if (threadSingle == null) {
+                threadSingle = Single.create((SingleOnSubscribe<Optional<Thread>>) emitter -> {
+                    Bundle bundle = inputBundle;
+                    if (bundle == null) {
+                        bundle = getIntent().getExtras();
+                    }
 
-        if (bundle != null && (bundle.containsKey(Keys.IntentKeyThreadEntityID))) {
-            this.bundle = bundle;
-        } else {
-            if (getIntent() == null || getIntent().getExtras() == null) {
-                finish();
-                return false;
+                    if (bundle.containsKey(Keys.IntentKeyThreadEntityID)) {
+                        String threadEntityID = bundle.getString(Keys.IntentKeyThreadEntityID);
+                        if (threadEntityID != null && thread == null) {
+                            thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
+                            emitter.onSuccess(new Optional<>(thread));
+                            return;
+                        }
+                    }
+                    emitter.onSuccess(new Optional<>());
+                }).subscribeOn(RX.db()).observeOn(RX.main());
             }
-            this.bundle = getIntent().getExtras();
-        }
-
-        if (this.bundle.containsKey(Keys.IntentKeyThreadEntityID)) {
-            String threadEntityID = this.bundle.getString(Keys.IntentKeyThreadEntityID);
-            if (threadEntityID != null) {
-                thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
-            }
-        }
-
-        if (thread == null) {
-            finish();
-            return false;
-        }
-
-        return true;
+            return threadSingle;
+        });
     }
 
     @Override
@@ -540,7 +550,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void setChatState(TypingIndicatorHandler.State state) {
         if (ChatSDK.typingIndicator() != null) {
             ChatSDK.typingIndicator().setChatState(state, thread)
-                    .observeOn(AndroidSchedulers.mainThread())
+                    .observeOn(RX.main())
                     .subscribe(this);
         }
     }
@@ -567,12 +577,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         optionsHandler.show(this);
     }
 
-    public void hideOptions() {
-        removeUserFromChatOnExit = !ChatSDK.config().publicChatAutoSubscriptionEnabled;
-        if (optionsHandler != null) {
-            optionsHandler.hide();
-        }
-    }
+//    public void hideOptions() {
+//        removeUserFromChatOnExit = !ChatSDK.config().publicChatAutoSubscriptionEnabled;
+//        if (optionsHandler != null) {
+//            optionsHandler.hide();
+//        }
+//    }
 
     @Override
     public void executeChatOption(ChatOption option) {

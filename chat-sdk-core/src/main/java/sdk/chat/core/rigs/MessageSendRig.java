@@ -1,14 +1,20 @@
 package sdk.chat.core.rigs;
 
+import com.google.android.exoplayer2.C;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import sdk.chat.core.base.AbstractThreadHandler;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.FileUploadResult;
 import sdk.chat.core.types.MessageSendProgress;
@@ -104,11 +110,15 @@ public class MessageSendRig {
     protected Completable send() {
         return Completable.defer(() -> {
             message.setMessageStatus(MessageSendStatus.WillSend);
-            if (local) {
-                return Completable.complete();
-            } else {
-                return ChatSDK.thread().sendMessage(message);
-            }
+            return ChatSDK.hook().executeHook(HookEvent.MessageWillSend, new HashMap<String, Object>() {{
+                put(HookEvent.Message, message);
+            }}).andThen(Completable.defer(() -> {
+                if (local) {
+                    return Completable.complete();
+                } else {
+                    return ChatSDK.thread().sendMessage(message);
+                }
+            }));
         }).subscribeOn(RX.quick())
                 .doOnComplete(() -> message.setMessageStatus(MessageSendStatus.Sent))
                 .doOnError(throwable -> message.setMessageStatus(MessageSendStatus.Failed));

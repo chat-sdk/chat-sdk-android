@@ -36,7 +36,7 @@ import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
@@ -71,7 +71,7 @@ public class EjabberdUploadHandler extends AbstractUploadHandler {
                         if(!StringUtils.isEmpty(fileId) && !StringUtils.isEmpty(md5)) {
 
                             // Add an IQ listener to get the URL
-                            disposableList.add(fileTransferIQProvider.onIQ().observeOn(AndroidSchedulers.mainThread()).subscribe(iq -> {
+                            disposableList.add(fileTransferIQProvider.onIQ().observeOn(RX.main()).subscribe(iq -> {
                                 // If we have a new file download to handle
                                 if(iq instanceof FileDownloadIQ) {
                                     FileDownloadIQ downloadIQ = (FileDownloadIQ) iq;
@@ -210,7 +210,7 @@ public class EjabberdUploadHandler extends AbstractUploadHandler {
             String md5 = getFileMD5(data);
 
             // Complete
-            Disposable d1 = fileTransferIQProvider.onIQ().observeOn(AndroidSchedulers.mainThread()).flatMapMaybe((Function<FileTransferIQ, MaybeSource<FileUploadIQ>>) fileTransferIQ -> {
+            Disposable d1 = fileTransferIQProvider.onIQ().observeOn(RX.main()).flatMapMaybe((Function<FileTransferIQ, MaybeSource<FileUploadIQ>>) fileTransferIQ -> {
                 if (fileTransferIQ instanceof FileUploadIQ) {
                     FileUploadIQ uploadIQ = (FileUploadIQ) fileTransferIQ;
 

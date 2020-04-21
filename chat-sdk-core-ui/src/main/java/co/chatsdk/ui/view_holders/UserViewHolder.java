@@ -81,12 +81,17 @@ public class UserViewHolder extends RecyclerView.ViewHolder  {
         int width = Dimen.from(context, R.dimen.small_avatar_width);
         int height = Dimen.from(context, R.dimen.small_avatar_height);
 
-        Glide.with(root)
-                .load(item.getAvatarURL())
-                .dontAnimate()
-                .placeholder(DefaultUIModule.config().defaultProfileImage)
-                .override(width, height)
-                .into(avatarImageView);
+        String avatarURL = item.getAvatarURL();
+        if (!StringChecker.isNullOrEmpty(avatarURL)) {
+            Glide.with(root)
+                    .load(item.getAvatarURL())
+                    .dontAnimate()
+                    .placeholder(DefaultUIModule.config().defaultProfileImage)
+                    .override(width, height)
+                    .into(avatarImageView);
+        } else {
+            avatarImageView.setImageResource(DefaultUIModule.config().defaultProfileImage);
+        }
     }
 
     public CheckBox getCheckbox() {

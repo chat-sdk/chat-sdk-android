@@ -135,7 +135,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
             }
         }
 
-        }).subscribeOn(RX.io());
+        }).subscribeOn(RX.computation());
     }
 
     @Override
@@ -173,7 +173,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 return Completable.concat(changes);
             }
             return Completable.complete();
-        }).subscribeOn(RX.io());
+        }).subscribeOn(RX.pool());
     }
 
     @Override
@@ -188,7 +188,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 return chat.setCustomData(data);
             }
             return Completable.complete();
-        }).subscribeOn(RX.io());
+        });
     }
 
     @Override
@@ -208,7 +208,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
             return Completable.complete();
         }).doOnComplete(() -> {
             message.getThread().removeMessage(message);
-        }).subscribeOn(RX.io());
+        });
     }
 
     @Override
@@ -223,7 +223,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     public boolean rolesEnabled(Thread thread, User user) {
-        return thread.typeIs(ThreadType.Group) && !availableRoles(thread, user).isEmpty();
+        return ChatSDK.config().rolesEnabled || (thread.typeIs(ThreadType.Group) && !availableRoles(thread, user).isEmpty());
     }
 
     public String roleForUser(Thread thread, User user) {
@@ -255,7 +255,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.error(ChatSDK.getException(R.string.feature_not_supported));
-        }).subscribeOn(RX.io());
+        });
     }
 
     @Override
@@ -275,8 +275,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        }).doOnComplete(() -> thread.setMuted(true))
-                .subscribeOn(RX.io());
+        }).doOnComplete(() -> thread.setMuted(true));
     }
 
     public Completable unmute(Thread thread) {
@@ -291,7 +290,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        }).doOnComplete(() -> thread.setMuted(false)).subscribeOn(RX.io());
+        }).doOnComplete(() -> thread.setMuted(false));
     }
 
     public Completable removeUsersFromThread(final Thread thread, List<User> users) {
@@ -307,7 +306,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        }).subscribeOn(RX.io());
+        });
     }
 
     public Completable addUsersToThread(final Thread thread, final List<User> users) {
@@ -323,7 +322,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        }).subscribeOn(RX.io());
+        });
     }
 
     @Override
@@ -339,7 +338,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 }
             }
             return Completable.complete();
-        }).subscribeOn(RX.io());
+        });
     }
 
     @Override

@@ -3,6 +3,7 @@ package sdk.chat.core.utils;
 import android.Manifest;
 import android.app.Activity;
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.karumi.dexter.Dexter;
@@ -13,12 +14,13 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import org.pmw.tinylog.Logger;
 
+import java.util.Date;
 import java.util.List;
 
 import co.chatsdk.core.R;
 import sdk.chat.core.session.ChatSDK;
 import io.reactivex.Completable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 
 import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
 
@@ -79,7 +81,7 @@ public class PermissionRequestHandler {
 
     public static Completable requestPermissions(final Activity activity, String... permissions) {
         return Completable.create(emitter -> {
-            Logger.debug("Start Dexter");
+            Logger.debug("Start Dexter " + new Date().getTime());
             try {
                 Dexter.withActivity(activity)
                         .withPermissions(permissions)
@@ -87,8 +89,10 @@ public class PermissionRequestHandler {
                             @Override
                             public void onPermissionsChecked(MultiplePermissionsReport report) {
                                 if (report.areAllPermissionsGranted()) {
+                                    Logger.debug("Dexter Complete" + new Date().getTime());
                                     emitter.onComplete();
                                 } else {
+                                    Logger.debug("Dexter Error" + new Date().getTime());
                                     emitter.onError(new Throwable(activity.getString(R.string.permission_denied)));
                                 }
                             }
@@ -101,7 +105,7 @@ public class PermissionRequestHandler {
             } catch (Exception e) {
                 Logger.error(e);
             }
-        }).subscribeOn(AndroidSchedulers.mainThread()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(RX.main()).observeOn(RX.main());
     }
 
 }

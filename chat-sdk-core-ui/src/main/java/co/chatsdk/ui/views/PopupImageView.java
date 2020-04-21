@@ -26,7 +26,7 @@ import co.chatsdk.ui.icons.Icons;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import sdk.guru.common.RX;
 
 public class PopupImageView extends RelativeLayout {
@@ -70,7 +70,7 @@ public class PopupImageView extends RelativeLayout {
 
         Single<Bitmap> onLoad = Single.create((SingleOnSubscribe<Bitmap>) emitter -> {
             emitter.onSuccess(Glide.with(this).asBitmap().load(url).submit().get());
-        }).subscribeOn(RX.io()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(RX.io()).observeOn(RX.main());
 
         dm.add(onLoad.subscribe(bitmap -> {
             photoView.setImageBitmap(bitmap);

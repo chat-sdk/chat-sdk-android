@@ -356,7 +356,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean rolesEnabled(Thread thread) {
-        return thread.typeIs(ThreadType.Group);
+        return ChatSDK.config().rolesEnabled && thread.typeIs(ThreadType.Group);
     }
 
     @Override

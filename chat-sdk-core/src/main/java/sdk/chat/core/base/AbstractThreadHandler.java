@@ -11,6 +11,8 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import co.chatsdk.core.R;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
@@ -112,7 +114,6 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.defer(() -> {
             Message newMessage = newMessage(message.getType(), thread);
             newMessage.setMetaValues(message.getMetaValuesAsMap());
-            newMessage.setMessageStatus(MessageSendStatus.WillSend);
             return sendMessage(newMessage);
         }).subscribeOn(RX.db());
     }
@@ -132,21 +133,23 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     }
 
     @Override
-    public int getUnreadMessagesAmount(boolean onePerThread){
-        List<Thread> threads = getThreads(ThreadType.Private, false);
+    public Single<Integer> getUnreadMessagesAmount(boolean onePerThread){
+        return Single.create((SingleOnSubscribe<Integer>) emitter -> {
+            List<Thread> threads = getThreads(ThreadType.Private, false);
 
-        int count = 0;
-        for (Thread t : threads) {
-            if (onePerThread) {
-                if(!t.isLastMessageWasRead()) {
-                    count++;
+            int count = 0;
+            for (Thread t : threads) {
+                if (onePerThread) {
+                    if(!t.isLastMessageWasRead()) {
+                        count++;
+                    }
+                }
+                else {
+                    count += t.getUnreadMessagesCount();
                 }
             }
-            else {
-                count += t.getUnreadMessagesCount();
-            }
-        }
-        return count;
+            emitter.onSuccess(count);
+        }).subscribeOn(RX.db());
     }
 
     @Override
@@ -270,7 +273,6 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             Message newMessage = newMessage(MessageType.Text, thread);
             newMessage.setMetaValues(message.getMetaValuesAsMap());
             newMessage.setValueForKey(reply, Keys.Reply);
-            newMessage.setMessageStatus(MessageSendStatus.WillSend);
             return sendMessage(newMessage);
         }).subscribeOn(RX.db());
     }
@@ -317,7 +319,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.create(emitter -> {
             ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
             emitter.onComplete();
-        }).subscribeOn(RX.quick());
+        });
     }
 
     @Override
@@ -325,7 +327,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.create(emitter -> {
             ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
             emitter.onComplete();
-        }).subscribeOn(RX.quick());
+        });
     }
 
     @Override
@@ -343,7 +345,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.create(emitter -> {
             ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
             emitter.onComplete();
-        }).subscribeOn(RX.quick());
+        });
     }
 
     @Override
@@ -351,7 +353,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.create(emitter -> {
             ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
             emitter.onComplete();
-        }).subscribeOn(RX.quick());
+        });
     }
 
     @Override

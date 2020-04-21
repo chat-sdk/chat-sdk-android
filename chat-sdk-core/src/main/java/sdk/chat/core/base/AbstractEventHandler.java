@@ -13,7 +13,7 @@ import sdk.chat.core.types.ReadStatus;
 import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.guru.common.DisposableMap;
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import sdk.guru.common.RX;
@@ -62,7 +62,7 @@ public abstract class AbstractEventHandler implements EventHandler {
     }
 
     public Observable<NetworkEvent> sourceOnMain () {
-        return source().hide().observeOn(AndroidSchedulers.mainThread());
+        return source().hide().observeOn(RX.main());
     }
 
     public Observable<NetworkEvent> sourceOn (Scheduler scheduler) {
@@ -70,7 +70,7 @@ public abstract class AbstractEventHandler implements EventHandler {
     }
 
     public Observable<Throwable> errorSourceOnMain() {
-        return errorSource.hide().observeOn(AndroidSchedulers.mainThread());
+        return errorSource.hide().observeOn(RX.main());
     }
 
     public void accept(Throwable t) throws Exception {

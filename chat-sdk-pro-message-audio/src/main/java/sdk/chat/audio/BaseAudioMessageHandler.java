@@ -64,7 +64,7 @@ public class BaseAudioMessageHandler implements AudioMessageHandler {
                     }
                 }).convert();
             });
-        }).subscribeOn(RX.single());
+        }).subscribeOn(RX.computation());
     }
 
     @Override

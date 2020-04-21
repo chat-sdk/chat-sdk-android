@@ -24,7 +24,7 @@ import sdk.chat.core.types.MessageType;
 import sdk.chat.core.ui.ProfileFragmentProvider;
 import co.chatsdk.ui.activities.LoginActivity;
 import io.reactivex.Completable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import sdk.chat.custom.AProfileFragment;
@@ -97,7 +97,7 @@ public class ApiExamples {
      */
     public void createThread (String name, User user) {
         Disposable d = ChatSDK.thread().createThread(name, user, ChatSDK.currentUser())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .doFinally(() -> {
                     // Runs when process completed from error or success
                 })

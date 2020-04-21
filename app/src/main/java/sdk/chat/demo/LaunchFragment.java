@@ -12,6 +12,7 @@ import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.xmpp.utils.ServerKeyStorage;
 import io.reactivex.annotations.NonNull;
 import sdk.chat.android.live.R;
+import sdk.guru.common.RX;
 
 public class LaunchFragment extends BaseFragment {
     @BindView(R.id.button)
@@ -45,7 +46,7 @@ public class LaunchFragment extends BaseFragment {
             DemoConfigBuilder.shared().save(getContext());
             DemoConfigBuilder.shared().setupChatSDK(getContext());
 
-            dm.add(ChatSDK.auth().logout().subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getContext())));
+            dm.add(ChatSDK.auth().logout().observeOn(RX.main()).subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getContext())));
 
         });
     }

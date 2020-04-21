@@ -31,7 +31,7 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import sdk.guru.common.RX;
 import sdk.guru.common.DisposableMap;
 
@@ -138,7 +138,7 @@ public class LocationProvider {
                     activity.runOnUiThread(() -> {
                         locationClient.requestLocationUpdates(locationUpdatesRequest, locationCallback, Looper.myLooper());
                     });
-                }).subscribeOn(RX.io()).observeOn(AndroidSchedulers.mainThread()));
+                }).subscribeOn(RX.io()).observeOn(RX.main()));
     }
 
     @SuppressLint("MissingPermission")

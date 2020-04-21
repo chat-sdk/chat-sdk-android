@@ -22,19 +22,26 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendProgress;
+import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.core.utils.Dimen;
 import sdk.guru.common.DisposableMap;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.chat.model.MessageHolder;
 import co.chatsdk.ui.custom.Customiser;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
+import sdk.guru.common.RX;
 
 public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoadMoreListener {
 
@@ -54,7 +61,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
     protected DisposableMap dm = new DisposableMap();
 
-    protected PrettyTime prettyTime = new PrettyTime();
+    protected final PrettyTime prettyTime = new PrettyTime(CurrentLocale.get());
 
     protected Delegate delegate;
 
@@ -78,8 +85,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         LayoutInflater.from(getContext()).inflate(R.layout.view_chat, this);
         ButterKnife.bind(this);
 
-        MessageHolders holders = new MessageHolders();
-
+        final MessageHolders holders = new MessageHolders();
         Customiser.shared().onBindMessageHolders(getContext(), holders);
 
         messagesListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, (imageView, url, payload) -> {
@@ -116,7 +122,6 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         messagesListAdapter.setLoadMoreListener(this);
         messagesListAdapter.setDateHeadersFormatter(date -> prettyTime.format(date));
 
-
         messagesListAdapter.setOnMessageClickListener(holder -> {
             delegate.onClick(holder.getMessage());
         });
@@ -132,32 +137,41 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     }
 
     protected void addListeners() {
+        RX.onBackground(() -> {
+            // Add the event listeners
+            dm.add(ChatSDK.events().sourceOnMain()
+                    .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.MessageSendStatusUpdated))
+                    .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
+                    .subscribe(networkEvent -> {
+                        Message message = networkEvent.getMessage();
+                        if (networkEvent.typeIs(EventType.MessageAdded)) {
+                            addMessageToStartOrUpdate(message);
+                            message.markReadIfNecessary();
+                        }
+                        if (networkEvent.typeIs(EventType.MessageUpdated)) {
+                            addMessageToStartOrUpdate(message);
+                        }
+                        if (networkEvent.typeIs(EventType.MessageRemoved)) {
+                            removeMessage(networkEvent.getMessage());
+                        }
+                        if (networkEvent.typeIs(EventType.MessageReadReceiptUpdated) && ChatSDK.readReceipts() != null && message.getSender().isMe()) {
+                            addMessageToStartOrUpdate(message);
+                        }
+                        if (networkEvent.typeIs(EventType.MessageSendStatusUpdated)) {
+                            MessageSendProgress progress = networkEvent.getMessageSendProgress();
+                            addMessageToStartOrUpdate(progress.message, progress);
+                        }
+                    }));
 
-        // Add the event listeners
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.MessageSendStatusUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
-                .subscribe(networkEvent -> {
-                    Message message = networkEvent.getMessage();
-                    if (networkEvent.typeIs(EventType.MessageAdded)) {
-                        addMessageToStartOrUpdate(message);
-                        message.markReadIfNecessary();
-                    }
-                    if (networkEvent.typeIs(EventType.MessageUpdated)) {
-                        addMessageToStartOrUpdate(message);
-                    }
-                    if (networkEvent.typeIs(EventType.MessageRemoved)) {
-                        removeMessage(networkEvent.getMessage());
-                    }
-                    if (networkEvent.typeIs(EventType.MessageReadReceiptUpdated) && ChatSDK.readReceipts() != null && message.getSender().isMe()) {
-                        addMessageToStartOrUpdate(message);
-                    }
-                    if (networkEvent.typeIs(EventType.MessageSendStatusUpdated)) {
-                        MessageSendProgress progress = networkEvent.getMessageSendProgress();
-                        addMessageToStartOrUpdate(progress.message, progress);
-                    }
-                }));
+            dm.add(ChatSDK.events().sourceOnMain()
+                    .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated, EventType.UserMetaUpdated))
+                    .subscribe(networkEvent -> {
+                        if (delegate.getThread().containsUser(networkEvent.getUser())) {
+                            notifyDataSetChanged();
+                        }
+                    }));
 
+        });
     }
 
     protected int maxImageWidth() {
@@ -185,8 +199,8 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
             loadFromDate = messageHolders.get(messageHolders.size() - 1).getCreatedAt();
         }
         dm.add(ChatSDK.thread()
-                .loadMoreMessagesForThread(loadFromDate, delegate.getThread(), true)
-                .observeOn(AndroidSchedulers.mainThread())
+                .loadMoreMessagesForThread(loadFromDate, delegate.getThread(), totalItemsCount != 0)
+                .observeOn(RX.main())
                 .subscribe(this::addMessagesToEnd));
     }
 
@@ -204,10 +218,11 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     }
 
     public void updatePrevious(Message message) {
-        MessageHolder holder = previous(message);
+        final MessageHolder holder = previous(message);
         if (holder != null) {
-            holder.update();
-            messagesListAdapter.update(holder);
+            RX.run(holder::update, () -> {
+                messagesListAdapter.update(holder);
+            });
         }
     }
 
@@ -239,13 +254,14 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     }
 
     public void addMessageToStartOrUpdate(Message message, MessageSendProgress progress) {
-        MessageHolder holder = messageHolderHashMap.get(message);
+        final MessageHolder holder = messageHolderHashMap.get(message);
 
         if (holder == null) {
-            holder = Customiser.shared().onNewMessageHolder(message);
 
-            messageHolders.add(0, holder);
-            messageHolderHashMap.put(holder.getMessage(), holder);
+            final MessageHolder finalHolder = Customiser.shared().onNewMessageHolder(message);
+
+            messageHolders.add(0, finalHolder);
+            messageHolderHashMap.put(finalHolder.getMessage(), finalHolder);
 
             // This means that we only scroll down if we were already at the bottom
             // it can be annoying if you have scrolled up and then a new message
@@ -261,32 +277,38 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 scroll = true;
             }
 
-            messagesListAdapter.addToStart(holder, scroll);
+            messagesListAdapter.addToStart(finalHolder, scroll);
 
             // Update the previous holder so that we can hide the
             // name if necessary
 //            updatePrevious(message);
 
         } else {
-            holder.update();
-            holder.setProgress(progress);
-            messagesListAdapter.update(holder);
+            RX.run(() -> {
+                holder.update();
+                holder.setProgress(progress);
+            }, () -> {
+                messagesListAdapter.update(holder);
+            });
         }
     }
 
     public void addMessagesToEnd(List<Message> messages) {
         // Check to see if the holders already exist
-        ArrayList<MessageHolder> holders = new ArrayList<>();
-        for (Message message : messages) {
-            MessageHolder holder = messageHolderHashMap.get(message);
-            if (holder == null) {
-                holder = Customiser.shared().onNewMessageHolder(message);
-                messageHolderHashMap.put(message, holder);
-                holders.add(holder);
+        final ArrayList<MessageHolder> holders = new ArrayList<>();
+        RX.run(() -> {
+            for (Message message : messages) {
+                MessageHolder holder = messageHolderHashMap.get(message);
+                if (holder == null) {
+                    holder = Customiser.shared().onNewMessageHolder(message);
+                    messageHolderHashMap.put(message, holder);
+                    holders.add(holder);
+                }
             }
-        }
-        messageHolders.addAll(holders);
-        messagesListAdapter.addToEnd(holders, false);
+        }, () -> {
+            messageHolders.addAll(holders);
+            messagesListAdapter.addToEnd(holders, false);
+        });
     }
 
     public void notifyDataSetChanged() {
@@ -309,21 +331,22 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         messagesListAdapter.enableSelectionMode(selectionListener);
     }
 
-    public void filter(String filter) {
+    public void filter(final String filter) {
         if (filter == null || filter.isEmpty()) {
             clearFilter();
         } else {
-            filter = filter.trim();
 
-            ArrayList<MessageHolder> filtered = new ArrayList<>();
-            for (MessageHolder holder : messageHolders) {
-                if (holder.getText().toLowerCase().contains(filter.toLowerCase())) {
-                    filtered.add(holder);
+            final ArrayList<MessageHolder> filtered = new ArrayList<>();
+            RX.run(() -> {
+                for (MessageHolder holder : messageHolders) {
+                    if (holder.getText().toLowerCase().contains(filter.trim().toLowerCase())) {
+                        filtered.add(holder);
+                    }
                 }
-            }
-
-            messagesListAdapter.clear();
-            messagesListAdapter.addToEnd(filtered, true);
+            }, () -> {
+                messagesListAdapter.clear();
+                messagesListAdapter.addToEnd(filtered, true);
+            });
         }
     }
 
@@ -337,5 +360,4 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         super.onDetachedFromWindow();
         dm.dispose();
     }
-
 }

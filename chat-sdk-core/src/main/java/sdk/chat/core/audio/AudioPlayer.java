@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.CurrentLocale;
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import io.reactivex.disposables.Disposable;
 import sdk.guru.common.RX;
 import io.reactivex.subjects.PublishSubject;
@@ -56,7 +56,7 @@ public class AudioPlayer {
 
         playingDisposable = Observable.interval(0, 30, TimeUnit.MILLISECONDS)
                 .subscribeOn(RX.single())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .subscribe(aLong -> {
                     if (player.isPlaying()) {
                         timePublishSubject.onNext(player.getCurrentPosition());
@@ -131,7 +131,7 @@ public class AudioPlayer {
     }
 
     public Observable<Long> getTimeObservable() {
-        return timePublishSubject.hide().observeOn(AndroidSchedulers.mainThread());
+        return timePublishSubject.hide().observeOn(RX.main());
     }
 
     public void dispose() {

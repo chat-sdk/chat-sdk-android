@@ -7,8 +7,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import firefly.sdk.chat.R;
+import io.reactivex.CompletableSource;
 import sdk.guru.common.Event;
 import sdk.guru.common.EventType;
 import firestream.chat.events.ListData;
@@ -21,7 +23,7 @@ import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import io.reactivex.functions.Consumer;
 import sdk.guru.common.RX;
 import io.reactivex.subjects.BehaviorSubject;
@@ -101,8 +103,6 @@ public class Chat extends AbstractChat implements IChat {
         // Handle name and image change
         dm.add(Fire.internal().getFirebaseService().chat
                 .metaOn(getId())
-                .subscribeOn(RX.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(newMeta -> {
                     if (newMeta != null) {
 
@@ -260,13 +260,15 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Completable inviteUsers(List<? extends User> users) {
-        ArrayList<Completable> completables = new ArrayList<>();
-        for (User user : users) {
-            if (!user.isMe()) {
-                completables.add(Fire.stream().sendInvitation(user.id, InvitationType.chat(), id));
+        return Completable.defer(() -> {
+            ArrayList<Completable> completables = new ArrayList<>();
+            for (User user : users) {
+                if (!user.isMe()) {
+                    completables.add(Fire.stream().sendInvitation(user.id, InvitationType.chat(), id));
+                }
             }
-        }
-        return Completable.merge(completables).subscribeOn(RX.io()).observeOn(AndroidSchedulers.mainThread());
+            return Completable.merge(completables);
+        });
     }
 
     @Override
@@ -320,7 +322,7 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Observable<String> getNameChangeEvents() {
-        return nameChangedEvents.subscribeOn(RX.io()).hide();
+        return nameChangedEvents.hide();
     }
 
     @Override
@@ -330,7 +332,7 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public Observable<HashMap<String, Object>> getCustomDataChangedEvents() {
-        return customDataChangedEvents.subscribeOn(RX.io()).hide();
+        return customDataChangedEvents.hide();
     }
 
     @Override
@@ -466,7 +468,7 @@ public class Chat extends AbstractChat implements IChat {
             return chat.addUsers(true, usersToAdd)
                     .toSingle(() -> chat);
 
-        }).subscribeOn(RX.io()).observeOn(AndroidSchedulers.mainThread());
+        });
     }
 
     public boolean hasPermission(RoleType required) {

@@ -25,6 +25,7 @@ import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.disposables.Disposable;
 import sdk.chat.core.utils.PermissionRequestHandler;
+import sdk.guru.common.RX;
 
 /**
  * Created by Erk on 30.03.2016.
@@ -59,7 +60,7 @@ public class NearbyUsersFragment extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        GeoFireManager.shared().allEvents().doOnNext(geoEvent -> {
+        GeoFireManager.shared().allEvents().observeOn(RX.db()).doOnNext(geoEvent -> {
             if (geoEvent.item.isType(GeoItem.USER)) {
                 String entityID = geoEvent.item.entityID;
                 User user = ChatSDK.core().getUserNowForEntityID(entityID);
@@ -163,15 +164,17 @@ public class NearbyUsersFragment extends BaseFragment {
 
             ArrayList<UserListItem> items = new ArrayList<>(users);
 
-            adapter.setUsers(items);
-            if(listOnClickListenerDisposable != null) {
-                listOnClickListenerDisposable.dispose();
-            }
-            listOnClickListenerDisposable = adapter.onClickObservable().subscribe(o -> {
-                if(o instanceof LocationUser) {
-                    final User clickedUser = ((LocationUser) o).user;
-                    ChatSDK.ui().startProfileActivity(getContext(), clickedUser.getEntityID());
+            RX.main().scheduleDirect(() -> {
+                adapter.setUsers(items);
+                if(listOnClickListenerDisposable != null) {
+                    listOnClickListenerDisposable.dispose();
                 }
+                listOnClickListenerDisposable = adapter.onClickObservable().subscribe(o -> {
+                    if(o instanceof LocationUser) {
+                        final User clickedUser = ((LocationUser) o).user;
+                        ChatSDK.ui().startProfileActivity(getContext(), clickedUser.getEntityID());
+                    }
+                });
             });
         }
     }

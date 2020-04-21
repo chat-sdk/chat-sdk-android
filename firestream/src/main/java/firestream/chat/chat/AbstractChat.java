@@ -22,7 +22,7 @@ import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
@@ -84,7 +84,7 @@ public abstract class AbstractChat implements IAbstractChat {
             getSendableEvents().getSendables().onNext(event);
         }).doOnError(throwable -> {
             events.publishThrowable().onNext(throwable);
-        }).subscribeOn(RX.io()).observeOn(AndroidSchedulers.mainThread());
+        }).observeOn(RX.main());
     }
 
     /**
@@ -97,8 +97,7 @@ public abstract class AbstractChat implements IAbstractChat {
     protected Single<List<Sendable>> loadMoreMessages(@Nullable Date fromDate, @Nullable Date toDate, @Nullable Integer limit) {
         return Fire.internal().getFirebaseService().core
                 .loadMoreMessages(messagesPath(), fromDate, toDate, limit)
-                .subscribeOn(RX.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(RX.main());
     }
 
     public Single<List<Sendable>> loadMoreMessages(Date fromDate, Date toDate) {
@@ -132,8 +131,7 @@ public abstract class AbstractChat implements IAbstractChat {
             } else {
                 return Fire.internal().getFirebaseService().core
                         .dateOfLastSentMessage(messagesPath())
-                        .subscribeOn(RX.io())
-                        .observeOn(AndroidSchedulers.mainThread());
+                        .observeOn(RX.main());
             }
         });
     }
@@ -146,8 +144,7 @@ public abstract class AbstractChat implements IAbstractChat {
     protected Observable<Event<ListData>> listChangeOn(Path path) {
         return Fire.internal().getFirebaseService().core
                 .listChangeOn(path)
-                .subscribeOn(RX.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(RX.main());
     }
 
     public Completable send(Path messagesPath, Sendable sendable) {
@@ -164,8 +161,7 @@ public abstract class AbstractChat implements IAbstractChat {
     public Completable send(Path messagesPath, Sendable sendable, @Nullable Consumer<String> newId) {
         return Fire.internal().getFirebaseService().core
                 .send(messagesPath, sendable, newId)
-                .subscribeOn(RX.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(RX.main());
     }
 
     /**
@@ -176,8 +172,7 @@ public abstract class AbstractChat implements IAbstractChat {
     protected Completable deleteSendable (Path messagesPath) {
         return Fire.internal().getFirebaseService().core
                 .deleteSendable(messagesPath)
-                .subscribeOn(RX.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(RX.main());
     }
 
     /**
@@ -209,8 +204,7 @@ public abstract class AbstractChat implements IAbstractChat {
     protected Completable removeUsers(Path path, List<? extends User> users) {
         return Fire.internal().getFirebaseService().core
                 .removeUsers(path, users)
-                .subscribeOn(RX.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(RX.main());
     }
 
     /**
@@ -248,8 +242,7 @@ public abstract class AbstractChat implements IAbstractChat {
     public Completable addUsers(Path path, User.DataProvider dataProvider, List<? extends User> users) {
         return Fire.internal().getFirebaseService().core
                 .addUsers(path, dataProvider, users)
-                .subscribeOn(RX.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(RX.main());
     }
 
     /**
@@ -287,15 +280,13 @@ public abstract class AbstractChat implements IAbstractChat {
     public Completable updateUsers(Path path, User.DataProvider dataProvider, List<? extends User> users) {
         return Fire.internal().getFirebaseService().core
                 .updateUsers(path, dataProvider, users)
-                .subscribeOn(RX.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(RX.main());
     }
 
     @Override
     public void connect() throws Exception {
         dm.add(dateOfLastDeliveryReceipt()
                 .flatMapObservable(this::messagesOn)
-                .subscribeOn(RX.io())
                 .subscribe(this::passMessageResultToStream, this));
     }
 

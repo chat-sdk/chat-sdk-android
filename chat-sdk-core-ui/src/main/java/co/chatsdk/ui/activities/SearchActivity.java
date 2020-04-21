@@ -42,7 +42,7 @@ import co.chatsdk.ui.adapters.UsersListAdapter;
 import co.chatsdk.ui.icons.Icons;
 import io.reactivex.Completable;
 import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import io.reactivex.disposables.Disposable;
 
 import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL;
@@ -214,7 +214,7 @@ public class SearchActivity extends BaseActivity {
         users.clear();
 
         ChatSDK.search().usersForIndex(searchText)
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .subscribe(new Observer<User>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
@@ -259,12 +259,12 @@ public class SearchActivity extends BaseActivity {
 
         for (User u : User.convertIfPossible(adapter.getSelectedUsers())) {
             if (!u.isMe()) {
-                completables.add(ChatSDK.contact().addContact((User) u, ConnectionType.Contact));
+                completables.add(ChatSDK.contact().addContact(u, ConnectionType.Contact));
             }
         }
 
         dm.add(Completable.merge(completables)
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .subscribe(this::finish, this));
     }
 

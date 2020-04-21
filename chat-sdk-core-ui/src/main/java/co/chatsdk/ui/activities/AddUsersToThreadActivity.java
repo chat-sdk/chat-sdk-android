@@ -14,7 +14,7 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.R;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 
 public class AddUsersToThreadActivity extends SelectContactActivity {
 
@@ -60,7 +60,7 @@ public class AddUsersToThreadActivity extends SelectContactActivity {
         showProgressDialog( getString(R.string.adding_users));
 
         dm.add(ChatSDK.thread().addUsersToThread(thread, User.convertIfPossible(users))
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .doFinally(() -> {
                     dismissProgressDialog();
                     finish();

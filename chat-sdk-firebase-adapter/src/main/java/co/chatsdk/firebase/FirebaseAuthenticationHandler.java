@@ -6,17 +6,15 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
 
 import org.pmw.tinylog.Logger;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
-import io.reactivex.CompletableSource;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
+import io.reactivex.CompletableObserver;
 import sdk.chat.core.base.AbstractAuthenticationHandler;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
@@ -29,12 +27,8 @@ import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import sdk.guru.common.RX;
-import sdk.guru.common.Optional;
-import sdk.guru.realtime.DocumentChange;
 import sdk.guru.realtime.RXRealtime;
-import sdk.guru.realtime.RealtimeEventListener;
 import sdk.guru.realtime.RealtimeReferenceManager;
 
 /**
@@ -72,7 +66,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 authenticating = authenticateWithUser(FirebaseCoreHandler.auth().getCurrentUser());
             }
             return authenticating;
-        }).subscribeOn(RX.io());
+        });
     }
 
     @Override
@@ -109,9 +103,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                             emitter.onError(ChatSDK.getException(R.string.no_login_type_defined));
                             break;
                     }
-                })
-                        .flatMapCompletable(this::authenticateWithUser)
-                        .subscribeOn(RX.io());
+                }).subscribeOn(RX.io()).flatMapCompletable(this::authenticateWithUser);
             }
             return authenticating;
         });
@@ -138,7 +130,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     }
 
     public Completable authenticateWithUser(final FirebaseUser user) {
-        return Completable.defer(() -> {
+        return Completable.merge(Arrays.asList(Completable.defer(() -> {
 
             User cachedUser = ChatSDK.db().fetchUserWithEntityID(user.getUid());
 
@@ -152,7 +144,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             return userWrapper.push().doOnComplete(() -> {
                 completeAuthentication(userWrapper.getModel());
             });
-        }).andThen(retrieveRemoteConfig()).subscribeOn(RX.io()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(RX.db()), retrieveRemoteConfig()));
     }
 
     protected void completeAuthentication(User user) {
@@ -196,7 +188,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                     user.updatePassword(newPassword).addOnCompleteListener(resultHandler);
                 })
-                .subscribeOn(RX.io()).observeOn(AndroidSchedulers.mainThread());
+                .subscribeOn(RX.io());
     }
 
     public Completable logout() {
@@ -226,7 +218,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     } else {
                         return Completable.complete();
                     }
-                })).subscribeOn(RX.io());
+                }).subscribeOn(RX.computation()));
     }
 
     public Completable sendPasswordResetMail(final String email) {

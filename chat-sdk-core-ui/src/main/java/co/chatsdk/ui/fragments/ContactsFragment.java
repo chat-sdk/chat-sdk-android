@@ -8,6 +8,7 @@
 package co.chatsdk.ui.fragments;
 
 import android.app.AlertDialog;
+import android.graphics.Path;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,10 +28,15 @@ import java.util.concurrent.Callable;
 
 import butterknife.BindView;
 import co.chatsdk.ui.utils.DialogUtils;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ConnectionType;
 import sdk.chat.core.types.SearchActivityType;
@@ -43,6 +49,8 @@ import co.chatsdk.ui.interfaces.SearchSupported;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.PublishSubject;
+import sdk.guru.common.Optional;
+import sdk.guru.common.RX;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -182,13 +190,19 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
     }
 
     public void loadData(final boolean force) {
-        final ArrayList<User> originalUserList = new ArrayList<>(sourceUsers);
-
-        reloadData();
-
-        if (!originalUserList.equals(sourceUsers) || force) {
-            adapter.setUsers(UserListItemConverter.toUserItemList(sourceUsers), true);
-        }
+        dm.add(Single.create((SingleOnSubscribe<Optional<List<UserListItem>>>) emitter -> {
+            final ArrayList<User> originalUserList = new ArrayList<>(sourceUsers);
+            reloadData();
+            if (!originalUserList.equals(sourceUsers) || force) {
+                emitter.onSuccess(new Optional<>(UserListItemConverter.toUserItemList(sourceUsers)));
+            } else {
+                emitter.onSuccess(new Optional<>());
+            }
+        }).subscribeOn(RX.db()).observeOn(RX.main()).subscribe(listOptional -> {
+            if (!listOptional.isEmpty()) {
+                adapter.setUsers(listOptional.get(), true);
+            }
+        }));
     }
 
     @Override

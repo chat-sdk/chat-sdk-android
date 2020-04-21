@@ -6,7 +6,7 @@ import android.widget.Toast;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import io.reactivex.disposables.Disposable;
 
 /**
@@ -21,7 +21,7 @@ public class InfiniteToast {
     String text;
 
     public InfiniteToast (final Context context,final int resId, boolean flash) {
-        disposable = Observable.interval(0, flash ? 2500 : 2000, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(aLong -> {
+        disposable = Observable.interval(0, flash ? 2500 : 2000, TimeUnit.MILLISECONDS).observeOn(RX.main()).subscribe(aLong -> {
             toast = Toast.makeText(context, resId, Toast.LENGTH_SHORT);
             if (text != null) {
                 toast.setText(text);

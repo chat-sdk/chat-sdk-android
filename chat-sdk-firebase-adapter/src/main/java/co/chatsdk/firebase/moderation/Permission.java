@@ -63,7 +63,9 @@ public class Permission {
     public static int level(String permission) {
         int i = all().size();
         for (String p: all()) {
-            if (permission.equals(p)) {
+            // If no permission is specified we assume they are a member
+            // Do this for backwards compatibility
+            if ((permission == null && p.equals(Permission.Member)) || permission.equals(p)) {
                 return i;
             }
             i--;
@@ -97,22 +99,22 @@ public class Permission {
         return null;
     }
 
-    public static String fromLocalized(String localized) {
-        if (localized.equals(ChatSDK.getString(R.string.owner))) {
-            return Owner;
-        }
-        if (localized.equals(ChatSDK.getString(R.string.admin))) {
-            return Admin;
-        }
-        if (localized.equals(ChatSDK.getString(R.string.member))) {
-            return Member;
-        }
-        if (localized.equals(ChatSDK.getString(R.string.watcher))) {
-            return Watcher;
-        }
-        if (localized.equals(ChatSDK.getString(R.string.banned))) {
-            return Banned;
-        }
-        return null;
-    }
+//    public static String fromLocalized(String localized) {
+//        if (localized.equals(ChatSDK.getString(R.string.owner))) {
+//            return Owner;
+//        }
+//        if (localized.equals(ChatSDK.getString(R.string.admin))) {
+//            return Admin;
+//        }
+//        if (localized.equals(ChatSDK.getString(R.string.member))) {
+//            return Member;
+//        }
+//        if (localized.equals(ChatSDK.getString(R.string.watcher))) {
+//            return Watcher;
+//        }
+//        if (localized.equals(ChatSDK.getString(R.string.banned))) {
+//            return Banned;
+//        }
+//        return null;
+//    }
 }

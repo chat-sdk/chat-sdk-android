@@ -78,6 +78,8 @@ public class Config<T> extends BaseConfig<T> {
     // Login
     public boolean anonymousLoginEnabled = true;
 
+    public boolean rolesEnabled = true;
+
     // Should we open a new thread with a user after the thread has been deleted?
     public boolean reuseDeleted1to1Threads = true;
 
@@ -403,6 +405,11 @@ public class Config<T> extends BaseConfig<T> {
 
     public Config<T> setSendSystemMessageWhenRoleChanges(boolean value) {
         this.sendSystemMessageWhenRoleChanges = value;
+        return this;
+    }
+
+    public Config<T> setRolesEnabled(boolean value) {
+        this.rolesEnabled = value;
         return this;
     }
 

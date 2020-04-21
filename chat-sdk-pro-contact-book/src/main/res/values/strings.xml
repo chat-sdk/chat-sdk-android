@@ -10,5 +10,5 @@
     <string name="sms">SMS</string>
     <string name="send_invite">Send Invite</string>
     <string name="invite_contact">Invite Contact</string>
-    <string name="add_user_from_contacts">Add user from Contacts</string>
+    <string name="add_user_from_contacts">Add User From Contacts</string>
 </resources>

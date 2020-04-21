@@ -19,17 +19,19 @@ public class ReadStatusViewBinder {
             ReadStatus status = holder.getReadStatus();
             MessageSendStatus sendStatus = holder.getSendStatus();
 
-            int resource = R.drawable.icn_30_sent;
+//            int resource = R.drawable.icn_30_sending;
+            int resource = -1;
 
             if (sendStatus != MessageSendStatus.Sent) {
-                resource = R.drawable.icn_30_sending;
-            } else if (status.is(ReadStatus.delivered())) {
+                resource = R.drawable.icn_30_sent;
+            }
+            if (status.is(ReadStatus.delivered())) {
                 resource = R.drawable.icn_30_delivered;
             } else if (status.is(ReadStatus.read())) {
                 resource = R.drawable.icn_30_read;
             }
 
-            if (view != null) {
+            if (view != null && resource != -1) {
                 view.setImageResource(resource);
                 view.setVisibility(status.is(ReadStatus.hide()) ? View.GONE : View.VISIBLE);
             }

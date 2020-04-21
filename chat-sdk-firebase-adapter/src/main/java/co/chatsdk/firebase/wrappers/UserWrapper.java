@@ -153,7 +153,7 @@ public class UserWrapper {
 //                e.onError(error.toException());
 //            }));
 //
-//        }).subscribeOn(RX.io());
+//        }).subscribeOn(RX.firebaseIO());
 //    }
 
     public Completable metaOn() {

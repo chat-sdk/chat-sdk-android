@@ -50,7 +50,6 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
             }
             emitter.onSuccess(new ThreadPusher(thread, true));
 
-        }).flatMap((Function<ThreadPusher, SingleSource<Thread>>) ThreadPusher::push)
-                .subscribeOn(RX.io());
+        }).flatMap((Function<ThreadPusher, SingleSource<Thread>>) ThreadPusher::push).subscribeOn(RX.db());
     }
 }

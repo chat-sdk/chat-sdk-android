@@ -41,7 +41,7 @@ import sdk.chat.core.storage.FileManager;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 import sdk.chat.core.types.FileUploadResult;
 import sdk.guru.common.RX;
 
@@ -172,7 +172,7 @@ public class ImageUtils {
             }
             Bitmap bitmap = requestBuilder.submit().get();
             emitter.onSuccess(bitmap);
-        }).subscribeOn(RX.io()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(RX.io()).observeOn(RX.main());
     }
 
     public static Single<ImageUploadResult> uploadImageFile(File file) {

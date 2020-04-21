@@ -16,7 +16,7 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.R;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import sdk.guru.common.RX;
 
 public class ForwardMessageActivity extends SelectContactActivity {
 
@@ -67,7 +67,7 @@ public class ForwardMessageActivity extends SelectContactActivity {
     @Override
     protected void doneButtonPressed(List<UserListItem> users) {
         dm.add(ChatSDK.thread().createThread(User.convertIfPossible(users)).flatMapCompletable(thread -> ChatSDK.thread().forwardMessages(thread, messages))
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(RX.main())
                 .subscribe(() -> {
                     setResult(Activity.RESULT_OK);
                     finish();

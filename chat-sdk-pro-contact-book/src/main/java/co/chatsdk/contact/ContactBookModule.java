@@ -31,7 +31,7 @@ public class ContactBookModule implements Module {
 
     @Override
     public void activate(Context context) {
-        ChatSDK.ui().addSearchActivity(ContactBookSearchActivity.class, ChatSDK.shared().context().getString(R.string.contact_book));
+        ChatSDK.ui().addSearchActivity(ContactBookSearchActivity.class, context.getString(R.string.contact_book));
     }
 
     @Override

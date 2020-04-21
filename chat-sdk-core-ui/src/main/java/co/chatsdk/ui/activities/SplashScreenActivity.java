@@ -15,6 +15,7 @@ import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
+import sdk.guru.common.RX;
 
 public class SplashScreenActivity extends BaseActivity {
 
@@ -55,6 +56,7 @@ public class SplashScreenActivity extends BaseActivity {
         } else if (ChatSDK.auth().isAuthenticated() || ChatSDK.auth().isAuthenticating()) {
             startProgressBar();
             dm.add(ChatSDK.auth().authenticate()
+                    .observeOn(RX.main())
                     .doFinally(this::stopProgressBar)
                     .subscribe(this::startMainActivity, throwable -> startLoginActivity()));
         } else {

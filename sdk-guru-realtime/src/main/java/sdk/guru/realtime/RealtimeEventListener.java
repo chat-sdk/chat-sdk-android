@@ -7,6 +7,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
+import sdk.guru.common.RX;
+
 /**
  * Created by benjaminsmiley-andrews childOn 10/05/2017.
  */
@@ -68,42 +70,42 @@ public class RealtimeEventListener implements ChildEventListener, ValueEventList
     @Override
     public void onChildAdded(final DataSnapshot var1, final String var2) {
         if(onChildAdded != null) {
-            AsyncTask.execute(() -> onChildAdded.trigger(var1, var2, hasValue(var1)));
+            RX.db().scheduleDirect(() -> onChildAdded.trigger(var1, var2, hasValue(var1)));
         }
     }
 
     @Override
     public void onChildChanged(final DataSnapshot var1, final String var2) {
         if(onChildChanged != null) {
-            AsyncTask.execute(() -> onChildChanged.trigger(var1, var2, hasValue(var1)));
+            RX.db().scheduleDirect(() -> onChildChanged.trigger(var1, var2, hasValue(var1)));
         }
     }
 
     @Override
     public void onChildRemoved(final DataSnapshot var1) {
         if(onChildRemoved != null) {
-            AsyncTask.execute(() -> onChildRemoved.trigger(var1, hasValue(var1)));
+            RX.db().scheduleDirect(() -> onChildRemoved.trigger(var1, hasValue(var1)));
         }
     }
 
     @Override
     public void onChildMoved(final DataSnapshot var1, final String var2) {
         if(onChildMoved != null) {
-            AsyncTask.execute(() -> onChildMoved.trigger(var1, var2, hasValue(var1)));
+            RX.db().scheduleDirect(() -> onChildMoved.trigger(var1, var2, hasValue(var1)));
         }
     }
 
     @Override
     public void onDataChange(final DataSnapshot dataSnapshot) {
         if(onValue != null) {
-            AsyncTask.execute(() -> onValue.trigger(dataSnapshot, hasValue(dataSnapshot)));
+            RX.db().scheduleDirect(() -> onValue.trigger(dataSnapshot, hasValue(dataSnapshot)));
         }
     }
 
     @Override
     public void onCancelled(final DatabaseError var1) {
         if(onCancelled != null) {
-            AsyncTask.execute(() -> onCancelled.trigger(var1));
+            RX.db().scheduleDirect(() -> onCancelled.trigger(var1));
         }
     }
 
