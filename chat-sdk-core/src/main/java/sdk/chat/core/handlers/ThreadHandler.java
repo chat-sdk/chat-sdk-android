@@ -92,8 +92,8 @@ public interface ThreadHandler {
     /**
      * Get a list of all threads
      */
-    List<Thread> getThreads (int type, boolean allowDeleted);
-    List<Thread> getThreads (int type);
+    List<Thread> getThreads(int type, boolean allowDeleted);
+    List<Thread> getThreads(int type);
 
     void sendLocalSystemMessage(String text, Thread thread);
     void sendLocalSystemMessage(String text, SystemMessageType type, Thread thread);
