@@ -3,7 +3,9 @@ package co.chatsdk.firebase.wrappers;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import co.chatsdk.firebase.moderation.Permission;
@@ -11,6 +13,7 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.firebase.FirebasePaths;
@@ -32,7 +35,7 @@ public class ThreadPusher {
         this.push = push;
     }
 
-    public Single<Thread> push () {
+    public Single<Thread> push() {
         return Single.defer((Callable<SingleSource<Thread>>) () -> {
             if (push) {
                 if (thread.typeIs(ThreadType.Public)) {
@@ -65,12 +68,8 @@ public class ThreadPusher {
                                 thread.delete();
                             })
                             .andThen(Completable.defer(() -> {
-                                if (thread.typeIs(ThreadType.Group)) {
-                                    return wrapper.setPermission(ChatSDK.currentUserID(), Permission.Owner);
-                                }
-                                return Completable.complete();
+                                return ChatSDK.thread().addUsersToThread(thread, thread.getUsers(), null);
                             }))
-                            .andThen(ChatSDK.thread().addUsersToThread(thread, thread.getUsers()))
                             .toSingle(() -> thread);
                 }
             } else {
@@ -79,3 +78,5 @@ public class ThreadPusher {
         });
     }
 }
+
+

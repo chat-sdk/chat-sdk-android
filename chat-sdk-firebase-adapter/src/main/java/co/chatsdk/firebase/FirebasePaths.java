@@ -20,6 +20,7 @@ public class FirebasePaths{
     public static final String MessagesPath = "messages";
     public static final String ThreadsPath = "threads";
     public static final String ContactsPath = "contacts";
+    public static final String BlockedPath = "blocked";
     public static final String PublicThreadsPath = "public-threads";
     public static final String OnlinePath = "online";
     public static final String MetaPath = "meta";
@@ -97,10 +98,6 @@ public class FirebasePaths{
 
     public static DatabaseReference threadUserPermissionRef(String firebaseId, String userEntityID){
         return threadRef().child(firebaseId).child(PermissionsPath).child(userEntityID);
-    }
-
-    public static DatabaseReference threadLastMessageRef(String firebaseId){
-        return threadRef().child(firebaseId).child(LastMessagePath);
     }
 
     public static DatabaseReference threadMessagesRef(String firebaseId){

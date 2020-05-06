@@ -1,10 +1,6 @@
 package sdk.chat.core.dao;
 
-import android.os.AsyncTask;
-
 import org.joda.time.DateTime;
-
-import java.util.concurrent.Callable;
 
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
@@ -15,12 +11,9 @@ import sdk.guru.common.RX;
 public class MessageAsync {
 
     public static void markRead(Message message) {
-        RX.onBackground(() -> {
-            if (ChatSDK.readReceipts() != null) {
-                ChatSDK.readReceipts().markRead(message);
-            }
-            message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new DateTime());
-        });
+        if (ChatSDK.readReceipts() != null) {
+            ChatSDK.readReceipts().markRead(message);
+        }
     }
 
     public static Single<Boolean> isRead(Message message) {
@@ -37,9 +30,7 @@ public class MessageAsync {
 
     public static void markDelivered(Message message) {
         RX.onBackground(() -> {
-            if (!message.isRead()) {
-                message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.delivered(), new DateTime());
-            }
+            message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.delivered(), new DateTime());
         });
     }
 }

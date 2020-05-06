@@ -30,7 +30,7 @@ public class MessageSorter implements Comparator<Message> {
             return 0;
         }
         else {
-            return (order == DaoCore.ORDER_ASC ? 1 : -1 ) * m1.getDate().toDate().compareTo(m2.getDate().toDate());
+            return (order == DaoCore.ORDER_ASC ? 1 : -1 ) * m1.getDate().compareTo(m2.getDate());
         }
     }
 }

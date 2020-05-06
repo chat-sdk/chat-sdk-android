@@ -32,6 +32,7 @@ import co.chatsdk.ui.adapters.UsersListAdapter;
 import co.chatsdk.ui.utils.ToastHelper;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.PublishSubject;
+import sdk.guru.common.RX;
 
 public class ThreadUsersFragment extends BaseFragment {
 
@@ -205,7 +206,7 @@ public class ThreadUsersFragment extends BaseFragment {
         builder.setSingleChoiceItems(localizedRoles.toArray(new String[0]), checked, (dialog, which) -> {
             String newRole = roles.get(which);
             if (!newRole.equals(currentRole)) {
-                dm.add(ChatSDK.thread().setRole(newRole, thread, user).subscribe(() -> {
+                dm.add(ChatSDK.thread().setRole(newRole, thread, user).observeOn(RX.main()).subscribe(() -> {
                     ToastHelper.show(getActivity(), R.string.success);
                 }, this));
             }
@@ -257,13 +258,13 @@ public class ThreadUsersFragment extends BaseFragment {
         if (ChatSDK.thread().canChangeModerator(thread, user)) {
             if (ChatSDK.thread().isModerator(thread, user)) {
                 options.add(new Option(R.string.revoke_moderator, user1 -> {
-                    dm.add(ChatSDK.thread().revokeModerator(thread, user1).subscribe(() -> {
+                    dm.add(ChatSDK.thread().revokeModerator(thread, user1).observeOn(RX.main()).subscribe(() -> {
                         ToastHelper.show(getActivity(), R.string.success);
                     }, this));
                 }));
             } else {
                 options.add(new Option(R.string.grant_moderator, user1 -> {
-                    dm.add(ChatSDK.thread().grantModerator(thread, user1).subscribe(() -> {
+                    dm.add(ChatSDK.thread().grantModerator(thread, user1).observeOn(RX.main()).subscribe(() -> {
                         ToastHelper.show(getActivity(), R.string.success);
                     }, this));
                 }));
@@ -273,13 +274,13 @@ public class ThreadUsersFragment extends BaseFragment {
         if (ChatSDK.thread().canChangeVoice(thread, user)) {
             if (ChatSDK.thread().hasVoice(thread, user)) {
                 options.add(new Option(R.string.revoke_voice, user1 -> {
-                    dm.add(ChatSDK.thread().revokeVoice(thread, user1).subscribe(() -> {
+                    dm.add(ChatSDK.thread().revokeVoice(thread, user1).observeOn(RX.main()).subscribe(() -> {
                         ToastHelper.show(getActivity(), R.string.success);
                     }, this));
                 }));
             } else {
                 options.add(new Option(R.string.grant_voice, user1 -> {
-                    dm.add(ChatSDK.thread().grantVoice(thread, user1).subscribe(() -> {
+                    dm.add(ChatSDK.thread().grantVoice(thread, user1).observeOn(RX.main()).subscribe(() -> {
                         ToastHelper.show(getActivity(), R.string.success);
                     }, this));
                 }));
@@ -289,7 +290,7 @@ public class ThreadUsersFragment extends BaseFragment {
         // Remove a user from the group
         if (ChatSDK.thread().canRemoveUsersFromThread(thread, Collections.singletonList(user))) {
             options.add(new Option(R.string.remove_from_group, u -> {
-                dm.add(ChatSDK.thread().removeUsersFromThread(thread, u).subscribe(() -> {
+                dm.add(ChatSDK.thread().removeUsersFromThread(thread, u).observeOn(RX.main()).subscribe(() -> {
                     ToastHelper.show(getActivity(), R.string.success);
                 }, this));
             }));

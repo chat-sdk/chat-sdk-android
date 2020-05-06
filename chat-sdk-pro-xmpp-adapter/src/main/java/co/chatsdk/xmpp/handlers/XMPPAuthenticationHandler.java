@@ -127,10 +127,6 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                 }
             }
 
-            if(ChatSDK.push() != null) {
-                ChatSDK.push().subscribeToPushChannel(user.getPushChannel());
-            }
-
             XMPPManager.shared().performPostAuthenticationSetup();
 
             authenticatedThisSession = true;
@@ -150,9 +146,6 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
     @Override
     public Completable logout() {
         return Completable.create(emitter -> {
-            if(ChatSDK.push() != null) {
-                ChatSDK.push().unsubscribeToPushChannel(ChatSDK.currentUser().getPushChannel());
-            }
             XMPPManager.shared().logout();
 
             clearSavedCurrentUserEntityID();

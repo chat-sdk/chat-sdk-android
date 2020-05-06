@@ -9,7 +9,9 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.handlers.MessageHandler;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import co.chatsdk.message.video.R;
@@ -23,7 +25,7 @@ import co.chatsdk.ui.custom.IMessageHandler;
  * Created by ben on 10/6/17.
  */
 
-public class VideoMessageModule implements Module {
+public class VideoMessageModule extends AbstractModule {
 
     public static final VideoMessageModule instance = new VideoMessageModule();
 
@@ -83,4 +85,10 @@ public class VideoMessageModule implements Module {
     public String getName() {
         return "VideoMessagesModule";
     }
+
+    @Override
+    public MessageHandler getMessageHandler() {
+        return ChatSDK.videoMessage();
+    }
+
 }

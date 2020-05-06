@@ -6,13 +6,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 
+import androidx.annotation.NonNull;
+
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.GlideEngine;
 import com.zhihu.matisse.internal.entity.CaptureStrategy;
-
-import org.greenrobot.greendao.annotation.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -267,18 +267,18 @@ public class MediaSelector {
         }
     }
 
-    protected void notifySuccess (@NotNull File... file) {
+    protected void notifySuccess (@NonNull File... file) {
         notifySuccess(Arrays.asList(file));
     }
 
-    protected void notifySuccess (@NotNull List<File> files) {
+    protected void notifySuccess (@NonNull List<File> files) {
         if (emitter != null) {
             emitter.onSuccess(files);
         }
         clear();
     }
 
-    protected void notifyError (@NotNull Throwable throwable) {
+    protected void notifyError (@NonNull Throwable throwable) {
         if (emitter != null) {
             emitter.onError(throwable);
         }

@@ -30,6 +30,12 @@ android {
         }
     }
 
+    if(project.hasProperty('devBuild')) {
+        splits.abi.enable = false
+        splits.density.enable = false
+        aaptOptions.cruncherEnabled = false
+    }
+
     buildTypes {
         release {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
@@ -41,6 +47,7 @@ android {
         debug {
             debuggable true
             jniDebuggable true
+            ext.alwaysUpdateBuildId = false
         }
     }
 
@@ -55,6 +62,15 @@ android {
     dexOptions {
         javaMaxHeapSize "6g"
         preDexLibraries = false
+    }
+
+    flavorDimensions "default"
+    productFlavors {
+        development {
+            dimension "default"
+            minSdkVersion 21
+            resConfigs("en", "xxhdpi")
+        }
     }
 
     compileOptions {
@@ -76,7 +92,7 @@ dependencies {
     implementation project(':chat-sdk-firebase-push')
     implementation project(':chat-sdk-firebase-upload')
 
-    implementation project(':chat-sdk-firestream-adapter')
+//    implementation project(':chat-sdk-firestream-adapter')
 
     implementation project(':chat-sdk-mod-ui-extras')
     implementation project(':chat-sdk-mod-firebase-ui')
@@ -96,14 +112,16 @@ dependencies {
     implementation project(':chat-sdk-pro-firebase-typing-indicator')
     implementation project(':chat-sdk-pro-firebase-read-receipts')
 
-    api project(path: ':chat-sdk-pro-xmpp-adapter')
-//    api project(path: ':chat-sdk-xmpp-ejabberd-file-storage')
-    api project(path: ':chat-sdk-pro-xmpp-read-receipts')
+    implementation "org.tinylog:tinylog:$tinyLogVersion"
 
+//    implementation project(path: ':chat-sdk-pro-xmpp-adapter')
+//    implementation project(path: ':chat-sdk-pro-xmpp-read-receipts')
+
+//    api project(path: ':chat-sdk-xmpp-ejabberd-file-storage')
 //    api project(':chat-sdk-image-canvas')
 //
 
-    implementation project(':firestream')
+//    implementation project(':firestream')
 
 //    implementation 'org.webrtc:google-webrtc:1.0.30039'
 
@@ -120,13 +138,13 @@ dependencies {
     implementation "de.hdodenhof:circleimageview:$circleImageViewVersion"
     implementation "com.github.siyamed:android-shape-imageview:$shapeImageViewVersion"
 
-    // Audio
-    implementation 'com.github.adrielcafe:AndroidAudioRecorder:0.3.0'
-    implementation 'com.github.adrielcafe:AndroidAudioConverter:0.0.8'
-    implementation 'com.google.android.exoplayer:exoplayer:2.11.3'
+    implementation "joda-time:joda-time:$jodaTimeVersion"
+    implementation "org.greenrobot:greendao:$greenDaoVersion"
 
-    // Demo
-    implementation 'com.romandanylyk:pageindicatorview:1.0.3'
+    // Audio
+//    implementation 'com.github.adrielcafe:AndroidAudioRecorder:0.3.0'
+//    implementation 'com.github.adrielcafe:AndroidAudioConverter:0.0.8'
+//    implementation 'com.google.android.exoplayer:exoplayer:2.11.3'
 
 }
 

@@ -58,5 +58,14 @@ dependencies {
     api "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
     api "com.google.firebase:firebase-auth:$firebaseAuthVersion"
     implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
+    implementation "joda-time:joda-time:$jodaTimeVersion"
+
+    implementation project(':sdk-guru-common')
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    implementation "org.tinylog:tinylog:$tinyLogVersion"
+
+
+
 }
 

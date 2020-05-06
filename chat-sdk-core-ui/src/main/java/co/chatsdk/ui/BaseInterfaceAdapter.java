@@ -110,6 +110,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
                 setAvatarGenerator(new HashAvatarGenerator());
         }
 
+        searchActivities.add(new SearchActivityType(searchActivity, context.getString(R.string.search_with_name)));
+
     }
 
     @Override

@@ -30,6 +30,7 @@ public class SystemMessageViewHolder extends MessageHolders.BaseMessageViewHolde
 
     @Override
     public void onBind(SystemMessageHolder systemMessageHolder) {
+        bubble.setSelected(isSelected());
         messageText.setText(systemMessageHolder.getText());
     }
 

@@ -4,7 +4,8 @@ import android.content.Context;
 
 import java.util.concurrent.TimeUnit;
 
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.module.Module;
 import sdk.guru.common.BaseConfig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
@@ -14,7 +15,7 @@ import sdk.chat.core.session.Configure;
  * Created by ben on 10/5/17.
  */
 
-public class FirebaseReadReceiptsModule implements Module {
+public class FirebaseReadReceiptsModule extends AbstractModule {
 
     public static final FirebaseReadReceiptsModule instance = new FirebaseReadReceiptsModule();
 

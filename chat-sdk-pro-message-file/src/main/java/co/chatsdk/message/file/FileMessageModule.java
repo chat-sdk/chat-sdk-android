@@ -13,7 +13,9 @@ import org.pmw.tinylog.Logger;
 
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.handlers.MessageHandler;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import co.chatsdk.ui.chat.model.MessageHolder;
@@ -24,7 +26,7 @@ import co.chatsdk.ui.custom.IMessageHandler;
  * Created by Pepe on 01/05/18.
  */
 
-public class FileMessageModule implements Module {
+public class FileMessageModule extends AbstractModule {
 
     public static final int CHOOSE_FILE = 42;
 
@@ -67,7 +69,7 @@ public class FileMessageModule implements Module {
             @Override
             public void onClick(Activity activity, View rootView, Message message) {
                 if (message.getMessageType().is(MessageType.File)) {
-                    String url = (String) message.valueForKey(Keys.MessageFileURL);
+                    String url = message.stringForKey(Keys.MessageFileURL);
                     Uri uri = Uri.parse(url);
                     final String mimeType = message.stringForKey(Keys.MessageMimeType);
 
@@ -93,4 +95,10 @@ public class FileMessageModule implements Module {
     public String getName() {
         return "FileMessageModule";
     }
+
+    @Override
+    public MessageHandler getMessageHandler() {
+        return ChatSDK.fileMessage();
+    }
+
 }

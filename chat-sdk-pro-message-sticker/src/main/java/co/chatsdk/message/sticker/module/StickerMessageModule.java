@@ -7,7 +7,9 @@ import android.view.View;
 import com.stfalcon.chatkit.messages.MessageHolders;
 
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.handlers.MessageHandler;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import co.chatsdk.message.sticker.R;
@@ -25,7 +27,7 @@ import co.chatsdk.ui.custom.IMessageHandler;
  */
 
 // https://openmoji.org/
-public class StickerMessageModule implements Module {
+public class StickerMessageModule extends AbstractModule {
 
     public static final int CHOOSE_STICKER = 105;
 
@@ -81,4 +83,10 @@ public class StickerMessageModule implements Module {
     public String getName() {
         return "StickerMessagesModule";
     }
+
+    @Override
+    public MessageHandler getMessageHandler() {
+        return ChatSDK.stickerMessage();
+    }
+
 }

@@ -11,6 +11,7 @@ import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.handlers.AudioMessageHandler;
+import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.rigs.FileUploadable;
 import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.session.ChatSDK;
@@ -70,6 +71,14 @@ public class BaseAudioMessageHandler implements AudioMessageHandler {
     @Override
     public String textRepresentation(Message message) {
         return message.stringForKey(Keys.MessageAudioURL);
+    }
+
+    @Override
+    public String getImageURL(Message message) {
+//        if (message.getMessageType().is(MessageType.Audio) || message.getReplyType().is(MessageType.Audio)) {
+//            return ImageUtils.uriForResourceId(ChatSDK.ctx(), R.drawable.icn_50_audio).toString();
+//        }
+        return null;
     }
 
 }

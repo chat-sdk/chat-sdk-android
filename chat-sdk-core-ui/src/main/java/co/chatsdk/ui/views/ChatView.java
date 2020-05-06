@@ -2,6 +2,7 @@ package co.chatsdk.ui.views;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
@@ -22,11 +23,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
+import co.chatsdk.ui.utils.ImageLoaderPayload;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.EventType;
@@ -40,7 +37,6 @@ import co.chatsdk.ui.R;
 import co.chatsdk.ui.R2;
 import co.chatsdk.ui.chat.model.MessageHolder;
 import co.chatsdk.ui.custom.Customiser;
-import sdk.guru.common.RX;
 import sdk.guru.common.RX;
 
 public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoadMoreListener {
@@ -89,34 +85,46 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         Customiser.shared().onBindMessageHolders(getContext(), holders);
 
         messagesListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, (imageView, url, payload) -> {
-            int placeholder = R.drawable.icn_100_profile;
-            if (payload instanceof Integer) {
-                placeholder = (Integer) payload;
-            }
 
-            if (url == null || url.isEmpty()) {
-                imageView.setImageResource(placeholder);
+            Uri uri = Uri.parse(url);
+            if (uri != null && uri.getScheme() != null && uri.getScheme().equals("android.resource")) {
+                imageView.setImageURI(uri);
             } else {
                 if (payload == null) {
                     // User avatar
                     Glide.with(this)
                             .load(url)
                             .dontAnimate()
-                            .placeholder(placeholder)
+                            .placeholder(R.drawable.icn_100_profile)
                             .override(Dimen.from(getContext(), R.dimen.small_avatar_width), Dimen.from(getContext(), R.dimen.small_avatar_height))
                             .into(imageView);
-                } else {
+                } else if (payload instanceof ImageLoaderPayload) {
+
+                    ImageLoaderPayload ilp = (ImageLoaderPayload) payload;
+                    if (ilp.width == 0) {
+                        ilp.width = maxImageWidth();
+                    }
+                    if (ilp.height == 0) {
+                        ilp.height = maxImageWidth();
+                    }
+                    if (ilp.placeholder == 0) {
+                        ilp.placeholder = R.drawable.icn_200_image_message_placeholder;
+                    }
+                    if (ilp.error == 0) {
+                        ilp.error = R.drawable.icn_200_image_message_error;
+                    }
+
                     // Image message
                     Glide.with(this)
                             .load(url)
+                            .override(ilp.width, ilp.height)
+                            .placeholder(ilp.placeholder)
+                            .error(ilp.error)
                             .dontAnimate()
-                            .placeholder(placeholder)
-                            .error(R.drawable.icn_200_image_message_error)
                             .override(maxImageWidth(), maxImageWidth())
                             .centerCrop()
                             .into(imageView);
-                }
-            }
+                }            }
         });
 
         messagesListAdapter.setLoadMoreListener(this);
@@ -187,21 +195,33 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         messagesListAdapter.unselectAllItems();
     }
 
-    public List<Message> getSelectedMessages() {
-        return MessageHolder.toMessages(messagesListAdapter.getSelectedMessages());
+    public List<MessageHolder> getSelectedMessages() {
+//        return MessageHolder.toMessages(messagesListAdapter.getSelectedMessages());
+        return messagesListAdapter.getSelectedMessages();
     }
 
     @Override
     public void onLoadMore(int page, int totalItemsCount) {
-        Date loadFromDate = null;
-        if (totalItemsCount != 0) {
-            // This list has the newest first
-            loadFromDate = messageHolders.get(messageHolders.size() - 1).getCreatedAt();
+        // Check if the thread was deleted. If so load messages since the last message or
+        // the deletion date, whichever is more recent
+        Date loadMessagesFrom = delegate.getThread().getLoadMessagesFrom();
+        if (loadMessagesFrom != null) {
+            dm.add(ChatSDK.thread()
+                    .loadMoreMessagesAfter(delegate.getThread(), loadMessagesFrom, totalItemsCount != 0)
+                    .observeOn(RX.main())
+                    .subscribe(this::addMessagesToEnd));
+        } else {
+            Date loadFromDate = null;
+            if (totalItemsCount != 0) {
+                // This list has the newest first
+                loadFromDate = messageHolders.get(messageHolders.size() - 1).getCreatedAt();
+            }
+
+            dm.add(ChatSDK.thread()
+                    .loadMoreMessagesBefore(delegate.getThread(), loadFromDate, totalItemsCount != 0)
+                    .observeOn(RX.main())
+                    .subscribe(this::addMessagesToEnd));
         }
-        dm.add(ChatSDK.thread()
-                .loadMoreMessagesForThread(loadFromDate, delegate.getThread(), totalItemsCount != 0)
-                .observeOn(RX.main())
-                .subscribe(this::addMessagesToEnd));
     }
 
     public void removeMessage(Message message) {

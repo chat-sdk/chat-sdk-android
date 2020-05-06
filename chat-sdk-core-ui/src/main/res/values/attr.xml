@@ -10,7 +10,10 @@
     <attr name="onlineIndicatorOnlineColor" format="reference|color" />
     <attr name="onlineIndicatorOfflineColor" format="reference|color" />
 
-    <attr name="systemMessageBackgroundColor" format="reference|color" />
+    <attr name="systemDefaultBubbleColor" format="reference|color" />
+    <attr name="systemDefaultBubblePressedColor" format="reference|color" />
+    <attr name="systemDefaultBubbleSelectedColor" format="reference|color" />
+
     <attr name="systemMessageTextColor" format="reference|color" />
     <attr name="systemMessageTextSize" format="reference|dimension" />
     <attr name="systemMessageBubbleDrawable" format="reference" />

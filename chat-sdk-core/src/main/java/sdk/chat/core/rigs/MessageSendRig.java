@@ -55,6 +55,28 @@ public class MessageSendRig {
         this.messageDidCreateUpdateAction = action;
     }
 
+    public MessageSendRig(Message message, Thread thread) {
+        this.thread = thread;
+        this.message = message;
+    }
+
+    public MessageSendRig(Message message) {
+        this.thread = message.getThread();
+        this.message = message;
+    }
+
+    public static MessageSendRig create(MessageType type, Thread thread, MessageDidCreateUpdateAction action) {
+        return new MessageSendRig(type, thread, action);
+    }
+
+    public static MessageSendRig create(Message message, Thread thread) {
+        return new MessageSendRig(message, thread);
+    }
+
+    public static MessageSendRig create(Message message) {
+        return new MessageSendRig(message);
+    }
+
     public MessageSendRig setUploadables (MessageDidUploadUpdateAction messageDidUploadUpdateAction, Uploadable... uploadables) {
         return this.setUploadables(Arrays.asList(uploadables), messageDidUploadUpdateAction);
     }
@@ -78,7 +100,9 @@ public class MessageSendRig {
 
     public Completable run() {
         return Completable.defer(() -> {
-            createMessage();
+            if (message == null) {
+                createMessage();
+            }
             if (uploadables.isEmpty()) {
                 return send();
             } else {

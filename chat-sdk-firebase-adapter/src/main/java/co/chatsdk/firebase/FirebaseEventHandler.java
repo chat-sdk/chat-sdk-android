@@ -4,11 +4,15 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import co.chatsdk.firebase.moderation.Permission;
+import io.reactivex.functions.Action;
 import sdk.chat.core.base.AbstractEventHandler;
 import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Keys;
@@ -57,14 +61,10 @@ public class FirebaseEventHandler extends AbstractEventHandler {
             threadsOn(user);
             publicThreadsOn(user);
             contactsOn(user);
-
-            if (ChatSDK.push() != null) {
-                ChatSDK.push().subscribeToPushChannel(user.getPushChannel());
-            }
         }
     }
 
-    protected void threadsOn (User user) {
+    protected void threadsOn(User user) {
         String entityID = user.getEntityID();
 
         final DatabaseReference threadsRef = FirebasePaths.userThreadsRef(entityID);
@@ -72,15 +72,30 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         new RXRealtime().childOn(threadsRef).flatMapCompletable(change -> {
             final ThreadWrapper thread = new ThreadWrapper(change.getSnapshot().getKey());
             if (change.getType() == EventType.Added && !thread.getModel().typeIs(ThreadType.Public)) {
-                thread.getModel().addUser(user);
-                threadWrapperOn(thread);
-                eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
+                Logger.debug("Thread added: " + change.getSnapshot().getKey());
+
+                if (thread.getModel().typeIs(ThreadType.Group)) {
+                    String permission = thread.getModel().getPermission(user.getEntityID());
+                    if (permission != null && permission.equals(Permission.None)) {
+                        ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(R.string.you_were_added_to_the_thread), thread.getModel());
+                    }
+                }
+
+                thread.getModel().addUser(user, false);
+
+                thread.on().doOnComplete(() -> {
+                    eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
+                }).subscribe(this);
+
             }
             if (change.getType() == EventType.Removed) {
+                Logger.debug("Thread removed: " + change.getSnapshot().getKey());
+
+                if (thread.getModel().typeIs(ThreadType.Group)) {
+                    ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(R.string.you_were_removed_from_the_thread), thread.getModel());
+                }
+                thread.getModel().setPermission(user.getEntityID(), Permission.None, true, false);
                 thread.off();
-                return thread.deleteThread().doOnComplete(() -> {
-                    eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
-                });
             }
             return Completable.complete();
 
@@ -104,11 +119,11 @@ public class FirebaseEventHandler extends AbstractEventHandler {
                 // Make sure that we're not in the thread
                 // there's an edge case where the user could kill the app and remain
                 // a member of a public thread
-                if (!ChatSDK.config().publicChatAutoSubscriptionEnabled) {
-                    ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).subscribe(ChatSDK.events());
-                }
+//                if (!ChatSDK.config().publicChatAutoSubscriptionEnabled) {
+//                    ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).subscribe(ChatSDK.events());
+//                }
 
-                threadWrapperOn(thread);
+                thread.on();
 
                 eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
 
@@ -119,18 +134,6 @@ public class FirebaseEventHandler extends AbstractEventHandler {
             }));
             RealtimeReferenceManager.shared().addRef(publicThreadsRef, publicThreadsListener);
         }
-    }
-
-    protected void threadWrapperOn(ThreadWrapper thread) {
-        // Starting to listen to thread changes.
-       Completable.merge(Arrays.asList(
-               thread.on().ignoreElements(),
-               thread.metaOn().ignoreElements(),
-               thread.messagesOn().ignoreElements(),
-               thread.messageRemovedOn().ignoreElements(),
-               thread.usersOn().ignoreElements(),
-               thread.permissionsOn().ignoreElements()
-       )).subscribe(this);
     }
 
     protected void contactsOn (User user) {
@@ -178,9 +181,6 @@ public class FirebaseEventHandler extends AbstractEventHandler {
             threadsOff(user);
             publicThreadsOff(user);
             contactsOff(user);
-            if (ChatSDK.push() != null) {
-                ChatSDK.push().unsubscribeToPushChannel(user.getPushChannel());
-            }
         }
 
         dm.disposeAll();
@@ -192,10 +192,6 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Private)) {
             ThreadWrapper wrapper = new ThreadWrapper(thread);
             wrapper.off();
-            wrapper.messagesOff();
-            wrapper.usersOff();
-            wrapper.metaOff();
-            wrapper.permissionsOff();
         }
     }
 
@@ -205,8 +201,6 @@ public class FirebaseEventHandler extends AbstractEventHandler {
             for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
                 ThreadWrapper wrapper = new ThreadWrapper(thread);
                 wrapper.off();
-                wrapper.messagesOff();
-                wrapper.usersOff();
             }
         }
     }

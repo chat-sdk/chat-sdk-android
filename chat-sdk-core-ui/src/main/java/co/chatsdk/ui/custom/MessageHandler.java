@@ -7,9 +7,12 @@ import android.view.View;
 import com.google.android.gms.maps.model.LatLng;
 import com.stfalcon.chatkit.messages.MessageHolders;
 
+import co.chatsdk.ui.utils.DialogUtils;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
+import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ImageMessageOnClickHandler;
@@ -69,6 +72,11 @@ public class MessageHandler implements IMessageHandler {
 
     @Override
     public void onClick(Activity activity, View rootView, Message message) {
+        if (message.getSender().isMe() && message.getMessageStatus() == MessageSendStatus.Failed) {
+            DialogUtils.showToastDialog(activity, R.string.message_send_failed, R.string.try_to_resend_the_message, R.string.send, R.string.cancel, () -> {
+                MessageSendRig.create(message).run().subscribe(ChatSDK.events());
+            }, null);
+        }
         if (message.getMessageType().is(MessageType.Image)) {
             ImageMessageOnClickHandler.onClick(activity, rootView, message.stringForKey(Keys.ImageUrl));
         }

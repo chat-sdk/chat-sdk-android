@@ -39,10 +39,10 @@ public class BaseOutcomingTextMessageViewHolder<T extends MessageHolder>
     public void onBind(T message) {
         super.onBind(message);
 
-        ReplyViewBinder.onBind(replyView, replyTextView, replyImageView, message);
+        ReplyViewBinder.onBind(replyView, replyTextView, replyImageView, message, imageLoader);
         ReadStatusViewBinder.onBind(readStatus, message);
         MessageBinder.onBindSendStatus(time, message);
-        IconBinder.bind(messageIcon, imageLoader, message);
+        IconBinder.bind(messageIcon, message, imageLoader);
 
     }
 }

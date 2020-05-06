@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import co.chatsdk.firebase.moderation.Permission;
 import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -19,6 +20,7 @@ import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ReadStatus;
+import sdk.guru.common.RX;
 import sdk.guru.realtime.DocumentChange;
 import sdk.guru.realtime.RXRealtime;
 import sdk.guru.realtime.RealtimeEventListener;
@@ -33,7 +35,7 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
         ChatSDK.hook().addHook(Hook.sync(data -> {
             for (Thread t: ChatSDK.db().fetchThreadsForCurrentUser()) {
                 if(readReceiptsEnabledForThread(t)) {
-                    List<Message> messages = ChatSDK.db().fetchMessagesForThreadWithID(t.getId(), FirebaseReadReceiptsModule.config().maxMessagesPerThread, null);
+                    List<Message> messages = ChatSDK.db().fetchMessagesForThreadWithID(t.getId(), null, null, FirebaseReadReceiptsModule.config().maxMessagesPerThread);
                     for(Message message : messages) {
                         this.updateReadReceipts(message);
                     }
@@ -68,9 +70,11 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
     }
 
     public void markRead(Message message) {
-        if(shouldMarkReadReceipt(message)) {
-            new MessageWrapper(message).setReadStatus(ReadStatus.read()).subscribe(ChatSDK.events());
-        }
+        RX.computation().scheduleDirect(() -> {
+            if(shouldMarkReadReceipt(message)) {
+                new MessageWrapper(message).setReadStatus(ReadStatus.read()).subscribe(ChatSDK.events());
+            }
+        });
     }
 
     @Override
@@ -79,7 +83,7 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
     }
 
     private boolean shouldListenToReadReceipt(Message message) {
-        return message.getSender().isMe() && readReceiptsEnabledForMessage(message);
+        return message.getSender().isMe() && readReceiptsEnabledForMessage(message) && !ChatSDK.thread().roleForUser(message.getThread(), ChatSDK.currentUser()).equals(Permission.Banned);
     }
 
     private boolean shouldMarkReadReceipt(Message message) {
@@ -96,7 +100,7 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
      */
     private boolean readReceiptsEnabledForMessage(Message message) {
         boolean enabled = readReceiptsEnabledForThread(message.getThread()) &&
-                message.getDate().isAfter(new Date().getTime() - FirebaseReadReceiptsModule.config().maxAge);
+                message.getDate().getTime() > (new Date().getTime() - FirebaseReadReceiptsModule.config().maxAge);
         if (enabled) {
             ReadStatus status = message.getReadStatus();
             return !status.is(ReadStatus.read());
@@ -118,12 +122,14 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
 
                     Map<String, Map<String, Long>> map = change.getSnapshot().getValue(Generic.readReceiptHashMap());
                     if (map != null) {
-                        new MessageWrapper(message).updateReadReceipts(map);
+                        if (new MessageWrapper(message).updateReadReceipts(map)) {
+                            ChatSDK.events().source().onNext(NetworkEvent.messageReadReceiptUpdated(message));
+                        }
                     }
 
-                    if (!message.readStatusForUser(ChatSDK.currentUser()).is(ReadStatus.none())) {
-                        ChatSDK.events().source().onNext(NetworkEvent.messageReadReceiptUpdated(message));
-                    }
+//                    if (!message.readStatusForUser(ChatSDK.currentUser()).is(ReadStatus.none())) {
+//                        ChatSDK.events().source().onNext(NetworkEvent.messageReadReceiptUpdated(message));
+//                    }
 
                     // If this is now read, remove the read receipt
                     if (!shouldListenToReadReceipt(message)) {

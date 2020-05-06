@@ -167,7 +167,6 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         final List<SearchActivityType> activities = new ArrayList<>(ChatSDK.ui().getSearchActivities());
-        activities.add(new SearchActivityType(ChatSDK.ui().getSearchActivity(), getActivity().getString(R.string.search_with_name)));
 
         if (activities.size() == 1) {
             ChatSDK.ui().startActivity(getActivity(), activities.get(0).className);

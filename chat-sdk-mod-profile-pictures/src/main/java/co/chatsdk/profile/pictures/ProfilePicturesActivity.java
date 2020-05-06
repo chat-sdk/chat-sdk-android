@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import co.chatsdk.ui.module.DefaultUIModule;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.image.ImageUploadResult;
@@ -98,7 +99,10 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
         // Get the screen width
         int size = getResources().getDisplayMetrics().widthPixels / 2 - gridPadding;
 
-        Glide.with(this).load(url).dontAnimate().override(size, size).centerCrop().into(cell);
+        Glide.with(this).load(url)
+                .placeholder(DefaultUIModule.config().defaultProfileImage)
+                .error(DefaultUIModule.config().defaultProfileImage)
+                .dontAnimate().override(size, size).centerCrop().into(cell);
 
         cell.setOnClickListener(v -> {
             zoomImageFromThumbnail(cell, url);
@@ -112,7 +116,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
                     builder.setPositiveButton(getString(R.string.set_as_default), (dialog, which) -> {
                         showOrUpdateProgressDialog(getString(R.string.updating_pictures));
                         ChatSDK.profilePictures().setDefaultPicture(user, url);
-                        dm.add(ChatSDK.core().pushUser().subscribe(() -> {
+                        dm.add(ChatSDK.core().pushUser().observeOn(RX.main()).subscribe(() -> {
                             dismissProgressDialog();
                             updateGallery();
                         }));
@@ -123,7 +127,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
                 builder.setNegativeButton(getString(R.string.delete), (dialog, which) -> {
                     showOrUpdateProgressDialog(getString(R.string.deleting_picture));
                     ChatSDK.profilePictures().removePicture(user, url);
-                    dm.add(ChatSDK.core().pushUser().subscribe(() -> {
+                    dm.add(ChatSDK.core().pushUser().observeOn(RX.main()).subscribe(() -> {
                         dismissProgressDialog();
                         updateGallery();
                     }));

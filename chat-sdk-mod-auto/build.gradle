@@ -22,15 +22,13 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
-    api "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    api "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+//    implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
 }
 
 ext {
-    libraryName = 'Common'
-    artifact = 'common'
-    libraryDescription = 'Common'
+    libraryName = 'Auto'
+    artifact = 'auto'
+    libraryDescription = 'Auto'
 }
 
 publish {

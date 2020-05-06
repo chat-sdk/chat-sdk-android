@@ -40,4 +40,12 @@ public class BaseLocationMessageHandler extends AbstractMessageHandler implement
         return String.format(ChatSDK.config().locationURLRepresentation, message.doubleForKey(Keys.MessageLatitude), message.doubleForKey(Keys.MessageLongitude));
     }
 
+    @Override
+    public String getImageURL(Message message) {
+        if (message.getMessageType().is(MessageType.Location) || message.getReplyType().is(MessageType.Location)) {
+            return message.getImageURL();
+        }
+        return null;
+    }
+
 }

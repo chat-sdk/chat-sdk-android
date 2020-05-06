@@ -1,5 +1,7 @@
 package co.chatsdk.firebase.moderation;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +15,7 @@ public class Permission {
     public static final String Member = "member";
     public static final String Watcher = "watcher";
     public static final String Banned = "banned";
+    public static final String None = "none";
 
     public static boolean isOr(String permission, String... permissions) {
         if (permission == null) {
@@ -65,7 +68,7 @@ public class Permission {
         for (String p: all()) {
             // If no permission is specified we assume they are a member
             // Do this for backwards compatibility
-            if ((permission == null && p.equals(Permission.Member)) || permission.equals(p)) {
+            if ((permission == null && p.equals(Permission.Member)) || (permission != null && permission.equals(p))) {
                 return i;
             }
             i--;
@@ -79,16 +82,16 @@ public class Permission {
         if (permission.equals(Owner)) {
             resId = R.string.owner;
         }
-        if (permission.equals(Admin)) {
+        else if (permission.equals(Admin)) {
             resId = R.string.admin;
         }
-        if (permission.equals(Member)) {
+        else if (permission.equals(Member)) {
             resId = R.string.member;
         }
-        if (permission.equals(Watcher)) {
+        else if (permission.equals(Watcher)) {
             resId = R.string.watcher;
         }
-        if (permission.equals(Banned)) {
+        else if (permission.equals(Banned)) {
             resId = R.string.banned;
         }
 

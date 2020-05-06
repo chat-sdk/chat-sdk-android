@@ -20,11 +20,12 @@ xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/chatView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/divider"
+            android:layout_above="@id/messageInputLinearLayout"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             />
 
         <LinearLayout
+            android:id="@+id/messageInputLinearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"

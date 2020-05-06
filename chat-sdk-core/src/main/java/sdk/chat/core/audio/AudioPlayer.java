@@ -3,6 +3,7 @@ package sdk.chat.core.audio;
 import android.content.Context;
 import android.net.Uri;
 
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -36,16 +37,23 @@ public class AudioPlayer {
     protected PublishSubject<Long> timePublishSubject = PublishSubject.create();
     protected boolean isReady = false;
 
+    protected String mediaSource = null;
+
     public AudioPlayer(String source, Player.EventListener listener) {
         setSource(source);
 
         player.addListener(new Player.EventListener() {
             @Override
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                Logger.debug("Playback state: " + playbackState);
                 if (playbackState == STATE_READY) {
                     isReady = true;
                 }
                 listener.onPlayerStateChanged(playWhenReady, playbackState);
+            }
+            @Override
+            public void onPlayerError(ExoPlaybackException error) {
+                Logger.debug("Playback error: " + error);
             }
         });
 
@@ -55,7 +63,6 @@ public class AudioPlayer {
         player.setPlayWhenReady(true);
 
         playingDisposable = Observable.interval(0, 30, TimeUnit.MILLISECONDS)
-                .subscribeOn(RX.single())
                 .observeOn(RX.main())
                 .subscribe(aLong -> {
                     if (player.isPlaying()) {
@@ -65,27 +72,33 @@ public class AudioPlayer {
     }
 
     public void setSource(String url) {
-        stop();
-        isReady = false;
+        if (!url.equals(mediaSource)) {
+            stop();
+            isReady = false;
 
-        Context context = ChatSDK.ctx();
+            Context context = ChatSDK.ctx();
 
-        DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(context,
-                Util.getUserAgent(context, "ChatSDK"));
+            DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(context,
+                    Util.getUserAgent(context, "ChatSDK"));
 
-        // This is the MediaSource representing the media to be played.
-        MediaSource audioSource =
-                new ProgressiveMediaSource.Factory(dataSourceFactory)
-                        .createMediaSource(Uri.parse(url));
+            // This is the MediaSource representing the media to be played.
+            MediaSource audioSource =
+                    new ProgressiveMediaSource.Factory(dataSourceFactory)
+                            .createMediaSource(Uri.parse(url));
 
-        // Prepare the player with the source.
-        player.prepare(audioSource, false, true);
-
+            // Prepare the player with the source.
+            player.prepare(audioSource, true, true);
+            mediaSource = url;
+        }
     }
 
     public void stop() {
-        pause();
-        seekTo(0);
+        if (isPlaying()) {
+            pause();
+        }
+        if (player.getCurrentPosition() > 0.5) {
+            seekTo(0);
+        }
     }
 
     public void pause () {
@@ -107,7 +120,7 @@ public class AudioPlayer {
     }
 
     public boolean isPlaying () {
-        return player.isPlaying();
+        return player.isPlaying() || player.getPlayWhenReady();
     }
 
     public String position() {

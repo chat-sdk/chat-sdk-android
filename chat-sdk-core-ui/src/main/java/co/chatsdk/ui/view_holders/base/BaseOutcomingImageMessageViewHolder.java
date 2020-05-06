@@ -2,6 +2,7 @@ package co.chatsdk.ui.view_holders.base;
 
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.utils.RoundedImageView;
@@ -14,6 +15,7 @@ import co.chatsdk.ui.binders.MessageBinder;
 import co.chatsdk.ui.binders.ReadStatusViewBinder;
 import co.chatsdk.ui.chat.model.ImageMessageHolder;
 import co.chatsdk.ui.icons.Icons;
+import co.chatsdk.ui.utils.ImageLoaderPayload;
 
 public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> extends MessageHolders.BaseOutcomingMessageViewHolder<T>  {
 
@@ -21,11 +23,11 @@ public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> e
 
     @BindView(R2.id.image) protected ImageView image;
     @BindView(R2.id.imageOverlay) protected ImageView imageOverlay;
+    @BindView(R2.id.imageOverlayContainer) protected LinearLayout imageOverlayContainer;
 
     public BaseOutcomingImageMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
         ButterKnife.bind(this, itemView);
-        init();
     }
 
     @Override
@@ -37,8 +39,8 @@ public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> e
 
         imageOverlay.setImageDrawable(Icons.get(Icons.choose().check, R.color.white));
 
-        if (imageOverlay != null) {
-            imageOverlay.setVisibility(isSelected() ? View.VISIBLE : View.INVISIBLE);
+        if (imageOverlayContainer != null) {
+            imageOverlayContainer.setVisibility(isSelected() ? View.VISIBLE : View.INVISIBLE);
         }
 
         ReadStatusViewBinder.onBind(readStatus, message);
@@ -52,18 +54,7 @@ public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> e
      * @param message Message with image
      */
     protected Object getPayloadForImageLoader(T message) {
-        return R.drawable.icn_200_image_message_placeholder;
-    }
-
-    private void init() {
-        if (image instanceof RoundedImageView) {
-            ((RoundedImageView) image).setCorners(
-                    R.dimen.message_bubble_corners_radius,
-                    R.dimen.message_bubble_corners_radius,
-                    0,
-                    R.dimen.message_bubble_corners_radius
-            );
-        }
+        return new ImageLoaderPayload(R.drawable.icn_200_image_message_placeholder);
     }
 
 }

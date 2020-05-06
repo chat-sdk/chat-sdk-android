@@ -52,4 +52,13 @@ public class BaseImageMessageHandler implements ImageMessageHandler {
     public String textRepresentation(Message message) {
         return message.stringForKey(Keys.MessageImageURL);
     }
+
+    @Override
+    public String getImageURL(Message message) {
+        if (message.getMessageType().is(MessageType.Image) || message.getReplyType().is(MessageType.Image)) {
+            return message.getImageURL();
+        }
+        return null;
+    }
+
 }

@@ -1,31 +1,55 @@
 package co.chatsdk.ui.chat.model;
 
+import androidx.annotation.NonNull;
+
 import com.stfalcon.chatkit.commons.models.IDialog;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import co.chatsdk.ui.custom.Customiser;
+import sdk.guru.common.RX;
 
 public class ThreadHolder implements IDialog<MessageHolder> {
 
     protected Thread thread;
-    protected ArrayList<UserHolder> users = null;
+    protected List<UserHolder> users = new ArrayList<>();
     protected MessageHolder lastMessage = null;
     protected Integer unreadCount = null;
+    protected Date creationDate;
 
     public ThreadHolder(Thread thread) {
         this.thread = thread;
+        creationDate = thread.getCreationDate();
         update();
     }
 
+    public Completable updateAsync() {
+        return Completable.create(emitter -> {
+            update();
+            emitter.onComplete();
+        }).subscribeOn(RX.computation());
+    }
+
     public void update() {
-        getUnreadCount();
-        getLastMessage();
-        getUsers();
+        Message message = thread.lastMessage();
+        if (message != null) {
+            lastMessage = Customiser.shared().onNewMessageHolder(message);
+        }
+        users.clear();
+        for (User user: thread.getUsers()) {
+            if (!user.isMe()) {
+                users.add(new UserHolder(user));
+            }
+        }
+        unreadCount = thread.getUnreadMessagesCount();
     }
 
     @Override
@@ -56,27 +80,19 @@ public class ThreadHolder implements IDialog<MessageHolder> {
     @Override
     public List<UserHolder> getUsers() {
         if (users == null) {
-            users = new ArrayList<>();
+            List<UserHolder> list = new ArrayList<>();
             for (User user: thread.getUsers()) {
                 if (!user.isMe()) {
-                    users.add(new UserHolder(user));
+                    list.add(new UserHolder(user));
                 }
             }
+            users = list;
         }
         return users;
     }
 
     @Override
     public MessageHolder getLastMessage() {
-        if (lastMessage != null) {
-            return lastMessage;
-        }
-        else {
-            Message message = thread.lastMessage();
-            if (message != null) {
-                lastMessage = Customiser.shared().onNewMessageHolder(message);
-            }
-        }
         return lastMessage;
     }
 
@@ -103,4 +119,13 @@ public class ThreadHolder implements IDialog<MessageHolder> {
         return thread;
     }
 
+    public @NonNull Date getDate() {
+        if (lastMessage != null) {
+            return lastMessage.getCreatedAt();
+        }
+        if (creationDate != null) {
+            return creationDate;
+        }
+        return new Date();
+    }
 }

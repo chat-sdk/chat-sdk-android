@@ -51,7 +51,7 @@ public class PlayVideoActivity extends BaseActivity implements MediaPlayer.OnCom
 
         videoView.start();
     }
-
+/**/
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);

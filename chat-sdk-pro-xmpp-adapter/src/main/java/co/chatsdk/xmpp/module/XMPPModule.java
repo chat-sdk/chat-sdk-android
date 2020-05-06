@@ -3,7 +3,8 @@ package co.chatsdk.xmpp.module;
 import android.content.Context;
 
 import sdk.chat.core.base.BaseNetworkAdapter;
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.module.Module;
 import sdk.chat.core.interfaces.InterfaceAdapter;
 
 import sdk.chat.core.session.Configure;
@@ -19,7 +20,7 @@ import co.chatsdk.xmpp.ui.XMPPInterfaceAdapter;
  * Created by benjaminsmiley-andrews on 12/07/2017.
  */
 
-public class XMPPModule implements Module, NetworkAdapterProvider, InterfaceAdapterProvider {
+public class XMPPModule extends AbstractModule implements NetworkAdapterProvider, InterfaceAdapterProvider {
 
     protected static final XMPPModule instance = new XMPPModule();
 

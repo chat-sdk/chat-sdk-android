@@ -57,7 +57,7 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
     public void onBind(T message) {
         super.onBind(message);
 
-        ReplyViewBinder.onBind(replyView, replyTextView, replyImageView, message);
+        ReplyViewBinder.onBind(replyView, replyTextView, replyImageView, message, imageLoader);
         OnlineStatusBinder.bind(onlineIndicator, message);
 
         //We can set onClick listener on view from payload
@@ -70,7 +70,7 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
 
         NameBinder.bind(userName, message);
 
-        IconBinder.bind(messageIcon, imageLoader, message);
+        IconBinder.bind(messageIcon, message, imageLoader);
 
         // Hide the time if it's the same as the next message
         if (!message.showDate()) {

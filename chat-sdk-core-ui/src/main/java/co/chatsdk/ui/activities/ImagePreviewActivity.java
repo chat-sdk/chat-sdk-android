@@ -70,6 +70,7 @@ public class ImagePreviewActivity extends BaseActivity {
         expandedImageView = new ImageView(this);
         expandedImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         expandedImageView.setVisibility(View.INVISIBLE);
+        expandedImageView.setBackgroundColor(Color.WHITE);
         backgroundView.setClickable(false);
         mainView.addView(expandedImageView);
         ViewGroup.LayoutParams params = expandedImageView.getLayoutParams();

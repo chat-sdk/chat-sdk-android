@@ -361,4 +361,23 @@ public class NetworkEvent {
     public HashMap<String, Object> getData() {
         return data;
     }
+
+    boolean isDuplicate(NetworkEvent event) {
+        if (user != null) {
+            if (user.equalsEntity(event.user)) {
+                return true;
+            }
+        }
+        if (thread != null) {
+            if (thread.equalsEntity(event.thread)) {
+                return true;
+            }
+        }
+        if (message != null) {
+            if (message.equalsEntity(event.message)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

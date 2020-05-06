@@ -51,7 +51,7 @@ public class ReplyView extends ConstraintLayout {
         hide();
     }
 
-    public void show(String title, String imageURL, String text) {
+    public void show(String title, @Nullable String imageURL, String text) {
         setVisibility(View.VISIBLE);
 
         if (imageURL != null && !imageURL.isEmpty()) {

@@ -26,7 +26,15 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(path: ':chat-sdk-firebase-adapter')
+    implementation project(':chat-sdk-core')
+    implementation project(':chat-sdk-firebase-adapter')
+    implementation "joda-time:joda-time:$jodaTimeVersion"
+
+    implementation project(':sdk-guru-common')
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    implementation "org.tinylog:tinylog:$tinyLogVersion"
+
 }
 
 ext {

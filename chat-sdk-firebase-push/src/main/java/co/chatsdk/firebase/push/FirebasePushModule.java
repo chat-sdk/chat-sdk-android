@@ -2,9 +2,11 @@ package co.chatsdk.firebase.push;
 
 import android.content.Context;
 
-import org.greenrobot.greendao.annotation.NotNull;
 
-import sdk.chat.core.handlers.Module;
+import androidx.annotation.NonNull;
+
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.module.Module;
 import sdk.guru.common.BaseConfig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
@@ -14,7 +16,7 @@ import sdk.chat.core.session.Configure;
  * Created by ben on 9/1/17.
  */
 
-public class FirebasePushModule implements Module {
+public class FirebasePushModule extends AbstractModule {
 
     public static final FirebasePushModule instance = new FirebasePushModule();
 
@@ -48,7 +50,7 @@ public class FirebasePushModule implements Module {
     protected Config<FirebasePushModule> config = new Config<>(this);
 
     @Override
-    public void activate(@NotNull Context context) {
+    public void activate(@NonNull Context context) {
         ChatSDK.a().push = new FirebasePushHandler();
     }
 

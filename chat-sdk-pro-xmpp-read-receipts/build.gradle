@@ -24,7 +24,13 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':chat-sdk-core')
     implementation project(':chat-sdk-pro-xmpp-adapter')
+    implementation project(':sdk-guru-common')
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    implementation "org.tinylog:tinylog:$tinyLogVersion"
+    implementation "joda-time:joda-time:$jodaTimeVersion"
 }
 
 ext {

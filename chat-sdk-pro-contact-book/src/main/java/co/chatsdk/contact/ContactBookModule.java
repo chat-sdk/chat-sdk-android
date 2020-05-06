@@ -2,7 +2,8 @@ package co.chatsdk.contact;
 
 import android.content.Context;
 
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.module.Module;
 import sdk.guru.common.BaseConfig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
@@ -12,7 +13,7 @@ import sdk.chat.core.session.Configure;
  * Created by ben on 10/9/17.
  */
 
-public class ContactBookModule implements Module {
+public class ContactBookModule extends AbstractModule {
 
     public static final ContactBookModule instance = new ContactBookModule();
 

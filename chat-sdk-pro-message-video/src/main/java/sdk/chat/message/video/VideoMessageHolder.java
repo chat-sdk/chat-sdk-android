@@ -10,8 +10,9 @@ public class VideoMessageHolder extends ImageMessageHolder implements MessageCon
     public VideoMessageHolder(Message message) {
         super(message);
     }
+
     public String getImageUrl() {
-        return message.imageURL();
+        return ChatSDK.videoMessage().getImageURL(message);
     }
 
     @Override

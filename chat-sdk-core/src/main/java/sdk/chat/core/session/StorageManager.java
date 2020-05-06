@@ -1,5 +1,7 @@
 package sdk.chat.core.session;
 
+import androidx.annotation.Nullable;
+
 import com.google.android.exoplayer2.C;
 
 import org.greenrobot.greendao.query.Join;
@@ -241,12 +243,15 @@ public class StorageManager {
     }
 
 
-    public List<Message> fetchMessagesForThreadWithID (long threadID, int limit, Date olderThan) {
+    public List<Message> fetchMessagesForThreadWithID (long threadID, @Nullable Date from, @Nullable Date to, int limit) {
         Logger.debug(java.lang.Thread.currentThread().getName());
 
         // If we have a zero date, treat it as null
-        if (olderThan != null && olderThan.equals(new Date(0))) {
-            olderThan = null;
+        if (to != null && to.equals(new Date(0))) {
+            to = null;
+        }
+        if (from != null && from.equals(new Date(0))) {
+            from = null;
         }
 
         QueryBuilder<Message> qb = daoSession.queryBuilder(Message.class);
@@ -256,13 +261,16 @@ public class StorageManager {
         qb.where(MessageDao.Properties.Date.isNotNull());
         qb.where(MessageDao.Properties.SenderId.isNotNull());
 
-        if(olderThan != null) {
-            qb.where(MessageDao.Properties.Date.lt(olderThan.getTime()));
+        if(to != null) {
+            qb.where(MessageDao.Properties.Date.lt(to.getTime()));
+        }
+        if(from != null) {
+            qb.where(MessageDao.Properties.Date.gt(from.getTime()));
         }
 
         qb.orderDesc(MessageDao.Properties.Date);
 
-        if (limit != -1) {
+        if (limit > 0) {
             qb.limit(limit);
         }
 
@@ -271,8 +279,8 @@ public class StorageManager {
         return  list;
     }
 
-    public Single<List<Message>> fetchMessagesForThreadWithIDAsync(long threadID, int limit, Date olderThan) {
-        return Single.defer(() -> Single.just(fetchMessagesForThreadWithID(threadID, limit, olderThan)).subscribeOn(RX.db()));
+    public Single<List<Message>> fetchMessagesForThreadWithIDAsync(long threadID, Date from, Date to, int limit) {
+        return Single.defer(() -> Single.just(fetchMessagesForThreadWithID(threadID, from, to, limit)).subscribeOn(RX.db()));
     }
 
     public void update(CoreEntity entity) {

@@ -7,7 +7,8 @@ import androidx.fragment.app.Fragment;
 import co.chatsdk.firebase.nearby_users.R;
 import co.chatsdk.ui.icons.Icons;
 import sdk.chat.core.Tab;
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.module.Module;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.utils.AppBackgroundMonitor;
@@ -20,7 +21,7 @@ import sdk.chat.core.session.Configure;
  * Created by pepe on 08.03.18.
  */
 
-public class FirebaseNearbyUsersModule implements Module {
+public class FirebaseNearbyUsersModule extends AbstractModule {
 
     public static final FirebaseNearbyUsersModule instance = new FirebaseNearbyUsersModule();
 

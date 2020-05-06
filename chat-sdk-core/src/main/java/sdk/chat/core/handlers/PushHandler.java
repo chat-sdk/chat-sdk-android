@@ -20,4 +20,6 @@ public interface PushHandler {
 
     BroadcastHandler getBroadcastHandler();
     void setBroadcastHandler(BroadcastHandler broadcastHandler);
+
+    String hashChannel(String channel) throws Exception;
 }

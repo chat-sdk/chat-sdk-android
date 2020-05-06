@@ -2,6 +2,8 @@ package sdk.chat.core.dao;
 
 import android.os.AsyncTask;
 
+import androidx.annotation.Nullable;
+
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.annotation.Entity;
@@ -17,6 +19,7 @@ import org.greenrobot.greendao.query.Query;
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.pmw.tinylog.Logger;
 
+import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -45,12 +48,14 @@ public class Thread extends AbstractEntity {
     @Unique
     private String entityID;
     private Date creationDate;
-    private Boolean deleted;
     private String name;
     private Integer type;
     private String imageUrl;
     private Long creatorId;
-    
+    private Date loadMessagesFrom;
+    private Boolean deleted;
+    private String draft;
+
     @ToOne(joinProperty = "creatorId")
     private User creator;
 
@@ -84,16 +89,18 @@ public class Thread extends AbstractEntity {
         this.id = id;
     }
 
-    @Generated(hash = 800701535)
-    public Thread(Long id, String entityID, Date creationDate, Boolean deleted, String name, Integer type, String imageUrl, Long creatorId) {
+    @Generated(hash = 848314281)
+    public Thread(Long id, String entityID, Date creationDate, String name, Integer type, String imageUrl, Long creatorId, Date loadMessagesFrom, Boolean deleted, String draft) {
         this.id = id;
         this.entityID = entityID;
         this.creationDate = creationDate;
-        this.deleted = deleted;
         this.name = name;
         this.type = type;
         this.imageUrl = imageUrl;
         this.creatorId = creatorId;
+        this.loadMessagesFrom = loadMessagesFrom;
+        this.deleted = deleted;
+        this.draft = draft;
     }
 
     public void setMessages(List<Message> messages) {
@@ -142,7 +149,7 @@ public class Thread extends AbstractEntity {
     public Date lastMessageAddedDate(){
         Message lastMessage = lastMessage();
         if (lastMessage != null) {
-            return lastMessage.getDate().toDate();
+            return lastMessage.getDate();
         }
         return null;
     }
@@ -441,7 +448,7 @@ public class Thread extends AbstractEntity {
         return messages == null || messages.size() == 0 || messages.get(0).isRead();
     }
 
-    public boolean isDeleted(){
+    public boolean isDeleted() {
         return deleted != null && deleted;
     }
 
@@ -481,15 +488,15 @@ public class Thread extends AbstractEntity {
     }
 
     public Boolean getDeleted() {
-        return deleted != null ? deleted : false;
+        return isDeleted();
     }
 
-    public void setDeleted(Boolean deleted) {
+    public void setDeleted(boolean deleted) {
         setDeleted(deleted, true);
     }
 
-    public void setDeleted(Boolean deleted, boolean notify) {
-        if (this.deleted != deleted) {
+    public void setDeleted(boolean deleted, boolean notify) {
+        if (this.deleted == null || this.deleted != deleted) {
             this.deleted = deleted;
             update();
             if (notify) {
@@ -546,7 +553,7 @@ public class Thread extends AbstractEntity {
     public Date getLastMessageAddedDate () {
         Message lastMessage = lastMessage();
         if(lastMessage != null && lastMessage.getDate() != null) {
-            return lastMessage.getDate().toDate();
+            return lastMessage.getDate();
         }
         return null;
     }
@@ -794,6 +801,27 @@ public class Thread extends AbstractEntity {
             }
         }
         return null;
+    }
+
+    public Date getLoadMessagesFrom() {
+        return this.loadMessagesFrom;
+    }
+
+    public void setLoadMessagesFrom(Date loadMessagesFrom) {
+        this.loadMessagesFrom = loadMessagesFrom;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public String getDraft() {
+        return this.draft;
+    }
+
+    public void setDraft(String draft) {
+        this.draft = draft;
+        update();
     }
 
 }

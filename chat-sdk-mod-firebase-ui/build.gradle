@@ -57,8 +57,15 @@ publish {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    api project(':chat-sdk-core-ui')
-    api project(':chat-sdk-firebase-adapter')
+    implementation project(':chat-sdk-core')
+    implementation project(':chat-sdk-core-ui')
+    implementation project(':chat-sdk-firebase-adapter')
 
     implementation "com.firebaseui:firebase-ui-auth:$firebaseUiVersion"
+
+    implementation project(':sdk-guru-common')
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    implementation "org.tinylog:tinylog:$tinyLogVersion"
+
 }

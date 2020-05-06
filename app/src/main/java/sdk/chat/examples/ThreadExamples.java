@@ -42,7 +42,7 @@ public class ThreadExamples extends BaseExample {
             }
 
             // Load some historic messages
-            dm.add(ChatSDK.thread().loadMoreMessagesForThread(new Date(), thread, true).subscribe(messages -> {
+            dm.add(ChatSDK.thread().loadMoreMessagesBefore(thread, new Date(),  true).subscribe(messages -> {
 
                 // Forward a message
                 dm.add(ChatSDK.thread().forwardMessage(thread, messages.get(0)).subscribe(() -> {

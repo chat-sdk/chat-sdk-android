@@ -38,6 +38,7 @@ public class AudioBinder {
 
     protected boolean audioModeEnabled = false;
     protected boolean permissionsGranted = false;
+    protected boolean replyViewShowing = false;
 
     protected Activity activity;
     protected TextInputDelegate delegate;
@@ -141,7 +142,7 @@ public class AudioBinder {
         if (activity != null && messageInput != null && permissionsGranted) {
             boolean keyboardVisible = KeyboardVisibilityEvent.INSTANCE.isKeyboardVisible(activity);
             boolean isEmpty = messageInput.getInputEditText().getText().toString().isEmpty();
-            if (keyboardVisible || !isEmpty) {
+            if (keyboardVisible || !isEmpty || replyViewShowing) {
                 endRecordingMode();
             } else {
                 startRecordingMode();
@@ -159,6 +160,16 @@ public class AudioBinder {
         messageInput.getButton().setImageDrawable(sendButtonDrawable);
         messageInput.setEnabled(!messageInput.getInputEditText().getText().toString().isEmpty());
         audioModeEnabled = false;
+    }
+
+    public void showReplyView() {
+        replyViewShowing = true;
+        updateRecordMode();
+    }
+
+    public void hideReplyView() {
+        replyViewShowing = false;
+        updateRecordMode();
     }
 
 }

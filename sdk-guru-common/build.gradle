@@ -25,6 +25,7 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
     api "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
     api "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    implementation "org.tinylog:tinylog:$tinyLogVersion"
 }
 
 ext {

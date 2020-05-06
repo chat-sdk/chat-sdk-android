@@ -6,6 +6,7 @@ import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.chat.model.MessageHolder;
+import sdk.chat.core.utils.CurrentLocale;
 
 public class AudioMessageHolder extends MessageHolder implements MessageContentType {
 
@@ -22,4 +23,10 @@ public class AudioMessageHolder extends MessageHolder implements MessageContentT
         return ChatSDK.getString(co.chatsdk.ui.R.string.audio_message);
     }
 
+    public String getTotalTime() {
+        int time = message.integerForKey(Keys.MessageAudioLength);
+        int seconds = time%60;
+        int minutes = (int) Math.floor(time/60f);
+        return String.format(CurrentLocale.get(), "%01d:%02d", minutes, seconds);
+    }
 }

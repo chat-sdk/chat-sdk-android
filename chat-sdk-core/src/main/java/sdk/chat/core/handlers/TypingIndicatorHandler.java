@@ -32,9 +32,7 @@ public interface TypingIndicatorHandler {
         gone
     }
 
-    void typingOn (Thread thread);
-    void typingOff (Thread thread);
-    Completable setChatState (State state, Thread thread);
-//
-//    -(RXPromise *) setChatState: (bChatState) state forThread: (id<PThread>) thread;
+    void typingOn(Thread thread);
+    void typingOff(Thread thread);
+    Completable setChatState(State state, Thread thread);
 }

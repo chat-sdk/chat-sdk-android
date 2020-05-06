@@ -8,4 +8,14 @@ public class SystemMessageHolder extends MessageHolder implements MessageContent
     public SystemMessageHolder(Message message) {
         super(message);
     }
+
+    @Override
+    public UserHolder getUser() {
+        if (userHolder == null) {
+            userHolder = new SystemUserHolder(message.getSender());
+        }
+        return userHolder;
+    }
+
+
 }

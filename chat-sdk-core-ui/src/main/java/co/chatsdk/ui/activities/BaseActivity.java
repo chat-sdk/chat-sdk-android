@@ -33,6 +33,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
+
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
@@ -286,6 +288,17 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
                 }
             }
         }
+    }
+
+    public void showKeyboard() {
+        if(!KeyboardVisibilityEvent.INSTANCE.isKeyboardVisible(this)) {
+            BaseActivity.showKeyboard(this);
+        }
+    }
+
+    public static void showKeyboard(@Nullable Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
     }
 
     /**

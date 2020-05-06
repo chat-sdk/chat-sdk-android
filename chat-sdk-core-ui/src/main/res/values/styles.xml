@@ -18,7 +18,10 @@
     <item name="onlineIndicatorOnlineColor">#38c059</item>
     <item name="onlineIndicatorOfflineColor">#aaaaaa</item>
 
-    <item name="systemMessageBackgroundColor">@color/gray_very_light</item>
+    <item name="systemDefaultBubbleColor">@color/gray_very_light</item>
+    <item name="systemDefaultBubblePressedColor">@color/gray_very_light</item>
+    <item name="systemDefaultBubbleSelectedColor">@color/primary_green</item>
+
     <item name="systemMessageTextColor">@color/black</item>
     <item name="systemMessageBubbleDrawable">@drawable/shape_system_message_bubble</item>
     <item name="systemMessageTextSize">14dp</item>

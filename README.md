@@ -22,6 +22,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Persistence -** [GreenDao](http://greenrobot.org/greendao/)
 - **Reactive -** [RXAndroid](https://github.com/ReactiveX/RxAndroid)
 - **Java 8** supports Java 8 and lamda expressions
+- **Multi-threaded** agressively multi-threaded
 - **API Level 16+** Compatible with 99.3% of Android devices
 
 ## Features
@@ -109,8 +110,12 @@ You can also help us by:
 ### Getting started
 
 - Setup
-- Add Chat SDK to a new project
+- Create a new Chat App project
+- Add Chat SDK to a project
 - Add Chat SDK to a Firebase project
+- Use parts of Chat SDK in your project
+- Customize Chat SDK
+- Authenticate with an existing server
 
 ### API and Customization
 

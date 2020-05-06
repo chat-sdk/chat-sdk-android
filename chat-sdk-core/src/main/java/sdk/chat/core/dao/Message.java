@@ -22,6 +22,7 @@ import org.greenrobot.greendao.annotation.Unique;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +50,10 @@ public class Message extends AbstractEntity {
     @Unique
     private String entityID;
 
-    @Convert(converter = DaoDateTimeConverter.class, columnType = Long.class)
-    private DateTime date;
+//    @Convert(converter = DaoDateTimeConverter.class, columnType = Long.class)
+//    private DateTime date;
+    private Date date;
+
     private Integer type;
     private Integer status;
     private Long senderId;
@@ -84,9 +87,9 @@ public class Message extends AbstractEntity {
     @Generated(hash = 859287859)
     private transient MessageDao myDao;
 
-    @Generated(hash = 405082643)
-    public Message(Long id, String entityID, DateTime date, Integer type, Integer status, Long senderId,
-            Long threadId, Long nextMessageId, Long previousMessageId) {
+    @Generated(hash = 362877408)
+    public Message(Long id, String entityID, Date date, Integer type, Integer status, Long senderId, Long threadId,
+            Long nextMessageId, Long previousMessageId) {
         this.id = id;
         this.entityID = entityID;
         this.date = date;
@@ -176,12 +179,8 @@ public class Message extends AbstractEntity {
         this.entityID = entityID;
     }
 
-    public DateTime getDate() {
+    public Date getDate() {
         return this.date;
-    }
-
-    public void setDate(DateTime date) {
-        this.date = date;
     }
 
     public HashMap<String, Object> getMetaValuesAsMap() {
@@ -228,11 +227,21 @@ public class Message extends AbstractEntity {
 
     public String stringForKey (String key) {
         Object value = valueForKey(key);
-        if (value == null) return "";
+        if (value == null)  {
+            return "";
+        }
         if (value instanceof String) {
             return (String) value;
         }
         return value.toString();
+    }
+
+    public Integer integerForKey (String key) {
+        Object value = valueForKey(key);
+        if (value instanceof Integer)  {
+            return (Integer) value;
+        }
+        return null;
     }
 
     public Double doubleForKey (String key) {
@@ -256,7 +265,7 @@ public class Message extends AbstractEntity {
     public boolean setUserReadStatus (User user, ReadStatus status, DateTime date, boolean notify) {
         ReadReceiptUserLink link = linkForUser(user);
 
-        if (link == null || link.getStatus() <= status.getValue()) {
+        if (link == null || link.getStatus() < status.getValue()) {
             if(link == null) {
                 link = ChatSDK.db().createEntity(ReadReceiptUserLink.class);
                 link.setMessageId(this.getId());
@@ -285,6 +294,10 @@ public class Message extends AbstractEntity {
 
     public void setValueForKey (Object payload, String key) {
         setMetaValue(key, payload);
+    }
+
+    public void setImageURL(String url) {
+        setValueForKey(url, Keys.MessageImageURL);
     }
 
     public String getText() {
@@ -669,6 +682,14 @@ public class Message extends AbstractEntity {
         return false;
     }
 
+    public MessageType getReplyType() {
+        Integer type = integerForKey(Keys.Type);
+        if (type != null) {
+            return new MessageType(type);
+        }
+        return new MessageType(MessageType.None);
+    }
+
     public String getReply() {
         Object replyObject = valueForKey(Keys.Reply);
         if (replyObject instanceof String) {
@@ -677,8 +698,12 @@ public class Message extends AbstractEntity {
         return null;
     }
 
-    public String imageURL() {
+    public String getImageURL() {
         return stringForKey(Keys.MessageImageURL);
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
 }

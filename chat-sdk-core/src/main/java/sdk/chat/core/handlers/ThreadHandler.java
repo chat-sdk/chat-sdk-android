@@ -1,5 +1,7 @@
 package sdk.chat.core.handlers;
 
+import androidx.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
 
@@ -38,13 +40,15 @@ public interface ThreadHandler {
 
     boolean canAddUsersToThread(Thread thread);
     Completable addUsersToThread(Thread thread, List<User> users);
+    Completable addUsersToThread(Thread thread, List<User> users, List<String> permissions);
     Completable addUsersToThread(Thread thread, User... users);
     /**
      * Lazy loading of messages this method will load
      * that are not already in memory
      */
-    Single<List<Message>> loadMoreMessagesForThread(Date fromDate, Thread thread, boolean loadFromServer);
-    Single<List<Message>> loadMoreMessagesForThread(Date fromDate, Thread thread);
+    Single<List<Message>> loadMoreMessagesBefore(Thread thread, @Nullable Date before, boolean loadFromServer);
+    Single<List<Message>> loadMoreMessagesBefore(Thread thread, @Nullable Date before);
+    Single<List<Message>> loadMoreMessagesAfter(Thread thread, @Nullable Date after, boolean loadFromServer);
 
     /**
      * This method deletes an existing thread. It deletes the thread from memory
@@ -52,12 +56,15 @@ public interface ThreadHandler {
      * from the thread
      */
     Completable deleteThread(Thread thread);
-    Completable leaveThread (Thread thread);
-    Completable joinThread (Thread thread);
 
-    Completable deleteMessage (Message message);
-    Completable deleteMessages (Message... messages);
-    Completable deleteMessages (List<Message> messages);
+    boolean canLeaveThread(Thread thread);
+    Completable leaveThread(Thread thread);
+
+    Completable joinThread(Thread thread);
+
+    Completable deleteMessage(Message message);
+    Completable deleteMessages(Message... messages);
+    Completable deleteMessages(List<Message> messages);
     boolean canDeleteMessage(Message message);
 
     /**

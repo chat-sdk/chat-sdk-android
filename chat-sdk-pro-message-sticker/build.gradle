@@ -26,9 +26,15 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':chat-sdk-core')
     implementation project(path: ':chat-sdk-core-ui')
     implementation "com.googlecode.plist:dd-plist:1.3"
-//    implementation group: 'com.googlecode.plist', name: 'dd-plist', version: '1.3'
+
+    implementation project(':sdk-guru-common')
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    implementation "org.tinylog:tinylog:$tinyLogVersion"
+
 }
 
 ext {

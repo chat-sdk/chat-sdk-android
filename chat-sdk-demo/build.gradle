@@ -1,0 +1,86 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
+apply plugin: 'com.jakewharton.butterknife'
+
+android {
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+
+    defaultConfig {
+        minSdkVersion Integer.parseInt(project.MIN_SDK)
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+}
+
+ext {
+    libraryName = 'Demo'
+    artifact = 'demo'
+    libraryDescription = 'Demo'
+}
+
+publish {
+    userOrg = BINTRAY_USER_ORG
+    groupId = CHAT_SDK_GROUP
+    artifactId = artifact
+    repoName = BINTRAY_REPO
+    publishVersion = CHAT_SDK_VERSION
+    desc = libraryDescription
+    licences = ["GPL-3.0"]
+    uploadName = libraryName
+    website = GIT_URL
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
+    api "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    api "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    implementation "org.tinylog:tinylog:$tinyLogVersion"
+
+    implementation project(':chat-sdk-core-ui')
+    implementation project(':chat-sdk-firebase-adapter')
+    implementation project(':chat-sdk-firebase-push')
+    implementation project(':chat-sdk-firebase-upload')
+
+    implementation project(':chat-sdk-firestream-adapter')
+
+    implementation project(':chat-sdk-mod-ui-extras')
+    implementation project(':chat-sdk-mod-firebase-ui')
+    implementation project(':chat-sdk-mod-profile-pictures')
+
+    implementation project(':chat-sdk-pro-message-audio')
+    implementation project(':chat-sdk-pro-message-sticker')
+    implementation project(':chat-sdk-pro-message-file')
+    implementation project(':chat-sdk-pro-message-video')
+
+    implementation project(':chat-sdk-pro-encryption')
+    implementation project(':chat-sdk-pro-contact-book')
+
+    implementation project(':chat-sdk-pro-firebase-nearby-users')
+    implementation project(':chat-sdk-pro-firebase-blocking')
+    implementation project(':chat-sdk-pro-firebase-last-online')
+    implementation project(':chat-sdk-pro-firebase-typing-indicator')
+    implementation project(':chat-sdk-pro-firebase-read-receipts')
+
+    implementation project(path: ':chat-sdk-pro-xmpp-adapter')
+    implementation project(path: ':chat-sdk-pro-xmpp-read-receipts')
+
+    implementation "com.jakewharton:butterknife:$butterKnifeVersion"
+    annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
+
+    // Demo
+    implementation 'com.romandanylyk:pageindicatorview:1.0.3'
+
+    implementation project(':firestream')
+
+}
+

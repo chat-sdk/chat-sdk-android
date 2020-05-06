@@ -9,7 +9,9 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
 import cafe.adriel.androidaudioconverter.callback.ILoadCallback;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.handlers.MessageHandler;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import co.chatsdk.message.audio.R;
@@ -21,7 +23,7 @@ import co.chatsdk.ui.custom.IMessageHandler;
  * Created by ben on 9/28/17.
  */
 
-public class AudioMessageModule implements Module {
+public class AudioMessageModule extends AbstractModule {
 
     public static final AudioMessageModule instance = new AudioMessageModule();
 
@@ -84,4 +86,10 @@ public class AudioMessageModule implements Module {
     public String getName() {
         return "AudioMessageModule";
     }
+
+    @Override
+    public MessageHandler getMessageHandler() {
+        return ChatSDK.audioMessage();
+    }
+
 }

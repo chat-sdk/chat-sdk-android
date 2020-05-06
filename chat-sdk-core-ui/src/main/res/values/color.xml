@@ -5,6 +5,7 @@
     <color name="dark_text">#5F5F5F</color>
     <color name="chat_orange">#EE5A26</color>
 
+    <color name="gray_dark_50">#80000000</color>
     <color name="red_light">#FFC9C9</color>
     <color name="red_dark">#CC1515</color>
     <color name="red">#CC4B4B</color>

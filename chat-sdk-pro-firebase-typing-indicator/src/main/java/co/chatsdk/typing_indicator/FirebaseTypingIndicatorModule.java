@@ -3,7 +3,8 @@ package co.chatsdk.typing_indicator;
 
 import android.content.Context;
 
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.guru.common.BaseConfig;
@@ -12,7 +13,7 @@ import sdk.guru.common.BaseConfig;
  * Created by ben on 10/5/17.
  */
 
-public class FirebaseTypingIndicatorModule implements Module {
+public class FirebaseTypingIndicatorModule extends AbstractModule {
 
     public static final FirebaseTypingIndicatorModule instance = new FirebaseTypingIndicatorModule();
 

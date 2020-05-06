@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -35,6 +36,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import butterknife.BindView;
+import co.chatsdk.ui.chat.model.ImageMessageHolder;
+import co.chatsdk.ui.chat.model.MessageHolder;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
@@ -65,6 +68,7 @@ import co.chatsdk.ui.interfaces.TextInputDelegate;
 import co.chatsdk.ui.views.ChatView;
 import co.chatsdk.ui.views.ReplyView;
 import io.reactivex.Completable;
+import sdk.chat.core.utils.StringChecker;
 import sdk.guru.common.RX;
 import sdk.guru.common.Optional;
 import sdk.guru.common.RX;
@@ -94,6 +98,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @BindView(R2.id.viewContainer) protected CoordinatorLayout viewContainer;
     @BindView(R2.id.searchView) protected MaterialSearchView searchView;
     @BindView(R2.id.root) protected FrameLayout root;
+    @BindView(R2.id.messageInputLinearLayout) protected LinearLayout messageInputLinearLayout;
 
     protected Single<Optional<Thread>> threadSingle = null;
 
@@ -119,22 +124,63 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     public void updateOptionsButton() {
         input.findViewById(R.id.attachmentButton).setVisibility(chatView.getSelectedMessages().isEmpty() ? View.VISIBLE : View.GONE);
+        input.findViewById(R.id.attachmentButtonSpace).setVisibility(chatView.getSelectedMessages().isEmpty() ? View.VISIBLE : View.GONE);
     }
-
 
     public void hideTextInput() {
         input.setVisibility(View.GONE);
         divider.setVisibility(View.GONE);
+        updateChatViewMargins();
     }
 
     public void showTextInput() {
         input.setVisibility(View.VISIBLE);
         divider.setVisibility(View.VISIBLE);
+        updateChatViewMargins();
     }
 
     public void hideReplyView() {
+        audioBinder.hideReplyView();
         chatView.clearSelection();
         replyView.hide();
+        updateOptionsButton();
+
+        // We need this otherwise the margin isn't updated when the view is gone
+//        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) chatView.getLayoutParams();
+//        params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, messageInputLinearLayout.getHeight() - replyView.getHeight());
+//        chatView.setLayoutParams(params);
+
+        updateChatViewMargins();
+    }
+
+    public void updateChatViewMargins() {
+
+        int bottomMargin = 0;
+        if (replyView.isVisible()) {
+            bottomMargin += replyView.getHeight();
+        }
+        if (input.getVisibility() != View.GONE) {
+            bottomMargin += input.getHeight() + divider.getHeight();
+        }
+
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) chatView.getLayoutParams();
+        params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, bottomMargin);
+        chatView.setLayoutParams(params);
+
+    }
+
+    public void showReplyView(String title, String imageURL, String text) {
+        updateOptionsButton();
+        audioBinder.showReplyView();
+        replyView.show(title, imageURL, text);
+
+        // We need this otherwise the margin isn't updated when the view is gone
+//        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) chatView.getLayoutParams();
+//        params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, messageInputLinearLayout.getHeight() + replyView.getHeight());
+//        chatView.setLayoutParams(params);
+
+        updateChatViewMargins();
+
     }
 
     @Override
@@ -200,8 +246,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             });
         }
 
-        input.setAttachmentsListener(this::showOptions);
-
         input.setTypingListener(new MessageInput.TypingListener() {
             @Override
             public void onStartTyping() {
@@ -213,6 +257,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 stopTyping();
             }
         });
+
+        input.setAttachmentsListener(this::showOptions);
 
         replyView.setOnCancelListener(v -> hideReplyView());
 
@@ -278,17 +324,21 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
      */
     public void sendMessage(String text) {
 
+        // Clear the draft text
+        thread.setDraft(null);
+
         if (text == null || text.isEmpty() || text.replace(" ", "").isEmpty()) {
             return;
         }
 
         if (replyView.isVisible()) {
-            Message message = chatView.getSelectedMessages().get(0);
-            handleMessageSend(ChatSDK.thread().replyToMessage(thread, message, text));
+            MessageHolder holder = chatView.getSelectedMessages().get(0);
+            handleMessageSend(ChatSDK.thread().replyToMessage(thread, holder.getMessage(), text));
             hideReplyView();
         } else {
             handleMessageSend(ChatSDK.thread().sendMessageWithText(text.trim(), thread));
         }
+
     }
 
     protected void handleMessageSend(Completable completable) {
@@ -305,11 +355,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
 
     }
-
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//    }
 
     protected void reloadData() {
         chatView.notifyDataSetChanged();
@@ -336,6 +381,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 audioBinder.updateRecordMode();
             }
 
+            if (!StringChecker.isNullOrEmpty(thread.getDraft())) {
+                input.getInputEditText().setText(thread.getDraft());
+            }
+
         }).ignoreElement().subscribe();
 
     }
@@ -344,6 +393,13 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onPause() {
         super.onPause();
         hideKeyboard();
+
+        if (!StringChecker.isNullOrEmpty(input.getInputEditText().getText())) {
+            thread.setDraft(input.getInputEditText().getText().toString());
+        } else {
+            thread.setDraft(null);
+        }
+
     }
 
     /**
@@ -414,8 +470,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
                 // Check that the messages could be deleted
                 boolean canBeDeleted = true;
-                for (Message message : chatView.getSelectedMessages()) {
-                    if (!ChatSDK.thread().canDeleteMessage(message)) {
+                for (MessageHolder holder: chatView.getSelectedMessages()) {
+                    if (!ChatSDK.thread().canDeleteMessage(holder.getMessage())) {
                         canBeDeleted = false;
                     }
                 }
@@ -445,8 +501,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         /* Cant use switch in the library*/
         int id = item.getItemId();
         if (id == R.id.action_delete) {
-            List<Message> messages = chatView.getSelectedMessages();
-            ChatSDK.thread().deleteMessages(messages).subscribe(this);
+            List<MessageHolder> holders = chatView.getSelectedMessages();
+            ChatSDK.thread().deleteMessages(MessageHolder.toMessages(holders)).subscribe(this);
             clearSelection();
         }
         if (id == R.id.action_copy) {
@@ -458,7 +514,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
         if (id == R.id.action_forward) {
 
-            List<Message> messages = chatView.getSelectedMessages();
+            List<MessageHolder> holders = chatView.getSelectedMessages();
 
             dm.put(messageForwardActivityCode, ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
                 if (activityResult.requestCode == messageForwardActivityCode) {
@@ -473,14 +529,19 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     dm.dispose(messageForwardActivityCode);
                 }
             }));
-            ChatSDK.ui().startForwardMessageActivityForResult(this, thread, messages, messageForwardActivityCode);
+            ChatSDK.ui().startForwardMessageActivityForResult(this, thread, MessageHolder.toMessages(holders), messageForwardActivityCode);
             clearSelection();
         }
 
         if (id == R.id.action_reply) {
-            Message message = chatView.getSelectedMessages().get(0);
-            replyView.show(message.getSender().getName(), message.imageURL(), message.getText());
+            MessageHolder holder = chatView.getSelectedMessages().get(0);
+            String imageURL = null;
+            if (holder instanceof ImageMessageHolder) {
+                imageURL = ((ImageMessageHolder) holder).getImageUrl();
+            }
+            showReplyView(holder.getUser().getName(), imageURL, holder.getText());
             input.requestFocus();
+            showKeyboard();
         }
 
         if (id == R.id.action_add) {

@@ -25,10 +25,19 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(path: ':chat-sdk-core')
+
+    implementation project(':sdk-guru-common')
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    implementation "org.tinylog:tinylog:$tinyLogVersion"
+
+    implementation 'com.google.code.gson:gson:2.8.6'
 
     implementation 'com.virgilsecurity.sdk:crypto-android:5.0.2@aar'
     implementation 'com.virgilsecurity.sdk:sdk:5.0.9'
-    implementation project(path: ':chat-sdk-core')
+    // Stay on the old version because it supports API level 16
+//    implementation "com.virgilsecurity.sdk:sdk-android:7.1.0"
 }
 
 ext {

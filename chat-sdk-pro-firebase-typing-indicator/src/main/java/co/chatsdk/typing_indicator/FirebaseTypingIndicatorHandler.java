@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import co.chatsdk.firebase.moderation.Permission;
 import co.chatsdk.firebase.utils.Generic;
 import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Thread;
@@ -36,8 +37,7 @@ public class FirebaseTypingIndicatorHandler implements TypingIndicatorHandler {
     @Override
     public void typingOn(final Thread thread) {
 
-        DatabaseReference ref = FirebasePaths.threadRef(thread.getEntityID())
-                .child(FirebasePaths.TypingPath);
+        DatabaseReference ref = ref(thread);
 
         if (!RealtimeReferenceManager.shared().isOn(ref)) {
 
@@ -69,9 +69,13 @@ public class FirebaseTypingIndicatorHandler implements TypingIndicatorHandler {
 
     @Override
     public void typingOff(Thread thread) {
-        DatabaseReference ref = FirebasePaths.threadRef(thread.getEntityID())
-                .child(FirebasePaths.TypingPath);
+        DatabaseReference ref = ref(thread);
         RealtimeReferenceManager.shared().removeListeners(ref);
+    }
+
+    protected DatabaseReference ref(Thread thread) {
+        return FirebasePaths.threadRef(thread.getEntityID())
+                .child(FirebasePaths.TypingPath);
     }
 
     @Override

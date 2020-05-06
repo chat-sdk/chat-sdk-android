@@ -1,5 +1,6 @@
 package sdk.chat.core.push;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,11 +43,11 @@ public abstract class AbstractPushHandler implements PushHandler {
                 completables.add(subscribeToPushChannel(ChatSDK.currentUserID()));
             }
 
-            for (Thread t: ChatSDK.db().allThreads()) {
-                if (!channelManager.isSubscribed(t.getEntityID())) {
-                    completables.add(subscribeToPushChannel(t.getEntityID()));
-                }
-            }
+//            for (Thread t: ChatSDK.db().allThreads()) {
+//                if (!channelManager.isSubscribed(t.getEntityID())) {
+//                    completables.add(subscribeToPushChannel(t.getEntityID()));
+//                }
+//            }
 
             Completable.merge(completables).subscribe(ChatSDK.events());
 
@@ -60,9 +61,9 @@ public abstract class AbstractPushHandler implements PushHandler {
                 completables.add(unsubscribeToPushChannel(ChatSDK.currentUserID()));
 
                 // Unsubscribe from the threads
-                for (Thread t: ChatSDK.db().allThreads()) {
-                    completables.add(unsubscribeToPushChannel(t.getEntityID()));
-                }
+//                for (Thread t: ChatSDK.db().allThreads()) {
+//                    completables.add(unsubscribeToPushChannel(t.getEntityID()));
+//                }
                 return Completable.merge(completables);
             });
 
@@ -136,6 +137,26 @@ public abstract class AbstractPushHandler implements PushHandler {
             channelManager.removeChannel(channel);
             emitter.onComplete();
         });
+    }
+
+    public String hashChannel(String channel) throws Exception {
+        channel = channel.replace(".", "1");
+        channel = channel.replace("%2E", "1");
+        channel = channel.replace("@", "2");
+        channel = channel.replace("%40", "2");
+        channel = channel.replace(":", "3");
+        channel = channel.replace("%3A", "3");
+        return channel;
+    }
+
+    public String md5(String channel) throws NoSuchAlgorithmException {
+        java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+        byte[] array = md.digest(channel.getBytes());
+        StringBuilder sb = new StringBuilder();
+        for (byte b : array) {
+            sb.append(Integer.toHexString((b & 0xFF) | 0x100).substring(1, 3));
+        }
+        return sb.toString();
     }
 
 }

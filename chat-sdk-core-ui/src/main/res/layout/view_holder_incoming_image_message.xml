@@ -52,20 +52,27 @@
         android:layout_marginRight="@dimen/message_incoming_bubble_margin_right"
         android:layout_toEndOf="@id/messageUserAvatar"
         android:layout_toRightOf="@id/messageUserAvatar"
-        android:adjustViewBounds="true"
         app:siShape="?incomingBubbleDrawable"
         app:siSquare="false"/>
 
-    <ImageView
-        android:id="@+id/imageOverlay"
+    <LinearLayout
+        android:id="@+id/imageOverlayContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="5dp"
         android:layout_alignBottom="@id/image"
         android:layout_alignEnd="@id/image"
         android:layout_alignRight="@id/image"
-        android:layout_margin="10dp"
-        android:adjustViewBounds="true"
-        />
+        android:background="@drawable/overlay_background_circle">
+
+        <ImageView
+            android:id="@+id/imageOverlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            />
+
+    </LinearLayout>
 
     <TextView
         android:id="@id/messageTime"

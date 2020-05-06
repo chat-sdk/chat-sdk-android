@@ -17,6 +17,6 @@ public class IncomingAudioMessageViewHolder extends BaseIncomingTextMessageViewH
     @Override
     public void onBind(AudioMessageHolder message) {
         super.onBind(message);
-        audioPlayerView.bind(message.audioURL());
+        audioPlayerView.bind(message.audioURL(), message.getTotalTime());
     }
 }

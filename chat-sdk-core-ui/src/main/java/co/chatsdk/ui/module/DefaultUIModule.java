@@ -4,14 +4,15 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.module.Module;
 import sdk.chat.core.interfaces.InterfaceAdapter;
 
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.session.InterfaceAdapterProvider;
 import co.chatsdk.ui.BaseInterfaceAdapter;
 
-public class DefaultUIModule implements Module, InterfaceAdapterProvider {
+public class DefaultUIModule extends AbstractModule implements InterfaceAdapterProvider {
 
     public static final DefaultUIModule instance = new DefaultUIModule();
 

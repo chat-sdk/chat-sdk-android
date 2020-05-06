@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
@@ -22,15 +23,21 @@ import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
 import co.chatsdk.ui.chat.model.MessageHolder;
+import co.chatsdk.ui.update.ThreadUpdateAction;
+import co.chatsdk.ui.update.UpdateActionBatcher;
 import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import sdk.chat.core.dao.Message;
@@ -68,9 +75,17 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @BindView(R2.id.dialogsList) protected DialogsList dialogsList;
     @BindView(R2.id.root) protected RelativeLayout root;
 
+    protected UpdateActionBatcher batcher;
+
     @Override
     protected @LayoutRes int getLayout() {
         return R.layout.fragment_threads;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        this.batcher = new UpdateActionBatcher(100);
     }
 
     @Override
@@ -84,6 +99,32 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
         hideKeyboard();
 
+        // We batch updates to the threads fragment because potentially it could be updated from a lot of places
+        // Thread meta, user meta, user presence, messages, read receipts
+        // So we batch and combine updates to make it more efficient
+        dm.add(batcher.onUpdate().observeOn(RX.main()).subscribe(threadUpdateActions -> {
+            for (ThreadUpdateAction action : threadUpdateActions) {
+                if (action.type == ThreadUpdateAction.Type.Reload) {
+                    reloadData();
+                } else {
+                    if (action.type == ThreadUpdateAction.Type.SoftReload) {
+                        softReloadData();
+                    }
+                    if (action.type == ThreadUpdateAction.Type.Add) {
+                        addOrUpdateThread(action.thread);
+                    } else if (action.type == ThreadUpdateAction.Type.Remove) {
+                        removeThread(action.thread);
+                    } else if (action.type == ThreadUpdateAction.Type.Update) {
+                        dialogsListAdapter.updateItemById(action.holder);
+                    } else if (action.type == ThreadUpdateAction.Type.UpdateMessage) {
+                        updateMessage(action.message);
+                    }
+                }
+            }
+        }, throwable -> {
+            Logger.error(throwable);
+        }));
+
         return view;
     }
 
@@ -91,37 +132,52 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(mainEventFilter())
                 .subscribe(networkEvent -> {
-                    Logger.debug(networkEvent.type);
-                    if (networkEvent.typeIs(EventType.ThreadAdded, EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated, EventType.MessageReadReceiptUpdated)) {
-                        if (networkEvent.getThread() != null) {
-                            addOrUpdateThread(networkEvent.getThread());
-                        } else {
-                            Logger.debug("Stop");
+
+                    Logger.debug("Network Event: " + networkEvent.type);
+
+                    final Thread thread = networkEvent.getThread();
+                    final boolean inList = inList(thread);
+
+                    // This stops a case where the thread details updated could be called before the thread is added
+                    if (networkEvent.typeIs(EventType.ThreadAdded)) {
+                        batcher.addAction(ThreadUpdateAction.add(thread));
+                    }
+                    else if (networkEvent.typeIs(EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated, EventType.MessageReadReceiptUpdated)) {
+                        if (inList) {
+                            batcher.addAction(ThreadUpdateAction.add(thread));
                         }
                     }
-                    else if (networkEvent.typeIs(EventType.TypingStateUpdated)) {
+                    else if (networkEvent.typeIs(EventType.TypingStateUpdated) && inList(networkEvent.getThread())) {
                         if (networkEvent.getText() != null) {
                             String typingText = networkEvent.getText();
                             typingText += getString(R.string.typing);
-                            dialogsListAdapter.updateItemById(new TypingThreadHolder(networkEvent.getThread(), typingText));
+                            batcher.addAction(ThreadUpdateAction.update(thread, new TypingThreadHolder(thread, typingText)));
                         } else {
-                            getOrCreateThreadHolderAsync(networkEvent.getThread()).observeOn(RX.main()).doOnSuccess(holder -> {
-                                dialogsListAdapter.updateItemById(holder);
+                            getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder -> {
+                                batcher.addAction(ThreadUpdateAction.update(thread, holder));
                             }).subscribe();
                         }
                     }
                     else if (networkEvent.typeIs(EventType.UserMetaUpdated, EventType.UserPresenceUpdated)) {
-                        softReloadData();
-                    } else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
-                        removeThread(networkEvent.getThread());
-                    } else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated)) {
-                        if (networkEvent.getMessage() != null) {
-                            updateMessage(networkEvent.getMessage(), networkEvent.typeIs(EventType.MessageRemoved));
+                        batcher.addSoftReload();
+                    } else if (networkEvent.typeIs(EventType.ThreadRemoved) && inList) {
+                        batcher.addAction(ThreadUpdateAction.remove(thread));
+                    } else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated) && inList) {
+                        final Message message = networkEvent.getMessage();
+                        if (message != null) {
+                            Message lastMessage = thread.lastMessage();
+                            if (lastMessage == null || lastMessage.equals(message)) {
+                                batcher.addAction(ThreadUpdateAction.updateMessage(message));
+                            }
                         }
                     } else {
-                        reloadData();
+                        batcher.addReload();
                     }
                 }));
+    }
+
+    public boolean inList(Thread thread) {
+        return threadHolderHashMap.containsKey(thread);
     }
 
     public void initViews() {
@@ -146,10 +202,10 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         });
 
         dialogsList.setAdapter(dialogsListAdapter);
-        
-                Sometimes a new group is not registered
-                Create new thread not ordered properly
-                when a new message is received on a group, it has no avatar
+
+//                Sometimes a new group is not registered
+//                Create new thread not ordered properly
+//                when a new message is received on a group, it has no avatar (fixed)
 
 
         // Stop the image from flashing when the list is reloaded
@@ -199,7 +255,12 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @Override
     public void onResume() {
         super.onResume();
-//        softReloadData();
+        reloadData();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 
     @Override
@@ -234,6 +295,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 threads = filter(threads);
                 for (Thread thread : threads) {
                     ThreadHolder holder = getOrCreateThreadHolder(thread);
+                    holder.update();
                     threadHolders.add(holder);
                 }
                 return threadHolders;
@@ -241,7 +303,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 dialogsListAdapter.clear();
                 dialogsListAdapter.setItems(threadHolders);
                 if (threadHolders.size() > 1) {
-                    dialogsListAdapter.sortByLastMessageDate();
+                    sortByLastMessageDate();
                 }
             }).subscribe();
         }
@@ -253,16 +315,12 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         }).subscribe();
     }
 
-    protected void updateMessage(Message message, boolean didRemove) {
+    protected void updateMessage(Message message) {
         ThreadHolder holder = threadHolderHashMap.get(message.getThread());
         if (holder != null) {
-            if (didRemove) {
+            holder.updateAsync().observeOn(RX.main()).doOnComplete(() -> {
                 dialogsListAdapter.updateItemById(holder);
-            } else {
-                MessageHolder messageHolder = Customiser.shared().onNewMessageHolder(message);
-                holder.setLastMessage(messageHolder);
-                dialogsListAdapter.updateDialogWithMessage(message.getThread().getEntityID(), messageHolder);
-            }
+            }).subscribe(this);
         } else {
             getOrCreateThreadHolderAsync(message.getThread()).observeOn(RX.main()).doOnSuccess(threadHolder -> {
                 dialogsListAdapter.addItem(threadHolder);
@@ -276,10 +334,17 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             holder = new ThreadHolder(thread);
             threadHolderHashMap.put(thread, holder);
             dialogsListAdapter.addItem(new ThreadHolder(thread));
+            sortByLastMessageDate();
         } else {
             dialogsListAdapter.updateItemById(holder);
         }
-        dialogsListAdapter.sortByLastMessageDate();
+        sortByLastMessageDate();
+    }
+
+    public void sortByLastMessageDate() {
+        dialogsListAdapter.sort((o1, o2) -> {
+            return o2.getDate().compareTo(o1.getDate());
+        });
     }
 
     public Single<ThreadHolder> getOrCreateThreadHolderAsync(Thread thread) {
@@ -337,6 +402,12 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     public void filter(String text) {
         filter = text;
         loadData();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        batcher.dispose();
     }
 
 }

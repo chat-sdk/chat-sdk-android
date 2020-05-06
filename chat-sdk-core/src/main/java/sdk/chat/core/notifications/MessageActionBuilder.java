@@ -101,7 +101,7 @@ public class MessageActionBuilder {
                         .setKey(message.getSender().getEntityID())
                         .build();
 
-                style.addMessage(message.getText(), message.getDate().toDate().getTime(), sender);
+                style.addMessage(message.getText(), message.getDate().getTime(), sender);
             }
         }
 

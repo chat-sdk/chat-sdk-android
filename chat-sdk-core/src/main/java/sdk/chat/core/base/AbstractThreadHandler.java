@@ -1,5 +1,7 @@
 package sdk.chat.core.base;
 
+import androidx.annotation.Nullable;
+
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -8,12 +10,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.core.R;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -39,14 +38,21 @@ import sdk.guru.common.RX;
 public abstract class AbstractThreadHandler implements ThreadHandler {
 
     @Override
-    public Single<List<Message>> loadMoreMessagesForThread(final Date fromDate, final Thread thread) {
-        return loadMoreMessagesForThread(fromDate, thread, true);
+    public Single<List<Message>> loadMoreMessagesBefore(final Thread thread, @Nullable final Date before) {
+        return loadMoreMessagesBefore(thread, before, true);
     }
 
     @Override
-    public Single<List<Message>> loadMoreMessagesForThread(final Date fromDate, final Thread thread, boolean loadFromServer) {
+    public Single<List<Message>> loadMoreMessagesBefore(final Thread thread, @Nullable Date before, boolean loadFromServer) {
         return Single.defer(() -> {
-            return Single.just(ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), ChatSDK.config().messagesToLoadPerBatch + 1, fromDate));
+            return Single.just(ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), null, before, ChatSDK.config().messagesToLoadPerBatch + 1));
+        }).subscribeOn(RX.db());
+    }
+
+    @Override
+    public Single<List<Message>> loadMoreMessagesAfter(Thread thread, @Nullable Date after, boolean loadFromServer) {
+        return Single.defer(() -> {
+            return Single.just(ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), after, null, 0));
         }).subscribeOn(RX.db());
     }
 
@@ -82,15 +88,17 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     public static Message newMessage (int type, Thread thread) {
         Message message = ChatSDK.db().createEntity(Message.class);
         message.setSender(ChatSDK.currentUser());
-        message.setDate(new DateTime(System.currentTimeMillis()));
+        message.setDate(new Date());
         message.setEntityID(UUID.randomUUID().toString());
         message.setType(type);
 
-        for (User user: thread.getUsers()) {
-            if (user.isMe()) {
-                message.setUserReadStatus(user, ReadStatus.read(), new DateTime());
-            } else {
-                message.setUserReadStatus(user, ReadStatus.none(), new DateTime());
+        if (!thread.typeIs(ThreadType.Public)) {
+            for (User user: thread.getUsers()) {
+                if (user.isMe()) {
+                    message.setUserReadStatus(user, ReadStatus.read(), new DateTime(), false);
+                } else {
+                    message.setUserReadStatus(user, ReadStatus.none(), new DateTime(), false);
+                }
             }
         }
 
@@ -114,7 +122,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.defer(() -> {
             Message newMessage = newMessage(message.getType(), thread);
             newMessage.setMetaValues(message.getMetaValuesAsMap());
-            return sendMessage(newMessage);
+            return new MessageSendRig(newMessage, thread).run();
         }).subscribeOn(RX.db());
     }
 
@@ -164,12 +172,16 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
     @Override
     public boolean canAddUsersToThread(Thread thread) {
-        return thread.typeIs(ThreadType.PrivateGroup) && thread.getCreator() != null && thread.getCreator().isMe();
+        return thread.typeIs(ThreadType.Group) && thread.getCreator() != null && thread.getCreator().isMe();
     }
 
     @Override
     public Completable addUsersToThread(Thread thread, User... users) {
         return addUsersToThread(thread, Arrays.asList(users));
+    }
+
+    public Completable addUsersToThread(final Thread thread, final List<User> users) {
+        return addUsersToThread(thread, users, null);
     }
 
     @Override
@@ -179,7 +191,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
     @Override
     public boolean canRemoveUsersFromThread(Thread thread, List<User> users) {
-        return thread.typeIs(ThreadType.PrivateGroup) && thread.getCreator() != null && thread.getCreator().isMe();
+        return thread.typeIs(ThreadType.Group) && thread.getCreator() != null && thread.getCreator().isMe();
     }
 
     @Override
@@ -242,9 +254,14 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 thread.removeMessage(m);
                 m.delete();
             }
+            thread.setLoadMessagesFrom(new Date());
             thread.setDeleted(true);
-
             emitter.onComplete();
+
+//            return thread.deleteThread().doOnComplete(() -> {
+//                eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
+//            });
+
         }).subscribeOn(RX.db());
     }
 
@@ -271,9 +288,16 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     public Completable replyToMessage(Thread thread, Message message, String reply) {
         return Completable.defer(() -> {
             Message newMessage = newMessage(MessageType.Text, thread);
-            newMessage.setMetaValues(message.getMetaValuesAsMap());
+            // If this is already a reply, then don't copy the meta data
+            if (message.isReply()) {
+                newMessage.setText(message.getReply());
+            } else {
+                newMessage.setMetaValues(message.getMetaValuesAsMap());
+                newMessage.setValueForKey(message.getType(), Keys.Type);
+            }
             newMessage.setValueForKey(reply, Keys.Reply);
-            return sendMessage(newMessage);
+            return new MessageSendRig(newMessage, thread).run();
+
         }).subscribeOn(RX.db());
     }
 
@@ -378,6 +402,10 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public List<String> localizeRoles(List<String> roles) {
         return roles;
+    }
+
+    public boolean canLeaveThread(Thread thread) {
+        return thread.typeIs(ThreadType.Group) && thread.containsUser(ChatSDK.currentUser());
     }
 
 }

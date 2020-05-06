@@ -25,9 +25,12 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 
+import java.util.Arrays;
+
 import butterknife.BindView;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
+import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -95,7 +98,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         super.initViews();
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.threadDetailsUpdated())
+                .filter(NetworkEvent.filterType(EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated, EventType.ThreadUserRoleUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> reloadData(), this));
 
@@ -195,6 +198,10 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             menu.removeItem(R.id.action_add_users);
         }
 
+        if (!ChatSDK.thread().canLeaveThread(thread)) {
+            menu.removeItem(R.id.action_leave);
+        }
+
         return true;
     }
 
@@ -216,6 +223,9 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         }
         if (item.getItemId() == R.id.action_add_users) {
             ChatSDK.ui().startAddUsersToThreadActivity(this, thread.getEntityID());
+        }
+        if (item.getItemId() == R.id.action_leave) {
+            ChatSDK.thread().leaveThread(thread).subscribe(this);
         }
         return true;
     }

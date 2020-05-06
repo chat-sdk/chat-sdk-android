@@ -11,10 +11,10 @@ import org.pmw.tinylog.Logger;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 
-import io.reactivex.functions.Consumer;
 import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.chat.core.base.LocationProvider;
 import sdk.chat.core.dao.DaoCore;
+import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.handlers.AudioMessageHandler;
 import sdk.chat.core.handlers.AuthenticationHandler;
@@ -29,7 +29,7 @@ import sdk.chat.core.handlers.HookHandler;
 import sdk.chat.core.handlers.ImageMessageHandler;
 import sdk.chat.core.handlers.LastOnlineHandler;
 import sdk.chat.core.handlers.LocationMessageHandler;
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.module.Module;
 import sdk.chat.core.handlers.ProfilePicturesHandler;
 import sdk.chat.core.handlers.PublicThreadHandler;
 import sdk.chat.core.handlers.PushHandler;
@@ -44,8 +44,7 @@ import sdk.chat.core.interfaces.InterfaceAdapter;
 import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.utils.AppBackgroundMonitor;
 import io.reactivex.plugins.RxJavaPlugins;
-import sdk.guru.common.BiAction;
-import sdk.guru.common.RX;
+import sdk.chat.core.utils.StringChecker;
 
 
 /**
@@ -117,7 +116,6 @@ public class ChatSDK {
         if (builder.networkAdapter != null) {
             Logger.info("Interface adapter provided by ChatSDK.configure call");
         }
-
 
         for (Module module: builder.modules) {
             if (networkAdapter == null) {
@@ -338,4 +336,24 @@ public class ChatSDK {
         return shared().storageManager;
     }
 
+    public static String getImageURL(Message message) {
+        String imageURL = message.getImageURL();
+        if(StringChecker.isNullOrEmpty(imageURL)) {
+            imageURL = ChatSDK.imageMessage().getImageURL(message);
+        }
+        if(StringChecker.isNullOrEmpty(imageURL)) {
+            imageURL = ChatSDK.locationMessage().getImageURL(message);
+        }
+        if(StringChecker.isNullOrEmpty(imageURL)) {
+           for (Module module: shared().builder.modules) {
+                if (module.getMessageHandler() != null) {
+                    imageURL = module.getMessageHandler().getImageURL(message);
+                    if (imageURL != null) {
+                        break;
+                    }
+                }
+            }
+        }
+        return imageURL;
+    }
 }

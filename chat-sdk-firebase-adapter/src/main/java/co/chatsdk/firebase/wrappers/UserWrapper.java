@@ -9,6 +9,8 @@ package co.chatsdk.firebase.wrappers;
 
 import android.net.Uri;
 
+import androidx.annotation.Nullable;
+
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
@@ -21,7 +23,11 @@ import org.pmw.tinylog.Logger;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
+import io.reactivex.CompletableSource;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Function;
 import sdk.chat.core.avatar.HashAvatarGenerator;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
@@ -32,6 +38,7 @@ import sdk.chat.core.utils.HashMapHelper;
 import sdk.chat.core.utils.StringChecker;
 import co.chatsdk.firebase.FirebaseCoreHandler;
 import co.chatsdk.firebase.FirebaseEntity;
+import sdk.guru.common.Optional;
 import sdk.guru.realtime.RealtimeEventListener;
 import co.chatsdk.firebase.FirebasePaths;
 import sdk.guru.realtime.RealtimeReferenceManager;
@@ -280,22 +287,38 @@ public class UserWrapper {
      * @return completable
      */
     public Completable push() {
-        return dataOnce().flatMapCompletable(data -> {
-            boolean needsUpdate = !new HashSet<>(data.values()).equals(new HashSet<>(model.metaMap().values()));
-            if (needsUpdate && !FirebaseModule.config().disableClientProfileUpdate) {
-                return Completable.create(emitter -> ref().updateChildren(serialize(), (firebaseError, firebase) -> {
-                    if (firebaseError == null) {
-                        emitter.onComplete();
-                    } else {
-                        emitter.onError(firebaseError.toException());
-                    }
-                })).andThen(updateFirebaseUser())
-                        .andThen(FirebaseEntity.pushUserMetaUpdated(model.getEntityID()))
-                        .subscribeOn(RX.io());
-            } else {
-                deserializeMeta(data);
+        return push(false);
+    }
+
+    public Completable push(boolean force) {
+        return Single.defer((Callable<SingleSource<Optional<Map<String, Object>>>>) () -> {
+            if (!force) {
+                return dataOnce().map(Optional::new);
             }
-            return Completable.complete();
+            return Single.just(new Optional<>());
+        }).flatMapCompletable(mapOptional -> {
+
+            Completable completable = Completable.create(emitter -> ref().updateChildren(serialize(), (firebaseError, firebase) -> {
+                if (firebaseError == null) {
+                    emitter.onComplete();
+                } else {
+                    emitter.onError(firebaseError.toException());
+                }
+            })).andThen(updateFirebaseUser())
+                    .andThen(FirebaseEntity.pushUserMetaUpdated(model.getEntityID()))
+                    .subscribeOn(RX.io());
+
+            if (!mapOptional.isEmpty()) {
+                boolean needsUpdate = !new HashSet<>(mapOptional.get().values()).equals(new HashSet<>(model.metaMap().values()));
+                if (needsUpdate && !FirebaseModule.config().disableClientProfileUpdate) {
+                    return completable;
+                } else {
+                    deserializeMeta(mapOptional.get());
+                }
+                return Completable.complete();
+            } else {
+                return completable;
+            }
         });
     }
 

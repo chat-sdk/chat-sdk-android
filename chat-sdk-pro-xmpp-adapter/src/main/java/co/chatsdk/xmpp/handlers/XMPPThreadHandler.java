@@ -1,5 +1,7 @@
 package co.chatsdk.xmpp.handlers;
 
+import androidx.annotation.Nullable;
+
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smackx.muc.Affiliate;
@@ -137,7 +139,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable addUsersToThread(Thread thread, List<User> users) {
+    public Completable addUsersToThread(Thread thread, List<User> users, @Nullable List<String> permissions) {
         return Completable.error(new Throwable("Method not implemented"));
     }
 
@@ -167,7 +169,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     @Override
     public Completable joinThread(Thread thread) {
         return Completable.defer(() -> {
-            if (thread.typeIs(ThreadType.PrivateGroup)) {
+            if (thread.typeIs(ThreadType.Group)) {
                 return XMPPManager.shared().mucManager.joinRoom(thread.getEntityID()).ignoreElement();
             }
             return Completable.complete();

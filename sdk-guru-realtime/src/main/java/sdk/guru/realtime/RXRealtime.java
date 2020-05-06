@@ -11,6 +11,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 
@@ -28,9 +30,21 @@ import sdk.guru.common.RX;
 
 public class RXRealtime implements Action, Consumer<Throwable> {
 
+    public interface DatabaseErrorListener {
+        void onError(Query ref, DatabaseError error);
+    }
+
     protected ChildEventListener childListener;
     protected ValueEventListener valueListener;
     protected Query ref;
+    protected DatabaseErrorListener errorListener;
+
+    public RXRealtime() {
+    }
+
+    public RXRealtime(DatabaseErrorListener listener) {
+        this.errorListener = listener;
+    }
 
     public Observable<DocumentChange> on(Query ref) {
         return Observable.create((ObservableOnSubscribe<DocumentChange>) emitter -> {
@@ -48,6 +62,10 @@ public class RXRealtime implements Action, Consumer<Throwable> {
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
                     emitter.onError(databaseError.toException());
+                    Logger.debug(databaseError.toString() + ", " + RXRealtime.this.ref.toString());
+                    if (errorListener != null) {
+                        errorListener.onError(ref, databaseError);
+                    }
                 }
             });
         }).doOnDispose(this).subscribeOn(RX.io()).observeOn(RX.db());
@@ -68,7 +86,12 @@ public class RXRealtime implements Action, Consumer<Throwable> {
                 if (hasValue) {
                     emitter.onNext(new DocumentChange(snapshot, EventType.Modified));
                 }
-            }).onCancelled(error -> emitter.onError(error.toException())));
+            }).onCancelled(error -> {
+                emitter.onError(error.toException());
+                if (errorListener != null) {
+                    errorListener.onError(ref, error);
+                }
+            }));
         }).doOnDispose(this).subscribeOn(RX.io()).observeOn(RX.db());
     }
 
@@ -111,8 +134,10 @@ public class RXRealtime implements Action, Consumer<Throwable> {
         return Completable.create(emitter -> ref.setValue(data).addOnSuccessListener(aVoid -> {
             emitter.onComplete();
         }).addOnFailureListener(e -> {
+            Logger.debug("Database Error type: " + ref.toString());
             emitter.onError(e);
         }).addOnCanceledListener(() -> {
+            Logger.debug("Listener Cancelled: " + ref.toString());
             emitter.onError(new Exception("Write cancelled"));
         })).subscribeOn(RX.io()).observeOn(RX.db());
     }

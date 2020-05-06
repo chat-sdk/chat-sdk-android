@@ -1,12 +1,14 @@
 package sdk.chat.core.session;
 
-import org.greenrobot.greendao.annotation.NotNull;
+
+
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import sdk.chat.core.base.BaseNetworkAdapter;
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.module.Module;
 import sdk.chat.core.interfaces.InterfaceAdapter;
 import sdk.guru.common.BaseConfig;
 
@@ -23,12 +25,12 @@ public class ConfigBuilder<T> extends BaseConfig<T> {
         super(onBuild);
     }
 
-    public ConfigBuilder<T> setNetworkAdapter (@NotNull Class<? extends BaseNetworkAdapter> networkAdapterClass) {
+    public ConfigBuilder<T> setNetworkAdapter (@NonNull Class<? extends BaseNetworkAdapter> networkAdapterClass) {
         this.networkAdapter = networkAdapterClass;
         return this;
     }
 
-    public ConfigBuilder<T> setInterfaceAdapter (@NotNull Class<? extends InterfaceAdapter> interfaceAdapterClass) {
+    public ConfigBuilder<T> setInterfaceAdapter (@NonNull Class<? extends InterfaceAdapter> interfaceAdapterClass) {
         this.interfaceAdapter = interfaceAdapterClass;
         return this;
     }

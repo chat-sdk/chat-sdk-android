@@ -9,6 +9,11 @@
     <string name="file_message">📂 File</string>
     <string name="no_name">No Name</string>
 
+    <string name="message_send_failed">Message send failed</string>
+    <string name="try_to_resend_the_message">Try to resend the message</string>
+    <string name="send">Send</string>
+
+
     <string name="register">Register</string>
     <string name="login">Login</string>
     <string name="anonymous_login">Anonymous Login</string>
@@ -16,6 +21,7 @@
     <string name="password">Password</string>
     <string name="logout">Logout</string>
     <string name="search">Search</string>
+    <string name="leave_chat">Leave Chat</string>
     <string name="add_users">Add Users</string>
     <string name="tap_here_for_contact_info">Tap here for contact info</string>
     <string name="search_with_name">🔍 Search</string>
@@ -23,6 +29,9 @@
 
     <string name="new_chat">New Chat</string>
     <string name="add_user_by_id">Add User by ID</string>
+
+    <string name="you_were_removed_from_the_thread">You were removed</string>
+    <string name="you_were_added_to_the_thread">You were added</string>
 
     <string name="thread_users_have_no_valid_avatar_urls">Thread users have no valid avatar URLs</string>
     <string name="__typing" formatted="false">%s typing...</string>

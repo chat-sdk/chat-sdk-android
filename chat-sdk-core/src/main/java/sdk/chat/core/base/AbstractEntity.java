@@ -9,6 +9,9 @@ public abstract class AbstractEntity implements CoreEntity {
 
     @Override
     public boolean equalsEntity(CoreEntity entity) {
+        if (entity == null) {
+            return false;
+        }
         return equalsEntityID(entity.getEntityID());
     }
 

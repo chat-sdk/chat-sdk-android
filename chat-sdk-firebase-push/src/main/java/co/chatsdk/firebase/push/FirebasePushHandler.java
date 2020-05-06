@@ -8,10 +8,14 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import org.pmw.tinylog.Logger;
 
 import java.util.HashMap;
+import java.util.concurrent.Callable;
 
+import co.chatsdk.firebase.module.FirebaseModule;
+import io.reactivex.CompletableSource;
 import sdk.chat.core.push.AbstractPushHandler;
 import co.chatsdk.firebase.FirebaseCoreHandler;
 import io.reactivex.Completable;
+import sdk.chat.core.session.ChatSDK;
 import sdk.guru.common.RX;
 
 
@@ -29,17 +33,23 @@ public class FirebasePushHandler extends AbstractPushHandler {
     // Then we can mute notifications by just unsubscribing making the push script easier!
 
     @Override
-    public Completable subscribeToPushChannel(String channel) {
-        return Completable.create(emitter -> messaging().subscribeToTopic(channel).addOnSuccessListener(aVoid -> {
-            emitter.onComplete();
-        }).addOnFailureListener(emitter::onError)).andThen(super.subscribeToPushChannel(channel)).subscribeOn(RX.io());
+    public Completable subscribeToPushChannel(final String channel) {
+        return Completable.defer(() -> {
+            String hash = hashChannel(channel);
+            return Completable.create(emitter -> messaging().subscribeToTopic(hash).addOnSuccessListener(aVoid -> {
+                emitter.onComplete();
+            }).addOnFailureListener(emitter::onError)).andThen(super.subscribeToPushChannel(hash)).subscribeOn(RX.io());
+        });
     }
 
     @Override
     public Completable unsubscribeToPushChannel(String channel) {
-        return Completable.create(emitter -> messaging().unsubscribeFromTopic(channel).addOnSuccessListener(aVoid -> {
-            emitter.onComplete();
-        }).addOnFailureListener(emitter::onError)).andThen(super.unsubscribeToPushChannel(channel)).subscribeOn(RX.io());
+        return Completable.defer(() -> {
+            String hash = hashChannel(channel);
+            return Completable.create(emitter -> messaging().unsubscribeFromTopic(hash).addOnSuccessListener(aVoid -> {
+                emitter.onComplete();
+            }).addOnFailureListener(emitter::onError)).andThen(super.unsubscribeToPushChannel(hash)).subscribeOn(RX.io());
+        });
     }
 
     @Override
@@ -67,6 +77,14 @@ public class FirebasePushHandler extends AbstractPushHandler {
 
     public static FirebaseMessaging messaging () {
         return FirebaseMessaging.getInstance();
+    }
+
+    public String hashChannel(String channel) throws Exception {
+        if (!FirebaseModule.config().enableCompatibilityWithV4) {
+            return md5(channel);
+        } else {
+            return super.hashChannel(channel);
+        }
     }
 
 }

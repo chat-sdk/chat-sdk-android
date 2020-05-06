@@ -1,7 +1,11 @@
 package co.chatsdk.message.file;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.webkit.MimeTypeMap;
 
 import com.shockwave.pdfium.PdfDocument;
 import com.shockwave.pdfium.PdfiumCore;
@@ -9,6 +13,8 @@ import com.shockwave.pdfium.PdfiumCore;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
@@ -17,6 +23,7 @@ import sdk.chat.core.handlers.FileMessageHandler;
 import sdk.chat.core.rigs.BitmapUploadable;
 import sdk.chat.core.rigs.FileUploadable;
 import sdk.chat.core.rigs.MessageSendRig;
+import sdk.chat.core.rigs.Uploadable;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import io.reactivex.Completable;
@@ -31,34 +38,35 @@ public class BaseFileMessageHandler implements FileMessageHandler {
     public static String imageMimeType = "image/jpeg";
 
     public Completable sendMessageWithFile(final String fileName, final String mimeType, File file, final Thread thread) {
-        MessageSendRig rig = new MessageSendRig(new MessageType(MessageType.File), thread, message -> {
-            // First pass back an empty result so that we add the cell to the table view
-            message.setValueForKey(fileName, Keys.MessageText);
-            message.setValueForKey(mimeType, Keys.MessageMimeType);
-        }).setUploadable(new FileUploadable(file, fileName, mimeType), (message, result) -> {
-            // Set the File URL
-            message.setValueForKey(result.url, Keys.MessageFileURL);
-        });
+
+        List<Uploadable> uploadables = new ArrayList<>();
+        uploadables.add(new FileUploadable(file, fileName, mimeType));
 
         if (mimeType.equals("application/pdf")) {
-
             // Generate the preview image
             try {
                 Bitmap bitmap = pdfPreview(file);
                 if (bitmap != null) {
-                    rig.setUploadable(new BitmapUploadable(bitmap, imageName, imageMimeType), (message, result) -> {
-                        if(result.mimeType.equals(imageMimeType)) {
-                            message.setValueForKey(result.url, Keys.MessageImageURL);
-                        }
-                    });
+                    uploadables.add(new BitmapUploadable(bitmap, imageName, imageMimeType));
                 }
-
             } catch (Exception e) {
                 // Just abort and don't send the preview
                 e.printStackTrace();
             }
-
         }
+
+        MessageSendRig rig = new MessageSendRig(new MessageType(MessageType.File), thread, message -> {
+            // First pass back an empty result so that we add the cell to the table view
+            message.setValueForKey(fileName, Keys.MessageText);
+            message.setValueForKey(mimeType, Keys.MessageMimeType);
+        }).setUploadables(uploadables, (message, result) -> {
+            if(result.mimeType.equals(imageMimeType)) {
+                message.setValueForKey(result.url, Keys.MessageImageURL);
+            }
+            if(result.mimeType.equals(mimeType)) {
+                message.setValueForKey(result.url, Keys.MessageFileURL);
+            }
+        });
 
         return rig.run();
     }
@@ -98,4 +106,34 @@ public class BaseFileMessageHandler implements FileMessageHandler {
         buf.close();
         return bytes;
     }
+
+    @Override
+    public String getImageURL(Message message) {
+        if (message.getMessageType().is(MessageType.File) || message.getReplyType().is(MessageType.File)) {
+            String imageURL = message.getImageURL();
+            if (imageURL != null && !imageURL.isEmpty()) {
+                return imageURL;
+            } else {
+                Context context = ChatSDK.ctx();
+                Resources resources = context.getResources();
+
+                final String mimeType = message.stringForKey(Keys.MessageMimeType);
+                String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+
+                int resID = context.getResources().getIdentifier("file_type_" + extension, "drawable", context.getPackageName());
+                resID = resID > 0 ? resID : R.drawable.file;
+
+                Uri uri = new Uri.Builder()
+                        .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                        .authority(resources.getResourcePackageName(resID))
+                        .appendPath(resources.getResourceTypeName(resID))
+                        .appendPath(resources.getResourceEntryName(resID))
+                        .build();
+
+                return uri.toString();
+            }
+        }
+        return null;
+    }
+
 }

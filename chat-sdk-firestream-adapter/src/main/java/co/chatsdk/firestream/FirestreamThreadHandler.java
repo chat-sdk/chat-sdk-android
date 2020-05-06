@@ -1,5 +1,7 @@
 package co.chatsdk.firestream;
 
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -309,7 +311,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         });
     }
 
-    public Completable addUsersToThread(final Thread thread, final List<User> users) {
+    public Completable addUsersToThread(final Thread thread, final List<User> users, @Nullable List<String> permissions) {
         return Completable.defer(() -> {
             if (thread.typeIs(ThreadType.Group)) {
                 IChat chat = Fire.stream().getChat(thread.getEntityID());
@@ -342,6 +344,15 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
+    public boolean canLeaveThread(Thread thread) {
+        if (super.canLeaveThread(thread)) {
+            IChat chat = Fire.stream().getChat(thread.getEntityID());
+            return chat != null;
+        }
+        return false;
+    }
+
+    @Override
     public Completable leaveThread(Thread thread) {
         return null;
     }
@@ -351,8 +362,8 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         return null;
     }
 
-    public Single<List<Message>> loadMoreMessagesForThread(final Date fromDate, final Thread thread, boolean loadFromServer) {
-        return super.loadMoreMessagesForThread(fromDate, thread, loadFromServer).flatMap(localMessages -> {
+    public Single<List<Message>> loadMoreMessagesForThread(final Date olderThan, final Thread thread, boolean loadFromServer) {
+        return super.loadMoreMessagesBefore(olderThan, thread, loadFromServer).flatMap(localMessages -> {
 
             // This function converts a list of sendables to a list of messages
             Function<List<Sendable>, SingleSource<List<Message>>> sendableToMessage = sendables -> Single.defer(() -> {
@@ -388,7 +399,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 });
             });
 
-            Date lastMessageDate = fromDate;
+            Date lastMessageDate = olderThan;
             if (localMessages.size() > 0) {
                 // Don't get a duplicate of the previous message - get messages before that
                 lastMessageDate = localMessages.get(localMessages.size() - 1).getDate().toDate();

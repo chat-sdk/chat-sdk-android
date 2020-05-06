@@ -2,9 +2,11 @@ package co.chatsdk.ui.chat;
 
 import android.app.Activity;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.maps.model.LatLng;
 
-import org.greenrobot.greendao.annotation.NotNull;
+
 
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
@@ -95,14 +97,14 @@ public class LocationSelector {
 //        }
 //    }
 
-    protected void notifySuccess (@NotNull Result result) {
+    protected void notifySuccess (@NonNull Result result) {
         if (emitter != null) {
             emitter.onSuccess(result);
         }
         clear();
     }
 
-    protected void notifyError (@NotNull Throwable throwable) {
+    protected void notifyError (@NonNull Throwable throwable) {
         if (emitter != null) {
             emitter.onError(throwable);
         }

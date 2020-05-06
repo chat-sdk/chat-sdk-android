@@ -5,7 +5,8 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 
 import sdk.chat.core.base.BaseNetworkAdapter;
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 
 import sdk.chat.core.session.Configure;
@@ -14,7 +15,7 @@ import co.chatsdk.firebase.module.FirebaseModule;
 import firestream.chat.FirestreamConfig;
 import firestream.chat.namespace.Fire;
 
-public class FirestreamModule implements Module, NetworkAdapterProvider {
+public class FirestreamModule extends AbstractModule implements NetworkAdapterProvider {
 
     public static final FirestreamModule instance = new FirestreamModule();
 

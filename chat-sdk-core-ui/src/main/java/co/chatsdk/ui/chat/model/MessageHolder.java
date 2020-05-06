@@ -24,6 +24,7 @@ public class MessageHolder implements IMessage {
     protected boolean isGroup;
     protected boolean previousSenderEqualsSender;
     protected boolean showDate;
+    protected String quotedImageURL;
 
     public MessageHolder(Message message) {
         this.message = message;
@@ -34,11 +35,15 @@ public class MessageHolder implements IMessage {
         Message nextMessage = message.getNextMessage();
         Message previousMessage = message.getPreviousMessage();
 
-        previousSenderEqualsSender = previousMessage == null || !message.getSender().equalsEntity(previousMessage.getSender());
+        previousSenderEqualsSender = previousMessage != null && message.getSender().equalsEntity(previousMessage.getSender());
 
         DateFormat format = MessageBinder.messageTimeComparisonDateFormat(ChatSDK.ctx());
-        showDate = nextMessage == null || !format.format(message.getDate().toDate()).equals(format.format(nextMessage.getDate().toDate()));
+        showDate = nextMessage == null || !format.format(message.getDate()).equals(format.format(nextMessage.getDate()));
         isGroup = message.getThread().typeIs(ThreadType.Group);
+
+        if (message.isReply()) {
+            quotedImageURL = ChatSDK.getImageURL(message);
+        }
     }
 
 
@@ -65,7 +70,7 @@ public class MessageHolder implements IMessage {
 
     @Override
     public Date getCreatedAt() {
-        return message.getDate().toDate();
+        return message.getDate();
     }
 
     @Override
@@ -112,7 +117,10 @@ public class MessageHolder implements IMessage {
     }
 
     public String getQuotedImageUrl() {
-        return message.imageURL();
+        if (isReply()) {
+            return quotedImageURL;
+        }
+        return null;
     }
 
     public boolean showNames() {

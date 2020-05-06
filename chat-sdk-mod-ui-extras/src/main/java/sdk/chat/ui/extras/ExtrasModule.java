@@ -5,13 +5,14 @@ import android.content.Context;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.module.Module;
 import sdk.guru.common.BaseConfig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 
 
-public class ExtrasModule implements Module {
+public class ExtrasModule extends AbstractModule {
 
     public static final ExtrasModule instance = new ExtrasModule();
 

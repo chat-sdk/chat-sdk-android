@@ -65,4 +65,12 @@ public class BaseVideoMessageHandler implements VideoMessageHandler {
     public String textRepresentation(Message message) {
         return message.stringForKey(Keys.MessageVideoURL);
     }
+
+    @Override
+    public String getImageURL(Message message) {
+        if (message.getMessageType().is(MessageType.Video) || message.getReplyType().is(MessageType.Video)) {
+            return message.getImageURL();
+        }
+        return null;
+    }
 }

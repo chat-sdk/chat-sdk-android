@@ -2,10 +2,11 @@ package co.chatsdk.last_online;
 
 import android.content.Context;
 
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 
-public class FirebaseLastOnlineModule implements Module {
+public class FirebaseLastOnlineModule extends AbstractModule {
 
     public static final FirebaseLastOnlineModule instance = new FirebaseLastOnlineModule();
     public static FirebaseLastOnlineModule shared() {

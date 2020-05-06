@@ -22,7 +22,10 @@ public class ReadStatusViewBinder {
 //            int resource = R.drawable.icn_30_sending;
             int resource = -1;
 
-            if (sendStatus != MessageSendStatus.Sent) {
+            if (sendStatus == MessageSendStatus.Failed) {
+                resource = R.drawable.icn_30_sending;
+            }
+            if (sendStatus == MessageSendStatus.Sent) {
                 resource = R.drawable.icn_30_sent;
             }
             if (status.is(ReadStatus.delivered())) {

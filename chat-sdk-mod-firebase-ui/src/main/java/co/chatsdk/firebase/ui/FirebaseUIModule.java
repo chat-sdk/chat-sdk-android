@@ -18,7 +18,8 @@ import java.util.List;
 import chatsdk.co.chat_sdk_firebase_ui.R;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
-import sdk.chat.core.handlers.Module;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.module.Module;
 import sdk.guru.common.BaseConfig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
@@ -29,7 +30,7 @@ import co.chatsdk.firebase.FirebaseCoreHandler;
  * Created by ben on 1/2/18.
  */
 
-public class FirebaseUIModule implements Module {
+public class FirebaseUIModule extends AbstractModule {
 
     public static final FirebaseUIModule instance = new FirebaseUIModule();
 

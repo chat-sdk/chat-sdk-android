@@ -23,7 +23,7 @@ public class OutcomingAudioMessageViewHolder extends BaseOutcomingTextMessageVie
         audioPlayerView.sliderTrackColor = R.color.blue_light;
         audioPlayerView.sliderThumbColor = R.color.white;
         audioPlayerView.textColor = R.color.white;
-        audioPlayerView.bind(message.audioURL());
+        audioPlayerView.bind(message.audioURL(), message.getTotalTime());
 
     }
 }

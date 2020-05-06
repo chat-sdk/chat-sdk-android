@@ -50,7 +50,8 @@ publish {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    api project(':chat-sdk-core-ui')
+    implementation project(':chat-sdk-core')
+    implementation project(':chat-sdk-core-ui')
 
     implementation "com.mikepenz:material-design-icons-dx-typeface:$iconicsMaterialDesignIconsVersion"
     implementation "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
@@ -63,5 +64,10 @@ dependencies {
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
+
+    implementation project(':sdk-guru-common')
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    implementation "org.tinylog:tinylog:$tinyLogVersion"
 
 }

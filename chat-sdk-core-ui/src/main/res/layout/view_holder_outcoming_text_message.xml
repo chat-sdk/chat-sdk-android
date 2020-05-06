@@ -25,15 +25,24 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:background="?outcomingReplyDrawable"
-            android:clipChildren="true"
-            android:paddingLeft="4dp"
-            android:paddingStart="4dp"
             android:paddingRight="2dp"
             android:paddingEnd="2dp"
+            android:paddingLeft="6dp"
+            android:paddingStart="6dp"
             android:paddingBottom="2dp"
             android:paddingTop="2dp"
             android:layout_marginBottom="6dp"
             android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/replyImageView"
+                android:layout_width="@dimen/reply_image_width"
+                android:layout_height="@dimen/reply_image_height"
+                android:layout_marginStart="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                />
 
             <TextView
                 android:id="@+id/replyTextView"
@@ -41,19 +50,9 @@
                 android:layout_height="match_parent"
                 android:textSize="?outcomingReplyTextSize"
                 android:textColor="?outcomingReplyTextColor"
-                android:padding="4dp" />
-
-            <com.github.siyamed.shapeimageview.mask.PorterShapeImageView
-                android:id="@+id/replyImageView"
-                android:layout_width="@dimen/reply_image_width"
-                android:layout_height="@dimen/reply_image_height"
-                android:adjustViewBounds="true"
-                android:layout_gravity="end"
-                android:layout_marginEnd="4dp"
-                android:layout_marginRight="4dp"
-                app:siShape="?outcomingReplyImageDrawable"
-                app:siSquare="false"
-                />
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:padding="2dp" />
 
         </LinearLayout>
 
@@ -62,15 +61,13 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <com.github.siyamed.shapeimageview.mask.PorterShapeImageView
+            <ImageView
                 android:id="@+id/messageIcon"
                 android:layout_width="40dp"
                 android:layout_height="50dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginEnd="8dp"
-                android:scaleType="centerInside"
-                app:siShape="?outcomingIconDrawable"
-                app:siSquare="false" />
+                android:scaleType="centerInside" />
 
             <LinearLayout
                 android:layout_width="wrap_content"

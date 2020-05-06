@@ -7,12 +7,13 @@ import com.stfalcon.chatkit.commons.ImageLoader;
 
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.model.MessageHolder;
+import co.chatsdk.ui.utils.ImageLoaderPayload;
 
 public class IconBinder {
-    public static void bind(ImageView messageIcon, ImageLoader imageLoader, MessageHolder message) {
+    public static void bind(ImageView messageIcon, MessageHolder message, ImageLoader imageLoader) {
         if (messageIcon != null && imageLoader != null && message.getIcon() != null) {
             messageIcon.setVisibility(View.VISIBLE);
-            imageLoader.loadImage(messageIcon, message.getIcon(), R.drawable.icn_200_image_message_placeholder);
+            imageLoader.loadImage(messageIcon, message.getIcon(), new ImageLoaderPayload(R.drawable.icn_200_image_message_placeholder));
         } else if (messageIcon != null) {
             messageIcon.setVisibility(View.GONE);
         }
