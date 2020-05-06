@@ -2,7 +2,7 @@ package sdk.chat.test;
 
 import android.os.AsyncTask;
 
-import org.joda.time.DateTime;
+
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
@@ -100,9 +100,9 @@ public class DummyData {
 
         for (User user: thread.getUsers()) {
             if (user.isMe() && sender.isMe()) {
-                message.setUserReadStatus(user, ReadStatus.read(), new DateTime());
+                message.setUserReadStatus(user, ReadStatus.read(), new Date());
             } else {
-                message.setUserReadStatus(user, ReadStatus.none(), new DateTime());
+                message.setUserReadStatus(user, ReadStatus.none(), new Date());
             }
         }
 

@@ -4,22 +4,18 @@ package sdk.chat.core.dao;
 
 // KEEP INCLUDES - put your token includes here
 
-
-import android.os.AsyncTask;
-
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import org.greenrobot.greendao.DaoException;
-import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Unique;
-import org.joda.time.DateTime;
+
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,7 +35,6 @@ import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.types.ReadStatus;
-import sdk.chat.core.utils.DaoDateTimeConverter;
 
 @Entity
 public class Message extends AbstractEntity {
@@ -258,11 +253,11 @@ public class Message extends AbstractEntity {
         return ChatSDK.db().readReceipt(getId(), user.getId());
     }
 
-    public boolean setUserReadStatus (User user, ReadStatus status, DateTime date) {
+    public boolean setUserReadStatus (User user, ReadStatus status, Date date) {
         return setUserReadStatus(user, status, date, true);
     }
 
-    public boolean setUserReadStatus (User user, ReadStatus status, DateTime date, boolean notify) {
+    public boolean setUserReadStatus (User user, ReadStatus status, Date date, boolean notify) {
         ReadReceiptUserLink link = linkForUser(user);
 
         if (link == null || link.getStatus() < status.getValue()) {

@@ -42,7 +42,7 @@ dependencies {
     implementation project(':chat-sdk-core')
     implementation project(':firestream')
     implementation project(':chat-sdk-firebase-adapter')
-    implementation "joda-time:joda-time:$jodaTimeVersion"
+
 
     implementation project(':sdk-guru-common')
     implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"

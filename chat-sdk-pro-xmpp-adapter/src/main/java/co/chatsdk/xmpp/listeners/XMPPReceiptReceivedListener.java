@@ -3,7 +3,7 @@ package co.chatsdk.xmpp.listeners;
 import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.receipts.ReceiptReceivedListener;
-import org.joda.time.DateTime;
+
 import org.jxmpp.jid.Jid;
 
 import sdk.chat.core.dao.Message;

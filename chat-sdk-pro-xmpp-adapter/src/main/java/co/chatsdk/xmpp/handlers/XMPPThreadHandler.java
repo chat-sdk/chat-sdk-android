@@ -7,7 +7,7 @@ import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MUCAffiliation;
 import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.joda.time.DateTime;
+
 import org.jxmpp.jid.impl.JidCreate;
 
 import java.lang.reflect.Method;

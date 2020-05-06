@@ -11,7 +11,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 
-import org.joda.time.DateTime;
+
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
@@ -175,7 +175,7 @@ public class MessageWrapper  {
                     date = 0L;
                 }
 
-                notify = model.setUserReadStatus(user, new ReadStatus(status.intValue()), new DateTime(date), false) || notify;
+                notify = model.setUserReadStatus(user, new ReadStatus(status.intValue()), new Date(date), false) || notify;
 
             }
         }
@@ -256,7 +256,7 @@ public class MessageWrapper  {
                 return Completable.complete();
             }
 
-            if(model.setUserReadStatus(ChatSDK.currentUser(), status, new DateTime())) {
+            if(model.setUserReadStatus(ChatSDK.currentUser(), status, new Date())) {
 
                 Map<String, Object> map = new HashMap<String, Object>() {{
                     put(Keys.Status, status.getValue());

@@ -45,7 +45,6 @@ ext {
     rxAndroidVersion = "2.1.1"
     rxRelayVersion = "2.1.1"
     rxQueueVersion = "2.0.0"
-    jodaTimeVersion = "2.10.3"
     compressorVersion = "2.1.0"
     okHttpVersion = "3.11.0"
     okHttpDownloaderVersion = "1.1.0"

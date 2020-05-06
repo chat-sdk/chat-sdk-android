@@ -72,7 +72,7 @@ dependencies {
 
     // Dependencies that are also used by other Chat SDK libraries
     implementation "org.greenrobot:greendao:$greenDaoVersion"
-    implementation "joda-time:joda-time:$jodaTimeVersion"
+
     implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
     implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
     implementation "com.jakewharton.rxrelay2:rxrelay:$rxRelayVersion"

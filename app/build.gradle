@@ -85,8 +85,6 @@ android {
 
 dependencies {
 
-//    implementation "androidx.multidex:multidex:$androidxMultidexVersion"
-
     implementation project(':chat-sdk-core-ui')
     implementation project(':chat-sdk-firebase-adapter')
     implementation project(':chat-sdk-firebase-push')
@@ -119,32 +117,9 @@ dependencies {
 
 //    api project(path: ':chat-sdk-xmpp-ejabberd-file-storage')
 //    api project(':chat-sdk-image-canvas')
-//
-
-//    implementation project(':firestream')
-
-//    implementation 'org.webrtc:google-webrtc:1.0.30039'
-
-    implementation "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
-    implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
-//    implementation 'com.mikepenz:octicons-typeface:3.2.0.6-kotlin@aar'
-
-    implementation "com.mikepenz:iconics-core:$iconicsVersion"
 
     implementation "com.google.android.libraries.places:places:$googlePlacesVersion"
-
-    implementation "com.jakewharton:butterknife:$butterKnifeVersion"
-    annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
-    implementation "de.hdodenhof:circleimageview:$circleImageViewVersion"
-    implementation "com.github.siyamed:android-shape-imageview:$shapeImageViewVersion"
-
-    implementation "joda-time:joda-time:$jodaTimeVersion"
     implementation "org.greenrobot:greendao:$greenDaoVersion"
-
-    // Audio
-//    implementation 'com.github.adrielcafe:AndroidAudioRecorder:0.3.0'
-//    implementation 'com.github.adrielcafe:AndroidAudioConverter:0.0.8'
-//    implementation 'com.google.android.exoplayer:exoplayer:2.11.3'
 
 }
 

@@ -1,6 +1,8 @@
 package sdk.chat.core.dao;
 
-import org.joda.time.DateTime;
+
+
+import java.util.Date;
 
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
@@ -30,7 +32,7 @@ public class MessageAsync {
 
     public static void markDelivered(Message message) {
         RX.onBackground(() -> {
-            message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.delivered(), new DateTime());
+            message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.delivered(), new Date());
         });
     }
 }

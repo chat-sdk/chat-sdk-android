@@ -3,7 +3,7 @@ package co.chatsdk.xmpp;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.StandardExtensionElement;
 import org.jivesoftware.smackx.delay.packet.DelayInformation;
-import org.joda.time.DateTime;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;

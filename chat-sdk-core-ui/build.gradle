@@ -70,7 +70,7 @@ dependencies {
 //    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
     implementation "id.zelory:compressor:$compressorVersion"
     implementation "org.tinylog:tinylog:$tinyLogVersion"
-    implementation "joda-time:joda-time:$jodaTimeVersion"
+
     implementation "com.jakewharton.rxrelay2:rxrelay:$rxRelayVersion"
 
     // Dependencies required by other Chat SDK libraries

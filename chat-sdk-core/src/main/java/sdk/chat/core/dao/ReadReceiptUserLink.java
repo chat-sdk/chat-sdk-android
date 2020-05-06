@@ -1,15 +1,14 @@
 package sdk.chat.core.dao;
 
 import org.greenrobot.greendao.DaoException;
-import org.greenrobot.greendao.annotation.Convert;
+
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToOne;
-import org.joda.time.DateTime;
 
-import sdk.chat.core.base.AbstractEntity;
-import sdk.chat.core.utils.DaoDateTimeConverter;
+
+import java.util.Date;
 
 /**
  * Created by ben on 10/5/17.
@@ -25,8 +24,7 @@ public class ReadReceiptUserLink {
     private Long userId;
     private Integer status;
 
-    @Convert(converter = DaoDateTimeConverter.class, columnType = Long.class)
-    private DateTime date;
+    private Date date;
 
     @ToOne(joinProperty = "userId")
     private User user;
@@ -39,9 +37,9 @@ public class ReadReceiptUserLink {
     @Generated(hash = 642681985)
     private transient ReadReceiptUserLinkDao myDao;
 
-    @Generated(hash = 1676661430)
+    @Generated(hash = 1474751611)
     public ReadReceiptUserLink(Long id, Long messageId, Long userId, Integer status,
-            DateTime date) {
+            Date date) {
         this.id = id;
         this.messageId = messageId;
         this.userId = userId;
@@ -140,12 +138,8 @@ public class ReadReceiptUserLink {
         myDao = daoSession != null ? daoSession.getReadReceiptUserLinkDao() : null;
     }
 
-    public DateTime getDate() {
+    public Date getDate() {
         return this.date;
-    }
-
-    public void setDate(DateTime date) {
-        this.date = date;
     }
 
     public void setId(Long id) {
@@ -166,6 +160,10 @@ public class ReadReceiptUserLink {
 
     public void setMessageId(Long messageId) {
         this.messageId = messageId;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
 

@@ -2,7 +2,7 @@ package sdk.chat.core.base;
 
 import androidx.annotation.Nullable;
 
-import org.joda.time.DateTime;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,9 +95,9 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         if (!thread.typeIs(ThreadType.Public)) {
             for (User user: thread.getUsers()) {
                 if (user.isMe()) {
-                    message.setUserReadStatus(user, ReadStatus.read(), new DateTime(), false);
+                    message.setUserReadStatus(user, ReadStatus.read(), new Date(), false);
                 } else {
-                    message.setUserReadStatus(user, ReadStatus.none(), new DateTime(), false);
+                    message.setUserReadStatus(user, ReadStatus.none(), new Date(), false);
                 }
             }
         }

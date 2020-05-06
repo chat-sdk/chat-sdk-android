@@ -1,7 +1,7 @@
 package co.chatsdk.xmpp.read_receipt;
 
 import org.jivesoftware.smack.packet.Stanza;
-import org.joda.time.DateTime;
+
 
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.handlers.ReadReceiptHandler;
