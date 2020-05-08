@@ -20,6 +20,10 @@ public class DefaultUIModule extends AbstractModule implements InterfaceAdapterP
         return instance;
     }
 
+    /**
+     * @see UIConfig
+     * @return configuration object
+     */
     public static UIConfig<DefaultUIModule> configure() {
         return instance.config;
     }

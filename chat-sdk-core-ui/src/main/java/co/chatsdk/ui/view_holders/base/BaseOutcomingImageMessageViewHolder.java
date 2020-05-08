@@ -34,7 +34,8 @@ public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> e
     public void onBind(T message) {
         super.onBind(message);
         if (image != null && imageLoader != null) {
-            imageLoader.loadImage(image, message.getImageUrl(), getPayloadForImageLoader(message));
+            String url = message.getImageUrl();
+            imageLoader.loadImage(image, url, getPayloadForImageLoader(message));
         }
 
         imageOverlay.setImageDrawable(Icons.get(Icons.choose().check, R.color.white));

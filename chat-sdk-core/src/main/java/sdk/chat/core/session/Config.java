@@ -239,6 +239,13 @@ public class Config<T> extends BaseConfig<T> {
         return this;
     }
 
+    /**
+     * How many messages back can we delete. In Firebase we can't only add a deletion
+     * listener, so this is an additional event listener. That will cause this
+     * number of messages to be re-downloaded when the app starts. 
+     * @param limit
+     * @return
+     */
     public Config<T> setMessageDeletionListenerLimit (int limit) {
         this.messageDeletionListenerLimit = limit;
         return this;

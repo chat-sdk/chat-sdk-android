@@ -11,6 +11,7 @@ import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.session.Configure;
 import sdk.chat.core.types.MessageType;
 import co.chatsdk.message.sticker.R;
 import co.chatsdk.message.sticker.integration.StickerMessageHolder;
@@ -21,6 +22,7 @@ import co.chatsdk.message.sticker.integration.StickerChatOption;
 import co.chatsdk.ui.chat.model.MessageHolder;
 import co.chatsdk.ui.custom.Customiser;
 import co.chatsdk.ui.custom.IMessageHandler;
+import sdk.guru.common.BaseConfig;
 
 /**
  * Created by ben on 10/11/17.
@@ -79,6 +81,7 @@ public class StickerMessageModule extends AbstractModule {
         });
     }
 
+
     @Override
     public String getName() {
         return "StickerMessagesModule";
@@ -87,6 +90,40 @@ public class StickerMessageModule extends AbstractModule {
     @Override
     public MessageHandler getMessageHandler() {
         return ChatSDK.stickerMessage();
+    }
+
+    /**
+     * @see Config
+     * @return configuration object
+     */
+    public static Config<StickerMessageModule> configure() {
+        return instance.config;
+    }
+
+    public static StickerMessageModule configure(Configure<Config> config) {
+        config.with(instance.config);
+        return instance;
+    }
+
+    public static class Config<T> extends BaseConfig<T> {
+
+        public int maxSize = 400;
+
+        public Config(T onBuild) {
+            super(onBuild);
+        }
+
+        public Config<T> setMaxSize(int size) {
+            this.maxSize = size;
+            return this;
+        }
+
+    }
+
+    public Config<StickerMessageModule> config = new Config<>(this);
+
+    public static Config config() {
+        return shared().config;
     }
 
 }

@@ -177,7 +177,6 @@ public class DemoConfigBuilder {
 
         // Backend module
         if (backend == Backend.FireStream) {
-
             modules.add(FirestreamModule.configure(config -> config
                     .setRoot(database == Database.Realtime ? "live_firestream_realtime" : "live_firestream_firestore")
                     .setSandbox("firestream")

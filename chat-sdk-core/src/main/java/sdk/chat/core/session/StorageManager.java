@@ -76,6 +76,13 @@ public class StorageManager {
         queryBuilder.where(ReadReceiptUserLinkDao.Properties.UserId.eq(userId)).where(ReadReceiptUserLinkDao.Properties.MessageId.eq(messageId));
         List<ReadReceiptUserLink> links = queryBuilder.list();
 
+        if (links.size() > 1) {
+            Logger.debug("Multiple read receipts for one user");
+            for (int i = 1; i < links.size(); i++) {
+                links.get(i).delete();
+            }
+        }
+
         if (!links.isEmpty()) {
             return links.get(0);
         }

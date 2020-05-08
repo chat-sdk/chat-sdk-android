@@ -9,8 +9,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.firebase.moderation.Permission;
+import io.reactivex.CompletableSource;
 import sdk.chat.core.base.AbstractThreadHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
@@ -30,6 +32,7 @@ import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.utils.Debug;
 import sdk.guru.common.RX;
+import sdk.guru.realtime.RXRealtime;
 
 /**
  * Created by benjaminsmiley-andrews on 25/05/2017.
@@ -103,17 +106,19 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     public Completable mute(Thread thread) {
-        return Completable.create(emitter -> {
+        return Completable.defer(() -> {
             DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(ChatSDK.currentUserID()).child(Keys.Mute);
-            threadUsersRef.setValue(true).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
-        }).subscribeOn(RX.io());
+            RXRealtime realtime = new RXRealtime();
+            return realtime.set(threadUsersRef, true);
+        });
     }
 
     public Completable unmute(Thread thread) {
-        return Completable.create(emitter -> {
+        return Completable.defer(() -> {
             DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(ChatSDK.currentUserID()).child(Keys.Mute);
-            threadUsersRef.setValue(false).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
-        }).subscribeOn(RX.io());
+            RXRealtime realtime = new RXRealtime();
+            return realtime.set(threadUsersRef, false);
+        });
     }
 
     public Completable removeUsersFromThread(final Thread thread, List<User> users) {
@@ -205,8 +210,8 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             thread.setEntityID(entityID);
             thread.setCreator(currentUser);
             thread.setCreationDate(new Date());
-            thread.setName(name);
-            thread.setImageUrl(imageURL);
+            thread.setName(name, false);
+            thread.setImageUrl(imageURL, false);
             thread.addUsers(users);
 
             if (type != -1) {
@@ -248,6 +253,12 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean canDeleteMessage(Message message) {
+
+        // We do it this way because otherwise when we exceed the number of messages,
+        // This event is triggered as the messages go out of scope
+        if (message.getDate().getTime() < message.getThread().getCanDeleteMessagesFrom().getTime()) {
+            return false;
+        }
 
         User currentUser = ChatSDK.currentUser();
         Thread thread = message.getThread();
@@ -396,6 +407,15 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return false;
 //        String role = thread.getPermission(user.getEntityID());
 //        return Permission.isOr(role, Permission.Owner, Permission.Admin);
+    }
+
+    @Override
+    public boolean isBanned(Thread thread, User user) {
+        if (thread.containsUser(user)) {
+            String role = thread.getPermission(user.getEntityID());
+            return Permission.isOr(role, Permission.Banned);
+        }
+        return false;
     }
 
 }

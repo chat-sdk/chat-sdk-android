@@ -272,6 +272,7 @@ public class MessageWrapper  {
             }
             return Completable.complete();
 
-        }).subscribeOn(RX.io());
+            // Do this to stop duplication of links
+        }).subscribeOn(RX.single());
     }
 }

@@ -52,6 +52,7 @@
         android:layout_marginRight="@dimen/message_incoming_bubble_margin_right"
         android:layout_toEndOf="@id/messageUserAvatar"
         android:layout_toRightOf="@id/messageUserAvatar"
+        android:adjustViewBounds="true"
         app:siShape="?incomingBubbleDrawable"
         app:siSquare="false"/>
 

@@ -15,6 +15,7 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Unique;
+import org.pmw.tinylog.Logger;
 
 
 import java.util.ArrayList;
@@ -236,7 +237,7 @@ public class Message extends AbstractEntity {
         if (value instanceof Integer)  {
             return (Integer) value;
         }
-        return null;
+        return 0;
     }
 
     public Double doubleForKey (String key) {
@@ -249,7 +250,7 @@ public class Message extends AbstractEntity {
         }
     }
 
-    public ReadReceiptUserLink linkForUser (User user) {
+    public ReadReceiptUserLink linkForUser(User user) {
         return ChatSDK.db().readReceipt(getId(), user.getId());
     }
 
@@ -262,12 +263,14 @@ public class Message extends AbstractEntity {
 
         if (link == null || link.getStatus() < status.getValue()) {
             if(link == null) {
+                Logger.debug("CREATE LINK - uid: " + user.getId() + " mid: " + this.getId());
                 link = ChatSDK.db().createEntity(ReadReceiptUserLink.class);
                 link.setMessageId(this.getId());
+                link.setUser(user);
+                link.setUserId(user.getId());
                 getReadReceiptLinks().add(link);
             }
 
-            link.setUser(user);
             link.setStatus(status.getValue());
             link.setDate(date);
 
@@ -380,7 +383,7 @@ public class Message extends AbstractEntity {
         return getText();
     }
 
-    public ReadStatus readStatusForUser (Long userId) {
+    public ReadStatus readStatusForUser(Long userId) {
         ReadReceiptUserLink link = ChatSDK.db().readReceipt(getId(), userId);
         if (link != null) {
             return new ReadStatus(link.getStatus());
@@ -388,7 +391,7 @@ public class Message extends AbstractEntity {
         return ReadStatus.none();
     }
 
-    public ReadStatus getReadStatus () {
+    public ReadStatus getReadStatus() {
         if (getThread().typeIs(ThreadType.Public)) {
             return ReadStatus.hide();
         }
@@ -427,7 +430,7 @@ public class Message extends AbstractEntity {
         this.senderId = senderId;
     }
 
-    public void cascadeDelete () {
+    public void cascadeDelete() {
         for (MessageMetaValue value : getMetaValues()) {
             value.delete();
         }

@@ -12,6 +12,7 @@ import co.chatsdk.firebase.moderation.Permission;
 import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
+import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.handlers.ReadReceiptHandler;
 import sdk.chat.core.hook.Executor;
@@ -20,6 +21,7 @@ import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ReadStatus;
+import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
 import sdk.guru.realtime.DocumentChange;
 import sdk.guru.realtime.RXRealtime;
@@ -31,15 +33,12 @@ import co.chatsdk.firebase.wrappers.MessageWrapper;
 
 public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
 
+    protected DisposableMap dm = new DisposableMap();
+
     public FirebaseReadReceiptHandler() {
         ChatSDK.hook().addHook(Hook.sync(data -> {
             for (Thread t: ChatSDK.db().fetchThreadsForCurrentUser()) {
-                if(readReceiptsEnabledForThread(t)) {
-                    List<Message> messages = ChatSDK.db().fetchMessagesForThreadWithID(t.getId(), null, null, FirebaseReadReceiptsModule.config().maxMessagesPerThread);
-                    for(Message message : messages) {
-                        this.updateReadReceipts(message);
-                    }
-                }
+                threadReadReceiptsOn(t);
             }
         }), HookEvent.DidAuthenticate);
 
@@ -47,6 +46,32 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
             Message message = (Message) data.get(HookEvent.Message);
             updateReadReceipts(message);
         }), HookEvent.MessageReceived);
+
+        dm.add(ChatSDK.events().source().filter(NetworkEvent.filterType(EventType.ThreadUserRoleUpdated)).subscribe(event -> {
+            Thread thread = event.getThread();
+            if (ChatSDK.thread().isBanned(thread, event.getUser())) {
+                threadReadReceiptsOff(thread);
+            } else {
+                threadReadReceiptsOn(thread);
+            }
+        }));
+
+    }
+
+    public void threadReadReceiptsOff(Thread thread) {
+        List<Message> messages = ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), null, null, FirebaseReadReceiptsModule.config().maxMessagesPerThread);
+        for(Message message : messages) {
+            messageReadReceiptsOff(message);
+        }
+    }
+
+    public void threadReadReceiptsOn(Thread thread) {
+        if(readReceiptsEnabledForThread(thread)) {
+            List<Message> messages = ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), null, null, FirebaseReadReceiptsModule.config().maxMessagesPerThread);
+            for(Message message : messages) {
+                this.updateReadReceipts(message);
+            }
+        }
     }
 
 //    public void updateReadReceipts(Thread thread) {
@@ -109,7 +134,7 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
     }
 
     private boolean readReceiptsEnabledForThread (Thread thread) {
-        return thread.typeIs(ThreadType.Private);
+        return thread.typeIs(ThreadType.Private) && !ChatSDK.thread().isBanned(thread, ChatSDK.currentUser());
     }
 
     private void messageReadReceiptsOn(final Message message) {
@@ -126,10 +151,6 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
                             ChatSDK.events().source().onNext(NetworkEvent.messageReadReceiptUpdated(message));
                         }
                     }
-
-//                    if (!message.readStatusForUser(ChatSDK.currentUser()).is(ReadStatus.none())) {
-//                        ChatSDK.events().source().onNext(NetworkEvent.messageReadReceiptUpdated(message));
-//                    }
 
                     // If this is now read, remove the read receipt
                     if (!shouldListenToReadReceipt(message)) {

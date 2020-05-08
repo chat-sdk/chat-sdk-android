@@ -129,7 +129,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     }
 
     public void addListeners() {
-        dm.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().sourceOnBackground()
                 .filter(mainEventFilter())
                 .subscribe(networkEvent -> {
 

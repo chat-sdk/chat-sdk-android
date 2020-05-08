@@ -21,6 +21,10 @@ public class ContactBookModule extends AbstractModule {
         return instance;
     }
 
+    /**
+     * @see Config
+     * @return configuration object
+     */
     public static Config<ContactBookModule> configure() {
         return instance.config;
     }

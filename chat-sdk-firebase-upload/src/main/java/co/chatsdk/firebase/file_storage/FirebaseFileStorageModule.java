@@ -5,6 +5,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import co.chatsdk.firebase.module.FirebaseConfig;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.module.Module;
 import sdk.guru.common.BaseConfig;
@@ -24,6 +25,10 @@ public class FirebaseFileStorageModule extends AbstractModule {
         return instance;
     }
 
+    /**
+     * @see Config
+     * @return configuration object
+     */
     public static Config<FirebaseFileStorageModule> configure() {
         return instance.config;
     }

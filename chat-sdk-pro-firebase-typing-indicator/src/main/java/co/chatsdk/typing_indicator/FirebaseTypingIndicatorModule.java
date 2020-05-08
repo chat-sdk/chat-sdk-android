@@ -21,6 +21,10 @@ public class FirebaseTypingIndicatorModule extends AbstractModule {
         return instance;
     }
 
+    /**
+     * @see Config
+     * @return configuration object
+     */
     public static Config<FirebaseTypingIndicatorModule> configure() {
         return instance.config;
     }

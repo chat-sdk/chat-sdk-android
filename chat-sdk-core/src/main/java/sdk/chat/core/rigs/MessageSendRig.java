@@ -128,6 +128,7 @@ public class MessageSendRig {
         if (messageDidCreateUpdateAction != null) {
             messageDidCreateUpdateAction.update(message);
         }
+        message.setMessageStatus(MessageSendStatus.Created, true);
         return message;
     }
 

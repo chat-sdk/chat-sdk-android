@@ -198,6 +198,7 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
 
         @Override
         public void runMigration(Database db) {
+            db.execSQL("ALTER TABLE " + ThreadDao.TABLENAME + " ADD COLUMN " + ThreadDao.Properties.CanDeleteMessagesFrom.columnName + " INTEGER");
             db.execSQL("ALTER TABLE " + ThreadDao.TABLENAME + " ADD COLUMN " + ThreadDao.Properties.LoadMessagesFrom.columnName + " INTEGER");
             db.execSQL("ALTER TABLE " + ThreadDao.TABLENAME + " ADD COLUMN " + ThreadDao.Properties.Draft.columnName + " TEXT");
         }

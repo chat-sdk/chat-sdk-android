@@ -24,6 +24,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
     protected MessageHolder lastMessage = null;
     protected Integer unreadCount = null;
     protected Date creationDate;
+    protected String displayName;
 
     public ThreadHolder(Thread thread) {
         this.thread = thread;
@@ -42,6 +43,8 @@ public class ThreadHolder implements IDialog<MessageHolder> {
         Message message = thread.lastMessage();
         if (message != null) {
             lastMessage = Customiser.shared().onNewMessageHolder(message);
+        } else {
+            lastMessage = null;
         }
         users.clear();
         for (User user: thread.getUsers()) {
@@ -50,6 +53,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
             }
         }
         unreadCount = thread.getUnreadMessagesCount();
+        displayName = thread.getDisplayName();
     }
 
     @Override
@@ -74,7 +78,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     @Override
     public String getDialogName() {
-        return thread.getDisplayName();
+        return displayName;
     }
 
     @Override

@@ -38,6 +38,10 @@ public class FirebaseUIModule extends AbstractModule {
         return instance;
     }
 
+    /**
+     * @see Config
+     * @return configuration object
+     */
     public static Config<FirebaseUIModule> configure() {
         return instance.config;
     }

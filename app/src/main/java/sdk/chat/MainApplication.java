@@ -59,6 +59,7 @@ public class MainApplication extends Application {
                 .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                 .setDisablePresence(false)
                 .setSendSystemMessageWhenRoleChanges(true)
+                .setMessageDeletionListenerLimit(5)
                 .build()
 
                 // Add the network adapter module
@@ -83,7 +84,7 @@ public class MainApplication extends Application {
                 .addModule(ProfilePicturesModule.shared())
 
                 .addModule(ContactBookModule.shared())
-//                    .addModule(EncryptionModule.shared())
+        //                    .addModule(EncryptionModule.shared())
                 .addModule(FileMessageModule.shared())
                 .addModule(AudioMessageModule.shared())
                 .addModule(StickerMessageModule.shared())

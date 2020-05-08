@@ -132,5 +132,7 @@ public interface ThreadHandler {
     boolean canChangeModerator(Thread thread, User user);
     boolean isModerator(Thread thread, User user);
 
+    boolean isBanned(Thread thread, User user);
+
 }
 

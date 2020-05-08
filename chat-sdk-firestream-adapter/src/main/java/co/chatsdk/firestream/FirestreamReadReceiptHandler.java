@@ -2,6 +2,8 @@ package co.chatsdk.firestream;
 
 
 
+import java.util.Date;
+
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -57,9 +59,9 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
                 Message message = thread.getMessageWithEntityID(receipt.getMessageId());
                 if (message != null) {
                     if (receipt.getDeliveryReceiptType().equals(DeliveryReceiptType.read())) {
-                        message.setUserReadStatus(user, ReadStatus.read(), new DateTime());
+                        message.setUserReadStatus(user, ReadStatus.read(), new Date());
                     } else {
-                        message.setUserReadStatus(user, ReadStatus.delivered(), new DateTime());
+                        message.setUserReadStatus(user, ReadStatus.delivered(), new Date());
                     }
                 }
             }

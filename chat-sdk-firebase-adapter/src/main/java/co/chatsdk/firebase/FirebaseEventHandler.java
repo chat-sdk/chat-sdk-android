@@ -83,9 +83,11 @@ public class FirebaseEventHandler extends AbstractEventHandler {
 
                 thread.getModel().addUser(user, false);
 
-                thread.on().doOnComplete(() -> {
-                    eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
-                }).subscribe(this);
+                thread.on().subscribe(this);
+
+//                thread.on().doOnComplete(() -> {
+//                    eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
+//                }).subscribe(this);
 
             }
             if (change.getType() == EventType.Removed) {
@@ -125,12 +127,12 @@ public class FirebaseEventHandler extends AbstractEventHandler {
 
                 thread.on();
 
-                eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
+//                eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
 
             }).onChildRemoved((snapshot, hasValue) -> {
                 ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
                 thread.off();
-                eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
+//                eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
             }));
             RealtimeReferenceManager.shared().addRef(publicThreadsRef, publicThreadsListener);
         }

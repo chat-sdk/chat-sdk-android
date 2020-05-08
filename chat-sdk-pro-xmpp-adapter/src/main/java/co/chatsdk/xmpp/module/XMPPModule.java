@@ -28,6 +28,10 @@ public class XMPPModule extends AbstractModule implements NetworkAdapterProvider
         return instance;
     }
 
+    /**
+     * @see XMPPConfig
+     * @return configuration object
+     */
     public static XMPPConfig<XMPPModule> configure() {
         return instance.config;
     }

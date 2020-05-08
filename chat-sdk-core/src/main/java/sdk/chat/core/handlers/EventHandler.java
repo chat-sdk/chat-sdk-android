@@ -13,9 +13,10 @@ import io.reactivex.subjects.PublishSubject;
 
 public interface EventHandler extends Consumer<Throwable>, CompletableObserver {
 
-    PublishSubject<NetworkEvent> source ();
-    Observable<NetworkEvent> sourceOnMain ();
-    Observable<Throwable> errorSourceOnMain ();
+    PublishSubject<NetworkEvent> source();
+    Observable<NetworkEvent> sourceOnMain();
+    Observable<NetworkEvent> sourceOnBackground();
+    Observable<Throwable> errorSourceOnMain();
 
     void impl_currentUserOn (String userEntityID);
     void impl_currentUserOff (String userEntityID);

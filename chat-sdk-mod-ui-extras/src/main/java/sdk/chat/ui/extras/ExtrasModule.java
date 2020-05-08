@@ -20,6 +20,10 @@ public class ExtrasModule extends AbstractModule {
         return instance;
     }
 
+    /**
+     * @see Config
+     * @return configuration object
+     */
     public static Config<ExtrasModule> configure() {
         return instance.config;
     }

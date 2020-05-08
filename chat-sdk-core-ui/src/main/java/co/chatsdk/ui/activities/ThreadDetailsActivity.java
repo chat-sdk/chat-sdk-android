@@ -28,6 +28,7 @@ import com.bumptech.glide.Glide;
 import java.util.Arrays;
 
 import butterknife.BindView;
+import io.reactivex.functions.Action;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.EventType;
@@ -225,7 +226,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             ChatSDK.ui().startAddUsersToThreadActivity(this, thread.getEntityID());
         }
         if (item.getItemId() == R.id.action_leave) {
-            ChatSDK.thread().leaveThread(thread).subscribe(this);
+            ChatSDK.thread().leaveThread(thread).doOnComplete(this::finish).subscribe(this);
         }
         return true;
     }
@@ -238,7 +239,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             String muteText = getApplicationContext().getString(R.string.mute_notifications);
             String unmuteText = getApplicationContext().getString(R.string.unmute_notifications);
 
-            if (thread.metaValueForKey(Keys.Mute) != null) {
+            if (thread.isMuted()) {
                 item.setTitle(unmuteText);
             } else {
                 item.setTitle(muteText);

@@ -15,6 +15,7 @@ import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.chat.core.base.LocationProvider;
 import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.handlers.AudioMessageHandler;
 import sdk.chat.core.handlers.AuthenticationHandler;
@@ -29,6 +30,9 @@ import sdk.chat.core.handlers.HookHandler;
 import sdk.chat.core.handlers.ImageMessageHandler;
 import sdk.chat.core.handlers.LastOnlineHandler;
 import sdk.chat.core.handlers.LocationMessageHandler;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.handlers.ProfilePicturesHandler;
 import sdk.chat.core.handlers.PublicThreadHandler;
@@ -41,10 +45,13 @@ import sdk.chat.core.handlers.TypingIndicatorHandler;
 import sdk.chat.core.handlers.UploadHandler;
 import sdk.chat.core.handlers.VideoMessageHandler;
 import sdk.chat.core.interfaces.InterfaceAdapter;
+import sdk.chat.core.notifications.NotificationDisplayHandler;
 import sdk.chat.core.storage.FileManager;
+import sdk.chat.core.types.ReadStatus;
 import sdk.chat.core.utils.AppBackgroundMonitor;
 import io.reactivex.plugins.RxJavaPlugins;
 import sdk.chat.core.utils.StringChecker;
+import sdk.guru.common.RX;
 
 
 /**
@@ -170,12 +177,28 @@ public class ChatSDK {
             Logger.info("Module " + module.getName() + " activated successfully");
         }
 
-    }
+        // Local notifications
+        hook().addHook(Hook.sync(data -> {
+            Object messageObject = data.get(HookEvent.Message);
+            Object threadObject = data.get(HookEvent.Thread);
+            if (messageObject instanceof Message && threadObject instanceof Thread) {
+                Message message = (Message) messageObject;
+                Thread thread = (Thread) threadObject;
 
-    public static ChatSDK initialize(ConfigBuilder builder) throws Exception {
+                if (!AppBackgroundMonitor.shared().inBackground() && !thread.isMuted()) {
+                    if (thread.typeIs(ThreadType.Private) || (thread.typeIs(ThreadType.Public) && ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled)) {
+                        if (!message.getSender().isMe() && !message.isDelivered() && ChatSDK.ui().showLocalNotifications(thread) || NotificationDisplayHandler.connectedToAuto(ChatSDK.ctx())) {
+                            ReadStatus status = message.readStatusForUser(ChatSDK.currentUser());
+                            if (!message.isRead() && !status.is(ReadStatus.delivered()) && !status.is(ReadStatus.read())) {
+                                // Only show the alert if we'recyclerView not on the private threads tab
+                                RX.onMain(() -> ChatSDK.ui().notificationDisplayHandler().createMessageNotification(message));
+                            }
+                        }
+                    }
+                }
+            }
+        }), HookEvent.MessageReceived);
 
-
-        return shared();
     }
 
     public static Context ctx() {

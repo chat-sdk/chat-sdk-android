@@ -29,6 +29,10 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
         return instance;
     }
 
+    /**
+     * @see Config
+     * @return configuration object
+     */
     public static Config<FirebaseNearbyUsersModule> configure() {
         return instance.config;
     }

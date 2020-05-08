@@ -87,6 +87,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
                     emitter.onNext(new DocumentChange(snapshot, EventType.Modified));
                 }
             }).onCancelled(error -> {
+                Logger.debug(ref.toString());
                 emitter.onError(error.toException());
                 if (errorListener != null) {
                     errorListener.onError(ref, error);

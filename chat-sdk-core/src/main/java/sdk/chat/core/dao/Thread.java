@@ -55,6 +55,7 @@ public class Thread extends AbstractEntity {
     private Date loadMessagesFrom;
     private Boolean deleted;
     private String draft;
+    private Date canDeleteMessagesFrom;
 
     @ToOne(joinProperty = "creatorId")
     private User creator;
@@ -89,8 +90,9 @@ public class Thread extends AbstractEntity {
         this.id = id;
     }
 
-    @Generated(hash = 848314281)
-    public Thread(Long id, String entityID, Date creationDate, String name, Integer type, String imageUrl, Long creatorId, Date loadMessagesFrom, Boolean deleted, String draft) {
+    @Generated(hash = 855274350)
+    public Thread(Long id, String entityID, Date creationDate, String name, Integer type, String imageUrl, Long creatorId, Date loadMessagesFrom, Boolean deleted, String draft,
+            Date canDeleteMessagesFrom) {
         this.id = id;
         this.entityID = entityID;
         this.creationDate = creationDate;
@@ -101,6 +103,7 @@ public class Thread extends AbstractEntity {
         this.loadMessagesFrom = loadMessagesFrom;
         this.deleted = deleted;
         this.draft = draft;
+        this.canDeleteMessagesFrom = canDeleteMessagesFrom;
     }
 
     public void setMessages(List<Message> messages) {
@@ -275,7 +278,7 @@ public class Thread extends AbstractEntity {
             getMessages().add(message);
             message.update();
             update();
-            refresh();
+//            refresh();
             if (notify) {
                 ChatSDK.events().source().onNext(NetworkEvent.messageAdded(message));
             }
@@ -351,12 +354,15 @@ public class Thread extends AbstractEntity {
 
     @Keep
     public void removeMetaValue (String key) {
-        // TODO: test this
         ThreadMetaValue metaValue = metaValueForKey(key);
-        this.metaValues.remove(metaValue);
-//        metaValue.delete();
-        update();
-//        resetMetaValues();
+
+        if (metaValue != null) {
+            metaValues.remove(metaValue);
+            metaValue.delete();
+            resetMetaValues();
+            update();
+        }
+
     }
 
     @Keep
@@ -371,11 +377,11 @@ public class Thread extends AbstractEntity {
         return MetaValueHelper.metaValueForKey(key, getMetaValues());
     }
 
-    public void removeMessage (Message message) {
+    public void removeMessage(Message message) {
         removeMessage(message, true);
     }
 
-    public void removeMessage (Message message, boolean notify) {
+    public void removeMessage(Message message, boolean notify) {
 
         List<Message> messages = getMessages();
         int indexOfMessage = messages.indexOf(message);
@@ -415,7 +421,7 @@ public class Thread extends AbstractEntity {
         resetMessages();
 
         if(notify) {
-            ChatSDK.events().source().onNext(NetworkEvent.messageRemoved(this, message));
+            ChatSDK.events().source().onNext(NetworkEvent.messageRemoved(message));
         }
     }
 
@@ -524,16 +530,16 @@ public class Thread extends AbstractEntity {
     }
 
     public String getUserListString () {
-        String name = "";
+        StringBuilder name = new StringBuilder();
         for(User u : getUsers()) {
-            if(!u.isMe() && u.getName() != null && !u.getName().isEmpty()) {
-                name += u.getName() + ", ";
+            if(!u.isMe() && !StringChecker.isNullOrEmpty(u.getName())) {
+                name.append(u.getName()).append(", ");
             }
         }
         if(name.length() >= 2) {
-            name = name.substring(0, name.length() - 2);
+            name = new StringBuilder(name.substring(0, name.length() - 2));
         }
-        return name;
+        return name.toString();
     }
 
     public void setName(String name) {
@@ -821,6 +827,31 @@ public class Thread extends AbstractEntity {
 
     public void setDraft(String draft) {
         this.draft = draft;
+        update();
+    }
+
+    public int indexOfFirstDeletableMessage() {
+        List<Message> messages = getMessages();
+        if (messages == null || messages.isEmpty()) {
+            return -1;
+        }
+        int index = messages.size() - ChatSDK.config().messageDeletionListenerLimit;
+        if (index < 0) {
+            return 0;
+        }
+        return index;
+    }
+
+    public int indexOf(Message message) {
+        return messages.indexOf(message);
+    }
+
+    public Date getCanDeleteMessagesFrom() {
+        return this.canDeleteMessagesFrom;
+    }
+
+    public void setCanDeleteMessagesFrom(Date canDeleteMessagesFrom) {
+        this.canDeleteMessagesFrom = canDeleteMessagesFrom;
         update();
     }
 

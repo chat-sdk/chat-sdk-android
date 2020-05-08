@@ -7,8 +7,12 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -53,29 +57,34 @@ public class ForwardMessageActivity extends SelectContactActivity {
         super.onCreate(savedInstanceState);
 
         setActionBarTitle(R.string.forward_message);
-        setMultiSelectEnabled(false);
+        setMultiSelectEnabled(true);
     }
 
     @Override
     protected void loadData () {
         final List<User> list = ChatSDK.contact().contacts();
-        List<User> threadUser = thread.getUsers();
-        list.removeAll(threadUser);
+//        List<User> threadUser = thread.getUsers();
+//        list.removeAll(threadUser);
         adapter.setUsers(new ArrayList<>(list), true);
     }
 
     @Override
     protected void doneButtonPressed(List<UserListItem> users) {
-        dm.add(ChatSDK.thread().createThread(User.convertIfPossible(users)).flatMapCompletable(thread -> ChatSDK.thread().forwardMessages(thread, messages))
-                .observeOn(RX.main())
-                .subscribe(() -> {
-                    setResult(Activity.RESULT_OK);
-                    finish();
-                }, throwable -> {
-                    Intent intent = new Intent();
-                    intent.putExtra(Keys.IntentKeyErrorMessage, throwable.getLocalizedMessage());
-                    setResult(RESULT_ERROR, intent);
-                    finish();
-                }));
+        List<Completable> completables = new ArrayList<>();
+
+        for (User user: User.convertIfPossible(users)) {
+            completables.add(ChatSDK.thread().createThread(Arrays.asList(user))
+                    .flatMapCompletable(thread -> ChatSDK.thread().forwardMessages(thread, messages)));
+        }
+
+        Completable.merge(completables).observeOn(RX.main()).doOnComplete(() -> {
+            setResult(Activity.RESULT_OK);
+            finish();
+        }).doOnError(throwable -> {
+            Intent intent = new Intent();
+            intent.putExtra(Keys.IntentKeyErrorMessage, throwable.getLocalizedMessage());
+            setResult(RESULT_ERROR, intent);
+            finish();
+        }).subscribe(this);
     }
 }

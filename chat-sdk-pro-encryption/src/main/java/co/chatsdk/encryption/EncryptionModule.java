@@ -21,6 +21,10 @@ public class EncryptionModule extends AbstractModule {
         return instance;
     }
 
+    /**
+     * @see Config
+     * @return configuration object
+     */
     public static Config<EncryptionModule> configure() {
         return instance.config;
     }
@@ -49,8 +53,8 @@ public class EncryptionModule extends AbstractModule {
         return "EncryptionModule";
     }
 
-    public Config config() {
-        return config;
+    public static Config config() {
+        return shared().config;
     }
 
 }

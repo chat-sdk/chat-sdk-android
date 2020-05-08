@@ -468,6 +468,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     menu.removeItem(R.id.action_reply);
                 }
 
+                if (!ChatSDK.thread().hasVoice(thread, ChatSDK.currentUser())) {
+                    menu.removeItem(R.id.action_reply);
+                    menu.removeItem(R.id.action_delete);
+                    menu.removeItem(R.id.action_forward);
+                }
+
                 // Check that the messages could be deleted
                 boolean canBeDeleted = true;
                 for (MessageHolder holder: chatView.getSelectedMessages()) {

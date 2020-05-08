@@ -15,6 +15,7 @@ import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
 import org.ocpsoft.prettytime.PrettyTime;
+import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -86,9 +87,29 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
         messagesListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, (imageView, url, payload) -> {
 
+            ImageLoaderPayload ilp = null;
+            if (payload instanceof ImageLoaderPayload) {
+                ilp = (ImageLoaderPayload) payload;
+            } else {
+                ilp = new ImageLoaderPayload();
+            }
+
+            if (ilp.width == 0) {
+                ilp.width = maxImageWidth();
+            }
+            if (ilp.height == 0) {
+                ilp.height = maxImageWidth();
+            }
+            if (ilp.placeholder == 0) {
+                ilp.placeholder = R.drawable.icn_200_image_message_placeholder;
+            }
+            if (ilp.error == 0) {
+                ilp.error = R.drawable.icn_200_image_message_error;
+            }
+
             Uri uri = Uri.parse(url);
             if (uri != null && uri.getScheme() != null && uri.getScheme().equals("android.resource")) {
-                imageView.setImageURI(uri);
+                Glide.with(this).load(uri).override(ilp.width, ilp.height).dontAnimate().into(imageView);
             } else {
                 if (payload == null) {
                     // User avatar
@@ -98,21 +119,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                             .placeholder(R.drawable.icn_100_profile)
                             .override(Dimen.from(getContext(), R.dimen.small_avatar_width), Dimen.from(getContext(), R.dimen.small_avatar_height))
                             .into(imageView);
-                } else if (payload instanceof ImageLoaderPayload) {
-
-                    ImageLoaderPayload ilp = (ImageLoaderPayload) payload;
-                    if (ilp.width == 0) {
-                        ilp.width = maxImageWidth();
-                    }
-                    if (ilp.height == 0) {
-                        ilp.height = maxImageWidth();
-                    }
-                    if (ilp.placeholder == 0) {
-                        ilp.placeholder = R.drawable.icn_200_image_message_placeholder;
-                    }
-                    if (ilp.error == 0) {
-                        ilp.error = R.drawable.icn_200_image_message_error;
-                    }
+                } else {
 
                     // Image message
                     Glide.with(this)
@@ -124,7 +131,8 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                             .override(maxImageWidth(), maxImageWidth())
                             .centerCrop()
                             .into(imageView);
-                }            }
+                }
+            }
         });
 
         messagesListAdapter.setLoadMoreListener(this);
@@ -151,23 +159,30 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                     .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.MessageSendStatusUpdated))
                     .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
                     .subscribe(networkEvent -> {
+                        networkEvent.debug();
                         Message message = networkEvent.getMessage();
                         if (networkEvent.typeIs(EventType.MessageAdded)) {
                             addMessageToStartOrUpdate(message);
                             message.markReadIfNecessary();
                         }
                         if (networkEvent.typeIs(EventType.MessageUpdated)) {
-                            addMessageToStartOrUpdate(message);
+                            if (message.getSender().isMe()) {
+                                softUpdate(message);
+                            } else {
+                                // If this is not from us, then we need to calculate when to
+                                // how the time and name that requires a full update
+                                addMessageToStartOrUpdate(message);
+                            }
                         }
                         if (networkEvent.typeIs(EventType.MessageRemoved)) {
                             removeMessage(networkEvent.getMessage());
                         }
                         if (networkEvent.typeIs(EventType.MessageReadReceiptUpdated) && ChatSDK.readReceipts() != null && message.getSender().isMe()) {
-                            addMessageToStartOrUpdate(message);
+                            softUpdate(message);
                         }
                         if (networkEvent.typeIs(EventType.MessageSendStatusUpdated)) {
                             MessageSendProgress progress = networkEvent.getMessageSendProgress();
-                            addMessageToStartOrUpdate(progress.message, progress);
+                            softUpdate(message, progress);
                         }
                     }));
 
@@ -310,6 +325,21 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
             }, () -> {
                 messagesListAdapter.update(holder);
             });
+        }
+    }
+
+    public void softUpdate(Message message) {
+        softUpdate(message, null);
+    }
+
+    // Just rebinds the message
+    public void softUpdate(Message message, MessageSendProgress progress) {
+        final MessageHolder holder = messageHolderHashMap.get(message);
+        if (progress != null) {
+            holder.setProgress(progress);
+        }
+        if (holder != null) {
+            messagesListAdapter.update(holder);
         }
     }
 

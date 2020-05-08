@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import sdk.chat.core.avatar.gravatar.Utils;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.image.ImageUtils;
@@ -111,8 +112,9 @@ public class ThreadImageBuilder {
             name.append(u.getEntityID()).append(u.getAvatarURL());
         }
         name.append(size);
-        Logger.debug("Thread hash code: " + name.toString().hashCode());
-        return String.valueOf(name.toString().hashCode());
+        String md5 = Utils.md5(name.toString());
+        Logger.debug("Thread hash code: " + md5);
+        return md5;
     }
 
     public static Single<Bitmap> combineBitmapsForUsers(final List<User> users, final int size) {

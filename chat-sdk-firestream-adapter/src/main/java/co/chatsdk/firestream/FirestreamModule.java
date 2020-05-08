@@ -23,6 +23,10 @@ public class FirestreamModule extends AbstractModule implements NetworkAdapterPr
         return instance;
     }
 
+    /**
+     * @see FirestreamConfig
+     * @return configuration object
+     */
     public static FirestreamModule configure(Configure<FirestreamConfig> configure) {
         configure.with(instance.config);
         FirebaseModule.config().setFirebaseRootPath(instance.config.getRoot());

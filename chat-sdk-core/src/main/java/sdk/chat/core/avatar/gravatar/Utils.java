@@ -4,7 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-final class Utils {
+public final class Utils {
   private static final StringBuilder sBuilder = new StringBuilder();
   private static final String SPECIAL_CHARS = " %$&+,/:;=?@<>#%";
 
@@ -19,15 +19,24 @@ final class Utils {
     return sBuilder.toString();
   }
 
-  static String convertEmailToHash(String email) {
+  public static String md5(String text) {
     final MessageDigest messageDigest;
     try {
       messageDigest = MessageDigest.getInstance("MD5");
       messageDigest.reset();
-      return hex(messageDigest.digest(email.getBytes("UTF-8")));
+      return hex(messageDigest.digest(text.getBytes("UTF-8")));
     } catch (NoSuchAlgorithmException e) {
-      return email;
+      return null;
     } catch (UnsupportedEncodingException e) {
+      return null;
+    }
+  }
+
+  static String convertEmailToHash(String email) {
+    String text = md5(email);
+    if (text != null) {
+      return text;
+    } else {
       return email;
     }
   }

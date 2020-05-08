@@ -113,20 +113,20 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         }
     }
 
-//    public void updateListenersForPermissions() {
-//        if (ChatSDK.thread().roleForUser(model, ChatSDK.currentUser()).equals(Permission.Banned)) {
-//            messagesOff();
-//            if (ChatSDK.typingIndicator() != null) {
-//                ChatSDK.typingIndicator().typingOff(model);
-//            }
-//        } else {
-//            messagesOn();
-//            messageRemovedOn();
-//            if (ChatSDK.typingIndicator() != null) {
-//                ChatSDK.typingIndicator().typingOn(model);
-//            }
-//        }
-//    }
+    public void updateListenersForPermissions() {
+        if (ChatSDK.thread().roleForUser(model, ChatSDK.currentUser()).equals(Permission.Banned)) {
+            messagesOff();
+            if (ChatSDK.typingIndicator() != null) {
+                ChatSDK.typingIndicator().typingOff(model);
+            }
+        } else {
+            messagesOn();
+            messageRemovedOn();
+            if (ChatSDK.typingIndicator() != null) {
+                ChatSDK.typingIndicator().typingOn(model);
+            }
+        }
+    }
 
     public void permissionsOff() {
         DatabaseReference ref = FirebasePaths.threadPermissionsRef(model.getEntityID());
@@ -145,22 +145,24 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
             // We do it this way because otherwise when we exceed the number of messages,
             // This event is triggered as the messages go out of scope
-            List<Message> messages = model.getMessages();
-            if (messages.size() > ChatSDK.config().messageDeletionListenerLimit) {
-                startDate = messages.get(messages.size() - ChatSDK.config().messageDeletionListenerLimit).getDate();
-            } else if (!messages.isEmpty()) {
-                startDate = messages.get(0).getDate();
+            int indexOfFirstDeletableMessage = model.indexOfFirstDeletableMessage();
+            if (indexOfFirstDeletableMessage >=0 ) {
+                startDate = model.getMessages().get(indexOfFirstDeletableMessage).getDate();
             }
 
             if (startDate != null) {
                 query = query.startAt(startDate.getTime());
+                model.setCanDeleteMessagesFrom(startDate);
+            } else {
+                model.setCanDeleteMessagesFrom(new Date());
             }
 
             realtime.childOn(query).observeOn(RX.db()).doOnNext(change -> {
                 if(change.getSnapshot().exists() && change.getType() == EventType.Removed) {
-                    MessageWrapper message = new MessageWrapper(change.getSnapshot().getKey());
-                    if (!message.getModel().getSender().isMe() || message.getModel().getMessageStatus() != MessageSendStatus.Failed) {
-                        model.removeMessage(message.getModel());
+                    Message message = ChatSDK.db().fetchEntityWithEntityID(change.getSnapshot().getKey(), Message.class);
+                    // If the message send fails for example if there is a permission error
+                    if (message != null && (message.getSender() == null || !message.getSender().isMe() || message.getMessageStatus() != MessageSendStatus.Failed)) {
+                        model.removeMessage(message);
                     }
                 }
             }).ignoreElements().subscribe(ChatSDK.events());
@@ -243,14 +245,17 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
                             MessageWrapper message = new MessageWrapper(change.getSnapshot());
 
-                            boolean newMessage = message.getModel().getMessageStatus() == MessageSendStatus.None;
+                            // Temporarily set this because it's needed later on
+                            message.getModel().setThread(model);
 
-                            message.markAsReceived().subscribe(ChatSDK.events());
+                            boolean newMessage = message.getModel().getMessageStatus() == MessageSendStatus.None;
 
                             ChatSDK.hook().executeHook(HookEvent.MessageReceived, new HashMap<String, Object>() {{
                                 put(HookEvent.Message, message.getModel());
+                                put(HookEvent.Thread, model);
                                 put(HookEvent.IsNew_Boolean, newMessage);
                             }}).doOnComplete(() -> {
+                                message.markAsReceived().subscribe(ChatSDK.events());
                                 model.addMessage(message.getModel(), newMessage);
                             }).subscribe(ChatSDK.events());
                         }
@@ -269,7 +274,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
     }
 
     /**
-     * Stop listening to incoming messages.
+     * Stop listening to incoming messages.android
      **/
     public void messagesOff() {
         DatabaseReference ref = messagesRef();
@@ -297,7 +302,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                 return completable;
             }
             return Completable.complete();
-        });
+        }).subscribeOn(RX.computation());
     }
 
     public Completable pushMeta() {
@@ -366,6 +371,8 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                         Boolean muted = change.getSnapshot().child(Keys.Mute).getValue(Boolean.class);
                         if (muted != null) {
                             model.setMuted(muted);
+                        } else {
+                            model.setMuted(false);
                         }
                         Long deleted = change.getSnapshot().child(Keys.Deleted).getValue(Long.class);
                         if (deleted != null) {
@@ -612,7 +619,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             realtime.childOn(ref).map(change -> {
                 if (change.getSnapshot().exists()) {
                     model.setPermission(change.getSnapshot().getKey(), change.getSnapshot().getValue(String.class));
-//                    updateListenersForPermissions();
+                    updateListenersForPermissions();
                 } else {
                     // If no permission is set, we set it to member
                     model.setPermission(change.getSnapshot().getKey(), Permission.Member);
@@ -638,7 +645,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                     model.setPermission(currentEntityID, change.get().getValue(String.class));
                 } else {
                     // If no permission is set, we set it to member
-                    model.setPermission(currentEntityID, Permission.Member);
+                    model.setPermission(currentEntityID, model.getCreator().isMe() ? Permission.Owner : Permission.Member);
                 }
                 return Completable.complete();
             });

@@ -97,14 +97,14 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 if (user.isMe()) {
                     message.setUserReadStatus(user, ReadStatus.read(), new Date(), false);
                 } else {
-                    message.setUserReadStatus(user, ReadStatus.none(), new Date(), false);
+                    if (ChatSDK.thread().hasVoice(thread, user)) {
+                        message.setUserReadStatus(user, ReadStatus.none(), new Date(), false);
+                    }
                 }
             }
         }
 
         thread.addMessage(message);
-
-        message.setMessageStatus(MessageSendStatus.Created);
 
         return message;
     }
@@ -357,6 +357,11 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public boolean hasVoice(Thread thread, User user) {
         return true;
+    }
+
+    @Override
+    public boolean isBanned(Thread thread, User user) {
+        return false;
     }
 
     @Override

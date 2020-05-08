@@ -46,11 +46,10 @@ public class ThreadDeleter {
             List<Message> messages = new ArrayList<>(thread.getMessages());
 
             for (Message m : messages) {
-                thread.removeMessage(m);
+                thread.removeMessage(m, false);
                 m.delete();
             }
             thread.update();
-            thread.refresh();
             emitter.onComplete();
         }).subscribeOn(RX.io());
     }

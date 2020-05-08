@@ -23,6 +23,10 @@ public class FirebaseReadReceiptsModule extends AbstractModule {
         return instance;
     }
 
+    /**
+     * @see Config
+     * @return configuration object
+     */
     public static Config<FirebaseReadReceiptsModule> configure() {
         return instance.config;
     }
