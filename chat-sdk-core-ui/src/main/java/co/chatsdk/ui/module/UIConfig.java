@@ -33,6 +33,7 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean groupsEnabled = true;
     public boolean threadDetailsEnabled = true;
     public boolean publicRoomCreationEnabled = false;
+    public boolean publicRoomRoomsEnabled = false;
     public boolean saveImagesToDirectory = false;
 
     public String dateFormat = "HH:mm";
@@ -62,6 +63,11 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     public UIConfig<T> setPublicRoomCreationEnabled(boolean value) {
         this.publicRoomCreationEnabled = value;
+        return this;
+    }
+
+    public UIConfig<T> setPublicRoomsEnabled(boolean value) {
+        this.publicRoomRoomsEnabled = value;
         return this;
     }
 

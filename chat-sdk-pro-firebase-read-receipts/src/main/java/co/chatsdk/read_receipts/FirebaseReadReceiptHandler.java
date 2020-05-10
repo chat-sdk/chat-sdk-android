@@ -108,7 +108,7 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
     }
 
     private boolean shouldListenToReadReceipt(Message message) {
-        return message.getSender().isMe() && readReceiptsEnabledForMessage(message) && !ChatSDK.thread().roleForUser(message.getThread(), ChatSDK.currentUser()).equals(Permission.Banned);
+        return message.getSender().isMe() && readReceiptsEnabledForMessage(message) && !message.getReadStatus().is(ReadStatus.read()) && !ChatSDK.thread().roleForUser(message.getThread(), ChatSDK.currentUser()).equals(Permission.Banned);
     }
 
     private boolean shouldMarkReadReceipt(Message message) {
@@ -124,13 +124,13 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
      * @return
      */
     private boolean readReceiptsEnabledForMessage(Message message) {
-        boolean enabled = readReceiptsEnabledForThread(message.getThread()) &&
+        return readReceiptsEnabledForThread(message.getThread()) &&
                 message.getDate().getTime() > (new Date().getTime() - FirebaseReadReceiptsModule.config().maxAge);
-        if (enabled) {
-            ReadStatus status = message.getReadStatus();
-            return !status.is(ReadStatus.read());
-        }
-        return false;
+//        if (enabled) {
+//            ReadStatus status = message.getReadStatus();
+//            return !status.is(ReadStatus.read());
+//        }
+//        return false;
     }
 
     private boolean readReceiptsEnabledForThread (Thread thread) {
@@ -147,9 +147,11 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
 
                     Map<String, Map<String, Long>> map = change.getSnapshot().getValue(Generic.readReceiptHashMap());
                     if (map != null) {
-                        if (new MessageWrapper(message).updateReadReceipts(map)) {
-                            ChatSDK.events().source().onNext(NetworkEvent.messageReadReceiptUpdated(message));
-                        }
+                        new MessageWrapper(message).updateReadReceipts(map).doOnSuccess(aBoolean -> {
+                            if (aBoolean) {
+                                ChatSDK.events().source().onNext(NetworkEvent.messageReadReceiptUpdated(message));
+                            }
+                        }).ignoreElement().subscribe(ChatSDK.events());
                     }
 
                     // If this is now read, remove the read receipt

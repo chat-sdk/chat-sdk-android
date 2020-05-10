@@ -5,6 +5,7 @@ package sdk.chat.core.dao;
 import java.util.Date;
 
 import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ReadStatus;
@@ -35,4 +36,11 @@ public class MessageAsync {
             message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.delivered(), new Date());
         });
     }
+
+    public static Single<Boolean> setUserReadStatusAsync(Message message, User user, ReadStatus status, Date date, boolean notify) {
+        return Single.create((SingleOnSubscribe<Boolean>) emitter -> {
+            emitter.onSuccess(message.setUserReadStatus(user, status, date, notify));
+        }).subscribeOn(RX.single());
+    }
+
 }

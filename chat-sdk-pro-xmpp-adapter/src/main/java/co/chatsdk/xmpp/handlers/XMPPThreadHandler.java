@@ -242,7 +242,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
             message.setMessageStatus(MessageSendStatus.Sent);
 
             emitter.onComplete();
-        }).doOnComplete(() -> message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new DateTime())).subscribeOn(RX.io());
+        }).doOnComplete(() -> message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new Date())).subscribeOn(RX.io());
     }
 
     @Override

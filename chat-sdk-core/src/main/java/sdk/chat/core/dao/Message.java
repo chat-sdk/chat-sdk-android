@@ -4,6 +4,7 @@ package sdk.chat.core.dao;
 
 // KEEP INCLUDES - put your token includes here
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -15,6 +16,7 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Unique;
+import org.greenrobot.greendao.query.QueryBuilder;
 import org.pmw.tinylog.Logger;
 
 
@@ -25,7 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import io.reactivex.Completable;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Consumer;
 import sdk.chat.core.base.AbstractEntity;
@@ -36,6 +41,9 @@ import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.types.ReadStatus;
+import sdk.guru.common.RX;
+
+import static sdk.chat.core.dao.DaoCore.daoSession;
 
 @Entity
 public class Message extends AbstractEntity {
@@ -254,16 +262,39 @@ public class Message extends AbstractEntity {
         return ChatSDK.db().readReceipt(getId(), user.getId());
     }
 
-    public boolean setUserReadStatus (User user, ReadStatus status, Date date) {
+    public Single<Boolean> setUserReadStatusAsync(User user, ReadStatus status, Date date, boolean notify) {
+        return MessageAsync.setUserReadStatusAsync(this, user, status, date, notify);
+    }
+
+    public boolean setUserReadStatus(User user, ReadStatus status, Date date) {
         return setUserReadStatus(user, status, date, true);
     }
 
-    public boolean setUserReadStatus (User user, ReadStatus status, Date date, boolean notify) {
+    public boolean setUserReadStatus(User user, ReadStatus status, Date date, boolean notify) {
         ReadReceiptUserLink link = linkForUser(user);
+
+        Logger.debug("UPDATE READ RECEIPTS");
 
         if (link == null || link.getStatus() < status.getValue()) {
             if(link == null) {
                 Logger.debug("CREATE LINK - uid: " + user.getId() + " mid: " + this.getId());
+
+//                QueryBuilder<ReadReceiptUserLink> queryBuilder = daoSession.queryBuilder(ReadReceiptUserLink.class);
+//                queryBuilder.where(ReadReceiptUserLinkDao.Properties.UserId.eq(user.getId())).where(ReadReceiptUserLinkDao.Properties.MessageId.eq(getId()));
+//                List<ReadReceiptUserLink> links = queryBuilder.list();
+//
+//                if (links.size() > 1) {
+//                    Logger.debug("Stop");
+//                }
+//
+//                Map<String, ReadReceiptUserLink> map = new HashMap<>();
+//                for (ReadReceiptUserLink lnk: getReadReceiptLinks()) {
+//                    if (map.containsKey(lnk.getUser().getEntityID())) {
+//                        Logger.debug("Stop");
+//                    }
+//                    map.put(lnk.getUser().getEntityID(), lnk);
+//                }
+
                 link = ChatSDK.db().createEntity(ReadReceiptUserLink.class);
                 link.setMessageId(this.getId());
                 link.setUser(user);
@@ -334,11 +365,15 @@ public class Message extends AbstractEntity {
         return MessageSendStatus.None;
     }
 
+    public boolean sendStatusIs(MessageSendStatus status) {
+        return getMessageStatus() == status;
+    }
+
     public void setMessageStatus(MessageSendStatus status) {
         setMessageStatus(status, true);
     }
 
-    public void setMessageStatus(MessageSendStatus status, boolean notify) {
+    public void setMessageStatus(@NonNull MessageSendStatus status, boolean notify) {
         if (status != null || this.status != status.ordinal()) {
             this.status = status.ordinal();
             this.update();

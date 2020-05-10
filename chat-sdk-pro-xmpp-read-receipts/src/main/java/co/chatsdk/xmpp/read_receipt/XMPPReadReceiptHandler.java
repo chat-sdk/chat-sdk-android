@@ -3,6 +3,8 @@ package co.chatsdk.xmpp.read_receipt;
 import org.jivesoftware.smack.packet.Stanza;
 
 
+import java.util.Date;
+
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.handlers.ReadReceiptHandler;
 import sdk.chat.core.session.ChatSDK;
@@ -21,7 +23,7 @@ public class XMPPReadReceiptHandler implements ReadReceiptHandler {
             } catch (Exception e) {
                 ChatSDK.events().onError(e);
             } finally {
-                message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new DateTime());
+                message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new Date());
             }
         }
     }
@@ -36,7 +38,7 @@ public class XMPPReadReceiptHandler implements ReadReceiptHandler {
             } catch (Exception e) {
                 ChatSDK.events().onError(e);
             } finally {
-                message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.delivered(), new DateTime());
+                message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.delivered(), new Date());
             }
         }
     }

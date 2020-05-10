@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
 
+import org.pmw.tinylog.Logger;
+
 import co.chatsdk.message.sticker.Configuration;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
@@ -31,7 +33,12 @@ public class BaseStickerMessageHandler implements StickerMessageHandler {
 
     @Override
     public String textRepresentation(Message message) {
-        return message.stringForKey(Keys.MessageStickerName);
+        String name = message.stringForKey(Keys.MessageStickerName);
+        String [] parts = name.split(".");
+        if (parts.length == 2) {
+            return parts[0];
+        }
+        return name;
     }
 
     @Override
@@ -40,6 +47,8 @@ public class BaseStickerMessageHandler implements StickerMessageHandler {
             Context context = ChatSDK.ctx();
             Resources resources = context.getResources();
             String stickerName = (String) message.valueForKey(Keys.MessageStickerName);
+
+            Logger.debug("Sticker:" + System.identityHashCode(message) + ", " + message.getMetaValuesAsMap() + ", " + stickerName);
 
             // Do this because otherwise we get a crash because the message
             // holder tries to update before it's ready

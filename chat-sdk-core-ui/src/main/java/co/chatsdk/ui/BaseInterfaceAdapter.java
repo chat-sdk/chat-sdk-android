@@ -118,7 +118,9 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public List<Tab> defaultTabs() {
         ArrayList<Tab> tabs = new ArrayList<>();
         tabs.add(privateThreadsTab());
-        tabs.add(publicThreadsTab());
+        if (DefaultUIModule.config().publicRoomRoomsEnabled) {
+            tabs.add(publicThreadsTab());
+        }
         tabs.add(contactsTab());
         return tabs;
     }

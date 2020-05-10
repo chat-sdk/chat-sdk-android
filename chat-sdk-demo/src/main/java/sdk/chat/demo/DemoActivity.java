@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.rd.PageIndicatorView;
+import com.rd.animation.type.AnimationType;
 
 import java.util.ArrayList;
 import java.util.HashSet;

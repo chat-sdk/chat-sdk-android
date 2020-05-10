@@ -10,13 +10,14 @@ import androidx.cardview.widget.CardView;
 import butterknife.BindView;
 import io.reactivex.Completable;
 import io.reactivex.annotations.NonNull;
-import sdk.chat.demo.R;
+import sdk.chat.micro.R;
+import sdk.chat.micro.R2;
 
 public class StyleFragment extends CardViewFragment {
 
-    @BindView(R.id.drawerCardView)
+    @BindView(R2.id.drawerCardView)
     CardView drawerCardView;
-    @BindView(R.id.tabsCardView)
+    @BindView(R2.id.tabsCardView)
     CardView tabsCardView;
 
     @Override

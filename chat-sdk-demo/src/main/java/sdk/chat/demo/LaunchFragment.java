@@ -11,11 +11,12 @@ import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.xmpp.utils.ServerKeyStorage;
 import io.reactivex.annotations.NonNull;
-import sdk.chat.android.live.R;
+import sdk.chat.micro.R;
+import sdk.chat.micro.R2;
 import sdk.guru.common.RX;
 
 public class LaunchFragment extends BaseFragment {
-    @BindView(R.id.button)
+    @BindView(R2.id.button)
     Button button;
 
     @Override

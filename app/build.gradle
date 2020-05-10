@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.firebase.firebase-perf'
+apply plugin: 'com.google.firebase.crashlytics'
 
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
@@ -85,6 +86,8 @@ android {
 
 dependencies {
 
+    implementation project(':chat-sdk-demo')
+
     implementation project(':chat-sdk-core-ui')
     implementation project(':chat-sdk-firebase-adapter')
     implementation project(':chat-sdk-firebase-push')
@@ -120,6 +123,13 @@ dependencies {
 
     implementation "com.google.android.libraries.places:places:$googlePlacesVersion"
     implementation "org.greenrobot:greendao:$greenDaoVersion"
+
+    // Recommended: Add the Firebase SDK for Google Analytics.
+    implementation 'com.google.firebase:firebase-analytics:17.4.1'
+
+    // Add the Firebase Crashlytics SDK.
+    implementation 'com.google.firebase:firebase-crashlytics:17.0.0'
+    implementation 'com.google.firebase:firebase-perf:19.0.7'
 
 }
 

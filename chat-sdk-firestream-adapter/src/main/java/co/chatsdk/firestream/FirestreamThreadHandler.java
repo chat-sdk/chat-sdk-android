@@ -362,8 +362,9 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         return null;
     }
 
-    public Single<List<Message>> loadMoreMessagesForThread(final Date olderThan, final Thread thread, boolean loadFromServer) {
-        return super.loadMoreMessagesBefore(olderThan, thread, loadFromServer).flatMap(localMessages -> {
+    @Override
+    public Single<List<Message>> loadMoreMessagesBefore(final Thread thread, final Date olderThan, boolean loadFromServer) {
+        return super.loadMoreMessagesBefore(thread, olderThan, loadFromServer).flatMap(localMessages -> {
 
             // This function converts a list of sendables to a list of messages
             Function<List<Sendable>, SingleSource<List<Message>>> sendableToMessage = sendables -> Single.defer(() -> {
@@ -402,7 +403,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
             Date lastMessageDate = olderThan;
             if (localMessages.size() > 0) {
                 // Don't get a duplicate of the previous message - get messages before that
-                lastMessageDate = localMessages.get(localMessages.size() - 1).getDate().toDate();
+                lastMessageDate = localMessages.get(localMessages.size() - 1).getDate();
             }
 
             if (thread.typeIs(ThreadType.Private1to1)) {

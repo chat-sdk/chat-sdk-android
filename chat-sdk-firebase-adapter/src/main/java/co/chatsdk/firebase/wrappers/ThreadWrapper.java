@@ -87,7 +87,6 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         permissionsOn();
 
         messagesOn();
-        messageRemovedOn();
         if (ChatSDK.typingIndicator() != null) {
             ChatSDK.typingIndicator().typingOn(model);
         }
@@ -121,7 +120,6 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             }
         } else {
             messagesOn();
-            messageRemovedOn();
             if (ChatSDK.typingIndicator() != null) {
                 ChatSDK.typingIndicator().typingOn(model);
             }
@@ -133,7 +131,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         RealtimeReferenceManager.shared().removeListeners(ref);
     }
 
-    public void messageRemovedOn() {
+    protected void messageRemovedOn() {
         RXRealtime realtime = new RXRealtime(this);
 
         Query query = FirebasePaths.threadMessagesRef(model.getEntityID());
@@ -171,11 +169,26 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         }
     }
 
+    public void messagesOn() {
+
+        if (RealtimeReferenceManager.shared().isOn(messagesRef())) {
+            return;
+        }
+
+        // We call messages added on first because it is asynchronous. So it takes some
+        // Time for the listener to be added. To prevent a double listener, we call
+        // Messages removed directly afterwards. That will add a message listener
+        // So if messages on is called again, the ref will already be on
+        messagesAddedOn();
+        messageRemovedOn();
+
+    }
+
     /**
      * Start listening to incoming messages.
      *
      * @return*/
-    public void messagesOn() {
+    protected void messagesAddedOn() {
 
         if (RealtimeReferenceManager.shared().isOn(messagesRef())) {
             return;
@@ -361,7 +374,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                     if (!user.getModel().isMe()) {
                         model.removeUser(user.getModel());
                     } else {
-                        model.setPermission(user.getModel().getEntityID(), Permission.None, false, false);
+                        model.setPermission(user.getModel().getEntityID(), Permission.None, true, false);
                     }
 //                    updateListenersForPermissions();
                 }
@@ -618,8 +631,11 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
             realtime.childOn(ref).map(change -> {
                 if (change.getSnapshot().exists()) {
-                    model.setPermission(change.getSnapshot().getKey(), change.getSnapshot().getValue(String.class));
-                    updateListenersForPermissions();
+                    String userEntityID = change.getSnapshot().getKey();
+                    model.setPermission(userEntityID, change.getSnapshot().getValue(String.class));
+                    if (userEntityID.equals(ChatSDK.currentUserID())) {
+                        updateListenersForPermissions();
+                    }
                 } else {
                     // If no permission is set, we set it to member
                     model.setPermission(change.getSnapshot().getKey(), Permission.Member);

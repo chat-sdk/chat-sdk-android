@@ -4,6 +4,8 @@ import androidx.annotation.Nullable;
 
 import com.stfalcon.chatkit.commons.models.MessageContentType;
 
+import org.pmw.tinylog.Logger;
+
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.session.ChatSDK;
@@ -31,7 +33,7 @@ public class ImageMessageHolder extends MessageHolder implements MessageContentT
     @Nullable
     public String getImageUrl() {
         if (message.getMessageType().is(MessageType.Image, MessageType.Location, MessageType.Video)) {
-            return message.stringForKey(Keys.MessageImageURL);
+            return message.getImageURL();
         }
         return null;
     }

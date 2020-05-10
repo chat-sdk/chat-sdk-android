@@ -35,7 +35,7 @@ public class FirestreamHelper {
     }
 
     public static void copyToMessage(Message message, Sendable sendable) {
-        message.setDate(new DateTime(sendable.getDate()));
+        message.setDate(sendable.getDate());
         message.setEntityID(sendable.getId());
 
         HashMap<String, Object> body = sendable.getBody();

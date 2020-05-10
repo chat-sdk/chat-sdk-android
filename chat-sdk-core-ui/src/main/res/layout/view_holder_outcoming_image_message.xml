@@ -16,6 +16,8 @@
         android:layout_marginLeft="@dimen/message_outcoming_bubble_margin_left"
         android:layout_marginStart="@dimen/message_outcoming_bubble_margin_left"
         android:adjustViewBounds="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         app:siShape="?outcomingBubbleDrawable"
         app:siSquare="false"/>
 

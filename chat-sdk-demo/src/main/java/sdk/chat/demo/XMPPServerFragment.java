@@ -10,12 +10,13 @@ import androidx.cardview.widget.CardView;
 import butterknife.BindView;
 import io.reactivex.Completable;
 import io.reactivex.annotations.NonNull;
-import sdk.chat.android.live.R;
+import sdk.chat.micro.R;
+import sdk.chat.micro.R2;
 
 public class XMPPServerFragment extends CardViewFragment {
-    @BindView(R.id.openFireCardView)
+    @BindView(R2.id.openFireCardView)
     CardView openFireCardView;
-    @BindView(R.id.customServerCardView)
+    @BindView(R2.id.customServerCardView)
     CardView customServerCardView;
 
     @Override

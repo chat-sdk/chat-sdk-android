@@ -10,11 +10,12 @@ import butterknife.BindView;
 import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.ui.fragments.BaseFragment;
 import io.reactivex.annotations.NonNull;
-import sdk.chat.android.live.R;
+import sdk.chat.micro.R;
+import sdk.chat.micro.R2;
 
 public class WelcomeFragment extends BaseFragment {
 
-    @BindView(R.id.button)
+    @BindView(R2.id.button)
     Button button;
 
     @Override

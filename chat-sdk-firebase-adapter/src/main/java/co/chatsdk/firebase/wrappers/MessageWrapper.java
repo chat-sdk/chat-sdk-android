@@ -13,12 +13,22 @@ import com.google.firebase.database.ServerValue;
 
 
 import org.pmw.tinylog.Logger;
+import org.reactivestreams.Publisher;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
+import io.reactivex.CompletableSource;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
@@ -147,39 +157,54 @@ public class MessageWrapper  {
 
         Map<String, Map<String, Long>> readMap = snapshot.child(Keys.Read).getValue(Generic.readReceiptHashMap());
         if (readMap != null) {
-            if(updateReadReceipts(readMap)) {
-                ChatSDK.events().source().onNext(NetworkEvent.messageReadReceiptUpdated(model));
-            }
+            updateReadReceipts(readMap).doOnSuccess(aBoolean -> {
+                if (aBoolean) {
+                    ChatSDK.events().source().onNext(NetworkEvent.messageReadReceiptUpdated(model));
+                }
+            }).ignoreElement().subscribe(ChatSDK.events());
         }
 
         model.update();
     }
 
-    public boolean updateReadReceipts (Map<String, Map<String, Long>> map) {
-        boolean notify = false;
-        for(String key : map.keySet()) {
+    public Single<Boolean> updateReadReceipts(Map<String, Map<String, Long>> map) {
+        return Single.defer((Callable<SingleSource<Boolean>>) () -> {
 
-            User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, key);
+            final List<Single<Boolean>> singles = new ArrayList<>();
 
-            Map<String, Long> statusMap = map.get(key);
+            for(String key : map.keySet()) {
 
-            if (statusMap != null) {
+                User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, key);
 
-                Long status = statusMap.get(Keys.Status);
-                if (status == null) {
-                    status = (long) ReadStatus.None;
+                Map<String, Long> statusMap = map.get(key);
+
+                if (statusMap != null) {
+
+                    Long status = statusMap.get(Keys.Status);
+                    if (status == null) {
+                        status = (long) ReadStatus.None;
+                    }
+
+                    Long date = statusMap.get(Keys.Date);
+                    if (date == null) {
+                        date = 0L;
+                    }
+
+                    singles.add(model.setUserReadStatusAsync(user, new ReadStatus(status.intValue()), new Date(date), false));
+
                 }
-
-                Long date = statusMap.get(Keys.Date);
-                if (date == null) {
-                    date = 0L;
-                }
-
-                notify = model.setUserReadStatus(user, new ReadStatus(status.intValue()), new Date(date), false) || notify;
-
             }
-        }
-        return notify;
+
+            final List<Boolean> outcomes = new ArrayList<>();
+            return Single.merge(singles).doOnNext(outcomes::add).ignoreElements().toSingle((Callable<Boolean>) () -> {
+                for (Boolean b: outcomes) {
+                    if (b) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }).subscribeOn(RX.computation());
     }
 
     public Completable push() {
@@ -256,21 +281,23 @@ public class MessageWrapper  {
                 return Completable.complete();
             }
 
-            if(model.setUserReadStatus(ChatSDK.currentUser(), status, new Date())) {
+            return model.setUserReadStatusAsync(ChatSDK.currentUser(), status, new Date(), true).flatMapCompletable(aBoolean -> {
+                if (aBoolean) {
+                    Map<String, Object> map = new HashMap<String, Object>() {{
+                        put(Keys.Status, status.getValue());
+                        put(Keys.Date, ServerValue.TIMESTAMP);
+                    }};
 
-                Map<String, Object> map = new HashMap<String, Object>() {{
-                    put(Keys.Status, status.getValue());
-                    put(Keys.Date, ServerValue.TIMESTAMP);
-                }};
+                    DatabaseReference ref = FirebasePaths.threadMessagesReadRef(model.getThread().getEntityID(), model.getEntityID()).child(currentUser.getEntityID());
+                    RXRealtime realtime = new RXRealtime();
+                    Completable completable = realtime.set(ref, map);
+                    realtime.addToReferenceManager();
 
-                DatabaseReference ref = FirebasePaths.threadMessagesReadRef(model.getThread().getEntityID(), model.getEntityID()).child(currentUser.getEntityID());
-                RXRealtime realtime = new RXRealtime();
-                Completable completable = realtime.set(ref, map);
-                realtime.addToReferenceManager();
+                    return completable;
 
-                return completable;
-            }
-            return Completable.complete();
+                }
+                return Completable.complete();
+            });
 
             // Do this to stop duplication of links
         }).subscribeOn(RX.single());

@@ -85,12 +85,13 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return createThread(name, users, type, entityID, null);
     }
 
-    public static Message newMessage (int type, Thread thread) {
+    public static Message newMessage(int type, Thread thread) {
         Message message = ChatSDK.db().createEntity(Message.class);
         message.setSender(ChatSDK.currentUser());
         message.setDate(new Date());
         message.setEntityID(UUID.randomUUID().toString());
         message.setType(type);
+        message.setMessageStatus(MessageSendStatus.None, false);
 
         if (!thread.typeIs(ThreadType.Public)) {
             for (User user: thread.getUsers()) {
@@ -104,12 +105,12 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             }
         }
 
-        thread.addMessage(message);
+        thread.addMessage(message, false);
 
         return message;
     }
 
-    public static Message newMessage (MessageType type, Thread thread) {
+    public static Message newMessage(MessageType type, Thread thread) {
         return newMessage(type.ordinal(), thread);
     }
 

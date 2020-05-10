@@ -6,6 +6,7 @@ import org.jivesoftware.smackx.delay.packet.DelayInformation;
 
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,10 +79,10 @@ public class XMPPMessageParser {
         DelayInformation delay = xmr.getMessage().getExtension(DelayInformation.ELEMENT, DelayInformation.NAMESPACE);
         if(delay != null) {
             // If there is a difference between the server and local time...
-            message.setDate(new DateTime(XMPPManager.shared().serverToClientTime(delay.getStamp())));
+            message.setDate(XMPPManager.shared().serverToClientTime(delay.getStamp()));
         }
         else {
-            message.setDate(new DateTime());
+            message.setDate(new Date());
         }
 
         message.setMessageStatus(MessageSendStatus.Sent);
@@ -114,7 +115,7 @@ public class XMPPMessageParser {
     public static void updateReadReceipts(Message message, XMPPMessageWrapper xmr) {
         // As soon as the message is received, we can set it as read
         if (message.getSender().isMe()) {
-            message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new DateTime());
+            message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new Date());
         } else {
             if (xmr.isGroupChat() && ChatSDK.readReceipts() != null) {
                 ChatSDK.readReceipts().markDelivered(message);

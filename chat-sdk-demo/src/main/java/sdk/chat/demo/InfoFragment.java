@@ -1,7 +1,7 @@
 package sdk.chat.demo;
 
 import co.chatsdk.ui.fragments.BaseFragment;
-import sdk.chat.android.live.R;
+import sdk.chat.micro.R;
 
 public class InfoFragment extends BaseFragment {
     @Override

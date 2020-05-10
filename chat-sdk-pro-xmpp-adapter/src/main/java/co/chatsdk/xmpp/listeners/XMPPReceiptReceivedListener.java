@@ -6,6 +6,8 @@ import org.jivesoftware.smackx.receipts.ReceiptReceivedListener;
 
 import org.jxmpp.jid.Jid;
 
+import java.util.Date;
+
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -39,9 +41,9 @@ public class XMPPReceiptReceivedListener implements ReceiptReceivedListener {
                     }
                     if (from != null) {
                         if (receipt.hasExtension(XMPPDefines.MessageReadNamespace)) {
-                            message.setUserReadStatus(from, ReadStatus.read(), new DateTime());
+                            message.setUserReadStatus(from, ReadStatus.read(), new Date());
                         } else {
-                            message.setUserReadStatus(from, ReadStatus.delivered(), new DateTime());
+                            message.setUserReadStatus(from, ReadStatus.delivered(), new Date());
                         }
                     }
                 }

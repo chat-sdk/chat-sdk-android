@@ -94,6 +94,8 @@
                 android:textColor="?outcomingReplyTextColor"
                 android:ellipsize="end"
                 android:maxLines="2"
+                android:layout_marginLeft="2dp"
+                android:layout_marginStart="2dp"
                 android:padding="2dp" />
 
         </LinearLayout>

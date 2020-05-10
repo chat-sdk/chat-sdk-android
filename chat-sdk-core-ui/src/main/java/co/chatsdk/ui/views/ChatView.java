@@ -31,6 +31,7 @@ import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendProgress;
+import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.core.utils.Dimen;
 import sdk.guru.common.DisposableMap;
@@ -107,6 +108,11 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 ilp.error = R.drawable.icn_200_image_message_error;
             }
 
+            if (url == null) {
+                Logger.debug("Stop here");
+                return;
+            }
+
             Uri uri = Uri.parse(url);
             if (uri != null && uri.getScheme() != null && uri.getScheme().equals("android.resource")) {
                 Glide.with(this).load(uri).override(ilp.width, ilp.height).dontAnimate().into(imageView);
@@ -161,7 +167,9 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                     .subscribe(networkEvent -> {
                         networkEvent.debug();
                         Message message = networkEvent.getMessage();
-                        if (networkEvent.typeIs(EventType.MessageAdded)) {
+                        // We listed to the MessageAdded event when we receive but we listen to the message created status when we send
+                        // Because we need to wait until the message payload is set which happens after it is added to the thread
+                        if (networkEvent.typeIs(EventType.MessageAdded) || (networkEvent.typeIs(EventType.MessageSendStatusUpdated) && networkEvent.getMessageSendProgress().status == MessageSendStatus.Created)) {
                             addMessageToStartOrUpdate(message);
                             message.markReadIfNecessary();
                         }

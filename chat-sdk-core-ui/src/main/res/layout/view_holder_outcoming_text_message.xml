@@ -52,7 +52,10 @@
                 android:textColor="?outcomingReplyTextColor"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:padding="2dp" />
+                android:padding="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginStart="2dp"
+                />
 
         </LinearLayout>
 

@@ -103,6 +103,7 @@ public class MessageSendRig {
             if (message == null) {
                 createMessage();
             }
+            message.setMessageStatus(MessageSendStatus.Created, true);
             if (uploadables.isEmpty()) {
                 return send();
             } else {
@@ -128,7 +129,6 @@ public class MessageSendRig {
         if (messageDidCreateUpdateAction != null) {
             messageDidCreateUpdateAction.update(message);
         }
-        message.setMessageStatus(MessageSendStatus.Created, true);
         return message;
     }
 

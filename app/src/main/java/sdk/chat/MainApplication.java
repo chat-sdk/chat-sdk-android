@@ -53,13 +53,11 @@ public class MainApplication extends Application {
         ChatSDK.builder().configure()
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
                 .setAnonymousLoginEnabled(false)
-                .setDebugModeEnabled(true)
-                .setRemoteConfigEnabled(true)
+//                .setDebugModeEnabled(true)
+                .setRemoteConfigEnabled(false)
                 .setIdenticonType(Config.IdenticonType.Gravatar)
                 .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
-                .setDisablePresence(false)
                 .setSendSystemMessageWhenRoleChanges(true)
-                .setMessageDeletionListenerLimit(5)
                 .build()
 
                 // Add the network adapter module
@@ -74,7 +72,8 @@ public class MainApplication extends Application {
 
                 // Add the UI module
                 .addModule(DefaultUIModule.configure()
-                        .setPublicRoomCreationEnabled(true)
+                        .setPublicRoomCreationEnabled(false)
+                        .setPublicRoomsEnabled(false)
                         .build()
                 )
 
