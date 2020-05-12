@@ -40,7 +40,6 @@ public interface ThreadHandler {
 
     boolean canAddUsersToThread(Thread thread);
     Completable addUsersToThread(Thread thread, List<User> users);
-    Completable addUsersToThread(Thread thread, List<User> users, List<String> permissions);
     Completable addUsersToThread(Thread thread, User... users);
     /**
      * Lazy loading of messages this method will load

@@ -16,6 +16,8 @@ android {
 
     lintOptions {
         abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
     }
 
 }
@@ -24,16 +26,14 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api project(':sdk-guru-common')
     implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
-    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+
     implementation "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
-    implementation "org.tinylog:tinylog:$tinyLogVersion"
 }
 
 ext {
-    libraryName = 'Firebase'
-    artifact = 'firebase'
-    libraryDescription = 'Firebase'
+    libraryName = 'GuruRealtime'
+    artifact = 'guru-realtime'
+    libraryDescription = 'Guru Realtime'
 }
 
 publish {

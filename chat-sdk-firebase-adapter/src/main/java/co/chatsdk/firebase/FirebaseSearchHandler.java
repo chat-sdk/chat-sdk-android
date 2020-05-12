@@ -5,6 +5,7 @@ import com.google.firebase.database.Query;
 
 import java.util.HashMap;
 
+import io.reactivex.Maybe;
 import sdk.chat.core.base.AbstractSearchHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;

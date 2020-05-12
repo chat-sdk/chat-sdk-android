@@ -320,7 +320,7 @@ compile 'co.chatsdk.chatsdk:chat-sdk-firebase-push:4.8.9.3'
 [*Manual Import*](https://github.com/chat-sdk/chat-sdk-android#adding-modules-manually)
 
 ```
-compile project(path: ':chat-sdk-firebase-push')
+compile project(':chat-sdk-firebase-push')
 ```
 
 ##### Enable the module
@@ -463,7 +463,7 @@ After you have purchased the module you will be provided with a link to the modu
 2. Add the module to your `build.gradle`
 
   ```
-  compile project(path: ':chat_sdk_[module name]')
+  compile project(':chat_sdk_[module name]')
   ```
   
 3. Sync Gradle
@@ -503,8 +503,8 @@ And any of the following optional modules:
 Now import the modules in your `build.gradle` file. 
 
 ```
-compile project(path: ':chat-sdk-ui')
-compile project(path: ':chat-sdk-firebase-push')
+compile project(':chat-sdk-ui')
+compile project(':chat-sdk-firebase-push')
 ``` 
 
 If you want to import modules manually, you should add the following to your `gradle.properties` file:

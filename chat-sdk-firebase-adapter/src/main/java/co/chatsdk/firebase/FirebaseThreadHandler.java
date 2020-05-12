@@ -9,17 +9,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.firebase.moderation.Permission;
-import io.reactivex.CompletableSource;
-import sdk.chat.core.base.AbstractThreadHandler;
-import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
-import sdk.chat.core.dao.User;
-import sdk.chat.core.interfaces.ThreadType;
-import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.firebase.wrappers.MessageWrapper;
 import co.chatsdk.firebase.wrappers.ThreadPusher;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
@@ -28,6 +19,13 @@ import io.reactivex.CompletableObserver;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Function;
+import sdk.chat.core.base.AbstractThreadHandler;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.utils.Debug;
@@ -101,8 +99,8 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * In the "onItemFailed" you can get all users that the system could not add to the server.
      * When all users are added the system will call the "onDone" method.
      **/
-    public Completable addUsersToThread(final Thread thread, final List<User> users, List<String> permissions) {
-        return new ThreadWrapper(thread).addUsers(users, permissions);
+    public Completable addUsersToThread(final Thread thread, final List<User> users) {
+        return new ThreadWrapper(thread).addUsers(users);
     }
 
     public Completable mute(Thread thread) {
@@ -350,6 +348,12 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             }
         }
 
+        // In public chats it doesn't make sense to ban a user because
+        // the data is public. They can be made a watcher instead
+        if (thread.typeIs(ThreadType.Public)) {
+            roles.remove(Permission.Banned);
+        }
+
         return roles;
     }
 
@@ -375,8 +379,8 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean hasVoice(Thread thread, User user) {
-        if (thread.containsUser(user)) {
-            String role = thread.getPermission(user.getEntityID());
+        if (thread.containsUser(user) || thread.typeIs(ThreadType.Public)) {
+            String role = roleForUser(thread, user);
             return Permission.isOr(role, Permission.Owner, Permission.Admin, Permission.Member);
         }
         return false;
@@ -405,13 +409,11 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     @Override
     public boolean isModerator(Thread thread, User user) {
         return false;
-//        String role = thread.getPermission(user.getEntityID());
-//        return Permission.isOr(role, Permission.Owner, Permission.Admin);
     }
 
     @Override
     public boolean isBanned(Thread thread, User user) {
-        if (thread.containsUser(user)) {
+        if (thread.containsUser(user) || thread.typeIs(ThreadType.Public)) {
             String role = thread.getPermission(user.getEntityID());
             return Permission.isOr(role, Permission.Banned);
         }

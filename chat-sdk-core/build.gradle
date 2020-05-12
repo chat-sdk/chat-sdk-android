@@ -30,6 +30,8 @@ android {
     }
     lintOptions {
         abortOnError false
+//        checkReleaseBuilds false
+        lintConfig file('lint.xml')
     }
 }
 
@@ -60,7 +62,7 @@ publish {
 dependencies {
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation project(':sdk-guru-common')
+    api project(':sdk-guru-common')
 
     implementation "com.google.android.gms:play-services-maps:$playMapsVersion"
     implementation "com.google.android.gms:play-services-location:$playLocationVersion"
@@ -73,12 +75,9 @@ dependencies {
     // Dependencies that are also used by other Chat SDK libraries
     implementation "org.greenrobot:greendao:$greenDaoVersion"
 
-    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-    implementation "com.jakewharton.rxrelay2:rxrelay:$rxRelayVersion"
 
     implementation "id.zelory:compressor:$compressorVersion"
-    implementation "org.tinylog:tinylog:$tinyLogVersion"
+
 
     implementation "com.karumi:dexter:$dexterVersion"
 //    api 'com.caverock:androidsvg-aar:1.4'
@@ -88,8 +87,6 @@ dependencies {
     implementation "com.google.android.exoplayer:exoplayer:$exoplayerVersion"
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
-    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
-
-
+//    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
 }

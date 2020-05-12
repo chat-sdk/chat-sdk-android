@@ -3,6 +3,7 @@ package sdk.chat.core.push;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Debug;
 
 import sdk.chat.core.session.ChatSDK;
 

@@ -139,7 +139,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable addUsersToThread(Thread thread, List<User> users, @Nullable List<String> permissions) {
+    public Completable addUsersToThread(Thread thread, List<User> users) {
         return Completable.error(new Throwable("Method not implemented"));
     }
 

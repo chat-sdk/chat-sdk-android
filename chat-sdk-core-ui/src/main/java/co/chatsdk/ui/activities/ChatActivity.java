@@ -82,7 +82,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     // Should we remove the user from the public chat when we stop this activity?
     // If we are showing a temporary screen like the sticker text screen
     // this should be set to no
-    protected boolean removeUserFromChatOnExit = !ChatSDK.config().publicChatAutoSubscriptionEnabled;
+    protected boolean removeUserFromChatOnExit = true;
 
     protected static boolean enableTrace = false;
 
@@ -151,7 +151,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 //        chatView.setLayoutParams(params);
 
         updateChatViewMargins();
+
     }
+
 
     public void updateChatViewMargins() {
 
@@ -413,10 +415,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         becomeInactive();
 
         if (thread != null && thread.typeIs(ThreadType.Public) && (removeUserFromChatOnExit || thread.isMuted())) {
-            ChatSDK.thread()
+            // Don't add this to activity disposable map because otherwise it can be cancelled before completion
+            ChatSDK.events().disposeOnLogout(ChatSDK.thread()
                     .removeUsersFromThread(thread, ChatSDK.currentUser())
-                    .observeOn(RX.main()).subscribe(this);
+                    .observeOn(RX.main()).subscribe());
         }
+
     }
 
     /**
@@ -535,6 +539,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     dm.dispose(messageForwardActivityCode);
                 }
             }));
+
+            // We don't want to remove the user if we load another activity
+            // Like the sticker activity
+            removeUserFromChatOnExit = false;
+
             ChatSDK.ui().startForwardMessageActivityForResult(this, thread, MessageHolder.toMessages(holders), messageForwardActivityCode);
             clearSelection();
         }
@@ -551,6 +560,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
 
         if (id == R.id.action_add) {
+
+            // We don't want to remove the user if we load another activity
+            // Like the sticker activity
+            removeUserFromChatOnExit = false;
+
             ChatSDK.ui().startAddUsersToThreadActivity(this, thread.getEntityID());
         }
 
@@ -566,6 +580,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
      * Open the thread details context, Admin user can change thread name an messageImageView there.
      */
     protected void openThreadDetailsActivity() {
+
+        // We don't want to remove the user if we load another activity
+        // Like the sticker activity
+        removeUserFromChatOnExit = false;
+
         ChatSDK.ui().startThreadDetailsActivity(this, thread.getEntityID());
     }
 
@@ -644,13 +663,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         optionsHandler.show(this);
     }
 
-//    public void hideOptions() {
-//        removeUserFromChatOnExit = !ChatSDK.config().publicChatAutoSubscriptionEnabled;
-//        if (optionsHandler != null) {
-//            optionsHandler.hide();
-//        }
-//    }
-
     @Override
     public void executeChatOption(ChatOption option) {
         handleMessageSend(option.execute(this, thread));
@@ -675,6 +687,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     public void onBackPressed() {
         // Do this so that even if we were editing the thread, we always go back to the
         // main activity
+
         ChatSDK.ui().startMainActivity(this);
     }
 

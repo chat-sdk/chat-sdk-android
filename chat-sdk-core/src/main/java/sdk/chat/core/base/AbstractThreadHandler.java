@@ -182,7 +182,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     }
 
     public Completable addUsersToThread(final Thread thread, final List<User> users) {
-        return addUsersToThread(thread, users, null);
+        return addUsersToThread(thread, users);
     }
 
     @Override
@@ -192,7 +192,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
     @Override
     public boolean canRemoveUsersFromThread(Thread thread, List<User> users) {
-        return thread.typeIs(ThreadType.Group) && thread.getCreator() != null && thread.getCreator().isMe();
+        return thread.typeIs(ThreadType.PrivateGroup) && thread.getCreator() != null && thread.getCreator().isMe();
     }
 
     @Override

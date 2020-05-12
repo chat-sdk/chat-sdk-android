@@ -68,7 +68,7 @@ public class ThreadPusher {
                                 thread.delete();
                             })
                             .andThen(Completable.defer(() -> {
-                                return ChatSDK.thread().addUsersToThread(thread, thread.getUsers(), null);
+                                return ChatSDK.thread().addUsersToThread(thread, thread.getUsers());
                             }))
                             .toSingle(() -> thread);
                 }

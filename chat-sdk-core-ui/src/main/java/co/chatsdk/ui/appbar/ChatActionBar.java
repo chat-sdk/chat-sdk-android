@@ -98,16 +98,22 @@ public class ChatActionBar extends AppBarLayout {
 
     public void setSubtitleText(Thread thread, final String text) {
         if (StringChecker.isNullOrEmpty(text)) {
+
+            final String defaultText = getContext().getString(R.string.tap_here_for_contact_info);
+
             ChatSDK.events().disposeOnLogout(Single.defer((Callable<SingleSource<String>>) () -> {
                 if (thread.typeIs(ThreadType.Private1to1)) {
                     if (thread.otherUser() != null) {
                         if (ChatSDK.lastOnline() != null) {
                             return ChatSDK.lastOnline().getLastOnline(thread.otherUser()).map(date -> {
-                                if (thread.otherUser().getIsOnline()) {
-                                    return getContext().getString(R.string.online);
-                                } else {
-                                    return String.format(getContext().getString(R.string.last_seen__), pt.format(date));
+                                if (!date.isEmpty()) {
+                                    if (thread.otherUser().getIsOnline()) {
+                                        return getContext().getString(R.string.online);
+                                    } else {
+                                        return String.format(getContext().getString(R.string.last_seen__), pt.format(date.get()));
+                                    }
                                 }
+                                return defaultText;
                             });
                         } else {
                             if (thread.otherUser().getIsOnline()) {
@@ -115,7 +121,7 @@ public class ChatActionBar extends AppBarLayout {
                             }
                         }
                     }
-                    return Single.just(getContext().getString(R.string.tap_here_for_contact_info));
+                    return Single.just(defaultText);
                 } else {
                     return Single.just(thread.getUserListString());
                 }

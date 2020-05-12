@@ -26,13 +26,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import co.chatsdk.firebase.R;
+import co.chatsdk.firebase.FirebaseEntity;
+import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.moderation.Permission;
+import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.update.FirebaseUpdate;
 import co.chatsdk.firebase.update.FirebaseUpdateWriter;
+import co.chatsdk.firebase.utils.Generic;
+import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
-import io.reactivex.ObservableSource;
-import io.reactivex.SingleSource;
+import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -44,22 +48,13 @@ import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
-import co.chatsdk.firebase.FirebaseEntity;
 import sdk.chat.core.utils.StringChecker;
-import sdk.guru.realtime.DocumentChange;
-import sdk.guru.realtime.RealtimeEventListener;
-import co.chatsdk.firebase.FirebasePaths;
-import sdk.guru.realtime.RealtimeReferenceManager;
-import co.chatsdk.firebase.module.FirebaseModule;
-import co.chatsdk.firebase.utils.Generic;
-import io.reactivex.Completable;
-import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.functions.Function;
-import sdk.guru.common.RX;
 import sdk.guru.common.Event;
 import sdk.guru.common.EventType;
+import sdk.guru.common.RX;
 import sdk.guru.realtime.RXRealtime;
+import sdk.guru.realtime.RealtimeEventListener;
+import sdk.guru.realtime.RealtimeReferenceManager;
 
 public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
@@ -371,10 +366,16 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                 // We don't remove the current user. If we leave the thread, we still
                 // want to be a member so the thread is still associated with us
                 if (change.getType() == EventType.Removed) {
-                    if (!user.getModel().isMe()) {
-                        model.removeUser(user.getModel());
-                    } else {
-                        model.setPermission(user.getModel().getEntityID(), Permission.None, true, false);
+                    // A user leaves the public group when leave the ChatActivity
+                    // If we remove the user, we then delete their permission information
+                    // So for public rooms, we don't remove the user. So we show a list of
+                    // All users who have been in the room when we were
+                    if (model.typeIs(ThreadType.Private)) {
+                        if (!user.getModel().isMe()) {
+                            model.removeUser(user.getModel());
+                        } else {
+                            model.setPermission(user.getModel().getEntityID(), Permission.None, true, false);
+                        }
                     }
 //                    updateListenersForPermissions();
                 }
@@ -673,15 +674,11 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
     }
 
     public Completable addUsers(final List<User> users) {
-        return addUsers(users, null);
-    }
-
-    public Completable addUsers(final List<User> users, List<String> permissions) {
-        return setUserThreadLinkValue(users, false, permissions);
+        return setUserThreadLinkValue(users, false);
     }
 
     public Completable removeUsers(final List<User> users) {
-        return setUserThreadLinkValue(users, true, null);
+        return setUserThreadLinkValue(users, true);
     }
 
     /**
@@ -694,26 +691,19 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
      * @param users
      * @return
      */
-    public Completable setUserThreadLinkValue(final List<User> users, boolean remove, @Nullable List<String> permissions) {
-        return Single.create((SingleOnSubscribe<FirebaseUpdateWriter>) emitter -> {
-            FirebaseUpdateWriter updateWriter = new FirebaseUpdateWriter(FirebaseUpdateWriter.Type.Update);
+    public Completable setUserThreadLinkValue(final List<User> users, boolean remove) {
+        return Completable.defer(() -> {
+
+            FirebaseUpdateWriter updateWriter = new FirebaseUpdateWriter();
 
             User u;
-            String p = null;
             for (int i = 0; i < users.size(); i++) {
                 u = users.get(i);
-                if (permissions != null && permissions.size() > i) {
-                    p = permissions.get(i);
-                }
 
                 DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(model.getEntityID()).child(u.getEntityID()).child(Keys.Status);
                 DatabaseReference userThreadsRef = FirebasePaths.userThreadsRef(u.getEntityID()).child(model.getEntityID()).child(Keys.InvitedBy);
 
                 if (!remove) {
-
-                    if (p != null) {
-                        updateWriter.add(new FirebaseUpdate(FirebasePaths.threadUserPermissionRef(model.getEntityID(), u.getEntityID()), p));
-                    }
 
                     updateWriter.add(new FirebaseUpdate(threadUsersRef, u.equalsEntity(model.getCreator()) ? Keys.Owner : Keys.Member));
 
@@ -725,21 +715,22 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                     }
 
                 } else {
+                    if (!model.typeIs(ThreadType.Public)) {
+                        updateWriter.add(new FirebaseUpdate(userThreadsRef, null));
+                    }
                     updateWriter.add(new FirebaseUpdate(threadUsersRef, null));
-                    updateWriter.add(new FirebaseUpdate(userThreadsRef, null));
                 }
             }
-            emitter.onSuccess(updateWriter);
-        }).subscribeOn(RX.db()).flatMap((Function<FirebaseUpdateWriter, SingleSource<?>>) FirebaseUpdateWriter::execute)
-                .ignoreElement()
-                .doOnComplete(() -> {
-                    if (FirebaseModule.config().enableWebCompatibility) {
-                        FirebaseEntity.pushThreadUsersUpdated(model.getEntityID()).subscribe(ChatSDK.events());
-                        for (User u : users) {
-                            FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe(ChatSDK.events());
-                        }
-                    }
-                });
+
+            return updateWriter.execute();
+        }).subscribeOn(RX.db()).doOnComplete(() -> {
+            if (FirebaseModule.config().enableWebCompatibility) {
+                FirebaseEntity.pushThreadUsersUpdated(model.getEntityID()).subscribe(ChatSDK.events());
+                for (User u : users) {
+                    FirebaseEntity.pushUserThreadsUpdated(u.getEntityID()).subscribe(ChatSDK.events());
+                }
+            }
+        });
     }
 
     public DatabaseReference messagesRef () {

@@ -21,11 +21,18 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
+    }
+
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(path: ':chat-sdk-core-ui')
+    implementation project(':chat-sdk-core-ui')
 
     implementation 'com.github.bensmiley:image-canvas:1.0.4'
 }

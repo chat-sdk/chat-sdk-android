@@ -1,6 +1,7 @@
-package firestream.chat.message;
+package firestream.chat.pro.message;
 
-import firestream.chat.types.DeliveryReceiptType;
+import firestream.chat.message.Sendable;
+import firestream.chat.pro.types.DeliveryReceiptType;
 import firestream.chat.types.SendableType;
 
 public class DeliveryReceipt extends Sendable {

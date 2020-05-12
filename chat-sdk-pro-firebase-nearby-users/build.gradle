@@ -14,25 +14,23 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':chat-sdk-core')
-    implementation project(path: ':chat-sdk-core-ui')
-    implementation project(path: ':chat-sdk-firebase-adapter')
+    implementation project(':chat-sdk-core-ui')
+    implementation project(':chat-sdk-firebase-adapter')
+
+    api 'com.firebase:geofire-android:2.3.1'
+    implementation "com.google.android.gms:play-services-location:$playLocationVersion"
 
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
-
-    implementation 'com.firebase:geofire-android:2.3.1'
-    implementation "com.google.android.gms:play-services-location:$playLocationVersion"
-
-    implementation project(':sdk-guru-common')
-    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-    implementation "org.tinylog:tinylog:$tinyLogVersion"
-
 }
 
 ext {

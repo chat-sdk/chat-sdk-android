@@ -16,4 +16,10 @@
         android:layout_alignParentBottom="true"
         android:scrollbars="none"/>
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"/>
+
 </RelativeLayout>

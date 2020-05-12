@@ -247,7 +247,7 @@ public class ThreadUsersFragment extends BaseFragment {
         ArrayList<Option> options = new ArrayList<>();
 
         // Add the onClick options
-        options.add(new Option(R.string.info, this::showProfile));
+        options.add(new Option(R.string.profile, this::showProfile));
 
         // Edit roles
         if (ChatSDK.thread().canChangeRole(thread, user)) {

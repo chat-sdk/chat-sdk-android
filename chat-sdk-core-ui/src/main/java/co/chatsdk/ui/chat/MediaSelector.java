@@ -15,14 +15,14 @@ import com.zhihu.matisse.engine.impl.GlideEngine;
 import com.zhihu.matisse.internal.entity.CaptureStrategy;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
-import sdk.chat.core.utils.PermissionRequestHandler;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.options.MediaType;
 import co.chatsdk.ui.module.DefaultUIModule;
@@ -31,6 +31,10 @@ import id.zelory.compressor.Compressor;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.disposables.Disposable;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.storage.FileManager;
+import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
+import sdk.chat.core.utils.PermissionRequestHandler;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -197,17 +201,47 @@ public class MediaSelector {
         if (file != null && file.length() > 0) {
             return file;
         }
-        else {
-            // Try to get it another way for this kind of URL
-            // content://media/external ...
-            String [] filePathColumn = { column };
-            Cursor cursor = activity.getContentResolver().query(uri, filePathColumn,null, null, null);
-            if (cursor != null) {
-                cursor.moveToFirst();
-                String fileURI = cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
-                return new File(fileURI);
+        // Try with an input stream
+        try {
+            InputStream input = ChatSDK.ctx().getContentResolver().openInputStream(uri);
+            try {
+
+                FileManager fm = new FileManager(ChatSDK.ctx());
+                file = fm.newFile(fm.imageStorage(), uri.getLastPathSegment());
+
+                OutputStream output = new FileOutputStream(file);
+                byte[] buffer = new byte[4 * 1024]; // or other buffer size
+                int read;
+
+                while ((read = input.read(buffer)) != -1) {
+                    output.write(buffer, 0, read);
+                }
+
+                output.flush();
+
+                return file;
+            }
+            finally {
+                if (input != null) {
+                    input.close();
+                }
+            }
+        } catch (Exception e) {
+            if (file != null) {
+                file.delete();
             }
         }
+
+        // Try to get it another way for this kind of URL
+        // content://media/external ...
+        String [] filePathColumn = { column };
+        Cursor cursor = activity.getContentResolver().query(uri, filePathColumn,null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            String fileURI = cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
+            return new File(fileURI);
+        }
+
         return null;
     }
 

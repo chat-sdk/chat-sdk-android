@@ -17,6 +17,8 @@ android {
 
     lintOptions {
         abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
     }
 
 }
@@ -42,9 +44,6 @@ publish {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
-    api "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    api "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-    implementation "org.tinylog:tinylog:$tinyLogVersion"
 
     implementation project(':chat-sdk-core-ui')
     implementation project(':chat-sdk-firebase-adapter')
@@ -71,16 +70,19 @@ dependencies {
     implementation project(':chat-sdk-pro-firebase-typing-indicator')
     implementation project(':chat-sdk-pro-firebase-read-receipts')
 
-    implementation project(path: ':chat-sdk-pro-xmpp-adapter')
-    implementation project(path: ':chat-sdk-pro-xmpp-read-receipts')
+    implementation project(':chat-sdk-pro-xmpp-adapter')
+    implementation project(':chat-sdk-pro-xmpp-read-receipts')
 
-    implementation "com.jakewharton:butterknife:$butterKnifeVersion"
-    annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
+
+
 
     // Demo
     implementation 'com.romandanylyk:pageindicatorview:1.0.3'
 
     implementation project(':firestream')
+
+    implementation "com.jakewharton:butterknife:$butterKnifeVersion"
+    annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
 
 }
 

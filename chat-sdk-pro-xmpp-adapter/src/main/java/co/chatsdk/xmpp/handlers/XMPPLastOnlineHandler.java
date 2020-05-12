@@ -12,6 +12,7 @@ import co.chatsdk.xmpp.XMPPManager;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
+import sdk.guru.common.Optional;
 import sdk.guru.common.RX;
 
 /**
@@ -20,12 +21,12 @@ import sdk.guru.common.RX;
 
 public class XMPPLastOnlineHandler implements LastOnlineHandler {
     @Override
-    public Single<Date> getLastOnline(final User user) {
-        return Single.create((SingleOnSubscribe<Date>) e -> {
+    public Single<Optional<Date>> getLastOnline(final User user) {
+        return Single.create((SingleOnSubscribe<Optional<Date>>) e -> {
             LastActivity activity = XMPPManager.shared().lastActivityManager().getLastActivity(JidCreate.bareFrom(user.getEntityID()));
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.SECOND, - (int) activity.getIdleTime());
-            e.onSuccess(calendar.getTime());
+            e.onSuccess(Optional.with(calendar.getTime()));
         }).subscribeOn(RX.io());
     }
 

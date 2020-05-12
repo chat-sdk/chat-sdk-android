@@ -1,9 +1,11 @@
 package sdk.chat;
 
 import android.app.Application;
+import android.os.Debug;
 
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.concurrent.TimeUnit;
 
@@ -48,14 +50,16 @@ public class MainApplication extends Application {
     }
 
     public void firebase() throws Exception {
-        String rootPath = "pre_2";
+        String rootPath = "pre_3";
+
+        Debug.waitForDebugger();
 
         ChatSDK.builder().configure()
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
                 .setAnonymousLoginEnabled(false)
 //                .setDebugModeEnabled(true)
                 .setRemoteConfigEnabled(false)
-                .setIdenticonType(Config.IdenticonType.Gravatar)
+                .setIdenticonType(Config.IdenticonType.RoboHash)
                 .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                 .setSendSystemMessageWhenRoleChanges(true)
                 .build()
@@ -72,8 +76,8 @@ public class MainApplication extends Application {
 
                 // Add the UI module
                 .addModule(DefaultUIModule.configure()
-                        .setPublicRoomCreationEnabled(false)
-                        .setPublicRoomsEnabled(false)
+                        .setPublicRoomCreationEnabled(true)
+                        .setPublicRoomsEnabled(true)
                         .build()
                 )
 
@@ -117,11 +121,12 @@ public class MainApplication extends Application {
             t.printStackTrace();
         });
 
+        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true);
+        FirebaseCrashlytics.getInstance().log("Start");
 //            TestScript.run(context, config.firebaseRootPath);
 //            new DummyData(200, 50);
 
 //            ChatSDK.ui().addChatOption(new MessageTestChatOption("BaseMessage Burst"));
-
 
 
     }

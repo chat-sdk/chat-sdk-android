@@ -8,16 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import firestream.chat.chat.User;
-import sdk.guru.common.Event;
 import firestream.chat.firebase.rx.MultiQueueSubject;
 import firestream.chat.message.Sendable;
 import firestream.chat.namespace.FireStreamUser;
-import firestream.chat.types.DeliveryReceiptType;
 import firestream.chat.types.RoleType;
-import firestream.chat.types.TypingStateType;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
+import sdk.guru.common.Event;
 
 /**
  * This interface type just provided for clarity
@@ -249,42 +247,6 @@ public interface IChat extends IAbstractChat {
     Completable sendMessageWithText(String text);
 
     /**
-     * Send a typing indicator message
-     * @param type typing state
-     * @param newId message's new ID before sending
-     * @return completion
-     */
-    Completable sendTypingIndicator(TypingStateType type, @Nullable Consumer<String> newId);
-
-    /**
-     * Send a typing indicator message. An indicator should be sent when starting and stopping typing
-     * @param type typing state
-     * @return completion
-     */
-    Completable sendTypingIndicator(TypingStateType type);
-
-    /**
-     * Send a delivery receipt to a user. If delivery receipts are enabled,
-     * a 'received' status will be returned as soon as a message type delivered
-     * and then you can then manually send a 'read' status when the user
-     * actually reads the message
-     * @param type receipt type
-     * @param newId message's new ID before sending
-     * @return completion
-     */
-    Completable sendDeliveryReceipt(DeliveryReceiptType type, String messageId, @Nullable Consumer<String> newId);
-
-    /**
-     * Send a delivery receipt to a user. If delivery receipts are enabled,
-     * a 'received' status will be returned as soon as a message type delivered
-     * and then you can then manually send a 'read' status when the user
-     * actually reads the message
-     * @param type receipt type
-     * @return completion
-     */
-    Completable sendDeliveryReceipt(DeliveryReceiptType type, String messageId);
-
-    /**
      * Send a custom sendable
      * @param sendable to send
      * @param newId message's new ID before sending
@@ -311,22 +273,6 @@ public interface IChat extends IAbstractChat {
      */
     Completable deleteSendable(Sendable sendable);
     Completable deleteSendable(String sendableId);
-
-    /**
-     * Mark a message as received
-     * @param sendable to mark as received
-     * @return completion
-     */
-    Completable markReceived(Sendable sendable);
-    Completable markReceived(String sendableId);
-
-    /**
-     * Mark a message as read
-     * @param sendable to mark as read
-     * @return completion
-     */
-    Completable markRead(Sendable sendable);
-    Completable markRead(String sendableId);
 
     /**
      * Mute notifications for a user

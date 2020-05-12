@@ -382,9 +382,6 @@ public abstract class AbstractChat implements IAbstractChat {
         getDisposableMap().add(disposable);
     }
 
-    public abstract Completable markRead(Sendable message);
-    public abstract Completable markReceived(Sendable message);
-
     public void debug(String text) {
         if (Fire.internal().getConfig().debugEnabled) {
             Logger.debug(text);

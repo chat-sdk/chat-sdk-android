@@ -7,10 +7,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import firefly.sdk.chat.R;
-import io.reactivex.CompletableSource;
 import sdk.guru.common.Event;
 import sdk.guru.common.EventType;
 import firestream.chat.events.ListData;
@@ -23,21 +21,19 @@ import firestream.chat.namespace.Fire;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import sdk.guru.common.RX;
 import io.reactivex.functions.Consumer;
-import sdk.guru.common.RX;
 import io.reactivex.subjects.BehaviorSubject;
-import firestream.chat.message.DeliveryReceipt;
+import firestream.chat.pro.message.DeliveryReceipt;
 import firestream.chat.message.Message;
 import firestream.chat.message.Sendable;
 import firestream.chat.message.TextMessage;
-import firestream.chat.message.TypingState;
+import firestream.chat.pro.message.TypingState;
 
 import firestream.chat.namespace.FireStreamUser;
-import firestream.chat.types.DeliveryReceiptType;
+import firestream.chat.pro.types.DeliveryReceiptType;
 import firestream.chat.types.InvitationType;
 import firestream.chat.types.RoleType;
-import firestream.chat.types.TypingStateType;
+import firestream.chat.pro.types.TypingStateType;
 
 public class Chat extends AbstractChat implements IChat {
 
@@ -75,16 +71,6 @@ public class Chat extends AbstractChat implements IChat {
     public void connect() throws Exception {
 
         debug("Connect to chat: " + id);
-
-        // If delivery receipts are enabled, send the delivery receipt
-        if (Fire.internal().getConfig().deliveryReceiptsEnabled) {
-            getSendableEvents()
-                    .getMessages()
-                    .pastAndNewEvents()
-                    .filter(deliveryReceiptFilter())
-                    .flatMapCompletable(messageEvent -> markReceived(messageEvent.get()))
-                    .subscribe(this);
-        }
 
         dm.add(listChangeOn(Paths.chatUsersPath(id)).subscribe(listEvent -> {
             Event<User> userEvent = listEvent.to(User.from(listEvent));
@@ -361,26 +347,6 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     @Override
-    public Completable sendTypingIndicator(TypingStateType type) {
-        return sendTypingIndicator(type, null);
-    }
-
-    @Override
-    public Completable sendTypingIndicator(TypingStateType type, @Nullable Consumer<String> newId) {
-        return send(new TypingState(type), newId);
-    }
-
-    @Override
-    public Completable sendDeliveryReceipt(DeliveryReceiptType type, String messageId) {
-        return sendDeliveryReceipt(type, messageId, null);
-    }
-
-    @Override
-    public Completable sendDeliveryReceipt(DeliveryReceiptType type, String messageId, @Nullable Consumer<String> newId) {
-        return send(new DeliveryReceipt(type, messageId), newId);
-    }
-
-    @Override
     public Completable send(Sendable sendable, @Nullable Consumer<String> newId) {
         if (!hasPermission(RoleType.member())) {
             return Completable.error(this::memberPermissionRequired);
@@ -393,25 +359,7 @@ public class Chat extends AbstractChat implements IChat {
         return send(sendable, null);
     }
 
-    @Override
-    public Completable markReceived(Sendable sendable) {
-        return markReceived(sendable.getId());
-    }
 
-    @Override
-    public Completable markReceived(String sendableId) {
-        return sendDeliveryReceipt(DeliveryReceiptType.received(), sendableId);
-    }
-
-    @Override
-    public Completable markRead(Sendable sendable) {
-        return markRead(sendable.getId());
-    }
-
-    @Override
-    public Completable markRead(String sendableId) {
-        return sendDeliveryReceipt(DeliveryReceiptType.read(), sendableId);
-    }
 
     public RoleType getMyRoleType() {
         return getRoleType(Fire.stream().currentUser());

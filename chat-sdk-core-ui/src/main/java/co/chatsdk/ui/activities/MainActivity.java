@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
+import co.chatsdk.ui.module.DefaultUIModule;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.EventType;
@@ -76,7 +77,7 @@ public abstract class MainActivity extends BaseActivity {
         if (bundle != null) {
             String threadID = bundle.getString(Keys.IntentKeyThreadEntityID);
             if (threadID != null && !threadID.isEmpty()) {
-                ChatSDK.ui().startChatActivityForID(getBaseContext(), threadID);
+                ChatSDK.ui().startChatActivityForID(this, threadID, Intent.FLAG_ACTIVITY_NEW_TASK);
             }
         }
     }
@@ -134,6 +135,9 @@ public abstract class MainActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         // Fixes an issue where if we press back the whole app goes blank
+        if (DefaultUIModule.config().allowBackPressFromMainActivity) {
+            super.onBackPressed();
+        }
     }
 
     public boolean showLocalNotificationsForTab (Fragment fragment, Thread thread) {

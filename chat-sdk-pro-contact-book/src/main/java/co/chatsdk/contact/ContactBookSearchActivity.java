@@ -6,7 +6,9 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,6 +51,7 @@ public class ContactBookSearchActivity extends BaseActivity {
 
     protected UsersListAdapter adapter;
     @BindView(R2.id.recyclerView) protected RecyclerView recyclerView;
+    @BindView(R2.id.progressBar) protected ProgressBar progressBar;
 
     @Override
     protected int getLayout() {
@@ -87,17 +90,28 @@ public class ContactBookSearchActivity extends BaseActivity {
         // TODO: Invite user
 
         dm.add(adapter.onClickObservable().subscribe(item -> {
-            if (item.getEntityID() == null) {
-                inviteUser((ContactBookUser) item);
-            } else {
-                User user = ChatSDK.core().getUserNowForEntityID(item.getEntityID());
-                ChatSDK.contact().addContact(user, ConnectionType.Contact)
-                        .observeOn(RX.main())
-                        .doOnComplete(() -> {
-                            showToast(R.string.contact_added);
-                            adapter.getItems().remove(item);
-                            adapter.notifyDataSetChanged();
-                        })
+            // Search for the user
+            if (item instanceof ContactBookUser) {
+                ContactBookUser contactUser = (ContactBookUser) item;
+                showProgressIndicator();
+
+                ContactBookManager.searchServer(contactUser).observeOn(RX.main()).doOnSuccess(searchResult -> {
+                    if (searchResult.user != null) {
+                        ChatSDK.contact().addContact(searchResult.user, ConnectionType.Contact)
+                                .observeOn(RX.main())
+                                .doOnComplete(() -> {
+                                    showToast(R.string.contact_added);
+                                    adapter.getItems().remove(item);
+                                    adapter.notifyDataSetChanged();
+                                })
+                                .subscribe(this);
+                    } else {
+                        inviteUser(contactUser);
+                    }
+                }).doOnComplete(() -> {
+                    inviteUser(contactUser);
+                }).doFinally(this::hideProgressIndicator)
+                        .ignoreElement()
                         .subscribe(this);
             }
         }));
@@ -105,13 +119,14 @@ public class ContactBookSearchActivity extends BaseActivity {
         hideKeyboard();
 
         if (adapter.getItems().isEmpty()) {
-            dm.add(loadUsersFromContactBook().doOnError(throwable -> finish())
-                    .subscribe(contactBookUsers -> {
-                        ContactBookManager.searchServer(contactBookUsers).observeOn(RX.computation()).doOnNext(value -> {
-                            Logger.debug("Sort list");
-                            sortList();
-                        }).subscribe();
-                    }));
+
+            showProgressIndicator();
+
+            loadUsersFromContactBook().doFinally(() -> {
+                hideProgressIndicator();
+            }).doOnError(throwable -> finish())
+                    .ignoreElement()
+                    .subscribe(this);
         }
 
     }
@@ -144,6 +159,14 @@ public class ContactBookSearchActivity extends BaseActivity {
         } catch (ActivityNotFoundException ex) {
             Toast.makeText(this, ex.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    protected void showProgressIndicator() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    protected void hideProgressIndicator() {
+        progressBar.setVisibility(View.INVISIBLE);
     }
 
     private void sendSMS(String number, String text) {

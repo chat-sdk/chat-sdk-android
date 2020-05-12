@@ -15,6 +15,8 @@ android {
     }
     lintOptions {
         abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
     }
 }
 
@@ -46,10 +48,6 @@ dependencies {
     implementation "com.google.firebase:firebase-firestore:$firebaseFirestoreVersion"
     implementation "com.google.firebase:firebase-auth:$firebaseAuthVersion"
     implementation "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
-    api "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    api "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-    implementation "com.jakewharton.rxrelay2:rxrelay:$rxRelayVersion"
     implementation "com.victorrendina:rxqueue2:$rxQueueVersion"
-    api "org.tinylog:tinylog:$tinyLogVersion"
 
 }

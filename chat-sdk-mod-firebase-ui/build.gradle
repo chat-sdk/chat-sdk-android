@@ -33,6 +33,8 @@ android {
     }
     lintOptions {
         abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
     }
 }
 
@@ -63,9 +65,9 @@ dependencies {
 
     implementation "com.firebaseui:firebase-ui-auth:$firebaseUiVersion"
 
-    implementation project(':sdk-guru-common')
-    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-    implementation "org.tinylog:tinylog:$tinyLogVersion"
+    
+
+    
+
 
 }

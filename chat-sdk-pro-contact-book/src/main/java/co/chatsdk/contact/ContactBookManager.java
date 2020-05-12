@@ -13,10 +13,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.ObservableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
 import sdk.guru.common.RX;
 import io.reactivex.functions.Function;
 import sdk.chat.core.dao.User;
@@ -123,34 +126,47 @@ public class ContactBookManager {
         emailCursor.close();
     }
 
-    public static Observable<SearchResult> searchServer(final List<ContactBookUser> contactBookUsers) {
-        return Observable.defer(() -> {
-            ArrayList<Observable<SearchResult>> observables = new ArrayList<>();
-            Logger.debug("Search from contacts");
+    public static Maybe<SearchResult> searchServer(final ContactBookUser contactBookUser) {
+        return Maybe.defer(() -> {
+            List<Maybe<User>> maybeList = new ArrayList<>();
 
-            // Loop over all the contacts and then each search index
-            for(int i = 0; i < contactBookUsers.size(); i++) {
-                final ContactBookUser finalContactBookUser = contactBookUsers.get(i);
-
-                for(SearchIndex index : finalContactBookUser.getSearchIndexes()) {
-
-                    // Search on search for each index in turn then map these results onto
-                    // the search result property so we have access to both the user and the
-                    // contact book user
-                    observables.add(ChatSDK.search().usersForIndex(index.value, 1, index.key).map(user -> {
-                        finalContactBookUser.setUser(user);
-                        return new SearchResult(user, finalContactBookUser);
-                    }));
-                }
+            for(SearchIndex index : contactBookUser.getSearchIndexes()) {
+                maybeList.add(ChatSDK.search().userForIndex(index.value, index.key));
             }
-
-            return Observable.merge(observables);
-        }).subscribeOn(RX.computation());
+            return Maybe.concat(maybeList).map(user -> {
+                return new SearchResult(user, contactBookUser);
+            }).firstElement();
+       }).subscribeOn(RX.computation());
     }
 
-    public static Observable<SearchResult> searchServer(Context context) {
-        return getContactList(context).flatMapObservable(ContactBookManager::searchServer).subscribeOn(RX.io());
-    }
+//    public static Observable<SearchResult> searchServer(final List<ContactBookUser> contactBookUsers) {
+//        return Observable.defer(() -> {
+//            ArrayList<Observable<SearchResult>> observables = new ArrayList<>();
+//            Logger.debug("Search from contacts");
+//
+//            // Loop over all the contacts and then each search index
+//            for(int i = 0; i < contactBookUsers.size(); i++) {
+//                final ContactBookUser finalContactBookUser = contactBookUsers.get(i);
+//
+//                for(SearchIndex index : finalContactBookUser.getSearchIndexes()) {
+//
+//                    // Search on search for each index in turn then map these results onto
+//                    // the search result property so we have access to both the user and the
+//                    // contact book user
+//                    observables.add(ChatSDK.search().usersForIndex(index.value, 1, index.key).map(user -> {
+//                        finalContactBookUser.setUser(user);
+//                        return new SearchResult(user, finalContactBookUser);
+//                    }));
+//                }
+//            }
+//
+//            return Observable.merge(observables);
+//        }).subscribeOn(RX.computation());
+//    }
+
+//    public static Observable<SearchResult> searchServer(Context context) {
+//        return getContactList(context).flatMapObservable(ContactBookManager::searchServer).subscribeOn(RX.io());
+//    }
 
     public static class SearchResult {
         User user;

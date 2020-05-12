@@ -7,7 +7,7 @@ import firestream.chat.events.ListData;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.namespace.Fire;
 
-import firestream.chat.types.ContactType;
+import firestream.chat.pro.types.ContactType;
 import firestream.chat.types.RoleType;
 
 public class User {

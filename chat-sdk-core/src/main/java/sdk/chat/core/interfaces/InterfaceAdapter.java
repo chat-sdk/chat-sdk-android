@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
@@ -86,6 +87,7 @@ public interface InterfaceAdapter {
     void startActivity(Context context, Class activity);
     void startActivity(Context context, Intent intent);
     void startChatActivityForID(Context context, String threadEntityID);
+    void startChatActivityForID(Context context, String threadEntityID, @Nullable Integer flags);
 
     /**
      * Use {@link #startEditThreadActivity(Context, String)}

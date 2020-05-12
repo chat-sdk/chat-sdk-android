@@ -16,6 +16,8 @@ android {
 
     lintOptions {
         abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
     }
 
 }
@@ -23,15 +25,18 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
+
     api "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
     api "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-    implementation "org.tinylog:tinylog:$tinyLogVersion"
+    api "com.jakewharton.rxrelay2:rxrelay:$rxRelayVersion"
+    api "org.tinylog:tinylog:$tinyLogVersion"
+
 }
 
 ext {
-    libraryName = 'Common'
-    artifact = 'common'
-    libraryDescription = 'Common'
+    libraryName = 'GuruCommon'
+    artifact = 'guru-common'
+    libraryDescription = 'Guru Common'
 }
 
 publish {

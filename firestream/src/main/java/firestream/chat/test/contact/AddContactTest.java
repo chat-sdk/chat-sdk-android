@@ -7,7 +7,7 @@ import firestream.chat.namespace.Fire;
 import firestream.chat.test.Result;
 import firestream.chat.test.Test;
 import firestream.chat.test.TestScript;
-import firestream.chat.types.ContactType;
+import firestream.chat.pro.types.ContactType;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import sdk.guru.common.RX;

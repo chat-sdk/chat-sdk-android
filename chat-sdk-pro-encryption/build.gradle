@@ -21,16 +21,16 @@ android {
         }
     }
 
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(path: ':chat-sdk-core')
-
-    implementation project(':sdk-guru-common')
-    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-    implementation "org.tinylog:tinylog:$tinyLogVersion"
+    implementation project(':chat-sdk-core')
 
     implementation 'com.google.code.gson:gson:2.8.6'
 

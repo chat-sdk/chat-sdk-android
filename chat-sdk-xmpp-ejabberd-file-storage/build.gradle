@@ -23,6 +23,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api project(path: ':chat-sdk-xmpp-adapter')
+    api project(':chat-sdk-xmpp-adapter')
     implementation 'com.amitshekhar.android:android-networking:1.0.2'
 }

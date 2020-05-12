@@ -3,6 +3,9 @@ package sdk.chat.core.push;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Debug;
+
+import org.pmw.tinylog.Logger;
 
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;

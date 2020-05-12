@@ -6,33 +6,29 @@ import com.google.firebase.database.Query;
 
 import org.pmw.tinylog.Logger;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.firebase.moderation.Permission;
-import io.reactivex.functions.Action;
-import sdk.chat.core.base.AbstractEventHandler;
-import sdk.chat.core.dao.DaoCore;
-import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.User;
-import sdk.chat.core.dao.Thread;
-import sdk.chat.core.events.NetworkEvent;
-import sdk.chat.core.hook.HookEvent;
-import sdk.chat.core.interfaces.ThreadType;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.ConnectionType;
 import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.utils.Generic;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
+import sdk.chat.core.base.AbstractEventHandler;
+import sdk.chat.core.dao.DaoCore;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.ConnectionType;
 import sdk.guru.common.EventType;
-import sdk.guru.common.RX;
+import sdk.guru.realtime.RXRealtime;
 import sdk.guru.realtime.RealtimeEventListener;
 import sdk.guru.realtime.RealtimeReferenceManager;
-import sdk.guru.realtime.RXRealtime;
 
 /**
  * Created by benjaminsmiley-andrews on 10/05/2017.
@@ -125,9 +121,8 @@ public class FirebaseEventHandler extends AbstractEventHandler {
 //                    ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).subscribe(ChatSDK.events());
 //                }
 
-                thread.on();
-
-//                eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
+                thread.on().subscribe(this);
+//                eventSource.onNexqt(NetworkEvent.threadAdded(thread.getModel()));
 
             }).onChildRemoved((snapshot, hasValue) -> {
                 ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());

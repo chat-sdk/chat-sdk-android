@@ -13,19 +13,16 @@ import firestream.chat.FirestreamConfig;
 import firestream.chat.chat.Chat;
 import firestream.chat.chat.User;
 import firestream.chat.events.ConnectionEvent;
-import sdk.guru.common.Event;
 import firestream.chat.firebase.rx.MultiQueueSubject;
 import firestream.chat.message.Sendable;
-import firestream.chat.types.ContactType;
-import firestream.chat.types.DeliveryReceiptType;
+import firestream.chat.pro.types.ContactType;
 import firestream.chat.types.InvitationType;
-import firestream.chat.types.PresenceType;
-import firestream.chat.types.TypingStateType;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
+import sdk.guru.common.Event;
 
 public interface IFireStream extends IAbstractChat {
 
@@ -45,18 +42,6 @@ public interface IFireStream extends IAbstractChat {
 
     // Messages
 
-    /**
-     * Send a delivery receipt to a user. If delivery receipts are enabled,
-     * a 'received' status will be returned as soon as a message type delivered
-     * and then you can then manually send a 'read' status when the user
-     * actually reads the message
-     * @param userId - the recipient user id
-     * @param type - the status getTypingStateType
-     * @return - subscribe to get a completion, error update from the method
-     */
-    Completable sendDeliveryReceipt(String userId, DeliveryReceiptType type, String messageId);
-    Completable sendDeliveryReceipt(String userId, DeliveryReceiptType type, String messageId, @Nullable Consumer<String> newId);
-
     Completable sendInvitation(String userId, InvitationType type, String id);
     Completable sendInvitation(String userId, InvitationType type, String groupId, @Nullable Consumer<String> newId);
 
@@ -75,25 +60,12 @@ public interface IFireStream extends IAbstractChat {
      */
     Completable deleteSendable (Sendable sendable);
     Completable deleteSendable (String sendableId);
-    Completable sendPresence(String userId, PresenceType type);
-    Completable sendPresence(String userId, PresenceType type, @Nullable Consumer<String> newId);
 
     Completable sendMessageWithText(String userId, String text);
     Completable sendMessageWithText(String userId, String text, @Nullable Consumer<String> newId);
 
     Completable sendMessageWithBody(String userId, HashMap<String, Object> body);
     Completable sendMessageWithBody(String userId, HashMap<String, Object> body, @Nullable Consumer<String> newId);
-
-
-    /**
-     * Send a typing indicator update to a user. This should be sent when the user
-     * starts or stops typing
-     * @param userId - the recipient user id
-     * @param type - the status getTypingStateType
-     * @return - subscribe to get a completion, error update from the method
-     */
-    Completable sendTypingIndicator(String userId, TypingStateType type);
-    Completable sendTypingIndicator(String userId, TypingStateType type, @Nullable Consumer<String> newId);
 
     // Blocked
 
@@ -139,9 +111,6 @@ public interface IFireStream extends IAbstractChat {
     MultiQueueSubject<Event<User>> getBlockedEvents();
     MultiQueueSubject<Event<User>> getContactEvents();
     Observable<ConnectionEvent> getConnectionEvents();
-
-    Completable markReceived(String fromUserId, String sendableId);
-    Completable markRead(String fromUserId, String sendableId);
 
     /**
      * If you set the

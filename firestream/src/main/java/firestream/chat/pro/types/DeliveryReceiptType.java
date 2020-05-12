@@ -1,4 +1,6 @@
-package firestream.chat.types;
+package firestream.chat.pro.types;
+
+import firestream.chat.types.BaseType;
 
 public class DeliveryReceiptType extends BaseType {
 

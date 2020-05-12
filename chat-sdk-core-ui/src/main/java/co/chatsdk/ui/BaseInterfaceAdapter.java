@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import java.lang.ref.WeakReference;
@@ -439,8 +440,15 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     public void startChatActivityForID(Context context, String threadEntityID) {
+        startChatActivityForID(context, threadEntityID, null);
+    }
+
+    public void startChatActivityForID(Context context, String threadEntityID, @Nullable Integer flags) {
         Intent intent = new Intent(context, getChatActivity());
         intent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
+        if (flags != null) {
+            intent.setFlags(flags);
+        }
         context.startActivity(intent, new Bundle());
     }
 

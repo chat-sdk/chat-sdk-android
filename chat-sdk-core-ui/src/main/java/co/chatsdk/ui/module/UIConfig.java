@@ -42,6 +42,8 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     public boolean imageCroppingEnabled = true;
 
+    public boolean allowBackPressFromMainActivity = false;
+
     public UIConfig(T onBuild) {
         super(onBuild);
     }
@@ -128,6 +130,24 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     public UIConfig<T> setUsernameHint(String usernameHint) {
         this.usernameHint = usernameHint;
+        return this;
+    }
+
+    /**
+     * If this is set to true, then when a user clicks back from the main
+     * activity, the activity will close. This should be used if you are
+     * launching the ChatSDK from your app
+     *
+     * Enabled:
+     *
+     * 1. User clicks button in your app which launches Chat SDK main activity
+     * 2. User clicks back, is returned to host app
+     *
+     * @param allow user to dismiss main activity
+     * @return config
+     */
+    public UIConfig<T> setAllowBackPressFromMainActivity(boolean allow) {
+        this.allowBackPressFromMainActivity = allow;
         return this;
     }
 

@@ -22,6 +22,12 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
+    }
+
 }
 
 dependencies {
@@ -30,10 +36,10 @@ dependencies {
     implementation project(':chat-sdk-firebase-adapter')
 
 
-    implementation project(':sdk-guru-common')
-    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-    implementation "org.tinylog:tinylog:$tinyLogVersion"
+    
+
+    
+
 
 }
 

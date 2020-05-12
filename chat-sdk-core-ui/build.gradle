@@ -35,6 +35,8 @@ android {
     }
     lintOptions {
         abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
     }
 }
 
@@ -58,8 +60,7 @@ publish {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation project(':chat-sdk-core')
-    implementation project(':sdk-guru-common')
+    api project(':chat-sdk-core')
 
     implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
     implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
@@ -69,7 +70,6 @@ dependencies {
     implementation "com.github.chrisbanes:PhotoView:$rootProject.ext.photoViewVersion"
 //    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
     implementation "id.zelory:compressor:$compressorVersion"
-    implementation "org.tinylog:tinylog:$tinyLogVersion"
 
     implementation "com.jakewharton.rxrelay2:rxrelay:$rxRelayVersion"
 
@@ -80,7 +80,6 @@ dependencies {
     api "com.github.siyamed:android-shape-imageview:$shapeImageViewVersion"
     api "co.chatsdk.chatsdk:chatkit:$chatKit"
 
-//    api "com.mikepenz:material-design-icons-dx-typeface:$iconicsMaterialDesignIconsVersion"
     api "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
     api "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
 
@@ -88,8 +87,6 @@ dependencies {
     api "com.mikepenz:iconics-views:$iconicsVersion"
 
     implementation "de.hdodenhof:circleimageview:$circleImageViewVersion"
-    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
 
     implementation "co.chatsdk:matisse:$matisseVersion"
 
@@ -106,6 +103,6 @@ dependencies {
     implementation "com.github.adrielcafe:AndroidAudioRecorder:$androidAudioRecorderVersion"
 
     api "com.github.bumptech.glide:glide:$glideVersion"
-    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
+//    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
 }

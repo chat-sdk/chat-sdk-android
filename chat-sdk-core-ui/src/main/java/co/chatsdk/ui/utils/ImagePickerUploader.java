@@ -29,13 +29,13 @@ public class ImagePickerUploader {
     }
 
     public Single<List<ImageUploadResult>> choosePhoto (Activity activity, boolean multiSelectEnabled, int width, int height) {
-        return PermissionRequestHandler.requestReadExternalStorage(activity)
+        return PermissionRequestHandler.requestImageMessage(activity)
                 .andThen(mediaSelector.startChooseMediaActivity(activity, MimeType.ofImage(), cropType, multiSelectEnabled, width, height)
                         .flatMap(this::uploadImageFiles));
     }
 
     public Single<List<File>> choosePhoto(Activity activity) {
-        return PermissionRequestHandler.requestReadExternalStorage(activity)
+        return PermissionRequestHandler.requestImageMessage(activity)
                 .andThen(mediaSelector.startChooseMediaActivity(activity, MimeType.ofImage(), cropType, false));
     }
 

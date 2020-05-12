@@ -21,21 +21,23 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
+    }
+
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':chat-sdk-core')
-    implementation project(path: ':chat-sdk-core-ui')
+    implementation project(':chat-sdk-core-ui')
 
     implementation "com.amitshekhar.android:android-networking:$androidNetworkingVersion"
     implementation "com.github.barteksc:pdfium-android:$pdfiumVersion"
     implementation "com.droidninja:filepicker:2.2.3"
-
-    implementation project(':sdk-guru-common')
-    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-    implementation "org.tinylog:tinylog:$tinyLogVersion"
 }
 
 ext {

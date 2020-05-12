@@ -20,4 +20,13 @@ public class Optional<T> {
     public T get() {
         return optional;
     }
+
+    public static <T> Optional<T> empty() {
+        return new Optional<>();
+    }
+
+    public static <T> Optional<T> with(T value) {
+        return new Optional<>(value);
+    }
+
 }
