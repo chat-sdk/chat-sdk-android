@@ -1,8 +1,7 @@
-package firestream.chat.pro.message;
+package firestream.chat.message;
 
-import firestream.chat.message.Sendable;
 import firestream.chat.types.SendableType;
-import firestream.chat.pro.types.TypingStateType;
+import firestream.chat.types.TypingStateType;
 
 public class TypingState extends Sendable {
 

@@ -5,8 +5,6 @@ import org.pmw.tinylog.Logger;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import firefly.sdk.chat.R;
-import firestream.chat.namespace.Fire;
 import io.reactivex.functions.Predicate;
 import sdk.guru.common.BaseConfig;
 
@@ -66,21 +64,70 @@ public class FirestreamConfig<T> extends BaseConfig<T> {
         }
     }
 
+    public boolean deliveryReceiptsEnabled = true;
+    public boolean autoMarkReceived = true;
+    public boolean autoAcceptChatInvite = true;
+    public boolean deleteMessagesOnReceipt = false;
+    public int messageHistoryLimit = 100;
+    protected String root = "firestream";
+    protected String sandbox = "prod";
+    public boolean startListeningFromLastSentMessageDate = true;
+    public TimePeriod listenToMessagesWithTimeAgo = TimePeriod.days(10);
+    public DatabaseType database = DatabaseType.Firestore;
+    public boolean debugEnabled = false;
+
+    /**
+     * This will be the root of the FireStream Firebase database i.e.
+     * /root/[sandbox]/users
+     */
+    public FirestreamConfig<T> setRoot(String root) {
+        String path = validatePath(root);
+        if (path != null) {
+            this.root = path;
+        }
+        return this;
+    }
+
+    public FirestreamConfig<T> setSandbox(String sandbox) {
+        String path = validatePath(sandbox);
+        if (path != null) {
+            this.sandbox = path;
+        }
+        return this;
+    }
+
+    /**
+     * Which database to use - Firestore or Realtime database
+     */
+    public FirestreamConfig<T> setDatabaseType(DatabaseType type) {
+        this.database = type;
+        return this;
+    }
+
     /**
      * Should the framework automatically send a delivery receipt when
      * a message type received
      */
-    public boolean deliveryReceiptsEnabled = true;
+    public FirestreamConfig<T> setDeliveryReceiptsEnabled(boolean value) {
+        this.deliveryReceiptsEnabled = value;
+        return this;
+    }
 
     /**
      * Should the framework send the received receipt automatically
      */
-    public boolean autoMarkReceived = true;
+    public FirestreamConfig<T> setAutoMarkReceivedEnabled(boolean value) {
+        this.autoMarkReceived = value;
+        return this;
+    }
 
     /**
      * Are chat chat invites accepted automatically
      */
-    public boolean autoAcceptChatInvite = true;
+    public FirestreamConfig<T> setAutoAcceptChatInviteEnabled(boolean value) {
+        this.autoAcceptChatInvite = value;
+        return this;
+    }
 
     /**
      * If this type enabled, each time a message type received, it will be
@@ -89,24 +136,18 @@ public class FirestreamConfig<T> extends BaseConfig<T> {
      * always be deleted as they don't have any use in the message archive
      * this flag only affects 1-to-1 messages.
      */
-    public boolean deleteMessagesOnReceipt = false;
+    public FirestreamConfig<T> setDeleteMessagesOnReceiptEnabled(boolean value) {
+        this.deleteMessagesOnReceipt = value;
+        return this;
+    }
 
     /**
      * How many historic messages should we retrieve?
      */
-    public int messageHistoryLimit = 100;
-
-    /**
-     * This will be the root of the FireStream Firebase database i.e.
-     * /root/[sandbox]/users
-     */
-    protected String root = "firestream";
-
-    /**
-     * This will be the sandbox of the FireStream Firebase database i.e.
-     * /root/[sandbox]/users
-     */
-    protected String sandbox = "prod";
+    public FirestreamConfig<T> setMessageHistoryLimit(int value) {
+        this.messageHistoryLimit = value;
+        return this;
+    }
 
     /**
      * When should we add the message listener from? By default
@@ -136,7 +177,10 @@ public class FirestreamConfig<T> extends BaseConfig<T> {
      * return true
      *
      */
-    public boolean startListeningFromLastSentMessageDate = true;
+    public FirestreamConfig<T> setStartListeningFromLastSentMessageDateEnabled(boolean value) {
+        this.startListeningFromLastSentMessageDate = value;
+        return this;
+    }
 
     /**
      * This will listen to messages with a duration before
@@ -149,72 +193,16 @@ public class FirestreamConfig<T> extends BaseConfig<T> {
      * is set to true, in that case, if there are no messages or receipts in the queue,
      * the listener will be set with this duration ago
      * */
-    public TimePeriod listenToMessagesWithTimeAgo = TimePeriod.days(10);
-
-    /**
-     * Which database to use - Firestore or Realtime database
-     */
-    public DatabaseType database = DatabaseType.Firestore;
+    public FirestreamConfig<T> setListenToMessagesWithTimeAgo(TimePeriod value) {
+        this.listenToMessagesWithTimeAgo = value;
+        return this;
+    }
 
     /**
      * Should debug log messages be shown?
      */
-    public boolean debugEnabled = false;
-
-    public FirestreamConfig<T> setRoot(String root) {
-        String path = validatePath(root);
-        if (path != null) {
-            this.root = path;
-        }
-        return this;
-    }
-
-    public FirestreamConfig<T> setSandbox(String sandbox) {
-        String path = validatePath(sandbox);
-        if (path != null) {
-            this.sandbox = path;
-        }
-        return this;
-    }
-
-    public FirestreamConfig<T> setDatabaseType(DatabaseType type) {
-        this.database = type;
-        return this;
-    }
-
-    public FirestreamConfig<T> setDeliveryReceiptsEnabled(boolean value) {
-        this.deliveryReceiptsEnabled = value;
-        return this;
-    }
-
-    public FirestreamConfig<T> setAutoMarkReceivedEnabled(boolean value) {
-        this.autoMarkReceived = value;
-        return this;
-    }
-
-    public FirestreamConfig<T> setAutoAcceptChatInviteEnabled(boolean value) {
-        this.autoAcceptChatInvite = value;
-        return this;
-    }
-
-    public FirestreamConfig<T> setDeleteMessagesOnReceiptEnabled(boolean value) {
-        this.deleteMessagesOnReceipt = value;
-        return this;
-    }
-    public FirestreamConfig<T> setMessageHistoryLimit(int value) {
-        this.messageHistoryLimit = value;
-        return this;
-    }
-
-
-
-    public FirestreamConfig<T> setStartListeningFromLastSentMessageDateEnabled(boolean value) {
-        this.startListeningFromLastSentMessageDate = value;
-        return this;
-    }
-
-    public FirestreamConfig<T> setListenToMessagesWithTimeAgo(TimePeriod value) {
-        this.listenToMessagesWithTimeAgo = value;
+    public FirestreamConfig<T> setDebugEnabled(boolean enabled) {
+        debugEnabled = enabled;
         return this;
     }
 

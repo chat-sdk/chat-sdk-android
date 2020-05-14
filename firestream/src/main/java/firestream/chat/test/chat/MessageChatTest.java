@@ -6,24 +6,21 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import firestream.chat.interfaces.IChat;
-import firestream.chat.pro.interfaces.IChatPro;
-import firestream.chat.pro.message.DeliveryReceipt;
+import firestream.chat.message.DeliveryReceipt;
 import firestream.chat.message.Message;
 import firestream.chat.message.Sendable;
 import firestream.chat.message.TextMessage;
-import firestream.chat.pro.message.TypingState;
+import firestream.chat.message.TypingState;
 import firestream.chat.namespace.Fire;
 import firestream.chat.test.Result;
 import firestream.chat.test.Test;
-import firestream.chat.pro.types.DeliveryReceiptType;
+import firestream.chat.types.DeliveryReceiptType;
 import firestream.chat.types.SendableType;
-import firestream.chat.pro.types.TypingStateType;
+import firestream.chat.types.TypingStateType;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import sdk.guru.common.RX;
@@ -84,38 +81,32 @@ public class MessageChatTest extends Test {
                             failure("Message text mismatch");
                         }
                     }
-                }).concatWith(Completable.defer(() -> {
-                    if (chat instanceof IChatPro) {
-                        return ((IChatPro) chat).sendTypingIndicator(TypingStateType.typing()).doOnComplete(() -> {
-                            if(chat.getSendables(SendableType.typingState()).size() != 1) {
-                                failure("Typing state not in sendables when it should be");
-                            } else {
-                                TypingState state = TypingState.fromSendable((chat.getSendables(SendableType.typingState()).get(0)));
-                                if (!state.getTypingStateType().equals(TypingStateType.typing())) {
-                                    failure("Typing state type mismatch");
-                                }
-                            }
-                        });
+                })
+                        /*
+                        .concatWith(chat.sendTypingIndicator(TypingStateType.typing()).doOnComplete(() -> {
+                    if(chat.getSendables(SendableType.typingState()).size() != 1) {
+                        failure("Typing state not in sendables when it should be");
+                    } else {
+                        TypingState state = TypingState.fromSendable((chat.getSendables(SendableType.typingState()).get(0)));
+                        if (!state.getTypingStateType().equals(TypingStateType.typing())) {
+                            failure("Typing state type mismatch");
+                        }
                     }
-                    return Completable.complete();
-               })).concatWith(Completable.defer(() -> {
-                   if (chat instanceof IChatPro) {
-                       return ((IChatPro) chat).sendDeliveryReceipt(DeliveryReceiptType.received(), messageReceiptId()).doOnComplete(() -> {
-                           if(chat.getSendables(SendableType.deliveryReceipt()).size() != 1) {
-                               failure("delivery receipt not in sendables when it should be");
-                           } else {
-                               DeliveryReceipt receipt = DeliveryReceipt.fromSendable((chat.getSendables(SendableType.deliveryReceipt()).get(0)));
-                               if (!receipt.getDeliveryReceiptType().equals(DeliveryReceiptType.received())) {
-                                   failure("Delivery receipt type mismatch");
-                               }
-                               if (!receipt.getMessageId().equals(messageReceiptId())) {
-                                   failure("Delivery receipt message id incorrect");
-                               }
-                           }
-                       });
-                   }
-                   return Completable.complete();
-               })).subscribe(() -> {
+                })).concatWith(chat.sendDeliveryReceipt(DeliveryReceiptType.received(), messageReceiptId()).doOnComplete(() -> {
+                    if(chat.getSendables(SendableType.deliveryReceipt()).size() != 1) {
+                        failure("delivery receipt not in sendables when it should be");
+                    } else {
+                        DeliveryReceipt receipt = DeliveryReceipt.fromSendable((chat.getSendables(SendableType.deliveryReceipt()).get(0)));
+                        if (!receipt.getDeliveryReceiptType().equals(DeliveryReceiptType.received())) {
+                            failure("Delivery receipt type mismatch");
+                        }
+                        if (!receipt.getMessageId().equals(messageReceiptId())) {
+                            failure("Delivery receipt message id incorrect");
+                        }
+                    }
+                })) */
+                .subscribe(() -> {
+
                 }, this));
                 dm.add(Completable.timer(5, TimeUnit.SECONDS).subscribe(() -> {
                     // Check that the chat now has the message

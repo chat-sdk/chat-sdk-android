@@ -8,9 +8,6 @@ import java.util.List;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.namespace.Fire;
 
-import firestream.chat.pro.message.DeliveryReceipt;
-import firestream.chat.pro.message.Presence;
-import firestream.chat.pro.message.TypingState;
 import firestream.chat.types.BaseType;
 
 public class Sendable extends BaseMessage {

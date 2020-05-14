@@ -1,7 +1,6 @@
-package firestream.chat.pro.message;
+package firestream.chat.message;
 
-import firestream.chat.message.Sendable;
-import firestream.chat.pro.types.PresenceType;
+import firestream.chat.types.PresenceType;
 import firestream.chat.types.SendableType;
 
 public class Presence extends Sendable {

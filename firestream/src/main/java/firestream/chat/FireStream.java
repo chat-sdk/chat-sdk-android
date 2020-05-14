@@ -17,44 +17,44 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import firefly.sdk.chat.R;
-import sdk.guru.common.Event;
-import firestream.chat.firebase.service.Keys;
-import firestream.chat.interfaces.IChat;
-import firestream.chat.events.ConnectionEvent;
-import firestream.chat.interfaces.IFireStream;
-import firestream.chat.namespace.Fire;
-
-import io.reactivex.Completable;
-import io.reactivex.Observable;
-import io.reactivex.Single;
-import sdk.guru.common.RX;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Predicate;
 import firestream.chat.chat.AbstractChat;
 import firestream.chat.chat.Chat;
 import firestream.chat.chat.User;
-import sdk.guru.common.EventType;
+import firestream.chat.events.ConnectionEvent;
 import firestream.chat.filter.Filter;
 import firestream.chat.firebase.firestore.FirestoreService;
 import firestream.chat.firebase.realtime.RealtimeService;
-import firestream.chat.firebase.service.Paths;
+import firestream.chat.firebase.rx.MultiQueueSubject;
 import firestream.chat.firebase.service.FirebaseService;
+import firestream.chat.firebase.service.Keys;
 import firestream.chat.firebase.service.Path;
-import firestream.chat.pro.message.DeliveryReceipt;
+import firestream.chat.firebase.service.Paths;
+import firestream.chat.interfaces.IChat;
+import firestream.chat.interfaces.IFireStream;
+import firestream.chat.message.DeliveryReceipt;
 import firestream.chat.message.Invitation;
 import firestream.chat.message.Message;
-import firestream.chat.pro.message.Presence;
+import firestream.chat.message.Presence;
 import firestream.chat.message.Sendable;
 import firestream.chat.message.TextMessage;
-import firestream.chat.pro.message.TypingState;
-import firestream.chat.firebase.rx.MultiQueueSubject;
-import firestream.chat.pro.types.ContactType;
-import firestream.chat.pro.types.DeliveryReceiptType;
+import firestream.chat.message.TypingState;
+import firestream.chat.namespace.Fire;
+import firestream.chat.types.ContactType;
+import firestream.chat.types.DeliveryReceiptType;
 import firestream.chat.types.InvitationType;
-import firestream.chat.pro.types.PresenceType;
+import firestream.chat.types.PresenceType;
 import firestream.chat.types.SendableType;
-import firestream.chat.pro.types.TypingStateType;
+import firestream.chat.types.TypingStateType;
+import firestream.chat.util.Typing;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Predicate;
 import io.reactivex.subjects.BehaviorSubject;
+import sdk.guru.common.Event;
+import sdk.guru.common.EventType;
+import sdk.guru.common.RX;
 
 public class FireStream extends AbstractChat implements IFireStream {
 
@@ -156,6 +156,29 @@ public class FireStream extends AbstractChat implements IFireStream {
         // If deletion is enabled, we don't filter so we delete all the message types
         stream.map(Event::get).flatMapCompletable(this::deleteSendable).subscribe(this);
 
+        // DELIVERY RECEIPTS
+
+        getSendableEvents()
+                .getMessages()
+                .pastAndNewEvents()
+                .filter(deliveryReceiptFilter())
+                .flatMapCompletable(event -> markReceived(event.get()))
+                .subscribe(this);
+
+        // If message deletion is disabled, send a received receipt to ourself for each message. This means
+        // that when we add a childListener, we only get new messages
+        if (!config.deleteMessagesOnReceipt && config.startListeningFromLastSentMessageDate) {
+            getSendableEvents()
+                    .getMessages()
+                    .pastAndNewEvents()
+                    .filter(Filter.notFromMe())
+                    .flatMapCompletable(event -> {
+
+                    return sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), event.get().getId());
+
+            }).subscribe(this);
+        }
+
         // INVITATIONS
 
         getSendableEvents().getInvitations().pastAndNewEvents().flatMapCompletable(event -> {
@@ -256,6 +279,17 @@ public class FireStream extends AbstractChat implements IFireStream {
     }
 
     @Override
+    public Completable sendPresence(String userId, PresenceType type) {
+        return sendPresence(userId, type, null);
+    }
+
+    @Override
+    public Completable sendPresence(String userId, PresenceType type, @Nullable Consumer<String> newId) {
+        return send(userId, new Presence(type), newId);
+    }
+
+
+    @Override
     public Completable sendInvitation(String userId, InvitationType type, String id) {
         return sendInvitation(userId, type, id, null);
     }
@@ -273,6 +307,44 @@ public class FireStream extends AbstractChat implements IFireStream {
     @Override
     public Completable send(String toUserId, Sendable sendable, @Nullable Consumer<String> newId) {
         return send(Paths.messagesPath(toUserId), sendable, newId);
+    }
+
+    @Override
+    public Completable sendDeliveryReceipt(String userId, DeliveryReceiptType type, String messageId) {
+        return sendDeliveryReceipt(userId, type, messageId, null);
+    }
+
+    @Override
+    public Completable sendDeliveryReceipt(String userId, DeliveryReceiptType type, String messageId, @Nullable Consumer<String> newId) {
+        return send(userId, new DeliveryReceipt(type, messageId), newId);
+    }
+
+    @Override
+    public Completable startTyping(String userId) {
+        return Completable.defer(() -> {
+            final Typing typing = typingMap.get(userId);
+            if (!typing.isTyping) {
+                typing.isTyping = true;
+                return send(userId, new TypingState(TypingStateType.typing()), s -> {
+                    typing.sendableId = s;
+                });
+            }
+            return Completable.complete();
+        });
+    }
+
+    @Override
+    public Completable stopTyping(String userId) {
+        return Completable.defer(() -> {
+            final Typing typing = typingMap.get(userId);
+            if (typing.isTyping) {
+                return deleteSendable(typing.sendableId).doOnComplete(() -> {
+                    typing.isTyping = false;
+                    typing.sendableId = null;
+                });
+            }
+            return Completable.complete();
+        });
     }
 
     @Override
@@ -393,6 +465,34 @@ public class FireStream extends AbstractChat implements IFireStream {
     @Override
     public List<IChat> getChats() {
         return chats;
+    }
+
+    /**
+     * Send a read receipt
+     * @return completion
+     */
+    @Override
+    public Completable markRead(Sendable sendable) {
+        return markRead(sendable.getFrom(), sendable.getId());
+    }
+
+    @Override
+    public Completable markRead(String fromUserId, String sendableId) {
+        return Fire.stream().sendDeliveryReceipt(fromUserId, DeliveryReceiptType.read(), sendableId);
+    }
+
+    /**
+     * Send a received receipt
+     * @return completion
+     */
+    @Override
+    public Completable markReceived(Sendable sendable) {
+        return markReceived(sendable.getFrom(), sendable.getId());
+    }
+
+    @Override
+    public Completable markReceived(String fromUserId, String sendableId) {
+        return Fire.stream().sendDeliveryReceipt(fromUserId, DeliveryReceiptType.received(), sendableId);
     }
 
     //

@@ -12,25 +12,26 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import sdk.guru.common.Event;
-import sdk.guru.common.EventType;
 import firestream.chat.events.ListData;
 import firestream.chat.filter.Filter;
-import sdk.guru.common.DisposableMap;
+import firestream.chat.firebase.service.Path;
 import firestream.chat.interfaces.IAbstractChat;
+import firestream.chat.message.Sendable;
+import firestream.chat.message.TypingState;
 import firestream.chat.namespace.Fire;
+import firestream.chat.types.SendableType;
+import firestream.chat.types.TypingStateType;
+import firestream.chat.util.TypingMap;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import sdk.guru.common.RX;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
+import sdk.guru.common.DisposableMap;
+import sdk.guru.common.Event;
+import sdk.guru.common.EventType;
 import sdk.guru.common.RX;
-import firestream.chat.firebase.service.Path;
-import firestream.chat.message.Sendable;
-
-import firestream.chat.types.SendableType;
 
 /**
  * This class handles common elements of a conversation bit it 1-to-1 or group.
@@ -52,6 +53,8 @@ public abstract class AbstractChat implements IAbstractChat {
      * A list of all sendables received
      */
     protected ArrayList<Sendable> sendables = new ArrayList<>();
+
+    protected TypingMap typingMap = new TypingMap();
 
     /**
      * Start listening to the current message reference and retrieve all messages
@@ -312,7 +315,12 @@ public abstract class AbstractChat implements IAbstractChat {
             events.getDeliveryReceipts().onNext(event.to(sendable.toDeliveryReceipt()));
         }
         if (sendable.isType(SendableType.typingState())) {
-            events.getTypingStates().onNext(event.to(sendable.toTypingState()));
+            if (event.typeIs(EventType.Added)) {
+                events.getTypingStates().onNext(new Event<>(new TypingState(TypingStateType.typing()), EventType.Modified));
+            }
+            if (event.typeIs(EventType.Removed)) {
+                events.getTypingStates().onNext(new Event<>(new TypingState(TypingStateType.none()), EventType.Modified));
+            }
         }
         if (sendable.isType(SendableType.invitation())) {
             events.getInvitations().onNext(event.to(sendable.toInvitation()));
@@ -382,6 +390,9 @@ public abstract class AbstractChat implements IAbstractChat {
         getDisposableMap().add(disposable);
     }
 
+    public abstract Completable markRead(Sendable message);
+    public abstract Completable markReceived(Sendable message);
+
     public void debug(String text) {
         if (Fire.internal().getConfig().debugEnabled) {
             Logger.debug(text);
@@ -419,5 +430,6 @@ public abstract class AbstractChat implements IAbstractChat {
     public void accept(Throwable throwable) {
         onError(throwable);
     }
+
 
 }

@@ -1,16 +1,16 @@
 package firestream.chat.chat;
 
-import sdk.guru.common.Event;
-import firestream.chat.message.Sendable;
-import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
-import firestream.chat.pro.message.DeliveryReceipt;
+import firestream.chat.firebase.rx.MultiQueueSubject;
+import firestream.chat.message.DeliveryReceipt;
 import firestream.chat.message.Invitation;
 import firestream.chat.message.Message;
-import firestream.chat.pro.message.Presence;
-import firestream.chat.pro.message.TypingState;
+import firestream.chat.message.Presence;
+import firestream.chat.message.Sendable;
+import firestream.chat.message.TypingState;
 import firestream.chat.namespace.FireStreamMessage;
-import firestream.chat.firebase.rx.MultiQueueSubject;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
+import sdk.guru.common.Event;
 
 public class Events {
 

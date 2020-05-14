@@ -1,9 +1,8 @@
-package firestream.chat.pro.types;
+package firestream.chat.types;
 
 import java.util.HashMap;
 
 import firestream.chat.firebase.service.Keys;
-import firestream.chat.types.BaseType;
 
 public class ContactType extends BaseType {
 

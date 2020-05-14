@@ -1,6 +1,4 @@
-package firestream.chat.pro.types;
-
-import firestream.chat.types.BaseType;
+package firestream.chat.types;
 
 public class PresenceType extends BaseType {
 

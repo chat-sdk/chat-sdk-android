@@ -9,31 +9,30 @@ import java.util.HashMap;
 import java.util.List;
 
 import firefly.sdk.chat.R;
-import sdk.guru.common.Event;
-import sdk.guru.common.EventType;
 import firestream.chat.events.ListData;
 import firestream.chat.firebase.rx.MultiQueueSubject;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.firebase.service.Path;
 import firestream.chat.firebase.service.Paths;
 import firestream.chat.interfaces.IChat;
+import firestream.chat.message.Message;
+import firestream.chat.message.Sendable;
+import firestream.chat.message.TextMessage;
+import firestream.chat.message.TypingState;
 import firestream.chat.namespace.Fire;
+import firestream.chat.namespace.FireStreamUser;
+import firestream.chat.types.DeliveryReceiptType;
+import firestream.chat.types.InvitationType;
+import firestream.chat.types.RoleType;
+import firestream.chat.types.TypingStateType;
+import firestream.chat.util.Typing;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
-import firestream.chat.pro.message.DeliveryReceipt;
-import firestream.chat.message.Message;
-import firestream.chat.message.Sendable;
-import firestream.chat.message.TextMessage;
-import firestream.chat.pro.message.TypingState;
-
-import firestream.chat.namespace.FireStreamUser;
-import firestream.chat.pro.types.DeliveryReceiptType;
-import firestream.chat.types.InvitationType;
-import firestream.chat.types.RoleType;
-import firestream.chat.pro.types.TypingStateType;
+import sdk.guru.common.Event;
+import sdk.guru.common.EventType;
 
 public class Chat extends AbstractChat implements IChat {
 
@@ -71,6 +70,16 @@ public class Chat extends AbstractChat implements IChat {
     public void connect() throws Exception {
 
         debug("Connect to chat: " + id);
+
+        // If delivery receipts are enabled, send the delivery receipt
+        if (Fire.internal().getConfig().deliveryReceiptsEnabled) {
+            getSendableEvents()
+                    .getMessages()
+                    .pastAndNewEvents()
+                    .filter(deliveryReceiptFilter())
+                    .flatMapCompletable(messageEvent -> markReceived(messageEvent.get()))
+                    .subscribe(this);
+        }
 
         dm.add(listChangeOn(Paths.chatUsersPath(id)).subscribe(listEvent -> {
             Event<User> userEvent = listEvent.to(User.from(listEvent));
@@ -347,6 +356,54 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     @Override
+    public Completable startTyping() {
+        return Completable.defer(() -> {
+            final Typing typing = typingMap.get(id);
+            if (!typing.isTyping) {
+                typing.isTyping = true;
+                return send(new TypingState(TypingStateType.typing()), s -> {
+                    typing.sendableId = s;
+                });
+            }
+            return Completable.complete();
+        });
+    }
+
+    @Override
+    public Completable stopTyping() {
+        return Completable.defer(() -> {
+            final Typing typing = typingMap.get(id);
+            if (typing.isTyping) {
+                return deleteSendable(typing.sendableId).doOnComplete(() -> {
+                    typing.isTyping = false;
+                    typing.sendableId = null;
+                });
+            }
+            return Completable.complete();
+        });
+    }
+
+//    @Override
+//    public Completable sendTypingIndicator(TypingStateType type) {
+//        return sendTypingIndicator(type, null);
+//    }
+//
+//    @Override
+//    public Completable sendTypingIndicator(TypingStateType type, @Nullable Consumer<String> newId) {
+//        return send(new TypingState(type), newId);
+//    }
+
+    @Override
+    public Completable sendDeliveryReceipt(String fromUserId, DeliveryReceiptType type, String messageId) {
+        return sendDeliveryReceipt(fromUserId, type, messageId, null);
+    }
+
+    @Override
+    public Completable sendDeliveryReceipt(String fromUserId, DeliveryReceiptType type, String messageId, @Nullable Consumer<String> newId) {
+        return Fire.stream().sendDeliveryReceipt(fromUserId, type, messageId, newId);
+    }
+
+    @Override
     public Completable send(Sendable sendable, @Nullable Consumer<String> newId) {
         if (!hasPermission(RoleType.member())) {
             return Completable.error(this::memberPermissionRequired);
@@ -359,7 +416,25 @@ public class Chat extends AbstractChat implements IChat {
         return send(sendable, null);
     }
 
+    @Override
+    public Completable markReceived(Sendable sendable) {
+        return markReceived(sendable.getFrom(), sendable.getId());
+    }
 
+    @Override
+    public Completable markReceived(String fromUserId, String sendableId) {
+        return sendDeliveryReceipt(fromUserId, DeliveryReceiptType.received(), sendableId);
+    }
+
+    @Override
+    public Completable markRead(Sendable sendable) {
+        return markRead(sendable.getFrom(), sendable.getId());
+    }
+
+    @Override
+    public Completable markRead(String fromUserId, String sendableId) {
+        return sendDeliveryReceipt(fromUserId, DeliveryReceiptType.read(), sendableId);
+    }
 
     public RoleType getMyRoleType() {
         return getRoleType(Fire.stream().currentUser());
