@@ -1,10 +1,15 @@
 package co.chatsdk.firestream;
 
 
-
 import java.util.Date;
 
-import firestream.chat.pro.interfaces.IChatPro;
+import firestream.chat.events.ConnectionEvent;
+import firestream.chat.interfaces.IChat;
+import firestream.chat.message.DeliveryReceipt;
+import firestream.chat.namespace.Fire;
+import firestream.chat.types.DeliveryReceiptType;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -12,15 +17,8 @@ import sdk.chat.core.handlers.ReadReceiptHandler;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ReadStatus;
-import firestream.chat.events.ConnectionEvent;
-import sdk.guru.common.EventType;
 import sdk.guru.common.DisposableMap;
-import firestream.chat.interfaces.IChat;
-import firestream.chat.pro.message.DeliveryReceipt;
-import firestream.chat.namespace.Fire;
-import firestream.chat.pro.types.DeliveryReceiptType;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
+import sdk.guru.common.EventType;
 
 public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consumer<Throwable> {
 
@@ -75,16 +73,11 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
 
         if (thread.typeIs(ThreadType.Private1to1)) {
             User otherUser = thread.otherUser();
-            if (Fire.pro() != null) {
-                dm.add(Fire.pro().markRead(otherUser.getEntityID(), message.getEntityID()).subscribe(() -> {}, this));
-            }
+            dm.add(Fire.stream().markRead(otherUser.getEntityID(), message.getEntityID()).subscribe(() -> {}, this));
         }
         if (thread.typeIs(ThreadType.PrivateGroup)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
-            if (chat instanceof IChatPro) {
-                IChatPro chatPro = (IChatPro) chat;
-                chatPro.manage(chatPro.markRead(message.getEntityID()).subscribe(() -> {}, this));
-            }
+            chat.manage(Fire.stream().markRead(message.getSender().getEntityID(), message.getEntityID()).subscribe(() -> {}, this));
         }
     }
 

@@ -1,18 +1,16 @@
 package co.chatsdk.firestream;
 
-import firestream.chat.pro.interfaces.IChatPro;
-import firestream.chat.pro.interfaces.IFirestreamPro;
+import firestream.chat.events.ConnectionEvent;
+import firestream.chat.interfaces.IChat;
+import firestream.chat.namespace.Fire;
+import firestream.chat.types.TypingStateType;
+import io.reactivex.Completable;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.handlers.TypingIndicatorHandler;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
-import firestream.chat.events.ConnectionEvent;
-import firestream.chat.interfaces.IChat;
-import firestream.chat.namespace.Fire;
-import firestream.chat.pro.types.TypingStateType;
-import io.reactivex.Completable;
 
 public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler {
 
@@ -59,24 +57,25 @@ public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler 
 
     @Override
     public Completable setChatState(State state, Thread thread) {
-        if (Fire.pro() != null) {
-            TypingStateType typingStateType = TypingStateType.none();
+        if (thread.typeIs(ThreadType.Private1to1)) {
+            User otherUser = thread.otherUser();
             if (state == State.composing) {
-                typingStateType = TypingStateType.typing();
+                return Fire.stream().startTyping(otherUser.getEntityID());
             }
-
-            if (thread.typeIs(ThreadType.Private1to1)) {
-                User otherUser = thread.otherUser();
-                return Fire.pro().sendTypingIndicator(otherUser.getEntityID(), typingStateType);
-            } else {
-                IChat chat = Fire.stream().getChat(thread.getEntityID());
-                if (chat instanceof IChatPro) {
-                    return ((IChatPro) chat).sendTypingIndicator(typingStateType);
-                } else {
-                    return Completable.complete();
+            else {
+                return Fire.stream().stopTyping(otherUser.getEntityID());
+            }
+        } else {
+            IChat chat = Fire.stream().getChat(thread.getEntityID());
+            if (chat != null) {
+                if (state == State.composing) {
+                    return chat.startTyping();
+                }
+                else {
+                    return chat.stopTyping();
                 }
             }
+            return Completable.complete();
         }
-        return Completable.complete();
     }
 }

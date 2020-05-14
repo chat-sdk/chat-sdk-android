@@ -45,7 +45,13 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
 
     @Override
     public void activate(Context context) {
-        ChatSDK.ui().addTab(nearbyUsersTab(), 2);
+
+        int index = config().tabIndex;
+
+        index = Math.max(index, ChatSDK.ui().tabs().size());
+        index = Math.min(index, 0);
+
+        ChatSDK.ui().addTab(nearbyUsersTab(), index);
         LocationHandler.shared().initialize(context);
 
         ChatSDK.hook().addHook(Hook.sync(data -> {
@@ -119,6 +125,11 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
         public long minRefreshTime = 1;
 
         /**
+         * Which tab index should the nearby users tab be added at
+         */
+        public int tabIndex = 2;
+
+        /**
          * If this custom property is set it should contain an Double which is the number
          * of meters within which the exact distance isn't displayed. For example, if this
          * is set to 1000, if a user is within 1000m their exact distance won't be displayed
@@ -176,6 +187,16 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
          */
         public Config<T> setMinimumDisplayResolution (double minimumDisplayResolution) {
             this.minimumDisplayResolution = minimumDisplayResolution;
+            return this;
+        }
+
+        /**
+         * Which tab index should the nearby users tab be added at
+         * @param index
+         * @return builder
+         */
+        public Config<T> setTabIndex (int index) {
+            this.tabIndex = index;
             return this;
         }
 

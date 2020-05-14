@@ -76,6 +76,7 @@ public class MainApplication extends Application {
                 .addModule(DefaultUIModule.builder()
                         .setPublicRoomCreationEnabled(true)
                         .setPublicRoomsEnabled(true)
+//                        .setTheme(R.style.GGTheme)
                         .build()
                 )
 
@@ -92,7 +93,9 @@ public class MainApplication extends Application {
                 .addModule(VideoMessageModule.shared())
                 .addModule(FirebaseBlockingModule.shared())
                 .addModule(FirebaseLastOnlineModule.shared())
-                .addModule(FirebaseNearbyUsersModule.shared())
+                .addModule(FirebaseNearbyUsersModule.builder()
+                        .setTabIndex(100)
+                        .build())
                 .addModule(FirebaseReadReceiptsModule.shared())
                 .addModule(FirebaseTypingIndicatorModule.shared())
 
