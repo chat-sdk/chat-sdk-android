@@ -33,18 +33,22 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import butterknife.BindView;
+import co.chatsdk.ui.R;
+import co.chatsdk.ui.R2;
+import co.chatsdk.ui.appbar.ChatActionBar;
+import co.chatsdk.ui.audio.AudioBinder;
 import co.chatsdk.ui.chat.model.ImageMessageHolder;
 import co.chatsdk.ui.chat.model.MessageHolder;
+import co.chatsdk.ui.custom.Customiser;
+import co.chatsdk.ui.icons.Icons;
+import co.chatsdk.ui.interfaces.TextInputDelegate;
+import co.chatsdk.ui.views.ChatView;
+import co.chatsdk.ui.views.ReplyView;
+import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.subjects.PublishSubject;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -58,18 +62,8 @@ import sdk.chat.core.interfaces.ChatOptionsHandler;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
-import co.chatsdk.ui.appbar.ChatActionBar;
-import co.chatsdk.ui.audio.AudioBinder;
-import co.chatsdk.ui.custom.Customiser;
-import co.chatsdk.ui.icons.Icons;
-import co.chatsdk.ui.interfaces.TextInputDelegate;
-import co.chatsdk.ui.views.ChatView;
-import co.chatsdk.ui.views.ReplyView;
-import io.reactivex.Completable;
+import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.core.utils.StringChecker;
-import sdk.guru.common.RX;
 import sdk.guru.common.Optional;
 import sdk.guru.common.RX;
 
@@ -517,7 +511,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
         if (id == R.id.action_copy) {
             chatView.copySelectedMessagesText(this, holder -> {
-                DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", CurrentLocale.get());
                 return dateFormatter.format(holder.getCreatedAt()) + ", " + holder.getUser().getName() + ": " + holder.getText();
             }, false);
             showToast(R.string.copied_to_clipboard);

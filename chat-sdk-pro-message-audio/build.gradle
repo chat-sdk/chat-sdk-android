@@ -29,6 +29,11 @@ android {
         lintConfig file('lint.xml')
     }
 }
+rootProject.allprojects {
+    repositories {
+        maven { url "https://jitpack.io" }
+    }
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

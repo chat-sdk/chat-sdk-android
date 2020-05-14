@@ -4,7 +4,6 @@ package co.chatsdk.typing_indicator;
 import android.content.Context;
 
 import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.guru.common.BaseConfig;
@@ -25,11 +24,11 @@ public class FirebaseTypingIndicatorModule extends AbstractModule {
      * @see Config
      * @return configuration object
      */
-    public static Config<FirebaseTypingIndicatorModule> configure() {
+    public static Config<FirebaseTypingIndicatorModule> builder() {
         return instance.config;
     }
 
-    public static FirebaseTypingIndicatorModule configure(Configure<Config> config) {
+    public static FirebaseTypingIndicatorModule builder(Configure<Config> config) {
         config.with(instance.config);
         return instance;
     }
@@ -42,6 +41,11 @@ public class FirebaseTypingIndicatorModule extends AbstractModule {
             super(onBuild);
         }
 
+        /**
+         * Typing indicator timeout in millis
+         * @param typingTimeout
+         * @return
+         */
         public Config<T> setTypingTimeout(long typingTimeout) {
             this.typingTimeout = typingTimeout;
             return this;

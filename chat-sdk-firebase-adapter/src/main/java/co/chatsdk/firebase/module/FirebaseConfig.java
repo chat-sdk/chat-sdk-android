@@ -11,7 +11,7 @@ import sdk.guru.common.BaseConfig;
 public class FirebaseConfig<T> extends BaseConfig<T> {
 
     // Firebase
-    public String firebaseRootPath = "default";
+    public String firebaseRootPath = "pre_1";
 
     public String firebaseDatabaseUrl;
     public String firebaseApp;
@@ -46,11 +46,30 @@ public class FirebaseConfig<T> extends BaseConfig<T> {
         return this;
     }
 
+    /**
+     * Set a custom Firebase database URL
+     * @param firebaseDatabaseUrl
+     * @return
+     */
     public FirebaseConfig<T> setFirebaseDatabaseURL(String firebaseDatabaseUrl) {
         this.firebaseDatabaseUrl = firebaseDatabaseUrl;
         return this;
     }
 
+    /**
+     * Set the Firebase sandbox. The Firebase database is like a big tree structure.
+     * The root path is the root branch of that tree. So if this is set to the default "pre_1"
+     * your data would be stored at:
+     *
+     * root/pre_1/chat-data
+     *
+     * This allows you to run multiple sand-boxed chat instances on one database.
+     *
+     * You could have "test", "pre", "prod" etc...
+     *
+     * @param rootPath
+     * @return
+     */
     public FirebaseConfig<T> setFirebaseRootPath(String rootPath) {
         String path = validatePath(rootPath);
         if (path != null) {
@@ -76,37 +95,75 @@ public class FirebaseConfig<T> extends BaseConfig<T> {
         return null;
     }
 
+    /**
+     * Use a custom Firebase app name
+     * @param firebaseApp
+     * @return
+     */
     public FirebaseConfig<T> setFirebaseApp(String firebaseApp) {
         this.firebaseApp = firebaseApp;
         return this;
     }
 
+    /**
+     * Set which search indexes are used. By default we can search for anything
+     * within the user/meta path. Make sure to update security rules with indexes you use
+     * @param indexes
+     * @return
+     */
     public FirebaseConfig<T> setSearchIndexes(List<String> indexes) {
         this.searchIndexes.clear();
         this.searchIndexes.addAll(indexes);
         return this;
     }
 
+    /**
+     * Prevent the client from setting the Firebase user profile. Useful when
+     * the profile is maintained by a server
+     * @param disableClientProfileUpdate
+     * @return
+     */
     public FirebaseConfig<T> setDisableClientProfileUpdate(boolean disableClientProfileUpdate) {
         this.disableClientProfileUpdate = disableClientProfileUpdate;
         return this;
     }
 
+    /**
+     * When developer mode is enabled, the app will be more robust if you need to delete data
+     * directly from the Firebase console
+     * @param developmentModeEnabled
+     * @return
+     */
     public FirebaseConfig<T> setDevelopmentModeEnabled(boolean developmentModeEnabled) {
         this.developmentModeEnabled = developmentModeEnabled;
         return this;
     }
 
+    /**
+     * Disable public chat rooms
+     * @param disablePublicThreads
+     * @return
+     */
     public FirebaseConfig<T> setDisablePublicThreads(boolean disablePublicThreads) {
         this.disablePublicThreads = disablePublicThreads;
         return this;
     }
 
+    /**
+     * If you have users who are using Chat SDK v4 this should be set to true
+     * @param enabled
+     * @return
+     */
     public FirebaseConfig<T> setEnableCompatibilityWithV4(boolean enabled) {
         this.enableCompatibilityWithV4 = enabled;
         return this;
     }
 
+    /**
+     * If you are using Chat SDK web, set this to true
+     * @param enableWebCompatibility
+     * @return
+     */
     public FirebaseConfig<T> setEnableWebCompatibility(boolean enableWebCompatibility) {
         this.enableWebCompatibility = enableWebCompatibility;
         return this;

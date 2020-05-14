@@ -2,30 +2,30 @@ package co.chatsdk.ui.custom;
 
 import android.app.Activity;
 import android.content.Context;
+import android.location.Location;
 import android.view.View;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import co.chatsdk.ui.utils.DialogUtils;
-import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Message;
-import sdk.chat.core.rigs.MessageSendRig;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.MessageSendStatus;
-import sdk.chat.core.types.MessageType;
 import co.chatsdk.ui.R;
 import co.chatsdk.ui.chat.ImageMessageOnClickHandler;
 import co.chatsdk.ui.chat.LocationMessageOnClickHandler;
 import co.chatsdk.ui.chat.model.ImageMessageHolder;
 import co.chatsdk.ui.chat.model.MessageHolder;
 import co.chatsdk.ui.chat.model.SystemMessageHolder;
+import co.chatsdk.ui.utils.DialogUtils;
 import co.chatsdk.ui.view_holders.IncomingImageMessageViewHolder;
 import co.chatsdk.ui.view_holders.IncomingTextMessageViewHolder;
 import co.chatsdk.ui.view_holders.OutcomingImageMessageViewHolder;
 import co.chatsdk.ui.view_holders.OutcomingTextMessageViewHolder;
 import co.chatsdk.ui.view_holders.SystemMessageViewHolder;
 import co.chatsdk.ui.view_holders.base.BaseIncomingTextMessageViewHolder;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.rigs.MessageSendRig;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageSendStatus;
+import sdk.chat.core.types.MessageType;
 
 public class MessageHandler implements IMessageHandler {
 
@@ -84,7 +84,11 @@ public class MessageHandler implements IMessageHandler {
             double longitude = message.doubleForKey(Keys.MessageLongitude);
             double latitude = message.doubleForKey(Keys.MessageLatitude);
 
-            LocationMessageOnClickHandler.onClick(activity, new LatLng(latitude, longitude));
+            Location location = new Location(ChatSDK.getString(co.chatsdk.core.R.string.app_name));
+            location.setLatitude(latitude);
+            location.setLongitude(longitude);
+
+            LocationMessageOnClickHandler.onClick(activity, location);
         }
     }
 

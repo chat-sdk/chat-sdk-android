@@ -58,13 +58,21 @@ publish {
     website = GIT_URL
 }
 
+rootProject.allprojects {
+    repositories {
+        maven { url "https://jitpack.io" }
+        maven { url "http://dl.bintray.com/chat-sdk/chatkit" }
+        maven { url "http://dl.bintray.com/chat-sdk/matisse"}
+        maven { url "https://dl.bintray.com/chat-sdk/keyboardvisibilityevent" }
+    }
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(':chat-sdk-core')
 
     implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
     implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
-    implementation "com.google.android.libraries.places:places:$googlePlacesVersion"
     implementation "org.ocpsoft.prettytime:prettytime:$rootProject.ext.prettyTimeVersion"
     implementation "com.theartofdev.edmodo:android-image-cropper:$rootProject.ext.imageCropperVersion"
     implementation "com.github.chrisbanes:PhotoView:$rootProject.ext.photoViewVersion"
@@ -106,3 +114,4 @@ dependencies {
 //    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
 }
+

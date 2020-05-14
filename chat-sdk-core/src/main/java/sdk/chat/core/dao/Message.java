@@ -4,10 +4,10 @@ package sdk.chat.core.dao;
 
 // KEEP INCLUDES - put your token includes here
 
+import android.location.Location;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import com.google.android.gms.maps.model.LatLng;
 
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
@@ -16,23 +16,15 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Unique;
-import org.greenrobot.greendao.query.QueryBuilder;
 import org.pmw.tinylog.Logger;
 
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
-import io.reactivex.Completable;
+import co.chatsdk.core.R;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
-import io.reactivex.functions.Consumer;
 import sdk.chat.core.base.AbstractEntity;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
@@ -41,9 +33,6 @@ import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.types.ReadStatus;
-import sdk.guru.common.RX;
-
-import static sdk.chat.core.dao.DaoCore.daoSession;
 
 @Entity
 public class Message extends AbstractEntity {
@@ -315,10 +304,13 @@ public class Message extends AbstractEntity {
         return false;
     }
 
-    public LatLng getLocation () {
+    public Location getLocation () {
         Double latitude = doubleForKey(Keys.MessageLatitude);
         Double longitude = doubleForKey(Keys.MessageLongitude);
-        return new LatLng(latitude, longitude);
+        Location location = new Location(ChatSDK.getString(R.string.app_name));
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
+        return location;
     }
 
     public void setValueForKey (Object payload, String key) {

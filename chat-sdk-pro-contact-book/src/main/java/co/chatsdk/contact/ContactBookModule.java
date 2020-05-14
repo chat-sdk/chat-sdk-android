@@ -3,10 +3,9 @@ package co.chatsdk.contact;
 import android.content.Context;
 
 import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
-import sdk.guru.common.BaseConfig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
+import sdk.guru.common.BaseConfig;
 
 
 /**
@@ -25,11 +24,11 @@ public class ContactBookModule extends AbstractModule {
      * @see Config
      * @return configuration object
      */
-    public static Config<ContactBookModule> configure() {
+    public static Config<ContactBookModule> builder() {
         return instance.config;
     }
 
-    public static ContactBookModule configure(Configure<Config> config) {
+    public static ContactBookModule builder(Configure<Config> config) {
         config.with(instance.config);
         return instance;
     }
@@ -55,6 +54,13 @@ public class ContactBookModule extends AbstractModule {
             super(onBuild);
         }
 
+        /**
+         * Define custom messages for the contact book module invite
+         * @param inviteEmailSubject
+         * @param inviteEmailBody
+         * @param inviteSmsBody
+         * @return
+         */
         public Config<T> contactBook(String inviteEmailSubject, String inviteEmailBody, String inviteSmsBody) {
             this.contactBookInviteContactEmailSubject = inviteEmailSubject;
             this.contactBookInviteContactEmailBody = inviteEmailBody;

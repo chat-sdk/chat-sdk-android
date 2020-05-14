@@ -124,7 +124,6 @@ dependencies {
 //    api project(path: ':chat-sdk-xmpp-ejabberd-file-storage')
 //    api project(':chat-sdk-image-canvas')
 
-    implementation "com.google.android.libraries.places:places:$googlePlacesVersion"
     implementation "org.greenrobot:greendao:$greenDaoVersion"
 
     // Recommended: Add the Firebase SDK for Google Analytics.
@@ -135,6 +134,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-perf:19.0.7'
 
 }
+
 
 task copyDependencies(type: Copy) {
     from configurations.compile

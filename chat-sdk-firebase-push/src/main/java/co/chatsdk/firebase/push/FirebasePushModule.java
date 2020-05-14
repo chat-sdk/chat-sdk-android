@@ -2,15 +2,12 @@ package co.chatsdk.firebase.push;
 
 import android.content.Context;
 
-
 import androidx.annotation.NonNull;
 
-import co.chatsdk.firebase.module.FirebaseConfig;
 import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
-import sdk.guru.common.BaseConfig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
+import sdk.guru.common.BaseConfig;
 
 
 /**
@@ -29,11 +26,11 @@ public class FirebasePushModule extends AbstractModule {
      * @see Config
      * @return configuration object
      */
-    public static Config<FirebasePushModule> configure() {
+    public static Config<FirebasePushModule> builder() {
         return instance.config;
     }
 
-    public static FirebasePushModule configure(Configure<Config> config) {
+    public static FirebasePushModule builder(Configure<Config> config) {
         config.with(instance.config);
         return instance;
     }
@@ -46,7 +43,12 @@ public class FirebasePushModule extends AbstractModule {
             super(onBuild);
         }
 
-        public Config<T> firebaseFunctionsRegion(String firebaseFunctionsRegion) {
+        /**
+         * Set a custom region
+         * @param firebaseFunctionsRegion
+         * @return
+         */
+        public Config<T> setFirebaseFunctionsRegion(String firebaseFunctionsRegion) {
             this.firebaseFunctionsRegion = firebaseFunctionsRegion;
             return this;
         }

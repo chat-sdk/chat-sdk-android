@@ -29,7 +29,7 @@ dependencies {
 
 ext {
     libraryName = 'Auto'
-    artifact = 'auto'
+    artifact = 'mod-auto'
     libraryDescription = 'Auto'
 }
 

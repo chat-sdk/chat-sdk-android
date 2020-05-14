@@ -5,10 +5,9 @@ import android.content.Context;
 import java.util.concurrent.TimeUnit;
 
 import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
-import sdk.guru.common.BaseConfig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
+import sdk.guru.common.BaseConfig;
 
 
 /**
@@ -27,11 +26,11 @@ public class FirebaseReadReceiptsModule extends AbstractModule {
      * @see Config
      * @return configuration object
      */
-    public static Config<FirebaseReadReceiptsModule> configure() {
+    public static Config<FirebaseReadReceiptsModule> builder() {
         return instance.config;
     }
 
-    public static FirebaseReadReceiptsModule configure(Configure<Config> config) {
+    public static FirebaseReadReceiptsModule builder(Configure<Config> config) {
         config.with(instance.config);
         return instance;
     }
@@ -45,11 +44,22 @@ public class FirebaseReadReceiptsModule extends AbstractModule {
             super(onBuild);
         }
 
+        /**
+         * Max age of a message to listen for read receipts
+         * @param millis
+         * @return
+         */
         public Config<T> setMaxAge(long millis) {
             this.maxAge = millis;
             return this;
         }
 
+        /**
+         * When we load a thread, we will count back from the last message receive
+         * This defines the maximum number of messages to keep the listener active for
+         * @param maxMessages
+         * @return
+         */
         public Config<T> setMaxMessagesPerThread(int maxMessages) {
             this.maxMessagesPerThread = maxMessages;
             return this;

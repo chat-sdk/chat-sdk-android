@@ -1,7 +1,6 @@
 package sdk.chat;
 
 import android.app.Application;
-import android.os.Debug;
 
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
@@ -10,11 +9,8 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import java.util.concurrent.TimeUnit;
 
 import co.chatsdk.contact.ContactBookModule;
-import sdk.chat.location.FirebaseNearbyUsersModule;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.session.Config;
 import co.chatsdk.firebase.blocking.FirebaseBlockingModule;
-import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
+import co.chatsdk.firebase.file_storage.FirebaseUploadModule;
 import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
@@ -27,7 +23,10 @@ import co.chatsdk.typing_indicator.FirebaseTypingIndicatorModule;
 import co.chatsdk.ui.module.DefaultUIModule;
 import io.reactivex.disposables.Disposable;
 import sdk.chat.audio.AudioMessageModule;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.session.Config;
 import sdk.chat.core.utils.Device;
+import sdk.chat.location.FirebaseNearbyUsersModule;
 import sdk.chat.message.video.VideoMessageModule;
 import sdk.chat.ui.extras.ExtrasModule;
 
@@ -52,11 +51,10 @@ public class MainApplication extends Application {
     public void firebase() throws Exception {
         String rootPath = "pre_3";
 
-        Debug.waitForDebugger();
-
-        ChatSDK.builder().configure()
+        ChatSDK.builder()
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
                 .setAnonymousLoginEnabled(false)
+
 //                .setDebugModeEnabled(true)
                 .setRemoteConfigEnabled(false)
                 .setIdenticonType(Config.IdenticonType.RoboHash)
@@ -66,7 +64,7 @@ public class MainApplication extends Application {
 
                 // Add the network adapter module
                 .addModule(
-                        FirebaseModule.configure()
+                        FirebaseModule.builder()
                                 .setFirebaseRootPath(rootPath)
                                 .setDisableClientProfileUpdate(false)
                                 .setEnableCompatibilityWithV4(true)
@@ -75,14 +73,14 @@ public class MainApplication extends Application {
                 )
 
                 // Add the UI module
-                .addModule(DefaultUIModule.configure()
+                .addModule(DefaultUIModule.builder()
                         .setPublicRoomCreationEnabled(true)
                         .setPublicRoomsEnabled(true)
                         .build()
                 )
 
                 // Add modules to handle file uploads, push notifications
-                .addModule(FirebaseFileStorageModule.shared())
+                .addModule(FirebaseUploadModule.shared())
                 .addModule(FirebasePushModule.shared())
                 .addModule(ProfilePicturesModule.shared())
 
@@ -98,13 +96,13 @@ public class MainApplication extends Application {
                 .addModule(FirebaseReadReceiptsModule.shared())
                 .addModule(FirebaseTypingIndicatorModule.shared())
 
-                .addModule(ExtrasModule.configure(config -> {
+                .addModule(ExtrasModule.builder(config -> {
                     if (Device.honor(this)) {
                         config.setDrawerEnabled(false);
                     }
                 }))
 
-                .addModule(FirebaseUIModule.configure()
+                .addModule(FirebaseUIModule.builder()
                         .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)
                         .build()
                 )
@@ -112,6 +110,7 @@ public class MainApplication extends Application {
                 // Activate
                 .build()
                 .activate(this);
+
 
         Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {
             networkEvent.debug();
@@ -124,10 +123,10 @@ public class MainApplication extends Application {
         FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true);
         FirebaseCrashlytics.getInstance().log("Start");
 //            TestScript.run(context, config.firebaseRootPath);
-//            new DummyData(200, 50);
+//            new DummyData(20z23,!Bear
+//            0, 50);
 
 //            ChatSDK.ui().addChatOption(new MessageTestChatOption("BaseMessage Burst"));
-
 
     }
 

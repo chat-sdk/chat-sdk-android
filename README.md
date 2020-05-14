@@ -56,6 +56,7 @@ Sponsor us on either Github Sponsors or Paetron and get these features:
 - User blocking [⇘GIF](https://giphy.com/gifs/blocking-chat-sdk-SSiqIHMBddhbyt5US9)
 - File Messages [⇘GIF](https://giphy.com/gifs/chat-sdk-file-message-ihAaHtT8POJElt47A7)
 - End-to-end encryption
+- Nearby Users
 - Contact book integration [⇘GIF](https://giphy.com/gifs/TgbLHgDIwcuGX9SDuV)
 - Location based chat [⇘GIF](https://giphy.com/gifs/chat-sdk-nearby-users-J5qXSwAhkjLx0Aqk4O)
 - XMPP Server Support
@@ -86,20 +87,29 @@ You can also help us by:
 + Writing documentation
 
 ## Documentation
-### Getting started
+
+#### Quick Start
+
+1. Building a messaging app using Chat SDK
+2. Adding Chat SDK to a Firebase app
+3. Adding Chat SDK to a non-Firebase app
 
 #### Integration
 
-- Use Chat SDK to make a Chat app
-- Add Chat SDK to your Firebase app
-- Add Chat SDK to your non-Firebase app
+1. Add the Chat SDK libraries to your app
+2. Configure Firebase
+3. Configure the Chat SDK
+4. Displaying / customizing the login screen
+5. Enable file uploads with Firebase Cloud Storage
+6. Enable push notifications with Firebase Cloud Messaging
 
 #### Customization
 
 - Chat SDK Configuration 
 - UI Customization
 - UI Components
-- Custom Authentication
+- Custom Authentication using token
+- Chat SDK API
  
 
 ### API and Customization
@@ -119,56 +129,9 @@ For more information check out our [consulting site](https://chat-sdk.github.io/
 - [API Documentation](https://github.com/chat-sdk/docs)
 - [Code Examples](https://github.com/chat-sdk/chat-sdk-android/blob/master/app/src/main/java/co/chatsdk/android/app/ApiExamples.java)
 
-
-
-## Modules
-
-The Chat SDK has a number of additional modules that can easily be installed including:
-
-Free:
-
-- [Push Notifications](https://github.com/chat-sdk/chat-sdk-android#push-notifications)
-- [File Storage](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat-sdk-firebase-file-storage) 
-- [Firebase UI](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat-sdk-firebase-ui) 
-
-Paid:
-
-- [End-To-End Encryption](https://chatsdk.co/end-to-end-encryption/)
-- [File Messages](http://chatsdk.co/file-messages/)
-- [Typing indicator](http://chatsdk.co/typing-indicator/)
-- [Read receipts](http://chatsdk.co/read-receipts/)
-- [Location based chat](http://chatsdk.co/location-based-chat/)
-- [Last Online Indicator](https://chatsdk.co/firebase-last-online-indicator/)
-- [Audio messages](http://chatsdk.co/audio-messages/)
-- [Video messages](http://chatsdk.co/video-messages/)
-- [Sticker messages](https://chatsdk.co/sticker-messages/)
-- [Contact book integration](https://chatsdk.co/contact-book-integration/)
-- [User Blocking](http://chatsdk.co/user-blocking/)
-
-## Support the project
-
- 
- 
-## Get involved!
-
-## Apps that use Chat SDK
-
-+ [CryptoFolio](https://play.google.com/store/apps/details?id=com.happycoderz.cryptofolio)
-+ [Parlor](http://parlor.me/)
-+ [Voice - Instant Messaging App](https://play.google.com/store/apps/details?id=com.skintmedia.voice&hl=en_GB)
-+ [Nex Tv Latino](https://play.google.com/store/apps/details?id=com.helpdevs.nexttv)
-
-If you have an app that uses the Chat SDK let us know and we'll add a link. 
-
-## Quick Start
-
-This repository contains a fully functional version of the Chat SDK which is configured using our Firebase account and social media logins. This is great way to test the features of the Chat SDK before you start integrating it with your app. 
-
 ### Setup Service
 
 We provide extensive documentation on Github but if you’re a non-technical user or want to save yourself some work you can take advantage of our [setup and integration service](http://chatsdk.co/downloads/chat-sdk-setup-service/).
-
-
 
 # Next Steps
 
@@ -264,7 +227,7 @@ After you have purchased the module you will be provided with a link to the modu
 2. Add the module to your `build.gradle`
 
   ```
-  compile project(':chat_sdk_[module name]')
+  compile project(path: ':chat_sdk_[module name]')
   ```
   
 3. Sync Gradle
@@ -303,8 +266,8 @@ And any of the following optional modules:
 Now import the modules in your `build.gradle` file. 
 
 ```
-compile project(':chat-sdk-ui')
-compile project(':chat-sdk-firebase-push')
+compile project(path: ':chat-sdk-ui')
+compile project(path: ':chat-sdk-firebase-push')
 ``` 
 
 If you want to import modules manually, you should add the following to your `gradle.properties` file:

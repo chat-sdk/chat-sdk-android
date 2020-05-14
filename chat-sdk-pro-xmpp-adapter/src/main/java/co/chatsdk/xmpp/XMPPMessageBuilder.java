@@ -1,6 +1,7 @@
 package co.chatsdk.xmpp;
 
-import com.google.android.gms.maps.model.LatLng;
+
+import android.location.Location;
 
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.StandardExtensionElement;
@@ -8,6 +9,7 @@ import org.jivesoftware.smack.packet.StandardExtensionElement;
 import java.util.HashMap;
 
 import co.chatsdk.xmpp.defines.XMPPDefines;
+import sdk.chat.core.utils.GoogleUtils;
 
 /**
  * Created by benjaminsmiley-andrews on 11/07/2017.
@@ -31,9 +33,8 @@ public class XMPPMessageBuilder {
         return this;
     }
 
-    public XMPPMessageBuilder setLocation (LatLng latLng) {
-        // TODO: Replace with getMapWebURL
-        message.setBody("http://maps.google.com/maps?z=12&t=m&q=loc:" + latLng.latitude + "+" + latLng.longitude);
+    public XMPPMessageBuilder setLocation (Location latLng) {
+        message.setBody(GoogleUtils.getMapWebURL(latLng));
         return this;
     }
 

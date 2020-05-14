@@ -1,7 +1,8 @@
 package sdk.chat.core.base;
 
-import com.google.android.gms.maps.model.LatLng;
+import android.location.Location;
 
+import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -10,7 +11,6 @@ import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.utils.GoogleUtils;
-import io.reactivex.Completable;
 
 /**
  * Created by ben on 10/24/17.
@@ -19,14 +19,14 @@ import io.reactivex.Completable;
 public class BaseLocationMessageHandler extends AbstractMessageHandler implements LocationMessageHandler {
 
     @Override
-    public Completable sendMessageWithLocation(final String filePath, final LatLng location, final Thread thread) {
+    public Completable sendMessageWithLocation(final String filePath, final Location location, final Thread thread) {
         return new MessageSendRig(new MessageType(MessageType.Location), thread, message -> {
 
             int maxSize = ChatSDK.config().imageMaxThumbnailDimension;
             String imageURL = GoogleUtils.getMapImageURL(location, maxSize, maxSize);
 
-            message.setValueForKey(location.longitude, Keys.MessageLongitude);
-            message.setValueForKey(location.latitude, Keys.MessageLatitude);
+            message.setValueForKey(location.getLongitude(), Keys.MessageLongitude);
+            message.setValueForKey(location.getLatitude(), Keys.MessageLatitude);
             message.setValueForKey(maxSize, Keys.MessageImageWidth);
             message.setValueForKey(maxSize, Keys.MessageImageHeight);
             message.setValueForKey(imageURL, Keys.MessageImageURL);

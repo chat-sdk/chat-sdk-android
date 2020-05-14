@@ -48,86 +48,142 @@ public class UIConfig<T> extends BaseConfig<T> {
         super(onBuild);
     }
 
+    /**
+     * Customize the app theme
+     * @param theme
+     * @return
+     */
     public UIConfig<T> setTheme(@StyleRes int theme) {
         this.theme = theme;
         return this;
     }
 
+    /**
+     * Enable the image cropper
+     * @param enabled
+     * @return
+     */
     public UIConfig<T> setImageCroppingEnabled(boolean enabled) {
         this.imageCroppingEnabled = enabled;
         return this;
     }
 
+    /**
+     * Show the reset password button
+     * @param resetPasswordEnabled
+     * @return
+     */
     public UIConfig<T> setResetPasswordEnabled(boolean resetPasswordEnabled) {
         this.resetPasswordEnabled = resetPasswordEnabled;
         return this;
     }
 
+    /**
+     * Allow users to create public chat rooms
+     * @param value
+     * @return
+     */
     public UIConfig<T> setPublicRoomCreationEnabled(boolean value) {
         this.publicRoomCreationEnabled = value;
         return this;
     }
 
+    /**
+     * Enable public chat rooms
+     * @param value
+     * @return
+     */
     public UIConfig<T> setPublicRoomsEnabled(boolean value) {
         this.publicRoomRoomsEnabled = value;
         return this;
     }
 
-//    public UIConfig<T> unreadMessagesCountForPublicChatRoomsEnabled(boolean value) {
-//        this.unreadMessagesCountForPublicChatRoomsEnabled = value;
-//        return this;
-//    }
-
+    /**
+     * Enable image messages
+     * @param value
+     * @return
+     */
     public UIConfig<T> setImageMessagesEnabled(boolean value) {
         this.imageMessagesEnabled = value;
         return this;
     }
 
+    /**
+     * Enable location messages
+     * @param value
+     * @return
+     */
     public UIConfig<T> setLocationMessagesEnabled(boolean value) {
         this.locationMessagesEnabled = value;
         return this;
     }
 
+    /**
+     * Allow group chats
+     * @param value
+     * @return
+     */
     public UIConfig<T> setGroupsEnabled(boolean value) {
         this.groupsEnabled = value;
         return this;
     }
 
+    /**
+     * Allow the user to see thread details screen
+     * @param value
+     * @return
+     */
     public UIConfig<T> setThreadDetailsEnabled(boolean value) {
         this.threadDetailsEnabled = value;
         return this;
     }
 
+    /**
+     * Automatically save images to directory
+     * @param value
+     * @return
+     */
     public UIConfig<T> setSaveImagesToDirectoryEnabled(boolean value) {
         this.saveImagesToDirectory = value;
         return this;
     }
 
+    /**
+     * Date format used for Chat Activity
+     * default is yyyy-MM-dd HH:mm:ss
+     * @param format
+     * @return
+     */
     public UIConfig<T> setDateFormat(String format) {
         this.dateFormat = format;
         return this;
     }
 
-    public UIConfig<T> setSetDefaultProfileImage(@DrawableRes int res) {
+    /**
+     * Default profile image resource
+     * @param res
+     * @return
+     */
+    public UIConfig<T> setDefaultProfileImage(@DrawableRes int res) {
         this.defaultProfileImage = res;
         return this;
     }
 
+    /**
+     * Default profile header image
+     * @param profileHeaderImage
+     * @return
+     */
     public UIConfig<T> setProfileHeaderImage(int profileHeaderImage) {
         this.profileHeaderImage = profileHeaderImage;
         return this;
     }
 
-    public UIConfig<T> setDefaultProfileImage(int defaultProfileImage) {
-        this.defaultProfileImage = defaultProfileImage;
-        return this;
-    }
-
-    public UIConfig<T> setSaveImagesToDirectory(boolean saveImagesToDirectory) {
-        this.saveImagesToDirectory = saveImagesToDirectory;
-        return this;
-    }
-
+    /**
+     * Hint used on Login screen for username
+     * @param usernameHint
+     * @return
+     */
     public UIConfig<T> setUsernameHint(String usernameHint) {
         this.usernameHint = usernameHint;
         return this;

@@ -6,22 +6,21 @@ import android.view.View;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import sdk.chat.core.dao.Message;
-import sdk.chat.core.handlers.MessageHandler;
-import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.session.Configure;
-import sdk.chat.core.types.MessageType;
 import co.chatsdk.message.sticker.R;
-import co.chatsdk.message.sticker.integration.StickerMessageHolder;
 import co.chatsdk.message.sticker.integration.BaseStickerMessageHandler;
 import co.chatsdk.message.sticker.integration.IncomingStickerMessageViewHolder;
 import co.chatsdk.message.sticker.integration.OutcomingStickerMessageViewHolder;
 import co.chatsdk.message.sticker.integration.StickerChatOption;
+import co.chatsdk.message.sticker.integration.StickerMessageHolder;
 import co.chatsdk.ui.chat.model.MessageHolder;
 import co.chatsdk.ui.custom.Customiser;
 import co.chatsdk.ui.custom.IMessageHandler;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.handlers.MessageHandler;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.session.Configure;
+import sdk.chat.core.types.MessageType;
 import sdk.guru.common.BaseConfig;
 
 /**
@@ -96,11 +95,11 @@ public class StickerMessageModule extends AbstractModule {
      * @see Config
      * @return configuration object
      */
-    public static Config<StickerMessageModule> configure() {
+    public static Config<StickerMessageModule> builder() {
         return instance.config;
     }
 
-    public static StickerMessageModule configure(Configure<Config> config) {
+    public static StickerMessageModule builder(Configure<Config> config) {
         config.with(instance.config);
         return instance;
     }

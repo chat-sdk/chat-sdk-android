@@ -2,19 +2,17 @@ package co.chatsdk.xmpp.module;
 
 import android.content.Context;
 
-import sdk.chat.core.base.BaseNetworkAdapter;
-import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
-import sdk.chat.core.interfaces.InterfaceAdapter;
-
-import sdk.chat.core.session.Configure;
-import sdk.chat.core.session.InterfaceAdapterProvider;
-import sdk.chat.core.session.NetworkAdapterProvider;
 import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.module.UIConfig;
 import co.chatsdk.xmpp.R;
 import co.chatsdk.xmpp.handlers.XMPPNetworkAdapter;
 import co.chatsdk.xmpp.ui.XMPPInterfaceAdapter;
+import sdk.chat.core.base.BaseNetworkAdapter;
+import sdk.chat.core.interfaces.InterfaceAdapter;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.session.Configure;
+import sdk.chat.core.session.InterfaceAdapterProvider;
+import sdk.chat.core.session.NetworkAdapterProvider;
 
 /**
  * Created by benjaminsmiley-andrews on 12/07/2017.
@@ -32,7 +30,7 @@ public class XMPPModule extends AbstractModule implements NetworkAdapterProvider
      * @see XMPPConfig
      * @return configuration object
      */
-    public static XMPPConfig<XMPPModule> configure() {
+    public static XMPPConfig<XMPPModule> builder() {
         return instance.config;
     }
 

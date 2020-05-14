@@ -28,7 +28,6 @@ ext {
     materialVersion = "1.1.0"
     playAuthVersion = "17.0.0"
     playMapsVersion = "17.0.0"
-    googlePlacesVersion = "2.2.0"
     playLocationVersion = "17.0.0"
     firebaseUiVersion = "4.3.2"
     firebaseCoreVersion = "17.4.1"
@@ -88,13 +87,9 @@ allprojects {
     }
     repositories {
         google()
-        maven { url "https://jitpack.io" }
+//        maven { url "https://jitpack.io" }
         maven { url "http://dl.bintray.com/chat-sdk/chat-sdk-android" }
-        maven { url "http://dl.bintray.com/chat-sdk/chatkit" }
-        maven { url "http://dl.bintray.com/chat-sdk/matisse"}
-        maven { url "http://dl.bintray.com/chat-sdk/dexter"}
-        maven { url "https://dl.bintray.com/mikepenz/maven" }
-        maven { url "https://dl.bintray.com/chat-sdk/keyboardvisibilityevent" }
+
         jcenter()
     }
 }

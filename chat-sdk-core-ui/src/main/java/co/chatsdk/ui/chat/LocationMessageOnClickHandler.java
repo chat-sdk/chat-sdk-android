@@ -3,9 +3,8 @@ package co.chatsdk.ui.chat;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.location.Location;
 import android.net.Uri;
-
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Locale;
 
@@ -18,9 +17,9 @@ import co.chatsdk.ui.utils.ToastHelper;
 
 public class LocationMessageOnClickHandler {
 
-    public static void onClick (Activity activity, LatLng latLng) {
+    public static void onClick (Activity activity, Location latLng) {
         try {
-            String uri = String.format(Locale.ENGLISH, "geo:%f,%f?q=%f,%f (%s)", latLng.latitude, latLng.longitude, latLng.latitude, latLng.longitude, "Mark");
+            String uri = String.format(Locale.ENGLISH, "geo:%f,%f?q=%f,%f (%s)", latLng.getLatitude(), latLng.getLongitude(), latLng.getLatitude(), latLng.getLongitude(), "Mark");
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
             activity.startActivity(intent);
         } catch (ActivityNotFoundException e) {

@@ -16,15 +16,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import chatsdk.co.chat_sdk_firebase_ui.R;
+import co.chatsdk.firebase.FirebaseCoreHandler;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
-import sdk.guru.common.BaseConfig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
+import sdk.guru.common.BaseConfig;
 import sdk.guru.common.DisposableMap;
-import co.chatsdk.firebase.FirebaseCoreHandler;
 
 /**
  * Created by ben on 1/2/18.
@@ -42,11 +41,11 @@ public class FirebaseUIModule extends AbstractModule {
      * @see Config
      * @return configuration object
      */
-    public static Config<FirebaseUIModule> configure() {
+    public static Config<FirebaseUIModule> builder() {
         return instance.config;
     }
 
-    public static FirebaseUIModule configure(Configure<Config> config) {
+    public static FirebaseUIModule builder(Configure<Config> config) {
         config.with(instance.config);
         return instance;
     }
@@ -58,6 +57,11 @@ public class FirebaseUIModule extends AbstractModule {
             super(onBuild);
         }
 
+        /**
+         * Set available providers
+         * @param providers
+         * @return
+         */
         public Config<T> setProviders(String... providers) {
             this.providers.addAll(Arrays.asList(providers));
             return this;

@@ -55,8 +55,8 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
     }
 
     public static FirebaseStorage storage () {
-        if (FirebaseFileStorageModule.config().firebaseStorageUrl != null) {
-            return FirebaseStorage.getInstance(FirebaseCoreHandler.app(), FirebaseFileStorageModule.config().firebaseStorageUrl);
+        if (FirebaseUploadModule.config().firebaseStorageUrl != null) {
+            return FirebaseStorage.getInstance(FirebaseCoreHandler.app(), FirebaseUploadModule.config().firebaseStorageUrl);
         } else {
             return FirebaseStorage.getInstance(FirebaseCoreHandler.app());
         }

@@ -1,9 +1,9 @@
 package sdk.chat.core.handlers;
 
-import com.google.android.gms.maps.model.LatLng;
+import android.location.Location;
 
-import sdk.chat.core.dao.Thread;
 import io.reactivex.Completable;
+import sdk.chat.core.dao.Thread;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
@@ -21,7 +21,7 @@ public interface LocationMessageHandler extends MessageHandler {
      * @param location     is the Latitude and Longitude of the picked location.
      * @param thread       the thread that the text is sent to.
      */
-    Completable sendMessageWithLocation(final String filePath, final LatLng location, final Thread thread);
+    Completable sendMessageWithLocation(final String filePath, final Location location, final Thread thread);
 
 
 }

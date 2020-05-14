@@ -13,11 +13,11 @@ import io.reactivex.Observable;
 public abstract class AbstractSearchHandler implements SearchHandler {
 
     public Observable<User> usersForIndex(final String value) {
-        return usersForIndex(value, ChatSDK.config().contactsToLoadPerBatch);
+        return usersForIndex(value, ChatSDK.config().userSearchLimit);
     }
 
     public Observable<User> usersForIndexes(final String value, final String... indexes) {
-        return usersForIndexes(value, ChatSDK.config().contactsToLoadPerBatch, indexes);
+        return usersForIndexes(value, ChatSDK.config().userSearchLimit, indexes);
     }
 
     @Override
@@ -26,11 +26,11 @@ public abstract class AbstractSearchHandler implements SearchHandler {
     }
 
     public Observable<User> usersForIndexes(final String value, List<String> indexes) {
-        return usersForIndexes(value, ChatSDK.config().contactsToLoadPerBatch, indexes);
+        return usersForIndexes(value, ChatSDK.config().userSearchLimit, indexes);
     }
 
     public Observable<User> usersForIndex(final String value, final String index) {
-        return usersForIndex(value, ChatSDK.config().contactsToLoadPerBatch, index);
+        return usersForIndex(value, ChatSDK.config().userSearchLimit, index);
     }
 
     public Observable<User> usersForIndexes(String value, int limit, List<String> indexes) {

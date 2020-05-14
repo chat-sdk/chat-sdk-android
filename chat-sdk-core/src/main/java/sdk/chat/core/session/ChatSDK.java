@@ -104,12 +104,16 @@ public class ChatSDK {
      * the first that does will be used and any subsequent provider will be ignored.
      * @return
      */
-    public static ConfigBuilder<ChatSDK> builder() {
+    public static Config<ConfigBuilder<ChatSDK>> builder() {
          shared().builder = new ConfigBuilder<>(shared());
-        return shared().builder;
+        return shared().builder.builder();
     }
 
     public void activate(Context context) throws Exception {
+        activate(context, null);
+    }
+
+    public void activate(Context context, @Nullable String email) throws Exception {
         setContext(context);
 
         config = builder.config();

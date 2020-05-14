@@ -6,10 +6,9 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 
 import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
-import sdk.guru.common.BaseConfig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
+import sdk.guru.common.BaseConfig;
 
 
 public class ExtrasModule extends AbstractModule {
@@ -24,11 +23,11 @@ public class ExtrasModule extends AbstractModule {
      * @see Config
      * @return configuration object
      */
-    public static Config<ExtrasModule> configure() {
+    public static Config<ExtrasModule> builder() {
         return instance.config;
     }
 
-    public static ExtrasModule configure(Configure<Config> config) {
+    public static ExtrasModule builder(Configure<Config> config) {
         config.with(instance.config);
         return instance;
     }
@@ -47,11 +46,21 @@ public class ExtrasModule extends AbstractModule {
             super(onBuild);
         }
 
+        /**
+         * Enable the navigation drawer
+         * @param value
+         * @return
+         */
         public Config<T> setDrawerEnabled(boolean value) {
             drawerEnabled = value;
             return this;
         }
 
+        /**
+         * Set the default drawer header image
+         * @param res
+         * @return
+         */
         public Config<T> setDrawerHeaderImage(@DrawableRes int res) {
             drawerHeaderImage = res;
             return this;

@@ -1,4 +1,7 @@
 include 'app',
+        'chat-sdk-app-firestream',
+        'chat-sdk-app-firebase',
+        'chat-sdk-app-xmpp',
         'chat-sdk-core',
         'chat-sdk-core-ui',
         'chat-sdk-firebase-adapter',

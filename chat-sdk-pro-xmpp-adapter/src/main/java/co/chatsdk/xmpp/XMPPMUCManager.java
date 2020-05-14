@@ -167,7 +167,7 @@ public class XMPPMUCManager {
                     config.requestHistorySince(lastMessageDate);
                 }
                 else {
-                    config.requestMaxStanzasHistory(XMPPModule.config().mucMessageHistory);
+                    config.requestMaxStanzasHistory(XMPPModule.config().mucMessageHistoryDownloadLimit);
                 }
 
                 XMPPMUCMessageListener chatMessageListener = getMessageListener(thread.getEntityID());

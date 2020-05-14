@@ -20,8 +20,8 @@ import butterknife.BindView;
 import co.chatsdk.ui.activities.BaseActivity;
 import co.chatsdk.ui.fragments.BaseFragment;
 import co.chatsdk.xmpp.fragments.XMPPConfigureFragment;
-import sdk.chat.micro.R;
-import sdk.chat.micro.R2;
+import sdk.chat.realtime.R;
+import sdk.chat.realtime.R2;
 import sdk.guru.common.RX;
 
 import static androidx.fragment.app.FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT;

@@ -17,19 +17,11 @@ import com.google.android.exoplayer2.Player;
 
 import org.pmw.tinylog.Logger;
 
-import java.util.concurrent.TimeUnit;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.Completable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
+import co.chatsdk.ui.icons.Icons;
 import sdk.chat.core.audio.AudioPlayer;
 import sdk.guru.common.DisposableMap;
-import co.chatsdk.message.audio.R;
-import co.chatsdk.message.audio.R2;
-import co.chatsdk.ui.icons.Icons;
-import sdk.guru.common.RX;
 
 import static com.google.android.exoplayer2.Player.STATE_ENDED;
 import static com.google.android.exoplayer2.Player.STATE_READY;

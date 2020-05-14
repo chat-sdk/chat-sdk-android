@@ -1,20 +1,17 @@
 package co.chatsdk.ui.chat;
 
 import android.app.Activity;
+import android.location.Location;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.gms.maps.model.LatLng;
-
-
-
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.utils.Dimen;
-import sdk.chat.core.utils.GoogleUtils;
 import co.chatsdk.ui.R;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.disposables.Disposable;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.Dimen;
+import sdk.chat.core.utils.GoogleUtils;
 
 /**
  * Created by benjaminsmiley-andrews on 23/05/2017.
@@ -29,22 +26,21 @@ public class LocationSelector {
     protected Disposable disposable;
 
     public class Result {
-        public LatLng latLng;
+        public Location latLng;
         public String snapshotPath;
-        public Result (LatLng latLng, String snapshotPath) {
-            this.latLng = latLng;
+        public Result (Location location, String snapshotPath) {
+            this.latLng = location;
             this.snapshotPath = snapshotPath;
         }
     }
 
     public Single<Result> startChooseLocationActivity (Activity activity) {
         return ChatSDK.locationProvider().getLastLocation(activity).map(location -> {
-            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
             int width = Dimen.from(activity, R.dimen.message_image_width);
             int height = Dimen.from(activity, R.dimen.message_image_height);
 
-            return new Result(latLng, GoogleUtils.getMapImageURL(latLng, width, height));
+            return new Result(location, GoogleUtils.getMapImageURL(location, width, height));
         });
 
 //        return Single.create(emitter -> {

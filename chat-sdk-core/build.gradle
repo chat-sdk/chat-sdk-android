@@ -59,6 +59,16 @@ publish {
     website = GIT_URL
 }
 
+rootProject.allprojects {
+    repositories {
+        google()
+        jcenter()
+        maven { url "https://jitpack.io" }
+        maven { url "http://dl.bintray.com/chat-sdk/dexter" }
+        maven { url "https://dl.bintray.com/mikepenz/maven" }
+    }
+}
+
 dependencies {
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -90,3 +100,5 @@ dependencies {
 //    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
 }
+
+

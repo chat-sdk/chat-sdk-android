@@ -7,14 +7,13 @@ import androidx.fragment.app.Fragment;
 import co.chatsdk.firebase.nearby_users.R;
 import co.chatsdk.ui.icons.Icons;
 import sdk.chat.core.Tab;
-import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
-import sdk.chat.core.utils.AppBackgroundMonitor;
-import sdk.guru.common.BaseConfig;
+import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
+import sdk.chat.core.utils.AppBackgroundMonitor;
+import sdk.guru.common.BaseConfig;
 
 
 /**
@@ -33,11 +32,11 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
      * @see Config
      * @return configuration object
      */
-    public static Config<FirebaseNearbyUsersModule> configure() {
+    public static Config<FirebaseNearbyUsersModule> builder() {
         return instance.config;
     }
 
-    public static FirebaseNearbyUsersModule configure(Configure<Config> config) {
+    public static FirebaseNearbyUsersModule builder(Configure<Config> config) {
         config.with(instance.config);
         return instance;
     }

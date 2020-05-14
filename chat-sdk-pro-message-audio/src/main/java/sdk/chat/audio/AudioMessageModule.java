@@ -8,16 +8,16 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 
 import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
 import cafe.adriel.androidaudioconverter.callback.ILoadCallback;
-import sdk.chat.core.dao.Message;
-import sdk.chat.core.handlers.MessageHandler;
-import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.MessageType;
-import co.chatsdk.message.audio.R;
 import co.chatsdk.ui.chat.model.MessageHolder;
 import co.chatsdk.ui.custom.Customiser;
 import co.chatsdk.ui.custom.IMessageHandler;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.handlers.MessageHandler;
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.session.Configure;
+import sdk.chat.core.types.MessageType;
+import sdk.guru.common.BaseConfig;
 
 /**
  * Created by ben on 9/28/17.
@@ -30,6 +30,45 @@ public class AudioMessageModule extends AbstractModule {
     public static AudioMessageModule shared() {
         return instance;
     }
+
+    /**
+     * @see Config
+     * @return configuration object
+     */
+    public static Config<AudioMessageModule> builder() {
+        return instance.config;
+    }
+
+    public static AudioMessageModule builder(Configure<Config> config) {
+        config.with(instance.config);
+        return instance;
+    }
+
+    public static class Config<T> extends BaseConfig<T> {
+
+        public boolean compressionEnabled = true;
+
+        public Config(T onBuild) {
+            super(onBuild);
+        }
+
+        /**
+         * Set audio compression enabled
+         * @param compressionEnabled
+         * @return
+         */
+        public Config<T> setCompressionEnabled(boolean compressionEnabled) {
+            this.compressionEnabled = compressionEnabled;
+            return this;
+        }
+
+    }
+
+    public static Config config() {
+        return shared().config;
+    }
+
+    protected Config<AudioMessageModule> config = new Config<>(this);
 
     @Override
     public void activate(Context context) {
@@ -91,5 +130,6 @@ public class AudioMessageModule extends AbstractModule {
     public MessageHandler getMessageHandler() {
         return ChatSDK.audioMessage();
     }
+
 
 }

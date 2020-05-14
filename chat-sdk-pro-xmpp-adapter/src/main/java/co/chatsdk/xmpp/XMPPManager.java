@@ -401,7 +401,7 @@ public class XMPPManager {
         }}).subscribe(ChatSDK.events());
 
         if (ChatSDK.thread().getThreads(ThreadType.Private1to1).isEmpty()) {
-            dm.add(mamManager.getMessageArchive(ChatSDK.currentUserID(), ChatSDK.config().messageHistoryDownloadLimit).subscribe((messages, throwable) -> {
+            dm.add(mamManager.getMessageArchive(ChatSDK.currentUserID(), XMPPModule.config().messageHistoryDownloadLimit).subscribe((messages, throwable) -> {
                 if (throwable == null) {
                     XMPPMessageParser.parse(messages);
                 }
@@ -423,10 +423,6 @@ public class XMPPManager {
         String securityModeString = XMPPModule.shared().config.securityMode;
 
         ConnectionConfiguration.SecurityMode securityMode = ConnectionConfiguration.SecurityMode.valueOf(securityModeString);
-
-        // Check to see if there are server settings in user preferences
-        ServerKeyStorage storage = new ServerKeyStorage(ChatSDK.ctx());
-
 
         InetAddress hostAddress = InetAddress.getByName(server.address);
 

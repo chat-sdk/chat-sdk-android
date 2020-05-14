@@ -4,13 +4,13 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
+import co.chatsdk.ui.BaseInterfaceAdapter;
 import sdk.chat.core.interfaces.InterfaceAdapter;
-
+import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.session.InterfaceAdapterProvider;
-import co.chatsdk.ui.BaseInterfaceAdapter;
+import sdk.chat.core.utils.StringChecker;
 
 public class DefaultUIModule extends AbstractModule implements InterfaceAdapterProvider {
 
@@ -24,11 +24,11 @@ public class DefaultUIModule extends AbstractModule implements InterfaceAdapterP
      * @see UIConfig
      * @return configuration object
      */
-    public static UIConfig<DefaultUIModule> configure() {
+    public static UIConfig<DefaultUIModule> builder() {
         return instance.config;
     }
 
-    public static DefaultUIModule configure(Configure<UIConfig> config) {
+    public static DefaultUIModule builder(Configure<UIConfig> config) {
         config.with(instance.config);
         return instance;
     }
@@ -37,7 +37,9 @@ public class DefaultUIModule extends AbstractModule implements InterfaceAdapterP
 
     @Override
     public void activate(@Nullable Context context) {
-
+        if (StringChecker.isNullOrEmpty(ChatSDK.config().googleMapsApiKey)) {
+            config.locationMessagesEnabled = false;
+        }
     }
 
     @Override

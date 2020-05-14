@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import co.chatsdk.contact.ContactBookModule;
-import co.chatsdk.firestream.FirestreamModule;
+import co.chatsdk.firestream.FireStreamModule;
 import co.chatsdk.xmpp.module.XMPPModule;
 import co.chatsdk.xmpp.read_receipt.XMPPReadReceiptsModule;
 import firestream.chat.FirestreamConfig;
@@ -22,7 +22,7 @@ import sdk.chat.core.session.Config;
 
 import sdk.chat.core.session.Configure;
 import co.chatsdk.firebase.blocking.FirebaseBlockingModule;
-import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
+import co.chatsdk.firebase.file_storage.FirebaseUploadModule;
 import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
@@ -177,7 +177,7 @@ public class DemoConfigBuilder {
 
         // Backend module
         if (backend == Backend.FireStream) {
-            modules.add(FirestreamModule.configure(config -> config
+            modules.add(FireStreamModule.builder(config -> config
                     .setRoot(database == Database.Realtime ? "live_firestream_realtime" : "live_firestream_firestore")
                     .setSandbox("firestream")
                     .setStartListeningFromLastSentMessageDateEnabled(false)
@@ -188,7 +188,7 @@ public class DemoConfigBuilder {
             ));
         }
         if (backend == Backend.Firebase) {
-            FirebaseModule fb = FirebaseModule.configure()
+            FirebaseModule fb = FirebaseModule.builder()
                     .setFirebaseRootPath("live_firebase").build();
 
             modules.add(fb);
@@ -207,14 +207,14 @@ public class DemoConfigBuilder {
             };
 
             if (backend == Backend.XMPP) {
-                modules.add(Testing.myOpenFire(XMPPModule.configure()).build().configureUI(uiConfigConfigure));
+                modules.add(Testing.myOpenFire(XMPPModule.builder()).build().configureUI(uiConfigConfigure));
                 modules.add(XMPPReadReceiptsModule.shared());
             } else {
-                modules.add(DefaultUIModule.configure(uiConfigConfigure));
+                modules.add(DefaultUIModule.builder(uiConfigConfigure));
             }
 
             if (loginStyle == LoginStyle.FirebaseUI) {
-                modules.add(FirebaseUIModule.configure(config -> config
+                modules.add(FirebaseUIModule.builder(config -> config
                             .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)
                 ));
             }
@@ -222,7 +222,7 @@ public class DemoConfigBuilder {
                 modules.add(ExtrasModule.shared());
             }
 
-            ChatSDK.builder().configure()
+            ChatSDK.builder()
 
                     // Configure the library
                     .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
@@ -236,7 +236,7 @@ public class DemoConfigBuilder {
                     .addModules(modules)
 
                     // Add modules to handle file uploads, push notifications
-                    .addModule(FirebaseFileStorageModule.shared())
+                    .addModule(FirebaseUploadModule.shared())
                     .addModule(FirebasePushModule.shared())
                     .addModule(ProfilePicturesModule.shared())
 

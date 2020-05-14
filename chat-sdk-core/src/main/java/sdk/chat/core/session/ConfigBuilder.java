@@ -5,6 +5,7 @@ package sdk.chat.core.session;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import sdk.chat.core.base.BaseNetworkAdapter;
@@ -35,7 +36,7 @@ public class ConfigBuilder<T> extends BaseConfig<T> {
         return this;
     }
 
-    public Config<ConfigBuilder<T>> configure() {
+    public Config<ConfigBuilder<T>> builder() {
         return config;
     }
 
@@ -46,6 +47,11 @@ public class ConfigBuilder<T> extends BaseConfig<T> {
 
     public ConfigBuilder<T> addModules(List<Module> modules) {
         this.modules.addAll(modules);
+        return this;
+    }
+
+    public ConfigBuilder<T> addModules(Module... modules) {
+        this.modules.addAll(Arrays.asList(modules));
         return this;
     }
 

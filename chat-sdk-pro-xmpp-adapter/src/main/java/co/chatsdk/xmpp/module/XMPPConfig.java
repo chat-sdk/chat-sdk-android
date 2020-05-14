@@ -1,7 +1,7 @@
 package co.chatsdk.xmpp.module;
 
-import sdk.guru.common.BaseConfig;
 import co.chatsdk.xmpp.utils.XMPPServer;
+import sdk.guru.common.BaseConfig;
 
 public class XMPPConfig<T> extends BaseConfig<T> {
 
@@ -13,14 +13,13 @@ public class XMPPConfig<T> extends BaseConfig<T> {
 //    public boolean xmppAcceptAllCertificates;
 //    public boolean xmppDisableHostNameVerification;
 //    public boolean xmppAllowClientSideAuthentication;
-    public boolean compressionEnabled;
+    public boolean compressionEnabled = true;
     public String securityMode = "disabled";
-    public int mucMessageHistory = 20;
+    public int mucMessageHistoryDownloadLimit = 20;
+    public int messageHistoryDownloadLimit = 30;
     public boolean debugEnabled = false;
 
     public boolean allowServerConfiguration = true;
-
-    public String mucServiceName = "conference";
 
     public XMPPConfig(T onBuild) {
         super(onBuild);
@@ -42,6 +41,14 @@ public class XMPPConfig<T> extends BaseConfig<T> {
         return setXMPP(hostAddress, domain, port, null);
     }
 
+    /**
+     * Set the XMPP server details
+     * @param hostAddress XMPP server address
+     * @param domain XMPP server domain
+     * @param port
+     * @param resource
+     * @return
+     */
     public XMPPConfig<T> setXMPP(String hostAddress, String domain, int port, String resource) {
         this.hostAddress = hostAddress;
         this.domain = domain;
@@ -57,8 +64,23 @@ public class XMPPConfig<T> extends BaseConfig<T> {
 //        return this;
 //    }
 
-    public XMPPConfig<T> setMucMessageHistory(int history) {
-        this.mucMessageHistory = history;
+    /**
+     * How many historic messages to load when joining a multi-user chat
+     * @param limit
+     * @return
+     */
+    public XMPPConfig<T> setMucMessageHistoryDownloadLimit(int limit) {
+        this.mucMessageHistoryDownloadLimit = limit;
+        return this;
+    }
+
+    /**
+     * How many historic 1-to-1 messages to load
+     * @param limit
+     * @return
+     */
+    public XMPPConfig<T> setMessageHistoryDownloadLimit(int limit) {
+        this.messageHistoryDownloadLimit = limit;
         return this;
     }
 
@@ -78,6 +100,12 @@ public class XMPPConfig<T> extends BaseConfig<T> {
 //        return this;
 //    }
 //
+
+    /**
+     * Is XMPP Compression enabled
+     * @param compressionEnabled
+     * @return
+     */
     public XMPPConfig<T> setCompressionEnabled(boolean compressionEnabled) {
         this.compressionEnabled = compressionEnabled;
         return this;
@@ -103,11 +131,11 @@ public class XMPPConfig<T> extends BaseConfig<T> {
         return this;
     }
 
-    public XMPPConfig<T> setMucServiceName(String mucServiceName) {
-        this.mucServiceName = mucServiceName;
-        return this;
-    }
-
+    /**
+     * Enable debug mode
+     * @param debugEnabled
+     * @return
+     */
     public XMPPConfig<T> setDebugEnabled(boolean debugEnabled) {
         this.debugEnabled = debugEnabled;
         return this;
@@ -117,9 +145,15 @@ public class XMPPConfig<T> extends BaseConfig<T> {
         return new XMPPServer(hostAddress, domain, port, resource);
     }
 
+    /**
+     * Allow the user to define a custom server
+     * @param allowServerConfiguration
+     * @return
+     */
     public XMPPConfig<T> setAllowServerConfiguration(boolean allowServerConfiguration) {
         this.allowServerConfiguration = allowServerConfiguration;
         return this;
     }
+
 
 }

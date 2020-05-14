@@ -3,10 +3,9 @@ package co.chatsdk.encryption;
 import android.content.Context;
 
 import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
-import sdk.guru.common.BaseConfig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
+import sdk.guru.common.BaseConfig;
 
 
 /*
@@ -25,11 +24,11 @@ public class EncryptionModule extends AbstractModule {
      * @see Config
      * @return configuration object
      */
-    public static Config<EncryptionModule> configure() {
+    public static Config<EncryptionModule> builder() {
         return instance.config;
     }
 
-    public static EncryptionModule configure(Configure<Config> config) {
+    public static EncryptionModule builder(Configure<Config> config) {
         config.with(instance.config);
         return instance;
     }
