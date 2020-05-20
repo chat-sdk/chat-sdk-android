@@ -7,8 +7,7 @@
 
         <activity android:name=".MainDrawActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden"
-            android:theme="@style/ChatSDKTheme">
+            android:windowSoftInputMode="stateHidden">
         </activity>
 
     </application>

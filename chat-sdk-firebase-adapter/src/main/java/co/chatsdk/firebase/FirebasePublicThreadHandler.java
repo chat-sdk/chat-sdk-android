@@ -1,18 +1,20 @@
 package co.chatsdk.firebase;
 
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ServerValue;
+
 import java.util.HashMap;
 
+import co.chatsdk.firebase.wrappers.ThreadWrapper;
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import sdk.chat.core.base.AbstractPublicThreadHandler;
+import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.firebase.wrappers.ThreadPusher;
-import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
-import io.reactivex.functions.Function;
 import sdk.guru.common.RX;
 
 /**
@@ -22,13 +24,12 @@ import sdk.guru.common.RX;
 public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
 
     public Single<Thread> createPublicThreadWithName(final String name, final String entityID, HashMap<String, String> meta, String imageURL) {
-        return Single.create((SingleOnSubscribe<ThreadPusher>) emitter -> {
+        return Single.defer(() -> {
             // If the entity ID is set, see if the thread exists and return it if it does
             if (entityID != null) {
                 Thread t = ChatSDK.db().fetchThreadWithEntityID(entityID);
                 if (t != null) {
-                    emitter.onSuccess(new ThreadPusher(t, false));
-                    return;
+                    return Single.just(t);
                 }
             }
 
@@ -48,8 +49,29 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
             if (meta != null) {
                 thread.updateValues(meta);
             }
-            emitter.onSuccess(new ThreadPusher(thread, true));
 
-        }).flatMap((Function<ThreadPusher, SingleSource<Thread>>) ThreadPusher::push).subscribeOn(RX.db());
+            return new ThreadWrapper(thread).push()
+                    .doOnError(throwable -> {
+                        thread.delete();
+                    })
+                    .andThen((SingleSource<Thread>) observer -> {
+                        thread.update();
+                        // Add the thread to the list of public threads
+                        DatabaseReference publicThreadRef = FirebasePaths.publicThreadsRef()
+                                .child(thread.getEntityID());
+
+                        HashMap<String, Object> value = new HashMap<>();
+                        value.put(Keys.CreationDate, ServerValue.TIMESTAMP);
+
+                        publicThreadRef.setValue(value, (databaseError, databaseReference) -> {
+                            if (databaseError == null) {
+                                observer.onSuccess(thread);
+                            } else {
+                                thread.delete();
+                                observer.onError(databaseError.toException());
+                            }
+                        });
+                    });
+        }).subscribeOn(RX.db());
     }
 }

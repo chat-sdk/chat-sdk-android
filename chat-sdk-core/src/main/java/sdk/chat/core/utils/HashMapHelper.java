@@ -80,5 +80,10 @@ public class HashMapHelper {
         return outputMap;
     }
 
+    public static void putIfNotNull(Map<Object, Object> map, Object key, Object value) {
+        if (value != null) {
+            map.put(key, value);
+        }
+    }
 
 }

@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import co.chatsdk.firebase.FirebaseEntity;
 import co.chatsdk.firebase.FirebasePaths;
@@ -34,7 +33,6 @@ import co.chatsdk.firebase.update.FirebaseUpdate;
 import co.chatsdk.firebase.update.FirebaseUpdateWriter;
 import co.chatsdk.firebase.utils.Generic;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.Keys;
@@ -290,7 +288,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
     }
 
     public Completable metaOn() {
-        return Completable.defer((Callable<CompletableSource>) () -> {
+        return Completable.defer(() -> {
             DatabaseReference ref = FirebasePaths.threadMetaRef(model.getEntityID());
             if (!RealtimeReferenceManager.shared().isOn(ref)) {
                 RXRealtime realtime = new RXRealtime(this);
@@ -313,6 +311,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         }).subscribeOn(RX.computation());
     }
 
+    @Deprecated
     public Completable pushMeta() {
         return Completable.create(e -> {
 
@@ -517,26 +516,32 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
      * Converting the thread details to a map object.
      **/
     protected Map<String, Object> serialize() {
-        return new HashMap<String, Object>() {{
+
+
+
+        Map<String, Object> items = new HashMap<String, Object>() {{
             put(Keys.CreationDate, ServerValue.TIMESTAMP);
             if (!StringChecker.isNullOrEmpty(model.getName())) {
                 put(Keys.Name, model.getName());
             }
+            if (!StringChecker.isNullOrEmpty(model.getImageUrl())) {
+                put(Keys.ImageUrl, model.getImageUrl());
+            }
             put(Keys.Type, model.getType());
             put(Keys.Creator, model.getCreator().getEntityID());
-            put(Keys.ImageUrl, model.getImageUrl());
             if (FirebaseModule.config().enableCompatibilityWithV4) {
                 put("creator-entity-id", model.getCreator().getEntityID());
                 put("type_v4", model.getType());
             }
         }};
+        return items;
     }
 
     /**
      * Updating thread details from given map
      **/
     @SuppressWarnings("all") // To remove setType warning.
-    void deserialize(DataSnapshot snapshot){
+    void deserialize(DataSnapshot snapshot) {
 
         if (snapshot.hasChild(Keys.CreationDate)) {
             Long date = snapshot.child(Keys.CreationDate).getValue(Long.class);
@@ -579,6 +584,18 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             model.setImageUrl(snapshot.child(Keys.ImageUrl).getValue(String.class), false);
         }
 
+        Map<String, Object> meta = snapshot.getValue(Generic.mapStringObject());
+
+        // When we add the data to Firebase we add thread "details" and "meta" data to the
+        // same map. But when we recover them, we should not duplciate so any data that
+        // is contained in details is not added to meta
+        Map<String, Object> details = serialize();
+
+        for (String key: details.keySet()) {
+            meta.remove(key);
+        }
+        model.setMetaValues(meta, false);
+
         model.update();
         ChatSDK.events().source().onNext(NetworkEvent.threadDetailsUpdated(model));
     }
@@ -587,33 +604,39 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
      * Push the thread to firebase.
      **/
     public Completable push() {
-        return Completable.create(e -> {
+        return Completable.defer(() -> {
 
-            // If the thread ID is null, create a new random ID
-            if (model.getEntityID() == null || model.getEntityID().length() == 0) {
-                model.setEntityID(FirebasePaths.threadRef().push().getKey());
-                model.update();
-            }
+            final Map<String, Object> data = serialize();
 
-            DatabaseReference metaRef = FirebasePaths.threadMetaRef(model.getEntityID());
+            // Also add the meta data
+            data.putAll(model.metaMap());
 
-            metaRef.updateChildren(serialize(), (databaseError, databaseReference) -> {
-                if (databaseError == null) {
-                    FirebaseEntity.pushThreadMetaUpdated(model.getEntityID()).subscribe(ChatSDK.events());
-                    e.onComplete();
+            return Completable.create(e -> {
+
+                // If the thread ID is null, create a new random ID
+                if (model.getEntityID() == null || model.getEntityID().length() == 0) {
+                    model.setEntityID(FirebasePaths.threadRef().push().getKey());
+                    model.update();
                 }
-                else {
-                    e.onError(databaseError.toException());
+
+                DatabaseReference metaRef = FirebasePaths.threadMetaRef(model.getEntityID());
+
+                metaRef.updateChildren(data, (databaseError, databaseReference) -> {
+                    if (databaseError == null) {
+                        FirebaseEntity.pushThreadMetaUpdated(model.getEntityID()).subscribe(ChatSDK.events());
+                        e.onComplete();
+                    }
+                    else {
+                        e.onError(databaseError.toException());
+                    }
+                });
+
+            }).doOnComplete(() -> {
+                if (FirebaseModule.config().enableCompatibilityWithV4) {
+                    DatabaseReference ref = FirebasePaths.threadRef(model.getEntityID()).child("details");
+                    ref.updateChildren(data);
                 }
             });
-
-        }).doOnComplete(() -> {
-            if (FirebaseModule.config().enableCompatibilityWithV4) {
-                DatabaseReference ref = FirebasePaths.threadRef(model.getEntityID());
-                ref.updateChildren(new HashMap<String, Object>() {{
-                    put("details", serialize());
-                }});
-            }
         }).subscribeOn(RX.io());
     }
 

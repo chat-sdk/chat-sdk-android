@@ -126,7 +126,7 @@ public class Config<T> extends BaseConfig<T> {
         super(onBuild);
 
         updateDefaultName();
-        setIdenticonType(IdenticonType.FlatHash);
+        setIdenticonType(IdenticonType.RoboHash);
     }
 
     public Object getCustomProperty(String key) {

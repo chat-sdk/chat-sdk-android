@@ -41,6 +41,7 @@ publish {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':firestream')
+    api project(':firestream-realtime')
+    api project(':firestream-firestore')
     api project(':chat-sdk-firebase-adapter')
 }

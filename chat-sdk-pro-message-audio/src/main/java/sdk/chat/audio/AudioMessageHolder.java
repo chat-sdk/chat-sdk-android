@@ -20,7 +20,7 @@ public class AudioMessageHolder extends MessageHolder implements MessageContentT
 
     @Override
     public String getText() {
-        return ChatSDK.getString(co.chatsdk.ui.R.string.audio_message);
+        return ChatSDK.audioMessage().toString(message);
     }
 
     public String getTotalTime() {

@@ -8,8 +8,6 @@ public class FireStreamNetworkAdapter extends FirebaseNetworkAdapter {
 
         events = new FirestreamEventHandler();
         thread = new FirestreamThreadHandler();
-//        typingIndicator = new FirestreamTypingIndicatorHandler();
-        readReceipts = new FirestreamReadReceiptHandler();
         blocking = new FirestreamBlockingHandler();
         contact = new FirestreamContactHandler();
 

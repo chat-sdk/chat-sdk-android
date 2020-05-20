@@ -70,7 +70,6 @@ dependencies {
 //    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.61"
 
 //required support lib modules
-    implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
     implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     implementation "androidx.annotation:annotation:1.1.0"
     implementation "com.google.android.material:material:$materialVersion"

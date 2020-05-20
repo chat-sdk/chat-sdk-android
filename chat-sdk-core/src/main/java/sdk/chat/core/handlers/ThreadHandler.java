@@ -98,6 +98,8 @@ public interface ThreadHandler {
     void sendLocalSystemMessage(String text, SystemMessageType type, Thread thread);
 
     Completable pushThread(Thread thread);
+
+    @Deprecated
     Completable pushThreadMeta(Thread thread);
 
     // Muting notifications

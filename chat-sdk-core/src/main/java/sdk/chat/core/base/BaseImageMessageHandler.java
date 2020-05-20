@@ -5,6 +5,9 @@ import android.graphics.BitmapFactory;
 
 import java.io.File;
 
+import co.chatsdk.core.R;
+import id.zelory.compressor.Compressor;
+import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -13,8 +16,6 @@ import sdk.chat.core.rigs.FileUploadable;
 import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
-import id.zelory.compressor.Compressor;
-import io.reactivex.Completable;
 
 /**
  * Created by ben on 10/24/17.
@@ -51,6 +52,11 @@ public class BaseImageMessageHandler implements ImageMessageHandler {
     @Override
     public String textRepresentation(Message message) {
         return message.stringForKey(Keys.MessageImageURL);
+    }
+
+    @Override
+    public String toString(Message message) {
+        return ChatSDK.getString(R.string.image_message);
     }
 
     @Override

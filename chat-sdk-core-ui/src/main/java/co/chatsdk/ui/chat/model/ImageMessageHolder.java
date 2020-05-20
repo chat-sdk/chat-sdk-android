@@ -4,13 +4,10 @@ import androidx.annotation.Nullable;
 
 import com.stfalcon.chatkit.commons.models.MessageContentType;
 
-import org.pmw.tinylog.Logger;
-
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
-import co.chatsdk.ui.R;
 
 public class ImageMessageHolder extends MessageHolder implements MessageContentType {
 
@@ -21,10 +18,10 @@ public class ImageMessageHolder extends MessageHolder implements MessageContentT
     @Override
     public String getText() {
         if (message.getMessageType().is(MessageType.Image)) {
-            return ChatSDK.getString(R.string.image_message);
+            return ChatSDK.imageMessage().toString(message);
         }
         if (message.getMessageType().is(MessageType.Location)) {
-            return ChatSDK.getString(R.string.location_message);
+            return ChatSDK.locationMessage().toString(message);
         }
         return super.getText();
     }

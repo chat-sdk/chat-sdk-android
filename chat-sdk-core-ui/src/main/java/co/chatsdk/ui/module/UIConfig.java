@@ -3,8 +3,8 @@ package co.chatsdk.ui.module;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StyleRes;
 
-import sdk.guru.common.BaseConfig;
 import co.chatsdk.ui.R;
+import sdk.guru.common.BaseConfig;
 
 public class UIConfig<T> extends BaseConfig<T> {
 

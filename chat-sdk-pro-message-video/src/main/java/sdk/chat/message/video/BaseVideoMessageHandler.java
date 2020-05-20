@@ -67,6 +67,11 @@ public class BaseVideoMessageHandler implements VideoMessageHandler {
     }
 
     @Override
+    public String toString(Message message) {
+        return ChatSDK.getString(R.string.video_message);
+    }
+
+    @Override
     public String getImageURL(Message message) {
         if (message.getMessageType().is(MessageType.Video) || message.getReplyType().is(MessageType.Video)) {
             return message.getImageURL();

@@ -12,6 +12,7 @@
         android:id="@+id/imageView"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:adjustViewBounds="true"
         app:layout_constraintBottom_toBottomOf="@+id/replyTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/replyTextView" />

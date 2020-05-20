@@ -12,20 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import co.chatsdk.contact.ContactBookModule;
-import co.chatsdk.firestream.FireStreamModule;
-import co.chatsdk.xmpp.module.XMPPModule;
-import co.chatsdk.xmpp.read_receipt.XMPPReadReceiptsModule;
-import firestream.chat.FirestreamConfig;
-import sdk.chat.core.module.Module;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.session.Config;
-
-import sdk.chat.core.session.Configure;
 import co.chatsdk.firebase.blocking.FirebaseBlockingModule;
 import co.chatsdk.firebase.file_storage.FirebaseUploadModule;
 import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
+import co.chatsdk.firestream.FireStreamModule;
+import co.chatsdk.firestream.FirebaseServiceType;
 import co.chatsdk.last_online.FirebaseLastOnlineModule;
 import co.chatsdk.message.file.FileMessageModule;
 import co.chatsdk.message.sticker.module.StickerMessageModule;
@@ -34,8 +27,15 @@ import co.chatsdk.read_receipts.FirebaseReadReceiptsModule;
 import co.chatsdk.typing_indicator.FirebaseTypingIndicatorModule;
 import co.chatsdk.ui.module.DefaultUIModule;
 import co.chatsdk.ui.module.UIConfig;
+import co.chatsdk.xmpp.module.XMPPModule;
+import co.chatsdk.xmpp.read_receipt.XMPPReadReceiptsModule;
+import firestream.chat.FirestreamConfig;
 import io.reactivex.subjects.PublishSubject;
 import sdk.chat.audio.AudioMessageModule;
+import sdk.chat.core.module.Module;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.session.Config;
+import sdk.chat.core.session.Configure;
 import sdk.chat.demo.testing.Testing;
 import sdk.chat.message.video.VideoMessageModule;
 import sdk.chat.ui.extras.ExtrasModule;
@@ -177,12 +177,13 @@ public class DemoConfigBuilder {
 
         // Backend module
         if (backend == Backend.FireStream) {
-            modules.add(FireStreamModule.builder(config -> config
+            modules.add(FireStreamModule.builder(
+                    database == Database.Realtime ? FirebaseServiceType.Realtime : FirebaseServiceType.Firestore,
+                    config -> config
                     .setRoot(database == Database.Realtime ? "live_firestream_realtime" : "live_firestream_firestore")
                     .setSandbox("firestream")
                     .setStartListeningFromLastSentMessageDateEnabled(false)
                     .setListenToMessagesWithTimeAgo(FirestreamConfig.TimePeriod.days(7))
-                    .setDatabaseType(database == Database.Realtime ? FirestreamConfig.DatabaseType.Realtime : FirestreamConfig.DatabaseType.Firestore)
                     .setDeleteMessagesOnReceiptEnabled(false)
                     .setDeliveryReceiptsEnabled(false)
             ));

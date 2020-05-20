@@ -14,8 +14,7 @@
 
     <application
         android:supportsRtl="true"
-        android:hardwareAccelerated="true"
-        >
+        android:hardwareAccelerated="true">
 
         <activity android:name=".activities.LoginActivity"
             android:screenOrientation="portrait">
@@ -60,9 +59,9 @@
             android:theme="@style/Base.Theme.AppCompat" />
 
         <!-- Google Maps Metadata-->
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
+<!--        <meta-data-->
+<!--            android:name="com.google.android.gms.version"-->
+<!--            android:value="@integer/google_play_services_version" />-->
 
         <provider
             android:name="androidx.core.content.FileProvider"

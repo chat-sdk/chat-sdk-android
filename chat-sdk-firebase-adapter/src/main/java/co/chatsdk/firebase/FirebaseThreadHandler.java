@@ -9,15 +9,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import co.chatsdk.firebase.moderation.Permission;
 import co.chatsdk.firebase.wrappers.MessageWrapper;
-import co.chatsdk.firebase.wrappers.ThreadPusher;
 import co.chatsdk.firebase.wrappers.ThreadWrapper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import sdk.chat.core.base.AbstractThreadHandler;
 import sdk.chat.core.dao.Keys;
@@ -127,6 +127,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return new ThreadWrapper(thread).push();
     }
 
+    @Deprecated
     public Completable pushThreadMeta(Thread thread) {
         return new ThreadWrapper(thread).pushMeta();
     }
@@ -153,15 +154,14 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     public Single<Thread> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL) {
-        return Single.create((SingleOnSubscribe<ThreadPusher>) e -> {
+        return Single.defer((Callable<SingleSource<? extends Thread>>) () -> {
 
             // If the entity ID is set, see if the thread exists and return it if it does
             // TODO: Check this - what if for some reason the user isn't a member of this thread?
             if (entityID != null) {
                 Thread t = ChatSDK.db().fetchThreadWithEntityID(entityID);
                 if (t != null) {
-                    e.onSuccess(new ThreadPusher(t, false));
-                    return;
+                    return Single.just(t);
                 }
             }
             ArrayList<User> users = new ArrayList<>(theUsers);
@@ -198,8 +198,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 if(jointThread != null) {
                     jointThread.setDeleted(false);
                     jointThread.update();
-                    e.onSuccess(new ThreadPusher(jointThread, false));
-                    return;
+                    return Single.just(jointThread);
                 }
             }
 
@@ -221,9 +220,16 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             thread.update();
 
             // Save the thread to the database.
-            e.onSuccess(new ThreadPusher(thread, true));
+            return new ThreadWrapper(thread).push()
+                    .doOnError(throwable -> {
+                        thread.delete();
+                    })
+                    .andThen(Completable.defer(() -> {
+                        return ChatSDK.thread().addUsersToThread(thread, thread.getUsers());
+                    }))
+                    .toSingle(() -> thread);
 
-        }).subscribeOn(RX.db()).flatMap(ThreadPusher::push);
+        }).subscribeOn(RX.db());
     }
 
     public Completable deleteThread(Thread thread) {
@@ -241,7 +247,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     public Completable deleteMessage(Message message) {
         return Completable.defer(() -> {
-            if (message.getSender().isMe() && message.getMessageStatus().equals(MessageSendStatus.Sent) && !message.getMessageType().is(MessageType.System)) {
+            if ((message.getSender().isMe() && message.getMessageStatus().equals(MessageSendStatus.Sent)) || !message.getSender().isMe() || !message.getMessageType().is(MessageType.System)) {
                 return new MessageWrapper(message).delete();
             }
             message.getThread().removeMessage(message);

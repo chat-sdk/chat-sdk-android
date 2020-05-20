@@ -106,7 +106,8 @@ public class NotificationBuilder {
     }
 
     public NotificationBuilder addTitleAndTextForMessage(Message message) {
-        return setTitle(message.getSender().getName()).setText(message.getTextRepresentation());
+        String text = ChatSDK.getMessageText(message);
+        return setTitle(message.getSender().getName()).setText(text);
     }
 
     public NotificationBuilder addIconForUser(User user) {

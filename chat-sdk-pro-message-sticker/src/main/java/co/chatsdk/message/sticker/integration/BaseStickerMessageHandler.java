@@ -8,6 +8,8 @@ import android.net.Uri;
 import org.pmw.tinylog.Logger;
 
 import co.chatsdk.message.sticker.Configuration;
+import co.chatsdk.message.sticker.R;
+import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -15,7 +17,6 @@ import sdk.chat.core.handlers.StickerMessageHandler;
 import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
-import io.reactivex.Completable;
 import sdk.chat.core.utils.StringChecker;
 
 /**
@@ -39,6 +40,11 @@ public class BaseStickerMessageHandler implements StickerMessageHandler {
             return parts[0];
         }
         return name;
+    }
+
+    @Override
+    public String toString(Message message) {
+        return ChatSDK.getString(R.string.sticker_message);
     }
 
     @Override

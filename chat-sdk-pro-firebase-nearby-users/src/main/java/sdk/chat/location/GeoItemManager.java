@@ -10,9 +10,9 @@ import sdk.guru.common.DisposableMap;
 public class GeoItemManager {
     protected static final GeoItemManager instance = new GeoItemManager();
 
-    protected DisposableMap dm = new DisposableMap();
+    protected final DisposableMap dm = new DisposableMap();
 
-    protected List<GeoItem> trackedItems = new ArrayList<>();
+    protected final List<GeoItem> trackedItems = new ArrayList<>();
 
     public static GeoItemManager shared() {
         return instance;
@@ -32,11 +32,13 @@ public class GeoItemManager {
         }));
     }
 
-    public void addTrackedItem(GeoItem item) {
-        if (!trackedItems.contains(item)) {
+    public void addTrackedItem(GeoItem item, boolean force) {
+        if (!trackedItems.contains(item) || force) {
             dm.add(LocationHandler.shared().once().subscribe(location -> {
                 pushToGeoFire(item, location, true);
             }));
+        }
+        if (!trackedItems.contains(item)) {
             trackedItems.add(item);
         }
     }

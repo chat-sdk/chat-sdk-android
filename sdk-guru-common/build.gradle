@@ -24,8 +24,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
-
+    api "androidx.appcompat:appcompat:$androidxAppcompatVersion"
     api "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
     api "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
     api "com.jakewharton.rxrelay2:rxrelay:$rxRelayVersion"

@@ -18,6 +18,7 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
     protected String currentUserID = null;
 
     protected Completable authenticating;
+    protected Completable loggingOut;
 
     public Boolean isAuthenticating () {
         return authenticating != null;

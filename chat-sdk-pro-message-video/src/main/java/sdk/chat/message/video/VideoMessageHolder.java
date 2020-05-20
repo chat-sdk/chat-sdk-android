@@ -17,7 +17,7 @@ public class VideoMessageHolder extends ImageMessageHolder implements MessageCon
 
     @Override
     public String getText() {
-        return ChatSDK.getString(co.chatsdk.ui.R.string.video_message);
+        return ChatSDK.videoMessage().toString(message);
     }
 
 }

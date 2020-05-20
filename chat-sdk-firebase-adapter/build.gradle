@@ -56,10 +56,8 @@ dependencies {
     api project(':chat-sdk-core')
     api project(':sdk-guru-realtime')
 
-    api "com.google.firebase:firebase-core:$firebaseCoreVersion"
-    api "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
+//    api "com.google.firebase:firebase-core:$firebaseCoreVersion"
     api "com.google.firebase:firebase-auth:$firebaseAuthVersion"
-    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
 
 }
 

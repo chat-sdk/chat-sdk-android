@@ -9,24 +9,22 @@ import com.google.firebase.auth.FirebaseUser;
 
 import org.pmw.tinylog.Logger;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.reactivex.CompletableObserver;
-import sdk.chat.core.base.AbstractAuthenticationHandler;
-import sdk.chat.core.dao.User;
-import sdk.chat.core.events.NetworkEvent;
-import sdk.chat.core.hook.HookEvent;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.AccountDetails;
 import co.chatsdk.firebase.module.FirebaseModule;
 import co.chatsdk.firebase.utils.Generic;
 import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
+import sdk.chat.core.base.AbstractAuthenticationHandler;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.AccountDetails;
 import sdk.guru.common.RX;
 import sdk.guru.realtime.RXRealtime;
 import sdk.guru.realtime.RealtimeReferenceManager;
@@ -192,33 +190,41 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     }
 
     public Completable logout() {
-        return ChatSDK.hook().executeHook(HookEvent.WillLogout)
-                .concatWith(ChatSDK.core().setUserOffline())
-                .concatWith(Completable.defer(() -> {
+        return Completable.defer(() -> {
+            if (!isAuthenticated()) {
+                return Completable.complete();
+            }
+            else if (loggingOut == null) {
+                loggingOut = ChatSDK.hook().executeHook(HookEvent.WillLogout)
+                        .concatWith(ChatSDK.core().setUserOffline())
+                        .concatWith(Completable.defer(() -> {
 
-                    final User user = ChatSDK.currentUser();
+                            final User user = ChatSDK.currentUser();
 
-                    // Stop listening to user related alerts. (added text or thread.)
-                    ChatSDK.events().impl_currentUserOff(user.getEntityID());
+                            // Stop listening to user related alerts. (added text or thread.)
+                            ChatSDK.events().impl_currentUserOff(user.getEntityID());
 
-                    RealtimeReferenceManager.shared().removeAllListeners();
+                            RealtimeReferenceManager.shared().removeAllListeners();
 
-                    FirebaseCoreHandler.auth().signOut();
+                            FirebaseCoreHandler.auth().signOut();
 
-                    clearSavedCurrentUserEntityID();
+                            clearSavedCurrentUserEntityID();
 
-                    ChatSDK.events().source().onNext(NetworkEvent.logout());
+                            ChatSDK.events().source().onNext(NetworkEvent.logout());
 
-                    authenticatedThisSession = false;
+                            authenticatedThisSession = false;
 
-                    if (ChatSDK.hook() != null) {
-                        HashMap<String, Object> data = new HashMap<>();
-                        data.put(HookEvent.User, user);
-                        return ChatSDK.hook().executeHook(HookEvent.DidLogout, data);
-                    } else {
-                        return Completable.complete();
-                    }
-                }).subscribeOn(RX.computation()));
+                            if (ChatSDK.hook() != null) {
+                                HashMap<String, Object> data = new HashMap<>();
+                                data.put(HookEvent.User, user);
+                                return ChatSDK.hook().executeHook(HookEvent.DidLogout, data);
+                            } else {
+                                return Completable.complete();
+                            }
+                        }).subscribeOn(RX.computation()));
+            }
+            return loggingOut;
+        });
     }
 
     public Completable sendPasswordResetMail(final String email) {

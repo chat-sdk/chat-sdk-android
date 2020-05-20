@@ -363,7 +363,7 @@ public class ChatSDK {
         return shared().storageManager;
     }
 
-    public static String getImageURL(Message message) {
+    public static String getMessageImageURL(Message message) {
         String imageURL = message.getImageURL();
         if(StringChecker.isNullOrEmpty(imageURL)) {
             imageURL = ChatSDK.imageMessage().getImageURL(message);
@@ -382,5 +382,26 @@ public class ChatSDK {
             }
         }
         return imageURL;
+    }
+
+    public static String getMessageText(Message message) {
+        String text = message.isReply() ? message.getReply() : message.getText();
+        if(StringChecker.isNullOrEmpty(text)) {
+            text = ChatSDK.imageMessage().toString(message);
+        }
+        if(StringChecker.isNullOrEmpty(text)) {
+            text = ChatSDK.locationMessage().toString(message);
+        }
+        if(StringChecker.isNullOrEmpty(text)) {
+            for (Module module: shared().builder.modules) {
+                if (module.getMessageHandler() != null) {
+                    text = module.getMessageHandler().toString(message);
+                    if (!StringChecker.isNullOrEmpty(text)) {
+                        break;
+                    }
+                }
+            }
+        }
+        return text;
     }
 }

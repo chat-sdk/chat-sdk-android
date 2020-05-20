@@ -6,7 +6,6 @@ import java.util.Date;
 
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ReadStatus;
 import sdk.guru.common.RX;
@@ -16,6 +15,8 @@ public class MessageAsync {
     public static void markRead(Message message) {
         if (ChatSDK.readReceipts() != null) {
             ChatSDK.readReceipts().markRead(message);
+        } else {
+            RX.onBackground(() -> message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new Date(), false));
         }
     }
 

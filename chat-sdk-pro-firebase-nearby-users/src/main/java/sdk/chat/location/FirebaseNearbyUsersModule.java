@@ -62,7 +62,7 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
             }));
 
             // Add the current user
-            GeoItemManager.shared().addTrackedItem(currentUser());
+            GeoItemManager.shared().addTrackedItem(currentUser(), false);
 
         }), HookEvent.DidAuthenticate);
 
@@ -81,7 +81,7 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
             @Override
             public void didStart() {
                 if (ChatSDK.auth().isAuthenticatedThisSession()) {
-                    GeoItemManager.shared().addTrackedItem(currentUser());
+                    GeoItemManager.shared().addTrackedItem(currentUser(), true);
                 }
              }
 
@@ -92,9 +92,6 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
 //                }
             }
         });
-
-
-//        LocationHandler.shared()
 
     }
 

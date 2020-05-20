@@ -42,7 +42,7 @@ public class MessageHolder implements IMessage {
         isGroup = message.getThread().typeIs(ThreadType.Group);
 
         if (message.isReply()) {
-            quotedImageURL = ChatSDK.getImageURL(message);
+            quotedImageURL = ChatSDK.getMessageImageURL(message);
         }
     }
 

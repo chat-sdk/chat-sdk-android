@@ -3,11 +3,10 @@
     <style name="GGTheme" parent="ChatSDKTheme">
         <item name="colorPrimary">#2D8659</item>
         <item name="colorPrimaryDark">#2D8659</item>
+
         <item name="colorAccent">#339966</item>
         <item name="colorControlNormal">@color/text_primary</item>
-        <!--        <item name="actionBarTheme">@style/ThemeOverlay.SdkTheme.ActionBar</item>-->
 
-        <item name="outcomingReplyTextColor">#FFFFFF</item>
         <item name="outcomingDefaultBubbleColor">#2D8659</item>
         <item name="outcomingDefaultBubblePressedColor">#2D8659</item>
 

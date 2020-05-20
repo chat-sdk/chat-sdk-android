@@ -391,25 +391,6 @@ public class Message extends AbstractEntity {
         return readStatusForUser(user.getId());
     }
 
-    public String getTextRepresentation () {
-        if (getMessageType().is(MessageType.Location) && ChatSDK.locationMessage() != null) {
-            ChatSDK.locationMessage().textRepresentation(this);
-        }
-        else if (getMessageType().is(MessageType.Image) && ChatSDK.imageMessage() != null) {
-            return ChatSDK.imageMessage().textRepresentation(this);
-        }
-        else if (getMessageType().is(MessageType.Audio) && ChatSDK.audioMessage() != null) {
-            return ChatSDK.audioMessage().textRepresentation(this);
-        }
-        else if (getMessageType().is(MessageType.Video) && ChatSDK.videoMessage() != null) {
-            return ChatSDK.videoMessage().textRepresentation(this);
-        }
-        else if (getMessageType().is(MessageType.File) && ChatSDK.fileMessage() != null) {
-            return ChatSDK.fileMessage().textRepresentation(this);
-        }
-        return getText();
-    }
-
     public ReadStatus readStatusForUser(Long userId) {
         ReadReceiptUserLink link = ChatSDK.db().readReceipt(getId(), userId);
         if (link != null) {

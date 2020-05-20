@@ -6,7 +6,6 @@ import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
 import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
 import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.Base64;
 
 import org.pmw.tinylog.Logger;
@@ -17,37 +16,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.User;
-import sdk.chat.core.events.EventType;
-import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.handlers.EncryptionHandler;
-import sdk.chat.core.hook.AsyncExecutor;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.MessageSendProgress;
-import sdk.chat.core.types.MessageSendStatus;
-import io.reactivex.Completable;
-import io.reactivex.disposables.Disposable;
+import sdk.chat.encryption.R;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
 
 import static sdk.chat.core.session.ChatSDK.currentUser;
-import static sdk.chat.core.session.ChatSDK.readReceipts;
 
 public class BaseEncryptionHandler implements EncryptionHandler {
 

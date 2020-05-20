@@ -2,6 +2,7 @@ package co.chatsdk.message.sticker.integration;
 
 import android.view.View;
 
+import co.chatsdk.message.sticker.R;
 import co.chatsdk.message.sticker.module.StickerMessageModule;
 import co.chatsdk.ui.utils.ImageLoaderPayload;
 import co.chatsdk.ui.view_holders.base.BaseIncomingImageMessageViewHolder;
@@ -13,7 +14,10 @@ public class IncomingStickerMessageViewHolder extends BaseIncomingImageMessageVi
 
     @Override
     protected Object getPayloadForImageLoader(StickerMessageHolder message) {
-        return new ImageLoaderPayload(StickerMessageModule.config().maxSize, StickerMessageModule.config().maxSize, co.chatsdk.ui.R.drawable.icn_200_image_message_placeholder, 0);
+        return new ImageLoaderPayload(StickerMessageModule.config().maxSize,
+                StickerMessageModule.config().maxSize,
+                R.drawable.icn_200_image_message_placeholder,
+                message.getUser().getUser().isMe() ? R.drawable.icn_200_image_message_placeholder: 0);
     }
 
 }

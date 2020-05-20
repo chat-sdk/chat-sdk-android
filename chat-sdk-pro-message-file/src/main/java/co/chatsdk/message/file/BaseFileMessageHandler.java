@@ -76,6 +76,11 @@ public class BaseFileMessageHandler implements FileMessageHandler {
         return message.stringForKey(Keys.MessageFileURL);
     }
 
+    @Override
+    public String toString(Message message) {
+        return ChatSDK.getString(R.string.file_message);
+    }
+
     Bitmap pdfPreview(File file) throws Exception {
         Context context = ChatSDK.shared().context();
 

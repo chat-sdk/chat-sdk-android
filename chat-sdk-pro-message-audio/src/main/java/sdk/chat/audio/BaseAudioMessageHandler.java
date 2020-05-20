@@ -72,6 +72,11 @@ public class BaseAudioMessageHandler implements AudioMessageHandler {
     }
 
     @Override
+    public String toString(Message message) {
+        return ChatSDK.getString(R.string.audio_message);
+    }
+
+    @Override
     public String getImageURL(Message message) {
 //        if (message.getMessageType().is(MessageType.Audio) || message.getReplyType().is(MessageType.Audio)) {
 //            return ImageUtils.uriForResourceId(ChatSDK.ctx(), R.drawable.icn_50_audio).toString();

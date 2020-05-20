@@ -134,7 +134,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     }
 
     public void hideReplyView() {
-        audioBinder.hideReplyView();
+        if (audioBinder != null) {
+            audioBinder.hideReplyView();
+        }
         chatView.clearSelection();
         replyView.hide();
         updateOptionsButton();
@@ -167,7 +169,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     public void showReplyView(String title, String imageURL, String text) {
         updateOptionsButton();
-        audioBinder.showReplyView();
+        if (audioBinder != null) {
+            audioBinder.showReplyView();
+        }
         replyView.show(title, imageURL, text);
 
         // We need this otherwise the margin isn't updated when the view is gone

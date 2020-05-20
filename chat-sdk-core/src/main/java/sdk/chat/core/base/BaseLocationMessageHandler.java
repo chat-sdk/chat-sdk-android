@@ -2,6 +2,7 @@ package sdk.chat.core.base;
 
 import android.location.Location;
 
+import co.chatsdk.core.R;
 import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
@@ -38,6 +39,11 @@ public class BaseLocationMessageHandler extends AbstractMessageHandler implement
     @Override
     public String textRepresentation(Message message) {
         return String.format(ChatSDK.config().locationURLRepresentation, message.doubleForKey(Keys.MessageLatitude), message.doubleForKey(Keys.MessageLongitude));
+    }
+
+    @Override
+    public String toString(Message message) {
+        return ChatSDK.getString(R.string.location_message);
     }
 
     @Override

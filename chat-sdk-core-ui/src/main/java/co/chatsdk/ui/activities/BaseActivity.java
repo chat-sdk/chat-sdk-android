@@ -96,7 +96,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
             setTheme(DefaultUIModule.config().theme);
         }
 
-
         // Setting the default task description.
         if (getTaskDescriptionBitmap() != null) {
             setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());

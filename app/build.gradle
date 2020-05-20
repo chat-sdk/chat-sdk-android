@@ -96,7 +96,7 @@ dependencies {
     implementation project(':chat-sdk-firebase-push')
     implementation project(':chat-sdk-firebase-upload')
 
-//    implementation project(':chat-sdk-firestream-adapter')
+    implementation project(':chat-sdk-firestream-adapter')
 
     implementation project(':chat-sdk-mod-ui-extras')
     implementation project(':chat-sdk-mod-firebase-ui')
@@ -116,6 +116,8 @@ dependencies {
     implementation project(':chat-sdk-pro-firebase-typing-indicator')
     implementation project(':chat-sdk-pro-firebase-read-receipts')
 
+    implementation project(':chat-sdk-pro-firestream-typing-indicator')
+    implementation project(':chat-sdk-pro-firestream-read-receipts')
 
 
 //    implementation project(path: ':chat-sdk-pro-xmpp-adapter')
@@ -127,11 +129,11 @@ dependencies {
     implementation "org.greenrobot:greendao:$greenDaoVersion"
 
     // Recommended: Add the Firebase SDK for Google Analytics.
-    implementation 'com.google.firebase:firebase-analytics:17.4.1'
+    implementation "com.google.firebase:firebase-analytics:$firebaseAnalyticsVersion"
 
     // Add the Firebase Crashlytics SDK.
-    implementation 'com.google.firebase:firebase-crashlytics:17.0.0'
-    implementation 'com.google.firebase:firebase-perf:19.0.7'
+    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
+    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
 
 }
 

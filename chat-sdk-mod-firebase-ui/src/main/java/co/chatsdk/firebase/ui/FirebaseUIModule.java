@@ -17,13 +17,13 @@ import java.util.List;
 
 import chatsdk.co.chat_sdk_firebase_ui.R;
 import co.chatsdk.firebase.FirebaseCoreHandler;
-import sdk.chat.core.events.EventType;
-import sdk.chat.core.events.NetworkEvent;
+import io.reactivex.Completable;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.guru.common.BaseConfig;
-import sdk.guru.common.DisposableMap;
 
 /**
  * Created by ben on 1/2/18.
@@ -32,6 +32,9 @@ import sdk.guru.common.DisposableMap;
 public class FirebaseUIModule extends AbstractModule {
 
     public static final FirebaseUIModule instance = new FirebaseUIModule();
+
+    public FirebaseUIModule() {
+    }
 
     public static FirebaseUIModule shared() {
         return instance;
@@ -68,8 +71,6 @@ public class FirebaseUIModule extends AbstractModule {
         }
     }
 
-    DisposableMap dm = new DisposableMap();
-
     protected Config<FirebaseUIModule> config = new Config<>(this);
 
     @Override
@@ -87,9 +88,14 @@ public class FirebaseUIModule extends AbstractModule {
 
         ChatSDK.ui().setLoginIntent(authUILoginIntent);
 
-        dm.add(ChatSDK.events().source()
-                .filter(NetworkEvent.filterType(EventType.Logout))
-                .subscribe(networkEvent -> authUI().signOut(context)));
+//        dm.add(ChatSDK.events().source()
+//                .filter(NetworkEvent.filterType(EventType.Logout))
+//                .subscribe(networkEvent -> authUI().signOut(context)));
+
+        ChatSDK.hook().addHook(Hook.async(data -> Completable.create(emitter -> {
+            authUI().signOut(ChatSDK.ctx()).addOnSuccessListener(aVoid -> emitter.onComplete()).addOnFailureListener(emitter::onError);
+        })), HookEvent.DidLogout);
+
     }
 
     protected ArrayList<AuthUI.IdpConfig> getProviders (List<String> providers) {

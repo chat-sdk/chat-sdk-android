@@ -8,15 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import sdk.chat.core.base.AbstractThreadHandler;
-import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
-import sdk.chat.core.dao.ThreadMetaValue;
-import sdk.chat.core.dao.User;
-import sdk.chat.core.handlers.ReadReceiptHandler;
-import sdk.chat.core.interfaces.ThreadType;
-import sdk.chat.core.session.ChatSDK;
 import co.chatsdk.firefly.R;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.message.Sendable;
@@ -29,6 +20,16 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
+import sdk.chat.core.base.AbstractThreadHandler;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadMetaValue;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageSendStatus;
+import sdk.chat.core.types.MessageType;
 import sdk.guru.common.RX;
 
 public class FirestreamThreadHandler extends AbstractThreadHandler {
@@ -196,15 +197,18 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     @Override
     public Completable deleteMessage(final Message message) {
         return Completable.defer(() -> {
-            // Get the thread
-            Thread thread = message.getThread();
-            if (thread.typeIs(ThreadType.Private1to1)) {
-                return Fire.stream().deleteSendable(message.getEntityID());
-            }
-            if (thread.typeIs(ThreadType.Group)) {
-                IChat chat = Fire.stream().getChat(thread.getEntityID());
-                if (chat != null) {
-                    return chat.deleteSendable(message.getEntityID());
+
+            if ((message.getSender().isMe() && message.getMessageStatus().equals(MessageSendStatus.Sent)) || !message.getSender().isMe() || !message.getMessageType().is(MessageType.System)) {
+                // Get the thread
+                Thread thread = message.getThread();
+                if (thread.typeIs(ThreadType.Private1to1)) {
+                    return Fire.stream().deleteSendable(message.getEntityID());
+                }
+                if (thread.typeIs(ThreadType.Group)) {
+                    IChat chat = Fire.stream().getChat(thread.getEntityID());
+                    if (chat != null) {
+                        return chat.deleteSendable(message.getEntityID());
+                    }
                 }
             }
             return Completable.complete();
@@ -221,7 +225,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 return true;
             }
         }
-        return message.getSender().isMe();
+        return message.getSender().isMe() && message.getMessageStatus() == MessageSendStatus.Failed;
     }
 
     public boolean rolesEnabled(Thread thread, User user) {
@@ -376,10 +380,12 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                     }
                     if (sendable.isType(SendableType.deliveryReceipt())) {
                         if (ChatSDK.readReceipts() != null) {
-                            ReadReceiptHandler handler = ChatSDK.readReceipts();
-                            if (handler instanceof FirestreamReadReceiptHandler) {
-                                ((FirestreamReadReceiptHandler) handler).handleReceipt(thread.getEntityID(), sendable.toDeliveryReceipt());
-                            }
+                            // TODO: Check this
+//                            DeliveryReceipt receipt = sendable.toDeliveryReceipt();
+//                            ReadReceiptHandler handler = ChatSDK.readReceipts();
+//                            if (handler instanceof FirestreamReadReceiptHandler) {
+//                                ((FirestreamReadReceiptHandler) handler).handleReceipt(thread.getEntityID(), sendable.toDeliveryReceipt());
+//                            }
                         }
                     }
                 }

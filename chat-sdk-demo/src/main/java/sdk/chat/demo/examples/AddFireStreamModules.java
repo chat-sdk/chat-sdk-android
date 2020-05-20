@@ -13,6 +13,7 @@ import co.chatsdk.firebase.file_storage.FirebaseUploadModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
 import co.chatsdk.firebase.ui.FirebaseUIModule;
 import co.chatsdk.firestream.FireStreamModule;
+import co.chatsdk.firestream.FirebaseServiceType;
 import co.chatsdk.message.file.FileMessageModule;
 import co.chatsdk.message.sticker.module.StickerMessageModule;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
@@ -71,12 +72,11 @@ public class AddFireStreamModules extends Activity {
 
                 // Firebase Module
                 .addModule(
-                        FireStreamModule.builder()
+                        FireStreamModule.builder(FirebaseServiceType.Firestore)
                                 .setRoot("pre_1")
                                 .setSandbox("firestream")
                                 .setDeliveryReceiptsEnabled(true)
                                 .setDeleteMessagesOnReceiptEnabled(false)
-                                .setDatabaseType(FirestreamConfig.DatabaseType.Firestore)
                                 .setListenToMessagesWithTimeAgo(FirestreamConfig.TimePeriod.days(10))
                                 .setStartListeningFromLastSentMessageDateEnabled(true)
                                 .setAutoAcceptChatInviteEnabled(true)
