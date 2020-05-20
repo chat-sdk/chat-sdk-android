@@ -221,7 +221,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     public boolean canDeleteMessage(Message message) {
         if (message.getThread() != null && message.getThread().typeIs(ThreadType.Group)) {
             IChat chat = Fire.stream().getChat(message.getThread().getEntityID());
-            if (chat != null && chat.hasPermission(RoleType.admin())) {
+            if (chat != null && chat.hasPermission(RoleType.admin()) || message.getSender().isMe()) {
                 return true;
             }
         }
@@ -358,7 +358,15 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
 
     @Override
     public Completable leaveThread(Thread thread) {
-        return null;
+        return Completable.defer(() -> {
+            if (thread.typeIs(ThreadType.Group)) {
+                IChat chat = Fire.stream().getChat(thread.getEntityID());
+                if (chat != null) {
+                    return chat.leave();
+                }
+            }
+            return Completable.complete();
+        });
     }
 
     @Override
@@ -442,6 +450,50 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
                 return chat.hasPermission(RoleType.admin());
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canEditThreadDetails(Thread thread) {
+        if (thread.typeIs(ThreadType.Group)) {
+            IChat chat = Fire.stream().getChat(thread.getEntityID());
+            if (chat != null) {
+                return chat.hasPermission(RoleType.admin());
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canChangeRole(Thread thread, User user) {
+        if (thread.typeIs(ThreadType.Group)) {
+            IChat chat = Fire.stream().getChat(thread.getEntityID());
+            if (chat != null) {
+                return chat.hasPermission(RoleType.admin());
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isBanned(Thread thread, User user) {
+        if (thread.typeIs(ThreadType.Group)) {
+            IChat chat = Fire.stream().getChat(thread.getEntityID());
+            if (chat != null) {
+                return chat.hasPermission(RoleType.banned());
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean hasVoice(Thread thread, User user) {
+        if (thread.typeIs(ThreadType.Group)) {
+            IChat chat = Fire.stream().getChat(thread.getEntityID());
+            if (chat != null) {
+                return chat.hasPermission(RoleType.member());
             }
         }
         return false;

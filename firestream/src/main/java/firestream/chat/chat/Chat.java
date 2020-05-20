@@ -383,16 +383,6 @@ public class Chat extends AbstractChat implements IChat {
         });
     }
 
-//    @Override
-//    public Completable sendTypingIndicator(TypingStateType type) {
-//        return sendTypingIndicator(type, null);
-//    }
-//
-//    @Override
-//    public Completable sendTypingIndicator(TypingStateType type, @Nullable Consumer<String> newId) {
-//        return send(new TypingState(type), newId);
-//    }
-
     @Override
     public Completable sendDeliveryReceipt(String fromUserId, DeliveryReceiptType type, String messageId) {
         return sendDeliveryReceipt(fromUserId, type, messageId, null);

@@ -2,6 +2,14 @@ package co.chatsdk.firestream;
 
 import java.util.Date;
 
+import co.chatsdk.firebase.FirebaseEventHandler;
+import firestream.chat.filter.Filter;
+import firestream.chat.interfaces.IChat;
+import firestream.chat.namespace.Fire;
+import firestream.chat.namespace.FireStreamMessage;
+import firestream.chat.types.RoleType;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -10,17 +18,9 @@ import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ConnectionType;
 import sdk.chat.core.types.ReadStatus;
-import co.chatsdk.firebase.FirebaseEventHandler;
+import sdk.guru.common.DisposableMap;
 import sdk.guru.common.Event;
 import sdk.guru.common.EventType;
-import firestream.chat.filter.Filter;
-import sdk.guru.common.DisposableMap;
-import firestream.chat.interfaces.IChat;
-import firestream.chat.namespace.Fire;
-import firestream.chat.namespace.FireStreamMessage;
-import firestream.chat.types.RoleType;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 public class FirestreamEventHandler extends FirebaseEventHandler implements Consumer<Throwable> {
 
@@ -90,6 +90,11 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                     if (userEvent.typeIs(EventType.Removed)) {
                         User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEvent.get().getId());
                         finalThread.removeUser(user);
+                    }
+                    // Capture role change events
+                    if (userEvent.typeIs(EventType.Modified)) {
+                        RoleType role = chat.getRoleType(userEvent.get());
+                        finalThread.setPermission(userEvent.get().getId(), ChatSDK.thread().localizeRole(role.stringValue()));
                     }
                 }, this));
 

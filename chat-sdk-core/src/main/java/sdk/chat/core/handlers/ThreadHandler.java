@@ -49,11 +49,13 @@ public interface ThreadHandler {
     Single<List<Message>> loadMoreMessagesBefore(Thread thread, @Nullable Date before);
     Single<List<Message>> loadMoreMessagesAfter(Thread thread, @Nullable Date after, boolean loadFromServer);
 
-    /**
-     * This method deletes an existing thread. It deletes the thread from memory
-     * and removes the user from the thread so the user no longer recieves notifications
-     * from the thread
-     */
+    boolean canEditThreadDetails(Thread thread);
+
+        /**
+         * This method deletes an existing thread. It deletes the thread from memory
+         * and removes the user from the thread so the user no longer recieves notifications
+         * from the thread
+         */
     Completable deleteThread(Thread thread);
 
     boolean canLeaveThread(Thread thread);

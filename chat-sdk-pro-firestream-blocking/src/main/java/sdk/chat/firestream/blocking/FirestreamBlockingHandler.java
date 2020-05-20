@@ -1,4 +1,4 @@
-package co.chatsdk.firestream;
+package sdk.chat.firestream.blocking;
 
 import sdk.chat.core.handlers.BlockingHandler;
 import firestream.chat.chat.User;

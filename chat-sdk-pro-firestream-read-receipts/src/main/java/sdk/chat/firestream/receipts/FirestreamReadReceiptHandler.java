@@ -18,7 +18,6 @@ import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ReadStatus;
 import sdk.guru.common.DisposableMap;
-import sdk.guru.common.EventType;
 
 public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consumer<Throwable> {
 
@@ -27,36 +26,26 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
     public FirestreamReadReceiptHandler() {
 
         // We want to add these listeners when we connect and remove them when we disconnect
-        Disposable d = Fire.stream().getConnectionEvents().subscribe(connectionEvent -> {
+        dm.add(Fire.stream().getConnectionEvents().subscribe(connectionEvent -> {
             if (connectionEvent.getType() == ConnectionEvent.Type.DidConnect) {
-
                 dm.add(Fire.stream().getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(event -> {
-                    dm.add(handleReceipt(event.get().getFrom(), event.get()));
-                }));
-
-                dm.add(Fire.stream().getChatEvents().pastAndNewEvents().subscribe(chatEvent -> {
-                    IChat chat = chatEvent.get();
-                    if (chatEvent.typeIs(EventType.Added)) {
-                        chat.manage(chat.getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(event -> {
-                            chat.manage(handleReceipt(chat.getId(), event.get()));
-                        }));
-                    }
+                    dm.add(handleReceipt(event.get()));
                 }));
             }
             if (connectionEvent.getType() == ConnectionEvent.Type.WillDisconnect) {
                 dm.disposeAll();
             }
-        });
+        }));
 
     }
 
-    public Disposable handleReceipt(String threadEntityID, DeliveryReceipt receipt) {
+    public Disposable handleReceipt(DeliveryReceipt receipt) {
         return ChatSDK.core().getUserForEntityID(receipt.getFrom()).subscribe(user -> {
-            Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
-            if (thread != null) {
-                // Get the text
-                Message message = thread.getMessageWithEntityID(receipt.getMessageId());
-                if (message != null) {
+            // get the message
+            Message message = ChatSDK.db().fetchEntityWithEntityID(receipt.getMessageId(), Message.class);
+            if (message != null) {
+                Thread thread = message.getThread();
+                if (thread != null) {
                     if (receipt.getDeliveryReceiptType().equals(DeliveryReceiptType.read())) {
                         message.setUserReadStatus(user, ReadStatus.read(), new Date());
                     } else {
@@ -66,6 +55,8 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
             }
         });
     }
+
+
 
     @Override
     public void markRead(Message message) {

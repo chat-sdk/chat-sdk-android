@@ -414,4 +414,8 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return thread.typeIs(ThreadType.Group) && thread.containsUser(ChatSDK.currentUser());
     }
 
+    @Override
+    public boolean canEditThreadDetails(Thread thread) {
+        return !thread.getCreator().isMe() || thread.typeIs(ThreadType.Private1to1);
+    }
 }

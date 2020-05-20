@@ -70,7 +70,7 @@ Visit our [Animated GIF Gallery](https://giphy.com/channel/chat-sdk) to see all 
 
 ## Community
 
-+ **Discord:** If you need support, join our [Server](https://discord.gg/zbv2RP)
++ **Discord:** If you need support, join our [Server](https://discord.gg/abT5BM4)
 + **Support the project:** [Patreon](https://www.patreon.com/chatsdk) or [Github Sponsors](https://github.com/sponsors/chat-sdk) 🙏 and get access to premium modules
 + **Upvote:** our advert on [StackOverflow](https://meta.stackoverflow.com/questions/394409/open-source-advertising-1h-2020/396154#396154)
 + **Contribute by writing code:** Email the [Contributing
