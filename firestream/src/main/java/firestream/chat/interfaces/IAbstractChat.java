@@ -1,17 +1,16 @@
 package firestream.chat.interfaces;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import firestream.chat.chat.Events;
-import io.reactivex.CompletableObserver;
-import io.reactivex.functions.Consumer;
-import sdk.guru.common.DisposableMap;
 import firestream.chat.message.Sendable;
 import firestream.chat.types.SendableType;
+import io.reactivex.CompletableObserver;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import sdk.guru.common.DisposableMap;
 
 public interface IAbstractChat extends Consumer<Throwable>, CompletableObserver {
 
@@ -47,7 +46,7 @@ public interface IAbstractChat extends Consumer<Throwable>, CompletableObserver 
      * Get a list of all sendables received
      * @return a list of sendables
      */
-    ArrayList<Sendable> getSendables();
+    List<Sendable> getSendables();
 
     /**
      * Get a list of sendables given a class
@@ -61,7 +60,7 @@ public interface IAbstractChat extends Consumer<Throwable>, CompletableObserver 
      * @param type of sendable
      * @return a filtered list of sendables
      */
-    ArrayList<Sendable> getSendables(SendableType type);
+    List<Sendable> getSendables(SendableType type);
 
     /**
      * Get a sendable for a particular ID

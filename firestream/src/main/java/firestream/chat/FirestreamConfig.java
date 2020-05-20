@@ -14,11 +14,6 @@ public class FirestreamConfig<T> extends BaseConfig<T> {
         super(onBuild);
     }
 
-    public enum DatabaseType {
-        Firestore,
-        Realtime
-    }
-
     public static class TimePeriod {
 
         long seconds;
@@ -73,7 +68,6 @@ public class FirestreamConfig<T> extends BaseConfig<T> {
     protected String sandbox = "prod";
     public boolean startListeningFromLastSentMessageDate = true;
     public TimePeriod listenToMessagesWithTimeAgo = TimePeriod.days(10);
-    public DatabaseType database = DatabaseType.Firestore;
     public boolean debugEnabled = false;
 
     /**
@@ -93,14 +87,6 @@ public class FirestreamConfig<T> extends BaseConfig<T> {
         if (path != null) {
             this.sandbox = path;
         }
-        return this;
-    }
-
-    /**
-     * Which database to use - Firestore or Realtime database
-     */
-    public FirestreamConfig<T> setDatabaseType(DatabaseType type) {
-        this.database = type;
         return this;
     }
 

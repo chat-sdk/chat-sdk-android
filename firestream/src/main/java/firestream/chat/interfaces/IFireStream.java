@@ -2,18 +2,16 @@ package firestream.chat.interfaces;
 
 import android.content.Context;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
-import javax.annotation.Nullable;
 
 import firestream.chat.FirestreamConfig;
 import firestream.chat.chat.Chat;
 import firestream.chat.chat.User;
 import firestream.chat.events.ConnectionEvent;
 import firestream.chat.firebase.rx.MultiQueueSubject;
+import firestream.chat.firebase.service.FirebaseService;
 import firestream.chat.message.Sendable;
 import firestream.chat.types.ContactType;
 import firestream.chat.types.DeliveryReceiptType;
@@ -22,14 +20,21 @@ import firestream.chat.types.PresenceType;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.annotations.Nullable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
 import sdk.guru.common.Event;
 
 public interface IFireStream extends IAbstractChat {
 
-    void initialize(Context context, @Nullable FirestreamConfig config);
-    void initialize(Context context);
+    /**
+     *
+     * @param context
+     * @param config
+     * @param service - Firestore or Realtime service
+     */
+    void initialize(Context context, @Nullable FirestreamConfig config, FirebaseService service);
+    void initialize(Context context, FirebaseService service);
     boolean isInitialized();
 
     /**
@@ -72,8 +77,10 @@ public interface IFireStream extends IAbstractChat {
      * @param sendable to be deleted
      * @return completion
      */
-    Completable deleteSendable (Sendable sendable);
-    Completable deleteSendable (String sendableId);
+    Completable deleteSendable(Sendable sendable);
+    Completable deleteSendable(String sendableId);
+    Completable deleteSendable(String userId, String sendableId);
+
     Completable sendPresence(String userId, PresenceType type);
     Completable sendPresence(String userId, PresenceType type, @Nullable Consumer<String> newId);
 
@@ -102,14 +109,14 @@ public interface IFireStream extends IAbstractChat {
 
     Completable block(User user);
     Completable unblock(User user);
-    ArrayList<User> getBlocked();
+    List<User> getBlocked();
     boolean isBlocked(User user);
 
     // Contacts
 
     Completable addContact(User user, ContactType type);
     Completable removeContact(User user);
-    ArrayList<User> getContacts();
+    List<User> getContacts();
 
     // Chats
 

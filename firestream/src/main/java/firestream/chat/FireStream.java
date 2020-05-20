@@ -2,6 +2,7 @@ package firestream.chat;
 
 import android.content.Context;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -14,16 +15,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
-import firefly.sdk.chat.R;
 import firestream.chat.chat.AbstractChat;
 import firestream.chat.chat.Chat;
 import firestream.chat.chat.User;
 import firestream.chat.events.ConnectionEvent;
 import firestream.chat.filter.Filter;
-import firestream.chat.firebase.firestore.FirestoreService;
-import firestream.chat.firebase.realtime.RealtimeService;
 import firestream.chat.firebase.rx.MultiQueueSubject;
 import firestream.chat.firebase.service.FirebaseService;
 import firestream.chat.firebase.service.Keys;
@@ -110,24 +106,18 @@ public class FireStream extends AbstractChat implements IFireStream {
     }
 
     @Override
-    public void initialize(Context context, @Nullable FirestreamConfig config) {
+    public void initialize(Context context, @Nullable FirestreamConfig config, FirebaseService service) {
         this.context = new WeakReference<>(context);
         if (config == null) {
             config = new FirestreamConfig<>(this);
         }
         this.config = config;
-
-        if (config.database == FirestreamConfig.DatabaseType.Firestore) {
-            firebaseService = new FirestoreService();
-        }
-        if (config.database == FirestreamConfig.DatabaseType.Realtime) {
-            firebaseService = new RealtimeService();
-        }
+        firebaseService = service;
     }
 
     @Override
-    public void initialize(Context context) {
-        initialize(context, null);
+    public void initialize(Context context, FirebaseService service) {
+        initialize(context, null, service);
     }
 
     @Override
@@ -148,10 +138,10 @@ public class FireStream extends AbstractChat implements IFireStream {
 
         // MESSAGE DELETION
 
-        // We always delete typing state and presence messages
+        // We always delete delivery receipt and presence messages
         Observable<Event<Sendable>> stream = getSendableEvents().getSendables().pastAndNewEvents();
         if (!config.deleteMessagesOnReceipt) {
-            stream = stream.filter(Filter.eventBySendableType(SendableType.typingState(), SendableType.presence()));
+            stream = stream.filter(Filter.eventBySendableType(SendableType.deliveryReceipt(), SendableType.presence()));
         }
         // If deletion is enabled, we don't filter so we delete all the message types
         stream.map(Event::get).flatMapCompletable(this::deleteSendable).subscribe(this);
@@ -165,7 +155,7 @@ public class FireStream extends AbstractChat implements IFireStream {
                 .flatMapCompletable(event -> markReceived(event.get()))
                 .subscribe(this);
 
-        // If message deletion is disabled, send a received receipt to ourself for each message. This means
+        // If message deletion is disabled, send a received receipt to our-self for each message. This means
         // that when we add a childListener, we only get new messages
         if (!config.deleteMessagesOnReceipt && config.startListeningFromLastSentMessageDate) {
             getSendableEvents()
@@ -279,6 +269,11 @@ public class FireStream extends AbstractChat implements IFireStream {
     }
 
     @Override
+    public Completable deleteSendable (String userId, String sendableId) {
+        return deleteSendable(Paths.messagePath(userId, sendableId));
+    }
+
+    @Override
     public Completable sendPresence(String userId, PresenceType type) {
         return sendPresence(userId, type, null);
     }
@@ -338,7 +333,7 @@ public class FireStream extends AbstractChat implements IFireStream {
         return Completable.defer(() -> {
             final Typing typing = typingMap.get(userId);
             if (typing.isTyping) {
-                return deleteSendable(typing.sendableId).doOnComplete(() -> {
+                return deleteSendable(userId, typing.sendableId).doOnComplete(() -> {
                     typing.isTyping = false;
                     typing.sendableId = null;
                 });

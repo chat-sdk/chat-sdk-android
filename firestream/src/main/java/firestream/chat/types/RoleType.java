@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import firefly.sdk.chat.R;
+import firestream.chat.R;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.namespace.Fire;
 

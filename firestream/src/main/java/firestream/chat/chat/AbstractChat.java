@@ -1,7 +1,6 @@
 package firestream.chat.chat;
 
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
+import androidx.annotation.Nullable;
 
 import org.pmw.tinylog.Logger;
 
@@ -9,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import javax.annotation.Nullable;
 
 import firestream.chat.events.ListData;
 import firestream.chat.filter.Filter;
@@ -315,12 +312,14 @@ public abstract class AbstractChat implements IAbstractChat {
             events.getDeliveryReceipts().onNext(event.to(sendable.toDeliveryReceipt()));
         }
         if (sendable.isType(SendableType.typingState())) {
+            TypingState typingState = sendable.toTypingState();
             if (event.typeIs(EventType.Added)) {
-                events.getTypingStates().onNext(new Event<>(new TypingState(TypingStateType.typing()), EventType.Modified));
+                typingState.setBodyType(TypingStateType.typing());
             }
             if (event.typeIs(EventType.Removed)) {
-                events.getTypingStates().onNext(new Event<>(new TypingState(TypingStateType.none()), EventType.Modified));
+                typingState.setBodyType(TypingStateType.none());
             }
+            events.getTypingStates().onNext(new Event<>(typingState, EventType.Modified));
         }
         if (sendable.isType(SendableType.invitation())) {
             events.getInvitations().onNext(event.to(sendable.toInvitation()));
@@ -331,13 +330,19 @@ public abstract class AbstractChat implements IAbstractChat {
     }
 
     @Override
-    public ArrayList<Sendable> getSendables() {
+    public List<Sendable> getSendables() {
         return sendables;
     }
 
     @Override
-    public ArrayList<Sendable> getSendables(SendableType type) {
-        return Lists.newArrayList(Collections2.filter(sendables, input -> input != null && input.isType(type)));
+    public List<Sendable> getSendables(SendableType type) {
+        List<Sendable> sendables = new ArrayList<>();
+        for (Sendable s: sendables) {
+            if (s.isType(type)) {
+                sendables.add(s);
+            }
+        }
+        return sendables;
     }
 
 //    public DeliveryReceipt getDeliveryReceiptsForMessage(String messageId, DeliveryReceiptType type) {

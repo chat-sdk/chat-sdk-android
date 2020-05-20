@@ -1,2 +1,1 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="firefly.sdk.chat" />
+<manifest package="firestream.chat" />

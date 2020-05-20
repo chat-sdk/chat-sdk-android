@@ -1,19 +1,19 @@
 package firestream.chat.firebase.service;
 
+import androidx.annotation.Nullable;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
-import sdk.guru.common.Event;
+import firestream.chat.chat.User;
 import firestream.chat.events.ListData;
+import firestream.chat.message.Sendable;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import firestream.chat.chat.User;
-import firestream.chat.message.Sendable;
 import io.reactivex.functions.Consumer;
+import sdk.guru.common.Event;
 
 public abstract class FirebaseCoreHandler {
 

@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import firefly.sdk.chat.R;
+import firestream.chat.R;
 import firestream.chat.events.ListData;
 import firestream.chat.firebase.rx.MultiQueueSubject;
 import firestream.chat.firebase.service.Keys;

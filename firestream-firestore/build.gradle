@@ -21,8 +21,8 @@ android {
 }
 
 ext {
-    libraryName = 'FireStream'
-    artifact = 'firestream'
+    libraryName = 'FireStreamFirestore'
+    artifact = 'firestream-firestore'
     libraryDescription = 'FireStream: Messaging Framework for Firebase and Firestore'
 }
 
@@ -40,12 +40,6 @@ publish {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':sdk-guru-common')
-//    api project(':sdk-guru-realtime')
-
-//    implementation "com.google.firebase:firebase-firestore:$firebaseFirestoreVersion"
-    implementation "com.google.firebase:firebase-auth:$firebaseAuthVersion"
-//    implementation "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
-    implementation "com.victorrendina:rxqueue2:$rxQueueVersion"
-
+    api project(':firestream')
+    api project(':sdk-guru-firestore')
 }

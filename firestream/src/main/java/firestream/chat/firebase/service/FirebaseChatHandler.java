@@ -2,13 +2,11 @@ package firestream.chat.firebase.service;
 
 import java.util.HashMap;
 
-import javax.annotation.Nullable;
-
-import firestream.chat.chat.Chat;
 import firestream.chat.chat.Meta;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.annotations.Nullable;
 import io.reactivex.functions.Consumer;
 
 public abstract class FirebaseChatHandler {
