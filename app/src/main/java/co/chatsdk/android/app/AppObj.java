@@ -51,7 +51,7 @@ public class AppObj extends MultiDexApplication {
 
             Configuration.Builder config = new Configuration.Builder();
 
-            config.firebaseRootPath("pre_1");
+            config.firebaseRootPath("pre_1x");
             config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
             config.publicRoomCreationEnabled(true);
             config.pushNotificationSound("default");
