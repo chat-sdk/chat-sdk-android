@@ -5,7 +5,7 @@ import com.stfalcon.chatkit.commons.models.IUser;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.ui.module.DefaultUIModule;
+import sdk.chat.ui.module.UIModule;
 
 public class UserHolder implements IUser {
 
@@ -33,7 +33,7 @@ public class UserHolder implements IUser {
     public String getAvatar() {
         String url = user.getAvatarURL();
         if (url == null) {
-            url =  ImageUtils.uriForResourceId(ChatSDK.ctx(), DefaultUIModule.config().defaultProfileImage).toString();
+            url =  ImageUtils.uriForResourceId(ChatSDK.ctx(), UIModule.config().defaultProfilePlaceholder).toString();
         }
         return url;
     }

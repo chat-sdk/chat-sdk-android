@@ -7,7 +7,7 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.types.ReadStatus;
-import co.chatsdk.ui.R;
+import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.MessageHolder;
 
 public class ReadStatusViewBinder {
@@ -36,7 +36,9 @@ public class ReadStatusViewBinder {
 
             if (view != null && resource != -1) {
                 view.setImageResource(resource);
-                view.setVisibility(status.is(ReadStatus.hide()) ? View.GONE : View.VISIBLE);
+                view.setVisibility(View.VISIBLE);
+            } else {
+                view.setVisibility(View.GONE);
             }
         }
     }

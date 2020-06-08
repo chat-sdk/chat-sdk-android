@@ -17,8 +17,8 @@ import androidx.core.content.ContextCompat;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
 import sdk.chat.ui.utils.ColorStateListUtil;
 
 public class SwitchItemView extends LinearLayout {

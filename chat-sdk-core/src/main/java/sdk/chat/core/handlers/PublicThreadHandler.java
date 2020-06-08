@@ -1,9 +1,9 @@
 package sdk.chat.core.handlers;
 
-import java.util.HashMap;
+import java.util.Map;
 
-import sdk.chat.core.dao.Thread;
 import io.reactivex.Single;
+import sdk.chat.core.dao.Thread;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
@@ -16,7 +16,7 @@ public interface PublicThreadHandler {
      */
     Single<Thread> createPublicThreadWithName(final String name);
     Single<Thread> createPublicThreadWithName(final String name, final String entityID);
-    Single<Thread> createPublicThreadWithName(final String name, HashMap<String, String> meta);
-    Single<Thread> createPublicThreadWithName(final String name, final String entityID, HashMap<String, String> meta);
-    Single<Thread> createPublicThreadWithName(final String name, final String entityID, HashMap<String, String> meta, String imageURL);
+    Single<Thread> createPublicThreadWithName(final String name, Map<String, Object> meta);
+    Single<Thread> createPublicThreadWithName(final String name, final String entityID, Map<String, Object> meta);
+    Single<Thread> createPublicThreadWithName(final String name, final String entityID, Map<String, Object> meta, String imageURL);
 }

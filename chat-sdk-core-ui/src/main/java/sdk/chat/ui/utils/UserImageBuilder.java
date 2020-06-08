@@ -7,7 +7,7 @@ import android.widget.ImageView;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.ui.module.DefaultUIModule;
+import sdk.chat.ui.module.UIModule;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 
@@ -22,7 +22,7 @@ public class UserImageBuilder {
     }
 
     public static Bitmap defaultAvatar() {
-        return BitmapFactory.decodeResource(ChatSDK.ctx().getResources(), DefaultUIModule.config().defaultProfileImage);
+        return BitmapFactory.decodeResource(ChatSDK.ctx().getResources(), UIModule.config().defaultProfilePlaceholder);
     }
 
 }

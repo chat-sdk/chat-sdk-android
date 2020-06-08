@@ -1,4 +1,4 @@
-package co.chatsdk.message.sticker;
+package sdk.chat.message.sticker;
 
 import android.content.Context;
 
@@ -12,8 +12,6 @@ import java.util.ArrayList;
 
 import sdk.chat.core.utils.StringChecker;
 
-import static co.chatsdk.message.sticker.R.raw.stickers;
-
 /**
  * Created by ben on 10/11/17.
  */
@@ -25,7 +23,7 @@ public class Configuration {
     public static ArrayList<StickerPack> getStickerPacks (Context context) throws Exception {
         ArrayList<StickerPack> stickerPacks = new ArrayList<>();
 
-        NSObject object = PropertyListParser.parse(context.getResources().openRawResource(stickers));
+        NSObject object = PropertyListParser.parse(context.getResources().openRawResource(R.raw.stickers));
         if(object instanceof NSArray) {
             NSArray packs = (NSArray) object;
 

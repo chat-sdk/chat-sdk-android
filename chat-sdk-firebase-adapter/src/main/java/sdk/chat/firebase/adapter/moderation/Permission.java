@@ -1,12 +1,10 @@
-package co.chatsdk.firebase.moderation;
-
-import androidx.annotation.NonNull;
+package sdk.chat.firebase.adapter.moderation;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.firebase.R;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.firebase.adapter.R;
 
 public class Permission {
 

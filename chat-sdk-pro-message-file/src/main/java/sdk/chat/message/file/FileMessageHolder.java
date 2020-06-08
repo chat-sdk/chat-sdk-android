@@ -1,10 +1,10 @@
-package co.chatsdk.message.file;
+package sdk.chat.message.file;
 
 import com.stfalcon.chatkit.commons.models.MessageContentType;
 
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.chat.model.MessageHolder;
+import sdk.chat.ui.chat.model.MessageHolder;
 
 public class FileMessageHolder extends MessageHolder implements MessageContentType {
 

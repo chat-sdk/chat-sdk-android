@@ -22,6 +22,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import butterknife.BindView;
+import de.hdodenhof.circleimageview.CircleImageView;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
@@ -29,14 +30,13 @@ import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ConnectionType;
 import sdk.chat.core.utils.StringChecker;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
 import sdk.chat.ui.binders.AvailabilityHelper;
 import sdk.chat.ui.icons.Icons;
-import sdk.chat.ui.module.DefaultUIModule;
+import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.views.IconItemView;
 import sdk.chat.ui.views.SwitchItemView;
-import de.hdodenhof.circleimageview.CircleImageView;
 import sdk.guru.common.RX;
 
 /**
@@ -113,7 +113,7 @@ public class ProfileFragment extends BaseFragment {
     protected void setHeaderImage(@Nullable String url) {
         // Make sure that this runs when the view has dimensions
         rootView.post(() -> {
-            int profileHeader = DefaultUIModule.config().profileHeaderImage;
+            int profileHeader = UIModule.config().profileHeaderImage;
             if (url != null) {
                 Glide.with(this)
                         .load(url)
@@ -230,7 +230,7 @@ public class ProfileFragment extends BaseFragment {
         setHeaderImage(user.getHeaderURL());
 
         collapsingToolbar.setTitle(user.getName());
-        Glide.with(this).load(user.getAvatarURL()).dontAnimate().placeholder(DefaultUIModule.config().defaultProfileImage).into(avatarImageView);
+        Glide.with(this).load(user.getAvatarURL()).dontAnimate().placeholder(UIModule.config().defaultProfilePlaceholder).into(avatarImageView);
 
         if (StringChecker.isNullOrEmpty(user.getStatus())) {
             statusCardView.setVisibility(View.GONE);

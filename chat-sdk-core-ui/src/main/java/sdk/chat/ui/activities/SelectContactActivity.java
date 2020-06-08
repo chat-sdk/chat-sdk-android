@@ -26,15 +26,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import io.reactivex.functions.Predicate;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.chat.ui.icons.Icons;
-import io.reactivex.functions.Predicate;
 
 /**
  * Created by itzik on 6/17/2014.

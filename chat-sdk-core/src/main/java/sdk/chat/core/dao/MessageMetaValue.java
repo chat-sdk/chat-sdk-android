@@ -6,10 +6,8 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToOne;
 
-import sdk.chat.core.base.AbstractEntity;
-
 @Entity
-public class MessageMetaValue implements MetaValue {
+public class MessageMetaValue implements MetaValue<String> {
 
     @Id
     private Long id;

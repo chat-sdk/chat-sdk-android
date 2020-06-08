@@ -1,6 +1,5 @@
 package sdk.chat.core.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -9,7 +8,7 @@ import java.util.List;
 
 public class MetaValueHelper {
 
-    public static <T extends MetaValue> T metaValueForKey (String key, List<T> values) {
+    public static <T extends MetaValue<?>> T metaValueForKey (String key, List<T> values) {
         if (values != null) {
             for (T value : values) {
                 if (value.getKey() != null && key != null) {

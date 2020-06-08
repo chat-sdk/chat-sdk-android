@@ -1,4 +1,4 @@
-package co.chatsdk.firebase.update;
+package sdk.chat.firebase.adapter.update;
 
 import com.google.firebase.database.DatabaseReference;
 

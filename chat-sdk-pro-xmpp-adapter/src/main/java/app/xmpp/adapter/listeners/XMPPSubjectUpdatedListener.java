@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.listeners;
+package app.xmpp.adapter.listeners;
 
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.SubjectUpdatedListener;

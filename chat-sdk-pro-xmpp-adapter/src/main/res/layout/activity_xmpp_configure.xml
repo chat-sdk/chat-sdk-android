@@ -6,7 +6,7 @@
     android:fitsSystemWindows="true">
 
     <fragment
-        android:name="co.chatsdk.xmpp.fragments.XMPPConfigureFragment"
+        android:name="app.xmpp.adapter.fragments.XMPPConfigureFragment"
         android:id="@+id/fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent">

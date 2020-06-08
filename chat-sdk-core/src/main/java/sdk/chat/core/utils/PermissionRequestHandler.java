@@ -3,7 +3,6 @@ package sdk.chat.core.utils;
 import android.Manifest;
 import android.app.Activity;
 
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.karumi.dexter.Dexter;
@@ -14,12 +13,13 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import org.pmw.tinylog.Logger;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import co.chatsdk.core.R;
-import sdk.chat.core.session.ChatSDK;
 import io.reactivex.Completable;
+import sdk.chat.core.R;
+import sdk.chat.core.session.ChatSDK;
 import sdk.guru.common.RX;
 
 import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
@@ -79,7 +79,7 @@ public class PermissionRequestHandler {
         return requestPermissions(activity, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION);
     }
 
-    public static Completable requestPermissions(final Activity activity, String... permissions) {
+    public static Completable requestPermissions(final Activity activity, List<String> permissions) {
         return Completable.create(emitter -> {
             Logger.debug("Start Dexter " + new Date().getTime());
             try {
@@ -105,7 +105,10 @@ public class PermissionRequestHandler {
             } catch (Exception e) {
                 Logger.error(e);
             }
-        }).subscribeOn(RX.main()).observeOn(RX.main());
+        }).subscribeOn(RX.main()).observeOn(RX.main());    }
+
+    public static Completable requestPermissions(final Activity activity, String... permissions) {
+        return requestPermissions(activity, Arrays.asList(permissions));
     }
 
 }

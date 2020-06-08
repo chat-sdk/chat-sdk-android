@@ -1,8 +1,8 @@
-package co.chatsdk.firestream;
+package sdk.chat.firestream.adapter;
 
 import java.util.Date;
 
-import co.chatsdk.firebase.FirebaseEventHandler;
+import sdk.chat.firebase.adapter.FirebaseEventHandler;
 import firestream.chat.filter.Filter;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.namespace.Fire;

@@ -1,10 +1,9 @@
 package sdk.chat.ui.chat.model;
 
-import co.chatsdk.ui.R;
-import sdk.chat.ui.module.DefaultUIModule;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.ui.R;
 
 public class SystemUserHolder extends UserHolder {
     public SystemUserHolder(User user) {

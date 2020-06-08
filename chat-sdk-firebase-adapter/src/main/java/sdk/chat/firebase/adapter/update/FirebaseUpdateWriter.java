@@ -1,11 +1,11 @@
-package co.chatsdk.firebase.update;
+package sdk.chat.firebase.adapter.update;
 
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import co.chatsdk.firebase.FirebasePaths;
+import sdk.chat.firebase.adapter.FirebasePaths;
 import io.reactivex.Completable;
 import sdk.guru.realtime.RXRealtime;
 

@@ -1,4 +1,11 @@
 package sdk.chat.core.dao;
 
-public class MetaValue {
+public interface MetaValue<T> {
+
+    String getKey();
+    T getValue();
+
+    void setKey(String key);
+    void setValue (T value);
+
 }

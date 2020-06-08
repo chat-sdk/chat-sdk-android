@@ -1,11 +1,10 @@
-package co.chatsdk.profile.pictures;
+package sdk.chat.profile.pictures;
 
 import android.content.Context;
 
 import androidx.annotation.Nullable;
 
 import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 
 /**

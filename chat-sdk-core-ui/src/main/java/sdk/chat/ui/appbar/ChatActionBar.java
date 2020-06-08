@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import sdk.chat.core.dao.Thread;
@@ -26,12 +27,11 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.core.utils.Strings;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
 import sdk.chat.ui.icons.Icons;
-import sdk.chat.ui.module.DefaultUIModule;
+import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ThreadImageBuilder;
-import de.hdodenhof.circleimageview.CircleImageView;
 import sdk.guru.common.RX;
 
 public class ChatActionBar extends AppBarLayout {
@@ -72,7 +72,7 @@ public class ChatActionBar extends AppBarLayout {
     }
 
     public void onClick(View view) {
-        if (DefaultUIModule.config().threadDetailsEnabled && onClickListener != null) {
+        if (UIModule.config().threadDetailsEnabled && onClickListener != null) {
             onClickListener.onClick(view);
         }
     }

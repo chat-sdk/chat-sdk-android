@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
-import co.chatsdk.ui.activities.ProfileActivity;
+import sdk.chat.ui.activities.ProfileActivity;
 
 public class AProfileActivity extends ProfileActivity {
     @Override

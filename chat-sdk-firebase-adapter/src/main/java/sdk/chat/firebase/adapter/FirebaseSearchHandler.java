@@ -1,18 +1,18 @@
-package co.chatsdk.firebase;
+package sdk.chat.firebase.adapter;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Query;
 
 import java.util.HashMap;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
 import sdk.chat.core.base.AbstractSearchHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.firebase.module.FirebaseModule;
-import co.chatsdk.firebase.wrappers.UserWrapper;
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.adapter.wrappers.UserWrapper;
 import sdk.guru.common.RX;
 import sdk.guru.realtime.RealtimeEventListener;
 

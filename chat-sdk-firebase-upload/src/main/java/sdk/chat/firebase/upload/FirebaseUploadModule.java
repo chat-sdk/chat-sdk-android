@@ -1,4 +1,4 @@
-package co.chatsdk.firebase.file_storage;
+package sdk.chat.firebase.upload;
 
 import android.content.Context;
 

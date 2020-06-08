@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.handlers;
+package app.xmpp.adapter.handlers;
 
 import sdk.chat.core.base.BaseNetworkAdapter;
 

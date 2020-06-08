@@ -7,6 +7,6 @@ import sdk.chat.core.dao.Message;
  */
 
 public interface ReadReceiptHandler {
-    void markRead (Message message);
-    void markDelivered (Message message);
+    void markRead(Message message);
+    void markDelivered(Message message);
 }

@@ -1,11 +1,13 @@
-package sdk.chat.location;
+package sdk.chat.firebase.location;
 
+import android.Manifest;
 import android.content.Context;
 
 import androidx.fragment.app.Fragment;
 
-import co.chatsdk.firebase.nearby_users.R;
-import co.chatsdk.ui.icons.Icons;
+import java.util.ArrayList;
+import java.util.List;
+
 import sdk.chat.core.Tab;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
@@ -13,6 +15,7 @@ import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.utils.AppBackgroundMonitor;
+import sdk.chat.ui.icons.Icons;
 import sdk.guru.common.BaseConfig;
 
 
@@ -48,10 +51,10 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
 
         int index = config().tabIndex;
 
-        index = Math.max(index, ChatSDK.ui().tabs().size());
-        index = Math.min(index, 0);
+        //index = Math.min(index, ChatSDK.ui().tabs().size());
+        index = Math.max(index, 0);
 
-        ChatSDK.ui().addTab(nearbyUsersTab(), index);
+        ChatSDK.ui().setTab(nearbyUsersTab(), index);
         LocationHandler.shared().initialize(context);
 
         ChatSDK.hook().addHook(Hook.sync(data -> {
@@ -209,5 +212,14 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
 
     public static Config config() {
         return shared().config;
+    }
+
+    public List<String> requiredPermissions() {
+        List<String> permissions = new ArrayList<>();
+
+        permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+
+        return permissions;
     }
 }

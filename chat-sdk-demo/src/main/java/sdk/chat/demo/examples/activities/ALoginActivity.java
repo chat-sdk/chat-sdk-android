@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
-import co.chatsdk.ui.activities.LoginActivity;
+import sdk.chat.ui.activities.LoginActivity;
 
 public class ALoginActivity extends LoginActivity {
     @Override

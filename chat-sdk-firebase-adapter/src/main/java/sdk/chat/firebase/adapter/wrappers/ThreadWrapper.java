@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:35 PM
  */
 
-package co.chatsdk.firebase.wrappers;
+package sdk.chat.firebase.adapter.wrappers;
 
 import androidx.annotation.Nullable;
 
@@ -25,20 +25,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import co.chatsdk.firebase.FirebaseEntity;
-import co.chatsdk.firebase.FirebasePaths;
-import co.chatsdk.firebase.moderation.Permission;
-import co.chatsdk.firebase.module.FirebaseModule;
-import co.chatsdk.firebase.update.FirebaseUpdate;
-import co.chatsdk.firebase.update.FirebaseUpdateWriter;
-import co.chatsdk.firebase.utils.Generic;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
-import sdk.chat.core.dao.ThreadMetaValue;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.dao.sorter.MessageSorter;
 import sdk.chat.core.events.NetworkEvent;
@@ -46,7 +38,13 @@ import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
-import sdk.chat.core.utils.StringChecker;
+import sdk.chat.firebase.adapter.FirebaseEntity;
+import sdk.chat.firebase.adapter.FirebasePaths;
+import sdk.chat.firebase.adapter.moderation.Permission;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.adapter.update.FirebaseUpdate;
+import sdk.chat.firebase.adapter.update.FirebaseUpdateWriter;
+import sdk.chat.firebase.adapter.utils.Generic;
 import sdk.guru.common.Event;
 import sdk.guru.common.EventType;
 import sdk.guru.common.RX;
@@ -288,79 +286,40 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
     }
 
     public Completable metaOn() {
-//        return Completable.create(emitter -> {
-//            DatabaseReference ref = FirebasePaths.threadMetaRef(model.getEntityID());
-//            if (!RealtimeReferenceManager.shared().isOn(ref)) {
-//                RXRealtime realtime = new RXRealtime(this);
-//
-//                realtime.on(ref).doOnNext(change -> {
-//                    if (change.getSnapshot().exists()) {
-//                        deserialize(change.getSnapshot());
-//                        Map<String, Object> map = change.getSnapshot().getValue(Generic.mapStringObject());
-//                        if (map != null) {
-//                            model.setMetaValues(map);
-//                        }
-//                        emitter.onComplete();
-//                    }
-//                }).ignoreElements().subscribe(ChatSDK.events());
-//
-//                realtime.addToReferenceManager();
-//            }
-//        });
-//
-        return Completable.defer(() -> {
+        return Completable.create(emitter -> {
             DatabaseReference ref = FirebasePaths.threadMetaRef(model.getEntityID());
             if (!RealtimeReferenceManager.shared().isOn(ref)) {
                 RXRealtime realtime = new RXRealtime(this);
 
-                Completable completable = realtime.on(ref).doOnNext(change -> {
+                realtime.on(ref).doOnNext(change -> {
                     if (change.getSnapshot().exists()) {
                         deserialize(change.getSnapshot());
-                        Map<String, Object> map = change.getSnapshot().getValue(Generic.mapStringObject());
-                        if (map != null) {
-                            model.setMetaValues(map);
-                        }
+//                        Map<String, Object> map = change.getSnapshot().getValue(Generic.mapStringObject());
+//                        if (map != null) {
+//                            model.setMetaValues(map);
+//                        }
                     }
-                }).ignoreElements();
+                    emitter.onComplete();
+                }).ignoreElements().subscribe(ChatSDK.events());
 
                 realtime.addToReferenceManager();
-
-                return completable;
             }
-            return Completable.complete();
-        }).subscribeOn(RX.computation());
-    }
-
-    @Deprecated
-    public Completable pushMeta() {
-        return Completable.create(e -> {
-
-            DatabaseReference ref = FirebasePaths.threadMetaRef(model.getEntityID());
-
-            Map<String, Object> meta = new HashMap<>();
-
-            List<ThreadMetaValue> values = model.getMetaValues();
-            for(ThreadMetaValue value : values) {
-                meta.put(value.getKey(), value.getValue());
-            }
-
-            if (meta.keySet().size() > 0) {
-                ref.setValue(meta, ((databaseError, databaseReference) -> {
-                    if (databaseError == null) {
-                        e.onComplete();
-                    }
-                    else {
-                        e.onError(databaseError.toException());
-                    }
-                }));
-            } else {
-                e.onComplete();
-            }
-
         }).subscribeOn(RX.io());
     }
 
-    public void metaOff () {
+    public Completable pushMeta() {
+        return Completable.defer(() -> {
+            Map<String, Object> meta = model.metaMap();
+            if (meta.keySet().size() > 0) {
+                RXRealtime realtime = new RXRealtime();
+                DatabaseReference ref = FirebasePaths.threadMetaRef(model.getEntityID());
+                return realtime.update(ref, meta);
+            }
+            return Completable.complete();
+        }).subscribeOn(RX.io());
+    }
+
+    public void metaOff() {
         DatabaseReference ref = FirebasePaths.threadMetaRef(model.getEntityID());
         RealtimeReferenceManager.shared().removeListeners(ref);
     }
@@ -538,12 +497,6 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
     protected Map<String, Object> serialize() {
         Map<String, Object> items = new HashMap<String, Object>() {{
             put(Keys.CreationDate, ServerValue.TIMESTAMP);
-            if (!StringChecker.isNullOrEmpty(model.getName())) {
-                put(Keys.Name, model.getName());
-            }
-            if (!StringChecker.isNullOrEmpty(model.getImageUrl())) {
-                put(Keys.ImageUrl, model.getImageUrl());
-            }
             put(Keys.Type, model.getType());
             put(Keys.Creator, model.getCreator().getEntityID());
             if (FirebaseModule.config().enableCompatibilityWithV4) {
@@ -590,17 +543,6 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         }
         model.setType((int)type);
 
-        if (snapshot.hasChild(Keys.Name)) {
-            String name = snapshot.child(Keys.Name).getValue(String.class);
-            if (!name.isEmpty()) {
-                model.setName(name, false);
-            }
-        }
-
-        if (snapshot.hasChild(Keys.ImageUrl)) {
-            model.setImageUrl(snapshot.child(Keys.ImageUrl).getValue(String.class), false);
-        }
-
         Map<String, Object> meta = snapshot.getValue(Generic.mapStringObject());
 
         // When we add the data to Firebase we add thread "details" and "meta" data to the
@@ -641,7 +583,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
                 metaRef.updateChildren(data, (databaseError, databaseReference) -> {
                     if (databaseError == null) {
-                        FirebaseEntity.pushThreadMetaUpdated(model.getEntityID()).subscribe(ChatSDK.events());
+                        FirebaseEntity.pushThreadUpdated(model.getEntityID()).subscribe(ChatSDK.events());
                         e.onComplete();
                     }
                     else {
@@ -700,10 +642,10 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             RXRealtime realtime = new RXRealtime(this);
             return realtime.get(ref).flatMapCompletable(change -> {
                 if (!change.isEmpty()) {
-                    model.setPermission(currentEntityID, change.get().getValue(String.class));
+                    model.setPermission(currentEntityID, change.get().getValue(String.class), false, false);
                 } else {
                     // If no permission is set, we set it to member
-                    model.setPermission(currentEntityID, model.getCreator().isMe() ? Permission.Owner : Permission.Member);
+                    model.setPermission(currentEntityID, model.getCreator().isMe() ? Permission.Owner : Permission.Member, false, false);
                 }
                 return Completable.complete();
             });

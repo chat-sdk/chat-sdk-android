@@ -18,11 +18,11 @@ import android.os.PowerManager;
 
 import androidx.core.app.NotificationManagerCompat;
 
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.session.ChatSDK;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 public class NotificationDisplayHandler implements Consumer<Throwable> {
 
@@ -49,6 +49,7 @@ public class NotificationDisplayHandler implements Consumer<Throwable> {
     }
 
     public Disposable createMessageNotification(final Context context, Intent resultIntent, String userEntityID, String threadEntityId, String title, String message) {
+
         Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityId);
         if (connectedToAuto(context) && thread != null) {
             return new NotificationBuilder(context).forAuto(title, message, thread).build().subscribe(builder -> {
@@ -111,7 +112,7 @@ public class NotificationDisplayHandler implements Consumer<Throwable> {
     }
 
     @Override
-    public void accept(Throwable t) throws Exception {
+    public void accept(Throwable t) {
         t.printStackTrace();
     }
 }

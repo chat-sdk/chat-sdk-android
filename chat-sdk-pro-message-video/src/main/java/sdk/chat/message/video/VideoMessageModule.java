@@ -1,5 +1,6 @@
 package sdk.chat.message.video;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -7,19 +8,20 @@ import android.view.View;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
-import co.chatsdk.message.video.R;
-import co.chatsdk.ui.chat.model.MessageHolder;
-import co.chatsdk.ui.chat.options.MediaChatOption;
-import co.chatsdk.ui.chat.options.MediaType;
-import co.chatsdk.ui.custom.Customiser;
-import co.chatsdk.ui.custom.IMessageHandler;
+import sdk.chat.ui.chat.model.MessageHolder;
+import sdk.chat.ui.chat.options.MediaChatOption;
+import sdk.chat.ui.chat.options.MediaType;
+import sdk.chat.ui.custom.Customiser;
+import sdk.chat.ui.custom.IMessageHandler;
 
 /**
  * Created by ben on 10/6/17.
@@ -89,6 +91,17 @@ public class VideoMessageModule extends AbstractModule {
     @Override
     public MessageHandler getMessageHandler() {
         return ChatSDK.videoMessage();
+    }
+
+    @Override
+    public List<String> requiredPermissions() {
+        List<String> permissions = new ArrayList<>();
+
+        permissions.add(Manifest.permission.CAMERA);
+        permissions.add(Manifest.permission.RECORD_AUDIO);
+        permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        return permissions;
     }
 
 }

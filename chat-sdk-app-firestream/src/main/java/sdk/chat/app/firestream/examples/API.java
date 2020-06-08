@@ -11,7 +11,6 @@ import firestream.chat.namespace.Fire;
 import firestream.chat.realtime.RealtimeService;
 import firestream.chat.types.RoleType;
 import io.reactivex.disposables.Disposable;
-import sdk.guru.common.EventType;
 
 public class API {
 
@@ -30,7 +29,6 @@ public class API {
             // Handle Exception
         }
 
-        config.messageHistoryLimit = 100;
         config.autoAcceptChatInvite = false;
 
         // etc...
@@ -73,18 +71,18 @@ public class API {
 
         Disposable d4 = Fire.stream().getChatEvents().subscribe(chatEvent -> {
             IChat chat = chatEvent.get();
-            if (chatEvent.typeIs(EventType.Added)) {
+            if (chatEvent.isAdded()) {
                 // A chat was added!
 
                 // Get the chat to dispose of the disposable when we log out or leave
                 chat.manage(chat.getUserEvents().subscribe(userEvent -> {
                     User user = userEvent.get();
-                    if (userEvent.typeIs(EventType.Added)) {
+                    if (userEvent.isAdded()) {
                         // Get the role of the user
                         RoleType role = user.getRoleType();
 
                     }
-                    if (userEvent.typeIs(EventType.Removed)) {
+                    if (userEvent.isRemoved()) {
 
                     }
                 }));
@@ -98,7 +96,7 @@ public class API {
                 }));
 
             }
-            if (chatEvent.typeIs(EventType.Removed)) {
+            if (chatEvent.isRemoved()) {
                 // A chat was removed
             }
         });

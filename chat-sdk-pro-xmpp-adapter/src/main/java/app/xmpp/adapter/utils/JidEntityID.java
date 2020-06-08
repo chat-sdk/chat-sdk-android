@@ -3,7 +3,7 @@ package app.xmpp.adapter.utils;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 
-public class JidUtil {
+public class JidEntityID {
 
     public static String toEntityID(Jid jid) {
         return jid.asBareJid().toString();

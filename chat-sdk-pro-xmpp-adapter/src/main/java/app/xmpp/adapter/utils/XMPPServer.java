@@ -1,11 +1,11 @@
-package co.chatsdk.xmpp.utils;
+package app.xmpp.adapter.utils;
 
 import android.content.Context;
 
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Device;
 import sdk.chat.core.utils.StringChecker;
-import co.chatsdk.xmpp.module.XMPPModule;
+import app.xmpp.adapter.module.XMPPModule;
 
 public class XMPPServer {
     public String address;

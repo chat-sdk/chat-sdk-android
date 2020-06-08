@@ -1,9 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="co.chatsdk.profile.pictures">
+    package="sdk.chat.profile.pictures">
 
-    <application android:label="@string/app_name"
-        android:supportsRtl="true">
-        <activity  android:name="co.chatsdk.profile.pictures.ProfilePicturesActivity"  android:screenOrientation="portrait" />
+    <application android:label="@string/app_name">
+        <activity android:name=".ProfilePicturesActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

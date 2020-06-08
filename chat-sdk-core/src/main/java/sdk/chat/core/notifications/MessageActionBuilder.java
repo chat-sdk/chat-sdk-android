@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.Person;
 import androidx.core.app.RemoteInput;
 
+import sdk.chat.core.R;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -57,7 +58,7 @@ public class MessageActionBuilder {
         Intent replyIntent = createReplyIntent(context, threadEntityID);
         PendingIntent replyPendingIntent = PendingIntent.getService(context, replyID, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(0, "Reply", replyPendingIntent)
+        NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(0, context.getString(R.string.reply), replyPendingIntent)
                 .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
                 .setShowsUserInterface(false)
                 .addRemoteInput(createReplyRemoteInput())
@@ -70,7 +71,7 @@ public class MessageActionBuilder {
         Intent markAsReadIntent = createMarkAsReadIntent(context, threadEnityID);
         PendingIntent markAsReadPendingIntent = PendingIntent.getService(context, markAsReadId, markAsReadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Action markAsReadAction = new NotificationCompat.Action.Builder(0, "Mark as Read", markAsReadPendingIntent)
+        NotificationCompat.Action markAsReadAction = new NotificationCompat.Action.Builder(0, context.getString(R.string.mark_as_read), markAsReadPendingIntent)
                 .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ)
                 .setShowsUserInterface(false)
                 .build();

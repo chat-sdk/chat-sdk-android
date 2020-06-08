@@ -34,7 +34,7 @@ android {
 
 ext {
     libraryName = 'FireStreamReadReceiptPro'
-    artifact = 'pro-firestream-read-receipt'
+    artifact = 'pro-firestream-read-receipts'
     libraryDescription = 'Fire Stream Read Receipts Pro Module'
 }
 

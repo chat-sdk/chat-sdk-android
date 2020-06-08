@@ -1,4 +1,4 @@
-package sdk.chat.location;
+package sdk.chat.firebase.location;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,18 +13,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import butterknife.BindView;
-import co.chatsdk.firebase.nearby_users.R;
-import co.chatsdk.firebase.nearby_users.R2;
+import io.reactivex.disposables.Disposable;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.adapters.UsersListAdapter;
-import co.chatsdk.ui.fragments.BaseFragment;
-import co.chatsdk.ui.utils.ToastHelper;
-import io.reactivex.disposables.Disposable;
 import sdk.chat.core.utils.PermissionRequestHandler;
+import sdk.chat.ui.adapters.UsersListAdapter;
+import sdk.chat.ui.fragments.BaseFragment;
+import sdk.chat.ui.utils.ToastHelper;
 import sdk.guru.common.RX;
 
 /**
@@ -39,8 +37,6 @@ public class NearbyUsersFragment extends BaseFragment {
 
     @BindView(R2.id.textView)
     protected TextView textView;
-
-    protected ArrayList<LocationUser> locationUsers = new ArrayList<>();
 
     protected Disposable listOnClickListenerDisposable;
 
@@ -60,26 +56,9 @@ public class NearbyUsersFragment extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        GeoFireManager.shared().allEvents().observeOn(RX.db()).doOnNext(geoEvent -> {
-            if (geoEvent.item.isType(GeoItem.USER)) {
-                String entityID = geoEvent.item.entityID;
-                User user = ChatSDK.core().getUserNowForEntityID(entityID);
-                if (!user.isMe()) {
-                    LocationUser lu = getLocationUser(entityID);
-
-                    if (geoEvent.type.equals(GeoEvent.Type.Entered) && lu == null) {
-                        locationUsers.add(new LocationUser(user, geoEvent.getLocation()));
-                    }
-                    if (geoEvent.type.equals(GeoEvent.Type.Exited) && lu != null) {
-                        locationUsers.remove(lu);
-                    }
-                    if (geoEvent.type.equals(GeoEvent.Type.Moved) && lu != null) {
-                        lu.location = geoEvent.getLocation();
-                    }
-                    reloadData();
-                }
-            }
-        }).doOnError(this).ignoreElements().subscribe(this);
+        GeoFireManager.shared().locationUsersEvents().observeOn(RX.db()).doOnNext(locationUsers -> {
+            reloadData();
+        }).ignoreElements().subscribe(this);
 
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
@@ -129,7 +108,7 @@ public class NearbyUsersFragment extends BaseFragment {
     public void setTabVisibility (boolean isVisible) {
         if (isVisible) {
             updatePermissions();
-//            reloadData();
+            reloadData();
         }
     }
 
@@ -154,7 +133,7 @@ public class NearbyUsersFragment extends BaseFragment {
             // Build a list of location Users
             ArrayList<LocationUser> users = new ArrayList<>();
 
-            for (LocationUser lu : locationUsers) {
+            for (LocationUser lu : GeoFireManager.shared().getLocationUsers()) {
                 if (lu.distanceToMe() < FirebaseNearbyUsersModule.config().maxDistance && lu.getIsOnline()) {
                     users.add(lu);
                 }
@@ -179,12 +158,4 @@ public class NearbyUsersFragment extends BaseFragment {
         }
     }
 
-    public LocationUser getLocationUser(String entityID) {
-        for (LocationUser lu : locationUsers) {
-            if (lu.user.getEntityID().equals(entityID)) {
-                return lu;
-            }
-        }
-        return null;
-    }
 }

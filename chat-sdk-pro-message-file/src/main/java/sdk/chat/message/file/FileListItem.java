@@ -1,4 +1,4 @@
-package co.chatsdk.message.file;
+package sdk.chat.message.file;
 
 /**
  * Created by Pepe on 07/05/18.

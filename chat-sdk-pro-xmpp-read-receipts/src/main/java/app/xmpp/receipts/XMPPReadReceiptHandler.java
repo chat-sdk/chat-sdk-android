@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.read_receipt;
+package app.xmpp.receipts;
 
 import org.jivesoftware.smack.packet.Stanza;
 
@@ -8,7 +8,7 @@ import java.util.Date;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.handlers.ReadReceiptHandler;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.xmpp.XMPPManager;
+import app.xmpp.adapter.XMPPManager;
 import sdk.chat.core.types.ReadStatus;
 
 public class XMPPReadReceiptHandler implements ReadReceiptHandler {

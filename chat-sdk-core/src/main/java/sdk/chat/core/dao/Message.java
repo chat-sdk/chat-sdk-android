@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import co.chatsdk.core.R;
 import io.reactivex.Single;
+import sdk.chat.core.R;
 import sdk.chat.core.base.AbstractEntity;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
@@ -205,12 +205,12 @@ public class Message extends AbstractEntity {
 //        this.update();
     }
 
-    protected MetaValue metaValue (String key) {
+    protected MetaValue<String> metaValue (String key) {
         return MetaValueHelper.metaValueForKey(key, getMetaValues());
     }
 
-    public Object valueForKey (String key) {
-        MetaValue value = metaValue(key);
+    public Object valueForKey(String key) {
+        MetaValue<String> value = metaValue(key);
         if (value != null && value.getValue() != null) {
             return MetaValueHelper.toObject(value.getValue());
         } else {
@@ -267,22 +267,6 @@ public class Message extends AbstractEntity {
         if (link == null || link.getStatus() < status.getValue()) {
             if(link == null) {
                 Logger.debug("CREATE LINK - uid: " + user.getId() + " mid: " + this.getId());
-
-//                QueryBuilder<ReadReceiptUserLink> queryBuilder = daoSession.queryBuilder(ReadReceiptUserLink.class);
-//                queryBuilder.where(ReadReceiptUserLinkDao.Properties.UserId.eq(user.getId())).where(ReadReceiptUserLinkDao.Properties.MessageId.eq(getId()));
-//                List<ReadReceiptUserLink> links = queryBuilder.list();
-//
-//                if (links.size() > 1) {
-//                    Logger.debug("Stop");
-//                }
-//
-//                Map<String, ReadReceiptUserLink> map = new HashMap<>();
-//                for (ReadReceiptUserLink lnk: getReadReceiptLinks()) {
-//                    if (map.containsKey(lnk.getUser().getEntityID())) {
-//                        Logger.debug("Stop");
-//                    }
-//                    map.put(lnk.getUser().getEntityID(), lnk);
-//                }
 
                 link = ChatSDK.db().createEntity(ReadReceiptUserLink.class);
                 link.setMessageId(this.getId());

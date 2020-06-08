@@ -6,20 +6,22 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToOne;
 
-import sdk.chat.core.base.AbstractEntity;
-
 /**
  * Created by ben on 5/16/18.
  */
 
 @Entity
-public class ThreadMetaValue implements MetaValue {
+public class ThreadMetaValue implements MetaValue<Object> {
 
     @Id
     private Long id;
 
     private String key;
-    private String value;
+    private String stringValue;
+    private Boolean booleanValue;
+    private Integer integerValue;
+    private Long longValue;
+    private Float floatValue;
 
     private Long threadId;
 
@@ -34,11 +36,16 @@ public class ThreadMetaValue implements MetaValue {
     @Generated(hash = 3171812)
     private transient ThreadMetaValueDao myDao;
 
-    @Generated(hash = 965961666)
-    public ThreadMetaValue(Long id, String key, String value, Long threadId) {
+    @Generated(hash = 770896123)
+    public ThreadMetaValue(Long id, String key, String stringValue, Boolean booleanValue,
+            Integer integerValue, Long longValue, Float floatValue, Long threadId) {
         this.id = id;
         this.key = key;
-        this.value = value;
+        this.stringValue = stringValue;
+        this.booleanValue = booleanValue;
+        this.integerValue = integerValue;
+        this.longValue = longValue;
+        this.floatValue = floatValue;
         this.threadId = threadId;
     }
 
@@ -62,12 +69,28 @@ public class ThreadMetaValue implements MetaValue {
         this.key = key;
     }
 
-    public String getValue() {
-        return this.value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
+    @Override
+    public void setValue(Object value) {
+        stringValue = null;
+        integerValue = null;
+        longValue = null;
+        booleanValue = null;
+        floatValue = null;
+        if (value instanceof String) {
+            setStringValue((String) value);
+        }
+        if (value instanceof Integer) {
+            setIntegerValue((Integer) value);
+        }
+        if (value instanceof Long) {
+            setLongValue((Long) value);
+        }
+        if (value instanceof Boolean) {
+            setBooleanValue((Boolean) value);
+        }
+        if (value instanceof Float) {
+            setFloatValue((Float) value);
+        }
     }
 
     public Long getThreadId() {
@@ -152,4 +175,64 @@ public class ThreadMetaValue implements MetaValue {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getThreadMetaValueDao() : null;
     }
+
+    public Boolean getBooleanValue() {
+        return this.booleanValue;
+    }
+
+    public void setBooleanValue(Boolean booleanValue) {
+        this.booleanValue = booleanValue;
+    }
+
+    public Integer getIntegerValue() {
+        return this.integerValue;
+    }
+
+    public void setIntegerValue(Integer integerValue) {
+        this.integerValue = integerValue;
+    }
+
+    public Long getLongValue() {
+        return this.longValue;
+    }
+
+    public void setLongValue(Long longValue) {
+        this.longValue = longValue;
+    }
+
+    public Float getFloatValue() {
+        return this.floatValue;
+    }
+
+    public void setFloatValue(Float floatValue) {
+        this.floatValue = floatValue;
+    }
+
+    public Object getValue() {
+        if (getStringValue() != null) {
+            return getStringValue();
+        }
+        if (getIntegerValue() != null) {
+            return getIntegerValue();
+        }
+        if (getLongValue() != null) {
+            return getLongValue();
+        }
+        if (getBooleanValue() != null) {
+            return getBooleanValue();
+        }
+        if (getFloatValue() != null) {
+            return getFloatValue();
+        }
+        return null;
+    }
+
+    public String getStringValue() {
+        return this.stringValue;
+    }
+
+    public void setStringValue(String stringValue) {
+        this.stringValue = stringValue;
+    }
+
 }

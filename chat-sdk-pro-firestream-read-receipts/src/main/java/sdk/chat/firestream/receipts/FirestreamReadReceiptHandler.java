@@ -29,7 +29,9 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
         dm.add(Fire.stream().getConnectionEvents().subscribe(connectionEvent -> {
             if (connectionEvent.getType() == ConnectionEvent.Type.DidConnect) {
                 dm.add(Fire.stream().getSendableEvents().getDeliveryReceipts().pastAndNewEvents().subscribe(event -> {
-                    dm.add(handleReceipt(event.get()));
+                    if (event.isAdded()) {
+                        dm.add(handleReceipt(event.get()));
+                    }
                 }));
             }
             if (connectionEvent.getType() == ConnectionEvent.Type.WillDisconnect) {
@@ -56,8 +58,6 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
         });
     }
 
-
-
     @Override
     public void markRead(Message message) {
         Thread thread = message.getThread();
@@ -70,6 +70,9 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             chat.manage(Fire.stream().markRead(message.getSender().getEntityID(), message.getEntityID()).subscribe(() -> {}, this));
         }
+        message.setUserReadStatusAsync(ChatSDK.currentUser(), ReadStatus.read(), new Date(), true)
+                .ignoreElement()
+                .subscribe(ChatSDK.events());
     }
 
     @Override

@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
+import io.reactivex.functions.Consumer;
+import io.reactivex.subjects.PublishSubject;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -26,12 +28,10 @@ import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.UserListItemConverter;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.chat.ui.utils.ToastHelper;
-import io.reactivex.functions.Consumer;
-import io.reactivex.subjects.PublishSubject;
 import sdk.guru.common.RX;
 
 public class ThreadUsersFragment extends BaseFragment {

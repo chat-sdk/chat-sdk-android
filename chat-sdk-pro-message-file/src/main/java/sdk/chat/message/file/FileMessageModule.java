@@ -1,4 +1,4 @@
-package co.chatsdk.message.file;
+package sdk.chat.message.file;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -11,16 +11,18 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 
 import org.pmw.tinylog.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
-import co.chatsdk.ui.chat.model.MessageHolder;
-import co.chatsdk.ui.custom.Customiser;
-import co.chatsdk.ui.custom.IMessageHandler;
+import sdk.chat.ui.chat.model.MessageHolder;
+import sdk.chat.ui.custom.Customiser;
+import sdk.chat.ui.custom.IMessageHandler;
 
 /**
  * Created by Pepe on 01/05/18.
@@ -99,6 +101,15 @@ public class FileMessageModule extends AbstractModule {
     @Override
     public MessageHandler getMessageHandler() {
         return ChatSDK.fileMessage();
+    }
+
+    @Override
+    public List<String> requiredPermissions() {
+        List<String> permissions = new ArrayList<>();
+
+//        permissions.add(Manifest.permission.MANAGE_DOCUMENTS);
+
+        return permissions;
     }
 
 }

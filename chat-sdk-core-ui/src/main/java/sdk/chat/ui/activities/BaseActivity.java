@@ -43,15 +43,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.utils.ActivityResult;
-import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
-import co.chatsdk.ui.R;
-import sdk.chat.ui.module.DefaultUIModule;
-import sdk.chat.ui.utils.AlertUtils;
 import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.ActivityResult;
+import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
+import sdk.chat.ui.R;
+import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.utils.AlertUtils;
 import sdk.guru.common.DisposableMap;
 
 public abstract class BaseActivity extends AppCompatActivity implements Consumer<Throwable>, CompletableObserver {
@@ -92,8 +92,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
 
         updateExtras(getIntent().getExtras());
 
-        if(DefaultUIModule.config().theme != 0) {
-            setTheme(DefaultUIModule.config().theme);
+        if(UIModule.config().theme != 0) {
+            setTheme(UIModule.config().theme);
         }
 
         // Setting the default task description.

@@ -1,4 +1,4 @@
-package co.chatsdk.read_receipts;
+package sdk.chat.firebase.receipts;
 
 import android.content.Context;
 

@@ -1,4 +1,4 @@
-package co.chatsdk.firebase.push;
+package sdk.chat.firebase.push;
 
 import android.content.Context;
 

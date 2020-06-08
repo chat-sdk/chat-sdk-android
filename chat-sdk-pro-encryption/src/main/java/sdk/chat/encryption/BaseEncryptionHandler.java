@@ -1,4 +1,4 @@
-package co.chatsdk.encryption;
+package sdk.chat.encryption;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

@@ -1,4 +1,4 @@
-package co.chatsdk.firebase;
+package sdk.chat.firebase.adapter;
 
 
 import com.google.firebase.database.DatabaseReference;
@@ -7,7 +7,7 @@ import com.google.firebase.database.ServerValue;
 import java.util.HashMap;
 import java.util.Map;
 
-import co.chatsdk.firebase.wrappers.ThreadWrapper;
+import sdk.chat.firebase.adapter.wrappers.ThreadWrapper;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import sdk.chat.core.base.AbstractPublicThreadHandler;

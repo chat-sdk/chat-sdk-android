@@ -29,8 +29,12 @@ public class ThreadMetaValueDao extends AbstractDao<ThreadMetaValue, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property Key = new Property(1, String.class, "key", false, "KEY");
-        public final static Property Value = new Property(2, String.class, "value", false, "VALUE");
-        public final static Property ThreadId = new Property(3, Long.class, "threadId", false, "THREAD_ID");
+        public final static Property StringValue = new Property(2, String.class, "stringValue", false, "STRING_VALUE");
+        public final static Property BooleanValue = new Property(3, Boolean.class, "booleanValue", false, "BOOLEAN_VALUE");
+        public final static Property IntegerValue = new Property(4, Integer.class, "integerValue", false, "INTEGER_VALUE");
+        public final static Property LongValue = new Property(5, Long.class, "longValue", false, "LONG_VALUE");
+        public final static Property FloatValue = new Property(6, Float.class, "floatValue", false, "FLOAT_VALUE");
+        public final static Property ThreadId = new Property(7, Long.class, "threadId", false, "THREAD_ID");
     }
 
     private DaoSession daoSession;
@@ -52,8 +56,12 @@ public class ThreadMetaValueDao extends AbstractDao<ThreadMetaValue, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"THREAD_META_VALUE\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"KEY\" TEXT," + // 1: key
-                "\"VALUE\" TEXT," + // 2: value
-                "\"THREAD_ID\" INTEGER);"); // 3: threadId
+                "\"STRING_VALUE\" TEXT," + // 2: stringValue
+                "\"BOOLEAN_VALUE\" INTEGER," + // 3: booleanValue
+                "\"INTEGER_VALUE\" INTEGER," + // 4: integerValue
+                "\"LONG_VALUE\" INTEGER," + // 5: longValue
+                "\"FLOAT_VALUE\" REAL," + // 6: floatValue
+                "\"THREAD_ID\" INTEGER);"); // 7: threadId
     }
 
     /** Drops the underlying database table. */
@@ -76,14 +84,34 @@ public class ThreadMetaValueDao extends AbstractDao<ThreadMetaValue, Long> {
             stmt.bindString(2, key);
         }
  
-        String value = entity.getValue();
-        if (value != null) {
-            stmt.bindString(3, value);
+        String stringValue = entity.getStringValue();
+        if (stringValue != null) {
+            stmt.bindString(3, stringValue);
+        }
+ 
+        Boolean booleanValue = entity.getBooleanValue();
+        if (booleanValue != null) {
+            stmt.bindLong(4, booleanValue ? 1L: 0L);
+        }
+ 
+        Integer integerValue = entity.getIntegerValue();
+        if (integerValue != null) {
+            stmt.bindLong(5, integerValue);
+        }
+ 
+        Long longValue = entity.getLongValue();
+        if (longValue != null) {
+            stmt.bindLong(6, longValue);
+        }
+ 
+        Float floatValue = entity.getFloatValue();
+        if (floatValue != null) {
+            stmt.bindDouble(7, floatValue);
         }
  
         Long threadId = entity.getThreadId();
         if (threadId != null) {
-            stmt.bindLong(4, threadId);
+            stmt.bindLong(8, threadId);
         }
     }
 
@@ -101,14 +129,34 @@ public class ThreadMetaValueDao extends AbstractDao<ThreadMetaValue, Long> {
             stmt.bindString(2, key);
         }
  
-        String value = entity.getValue();
-        if (value != null) {
-            stmt.bindString(3, value);
+        String stringValue = entity.getStringValue();
+        if (stringValue != null) {
+            stmt.bindString(3, stringValue);
+        }
+ 
+        Boolean booleanValue = entity.getBooleanValue();
+        if (booleanValue != null) {
+            stmt.bindLong(4, booleanValue ? 1L: 0L);
+        }
+ 
+        Integer integerValue = entity.getIntegerValue();
+        if (integerValue != null) {
+            stmt.bindLong(5, integerValue);
+        }
+ 
+        Long longValue = entity.getLongValue();
+        if (longValue != null) {
+            stmt.bindLong(6, longValue);
+        }
+ 
+        Float floatValue = entity.getFloatValue();
+        if (floatValue != null) {
+            stmt.bindDouble(7, floatValue);
         }
  
         Long threadId = entity.getThreadId();
         if (threadId != null) {
-            stmt.bindLong(4, threadId);
+            stmt.bindLong(8, threadId);
         }
     }
 
@@ -128,8 +176,12 @@ public class ThreadMetaValueDao extends AbstractDao<ThreadMetaValue, Long> {
         ThreadMetaValue entity = new ThreadMetaValue( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // key
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // value
-            cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3) // threadId
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // stringValue
+            cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0, // booleanValue
+            cursor.isNull(offset + 4) ? null : cursor.getInt(offset + 4), // integerValue
+            cursor.isNull(offset + 5) ? null : cursor.getLong(offset + 5), // longValue
+            cursor.isNull(offset + 6) ? null : cursor.getFloat(offset + 6), // floatValue
+            cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7) // threadId
         );
         return entity;
     }
@@ -138,8 +190,12 @@ public class ThreadMetaValueDao extends AbstractDao<ThreadMetaValue, Long> {
     public void readEntity(Cursor cursor, ThreadMetaValue entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setKey(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setValue(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setThreadId(cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3));
+        entity.setStringValue(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setBooleanValue(cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0);
+        entity.setIntegerValue(cursor.isNull(offset + 4) ? null : cursor.getInt(offset + 4));
+        entity.setLongValue(cursor.isNull(offset + 5) ? null : cursor.getLong(offset + 5));
+        entity.setFloatValue(cursor.isNull(offset + 6) ? null : cursor.getFloat(offset + 6));
+        entity.setThreadId(cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7));
      }
     
     @Override

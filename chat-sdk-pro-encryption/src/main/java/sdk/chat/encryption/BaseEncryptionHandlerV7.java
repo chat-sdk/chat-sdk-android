@@ -1,4 +1,4 @@
-package co.chatsdk.encryption;
+package sdk.chat.encryption;
 
 // Version that works with latest version of Virgil. But only supports API 21
 

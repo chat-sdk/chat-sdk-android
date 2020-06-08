@@ -5,14 +5,12 @@
  * Last Modification at: 3/12/15 4:34 PM
  */
 
-package co.chatsdk.firebase;
+package sdk.chat.firebase.adapter;
 
 import com.google.firebase.database.DatabaseReference;
 
-import java.security.Permissions;
-
 import sdk.chat.core.dao.Keys;
-import co.chatsdk.firebase.module.FirebaseModule;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
 
 public class FirebasePaths{
 

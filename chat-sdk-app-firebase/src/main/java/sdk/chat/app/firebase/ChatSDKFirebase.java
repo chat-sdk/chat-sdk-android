@@ -9,16 +9,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import co.chatsdk.firebase.file_storage.FirebaseUploadModule;
-import co.chatsdk.firebase.module.FirebaseModule;
-import co.chatsdk.firebase.push.FirebasePushModule;
-import co.chatsdk.firebase.ui.FirebaseUIModule;
-import co.chatsdk.ui.module.DefaultUIModule;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.session.Config;
 import sdk.chat.core.utils.QuickStart;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.push.FirebasePushModule;
+import sdk.chat.firebase.ui.FirebaseUIModule;
+import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.ui.extras.ExtrasModule;
+import sdk.chat.ui.module.UIModule;
 
 public class ChatSDKFirebase extends QuickStart {
 
@@ -40,7 +39,7 @@ public class ChatSDKFirebase extends QuickStart {
                         .setDevelopmentModeEnabled(true)
                         .build(),
 
-                DefaultUIModule.builder()
+                UIModule.builder()
                         .setPublicRoomCreationEnabled(true)
                         .setPublicRoomsEnabled(true)
                         .build(),
@@ -63,7 +62,6 @@ public class ChatSDKFirebase extends QuickStart {
                 .setAnonymousLoginEnabled(false)
 
                 .setRemoteConfigEnabled(false)
-                .setIdenticonType(Config.IdenticonType.RoboHash)
                 .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                 .setSendSystemMessageWhenRoleChanges(true)
                 .build()

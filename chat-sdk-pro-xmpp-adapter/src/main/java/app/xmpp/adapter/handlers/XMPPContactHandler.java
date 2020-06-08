@@ -1,9 +1,9 @@
-package co.chatsdk.xmpp.handlers;
+package app.xmpp.adapter.handlers;
 
 import sdk.chat.core.base.BaseContactHandler;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.types.ConnectionType;
-import co.chatsdk.xmpp.XMPPManager;
+import app.xmpp.adapter.XMPPManager;
 import io.reactivex.Completable;
 import sdk.guru.common.RX;
 

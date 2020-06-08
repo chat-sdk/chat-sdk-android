@@ -1,4 +1,4 @@
-package co.chatsdk.encryption;
+package sdk.chat.encryption;
 
 import android.content.Context;
 

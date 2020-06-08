@@ -1,4 +1,4 @@
-package co.chatsdk.message.sticker.view;
+package sdk.chat.message.sticker.view;
 
 /**
  * Created by ben on 10/11/17.

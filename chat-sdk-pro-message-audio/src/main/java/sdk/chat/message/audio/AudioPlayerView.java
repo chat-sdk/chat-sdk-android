@@ -1,4 +1,4 @@
-package sdk.chat.audio;
+package sdk.chat.message.audio;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
@@ -19,8 +19,8 @@ import org.pmw.tinylog.Logger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import co.chatsdk.ui.icons.Icons;
 import sdk.chat.core.audio.AudioPlayer;
+import sdk.chat.ui.icons.Icons;
 import sdk.guru.common.DisposableMap;
 
 import static com.google.android.exoplayer2.Player.STATE_ENDED;

@@ -4,18 +4,19 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
 import firestream.chat.chat.Meta;
+import firestream.chat.chat.User;
+import firestream.chat.firebase.service.FirebaseChatHandler;
+import firestream.chat.firebase.service.Keys;
+import firestream.chat.firebase.service.Path;
+import firestream.chat.firebase.service.Paths;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import firestream.chat.chat.User;
-import firestream.chat.firebase.service.Keys;
-import firestream.chat.firebase.service.Paths;
-import firestream.chat.firebase.service.Path;
-import firestream.chat.firebase.service.FirebaseChatHandler;
 import io.reactivex.functions.Consumer;
 import sdk.guru.firestore.RXFirestore;
 
@@ -51,11 +52,11 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
             meta.setCreated(snapshot.get(base + Keys.Created, Date.class, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE));
             meta.setImageURL(snapshot.get(base + Keys.ImageURL, String.class));
 
-            HashMap<String, Object> data = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
 
             Object dataObject = snapshot.get(base + Keys.Data);
             if (dataObject instanceof HashMap) {
-                HashMap dataMap = (HashMap) dataObject;
+                Map dataMap = (HashMap) dataObject;
                 for (Object key: dataMap.keySet()) {
                     if (key instanceof String) {
                         data.put((String) key, dataMap.get(key));
@@ -69,7 +70,7 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
     }
 
     @Override
-    public Single<String> add(HashMap<String, Object> data, @Nullable Consumer<String> newId) {
+    public Single<String> add(Map<String, Object> data, @Nullable Consumer<String> newId) {
         return new RXFirestore().add(Ref.collection(Paths.chatsPath()), data, newId);
     }
 

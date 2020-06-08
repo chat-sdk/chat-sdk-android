@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.listeners;
+package app.xmpp.adapter.listeners;
 
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.XMPPConnection;
@@ -6,8 +6,8 @@ import org.jivesoftware.smack.XMPPConnection;
 import java.lang.ref.WeakReference;
 
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.xmpp.XMPPManager;
-import co.chatsdk.xmpp.enums.ConnectionStatus;
+import app.xmpp.adapter.XMPPManager;
+import app.xmpp.adapter.enums.ConnectionStatus;
 import sdk.guru.common.RX;
 import io.reactivex.subjects.BehaviorSubject;
 

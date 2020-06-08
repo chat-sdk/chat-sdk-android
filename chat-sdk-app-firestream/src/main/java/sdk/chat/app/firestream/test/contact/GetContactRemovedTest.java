@@ -1,12 +1,11 @@
 package sdk.chat.app.firestream.test.contact;
 
-import sdk.guru.common.EventType;
 import firestream.chat.namespace.Fire;
+import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
 import sdk.chat.app.firestream.test.Result;
 import sdk.chat.app.firestream.test.Test;
 import sdk.chat.app.firestream.test.TestScript;
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
 import sdk.guru.common.RX;
 
 public class GetContactRemovedTest extends Test {
@@ -20,7 +19,7 @@ public class GetContactRemovedTest extends Test {
         return Observable.create((ObservableOnSubscribe<Result>) emitter -> {
             manage(emitter);
             dm.add(Fire.stream().getContactEvents().currentAndNewEvents().subscribe(userEvent -> {
-                if (userEvent.typeIs(EventType.Removed)) {
+                if (userEvent.isRemoved()) {
                     if (userEvent.get().equals(TestScript.testUser1())) {
                         complete();
                     } else {

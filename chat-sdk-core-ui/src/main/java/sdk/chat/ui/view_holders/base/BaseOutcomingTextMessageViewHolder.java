@@ -1,5 +1,7 @@
 package sdk.chat.ui.view_holders.base;
 
+import android.content.Context;
+import android.os.Build;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -10,12 +12,14 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import co.chatsdk.ui.R2;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
 import sdk.chat.ui.binders.IconBinder;
 import sdk.chat.ui.binders.MessageBinder;
 import sdk.chat.ui.binders.ReadStatusViewBinder;
 import sdk.chat.ui.binders.ReplyViewBinder;
 import sdk.chat.ui.chat.model.MessageHolder;
+import sdk.chat.ui.utils.DrawableUtil;
 
 public class BaseOutcomingTextMessageViewHolder<T extends MessageHolder>
         extends MessageHolders.OutcomingTextMessageViewHolder<T> {
@@ -44,5 +48,15 @@ public class BaseOutcomingTextMessageViewHolder<T extends MessageHolder>
         MessageBinder.onBindSendStatus(time, message);
         IconBinder.bind(messageIcon, message, imageLoader);
 
+        // Color state lists don't work for old versions of Android
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+            Context context = bubble.getContext();
+            bubble.setBackground(DrawableUtil.getMessageSelector(
+                    context,
+                    R.attr.outcomingDefaultBubbleColor,
+                    R.attr.outcomingDefaultBubbleSelectedColor,
+                    R.attr.outcomingDefaultBubblePressedColor,
+                    R.attr.outcomingBubbleDrawable));
+        }
     }
 }

@@ -6,7 +6,7 @@
     android:fitsSystemWindows="true">
 
     <fragment
-        android:name="co.chatsdk.ui.fragments.ProfileFragment"
+        android:name="sdk.chat.ui.fragments.ProfileFragment"
         android:id="@+id/profileFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent">

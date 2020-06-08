@@ -13,17 +13,17 @@ import com.bumptech.glide.Glide;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
 import sdk.chat.core.utils.StringChecker;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.chat.ui.binders.AvailabilityHelper;
 import sdk.chat.ui.binders.OnlineStatusBinder;
-import sdk.chat.ui.module.DefaultUIModule;
-import de.hdodenhof.circleimageview.CircleImageView;
+import sdk.chat.ui.module.UIModule;
 
 public class UserViewHolder extends RecyclerView.ViewHolder  {
 
@@ -86,11 +86,11 @@ public class UserViewHolder extends RecyclerView.ViewHolder  {
             Glide.with(root)
                     .load(item.getAvatarURL())
                     .dontAnimate()
-                    .placeholder(DefaultUIModule.config().defaultProfileImage)
+                    .placeholder(UIModule.config().defaultProfilePlaceholder)
                     .override(width, height)
                     .into(avatarImageView);
         } else {
-            avatarImageView.setImageResource(DefaultUIModule.config().defaultProfileImage);
+            avatarImageView.setImageResource(UIModule.config().defaultProfilePlaceholder);
         }
     }
 

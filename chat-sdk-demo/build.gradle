@@ -72,9 +72,6 @@ dependencies {
     implementation project(':chat-sdk-pro-xmpp-adapter')
     implementation project(':chat-sdk-pro-xmpp-read-receipts')
 
-
-
-
     // Demo
     implementation 'com.romandanylyk:pageindicatorview:1.0.3'
 
@@ -82,6 +79,10 @@ dependencies {
 
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
+
+    implementation "com.mikepenz:iconics-views:$iconicsVersion"
+    implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
+
 
 }
 

@@ -78,7 +78,7 @@
             <Space
                 android:id="@+id/topSpace"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"/>
+                android:layout_height="60dp"/>
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/statusCardView"

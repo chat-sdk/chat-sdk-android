@@ -153,22 +153,22 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <co.chatsdk.ui.views.IconEditView
+                    <sdk.chat.ui.views.IconEditView
                         android:id="@+id/nameEditView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
 
-                    <co.chatsdk.ui.views.IconEditView
+                    <sdk.chat.ui.views.IconEditView
                         android:id="@+id/locationEditView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
 
-                    <co.chatsdk.ui.views.IconEditView
+                    <sdk.chat.ui.views.IconEditView
                         android:id="@+id/phoneEditView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
 
-                    <co.chatsdk.ui.views.IconEditView
+                    <sdk.chat.ui.views.IconEditView
                         android:id="@+id/emailEditView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>

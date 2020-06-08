@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp;
+package app.xmpp.adapter;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -29,6 +29,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import app.xmpp.adapter.utils.PresenceHelper;
+import id.zelory.compressor.Compressor;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.image.ImageUtils;
@@ -36,17 +43,9 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.types.ConnectionType;
 import sdk.chat.core.types.KeyValue;
-
 import sdk.chat.core.utils.StringChecker;
-import co.chatsdk.xmpp.utils.PresenceHelper;
-import id.zelory.compressor.Compressor;
-import io.reactivex.Completable;
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
-import sdk.guru.common.RX;
 import sdk.guru.common.DisposableMap;
+import sdk.guru.common.RX;
 
 
 /**

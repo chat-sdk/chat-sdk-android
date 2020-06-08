@@ -5,12 +5,11 @@
  * Last Modification at: 3/12/15 4:35 PM
  */
 
-package co.chatsdk.firebase.wrappers;
+package sdk.chat.firebase.adapter.wrappers;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
-
 
 import org.pmw.tinylog.Logger;
 
@@ -21,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import sdk.chat.core.dao.DaoCore;
@@ -33,11 +33,10 @@ import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ReadStatus;
-import co.chatsdk.firebase.FirebasePaths;
-import co.chatsdk.firebase.R;
-import co.chatsdk.firebase.module.FirebaseModule;
-import co.chatsdk.firebase.utils.Generic;
-import io.reactivex.Completable;
+import sdk.chat.firebase.adapter.FirebasePaths;
+import sdk.chat.firebase.adapter.R;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.adapter.utils.Generic;
 import sdk.guru.common.RX;
 import sdk.guru.realtime.RXRealtime;
 

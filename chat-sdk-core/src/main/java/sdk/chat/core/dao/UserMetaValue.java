@@ -6,14 +6,12 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToOne;
 
-import sdk.chat.core.base.AbstractEntity;
-
 /**
  * Created by ben on 5/17/18.
  */
 
 @Entity
-public class UserMetaValue implements MetaValue {
+public class UserMetaValue implements MetaValue<String> {
 
     @Id
     private Long id;
@@ -62,7 +60,7 @@ public class UserMetaValue implements MetaValue {
         this.key = key;
     }
 
-    public String getValue() {
+    public String getStringValue() {
         return this.value;
     }
 
@@ -151,6 +149,10 @@ public class UserMetaValue implements MetaValue {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getUserMetaValueDao() : null;
+    }
+
+    public String getValue() {
+        return this.value;
     }
 
 }

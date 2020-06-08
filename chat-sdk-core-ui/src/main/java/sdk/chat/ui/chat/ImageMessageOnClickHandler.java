@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupWindow;
 
-import co.chatsdk.ui.R;
+import sdk.chat.ui.R;
 import sdk.chat.ui.activities.BaseActivity;
 import sdk.chat.ui.views.PopupImageView;
 

@@ -25,12 +25,12 @@ import cafe.adriel.androidaudiorecorder.model.AudioSource;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
-import sdk.guru.common.DisposableMap;
 import sdk.chat.core.utils.PermissionRequestHandler;
-import co.chatsdk.ui.R;
+import sdk.chat.ui.R;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.interfaces.TextInputDelegate;
 import sdk.chat.ui.utils.ToastHelper;
+import sdk.guru.common.DisposableMap;
 
 import static android.app.Activity.RESULT_OK;
 

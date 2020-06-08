@@ -11,34 +11,32 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.contact.ContactBookModule;
-import co.chatsdk.firebase.blocking.FirebaseBlockingModule;
-import co.chatsdk.firebase.file_storage.FirebaseUploadModule;
-import co.chatsdk.firebase.module.FirebaseModule;
-import co.chatsdk.firebase.push.FirebasePushModule;
-import co.chatsdk.firebase.ui.FirebaseUIModule;
-import co.chatsdk.firestream.FireStreamModule;
-import co.chatsdk.firestream.FirebaseServiceType;
-import co.chatsdk.last_online.FirebaseLastOnlineModule;
-import co.chatsdk.message.file.FileMessageModule;
-import co.chatsdk.message.sticker.module.StickerMessageModule;
-import co.chatsdk.profile.pictures.ProfilePicturesModule;
-import co.chatsdk.read_receipts.FirebaseReadReceiptsModule;
-import co.chatsdk.typing_indicator.FirebaseTypingIndicatorModule;
-import co.chatsdk.ui.module.DefaultUIModule;
-import co.chatsdk.ui.module.UIConfig;
-import co.chatsdk.xmpp.module.XMPPModule;
-import co.chatsdk.xmpp.read_receipt.XMPPReadReceiptsModule;
-import firestream.chat.FirestreamConfig;
+import app.xmpp.adapter.module.XMPPModule;
+import app.xmpp.receipts.XMPPReadReceiptsModule;
 import io.reactivex.subjects.PublishSubject;
-import sdk.chat.audio.AudioMessageModule;
+import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.session.Config;
 import sdk.chat.core.session.Configure;
 import sdk.chat.demo.testing.Testing;
+import sdk.chat.firbase.online.FirebaseLastOnlineModule;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.blocking.FirebaseBlockingModule;
+import sdk.chat.firebase.push.FirebasePushModule;
+import sdk.chat.firebase.receipts.FirebaseReadReceiptsModule;
+import sdk.chat.firebase.typing.FirebaseTypingIndicatorModule;
+import sdk.chat.firebase.ui.FirebaseUIModule;
+import sdk.chat.firebase.upload.FirebaseUploadModule;
+import sdk.chat.firestream.adapter.FireStreamModule;
+import sdk.chat.firestream.adapter.FirebaseServiceType;
+import sdk.chat.message.audio.AudioMessageModule;
+import sdk.chat.message.file.FileMessageModule;
+import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
+import sdk.chat.profile.pictures.ProfilePicturesModule;
 import sdk.chat.ui.extras.ExtrasModule;
+import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.module.UIConfig;
 
 public class DemoConfigBuilder {
 
@@ -182,8 +180,6 @@ public class DemoConfigBuilder {
                     config -> config
                     .setRoot(database == Database.Realtime ? "live_firestream_realtime" : "live_firestream_firestore")
                     .setSandbox("firestream")
-                    .setStartListeningFromLastSentMessageDateEnabled(false)
-                    .setListenToMessagesWithTimeAgo(FirestreamConfig.TimePeriod.days(7))
                     .setDeleteMessagesOnReceiptEnabled(false)
                     .setDeliveryReceiptsEnabled(false)
             ));
@@ -211,7 +207,7 @@ public class DemoConfigBuilder {
                 modules.add(Testing.myOpenFire(XMPPModule.builder()).build().configureUI(uiConfigConfigure));
                 modules.add(XMPPReadReceiptsModule.shared());
             } else {
-                modules.add(DefaultUIModule.builder(uiConfigConfigure));
+                modules.add(UIModule.builder(uiConfigConfigure));
             }
 
             if (loginStyle == LoginStyle.FirebaseUI) {
@@ -231,7 +227,6 @@ public class DemoConfigBuilder {
                     .setAnonymousLoginEnabled(false)
                     .setDebugModeEnabled(true)
                     .setRemoteConfigEnabled(true)
-                    .setIdenticonType(Config.IdenticonType.Gravatar)
                     .build()
 
                     .addModules(modules)

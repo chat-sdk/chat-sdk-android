@@ -1,4 +1,4 @@
-package co.chatsdk.firebase.file_storage;
+package sdk.chat.firebase.upload;
 
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -8,7 +8,7 @@ import org.pmw.tinylog.Logger;
 
 import sdk.chat.core.base.AbstractUploadHandler;
 import sdk.chat.core.types.FileUploadResult;
-import co.chatsdk.firebase.FirebaseCoreHandler;
+import sdk.chat.firebase.adapter.FirebaseCoreHandler;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import sdk.guru.common.RX;

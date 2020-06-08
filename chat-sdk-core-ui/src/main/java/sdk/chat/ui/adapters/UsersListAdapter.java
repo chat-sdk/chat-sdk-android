@@ -21,11 +21,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import sdk.chat.core.interfaces.UserListItem;
-import co.chatsdk.ui.R;
-import sdk.chat.ui.view_holders.UserViewHolder;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
+import sdk.chat.core.interfaces.UserListItem;
+import sdk.chat.ui.R;
+import sdk.chat.ui.view_holders.UserViewHolder;
 
 public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

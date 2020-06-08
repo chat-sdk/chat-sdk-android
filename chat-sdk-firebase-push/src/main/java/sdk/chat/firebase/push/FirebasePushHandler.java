@@ -1,4 +1,4 @@
-package co.chatsdk.firebase.push;
+package sdk.chat.firebase.push;
 
 import com.google.android.gms.tasks.Continuation;
 import com.google.firebase.functions.FirebaseFunctions;
@@ -8,14 +8,11 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import org.pmw.tinylog.Logger;
 
 import java.util.HashMap;
-import java.util.concurrent.Callable;
 
-import co.chatsdk.firebase.module.FirebaseModule;
-import io.reactivex.CompletableSource;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.core.push.AbstractPushHandler;
-import co.chatsdk.firebase.FirebaseCoreHandler;
+import sdk.chat.firebase.adapter.FirebaseCoreHandler;
 import io.reactivex.Completable;
-import sdk.chat.core.session.ChatSDK;
 import sdk.guru.common.RX;
 
 

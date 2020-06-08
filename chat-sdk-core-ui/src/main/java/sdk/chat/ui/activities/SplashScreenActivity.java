@@ -11,8 +11,9 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import butterknife.BindView;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
+import sdk.chat.core.utils.StringChecker;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
 import sdk.guru.common.RX;
 
 public class SplashScreenActivity extends BaseActivity {
@@ -63,7 +64,11 @@ public class SplashScreenActivity extends BaseActivity {
     }
 
     protected void startMainActivity() {
-        ChatSDK.ui().startMainActivity(this, extras);
+        if (StringChecker.isNullOrEmpty(ChatSDK.currentUser().getName())) {
+            ChatSDK.ui().startPostRegistrationActivity(this, extras);
+        } else {
+            ChatSDK.ui().startMainActivity(this, extras);
+        }
     }
 
     protected void startLoginActivity() {

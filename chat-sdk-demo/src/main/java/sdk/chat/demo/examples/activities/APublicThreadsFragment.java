@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
-import co.chatsdk.ui.fragments.PublicThreadsFragment;
+import sdk.chat.ui.fragments.PublicThreadsFragment;
 
 public class APublicThreadsFragment extends PublicThreadsFragment {
     @Override

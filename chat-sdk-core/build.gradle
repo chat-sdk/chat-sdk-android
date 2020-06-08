@@ -36,7 +36,7 @@ android {
 }
 
 greendao {
-    schemaVersion 12
+    schemaVersion 15
     targetGenDir "src/main/java"
     daoPackage "sdk.chat.core.dao"
 }
@@ -83,7 +83,7 @@ dependencies {
     implementation "net.zetetic:android-database-sqlcipher:$androidDatabaseSQLCipher"
 
     // Dependencies that are also used by other Chat SDK libraries
-    implementation "org.greenrobot:greendao:$greenDaoVersion"
+    api "org.greenrobot:greendao:$greenDaoVersion"
 
 
     implementation "id.zelory:compressor:$compressorVersion"

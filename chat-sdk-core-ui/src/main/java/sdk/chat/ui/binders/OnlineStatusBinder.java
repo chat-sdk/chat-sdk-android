@@ -3,7 +3,7 @@ package sdk.chat.ui.binders;
 import android.view.View;
 
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.R;
+import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.MessageHolder;
 
 public class OnlineStatusBinder {

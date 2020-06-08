@@ -1,4 +1,4 @@
-package co.chatsdk.message.sticker.module;
+package sdk.chat.message.sticker.module;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,21 +6,21 @@ import android.view.View;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import co.chatsdk.message.sticker.R;
-import co.chatsdk.message.sticker.integration.BaseStickerMessageHandler;
-import co.chatsdk.message.sticker.integration.IncomingStickerMessageViewHolder;
-import co.chatsdk.message.sticker.integration.OutcomingStickerMessageViewHolder;
-import co.chatsdk.message.sticker.integration.StickerChatOption;
-import co.chatsdk.message.sticker.integration.StickerMessageHolder;
-import co.chatsdk.ui.chat.model.MessageHolder;
-import co.chatsdk.ui.custom.Customiser;
-import co.chatsdk.ui.custom.IMessageHandler;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.message.sticker.R;
+import sdk.chat.message.sticker.integration.BaseStickerMessageHandler;
+import sdk.chat.message.sticker.integration.IncomingStickerMessageViewHolder;
+import sdk.chat.message.sticker.integration.OutcomingStickerMessageViewHolder;
+import sdk.chat.message.sticker.integration.StickerChatOption;
+import sdk.chat.message.sticker.integration.StickerMessageHolder;
+import sdk.chat.ui.chat.model.MessageHolder;
+import sdk.chat.ui.custom.Customiser;
+import sdk.chat.ui.custom.IMessageHandler;
 import sdk.guru.common.BaseConfig;
 
 /**

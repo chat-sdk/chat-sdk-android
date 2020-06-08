@@ -95,10 +95,13 @@
     <string name="error_launching_activity">Error launching activity</string>
     <string name="error_thread_not_found">Error thread not found</string>
 
+    <string name="name_field_must_be_set">You must set a name</string>
+
     <!--State-->
     <string name="status">Status</string>
     <string name="location_hint">Location</string>
     <string name="name_hint">Name</string>
+    <string name="name_hint_required">Name *</string>
     <string name="phone_number_hint">Phone Number</string>
     <string name="email_hint">Email</string>
     <string name="location">📍 Location</string>
@@ -157,6 +160,8 @@
     <string name="remove_from_group">Remove from group</string>
     <string name="feature_not_supported">Feature not supported</string>
 
+    <string name="reply">Reply</string>
+    <string name="mark_as_read">Mark as Read</string>
     <string name="revoke_voice">Silence user</string>
     <string name="grant_voice">Un-silence user</string>
 

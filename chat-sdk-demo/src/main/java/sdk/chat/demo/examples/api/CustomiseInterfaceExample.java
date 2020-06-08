@@ -7,12 +7,12 @@ import com.mikepenz.iconics.typeface.library.fontawesome.FontAwesome;
 
 import java.util.concurrent.TimeUnit;
 
-import co.chatsdk.firebase.file_storage.FirebaseUploadModule;
-import co.chatsdk.firebase.module.FirebaseModule;
-import co.chatsdk.firebase.push.FirebasePushModule;
-import co.chatsdk.profile.pictures.ProfilePicturesModule;
-import co.chatsdk.ui.icons.Icons;
-import co.chatsdk.ui.module.DefaultUIModule;
+import sdk.chat.firebase.upload.FirebaseUploadModule;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.push.FirebasePushModule;
+import sdk.chat.profile.pictures.ProfilePicturesModule;
+import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.module.UIModule;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.demo.examples.activities.AChatActivity;
@@ -44,7 +44,7 @@ public class CustomiseInterfaceExample extends BaseExample {
                     ))
 
                     // Add the UI module
-                    .addModule(DefaultUIModule.builder(config -> config
+                    .addModule(UIModule.builder(config -> config
                             .setPublicRoomCreationEnabled(true)
                             .setTheme(R.style.CustomChatSDKTheme)
                     ))
@@ -85,7 +85,7 @@ public class CustomiseInterfaceExample extends BaseExample {
             ChatSDK.ui().setPrivateThreadsFragment(new APrivateThreadsFragment());
 
             // Add an extra tab
-            ChatSDK.ui().addTab("Title", Icons.get(Icons.choose().search, R.color.gray), new APrivateThreadsFragment());
+            ChatSDK.ui().setTab("Title", Icons.get(Icons.choose().search, R.color.gray), new APrivateThreadsFragment(), 0);
 
             // Remove a tab
             ChatSDK.ui().removeTab(0);

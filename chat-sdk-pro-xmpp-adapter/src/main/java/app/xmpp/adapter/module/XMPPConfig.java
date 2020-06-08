@@ -1,6 +1,8 @@
-package co.chatsdk.xmpp.module;
+package app.xmpp.adapter.module;
 
-import co.chatsdk.xmpp.utils.XMPPServer;
+import app.xmpp.adapter.handlers.XMPPNetworkAdapter;
+import app.xmpp.adapter.utils.XMPPServer;
+import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.guru.common.BaseConfig;
 
 public class XMPPConfig<T> extends BaseConfig<T> {
@@ -20,6 +22,8 @@ public class XMPPConfig<T> extends BaseConfig<T> {
     public boolean debugEnabled = false;
 
     public boolean allowServerConfiguration = true;
+
+    public Class<? extends BaseNetworkAdapter> networkAdapter = XMPPNetworkAdapter.class;
 
     public XMPPConfig(T onBuild) {
         super(onBuild);
@@ -155,5 +159,14 @@ public class XMPPConfig<T> extends BaseConfig<T> {
         return this;
     }
 
+    /**
+     * Override the Firebase network adapter class
+     * @param networkAdapter
+     * @return
+     */
+    public XMPPConfig<T> setNetworkAdapter(Class<? extends BaseNetworkAdapter> networkAdapter) {
+        this.networkAdapter = networkAdapter;
+        return this;
+    }
 
 }

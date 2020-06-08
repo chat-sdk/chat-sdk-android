@@ -1,4 +1,4 @@
-package co.chatsdk.contact;
+package sdk.chat.contact;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -11,23 +11,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import io.reactivex.Maybe;
-import io.reactivex.MaybeSource;
-import io.reactivex.ObservableSource;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
 import sdk.guru.common.RX;
-import io.reactivex.functions.Function;
 import sdk.chat.core.dao.User;
-import sdk.chat.core.rx.ObservableConnector;
 import sdk.chat.core.session.ChatSDK;
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
-import sdk.guru.common.RX;
 
 /**
  * Created by ben on 10/9/17.

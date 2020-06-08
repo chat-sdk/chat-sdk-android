@@ -1,4 +1,4 @@
-package co.chatsdk.profile.pictures;
+package sdk.chat.profile.pictures;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -19,17 +19,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import co.chatsdk.ui.module.DefaultUIModule;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.image.ImageUploadResult;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.PermissionRequestHandler;
-import co.chatsdk.ui.activities.ImagePreviewActivity;
-import co.chatsdk.ui.chat.MediaSelector;
-import co.chatsdk.ui.icons.Icons;
-import co.chatsdk.ui.utils.ImagePickerUploader;
-import co.chatsdk.ui.utils.ToastHelper;
+import sdk.chat.ui.activities.ImagePreviewActivity;
+import sdk.chat.ui.chat.MediaSelector;
+import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.utils.ImagePickerUploader;
+import sdk.chat.ui.utils.ToastHelper;
 import sdk.guru.common.RX;
 
 /**
@@ -100,8 +100,8 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
         int size = getResources().getDisplayMetrics().widthPixels / 2 - gridPadding;
 
         Glide.with(this).load(url)
-                .placeholder(DefaultUIModule.config().defaultProfileImage)
-                .error(DefaultUIModule.config().defaultProfileImage)
+                .placeholder(UIModule.config().defaultProfilePlaceholder)
+                .error(UIModule.config().defaultProfilePlaceholder)
                 .dontAnimate().override(size, size).centerCrop().into(cell);
 
         cell.setOnClickListener(v -> {

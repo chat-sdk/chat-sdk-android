@@ -1,4 +1,4 @@
-package sdk.chat.location;
+package sdk.chat.firebase.location;
 
 import android.location.Location;
 

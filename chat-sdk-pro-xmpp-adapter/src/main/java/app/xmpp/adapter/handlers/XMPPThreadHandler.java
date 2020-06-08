@@ -1,13 +1,10 @@
-package co.chatsdk.xmpp.handlers;
-
-import androidx.annotation.Nullable;
+package app.xmpp.adapter.handlers;
 
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MUCAffiliation;
 import org.jivesoftware.smackx.muc.MultiUserChat;
-
 import org.jxmpp.jid.impl.JidCreate;
 
 import java.lang.reflect.Method;
@@ -17,6 +14,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import app.xmpp.adapter.R;
+import app.xmpp.adapter.XMPPMUCManager;
+import app.xmpp.adapter.XMPPManager;
+import app.xmpp.adapter.XMPPMessageBuilder;
+import app.xmpp.adapter.utils.Role;
+import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import sdk.chat.core.base.AbstractThreadHandler;
 import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Keys;
@@ -29,14 +34,6 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.types.ReadStatus;
-import co.chatsdk.xmpp.R;
-import co.chatsdk.xmpp.XMPPMUCManager;
-import co.chatsdk.xmpp.XMPPManager;
-import co.chatsdk.xmpp.XMPPMessageBuilder;
-import co.chatsdk.xmpp.utils.Role;
-import io.reactivex.Completable;
-import io.reactivex.Single;
-import io.reactivex.SingleSource;
 import sdk.guru.common.RX;
 
 
@@ -247,11 +244,6 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
     public Completable pushThread(Thread thread) {
-        return null;
-    }
-
-    @Override
-    public Completable pushThreadMeta(Thread thread) {
         return Completable.complete();
     }
 

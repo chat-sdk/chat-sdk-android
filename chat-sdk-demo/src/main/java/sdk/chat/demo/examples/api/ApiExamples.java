@@ -3,13 +3,20 @@ package sdk.chat.demo.examples.api;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
+
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
-import co.chatsdk.ui.activities.LoginActivity;
 import io.reactivex.Completable;
+import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Keys;
@@ -27,6 +34,9 @@ import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.ui.ProfileFragmentProvider;
 import sdk.chat.demo.examples.activities.AProfileFragment;
+import sdk.chat.firebase.adapter.FirebasePaths;
+import sdk.chat.firebase.adapter.wrappers.UserWrapper;
+import sdk.chat.ui.activities.LoginActivity;
 import sdk.guru.common.RX;
 
 /**
@@ -248,4 +258,33 @@ public class ApiExamples {
         List<User> contacts = ChatSDK.contact().contacts();
     }
 
+    /**
+     * And example of how to get all the registered users. Using this is generally a bad idea to use this
+     * for anything other than testing because if you have a large number of users, it's extremely
+     * inefficient.
+     * @return
+     */
+    public static Single<List<User>> getAllRegisteredUsers() {
+        return Single.create(emitter -> {
+            DatabaseReference ref = FirebasePaths.usersRef();
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    List<User> users = new ArrayList<>();
+                    if (dataSnapshot.exists()) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            UserWrapper uw = new UserWrapper(child);
+                            users.add(uw.getModel());
+                        }
+                    }
+                    emitter.onSuccess(users);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    emitter.onError(databaseError.toException());
+                }
+            });
+        });
+    }
 }

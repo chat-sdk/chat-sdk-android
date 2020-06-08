@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
-import co.chatsdk.ui.fragments.ContactsFragment;
+import sdk.chat.ui.fragments.ContactsFragment;
 
 public class AContactsFragment extends ContactsFragment {
     @Override

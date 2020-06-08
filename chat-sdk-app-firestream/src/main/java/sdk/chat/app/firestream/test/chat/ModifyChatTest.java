@@ -3,21 +3,21 @@ package sdk.chat.app.firestream.test.chat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import sdk.guru.common.Event;
-import firestream.chat.interfaces.IChat;
 import firestream.chat.chat.User;
-import sdk.guru.common.EventType;
+import firestream.chat.interfaces.IChat;
 import firestream.chat.namespace.Fire;
-import sdk.chat.app.firestream.test.Result;
-import sdk.chat.app.firestream.test.Test;
-import sdk.chat.app.firestream.test.TestScript;
 import firestream.chat.types.RoleType;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.disposables.Disposable;
+import sdk.chat.app.firestream.test.Result;
+import sdk.chat.app.firestream.test.Test;
+import sdk.chat.app.firestream.test.TestScript;
+import sdk.guru.common.Event;
 import sdk.guru.common.RX;
 
 public class ModifyChatTest extends Test {
@@ -52,13 +52,13 @@ public class ModifyChatTest extends Test {
             } else {
                 IChat chat = chats.get(0);
 
-                ArrayList<String> nameEvents = new ArrayList<>();
-                ArrayList<String> imageURLEvents = new ArrayList<>();
-                ArrayList<HashMap<String, Object>> customDataEvents = new ArrayList<>();
-                ArrayList<Event<User>> userEvents = new ArrayList<>();
+                List<String> nameEvents = new ArrayList<>();
+                List<String> imageURLEvents = new ArrayList<>();
+                List<Map<String, Object>> customDataEvents = new ArrayList<>();
+                List<Event<User>> userEvents = new ArrayList<>();
 
-                ArrayList<User> removedUsers = new ArrayList<>();
-                ArrayList<User> addedUsers = new ArrayList<>();
+                List<User> removedUsers = new ArrayList<>();
+                List<User> addedUsers = new ArrayList<>();
 
                 dm.add(chat.getNameChangeEvents().subscribe(s -> {
                     nameEvents.add(s);
@@ -73,7 +73,7 @@ public class ModifyChatTest extends Test {
                 }, this));
 
                 final Disposable userEventsDisposable = chat.getUserEvents().newEvents().subscribe(userEvent -> {
-                    if (userEvent.typeIs(EventType.Modified)) {
+                    if (userEvent.isModified()) {
                         userEvents.add(userEvent);
                     } else {
                         failure("Add or Remove User event when modify expected");
@@ -178,10 +178,10 @@ public class ModifyChatTest extends Test {
                     userEventsDisposable.dispose();
 
                     dm.add(chat.getUserEvents().newEvents().subscribe(userEvent -> {
-                        if (userEvent.typeIs(EventType.Added)) {
+                        if (userEvent.isAdded()) {
                             addedUsers.add(userEvent.get());
                         }
-                        else if (userEvent.typeIs(EventType.Removed)) {
+                        else if (userEvent.isRemoved()) {
                             removedUsers.add(userEvent.get());
                         }
                         else {

@@ -1,4 +1,4 @@
-package co.chatsdk.contact;
+package sdk.chat.contact;
 
 import android.content.Context;
 

@@ -29,7 +29,7 @@ import sdk.chat.core.types.MessageType;
 import sdk.chat.core.utils.ImageBuilder;
 import sdk.chat.core.utils.ImageUtils;
 import co.chatsdk.xmpp.XMPPManager;
-import co.chatsdk.xmpp.iq.CustomIQ;
+import app.xmpp.adapter.iq.CustomIQ;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
@@ -41,7 +41,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
-import sdk.guru.common.RX;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
 

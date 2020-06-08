@@ -1,13 +1,13 @@
-package co.chatsdk.xmpp.ui;
+package app.xmpp.adapter.ui;
 
 import android.content.Context;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import app.xmpp.adapter.activities.XMPPLoginActivity;
+import sdk.chat.ui.BaseInterfaceAdapter;
 import sdk.chat.core.Tab;
-import co.chatsdk.ui.BaseInterfaceAdapter;
-import co.chatsdk.xmpp.activities.XMPPLoginActivity;
 
 /**
  * Created by benjaminsmiley-andrews on 12/07/2017.

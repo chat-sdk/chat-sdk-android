@@ -26,17 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
-import sdk.chat.ui.chat.model.ThreadHolder;
-import sdk.chat.ui.chat.model.TypingThreadHolder;
-import sdk.chat.ui.icons.Icons;
-import sdk.chat.ui.interfaces.SearchSupported;
-import sdk.chat.ui.module.DefaultUIModule;
-import sdk.chat.ui.update.ThreadUpdateAction;
-import sdk.chat.ui.update.UpdateActionBatcher;
-import sdk.chat.ui.utils.ThreadImageBuilder;
-import sdk.chat.ui.view_holders.ThreadViewHolder;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
@@ -49,6 +38,17 @@ import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
+import sdk.chat.ui.chat.model.ThreadHolder;
+import sdk.chat.ui.chat.model.TypingThreadHolder;
+import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.interfaces.SearchSupported;
+import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.update.ThreadUpdateAction;
+import sdk.chat.ui.update.UpdateActionBatcher;
+import sdk.chat.ui.utils.ThreadImageBuilder;
+import sdk.chat.ui.view_holders.ThreadViewHolder;
 import sdk.guru.common.RX;
 
 public abstract class ThreadsFragment extends BaseFragment implements SearchSupported {
@@ -184,7 +184,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                         Glide.with(this).load(url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
                     }
                 } else {
-                    int placeholder = DefaultUIModule.config().defaultProfileImage;
+                    int placeholder = UIModule.config().defaultProfilePlaceholder;
                     Glide.with(this).load(url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
                 }
             }

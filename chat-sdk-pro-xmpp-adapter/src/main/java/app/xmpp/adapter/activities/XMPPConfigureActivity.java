@@ -1,15 +1,13 @@
-package co.chatsdk.xmpp.activities;
+package app.xmpp.adapter.activities;
 
 import android.os.Bundle;
 import android.view.View;
 
-import org.pmw.tinylog.Logger;
-
+import app.xmpp.adapter.R;
+import app.xmpp.adapter.R2;
+import app.xmpp.adapter.fragments.XMPPConfigureFragment;
 import butterknife.BindView;
-import co.chatsdk.ui.activities.BaseActivity;
-import co.chatsdk.xmpp.R;
-import co.chatsdk.xmpp.R2;
-import co.chatsdk.xmpp.fragments.XMPPConfigureFragment;
+import sdk.chat.ui.activities.BaseActivity;
 
 public class XMPPConfigureActivity extends BaseActivity {
 

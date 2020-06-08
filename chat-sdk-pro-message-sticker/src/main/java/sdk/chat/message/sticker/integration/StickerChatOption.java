@@ -1,21 +1,21 @@
-package co.chatsdk.message.sticker.integration;
+package sdk.chat.message.sticker.integration;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 
+import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import sdk.chat.core.utils.StringChecker;
-import co.chatsdk.message.sticker.R;
-import co.chatsdk.message.sticker.view.StickerMessageActivity;
-import co.chatsdk.ui.chat.options.BaseChatOption;
-import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
+import sdk.chat.message.sticker.R;
+import sdk.chat.message.sticker.view.StickerMessageActivity;
+import sdk.chat.ui.chat.options.BaseChatOption;
 import sdk.guru.common.DisposableMap;
 
 import static android.app.Activity.RESULT_OK;
-import static co.chatsdk.message.sticker.module.StickerMessageModule.CHOOSE_STICKER;
+import static sdk.chat.message.sticker.module.StickerMessageModule.CHOOSE_STICKER;
 
 /**
  * Created by ben on 10/12/17.

@@ -1,4 +1,4 @@
-package co.chatsdk.firebase;
+package sdk.chat.firebase.adapter;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
@@ -10,11 +10,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-import co.chatsdk.firebase.moderation.Permission;
-import co.chatsdk.firebase.module.FirebaseModule;
-import co.chatsdk.firebase.utils.Generic;
-import co.chatsdk.firebase.wrappers.ThreadWrapper;
-import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import sdk.chat.core.base.AbstractEventHandler;
 import sdk.chat.core.dao.DaoCore;
@@ -25,6 +20,11 @@ import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ConnectionType;
+import sdk.chat.firebase.adapter.moderation.Permission;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.adapter.utils.Generic;
+import sdk.chat.firebase.adapter.wrappers.ThreadWrapper;
+import sdk.chat.firebase.adapter.wrappers.UserWrapper;
 import sdk.guru.common.EventType;
 import sdk.guru.realtime.RXRealtime;
 import sdk.guru.realtime.RealtimeEventListener;

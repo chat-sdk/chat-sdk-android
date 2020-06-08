@@ -1,4 +1,4 @@
-package co.chatsdk.contact;
+package sdk.chat.contact;
 
 /**
  * Created by ben on 10/9/17.

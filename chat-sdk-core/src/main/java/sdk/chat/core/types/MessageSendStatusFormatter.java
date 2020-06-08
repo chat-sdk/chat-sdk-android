@@ -2,7 +2,7 @@ package sdk.chat.core.types;
 
 import android.content.Context;
 
-import co.chatsdk.core.R;
+import sdk.chat.core.R;
 
 public class MessageSendStatusFormatter {
     public static String format(Context context, MessageSendStatus status, Integer percentage) {

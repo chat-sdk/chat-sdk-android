@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
 import sdk.chat.core.types.MessageSendStatusFormatter;
 import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.module.DefaultUIModule;
+import sdk.chat.ui.module.UIModule;
 
 public class MessageBinder {
 
@@ -19,8 +19,8 @@ public class MessageBinder {
 
     public static void onBindSendStatus(TextView textView, MessageHolder holder) {
 
-        if (DefaultUIModule.config().dateFormat != null) {
-            DateFormat format = new SimpleDateFormat(DefaultUIModule.config().dateFormat, CurrentLocale.get());
+        if (UIModule.config().dateFormat != null) {
+            DateFormat format = new SimpleDateFormat(UIModule.config().dateFormat, CurrentLocale.get());
             textView.setText(format.format(holder.getCreatedAt()));
         }
 

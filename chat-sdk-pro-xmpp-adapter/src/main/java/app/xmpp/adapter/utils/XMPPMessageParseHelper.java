@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.utils;
+package app.xmpp.adapter.utils;
 
 import org.jivesoftware.smack.packet.Message;
 

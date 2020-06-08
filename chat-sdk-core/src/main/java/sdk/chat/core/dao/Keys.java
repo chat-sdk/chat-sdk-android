@@ -82,4 +82,7 @@ public class Keys {
 
     public static final String CurrentUserID = "current_user_entity_id";
 
+    //Admin Thread
+    public static final String ReadOnly = "read-only";
+
 }

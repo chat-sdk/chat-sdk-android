@@ -28,16 +28,6 @@ import java.io.File;
 import java.util.HashMap;
 
 import butterknife.BindView;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
-import sdk.chat.ui.binders.AvailabilityHelper;
-import sdk.chat.ui.chat.MediaSelector;
-import sdk.chat.ui.fragments.ProfileViewOffsetChangeListener;
-import sdk.chat.ui.icons.Icons;
-import sdk.chat.ui.module.DefaultUIModule;
-import sdk.chat.ui.utils.ImagePickerUploader;
-import sdk.chat.ui.utils.UserImageBuilder;
-import sdk.chat.ui.views.IconEditView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
@@ -45,6 +35,17 @@ import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
+import sdk.chat.core.utils.StringChecker;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
+import sdk.chat.ui.binders.AvailabilityHelper;
+import sdk.chat.ui.chat.MediaSelector;
+import sdk.chat.ui.fragments.ProfileViewOffsetChangeListener;
+import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.utils.ImagePickerUploader;
+import sdk.chat.ui.utils.UserImageBuilder;
+import sdk.chat.ui.views.IconEditView;
 import sdk.guru.common.RX;
 
 /**
@@ -133,7 +134,7 @@ public class EditProfileActivity extends BaseActivity {
         appbar.addOnOffsetChangedListener(new ProfileViewOffsetChangeListener(avatarImageView));
         appbar.setOnClickListener(v -> {
             ImagePickerUploader uploader = new ImagePickerUploader(MediaSelector.CropType.None);
-            dm.add(uploader.choosePhoto(EditProfileActivity.this, false).subscribe(results -> {
+            dm.add(uploader.choosePhoto(this, false).subscribe(results -> {
                 setHeaderImage(results.get(0).url);
                 headerImageURL = results.get(0).url;
             }, this));
@@ -150,7 +151,7 @@ public class EditProfileActivity extends BaseActivity {
     protected void setHeaderImage(@Nullable String url) {
         // Make sure that this runs when the view has dimensions
         root.post(() -> {
-            int profileHeader = DefaultUIModule.config().profileHeaderImage;
+            int profileHeader = UIModule.config().profileHeaderImage;
             if (url != null && appbar != null) {
                 // Get the screen width
                 Glide.with(this)
@@ -180,7 +181,7 @@ public class EditProfileActivity extends BaseActivity {
         int height = Dimen.from(this, R.dimen.large_avatar_height);
 
         collapsingToolbar.setTitle(getString(R.string.edit_profile));
-        Glide.with(this).load(currentUser.getAvatarURL()).dontAnimate().placeholder(DefaultUIModule.config().defaultProfileImage).into(avatarImageView);
+        Glide.with(this).load(currentUser.getAvatarURL()).dontAnimate().placeholder(UIModule.config().defaultProfilePlaceholder).into(avatarImageView);
 
         UserImageBuilder.loadAvatar(currentUser, avatarImageView, width, height);
 
@@ -229,6 +230,12 @@ public class EditProfileActivity extends BaseActivity {
         String availability = AvailabilityHelper.getAvailableStates().get(spinner.getSelectedIndex());
 
         String name = nameEditView.getText();
+
+        if (StringChecker.isNullOrEmpty(name)) {
+            showToast(R.string.name_field_must_be_set);
+            return;
+        }
+
         String location = locationEditView.getText();
         String phoneNumber = phoneEditView.getText();
         String email = emailEditView.getText();

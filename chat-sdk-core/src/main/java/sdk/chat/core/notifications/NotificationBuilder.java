@@ -17,7 +17,9 @@ import androidx.core.app.NotificationCompat;
 
 import java.lang.ref.WeakReference;
 
-import co.chatsdk.core.R;
+import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
+import sdk.chat.core.R;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -25,8 +27,6 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
-import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
 import sdk.guru.common.RX;
 
 public class NotificationBuilder {

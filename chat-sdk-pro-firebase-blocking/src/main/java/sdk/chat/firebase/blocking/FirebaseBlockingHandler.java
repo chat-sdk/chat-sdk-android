@@ -1,4 +1,4 @@
-package co.chatsdk.firebase.blocking;
+package sdk.chat.firebase.blocking;
 
 import com.google.firebase.database.DatabaseReference;
 
@@ -11,10 +11,10 @@ import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.guru.realtime.RealtimeEventListener;
-import co.chatsdk.firebase.FirebasePaths;
+import sdk.chat.firebase.adapter.FirebasePaths;
 import io.reactivex.Completable;
 
-import static co.chatsdk.firebase.FirebasePaths.BlockedPath;
+import static sdk.chat.firebase.adapter.FirebasePaths.BlockedPath;
 
 /**
  * Created by pepe on 08.03.18.

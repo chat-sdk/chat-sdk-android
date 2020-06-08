@@ -4,13 +4,9 @@ import android.view.View;
 import android.widget.ImageView;
 
 import butterknife.BindView;
-import co.chatsdk.message.video.R;
-import co.chatsdk.message.video.R2;
-import co.chatsdk.ui.binders.MessageBinder;
-import co.chatsdk.ui.binders.ReadStatusViewBinder;
-import co.chatsdk.ui.icons.Icons;
-import co.chatsdk.ui.view_holders.base.BaseOutcomingImageMessageViewHolder;
 import sdk.chat.core.types.MessageSendStatus;
+import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.view_holders.base.BaseOutcomingImageMessageViewHolder;
 
 public class OutcomingVideoMessageViewHolder extends BaseOutcomingImageMessageViewHolder<VideoMessageHolder> {
 

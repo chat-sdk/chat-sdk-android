@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.listeners;
+package app.xmpp.adapter.listeners;
 
 import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smackx.muc.MultiUserChat;
@@ -14,8 +14,8 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ReadStatus;
-import co.chatsdk.xmpp.XMPPManager;
-import co.chatsdk.xmpp.defines.XMPPDefines;
+import app.xmpp.adapter.XMPPManager;
+import app.xmpp.adapter.defines.XMPPDefines;
 
 public class XMPPReceiptReceivedListener implements ReceiptReceivedListener {
     @Override

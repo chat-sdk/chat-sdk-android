@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.listeners;
+package app.xmpp.adapter.listeners;
 
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
@@ -11,10 +11,10 @@ import org.pmw.tinylog.Logger;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.xmpp.XMPPManager;
-import co.chatsdk.xmpp.XMPPMessageParser;
-import co.chatsdk.xmpp.utils.XMPPMessageParseHelper;
-import co.chatsdk.xmpp.utils.XMPPMessageWrapper;
+import app.xmpp.adapter.XMPPManager;
+import app.xmpp.adapter.XMPPMessageParser;
+import app.xmpp.adapter.utils.XMPPMessageParseHelper;
+import app.xmpp.adapter.utils.XMPPMessageWrapper;
 
 
 public class XMPPMessageListener implements IncomingChatMessageListener, OutgoingChatMessageListener {

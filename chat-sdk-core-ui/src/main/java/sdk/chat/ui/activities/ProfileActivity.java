@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.R;
+import sdk.chat.ui.R;
 import sdk.chat.ui.fragments.ProfileFragment;
 import sdk.chat.ui.utils.ToastHelper;
 import sdk.guru.common.RX;

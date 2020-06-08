@@ -22,18 +22,17 @@ import com.google.android.gms.location.SettingsClient;
 
 import java.util.List;
 
-import co.chatsdk.core.R;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
-import sdk.chat.core.utils.PermissionRequestHandler;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import sdk.guru.common.RX;
-import sdk.guru.common.RX;
+import sdk.chat.core.R;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
+import sdk.chat.core.utils.PermissionRequestHandler;
 import sdk.guru.common.DisposableMap;
+import sdk.guru.common.RX;
 
 /**
  * Created by Pepe on 01/25/19.

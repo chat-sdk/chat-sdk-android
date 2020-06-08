@@ -157,7 +157,7 @@ public class MessageChatTest extends Test {
 
                             DateFormat format = new SimpleDateFormat("yyyy", Locale.ENGLISH);
 
-                            dm.add(chat.loadMoreMessages(new Date(0), format.parse("3000")).subscribe(sendablesAll -> {
+                            dm.add(chat.loadMoreMessages(new Date(0), format.parse("3000"), true).subscribe(sendablesAll -> {
 
                                 Sendable allFirst = sendablesAll.get(0);
                                 Sendable allSecond = sendablesAll.get(1);
@@ -190,7 +190,7 @@ public class MessageChatTest extends Test {
 
                                 // There type a timing issue here in that the date of the sendable
                                 // will actually be a Firebase prediction rather than the actual time recorded on the server
-                                completables1.add(chat.loadMoreMessages(from, to).doOnSuccess(sendablesFromTo -> {
+                                completables1.add(chat.loadMoreMessages(from, to, true).doOnSuccess(sendablesFromTo -> {
                                     if (sendablesFromTo.size() != 12) {
                                         failure("From/To Sendable size incorrect");
                                     }
@@ -216,7 +216,7 @@ public class MessageChatTest extends Test {
                                     if (second.getDate().getTime() < first.getDate().getTime()) {
                                         failure("From/To Messages order incorrect");
                                     }
-                                }).ignoreElement().concatWith(chat.loadMoreMessagesFrom(from, limit).doOnSuccess(sendablesFrom -> {
+                                }).ignoreElement().concatWith(chat.loadMoreMessagesFrom(from, limit, true).doOnSuccess(sendablesFrom -> {
                                     if (sendablesFrom.size() != limit) {
                                         failure("From Sendable size incorrect");
                                     }
@@ -240,7 +240,7 @@ public class MessageChatTest extends Test {
                                         failure("From Messages order incorrect");
                                     }
 
-                                }).ignoreElement().concatWith(chat.loadMoreMessagesTo(to, limit).doOnSuccess(sendablesTo -> {
+                                }).ignoreElement().concatWith(chat.loadMoreMessagesTo(to, limit, true).doOnSuccess(sendablesTo -> {
 
                                     Sendable first = sendablesTo.get(0);
                                     Sendable second = sendablesTo.get(1);

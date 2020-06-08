@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.listeners;
+package app.xmpp.adapter.listeners;
 
 import org.jivesoftware.smack.PresenceListener;
 import org.jivesoftware.smack.packet.ExtensionElement;
@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference;
 
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.xmpp.XMPPMUCManager;
+import app.xmpp.adapter.XMPPMUCManager;
 import io.reactivex.disposables.Disposable;
 
 /**

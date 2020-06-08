@@ -1,4 +1,4 @@
-package co.chatsdk.message.sticker.view;
+package sdk.chat.message.sticker.view;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-import co.chatsdk.message.sticker.R;
+import sdk.chat.message.sticker.R;
 
 /**
  * Created by ben on 10/11/17.

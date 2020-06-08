@@ -13,9 +13,7 @@ import androidx.annotation.Nullable;
 
 import butterknife.BindView;
 import sdk.chat.core.dao.Keys;
-import co.chatsdk.message.video.R;
-import co.chatsdk.message.video.R2;
-import co.chatsdk.ui.activities.BaseActivity;
+import sdk.chat.ui.activities.BaseActivity;
 
 /**
  * Created by ben on 10/6/17.

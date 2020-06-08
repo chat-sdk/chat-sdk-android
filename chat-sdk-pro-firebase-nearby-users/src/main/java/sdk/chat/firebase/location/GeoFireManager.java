@@ -1,4 +1,4 @@
-package sdk.chat.location;
+package sdk.chat.firebase.location;
 
 import android.location.Location;
 
@@ -8,21 +8,23 @@ import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.jakewharton.rxrelay2.PublishRelay;
+import com.jakewharton.rxrelay2.ReplayRelay;
 
 import org.pmw.tinylog.Logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import io.reactivex.Observable;
+import sdk.chat.core.dao.User;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.firebase.FirebasePaths;
-import io.reactivex.Observable;
+import sdk.chat.firebase.adapter.FirebasePaths;
 import sdk.guru.common.RX;
-import sdk.guru.common.RX;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.ReplaySubject;
 
 /**
  * Created by ben on 4/3/18.
@@ -32,20 +34,69 @@ public class GeoFireManager {
 
     protected GeoQuery query;
 
-    protected PublishSubject<GeoEvent> eventPublishSubject = PublishSubject.create();
-    protected ReplaySubject<GeoEvent> eventReplaySubject = ReplaySubject.create();
+    protected PublishRelay<GeoEvent> eventPublishSubject = PublishRelay.create();
+    protected ReplayRelay<GeoEvent> eventReplaySubject = ReplayRelay.create();
+    protected PublishRelay<List<LocationUser>> locationUsersPublishRelay = PublishRelay.create();
 
     protected static GeoFireManager shared = new GeoFireManager();
 
     protected Map<String, GeoItem> itemMap = new HashMap<>();
 
+    protected List<LocationUser> locationUsers = new ArrayList<>();
+
     public static GeoFireManager shared () {
         return shared;
     }
 
-
     public GeoFireManager () {
+
+        allEvents().observeOn(RX.db()).doOnNext(geoEvent -> {
+            if (geoEvent.item.isType(GeoItem.USER)) {
+                String entityID = geoEvent.item.entityID;
+                User user = ChatSDK.core().getUserNowForEntityID(entityID);
+                if (!user.isMe()) {
+                    LocationUser lu = getLocationUser(entityID);
+
+                    boolean updated = true;
+
+                    if (geoEvent.type.equals(GeoEvent.Type.Entered) && lu == null) {
+                        locationUsers.add(new LocationUser(user, geoEvent.getLocation()));
+                    }
+                    else if (geoEvent.type.equals(GeoEvent.Type.Exited) && lu != null) {
+                        locationUsers.remove(lu);
+                    }
+                    else if (geoEvent.type.equals(GeoEvent.Type.Moved) && lu != null) {
+                        lu.location = geoEvent.getLocation();
+                    } else {
+                        updated = false;
+                    }
+
+                    if (updated) {
+                        locationUsersPublishRelay.accept(locationUsers);
+                    }
+                }
+            }
+        }).subscribe();
+
+        ChatSDK.hook().addHook(Hook.sync(data -> {
+            locationUsers.clear();
+        }), HookEvent.DidLogout);
+
     }
+
+    public List<LocationUser> getLocationUsers() {
+        return locationUsers;
+    }
+
+    public LocationUser getLocationUser(String entityID) {
+        for (LocationUser lu : locationUsers) {
+            if (lu.user.getEntityID().equals(entityID)) {
+                return lu;
+            }
+        }
+        return null;
+    }
+
 
     public void startListeningForItems(double latitude, double longitude, float radius) {
 
@@ -98,16 +149,20 @@ public class GeoFireManager {
     }
 
     protected void onNext (GeoEvent event) {
-        eventPublishSubject.onNext(event);
-        eventReplaySubject.onNext(event);
+        eventPublishSubject.accept(event);
+        eventReplaySubject.accept(event);
     }
 
-    public Observable<GeoEvent> events () {
+    public Observable<GeoEvent> events() {
         return eventPublishSubject.observeOn(RX.main());
     }
 
-    public Observable<GeoEvent> allEvents () {
+    public Observable<GeoEvent> allEvents() {
         return eventReplaySubject.observeOn(RX.main());
+    }
+
+    public Observable<List<LocationUser>> locationUsersEvents() {
+        return locationUsersPublishRelay.observeOn(RX.main());
     }
 
     public void stopListeningForItems() {

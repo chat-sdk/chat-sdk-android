@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp;
+package app.xmpp.adapter;
 
 
 import android.location.Location;
@@ -8,7 +8,7 @@ import org.jivesoftware.smack.packet.StandardExtensionElement;
 
 import java.util.HashMap;
 
-import co.chatsdk.xmpp.defines.XMPPDefines;
+import app.xmpp.adapter.defines.XMPPDefines;
 import sdk.chat.core.utils.GoogleUtils;
 
 /**

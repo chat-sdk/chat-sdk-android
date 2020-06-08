@@ -13,7 +13,7 @@ import com.google.android.exoplayer2.scheduler.Scheduler;
 
 import java.util.List;
 
-import co.chatsdk.core.R;
+import sdk.chat.core.R;
 
 public class MediaDownloadService extends DownloadService {
 

@@ -4,6 +4,8 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import java.util.List;
+
 import sdk.chat.core.handlers.MessageHandler;
 
 /**
@@ -15,5 +17,7 @@ public interface Module {
     String getName();
 
     MessageHandler getMessageHandler();
+
+    List<String> requiredPermissions();
 
 }

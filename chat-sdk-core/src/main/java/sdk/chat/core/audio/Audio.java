@@ -14,7 +14,7 @@ import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 
 import java.io.File;
 
-import co.chatsdk.core.R;
+import sdk.chat.core.R;
 import sdk.chat.core.session.ChatSDK;
 
 // TODO: Not finished...

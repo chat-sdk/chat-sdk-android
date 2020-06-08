@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp;
+package app.xmpp.adapter;
 
 import android.content.Context;
 
@@ -39,31 +39,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import sdk.chat.core.hook.HookEvent;
-import sdk.chat.core.interfaces.ThreadType;
-import sdk.chat.core.session.ChatSDK;
-
-import sdk.chat.core.utils.StringChecker;
-import co.chatsdk.xmpp.enums.ConnectionStatus;
-import co.chatsdk.xmpp.listeners.XMPPCarbonCopyReceivedListener;
-import co.chatsdk.xmpp.listeners.XMPPChatStateListener;
-import co.chatsdk.xmpp.listeners.XMPPConnectionListener;
-import co.chatsdk.xmpp.listeners.XMPPMessageListener;
-import co.chatsdk.xmpp.listeners.XMPPReceiptReceivedListener;
-import co.chatsdk.xmpp.listeners.XMPPReconnectionListener;
-import co.chatsdk.xmpp.listeners.XMPPRosterListener;
-import co.chatsdk.xmpp.module.XMPPModule;
-import co.chatsdk.xmpp.utils.PresenceHelper;
-import co.chatsdk.xmpp.utils.ServerKeyStorage;
-import co.chatsdk.xmpp.utils.XMPPServer;
+import app.xmpp.adapter.enums.ConnectionStatus;
+import app.xmpp.adapter.listeners.XMPPCarbonCopyReceivedListener;
+import app.xmpp.adapter.listeners.XMPPChatStateListener;
+import app.xmpp.adapter.listeners.XMPPConnectionListener;
+import app.xmpp.adapter.listeners.XMPPMessageListener;
+import app.xmpp.adapter.listeners.XMPPReceiptReceivedListener;
+import app.xmpp.adapter.listeners.XMPPReconnectionListener;
+import app.xmpp.adapter.listeners.XMPPRosterListener;
+import app.xmpp.adapter.module.XMPPModule;
+import app.xmpp.adapter.utils.PresenceHelper;
+import app.xmpp.adapter.utils.ServerKeyStorage;
+import app.xmpp.adapter.utils.XMPPServer;
 import io.reactivex.Completable;
 import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import sdk.guru.common.RX;
+import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.StringChecker;
 import sdk.guru.common.DisposableMap;
+import sdk.guru.common.RX;
 
 /**
  * Created by benjaminsmiley-andrews on 03/07/2017.

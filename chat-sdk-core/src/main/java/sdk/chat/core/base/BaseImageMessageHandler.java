@@ -5,9 +5,9 @@ import android.graphics.BitmapFactory;
 
 import java.io.File;
 
-import co.chatsdk.core.R;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Completable;
+import sdk.chat.core.R;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;

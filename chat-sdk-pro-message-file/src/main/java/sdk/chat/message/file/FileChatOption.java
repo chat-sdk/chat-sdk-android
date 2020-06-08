@@ -1,4 +1,4 @@
-package co.chatsdk.message.file;
+package sdk.chat.message.file;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -14,15 +14,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import sdk.chat.core.dao.Thread;
 
+import io.reactivex.Completable;
+import sdk.chat.core.dao.Thread;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
-import co.chatsdk.ui.chat.options.BaseChatOption;
-import io.reactivex.Completable;
+import sdk.chat.ui.chat.options.BaseChatOption;
 
 import static android.app.Activity.RESULT_OK;
-import static co.chatsdk.message.file.FileMessageModule.CHOOSE_FILE;
+import static sdk.chat.message.file.FileMessageModule.CHOOSE_FILE;
 
 /**
  * Created by Pepe on 01/05/18.

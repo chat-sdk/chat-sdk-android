@@ -23,10 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import co.chatsdk.ui.R;
-import sdk.chat.ui.chat.options.MediaType;
-import sdk.chat.ui.module.DefaultUIModule;
-import sdk.chat.ui.utils.Cropper;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
@@ -35,6 +31,10 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import sdk.chat.core.utils.PermissionRequestHandler;
+import sdk.chat.ui.R;
+import sdk.chat.ui.chat.options.MediaType;
+import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.utils.Cropper;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -163,7 +163,7 @@ public class MediaSelector {
     }
 
     protected void processPickedImage(Activity activity, List<Uri> uris) throws Exception {
-        if (!DefaultUIModule.config().imageCroppingEnabled || cropType == CropType.None || uris.size() > 1) {
+        if (!UIModule.config().imageCroppingEnabled || cropType == CropType.None || uris.size() > 1) {
 
             ArrayList<File> files = new ArrayList<File>();
             for (Uri uri: uris) {
@@ -271,7 +271,7 @@ public class MediaSelector {
     public void handleImageFiles (Activity activity, List<File> files) {
 
         // Scanning the messageImageView so it would be visible in the gallery images.
-        if (DefaultUIModule.config().saveImagesToDirectory) {
+        if (UIModule.config().saveImagesToDirectory) {
             for (File file: files) {
                 ChatSDK.shared().fileManager().addFileToGallery(file);
             }
