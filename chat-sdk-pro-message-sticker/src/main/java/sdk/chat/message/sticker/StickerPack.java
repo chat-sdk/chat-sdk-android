@@ -1,9 +1,9 @@
-package co.chatsdk.message.sticker;
+package sdk.chat.message.sticker;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-import co.chatsdk.message.sticker.view.StickerListItem;
+import sdk.chat.message.sticker.view.StickerListItem;
 
 /**
  * Created by ben on 10/11/17.

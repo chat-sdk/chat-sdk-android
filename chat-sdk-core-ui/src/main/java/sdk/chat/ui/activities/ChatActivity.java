@@ -35,17 +35,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import butterknife.BindView;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
-import sdk.chat.ui.appbar.ChatActionBar;
-import sdk.chat.ui.audio.AudioBinder;
-import sdk.chat.ui.chat.model.ImageMessageHolder;
-import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.Customiser;
-import sdk.chat.ui.icons.Icons;
-import sdk.chat.ui.interfaces.TextInputDelegate;
-import sdk.chat.ui.views.ChatView;
-import sdk.chat.ui.views.ReplyView;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
@@ -64,6 +53,17 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.core.utils.StringChecker;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
+import sdk.chat.ui.appbar.ChatActionBar;
+import sdk.chat.ui.audio.AudioBinder;
+import sdk.chat.ui.chat.model.ImageMessageHolder;
+import sdk.chat.ui.chat.model.MessageHolder;
+import sdk.chat.ui.custom.Customiser;
+import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.interfaces.TextInputDelegate;
+import sdk.chat.ui.views.ChatView;
+import sdk.chat.ui.views.ReplyView;
 import sdk.guru.common.Optional;
 import sdk.guru.common.RX;
 
@@ -312,8 +312,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     }
                 }));
 
-        thread.markReadAsync().subscribe();
-
         invalidateOptionsMenu();
     }
 
@@ -389,7 +387,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 input.getInputEditText().setText(thread.getDraft());
             }
 
+            // Put it here in the case that they closed the app with this screen open
+            thread.markReadAsync().subscribe();
+
         }).ignoreElement().subscribe();
+
 
     }
 
@@ -413,7 +415,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     protected void onStop() {
         super.onStop();
+        doOnStop();
+    }
 
+    protected void doOnStop() {
         becomeInactive();
 
         if (thread != null && thread.typeIs(ThreadType.Public) && (removeUserFromChatOnExit || thread.isMuted())) {
@@ -422,7 +427,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     .removeUsersFromThread(thread, ChatSDK.currentUser())
                     .observeOn(RX.main()).subscribe());
         }
-
     }
 
     /**

@@ -1,17 +1,12 @@
 package sdk.guru.common;
 
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.reactivex.Completable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import sdk.guru.common.RX;
 import io.reactivex.schedulers.Schedulers;
-import sdk.guru.common.RX;
 
 public class RX {
 
@@ -72,10 +67,18 @@ public class RX {
         computation().scheduleDirect(runnable);
     }
 
-    public static void run(Runnable onBackground, Runnable onMain) {
-        onBackground(() -> {
+    // Note, this an fail silently if there is an error
+    public static Completable run(final Runnable onBackground, final Runnable onMain) {
+        return Completable.create(emitter -> {
             onBackground.run();
-            onMain(onMain);
-        });
+            emitter.onComplete();
+        }).subscribeOn(computation()).observeOn(main()).doOnComplete(onMain::run);
+    }
+
+    public static Completable runSingle(final Runnable onBackground, final Runnable onMain) {
+        return Completable.create(emitter -> {
+            onBackground.run();
+            emitter.onComplete();
+        }).subscribeOn(single()).observeOn(main()).doOnComplete(onMain::run);
     }
 }

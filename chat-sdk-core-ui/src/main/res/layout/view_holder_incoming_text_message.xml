@@ -66,7 +66,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:background="?outcomingReplyDrawable"
             android:paddingRight="2dp"
             android:paddingEnd="2dp"
             android:paddingLeft="6dp"
@@ -74,7 +73,9 @@
             android:paddingBottom="2dp"
             android:paddingTop="2dp"
             android:layout_marginBottom="6dp"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:background="?outcomingReplyDrawable"
+            >
 
             <ImageView
                 android:id="@+id/replyImageView"

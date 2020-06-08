@@ -4,8 +4,8 @@ import android.content.Context;
 
 import sdk.chat.core.session.Config;
 import sdk.chat.core.utils.Device;
-import co.chatsdk.xmpp.module.XMPPConfig;
-import co.chatsdk.xmpp.module.XMPPModule;
+import app.xmpp.adapter.module.XMPPConfig;
+import app.xmpp.adapter.module.XMPPModule;
 
 public class Testing {
 

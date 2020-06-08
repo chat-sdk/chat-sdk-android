@@ -1,10 +1,9 @@
-package co.chatsdk.firebase.module;
+package sdk.chat.firebase.adapter.module;
 
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.Configure;
@@ -45,7 +44,7 @@ public class FirebaseModule extends AbstractModule implements NetworkAdapterProv
 
     @Override
     public Class<? extends BaseNetworkAdapter> getNetworkAdapter() {
-        return FirebaseNetworkAdapter.class;
+        return config.networkAdapter;
     }
 
     public static FirebaseConfig config() {

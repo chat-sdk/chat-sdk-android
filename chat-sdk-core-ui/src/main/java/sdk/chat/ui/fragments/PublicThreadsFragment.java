@@ -9,16 +9,14 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.functions.Predicate;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.R;
-import sdk.chat.ui.module.DefaultUIModule;
-import sdk.chat.ui.utils.DialogUtils;
-import sdk.chat.ui.utils.ToastHelper;
+import sdk.chat.ui.R;
+import sdk.chat.ui.module.UIModule;
 import sdk.guru.common.RX;
-import io.reactivex.functions.Predicate;
 
 public class PublicThreadsFragment extends ThreadsFragment {
 
@@ -31,15 +29,15 @@ public class PublicThreadsFragment extends ThreadsFragment {
     public void initViews() {
         super.initViews();
 
-        dm.add(getOnLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), 0, R.string.alert_delete_thread, R.string.delete,
-                R.string.cancel, () -> {
-                    dm.add(ChatSDK.thread().deleteThread(thread)
-                            .observeOn(RX.main())
-                            .subscribe(() -> {
-                                clearData();
-                                reloadData();
-                            }, throwable -> ToastHelper.show(getContext(), throwable.getLocalizedMessage())));
-                }, null)));
+//        dm.add(getOnLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), 0, R.string.alert_delete_thread, R.string.delete,
+//                R.string.cancel, () -> {
+//                    dm.add(ChatSDK.thread().deleteThread(thread)
+//                            .observeOn(RX.main())
+//                            .subscribe(() -> {
+//                                clearData();
+//                                reloadData();
+//                            }, throwable -> ToastHelper.show(getContext(), throwable.getLocalizedMessage())));
+//                }, null)));
     }
 
 
@@ -78,6 +76,6 @@ public class PublicThreadsFragment extends ThreadsFragment {
 
     @Override
     public boolean allowThreadCreation () {
-        return DefaultUIModule.config().publicRoomCreationEnabled;
+        return UIModule.config().publicRoomCreationEnabled;
     }
 }

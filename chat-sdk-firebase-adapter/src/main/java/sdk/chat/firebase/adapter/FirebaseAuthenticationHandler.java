@@ -1,4 +1,4 @@
-package co.chatsdk.firebase;
+package sdk.chat.firebase.adapter;
 
 import android.os.AsyncTask;
 
@@ -13,9 +13,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import co.chatsdk.firebase.module.FirebaseModule;
-import co.chatsdk.firebase.utils.Generic;
-import co.chatsdk.firebase.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
@@ -25,6 +22,10 @@ import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.AccountDetails;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.adapter.utils.Generic;
+import sdk.chat.firebase.adapter.wrappers.UserWrapper;
+import sdk.guru.common.EventType;
 import sdk.guru.common.RX;
 import sdk.guru.realtime.RXRealtime;
 import sdk.guru.realtime.RealtimeReferenceManager;
@@ -108,21 +109,23 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     }
 
     public Completable retrieveRemoteConfig() {
-        return Completable.defer(() -> {
+        return Completable.create(emitter -> {
             if (ChatSDK.config().remoteConfigEnabled) {
                 RXRealtime realtime = new RXRealtime();
-                Completable completable = realtime.get(FirebasePaths.configRef()).doOnSuccess(dataSnapshotOptional -> {
-                    if (!dataSnapshotOptional.isEmpty()) {
-                        Map<String, Object> map = dataSnapshotOptional.get().getValue(Generic.mapStringObject());
+                realtime.on(FirebasePaths.configRef()).doOnNext(change -> {
+                    if (change.getType() != EventType.Removed) {
+                        Map<String, Object> map = change.getSnapshot().getValue(Generic.mapStringObject());
                         if (map != null) {
-                            ChatSDK.config().updateRemoteConfig(map);
+                            ChatSDK.config().setRemoteConfig(map);
                         }
+                    } else {
+                        ChatSDK.config().clearRemoteConfig();
                     }
-                }).ignoreElement();
+                    emitter.onComplete();
+                }).ignoreElements().subscribe(ChatSDK.events());
                 realtime.addToReferenceManager();
-                return completable;
             } else {
-                return Completable.complete();
+                emitter.onComplete();
             }
         }).subscribeOn(RX.io());
     }

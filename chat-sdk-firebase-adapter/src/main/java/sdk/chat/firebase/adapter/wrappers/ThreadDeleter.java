@@ -1,10 +1,9 @@
-package co.chatsdk.firebase.wrappers;
+package sdk.chat.firebase.adapter.wrappers;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,7 +13,7 @@ import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.firebase.FirebasePaths;
+import sdk.chat.firebase.adapter.FirebasePaths;
 import io.reactivex.Completable;
 import sdk.guru.common.RX;
 

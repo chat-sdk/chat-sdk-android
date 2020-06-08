@@ -4,7 +4,7 @@ import com.stfalcon.chatkit.commons.models.MessageContentType;
 
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.chat.model.ImageMessageHolder;
+import sdk.chat.ui.chat.model.ImageMessageHolder;
 
 public class VideoMessageHolder extends ImageMessageHolder implements MessageContentType {
     public VideoMessageHolder(Message message) {

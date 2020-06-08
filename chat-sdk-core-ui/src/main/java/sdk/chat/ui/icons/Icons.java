@@ -16,7 +16,7 @@ import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial;
 import java.lang.ref.WeakReference;
 
 import sdk.chat.core.utils.Dimen;
-import co.chatsdk.ui.R;
+import sdk.chat.ui.R;
 
 public class Icons {
 

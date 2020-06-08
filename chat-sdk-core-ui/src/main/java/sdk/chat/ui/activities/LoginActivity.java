@@ -29,13 +29,13 @@ import com.google.android.material.textfield.TextInputLayout;
 import org.pmw.tinylog.Logger;
 
 import butterknife.BindView;
+import io.reactivex.Completable;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.AccountDetails;
 import sdk.chat.core.utils.StringChecker;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
-import sdk.chat.ui.module.DefaultUIModule;
-import io.reactivex.Completable;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
+import sdk.chat.ui.module.UIModule;
 import sdk.guru.common.RX;
 
 
@@ -83,7 +83,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected void initViews() {
         super.initViews();
 
-        resetPasswordButton.setVisibility(DefaultUIModule.config().resetPasswordEnabled ? View.VISIBLE : View.INVISIBLE);
+        resetPasswordButton.setVisibility(UIModule.config().resetPasswordEnabled ? View.VISIBLE : View.INVISIBLE);
 
         if (!ChatSDK.auth().accountTypeEnabled(AccountDetails.Type.Anonymous)) {
             anonymousButton.setVisibility(View.GONE);
@@ -97,8 +97,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             passwordTextInput.setText(ChatSDK.config().debugPassword);
         }
 
-        if (DefaultUIModule.config().usernameHint != null) {
-            usernameTextInputLayout.setHint(DefaultUIModule.config().usernameHint);
+        if (UIModule.config().usernameHint != null) {
+            usernameTextInputLayout.setHint(UIModule.config().usernameHint);
         }
 
         appIconImageView.setImageResource(ChatSDK.config().logoDrawableResourceID);

@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
 import io.reactivex.annotations.NonNull;
 import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Message;
@@ -22,6 +20,8 @@ import sdk.chat.core.dao.ThreadMetaValue;
 import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
 
 public class DebugFragment extends BaseFragment {
 

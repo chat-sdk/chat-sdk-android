@@ -8,32 +8,30 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.concurrent.TimeUnit;
 
-import co.chatsdk.contact.ContactBookModule;
-import co.chatsdk.firebase.blocking.FirebaseBlockingModule;
-import co.chatsdk.firebase.file_storage.FirebaseUploadModule;
-import co.chatsdk.firebase.module.FirebaseModule;
-import co.chatsdk.firebase.push.FirebasePushModule;
-import co.chatsdk.firebase.ui.FirebaseUIModule;
-import co.chatsdk.firestream.FireStreamModule;
-import co.chatsdk.firestream.FirebaseServiceType;
-import co.chatsdk.last_online.FirebaseLastOnlineModule;
-import co.chatsdk.message.file.FileMessageModule;
-import co.chatsdk.message.sticker.module.StickerMessageModule;
-import co.chatsdk.profile.pictures.ProfilePicturesModule;
-import co.chatsdk.read_receipts.FirebaseReadReceiptsModule;
-import co.chatsdk.typing_indicator.FirebaseTypingIndicatorModule;
-import co.chatsdk.ui.module.DefaultUIModule;
 import io.reactivex.disposables.Disposable;
 import sdk.chat.android.live.R;
-import sdk.chat.audio.AudioMessageModule;
+import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.session.Config;
 import sdk.chat.core.utils.Device;
+import sdk.chat.firbase.online.FirebaseLastOnlineModule;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.blocking.FirebaseBlockingModule;
+import sdk.chat.firebase.location.FirebaseNearbyUsersModule;
+import sdk.chat.firebase.push.FirebasePushModule;
+import sdk.chat.firebase.receipts.FirebaseReadReceiptsModule;
+import sdk.chat.firebase.typing.FirebaseTypingIndicatorModule;
+import sdk.chat.firebase.ui.FirebaseUIModule;
+import sdk.chat.firebase.upload.FirebaseUploadModule;
+import sdk.chat.firestream.adapter.FireStreamModule;
+import sdk.chat.firestream.adapter.FirebaseServiceType;
 import sdk.chat.firestream.receipts.FireStreamReadReceiptsModule;
-import sdk.chat.firestream.typing.FireStreamTypingIndicatorModule;
-import sdk.chat.location.FirebaseNearbyUsersModule;
+import sdk.chat.message.audio.AudioMessageModule;
+import sdk.chat.message.file.FileMessageModule;
+import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
+import sdk.chat.profile.pictures.ProfilePicturesModule;
 import sdk.chat.ui.extras.ExtrasModule;
+import sdk.chat.ui.module.UIModule;
 
 /**
  * Created by Ben Smiley on 6/8/2014.
@@ -45,16 +43,18 @@ public class MainApplication extends Application {
     public void onCreate() {
         super.onCreate();
         try {
-            firestream();
+            firebase();
+//            firestream();
 //        xmpp();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+
     }
 
     public void firebase() throws Exception {
-        String rootPath = "pre_3";
+        String rootPath = "pre_5";
 
         ChatSDK.builder()
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
@@ -62,9 +62,9 @@ public class MainApplication extends Application {
 
 //                .setDebugModeEnabled(true)
                 .setRemoteConfigEnabled(false)
-                .setIdenticonType(Config.IdenticonType.RoboHash)
                 .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                 .setSendSystemMessageWhenRoleChanges(true)
+                .setRemoteConfigEnabled(true)
                 .build()
 
                 // Add the network adapter module
@@ -78,7 +78,7 @@ public class MainApplication extends Application {
                 )
 
                 // Add the UI module
-                .addModule(DefaultUIModule.builder()
+                .addModule(UIModule.builder()
                         .setPublicRoomCreationEnabled(true)
                         .setPublicRoomsEnabled(true)
                         .setTheme(R.style.GGTheme)
@@ -98,9 +98,7 @@ public class MainApplication extends Application {
                 .addModule(VideoMessageModule.shared())
                 .addModule(FirebaseBlockingModule.shared())
                 .addModule(FirebaseLastOnlineModule.shared())
-                .addModule(FirebaseNearbyUsersModule.builder()
-                        .setTabIndex(100)
-                        .build())
+                .addModule(FirebaseNearbyUsersModule.builder().build())
                 .addModule(FirebaseReadReceiptsModule.shared())
                 .addModule(FirebaseTypingIndicatorModule.shared())
 
@@ -119,6 +117,8 @@ public class MainApplication extends Application {
                 .build()
                 .activate(this);
 
+//        ChatSDK.ui().setTab("Debug", null, new DebugFragment(), 99);
+//        ChatSDK.ui().removeTab(0);
 
         Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {
             networkEvent.debug();
@@ -128,10 +128,11 @@ public class MainApplication extends Application {
             t.printStackTrace();
         });
 
+
         FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true);
         FirebaseCrashlytics.getInstance().log("Start");
 //            TestScript.run(context, config.firebaseRootPath);
-//            new DummyData(20z23,!Bear
+//            new DummyData(
 //            0, 50);
 
 //            ChatSDK.ui().addChatOption(new MessageTestChatOption("BaseMessage Burst"));
@@ -139,33 +140,40 @@ public class MainApplication extends Application {
     }
 
     public void firestream() throws Exception {
-        String rootPath = "pre_3";
+        String rootPath = "pre_4";
 
         ChatSDK.builder()
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
                 .setAnonymousLoginEnabled(false)
-
+                .setMessagesToLoadPerBatch(10)
                 .setRemoteConfigEnabled(false)
-                .setIdenticonType(Config.IdenticonType.RoboHash)
                 .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                 .setSendSystemMessageWhenRoleChanges(true)
                 .build()
 
                 // Add the network adapter module
                 .addModule(
+                        //
+
+                        /*
+                         * Delete messages on receipt
+                         * Read receipts on / off
+                         * Listening from last message sent
+                         */
+
                         FireStreamModule.builder(FirebaseServiceType.Realtime)
                                 .setRoot(rootPath)
                                 .setSandbox("firestream")
-                                .setDeleteMessagesOnReceiptEnabled(true)
-                                .setStartListeningFromLastSentMessageDateEnabled(true)
+                                .setDeleteMessagesOnReceiptEnabled(false)
                                 .setAutoMarkReceivedEnabled(true)
                                 .setAutoAcceptChatInviteEnabled(true)
                                 .setDebugEnabled(true)
+                                .setDeleteDeliveryReceiptsOnReceipt(true)
                                 .build()
                 )
 
                 // Add the UI module
-                .addModule(DefaultUIModule.builder()
+                .addModule(UIModule.builder()
                         .setPublicRoomsEnabled(false)
                         .build()
                 )
@@ -174,7 +182,7 @@ public class MainApplication extends Application {
                 .addModule(FirebaseUploadModule.shared())
                 .addModule(FirebasePushModule.shared())
                 .addModule(ProfilePicturesModule.shared())
-                .addModules(FireStreamTypingIndicatorModule.shared())
+//                .addModules(FireStreamTypingIndicatorModule.shared())
                 .addModules(FireStreamReadReceiptsModule.shared())
                 .addModule(ContactBookModule.shared())
 //                            .addModule(EncryptionModule.shared())
@@ -188,9 +196,10 @@ public class MainApplication extends Application {
                         .build())
 
                 .addModule(ExtrasModule.builder(config -> {
-                    if (Device.honor(this)) {
-                        config.setDrawerEnabled(false);
-                    }
+                    config.setDrawerEnabled(false);
+//                    if (Device.honor(this)) {
+//                        config.setDrawerEnabled(false);
+//                    }
                 }))
 
                 .addModule(FirebaseUIModule.builder()
@@ -201,6 +210,7 @@ public class MainApplication extends Application {
                 // Activate
                 .build()
                 .activate(this);
+
 
 
         Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {

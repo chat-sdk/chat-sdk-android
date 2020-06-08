@@ -16,8 +16,8 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
 
 public class IconEditView extends LinearLayout {
 

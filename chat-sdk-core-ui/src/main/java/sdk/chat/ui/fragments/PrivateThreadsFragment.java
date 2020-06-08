@@ -5,15 +5,15 @@ import android.view.MenuItem;
 import java.util.List;
 
 import io.reactivex.Single;
+import io.reactivex.functions.Predicate;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.R;
+import sdk.chat.ui.R;
 import sdk.chat.ui.utils.DialogUtils;
 import sdk.chat.ui.utils.ToastHelper;
 import sdk.guru.common.RX;
-import io.reactivex.functions.Predicate;
 
 public class PrivateThreadsFragment extends ThreadsFragment {
 

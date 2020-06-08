@@ -45,11 +45,6 @@ public interface AuthenticationHandler {
     */
     Completable logout();
 
-    /**
-    * Says which networks are available this can be setup in bFirebaseDefines
-    * if you set the API key to @"" for Twitter Facebook or Google then it's automatically
-    * disabled
-    */
     Boolean accountTypeEnabled(AccountDetails.Type type);
 
     /**

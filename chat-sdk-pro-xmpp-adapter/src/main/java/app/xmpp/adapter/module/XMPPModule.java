@@ -1,18 +1,17 @@
-package co.chatsdk.xmpp.module;
+package app.xmpp.adapter.module;
 
 import android.content.Context;
 
-import co.chatsdk.ui.module.DefaultUIModule;
-import co.chatsdk.ui.module.UIConfig;
-import co.chatsdk.xmpp.R;
-import co.chatsdk.xmpp.handlers.XMPPNetworkAdapter;
-import co.chatsdk.xmpp.ui.XMPPInterfaceAdapter;
+import app.xmpp.adapter.R;
+import app.xmpp.adapter.ui.XMPPInterfaceAdapter;
 import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.chat.core.interfaces.InterfaceAdapter;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.session.InterfaceAdapterProvider;
 import sdk.chat.core.session.NetworkAdapterProvider;
+import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.module.UIConfig;
 
 /**
  * Created by benjaminsmiley-andrews on 12/07/2017.
@@ -35,7 +34,7 @@ public class XMPPModule extends AbstractModule implements NetworkAdapterProvider
     }
 
     public XMPPModule configureUI(Configure<UIConfig> configure) {
-        configure.with(DefaultUIModule.config());
+        configure.with(UIModule.config());
         return instance;
     }
 
@@ -43,8 +42,8 @@ public class XMPPModule extends AbstractModule implements NetworkAdapterProvider
 
     @Override
     public void activate(Context context) {
-        if ( DefaultUIModule.config().usernameHint == null) {
-            DefaultUIModule.config().usernameHint = context.getString(R.string.user_jid);
+        if ( UIModule.config().usernameHint == null) {
+            UIModule.config().usernameHint = context.getString(R.string.user_jid);
         }
     }
 
@@ -60,7 +59,7 @@ public class XMPPModule extends AbstractModule implements NetworkAdapterProvider
 
     @Override
     public Class<? extends BaseNetworkAdapter> getNetworkAdapter() {
-        return XMPPNetworkAdapter.class;
+        return config.networkAdapter;
     }
 
     public static XMPPConfig config() {

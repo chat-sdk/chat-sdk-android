@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.handlers;
+package app.xmpp.adapter.handlers;
 
 import org.jivesoftware.smackx.blocking.BlockingCommandManager;
 import org.jxmpp.jid.Jid;
@@ -11,11 +11,11 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.defines.Availability;
 import sdk.chat.core.handlers.BlockingHandler;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.xmpp.XMPPManager;
+import app.xmpp.adapter.XMPPManager;
 import io.reactivex.Completable;
 import sdk.guru.common.RX;
 
-import static co.chatsdk.xmpp.defines.XMPPDefines.BlockingCommandNamespace;
+import static app.xmpp.adapter.defines.XMPPDefines.BlockingCommandNamespace;
 
 /**
  * Created by ben on 8/16/17.

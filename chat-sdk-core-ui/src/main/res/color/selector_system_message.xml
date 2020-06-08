@@ -10,4 +10,5 @@
     <item
         android:color="?systemDefaultBubblePressedColor"
         android:state_pressed="true" />
+
 </selector>

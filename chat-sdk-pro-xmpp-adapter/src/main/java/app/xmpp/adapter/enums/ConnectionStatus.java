@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.enums;
+package app.xmpp.adapter.enums;
 
 /**
  * Created by benjaminsmiley-andrews on 01/07/2017.

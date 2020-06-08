@@ -12,6 +12,7 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.GoogleUtils;
+import sdk.chat.realtime.R;
 
 public class ThreadExamples extends BaseExample {
     public ThreadExamples(Context context, ArrayList<User> users) {
@@ -71,7 +72,7 @@ public class ThreadExamples extends BaseExample {
 
             }, this));
 
-            Location location = new Location(ChatSDK.getString(co.chatsdk.core.R.string.app_name));
+            Location location = new Location(ChatSDK.getString(R.string.app_name));
             location.setLatitude(0.0);
             location.setLongitude(1.1);
 
@@ -87,7 +88,7 @@ public class ThreadExamples extends BaseExample {
             dm.add(ChatSDK.thread().pushThread(thread).subscribe(() -> {
 
                 // Get data
-                String value = thread.metaValueForKey("Key").getValue();
+                Object value = thread.metaValueForKey("Key").getValue();
 
             }, this));
 

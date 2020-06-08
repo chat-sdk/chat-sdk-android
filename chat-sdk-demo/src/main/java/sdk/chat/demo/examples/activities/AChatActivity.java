@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
-import co.chatsdk.ui.activities.ChatActivity;
+import sdk.chat.ui.activities.ChatActivity;
 
 public class AChatActivity extends ChatActivity {
     @Override

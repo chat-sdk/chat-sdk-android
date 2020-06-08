@@ -4,8 +4,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.stfalcon.chatkit.commons.ImageLoader;
-
-import co.chatsdk.ui.R;
+import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.utils.ImageLoaderPayload;
 

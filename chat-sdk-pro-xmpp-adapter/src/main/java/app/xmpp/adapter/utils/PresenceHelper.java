@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.utils;
+package app.xmpp.adapter.utils;
 
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.RosterEntry;
@@ -11,7 +11,7 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.defines.Availability;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.xmpp.XMPPManager;
+import app.xmpp.adapter.XMPPManager;
 
 
 /**

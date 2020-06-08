@@ -1,4 +1,4 @@
-package co.chatsdk.typing_indicator;
+package sdk.chat.firebase.typing;
 
 
 import android.content.Context;

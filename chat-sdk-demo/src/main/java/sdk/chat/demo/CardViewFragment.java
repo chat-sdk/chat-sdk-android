@@ -9,7 +9,7 @@ import androidx.cardview.widget.CardView;
 
 import sdk.chat.realtime.R;
 import sdk.guru.common.DisposableMap;
-import co.chatsdk.ui.fragments.BaseFragment;
+import sdk.chat.ui.fragments.BaseFragment;
 import io.reactivex.Completable;
 
 public abstract class CardViewFragment extends BaseFragment {

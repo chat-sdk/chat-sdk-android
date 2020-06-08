@@ -1,11 +1,13 @@
-package co.chatsdk.firebase.module;
+package sdk.chat.firebase.adapter.module;
 
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.chat.core.dao.Keys;
+import sdk.chat.firebase.adapter.FirebaseNetworkAdapter;
 import sdk.guru.common.BaseConfig;
 
 public class FirebaseConfig<T> extends BaseConfig<T> {
@@ -25,6 +27,8 @@ public class FirebaseConfig<T> extends BaseConfig<T> {
     public boolean enableWebCompatibility = false;
 
     final public List<String> searchIndexes = new ArrayList<>();
+
+    public Class<? extends BaseNetworkAdapter> networkAdapter = FirebaseNetworkAdapter.class;
 
     public FirebaseConfig(T onBuild) {
         super(onBuild);
@@ -166,6 +170,16 @@ public class FirebaseConfig<T> extends BaseConfig<T> {
      */
     public FirebaseConfig<T> setEnableWebCompatibility(boolean enableWebCompatibility) {
         this.enableWebCompatibility = enableWebCompatibility;
+        return this;
+    }
+
+    /**
+     * Override the Firebase network adapter class
+     * @param networkAdapter
+     * @return
+     */
+    public FirebaseConfig<T> setNetworkAdapter(Class<? extends BaseNetworkAdapter> networkAdapter) {
+        this.networkAdapter = networkAdapter;
         return this;
     }
 

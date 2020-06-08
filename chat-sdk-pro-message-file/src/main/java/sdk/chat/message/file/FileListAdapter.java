@@ -1,4 +1,4 @@
-package co.chatsdk.message.file;
+package sdk.chat.message.file;
 
 import android.view.LayoutInflater;
 import android.view.View;

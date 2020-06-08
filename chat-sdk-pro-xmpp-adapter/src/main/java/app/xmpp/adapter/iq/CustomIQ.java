@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.iq;
+package app.xmpp.adapter.iq;
 
 import org.jivesoftware.smack.packet.IQ;
 

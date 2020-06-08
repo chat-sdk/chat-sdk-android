@@ -1,12 +1,12 @@
-package co.chatsdk.message.sticker.view;
+package sdk.chat.message.sticker.view;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
 import sdk.chat.core.dao.Keys;
-import co.chatsdk.message.sticker.R;
-import co.chatsdk.ui.activities.BaseActivity;
+import sdk.chat.message.sticker.R;
+import sdk.chat.ui.activities.BaseActivity;
 
 /**
  * Created by ben on 10/11/17.

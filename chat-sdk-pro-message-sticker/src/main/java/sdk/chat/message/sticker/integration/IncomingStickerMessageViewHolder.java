@@ -1,11 +1,11 @@
-package co.chatsdk.message.sticker.integration;
+package sdk.chat.message.sticker.integration;
 
 import android.view.View;
 
-import co.chatsdk.message.sticker.R;
-import co.chatsdk.message.sticker.module.StickerMessageModule;
-import co.chatsdk.ui.utils.ImageLoaderPayload;
-import co.chatsdk.ui.view_holders.base.BaseIncomingImageMessageViewHolder;
+import sdk.chat.message.sticker.R;
+import sdk.chat.message.sticker.module.StickerMessageModule;
+import sdk.chat.ui.utils.ImageLoaderPayload;
+import sdk.chat.ui.view_holders.base.BaseIncomingImageMessageViewHolder;
 
 public class IncomingStickerMessageViewHolder extends BaseIncomingImageMessageViewHolder<StickerMessageHolder> {
     public IncomingStickerMessageViewHolder(View itemView, Object payload) {

@@ -1,4 +1,4 @@
-package co.chatsdk.firebase;
+package sdk.chat.firebase.adapter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,9 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import co.chatsdk.firebase.moderation.Permission;
-import co.chatsdk.firebase.wrappers.MessageWrapper;
-import co.chatsdk.firebase.wrappers.ThreadWrapper;
+import sdk.chat.firebase.adapter.moderation.Permission;
+import sdk.chat.firebase.adapter.wrappers.MessageWrapper;
+import sdk.chat.firebase.adapter.wrappers.ThreadWrapper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.Single;
@@ -127,7 +127,6 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return new ThreadWrapper(thread).push();
     }
 
-    @Deprecated
     public Completable pushThreadMeta(Thread thread) {
         return new ThreadWrapper(thread).pushMeta();
     }

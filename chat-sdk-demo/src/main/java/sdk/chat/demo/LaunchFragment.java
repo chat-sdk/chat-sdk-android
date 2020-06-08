@@ -8,8 +8,8 @@ import android.widget.Button;
 
 import butterknife.BindView;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.fragments.BaseFragment;
-import co.chatsdk.xmpp.utils.ServerKeyStorage;
+import sdk.chat.ui.fragments.BaseFragment;
+import app.xmpp.adapter.utils.ServerKeyStorage;
 import io.reactivex.annotations.NonNull;
 import sdk.chat.realtime.R;
 import sdk.chat.realtime.R2;

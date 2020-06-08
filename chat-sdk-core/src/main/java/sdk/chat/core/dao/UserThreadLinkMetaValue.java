@@ -6,10 +6,8 @@ import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
 
-import sdk.chat.core.interfaces.CoreEntity;
-
 @Entity
-public class UserThreadLinkMetaValue implements MetaValue {
+public class UserThreadLinkMetaValue implements MetaValue<String> {
 
     @Id private Long id;
 

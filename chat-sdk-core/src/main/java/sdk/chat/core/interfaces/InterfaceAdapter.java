@@ -46,6 +46,7 @@ public interface InterfaceAdapter {
     Class getEditProfileActivity();
     Class getProfileActivity();
     Class getSplashScreenActivity();
+    Class getPostRegistrationActivity();
 
     void setLoginActivity(Class loginActivity);
     void setSplashScreenActivity(Class splashScreenActivity);
@@ -61,6 +62,7 @@ public interface InterfaceAdapter {
     void setEditProfileActivity(Class editProfileActivity);
     void setProfileActivity(Class profileActivity);
 
+    public void setPostRegistrationActivity (Class postRegistrationActivity);
     void setPrivateThreadsFragment(Fragment privateThreadsFragment);
     void setPublicThreadsFragment(Fragment publicThreadsFragment);
     void setContactsFragment(Fragment contactsFragment);
@@ -76,11 +78,9 @@ public interface InterfaceAdapter {
     Tab contactsTab();
 //    Tab profileTab();
 
-    void addTab(Tab tab);
-    void addTab(Tab tab, int index);
+    void setTab(Tab tab, int index);
 
-    void addTab(String title, Drawable icon, Fragment fragment);
-    void addTab(String title, Drawable icon, Fragment fragment, int index);
+    void setTab(String title, Drawable icon, Fragment fragment, int index);
 
     void removeTab(int index);
 
@@ -108,6 +108,7 @@ public interface InterfaceAdapter {
     void startMainActivity(Context context, HashMap<String, Object> extras);
     void startSearchActivity(Context context);
     void startForwardMessageActivityForResult(Activity activity, Thread thread, List<Message> message, int code);
+    void startPostRegistrationActivity(Context context, HashMap<String, Object> extras);
 
     void startAddUsersToThreadActivity(Context context, String threadEntityID);
     void startCreateThreadActivity(Context context);

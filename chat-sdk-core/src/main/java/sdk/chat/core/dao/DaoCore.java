@@ -120,7 +120,7 @@ public class DaoCore {
     }
 
     /** Fetch a list of entities for a given property and value.*/
-    public static <T extends CoreEntity> List<T> fetchEntitiesOfClass(Class<T> c){
+    public static <T> List<T> fetchEntitiesOfClass(Class<T> c){
         QueryBuilder<T> qb = daoSession.queryBuilder(c);
         return qb.list();
     }

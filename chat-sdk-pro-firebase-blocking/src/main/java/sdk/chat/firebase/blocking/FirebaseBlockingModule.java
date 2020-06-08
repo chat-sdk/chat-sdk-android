@@ -1,9 +1,8 @@
-package co.chatsdk.firebase.blocking;
+package sdk.chat.firebase.blocking;
 
 import android.content.Context;
 
 import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 
 /**

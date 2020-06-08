@@ -8,7 +8,7 @@ import android.widget.Button;
 
 import butterknife.BindView;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.fragments.BaseFragment;
+import sdk.chat.ui.fragments.BaseFragment;
 import io.reactivex.annotations.NonNull;
 import sdk.chat.realtime.R;
 import sdk.chat.realtime.R2;

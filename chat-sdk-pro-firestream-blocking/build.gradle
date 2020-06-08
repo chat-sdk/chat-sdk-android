@@ -27,9 +27,9 @@ dependencies {
 }
 
 ext {
-    libraryName = 'FirebaseBlockingPro'
-    artifact = 'pro-firebase-blocking'
-    libraryDescription = 'Firebase Blocking Pro Module'
+    libraryName = 'FirestreamBlockingPro'
+    artifact = 'pro-firestream-blocking'
+    libraryDescription = 'Firestream Blocking Pro Module'
 }
 
 publish {

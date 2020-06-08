@@ -3,7 +3,9 @@ package sdk.chat.ui.module;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StyleRes;
 
-import co.chatsdk.ui.R;
+import sdk.chat.core.interfaces.InterfaceAdapter;
+import sdk.chat.ui.BaseInterfaceAdapter;
+import sdk.chat.ui.R;
 import sdk.guru.common.BaseConfig;
 
 public class UIConfig<T> extends BaseConfig<T> {
@@ -21,7 +23,7 @@ public class UIConfig<T> extends BaseConfig<T> {
     public int profileHeaderImage = R.drawable.header2;
 
     @DrawableRes
-    public int defaultProfileImage = R.drawable.icn_100_profile;
+    public int defaultProfilePlaceholder = R.drawable.icn_100_profile;
 
     public boolean resetPasswordEnabled = true;
 
@@ -35,6 +37,7 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean publicRoomCreationEnabled = false;
     public boolean publicRoomRoomsEnabled = true;
     public boolean saveImagesToDirectory = false;
+    public boolean requestPermissionsOnStartup = true;
 
     public String dateFormat = "HH:mm";
 
@@ -43,6 +46,8 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean imageCroppingEnabled = true;
 
     public boolean allowBackPressFromMainActivity = false;
+
+    public Class<? extends InterfaceAdapter> interfaceAdapter = BaseInterfaceAdapter.class;
 
     public UIConfig(T onBuild) {
         super(onBuild);
@@ -164,8 +169,8 @@ public class UIConfig<T> extends BaseConfig<T> {
      * @param res
      * @return
      */
-    public UIConfig<T> setDefaultProfileImage(@DrawableRes int res) {
-        this.defaultProfileImage = res;
+    public UIConfig<T> setDefaultProfilePlaceholder(@DrawableRes int res) {
+        this.defaultProfilePlaceholder = res;
         return this;
     }
 
@@ -204,6 +209,26 @@ public class UIConfig<T> extends BaseConfig<T> {
      */
     public UIConfig<T> setAllowBackPressFromMainActivity(boolean allow) {
         this.allowBackPressFromMainActivity = allow;
+        return this;
+    }
+
+    /**
+     * Override the interface adapter
+     * @param interfaceAdapter
+     * @return
+     */
+    public UIConfig<T> setInterfaceAdapter(Class<? extends InterfaceAdapter> interfaceAdapter) {
+        this.interfaceAdapter = interfaceAdapter;
+        return this;
+    }
+
+    /**
+     * Request all permissions when the app starts up
+     * @param request
+     * @return
+     */
+    public UIConfig<T> setRequestPermissionsOnStartup(boolean request) {
+        this.requestPermissionsOnStartup = request;
         return this;
     }
 

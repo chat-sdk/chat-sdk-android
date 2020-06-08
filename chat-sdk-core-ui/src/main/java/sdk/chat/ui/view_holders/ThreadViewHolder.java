@@ -7,7 +7,7 @@ import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import co.chatsdk.ui.R2;
+import sdk.chat.ui.R2;
 import sdk.chat.ui.binders.OnlineStatusBinder;
 import sdk.chat.ui.binders.ReadStatusViewBinder;
 import sdk.chat.ui.chat.model.ThreadHolder;

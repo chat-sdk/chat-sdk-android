@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp;
+package app.xmpp.adapter;
 
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
@@ -28,6 +28,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import app.xmpp.adapter.listeners.XMPPChatParticipantListener;
+import app.xmpp.adapter.listeners.XMPPMUCMessageListener;
+import app.xmpp.adapter.listeners.XMPPMUCUserStatusListener;
+import app.xmpp.adapter.listeners.XMPPSubjectUpdatedListener;
+import app.xmpp.adapter.module.XMPPModule;
+import app.xmpp.adapter.utils.JidEntityID;
+import app.xmpp.adapter.utils.PresenceHelper;
+import app.xmpp.adapter.utils.Role;
+import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
@@ -35,17 +46,6 @@ import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.CurrentLocale;
 import sdk.guru.common.DisposableMap;
-import co.chatsdk.xmpp.listeners.XMPPChatParticipantListener;
-import co.chatsdk.xmpp.listeners.XMPPMUCMessageListener;
-import co.chatsdk.xmpp.listeners.XMPPMUCUserStatusListener;
-import co.chatsdk.xmpp.listeners.XMPPSubjectUpdatedListener;
-import co.chatsdk.xmpp.module.XMPPModule;
-import co.chatsdk.xmpp.utils.JidUtil;
-import co.chatsdk.xmpp.utils.PresenceHelper;
-import co.chatsdk.xmpp.utils.Role;
-import io.reactivex.Completable;
-import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
 import sdk.guru.common.RX;
 
 
@@ -293,7 +293,7 @@ public class XMPPMUCManager {
 
     public Completable inviteUser(final User user, MultiUserChat chat) {
         return Completable.create(e -> {
-            Jid jid = JidUtil.fromEntityID(user.getEntityID());
+            Jid jid = JidEntityID.fromEntityID(user.getEntityID());
             chat.invite(JidCreate.entityBareFrom(user.getEntityID()), "");
             chat.grantMembership(jid);
             e.onComplete();

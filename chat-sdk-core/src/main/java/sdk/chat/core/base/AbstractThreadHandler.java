@@ -2,8 +2,6 @@ package sdk.chat.core.base;
 
 import androidx.annotation.Nullable;
 
-
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,8 +9,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import co.chatsdk.core.R;
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
+import sdk.chat.core.R;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -26,8 +26,6 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.types.ReadStatus;
-import io.reactivex.Completable;
-import io.reactivex.Single;
 import sdk.guru.common.RX;
 
 
@@ -173,7 +171,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
     @Override
     public boolean canAddUsersToThread(Thread thread) {
-        return thread.typeIs(ThreadType.Group) && thread.getCreator() != null && thread.getCreator().isMe();
+        return thread.typeIs(ThreadType.PrivateGroup) && thread.getCreator() != null && thread.getCreator().isMe();
     }
 
     @Override
@@ -411,11 +409,17 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     }
 
     public boolean canLeaveThread(Thread thread) {
-        return thread.typeIs(ThreadType.Group) && thread.containsUser(ChatSDK.currentUser());
+        return thread.typeIs(ThreadType.PrivateGroup) && thread.containsUser(ChatSDK.currentUser());
     }
 
     @Override
     public boolean canEditThreadDetails(Thread thread) {
-        return !thread.getCreator().isMe() || thread.typeIs(ThreadType.Private1to1);
+        return thread.getCreator().isMe() && !thread.typeIs(ThreadType.Private1to1);
     }
+
+    @Override
+    public Completable pushThreadMeta(Thread thread) {
+        return Completable.complete();
+    }
+
 }

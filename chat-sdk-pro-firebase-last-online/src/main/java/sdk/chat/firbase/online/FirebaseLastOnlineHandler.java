@@ -1,4 +1,4 @@
-package sdk.chat.online;
+package sdk.chat.firbase.online;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
@@ -10,7 +10,7 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.handlers.LastOnlineHandler;
 import sdk.guru.common.Optional;
 import sdk.guru.realtime.RealtimeEventListener;
-import co.chatsdk.firebase.FirebasePaths;
+import sdk.chat.firebase.adapter.FirebasePaths;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 

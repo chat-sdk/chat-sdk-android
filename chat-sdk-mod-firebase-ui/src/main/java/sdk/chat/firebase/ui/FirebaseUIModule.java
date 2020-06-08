@@ -1,4 +1,4 @@
-package co.chatsdk.firebase.ui;
+package sdk.chat.firebase.ui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,14 +15,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import chatsdk.co.chat_sdk_firebase_ui.R;
-import co.chatsdk.firebase.FirebaseCoreHandler;
 import io.reactivex.Completable;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
+import sdk.chat.firebase.adapter.FirebaseCoreHandler;
 import sdk.guru.common.BaseConfig;
 
 /**
@@ -109,7 +108,8 @@ public class FirebaseUIModule extends AbstractModule {
                 idps.add(new AuthUI.IdpConfig.FacebookBuilder().build());
             }
             if (provider.equals(EmailAuthProvider.PROVIDER_ID)) {
-                idps.add(new AuthUI.IdpConfig.EmailBuilder().build());
+                idps.add(new AuthUI.IdpConfig.EmailBuilder()
+                        .setRequireName(false).build());
             }
             if (provider.equals(TwitterAuthProvider.PROVIDER_ID)) {
                 idps.add(new AuthUI.IdpConfig.TwitterBuilder().build());

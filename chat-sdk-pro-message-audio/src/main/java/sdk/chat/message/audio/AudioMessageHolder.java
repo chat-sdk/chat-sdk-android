@@ -1,11 +1,11 @@
-package sdk.chat.audio;
+package sdk.chat.message.audio;
 
 import com.stfalcon.chatkit.commons.models.MessageContentType;
 
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.chat.model.MessageHolder;
+import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.core.utils.CurrentLocale;
 
 public class AudioMessageHolder extends MessageHolder implements MessageContentType {

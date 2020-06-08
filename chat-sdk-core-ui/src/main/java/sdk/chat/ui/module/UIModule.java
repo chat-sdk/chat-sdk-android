@@ -15,11 +15,11 @@ import sdk.chat.core.session.Configure;
 import sdk.chat.core.session.InterfaceAdapterProvider;
 import sdk.chat.core.utils.StringChecker;
 
-public class DefaultUIModule extends AbstractModule implements InterfaceAdapterProvider {
+public class UIModule extends AbstractModule implements InterfaceAdapterProvider {
 
-    public static final DefaultUIModule instance = new DefaultUIModule();
+    public static final UIModule instance = new UIModule();
 
-    public static DefaultUIModule shared() {
+    public static UIModule shared() {
         return instance;
     }
 
@@ -27,16 +27,16 @@ public class DefaultUIModule extends AbstractModule implements InterfaceAdapterP
      * @see UIConfig
      * @return configuration object
      */
-    public static UIConfig<DefaultUIModule> builder() {
+    public static UIConfig<UIModule> builder() {
         return instance.config;
     }
 
-    public static DefaultUIModule builder(Configure<UIConfig> config) {
+    public static UIModule builder(Configure<UIConfig> config) {
         config.with(instance.config);
         return instance;
     }
 
-    public UIConfig<DefaultUIModule> config = new UIConfig<>(this);
+    public UIConfig<UIModule> config = new UIConfig<>(this);
 
     @Override
     public void activate(@Nullable Context context) {
@@ -72,10 +72,6 @@ public class DefaultUIModule extends AbstractModule implements InterfaceAdapterP
         permissions.add(Manifest.permission.INTERNET);
 
         permissions.add(Manifest.permission.CAMERA);
-
-        if (ChatSDK.audioMessage() != null) {
-            permissions.add(Manifest.permission.RECORD_AUDIO);
-        }
 
         return permissions;
     }

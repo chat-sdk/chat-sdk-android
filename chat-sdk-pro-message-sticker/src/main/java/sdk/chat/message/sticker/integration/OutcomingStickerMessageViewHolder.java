@@ -1,10 +1,11 @@
-package co.chatsdk.message.sticker.integration;
+package sdk.chat.message.sticker.integration;
 
 import android.view.View;
 
-import co.chatsdk.message.sticker.module.StickerMessageModule;
-import co.chatsdk.ui.utils.ImageLoaderPayload;
-import co.chatsdk.ui.view_holders.base.BaseOutcomingImageMessageViewHolder;
+import sdk.chat.message.sticker.R;
+import sdk.chat.message.sticker.module.StickerMessageModule;
+import sdk.chat.ui.utils.ImageLoaderPayload;
+import sdk.chat.ui.view_holders.base.BaseOutcomingImageMessageViewHolder;
 
 public class OutcomingStickerMessageViewHolder extends BaseOutcomingImageMessageViewHolder<StickerMessageHolder> {
     public OutcomingStickerMessageViewHolder(View itemView, Object payload) {
@@ -13,7 +14,7 @@ public class OutcomingStickerMessageViewHolder extends BaseOutcomingImageMessage
 
     @Override
     protected Object getPayloadForImageLoader(StickerMessageHolder message) {
-        return new ImageLoaderPayload(StickerMessageModule.config().maxSize, StickerMessageModule.config().maxSize, co.chatsdk.ui.R.drawable.icn_200_image_message_placeholder, 0);
+        return new ImageLoaderPayload(StickerMessageModule.config().maxSize, StickerMessageModule.config().maxSize, R.drawable.icn_200_image_message_placeholder, 0);
     }
 
 }

@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 import com.google.firebase.database.DataSnapshot;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Map;
 
 import firestream.chat.chat.Meta;
 import firestream.chat.chat.User;
@@ -59,7 +59,7 @@ public class RealtimeChatHandler extends FirebaseChatHandler {
                     meta.setImageURL(snapshot.child(Keys.ImageURL).getValue(String.class));
                 }
                 if (snapshot.hasChild(Keys.Data)) {
-                    HashMap<String, Object> data = snapshot.child(Keys.Data).getValue(Generic.hashMapStringObject());
+                    Map<String, Object> data = snapshot.child(Keys.Data).getValue(Generic.hashMapStringObject());
                     meta.setData(data);
                 }
                 return Maybe.just(meta);
@@ -69,7 +69,7 @@ public class RealtimeChatHandler extends FirebaseChatHandler {
     }
 
     @Override
-    public Single<String> add(HashMap<String, Object> data, @Nullable Consumer<String> newId) {
+    public Single<String> add(Map<String, Object> data, @Nullable Consumer<String> newId) {
         return new RXRealtime().add(Ref.get(Paths.chatsPath()), data, newId);
     }
 

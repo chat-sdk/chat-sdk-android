@@ -1,4 +1,4 @@
-package co.chatsdk.read_receipts;
+package sdk.chat.firebase.receipts;
 
 import com.google.firebase.database.DatabaseReference;
 
@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import co.chatsdk.firebase.moderation.Permission;
+import sdk.chat.firebase.adapter.moderation.Permission;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.EventType;
@@ -20,10 +20,10 @@ import sdk.chat.core.types.ReadStatus;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
 import sdk.guru.realtime.RXRealtime;
-import co.chatsdk.firebase.FirebasePaths;
+import sdk.chat.firebase.adapter.FirebasePaths;
 import sdk.guru.realtime.RealtimeReferenceManager;
-import co.chatsdk.firebase.utils.Generic;
-import co.chatsdk.firebase.wrappers.MessageWrapper;
+import sdk.chat.firebase.adapter.utils.Generic;
+import sdk.chat.firebase.adapter.wrappers.MessageWrapper;
 
 public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
 

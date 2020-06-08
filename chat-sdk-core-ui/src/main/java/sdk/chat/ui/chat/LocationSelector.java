@@ -5,13 +5,13 @@ import android.location.Location;
 
 import androidx.annotation.NonNull;
 
-import co.chatsdk.ui.R;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.disposables.Disposable;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
 import sdk.chat.core.utils.GoogleUtils;
+import sdk.chat.ui.R;
 
 /**
  * Created by benjaminsmiley-andrews on 23/05/2017.

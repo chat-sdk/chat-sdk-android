@@ -1,10 +1,10 @@
-package co.chatsdk.message.sticker.integration;
+package sdk.chat.message.sticker.integration;
 
 import androidx.annotation.Nullable;
 
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.chat.model.ImageMessageHolder;
+import sdk.chat.ui.chat.model.ImageMessageHolder;
 
 
 public class StickerMessageHolder extends ImageMessageHolder {

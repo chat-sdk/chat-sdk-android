@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.defines;
+package app.xmpp.adapter.defines;
 
 /**
  * Created by benjaminsmiley-andrews on 05/07/2017.

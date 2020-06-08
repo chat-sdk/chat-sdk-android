@@ -1,4 +1,4 @@
-package co.chatsdk.message.file;
+package sdk.chat.message.file;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -26,7 +27,6 @@ import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.rigs.Uploadable;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
-import io.reactivex.Completable;
 
 /**
  * Created by Pepe on 01/05/18.

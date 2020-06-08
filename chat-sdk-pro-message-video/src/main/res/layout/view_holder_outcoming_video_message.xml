@@ -17,7 +17,7 @@
         android:layout_marginStart="@dimen/message_outcoming_bubble_margin_left"
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
-        app:siShape="@drawable/shape_outcoming_message"
+        app:siShape="?outcomingBubbleDrawable"
         app:siSquare="false"/>
 
     <LinearLayout

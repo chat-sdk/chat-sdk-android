@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.read_receipt;
+package app.xmpp.receipts;
 
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Message;
@@ -9,8 +9,8 @@ import org.jxmpp.jid.impl.JidCreate;
 
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.interfaces.ThreadType;
-import co.chatsdk.xmpp.XMPPManager;
-import co.chatsdk.xmpp.defines.XMPPDefines;
+import app.xmpp.adapter.XMPPManager;
+import app.xmpp.adapter.defines.XMPPDefines;
 
 public class ReadReceiptHelper {
 

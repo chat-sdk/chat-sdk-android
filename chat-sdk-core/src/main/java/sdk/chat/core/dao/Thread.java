@@ -24,6 +24,7 @@ import java.util.Map;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import sdk.chat.core.R;
 import sdk.chat.core.base.AbstractEntity;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
@@ -40,9 +41,7 @@ public class Thread extends AbstractEntity {
     @Unique
     private String entityID;
     private Date creationDate;
-    private String name;
     private Integer type;
-    private String imageUrl;
     private Long creatorId;
     private Date loadMessagesFrom;
     private Boolean deleted;
@@ -82,15 +81,12 @@ public class Thread extends AbstractEntity {
         this.id = id;
     }
 
-    @Generated(hash = 855274350)
-    public Thread(Long id, String entityID, Date creationDate, String name, Integer type, String imageUrl, Long creatorId, Date loadMessagesFrom, Boolean deleted, String draft,
-            Date canDeleteMessagesFrom) {
+    @Generated(hash = 2012841452)
+    public Thread(Long id, String entityID, Date creationDate, Integer type, Long creatorId, Date loadMessagesFrom, Boolean deleted, String draft, Date canDeleteMessagesFrom) {
         this.id = id;
         this.entityID = entityID;
         this.creationDate = creationDate;
-        this.name = name;
         this.type = type;
-        this.imageUrl = imageUrl;
         this.creatorId = creatorId;
         this.loadMessagesFrom = loadMessagesFrom;
         this.deleted = deleted;
@@ -277,7 +273,7 @@ public class Thread extends AbstractEntity {
         }
     }
 
-    public void setMetaValue(String key, String value) {
+    public void setMetaValue(String key, Object value) {
         setMetaValue(key, value, true);
     }
 
@@ -294,7 +290,7 @@ public class Thread extends AbstractEntity {
     }
 
     @Keep
-    public void setMetaValue (String key, String value, boolean notify) {
+    public void setMetaValue(String key, Object value, boolean notify) {
         ThreadMetaValue metaValue = metaValueForKey(key);
 
         if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {
@@ -321,12 +317,20 @@ public class Thread extends AbstractEntity {
     }
 
     public void setMetaValues(Map<String, Object> values, boolean notify) {
-        if (values != null && !metaMap().entrySet().equals(values.entrySet())) {
-            for (String key : values.keySet()) {
-                if (values.get(key) instanceof String) {
-                    this.setMetaValue(key, (String) values.get(key), false);
+        Map<String, Object> current = metaMap();
+        if (values != null && !current.entrySet().equals(values.entrySet())) {
+
+            // Remove any deleted values
+            for (String key: current.keySet()) {
+                if (!values.containsKey(key)) {
+                    removeMetaValue(key);
                 }
             }
+
+            for (String key : values.keySet()) {
+                this.setMetaValue(key, values.get(key), false);
+            }
+
             if (notify) {
                 ChatSDK.events().source().onNext(NetworkEvent.threadMetaUpdated(this));
             }
@@ -358,7 +362,7 @@ public class Thread extends AbstractEntity {
     }
 
     @Keep
-    public void updateValues (HashMap<String, String> values) {
+    public void updateValues (Map<String, Object> values) {
         for (String key : values.keySet()) {
             setMetaValue(key, values.get(key));
         }
@@ -508,7 +512,11 @@ public class Thread extends AbstractEntity {
     }
 
     public String getName() {
-        return this.name;
+        ThreadMetaValue metaValue = metaValueForKey(Keys.Name);
+        if (metaValue != null) {
+            return metaValue.getStringValue();
+        }
+        return null;
     }
 
     public String getDisplayName () {
@@ -539,13 +547,7 @@ public class Thread extends AbstractEntity {
     }
 
     public void setName(String name, boolean notify) {
-        if (this.name == null || !this.name.equals(name)) {
-            this.name = name;
-            update();
-            if (notify) {
-                ChatSDK.events().source().onNext(NetworkEvent.threadDetailsUpdated(this));
-            }
-        }
+        setMetaValue(Keys.Name, name, notify);
     }
 
     public Date getLastMessageAddedDate () {
@@ -714,7 +716,11 @@ public class Thread extends AbstractEntity {
     }
 
     public String getImageUrl() {
-        return this.imageUrl;
+        ThreadMetaValue metaValue = metaValueForKey(Keys.ImageUrl);
+        if (metaValue != null) {
+            return metaValue.getStringValue();
+        }
+        return null;
     }
 
     public void setImageUrl(String imageUrl) {
@@ -722,13 +728,7 @@ public class Thread extends AbstractEntity {
     }
 
     public void setImageUrl(String imageUrl, boolean notify) {
-        if (this.imageUrl == null || !this.imageUrl.equals(imageUrl)) {
-            this.imageUrl = imageUrl;
-            update();
-            if (notify) {
-                ChatSDK.events().source().onNext(NetworkEvent.threadDetailsUpdated(this));
-            }
-        }
+        setMetaValue(Keys.ImageUrl, imageUrl, notify);
     }
 
     /**
@@ -779,7 +779,7 @@ public class Thread extends AbstractEntity {
                 if(link.setMetaValue(Keys.Permission, permission) && notify) {
                     ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(this, user));
                     if (sendSystemMessage && user.isMe()) {
-                        String message = String.format(ChatSDK.getString(co.chatsdk.core.R.string.role_changed_to__), ChatSDK.thread().localizeRole(permission));
+                        String message = String.format(ChatSDK.getString(R.string.role_changed_to__), ChatSDK.thread().localizeRole(permission));
                         ChatSDK.thread().sendLocalSystemMessage(message, this);
                     }
                 }
@@ -846,5 +846,21 @@ public class Thread extends AbstractEntity {
         this.canDeleteMessagesFrom = canDeleteMessagesFrom;
         update();
     }
+
+    @Keep
+    public boolean isReadOnly() {
+        ThreadMetaValue value = metaValueForKey(Keys.ReadOnly);
+        if (value != null) {
+            if (value.getBooleanValue() != null) {
+                return value.getBooleanValue();
+            }
+            // Deprecated. To cover old case where we set this to a string
+            if(value.getStringValue() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 }

@@ -5,7 +5,7 @@ import android.graphics.drawable.Drawable;
 import java.util.ArrayList;
 
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.chat.options.BaseChatOption;
+import sdk.chat.ui.chat.options.BaseChatOption;
 import io.reactivex.Completable;
 
 public class MessageTestChatOption extends BaseChatOption {

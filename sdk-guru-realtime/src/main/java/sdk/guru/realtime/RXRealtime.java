@@ -1,4 +1,4 @@
-package guru.sdk.realtime;
+package sdk.guru.realtime;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,11 +13,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.pmw.tinylog.Logger;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
-import sdk.guru.common.EventType;
-import sdk.guru.common.Optional;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
@@ -26,6 +24,8 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
+import sdk.guru.common.EventType;
+import sdk.guru.common.Optional;
 import sdk.guru.common.RX;
 
 public class RXRealtime implements Action, Consumer<Throwable> {
@@ -143,7 +143,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
         })).subscribeOn(RX.io()).observeOn(RX.db());
     }
 
-    public Completable update(DatabaseReference ref, HashMap<String, Object> data) {
+    public Completable update(DatabaseReference ref, Map<String, Object> data) {
         return Completable.create(emitter -> ref.updateChildren(data, (databaseError, databaseReference) -> {
             if (databaseError != null) {
                 emitter.onError(databaseError.toException());

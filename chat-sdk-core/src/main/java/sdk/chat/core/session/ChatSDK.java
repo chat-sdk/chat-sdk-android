@@ -10,7 +10,10 @@ import org.pmw.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
 
+import io.reactivex.plugins.RxJavaPlugins;
 import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.chat.core.base.LocationProvider;
 import sdk.chat.core.dao.DaoCore;
@@ -30,10 +33,6 @@ import sdk.chat.core.handlers.HookHandler;
 import sdk.chat.core.handlers.ImageMessageHandler;
 import sdk.chat.core.handlers.LastOnlineHandler;
 import sdk.chat.core.handlers.LocationMessageHandler;
-import sdk.chat.core.hook.Hook;
-import sdk.chat.core.hook.HookEvent;
-import sdk.chat.core.interfaces.ThreadType;
-import sdk.chat.core.module.Module;
 import sdk.chat.core.handlers.ProfilePicturesHandler;
 import sdk.chat.core.handlers.PublicThreadHandler;
 import sdk.chat.core.handlers.PushHandler;
@@ -44,12 +43,14 @@ import sdk.chat.core.handlers.ThreadHandler;
 import sdk.chat.core.handlers.TypingIndicatorHandler;
 import sdk.chat.core.handlers.UploadHandler;
 import sdk.chat.core.handlers.VideoMessageHandler;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.InterfaceAdapter;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.module.Module;
 import sdk.chat.core.notifications.NotificationDisplayHandler;
 import sdk.chat.core.storage.FileManager;
-import sdk.chat.core.types.ReadStatus;
 import sdk.chat.core.utils.AppBackgroundMonitor;
-import io.reactivex.plugins.RxJavaPlugins;
 import sdk.chat.core.utils.StringChecker;
 import sdk.guru.common.RX;
 
@@ -76,6 +77,8 @@ public class ChatSDK {
 
     protected LocationProvider locationProvider;
     protected FileManager fileManager;
+
+    protected List<String> requiredPermissions = new ArrayList<>();
 
     protected ConfigBuilder<ChatSDK> builder;
 
@@ -147,6 +150,11 @@ public class ChatSDK {
                     }
                 }
             }
+            for (String permission: module.requiredPermissions()) {
+                if (!requiredPermissions.contains(permission)) {
+                    requiredPermissions.add(permission);
+                }
+            }
         }
 
         if (networkAdapter != null) {
@@ -189,18 +197,26 @@ public class ChatSDK {
                 Message message = (Message) messageObject;
                 Thread thread = (Thread) threadObject;
 
-                if (!AppBackgroundMonitor.shared().inBackground() && !thread.isMuted()) {
-                    if (thread.typeIs(ThreadType.Private) || (thread.typeIs(ThreadType.Public) && ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled)) {
-                        if (!message.getSender().isMe() && !message.isDelivered() && ChatSDK.ui().showLocalNotifications(thread) || NotificationDisplayHandler.connectedToAuto(ChatSDK.ctx())) {
-                            ReadStatus status = message.readStatusForUser(ChatSDK.currentUser());
-                            if (!message.isRead() && !status.is(ReadStatus.delivered()) && !status.is(ReadStatus.read())) {
+                if (!thread.isMuted()) {
+//                    if (!AppBackgroundMonitor.shared().inBackground()) {
+                        if (thread.typeIs(ThreadType.Private) || (thread.typeIs(ThreadType.Public) && ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled)) {
+
+//                            if (!message.getSender().isMe() && !message.isDelivered() && ChatSDK.ui().showLocalNotifications(thread) || NotificationDisplayHandler.connectedToAuto(ChatSDK.ctx())) {
+//                                ReadStatus status = message.readStatusForUser(ChatSDK.currentUser());
+//                                if (!message.isRead() && !status.is(ReadStatus.delivered()) && !status.is(ReadStatus.read())) {
+//                                    // Only show the alert if we'recyclerView not on the private threads tab
+//                                    RX.onMain(() -> ChatSDK.ui().notificationDisplayHandler().createMessageNotification(message));
+//                                }
+//                            }
+
+                            if (!message.isDelivered() && (ChatSDK.ui().showLocalNotifications(thread) || AppBackgroundMonitor.shared().inBackground() || NotificationDisplayHandler.connectedToAuto(ChatSDK.ctx()))) {
                                 // Only show the alert if we'recyclerView not on the private threads tab
                                 RX.onMain(() -> ChatSDK.ui().notificationDisplayHandler().createMessageNotification(message));
                             }
                         }
                     }
                 }
-            }
+//            }
         }), HookEvent.MessageReceived);
 
     }
@@ -403,5 +419,9 @@ public class ChatSDK {
             }
         }
         return text;
+    }
+
+    public List<String> getRequiredPermissions() {
+        return requiredPermissions;
     }
 }

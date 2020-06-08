@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.listeners;
+package app.xmpp.adapter.listeners;
 
 import org.jivesoftware.smack.ReconnectionListener;
 import org.pmw.tinylog.Logger;

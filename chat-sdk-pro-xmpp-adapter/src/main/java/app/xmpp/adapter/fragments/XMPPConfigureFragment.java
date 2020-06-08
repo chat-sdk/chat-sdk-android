@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.fragments;
+package app.xmpp.adapter.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,16 +10,16 @@ import androidx.cardview.widget.CardView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import app.xmpp.adapter.R;
+import app.xmpp.adapter.R2;
+import app.xmpp.adapter.XMPPManager;
+import app.xmpp.adapter.utils.ServerKeyStorage;
+import app.xmpp.adapter.utils.XMPPServer;
 import butterknife.BindView;
+import sdk.chat.ui.fragments.BaseFragment;
+import io.reactivex.annotations.NonNull;
 import sdk.chat.core.utils.Device;
 import sdk.chat.core.utils.StringChecker;
-import co.chatsdk.ui.fragments.BaseFragment;
-import co.chatsdk.xmpp.R;
-import co.chatsdk.xmpp.R2;
-import co.chatsdk.xmpp.XMPPManager;
-import co.chatsdk.xmpp.utils.ServerKeyStorage;
-import co.chatsdk.xmpp.utils.XMPPServer;
-import io.reactivex.annotations.NonNull;
 
 public class XMPPConfigureFragment extends BaseFragment {
 

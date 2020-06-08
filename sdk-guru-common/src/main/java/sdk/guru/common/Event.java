@@ -44,4 +44,16 @@ public class Event<T> {
         return new Event<>(payload, type);
     }
 
+    public boolean isAdded() {
+        return typeIs(EventType.Added);
+    }
+
+    public boolean isRemoved() {
+        return typeIs(EventType.Removed);
+    }
+
+    public boolean isModified() {
+        return typeIs(EventType.Modified);
+    }
+
 }

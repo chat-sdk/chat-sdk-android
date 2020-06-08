@@ -45,7 +45,7 @@ public class AppBackgroundMonitor implements LifecycleObserver {
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    public void onAppForeground () {
+    public void onAppForeground() {
         inBackground = false;
         if(ChatSDK.auth().isAuthenticated() && ChatSDK.config().disconnectFromFirebaseWhenInBackground) {
             ChatSDK.core().goOnline();

@@ -1,4 +1,4 @@
-package co.chatsdk.typing_indicator;
+package sdk.chat.firebase.typing;
 
 import com.google.firebase.database.DatabaseReference;
 
@@ -6,15 +6,15 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import co.chatsdk.firebase.utils.Generic;
+import sdk.chat.firebase.adapter.utils.Generic;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.handlers.TypingIndicatorHandler;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.firebase.FirebasePaths;
+import sdk.chat.firebase.adapter.FirebasePaths;
 import sdk.guru.realtime.RealtimeReferenceManager;
-import co.chatsdk.firebase.utils.FirebaseRX;
+import sdk.chat.firebase.adapter.utils.FirebaseRX;
 import io.reactivex.Completable;
 import sdk.guru.realtime.RXRealtime;
 

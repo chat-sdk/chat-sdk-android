@@ -60,7 +60,7 @@
         android:layout_below="@id/userName"
         android:orientation="vertical">
 
-        <sdk.chat.audio.AudioPlayerView
+        <sdk.chat.message.audio.AudioPlayerView
             android:id="@+id/audioPlayerView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>

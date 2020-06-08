@@ -18,7 +18,7 @@ import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.rigs.Uploadable;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
-import co.chatsdk.message.video.R;
+
 import io.reactivex.Completable;
 
 /**

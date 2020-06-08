@@ -1,10 +1,10 @@
-package co.chatsdk.firebase;
+package sdk.chat.firebase.adapter;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ServerValue;
 
 import sdk.chat.core.utils.StringChecker;
-import co.chatsdk.firebase.module.FirebaseModule;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
 import io.reactivex.Completable;
 import sdk.guru.common.RX;
 
@@ -14,7 +14,7 @@ import sdk.guru.common.RX;
 
 public class FirebaseEntity {
 
-    public static Completable pushThreadMetaUpdated(String threadEntityID) {
+    public static Completable pushThreadUpdated(String threadEntityID) {
         return pushUpdated(FirebasePaths.ThreadsPath, threadEntityID, FirebasePaths.MetaPath);
     }
 

@@ -11,26 +11,26 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import sdk.guru.common.Event;
+import firestream.chat.chat.User;
 import firestream.chat.events.ListData;
-import firestream.chat.namespace.Fire;
+import firestream.chat.firebase.service.FirebaseCoreHandler;
+import firestream.chat.firebase.service.Keys;
+import firestream.chat.firebase.service.Path;
+import firestream.chat.message.Sendable;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Consumer;
-import firestream.chat.chat.User;
+import sdk.guru.common.Event;
 import sdk.guru.common.EventType;
-import firestream.chat.firebase.service.Keys;
-import firestream.chat.firebase.service.FirebaseCoreHandler;
-import firestream.chat.firebase.service.Path;
-import firestream.chat.message.Sendable;
+import sdk.guru.common.Optional;
 import sdk.guru.common.RX;
 import sdk.guru.firestore.RXFirestore;
 
@@ -126,7 +126,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
 
             emitter.onSuccess(query);
         }).flatMap(query -> new RXFirestore().get(query)).map(optional -> {
-            ArrayList<Sendable> sendables = new ArrayList<>();
+            List<Sendable> sendables = new ArrayList<>();
             if (!optional.isEmpty()) {
                 QuerySnapshot snapshots = optional.get();
                 if (!snapshots.isEmpty()) {
@@ -146,29 +146,27 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
     }
 
     @Override
-    public Single<Date> dateOfLastSentMessage(Path messagesPath) {
-        return Single.create((SingleOnSubscribe<Query>) emitter -> {
+    public Single<Optional<Sendable>> lastMessage(Path messagesPath) {
+        return Single.defer(() -> {
             Query query = Ref.collection(messagesPath);
 
-            query = query.whereEqualTo(Keys.From, Fire.stream().currentUserId());
             query = query.orderBy(Keys.Date, Query.Direction.DESCENDING);
             query = query.limit(1);
 
-            emitter.onSuccess(query);
-        }).flatMap(query -> new RXFirestore().get(query).map(snapshots -> {
-            if (!snapshots.isEmpty()) {
-                if (snapshots.get().getDocumentChanges().size() > 0) {
-                    DocumentChange change = snapshots.get().getDocumentChanges().get(0);
-                    if (change.getDocument().exists()) {
-                        Sendable sendable = change.getDocument().toObject(Sendable.class);
-                        if (sendable.getDate() != null) {
-                            return sendable.getDate();
+            return new RXFirestore().get(query).map(snapshots -> {
+                // TODO: Test this because with realtime the snapshot wasn't being handled properly
+                if (!snapshots.isEmpty()) {
+                    if (snapshots.get().getDocumentChanges().size() > 0) {
+                        DocumentChange change = snapshots.get().getDocumentChanges().get(0);
+                        if (change.getDocument().exists()) {
+                            Sendable sendable = change.getDocument().toObject(Sendable.class);
+                            return Optional.with(sendable);
                         }
                     }
                 }
-            }
-            return new Date(0);
-        }));
+                return Optional.empty();
+            });
+        });
     }
 
     /**
@@ -176,7 +174,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
      * @param newerThan only listen for messages after this date
      * @return a events of message results
      */
-    public Observable<Event<Sendable>> messagesOn(Path messagesPath, Date newerThan, int limit) {
+    public Observable<Event<Sendable>> messagesOn(Path messagesPath, Date newerThan) {
         return Single.create((SingleOnSubscribe<Query>) emitter -> {
             Query query = Ref.collection(messagesPath);
 
@@ -184,7 +182,6 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
             if (newerThan != null) {
                 query = query.whereGreaterThan(Keys.Date, newerThan);
             }
-            query.limit(limit);
 
             emitter.onSuccess(query);
         }).flatMapObservable(query -> new RXFirestore().on(query).flatMapMaybe(change -> {
@@ -234,7 +231,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
         }
     }
 
-    public Completable mute(Path path, HashMap<String, Object> data) {
+    public Completable mute(Path path, Map<String, Object> data) {
         return new RXFirestore().set(Ref.document(path), data);
     }
 

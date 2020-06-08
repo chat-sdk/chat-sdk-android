@@ -5,7 +5,7 @@
  * Last Modification at: 3/12/15 4:35 PM
  */
 
-package co.chatsdk.firebase.wrappers;
+package sdk.chat.firebase.adapter.wrappers;
 
 import android.net.Uri;
 
@@ -32,15 +32,15 @@ import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.HashMapHelper;
 import sdk.chat.core.utils.StringChecker;
-import co.chatsdk.firebase.FirebaseCoreHandler;
-import co.chatsdk.firebase.FirebaseEntity;
+import sdk.chat.firebase.adapter.FirebaseCoreHandler;
+import sdk.chat.firebase.adapter.FirebaseEntity;
 import sdk.guru.common.Optional;
 import sdk.guru.realtime.RealtimeEventListener;
-import co.chatsdk.firebase.FirebasePaths;
+import sdk.chat.firebase.adapter.FirebasePaths;
 import sdk.guru.realtime.RealtimeReferenceManager;
-import co.chatsdk.firebase.module.FirebaseModule;
-import co.chatsdk.firebase.utils.FirebaseRX;
-import co.chatsdk.firebase.utils.Generic;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.adapter.utils.FirebaseRX;
+import sdk.chat.firebase.adapter.utils.Generic;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
@@ -91,21 +91,16 @@ public class UserWrapper {
         String phoneNumber = authData.getPhoneNumber();
 
         // Setting the name.
-        if (StringChecker.isNullOrEmpty(model.getName(false))) {
-            if (!StringChecker.isNullOrEmpty(name)) {
-                model.setName(name);
-            }
-            else {
-                model.setName(ChatSDK.config().defaultName);
-            }
+        if (StringChecker.isNullOrEmpty(model.getName()) && !StringChecker.isNullOrEmpty(name)) {
+            model.setName(name);
         }
 
         // Setting the email.
-        if (!StringChecker.isNullOrEmpty(email) && model.getEmail() == null) {
+        if (StringChecker.isNullOrEmpty(model.getEmail()) && !StringChecker.isNullOrEmpty(email)) {
             model.setEmail(email);
         }
 
-        if (!StringChecker.isNullOrEmpty(phoneNumber) && model.getPhoneNumber() == null) {
+        if (StringChecker.isNullOrEmpty(model.getPhoneNumber()) && !StringChecker.isNullOrEmpty(phoneNumber)) {
             model.setPhoneNumber(phoneNumber);
         }
 

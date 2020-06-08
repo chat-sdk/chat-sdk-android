@@ -1,22 +1,26 @@
-package sdk.chat.audio;
+package sdk.chat.message.audio;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
 import cafe.adriel.androidaudioconverter.callback.ILoadCallback;
-import co.chatsdk.ui.chat.model.MessageHolder;
-import co.chatsdk.ui.custom.Customiser;
-import co.chatsdk.ui.custom.IMessageHandler;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.ui.chat.model.MessageHolder;
+import sdk.chat.ui.custom.Customiser;
+import sdk.chat.ui.custom.IMessageHandler;
 import sdk.guru.common.BaseConfig;
 
 /**
@@ -131,5 +135,12 @@ public class AudioMessageModule extends AbstractModule {
         return ChatSDK.audioMessage();
     }
 
+    public List<String> requiredPermissions() {
+        List<String> permissions = new ArrayList<>();
+
+        permissions.add(Manifest.permission.RECORD_AUDIO);
+
+        return permissions;
+    }
 
 }

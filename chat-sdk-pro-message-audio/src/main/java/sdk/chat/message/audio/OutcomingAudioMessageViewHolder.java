@@ -1,9 +1,9 @@
-package sdk.chat.audio;
+package sdk.chat.message.audio;
 
 import android.view.View;
 
 import butterknife.BindView;
-import co.chatsdk.ui.view_holders.base.BaseOutcomingTextMessageViewHolder;
+import sdk.chat.ui.view_holders.base.BaseOutcomingTextMessageViewHolder;
 
 public class OutcomingAudioMessageViewHolder extends BaseOutcomingTextMessageViewHolder<AudioMessageHolder> {
 

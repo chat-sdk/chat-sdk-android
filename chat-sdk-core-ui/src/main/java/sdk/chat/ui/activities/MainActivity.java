@@ -17,15 +17,16 @@ import androidx.fragment.app.Fragment;
 
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
-import sdk.chat.ui.module.DefaultUIModule;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.R;
+import sdk.chat.core.utils.PermissionRequestHandler;
+import sdk.chat.ui.R;
 import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.module.UIModule;
 
 
 public abstract class MainActivity extends BaseActivity {
@@ -107,6 +108,17 @@ public abstract class MainActivity extends BaseActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        if (UIModule.config().requestPermissionsOnStartup) {
+            PermissionRequestHandler.requestPermissions(this, ChatSDK.shared()
+                    .getRequiredPermissions())
+                    .onErrorComplete()
+                    .subscribe(this);
+        }
+    }
+
+    @Override
     protected void onSaveInstanceState(@Nullable Bundle outState) {
         super.onSaveInstanceState(outState);
         // Add the filter button
@@ -135,7 +147,7 @@ public abstract class MainActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         // Fixes an issue where if we press back the whole app goes blank
-        if (DefaultUIModule.config().allowBackPressFromMainActivity) {
+        if (UIModule.config().allowBackPressFromMainActivity) {
             super.onBackPressed();
         }
     }

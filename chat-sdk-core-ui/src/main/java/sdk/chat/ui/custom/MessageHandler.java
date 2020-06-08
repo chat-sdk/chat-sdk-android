@@ -7,7 +7,13 @@ import android.view.View;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import co.chatsdk.ui.R;
+import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.rigs.MessageSendRig;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageSendStatus;
+import sdk.chat.core.types.MessageType;
+import sdk.chat.ui.R;
 import sdk.chat.ui.chat.ImageMessageOnClickHandler;
 import sdk.chat.ui.chat.LocationMessageOnClickHandler;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
@@ -20,12 +26,6 @@ import sdk.chat.ui.view_holders.OutcomingImageMessageViewHolder;
 import sdk.chat.ui.view_holders.OutcomingTextMessageViewHolder;
 import sdk.chat.ui.view_holders.SystemMessageViewHolder;
 import sdk.chat.ui.view_holders.base.BaseIncomingTextMessageViewHolder;
-import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Message;
-import sdk.chat.core.rigs.MessageSendRig;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.MessageSendStatus;
-import sdk.chat.core.types.MessageType;
 
 public class MessageHandler implements IMessageHandler {
 
@@ -84,7 +84,7 @@ public class MessageHandler implements IMessageHandler {
             double longitude = message.doubleForKey(Keys.MessageLongitude);
             double latitude = message.doubleForKey(Keys.MessageLatitude);
 
-            Location location = new Location(ChatSDK.getString(co.chatsdk.core.R.string.app_name));
+            Location location = new Location(ChatSDK.getString(R.string.app_name));
             location.setLatitude(latitude);
             location.setLongitude(longitude);
 

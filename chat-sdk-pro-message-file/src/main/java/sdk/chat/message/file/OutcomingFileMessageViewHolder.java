@@ -1,8 +1,8 @@
-package co.chatsdk.message.file;
+package sdk.chat.message.file;
 
 import android.view.View;
 
-import co.chatsdk.ui.view_holders.base.BaseOutcomingTextMessageViewHolder;
+import sdk.chat.ui.view_holders.base.BaseOutcomingTextMessageViewHolder;
 
 public class OutcomingFileMessageViewHolder extends BaseOutcomingTextMessageViewHolder<FileMessageHolder> {
     public OutcomingFileMessageViewHolder(View itemView, Object payload) {

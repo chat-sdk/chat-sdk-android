@@ -8,7 +8,7 @@ import java.util.List;
 import sdk.chat.core.interfaces.ChatOption;
 import sdk.chat.core.interfaces.ChatOptionsDelegate;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.R;
+import sdk.chat.ui.R;
 
 /**
  * Created by ben on 10/11/17.

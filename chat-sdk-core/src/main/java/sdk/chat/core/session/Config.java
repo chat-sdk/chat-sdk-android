@@ -7,10 +7,9 @@ import org.pmw.tinylog.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import co.chatsdk.core.R;
+import sdk.chat.core.R;
 import sdk.guru.common.BaseConfig;
 
 /**
@@ -18,23 +17,6 @@ import sdk.guru.common.BaseConfig;
  */
 
 public class Config<T> extends BaseConfig<T> {
-
-    public enum IdenticonType {
-        FlatHash,
-        RoboHash,
-//        Avataaars,
-        Gravatar,
-//        Identicon,
-//        Male,
-//        Female,
-//        Human,
-//        Initials,
-//        Robot,
-//        Avataaar,
-//        Jidenticon,
-//        Gridy,
-//        Code
-    }
 
     HashMap<String, Object> remote = new HashMap<>();
 
@@ -91,11 +73,7 @@ public class Config<T> extends BaseConfig<T> {
 
     public boolean publicChatAutoSubscriptionEnabled = false;
 
-    public String identiconBaseURL;
-    public IdenticonType identiconType;
-
-    public String defaultNamePrefix = "ChatSDK";
-    public String defaultName = null;
+    public String identiconBaseURL = "http://identicon.sdk.chat?value=%s&size=400.png";
 
     public String storageDirectory = "ChatSDK";
 
@@ -124,9 +102,6 @@ public class Config<T> extends BaseConfig<T> {
 
     public Config(T onBuild) {
         super(onBuild);
-
-        updateDefaultName();
-        setIdenticonType(IdenticonType.RoboHash);
     }
 
     public Object getCustomProperty(String key) {
@@ -137,14 +112,15 @@ public class Config<T> extends BaseConfig<T> {
         customProperties.put(key, value);
     }
 
-    public void updateDefaultName() {
-        defaultName = defaultNamePrefix + new Random().nextInt(1000);
-    }
-
-    public void updateRemoteConfig(Map<String, Object> config) {
+    public void setRemoteConfig(Map<String, Object> config) {
+        remote.clear();
         for (String key : config.keySet()) {
             setRemoteConfigValue(key, config.get(key));
         }
+    }
+
+    public void clearRemoteConfig() {
+        remote.clear();
     }
 
     public Object getRemoteConfigValue(String key) {
@@ -384,28 +360,6 @@ public class Config<T> extends BaseConfig<T> {
     }
 
     /**
-     * If this is set, when a user registers a random name will be generated in the form
-     * Prefix + random number
-     * @param value
-     * @return
-     */
-    public Config<T> setDefaultNamePrefix(String value) {
-        this.defaultNamePrefix = value;
-        this.updateDefaultName();
-        return this;
-    }
-
-    /**
-     * Set a default name for a user
-     * @param value
-     * @return
-     */
-    public Config<T> setDefaultName(String value) {
-        this.defaultName = value;
-        return this;
-    }
-
-    /**
      * Set the logo to show on the login and splash screens
      * @param resource
      * @return
@@ -519,36 +473,14 @@ public class Config<T> extends BaseConfig<T> {
 
     /**
      * Provide a URL to generate an avatar
+     * This URL should provide a link to a PNG to be used
+     * it should be the form http://someurl.com/%s.png
+     * %s will be replaced by the user's entity ID
      * @param identiconBaseURL
      * @return
      */
     public Config<T> setIdenticonBaseURL(String identiconBaseURL) {
         this.identiconBaseURL = identiconBaseURL;
-        return this;
-    }
-
-    /**
-     * Choose from some default identicon providers
-     * @param type
-     * @return
-     */
-    public Config<T> setIdenticonType(IdenticonType type) {
-        identiconType = type;
-        switch (type) {
-            case RoboHash:
-                identiconBaseURL = "https://robohash.org/%s.png";
-                break;
-            case FlatHash:
-            default:
-                identiconBaseURL = "http://flathash.com/%s.png";
-                break;
-//            case Identicon:
-//                identiconBaseURL = "https://avatars.dicebear.com/v2/identicon/%s.svg";
-//            case Male:
-//                identiconBaseURL = "https://avatars.dicebear.com/v2/male/%s.svg";
-//            case Female:
-//                identiconBaseURL = "https://avatars.dicebear.com/v2/female/%s.svg";
-        }
         return this;
     }
 

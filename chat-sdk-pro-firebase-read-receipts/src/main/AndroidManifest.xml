@@ -1,10 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="co.chatsdk.read_receipts">
+    package="sdk.chat.firebase.receipts">
 
-    <application
-        android:label="@string/app_name"
-        android:supportsRtl="true">
-
-    </application>
+    <application android:label="@string/app_name" />
 
 </manifest>

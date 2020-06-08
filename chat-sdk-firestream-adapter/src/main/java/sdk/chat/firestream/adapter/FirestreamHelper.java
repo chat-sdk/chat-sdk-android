@@ -1,4 +1,4 @@
-package co.chatsdk.firestream;
+package sdk.chat.firestream.adapter;
 
 
 import java.util.Date;

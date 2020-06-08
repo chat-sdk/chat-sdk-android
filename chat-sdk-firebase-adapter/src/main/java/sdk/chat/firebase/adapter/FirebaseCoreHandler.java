@@ -1,4 +1,4 @@
-package co.chatsdk.firebase;
+package sdk.chat.firebase.adapter;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -11,8 +11,8 @@ import sdk.chat.core.base.AbstractCoreHandler;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.firebase.module.FirebaseModule;
-import co.chatsdk.firebase.wrappers.UserWrapper;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.adapter.wrappers.UserWrapper;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import sdk.guru.common.RX;

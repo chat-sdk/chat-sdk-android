@@ -25,11 +25,6 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
-import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.Customiser;
-import sdk.chat.ui.utils.ImageLoaderPayload;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.EventType;
@@ -37,9 +32,15 @@ import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
+import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.core.utils.Debug;
 import sdk.chat.core.utils.Dimen;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
+import sdk.chat.ui.chat.model.MessageHolder;
+import sdk.chat.ui.custom.Customiser;
+import sdk.chat.ui.utils.ImageLoaderPayload;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
 
@@ -173,7 +174,9 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                         // Because we need to wait until the message payload is set which happens after it is added to the thread
                         if (networkEvent.typeIs(EventType.MessageAdded) || (networkEvent.typeIs(EventType.MessageSendStatusUpdated) && networkEvent.getMessageSendProgress().status == MessageSendStatus.Created)) {
                             addMessageToStartOrUpdate(message);
-                            message.markReadIfNecessary();
+                            if (!AppBackgroundMonitor.shared().inBackground()) {
+                                message.markReadIfNecessary();
+                            }
                         }
                         if (networkEvent.typeIs(EventType.MessageUpdated)) {
                             if (message.getSender().isMe()) {

@@ -1,4 +1,4 @@
-package sdk.chat.online;
+package sdk.chat.firbase.online;
 
 import android.content.Context;
 

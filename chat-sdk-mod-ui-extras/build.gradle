@@ -62,18 +62,18 @@ publish {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':chat-sdk-core')
-    implementation project(':chat-sdk-core-ui')
+//    implementation project(':chat-sdk-core')
+    api project(':chat-sdk-core-ui')
 
-    implementation "com.mikepenz:materialdrawer:$materialDrawerVersion"
-    implementation "com.mikepenz:iconics-core:$iconicsVersion"
+//    implementation "com.mikepenz:materialdrawer:$materialDrawerVersion"
+//    implementation "com.mikepenz:iconics-core:$iconicsVersion"
 //    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.61"
 
 //required support lib modules
     implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     implementation "androidx.annotation:annotation:1.1.0"
-    implementation "com.google.android.material:material:$materialVersion"
-    implementation "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
+//    implementation "com.google.android.material:material:$materialVersion"
+//    implementation "androidx.constraintlayout:constraintlayout:$androidxConstraintLayoutVersion"
 
 
 // Add for NavController support
@@ -82,9 +82,9 @@ dependencies {
     // Need this: maven { url "https://dl.bintray.com/mikepenz/maven" }
     implementation "com.mikepenz:materialdrawer-iconics:$materialDrawerVersion"
 
-    implementation "com.miguelcatalan:materialsearchview:$materialSearchVersion"
+    api "com.miguelcatalan:materialsearchview:$materialSearchVersion"
 
-    implementation "com.mikepenz:material-design-icons-dx-typeface:$iconicsMaterialDesignIconsVersion"
+//    implementation "com.mikepenz:material-design-icons-dx-typeface:$iconicsMaterialDesignIconsVersion"
     implementation "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
     implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
     implementation "com.mikepenz:iconics-core:$iconicsVersion"
@@ -93,9 +93,9 @@ dependencies {
     implementation "com.github.bumptech.glide:glide:$glideVersion"
 //    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
-    
 
-    
+
+
 
 
 

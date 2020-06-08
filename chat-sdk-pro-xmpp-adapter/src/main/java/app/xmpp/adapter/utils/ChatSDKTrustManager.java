@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.utils;
+package app.xmpp.adapter.utils;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;

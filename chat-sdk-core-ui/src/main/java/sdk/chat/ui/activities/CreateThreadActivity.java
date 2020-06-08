@@ -11,8 +11,8 @@ import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.R;
-import sdk.chat.ui.module.DefaultUIModule;
+import sdk.chat.ui.R;
+import sdk.chat.ui.module.UIModule;
 import sdk.guru.common.RX;
 
 public class CreateThreadActivity extends SelectContactActivity {
@@ -23,7 +23,7 @@ public class CreateThreadActivity extends SelectContactActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setActionBarTitle(R.string.new_chat);
-        setMultiSelectEnabled(DefaultUIModule.config().groupsEnabled);
+        setMultiSelectEnabled(UIModule.config().groupsEnabled);
     }
 
     @Override

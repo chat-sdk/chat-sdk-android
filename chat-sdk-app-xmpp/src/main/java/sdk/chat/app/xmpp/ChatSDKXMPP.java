@@ -6,15 +6,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import co.chatsdk.firebase.file_storage.FirebaseUploadModule;
-import co.chatsdk.firebase.push.FirebasePushModule;
-import co.chatsdk.ui.module.DefaultUIModule;
-import co.chatsdk.xmpp.module.XMPPModule;
+import app.xmpp.adapter.module.XMPPModule;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.session.Config;
 import sdk.chat.core.utils.QuickStart;
+import sdk.chat.firebase.push.FirebasePushModule;
+import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.ui.extras.ExtrasModule;
+import sdk.chat.ui.module.UIModule;
 
 public class ChatSDKXMPP extends QuickStart {
 
@@ -36,7 +35,7 @@ public class ChatSDKXMPP extends QuickStart {
                         .setXMPP(hostAddress, domain, port)
                         .build(),
 
-                DefaultUIModule.builder()
+                UIModule.builder()
                         .setPublicRoomCreationEnabled(true)
                         .setPublicRoomsEnabled(true)
                         .setResetPasswordEnabled(false)
@@ -56,7 +55,6 @@ public class ChatSDKXMPP extends QuickStart {
                 .setGoogleMaps(googleMapsKey)
                 .setAnonymousLoginEnabled(false)
                 .setClientPushEnabled(true)
-                .setIdenticonType(Config.IdenticonType.RoboHash)
                 .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                 .setSendSystemMessageWhenRoleChanges(true)
                 .build()

@@ -11,15 +11,15 @@ import androidx.fragment.app.Fragment;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import co.chatsdk.ui.R;
 import sdk.chat.core.Tab;
 import sdk.chat.core.avatar.AvatarGenerator;
 import sdk.chat.core.avatar.HashAvatarGenerator;
-import sdk.chat.core.avatar.gravatar.GravatarAvatarGenerator;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -41,6 +41,7 @@ import sdk.chat.ui.activities.EditThreadActivity;
 import sdk.chat.ui.activities.ForwardMessageActivity;
 import sdk.chat.ui.activities.LoginActivity;
 import sdk.chat.ui.activities.MainAppBarActivity;
+import sdk.chat.ui.activities.PostRegistrationActivity;
 import sdk.chat.ui.activities.ProfileActivity;
 import sdk.chat.ui.activities.SearchActivity;
 import sdk.chat.ui.activities.SplashScreenActivity;
@@ -54,7 +55,7 @@ import sdk.chat.ui.fragments.ContactsFragment;
 import sdk.chat.ui.fragments.PrivateThreadsFragment;
 import sdk.chat.ui.fragments.PublicThreadsFragment;
 import sdk.chat.ui.icons.Icons;
-import sdk.chat.ui.module.DefaultUIModule;
+import sdk.chat.ui.module.UIModule;
 
 public class BaseInterfaceAdapter implements InterfaceAdapter {
 
@@ -73,6 +74,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class chatActivity = ChatActivity.class;
     protected Class threadDetailsActivity = ThreadDetailsActivity.class;
     protected Class threadEditDetailsActivity = EditThreadActivity.class;
+    protected Class postRegistrationActivity = PostRegistrationActivity.class;
 
     protected Class searchActivity = SearchActivity.class;
     protected Class editProfileActivity = EditProfileActivity.class;
@@ -89,28 +91,18 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Fragment contactsFragment = new ContactsFragment();
     protected ProfileFragmentProvider profileFragmentProvider = new BaseProfileFragmentProvider();
 
-    private ArrayList<Tab> tabs = new ArrayList<>();
-    private Tab privateThreadsTab;
-    private Tab publicThreadsTab;
-    private Tab contactsTab;
+//    private ArrayList<Tab> tabs = new ArrayList<>();
+    protected Map<Integer, Tab> extraTabs = new HashMap<>();
+    protected List<Integer> removeTabs = new ArrayList<>();
+
+    protected Tab privateThreadsTab;
+    protected Tab publicThreadsTab;
+    protected Tab contactsTab;
 
     public BaseInterfaceAdapter (Context context) {
         this.context = new WeakReference<>(context);
 
         Icons.shared().setContext(context);
-
-        switch (ChatSDK.config().identiconType) {
-//            case Avataaars:
-//                setAvatarGenerator(new AvataaarsGenerator());
-//                break;
-            case Gravatar:
-                setAvatarGenerator(new GravatarAvatarGenerator());
-                break;
-            case FlatHash:
-            case RoboHash:
-            default:
-                setAvatarGenerator(new HashAvatarGenerator());
-        }
 
         searchActivities.add(new SearchActivityType(searchActivity, context.getString(R.string.search_with_name)));
 
@@ -120,7 +112,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public List<Tab> defaultTabs() {
         ArrayList<Tab> tabs = new ArrayList<>();
         tabs.add(privateThreadsTab());
-        if (DefaultUIModule.config().publicRoomRoomsEnabled) {
+        if (UIModule.config().publicRoomRoomsEnabled) {
             tabs.add(publicThreadsTab());
         }
         tabs.add(contactsTab());
@@ -129,35 +121,38 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public List<Tab> tabs() {
-        if (tabs.size() == 0) {
-            tabs.addAll(defaultTabs());
+        List<Tab> tabs = new ArrayList<>();
+        tabs.addAll(defaultTabs());
+
+        for (int i: removeTabs) {
+            if (i >= 0 && i < tabs.size()) {
+                tabs.remove(i);
+            }
         }
+
+        List<Integer> indexes = new ArrayList<>(extraTabs.keySet());
+        Collections.sort(indexes, Integer::compareTo);
+
+        for (Integer i: indexes) {
+            tabs.add(i < tabs.size() ? i : tabs.size(), extraTabs.get(i));
+        }
+
         return tabs;
     }
 
     @Override
-    public void addTab(Tab tab) {
-        tabs().add(tab);
+    public void setTab(Tab tab, int index) {
+        extraTabs.put(index, tab);
     }
 
     @Override
-    public void addTab(Tab tab, int index) {
-        tabs().add(index, tab);
-    }
-
-    @Override
-    public void addTab(String title, Drawable icon, Fragment fragment) {
-        addTab(new Tab(title, icon, fragment));
-    }
-
-    @Override
-    public void addTab(String title, Drawable icon, Fragment fragment, int index) {
-        addTab(new Tab(title, icon, fragment), index);
+    public void setTab(String title, Drawable icon, Fragment fragment, int index) {
+        setTab(new Tab(title, icon, fragment), index);
     }
 
     @Override
     public void removeTab(int index) {
-        tabs().remove(index);
+        removeTabs.add(index);
     }
 
     @Override
@@ -250,6 +245,11 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
+    public Class getPostRegistrationActivity() {
+        return postRegistrationActivity;
+    }
+
+    @Override
     public void setMainActivity (Class mainActivity) {
         this.mainActivity = mainActivity;
     }
@@ -282,6 +282,11 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public void setThreadEditDetailsActivity (Class threadEditDetailsActivity) {
         this.threadEditDetailsActivity = threadEditDetailsActivity;
+    }
+
+    @Override
+    public void setPostRegistrationActivity (Class postRegistrationActivity) {
+        this.postRegistrationActivity = postRegistrationActivity;
     }
 
     @Override
@@ -543,11 +548,11 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public List<ChatOption> getChatOptions() {
         // Setup the default chat options
         if (!defaultChatOptionsAdded) {
-            if(DefaultUIModule.config().locationMessagesEnabled) {
+            if(UIModule.config().locationMessagesEnabled) {
                 chatOptions.add(new LocationChatOption(context.get().getResources().getString(R.string.location)));
             }
 
-            if(DefaultUIModule.config().imageMessagesEnabled) {
+            if(UIModule.config().imageMessagesEnabled) {
                 //chatOptions.add(new MediaChatOption(stringTakePhoto, MediaType.takePhoto()));
                 chatOptions.add(new MediaChatOption(context.get().getResources().getString(R.string.image_or_photo), MediaType.choosePhoto()));
             }
@@ -609,5 +614,10 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public void setAvatarGenerator(AvatarGenerator avatarGenerator) {
         this.avatarGenerator = avatarGenerator;
     }
+
+    public void startPostRegistrationActivity(Context context, HashMap<String, Object> extras) {
+        startActivity(context, postRegistrationActivity, extras, 0);
+    }
+
 
 }

@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.listeners;
+package app.xmpp.adapter.listeners;
 
 import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MUCAffiliation;
@@ -14,14 +14,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import app.xmpp.adapter.R;
+import app.xmpp.adapter.XMPPMUCManager;
+import app.xmpp.adapter.utils.JidEntityID;
+import io.reactivex.Single;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.xmpp.R;
-import co.chatsdk.xmpp.XMPPMUCManager;
-import co.chatsdk.xmpp.utils.JidUtil;
-import io.reactivex.Single;
 import sdk.guru.common.RX;
 
 public class XMPPMUCUserStatusListener implements UserStatusListener {
@@ -167,11 +167,11 @@ public class XMPPMUCUserStatusListener implements UserStatusListener {
                 return;
             }
             User currentUser = ChatSDK.currentUser();
-            Jid myJid = JidUtil.fromEntityID(currentUser.getEntityID());
+            Jid myJid = JidEntityID.fromEntityID(currentUser.getEntityID());
             if (affiliate.getJid().equals(myJid)) {
                 String role = ChatSDK.thread().roleForUser(thread.get(), currentUser);
                 // My affiliation has changed
-                String message = String.format(ChatSDK.getString(co.chatsdk.core.R.string.role_changed_to__), role);
+                String message = String.format(ChatSDK.getString(R.string.role_changed_to__), role);
                 ChatSDK.thread().sendLocalSystemMessage(message, thread.get());
             }
         } catch (Exception e) {
@@ -185,21 +185,21 @@ public class XMPPMUCUserStatusListener implements UserStatusListener {
                 return;
             }
             User currentUser = ChatSDK.currentUser();
-            Jid myJid = JidUtil.fromEntityID(currentUser.getEntityID());
+            Jid myJid = JidEntityID.fromEntityID(currentUser.getEntityID());
             if (affiliate.getJid().equals(myJid)) {
                 String message = null;
                 MUCRole newRole = affiliate.getRole();
                 if (old == MUCRole.participant && newRole == MUCRole.moderator) {
-                    message = String.format(ChatSDK.getString(co.chatsdk.core.R.string.__granted), ChatSDK.getString(R.string.moderator));
+                    message = String.format(ChatSDK.getString(R.string.__granted), ChatSDK.getString(R.string.moderator));
                 }
                 if (old == MUCRole.moderator && newRole == MUCRole.participant) {
-                    message = String.format(ChatSDK.getString(co.chatsdk.core.R.string.__revoked), ChatSDK.getString(R.string.moderator));
+                    message = String.format(ChatSDK.getString(R.string.__revoked), ChatSDK.getString(R.string.moderator));
                 }
                 if (old == MUCRole.visitor && newRole == MUCRole.participant) {
-                    message = String.format(ChatSDK.getString(co.chatsdk.core.R.string.__granted), ChatSDK.getString(R.string.participant));
+                    message = String.format(ChatSDK.getString(R.string.__granted), ChatSDK.getString(R.string.participant));
                 }
                 if (old == MUCRole.participant && newRole == MUCRole.visitor) {
-                    message = String.format(ChatSDK.getString(co.chatsdk.core.R.string.__revoked), ChatSDK.getString(R.string.participant));
+                    message = String.format(ChatSDK.getString(R.string.__revoked), ChatSDK.getString(R.string.participant));
                 }
                 if (message != null) {
                     ChatSDK.thread().sendLocalSystemMessage(message, thread.get());

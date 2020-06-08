@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="co.chatsdk.firebase.nearby_users">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="sdk.chat.firebase.location">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>

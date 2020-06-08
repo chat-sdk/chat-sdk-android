@@ -8,7 +8,7 @@ import android.net.Uri;
 
 import java.util.Locale;
 
-import co.chatsdk.ui.R;
+import sdk.chat.ui.R;
 import sdk.chat.ui.utils.ToastHelper;
 
 /**

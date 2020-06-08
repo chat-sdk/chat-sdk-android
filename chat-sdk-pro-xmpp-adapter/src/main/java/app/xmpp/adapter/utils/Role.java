@@ -1,13 +1,12 @@
-package co.chatsdk.xmpp.utils;
-
-import androidx.annotation.Nullable;
+package app.xmpp.adapter.utils;
 
 import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MUCAffiliation;
 import org.jivesoftware.smackx.muc.MUCRole;
 
+import app.xmpp.adapter.R;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.xmpp.R;
+
 
 public class Role {
 

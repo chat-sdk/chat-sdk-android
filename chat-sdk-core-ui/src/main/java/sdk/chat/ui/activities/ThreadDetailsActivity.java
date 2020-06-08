@@ -26,11 +26,6 @@ import androidx.appcompat.widget.Toolbar;
 import com.bumptech.glide.Glide;
 
 import butterknife.BindView;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
-import sdk.chat.ui.fragments.ThreadUsersFragment;
-import sdk.chat.ui.utils.ThreadImageBuilder;
-import sdk.chat.ui.utils.ToastHelper;
 import de.hdodenhof.circleimageview.CircleImageView;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
@@ -41,6 +36,11 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.core.utils.Strings;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
+import sdk.chat.ui.fragments.ThreadUsersFragment;
+import sdk.chat.ui.utils.ThreadImageBuilder;
+import sdk.chat.ui.utils.ToastHelper;
 
 /**
  * Created by Ben Smiley on 24/11/14.

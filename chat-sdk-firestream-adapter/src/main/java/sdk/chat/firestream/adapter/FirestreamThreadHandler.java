@@ -1,15 +1,13 @@
-package co.chatsdk.firestream;
+package sdk.chat.firestream.adapter;
 
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import co.chatsdk.firefly.R;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.message.Body;
 import firestream.chat.message.Sendable;
@@ -26,7 +24,6 @@ import sdk.chat.core.base.AbstractThreadHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
-import sdk.chat.core.dao.ThreadMetaValue;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -179,21 +176,6 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
             }
             return Completable.complete();
         }).subscribeOn(RX.pool());
-    }
-
-    @Override
-    public Completable pushThreadMeta(Thread thread) {
-        return Completable.defer(() -> {
-            IChat chat = Fire.stream().getChat(thread.getEntityID());
-            if (chat != null) {
-                HashMap<String, Object> data = new HashMap<>();
-                for (ThreadMetaValue v: thread.getMetaValues()) {
-                    data.put(v.getKey(), v.getValue());
-                }
-                return chat.setCustomData(data);
-            }
-            return Completable.complete();
-        });
     }
 
     @Override

@@ -18,14 +18,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import sdk.guru.common.DisposableMap;
-import sdk.chat.core.utils.PermissionRequestHandler;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
-import sdk.chat.ui.icons.Icons;
-import sdk.chat.ui.utils.ToastHelper;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
+import sdk.chat.core.utils.PermissionRequestHandler;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
+import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.utils.ToastHelper;
+import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
 
 public class PopupImageView extends RelativeLayout {

@@ -1,10 +1,9 @@
-package co.chatsdk.firestream;
+package sdk.chat.firestream.adapter;
 
 import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import co.chatsdk.firebase.module.FirebaseModule;
 import firestream.chat.FirestreamConfig;
 import firestream.chat.firebase.service.FirebaseService;
 import firestream.chat.firestore.FirestoreService;
@@ -15,6 +14,7 @@ import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.session.NetworkAdapterProvider;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
 
 public class FireStreamModule extends AbstractModule implements NetworkAdapterProvider {
 
@@ -62,6 +62,8 @@ public class FireStreamModule extends AbstractModule implements NetworkAdapterPr
 
         public FirebaseServiceType serviceType = FirebaseServiceType.Firestore;
 
+        public Class<? extends BaseNetworkAdapter> networkAdapter = FireStreamNetworkAdapter.class;
+
         /**
          * Firebase service type, Firestore or Realtime database
          * @param type
@@ -71,6 +73,17 @@ public class FireStreamModule extends AbstractModule implements NetworkAdapterPr
             this.serviceType = type;
             return this;
         }
+
+        /**
+         * Override the Firestream network adapter class
+         * @param networkAdapter
+         * @return
+         */
+        public Config<T> setNetworkAdapter(Class<? extends BaseNetworkAdapter> networkAdapter) {
+            this.networkAdapter = networkAdapter;
+            return this;
+        }
+
     }
 
     @Override
@@ -80,7 +93,9 @@ public class FireStreamModule extends AbstractModule implements NetworkAdapterPr
 
     @Override
     public Class<? extends BaseNetworkAdapter> getNetworkAdapter() {
-        return FireStreamNetworkAdapter.class;
+        return config.networkAdapter;
     }
+
+
 
 }

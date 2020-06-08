@@ -7,25 +7,23 @@ import com.google.firebase.auth.PhoneAuthProvider;
 
 import java.util.concurrent.TimeUnit;
 
-import co.chatsdk.contact.ContactBookModule;
-import co.chatsdk.encryption.EncryptionModule;
-import co.chatsdk.firebase.file_storage.FirebaseUploadModule;
-import co.chatsdk.firebase.push.FirebasePushModule;
-import co.chatsdk.firebase.ui.FirebaseUIModule;
-import co.chatsdk.firestream.FireStreamModule;
-import co.chatsdk.firestream.FirebaseServiceType;
-import co.chatsdk.message.file.FileMessageModule;
-import co.chatsdk.message.sticker.module.StickerMessageModule;
-import co.chatsdk.profile.pictures.ProfilePicturesModule;
-import co.chatsdk.ui.module.DefaultUIModule;
-import firestream.chat.FirestreamConfig;
-import sdk.chat.audio.AudioMessageModule;
+import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.session.Config;
-import sdk.chat.location.FirebaseNearbyUsersModule;
+import sdk.chat.encryption.EncryptionModule;
+import sdk.chat.firebase.location.FirebaseNearbyUsersModule;
+import sdk.chat.firebase.push.FirebasePushModule;
+import sdk.chat.firebase.ui.FirebaseUIModule;
+import sdk.chat.firebase.upload.FirebaseUploadModule;
+import sdk.chat.firestream.adapter.FireStreamModule;
+import sdk.chat.firestream.adapter.FirebaseServiceType;
+import sdk.chat.message.audio.AudioMessageModule;
+import sdk.chat.message.file.FileMessageModule;
+import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
+import sdk.chat.profile.pictures.ProfilePicturesModule;
 import sdk.chat.realtime.R;
 import sdk.chat.ui.extras.ExtrasModule;
+import sdk.chat.ui.module.UIModule;
 
 public class AddFireStreamModules extends Activity {
 
@@ -51,8 +49,6 @@ public class AddFireStreamModules extends Activity {
                 .setMaxImageWidth(1920)
                 .setMaxImageHeight(2560)
                 .setMaxThumbnailDimensions(400)
-                .setDefaultNamePrefix("ChatSDK")
-                .setDefaultName(null)
                 .setLogoDrawableResourceID(R.drawable.ic_launcher_big)
                 .setDefaultUserAvatarUrl(null)
                 .setPushNotificationImageDefaultResourceId(0)
@@ -63,7 +59,6 @@ public class AddFireStreamModules extends Activity {
                 .setPublicChatAutoSubscriptionEnabled(false)
                 .setStorageDirectory("ChatSDK")
                 .setIdenticonBaseURL(null)
-                .setIdenticonType(Config.IdenticonType.RoboHash)
                 .setPublicChatRoomLifetimeMinutes(TimeUnit.DAYS.toMinutes(7))
                 .setDisablePresence(false)
                 .setSendSystemMessageWhenRoleChanges(true)
@@ -77,17 +72,14 @@ public class AddFireStreamModules extends Activity {
                                 .setSandbox("firestream")
                                 .setDeliveryReceiptsEnabled(true)
                                 .setDeleteMessagesOnReceiptEnabled(false)
-                                .setListenToMessagesWithTimeAgo(FirestreamConfig.TimePeriod.days(10))
-                                .setStartListeningFromLastSentMessageDateEnabled(true)
                                 .setAutoAcceptChatInviteEnabled(true)
                                 .setAutoMarkReceivedEnabled(true)
                                 .setDebugEnabled(false)
-                                .setMessageHistoryLimit(100)
                                 .build()
                 )
 
                 // UI Module
-                .addModule(DefaultUIModule.builder()
+                .addModule(UIModule.builder()
                         .setTheme(R.style.ChatTheme)
                         .setImageCroppingEnabled(true)
                         .setResetPasswordEnabled(true)
@@ -98,8 +90,8 @@ public class AddFireStreamModules extends Activity {
                         .setGroupsEnabled(true)
                         .setThreadDetailsEnabled(true)
                         .setSaveImagesToDirectoryEnabled(true)
-                        .setDefaultProfileImage(co.chatsdk.ui.R.drawable.icn_100_profile)
-                        .setProfileHeaderImage(co.chatsdk.ui.R.drawable.header2)
+                        .setDefaultProfilePlaceholder(R.drawable.icn_100_profile)
+                        .setProfileHeaderImage(R.drawable.header2)
                         .setUsernameHint("Email")
                         .setAllowBackPressFromMainActivity(false)
                         .build()

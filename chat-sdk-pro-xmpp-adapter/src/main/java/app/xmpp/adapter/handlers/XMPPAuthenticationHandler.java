@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.handlers;
+package app.xmpp.adapter.handlers;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.XMPPConnection;
@@ -6,27 +6,16 @@ import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.stringprep.XmppStringprepException;
-import org.minidns.record.A;
-import org.pmw.tinylog.Logger;
 
-import java.util.concurrent.Callable;
-
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import io.reactivex.CompletableSource;
-import io.reactivex.functions.Action;
+import app.xmpp.adapter.R;
+import app.xmpp.adapter.XMPPManager;
+import app.xmpp.adapter.utils.KeyStorage;
+import io.reactivex.Completable;
 import sdk.chat.core.base.AbstractAuthenticationHandler;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.AccountDetails;
-import co.chatsdk.xmpp.R;
-import co.chatsdk.xmpp.XMPPManager;
-import co.chatsdk.xmpp.utils.KeyStorage;
-import io.reactivex.Completable;
-import io.reactivex.CompletableObserver;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
 import sdk.guru.common.RX;
 
 

@@ -9,14 +9,14 @@ import sdk.chat.core.dao.Message;
 
 public class Debug {
 
-    public static String messageList(List<Message> list) {
-        StringBuilder output = new StringBuilder();
-        output.append("\n ");
+    public static List<String> messageList(List<Message> list) {
+        List<String> text = new ArrayList<>();
         for(Message m: list) {
-            output.append(m.getDate()).append(" : ").append(m.getEntityID()).append(" - ").append(m.getText()).append(" \n");
+            String t = m.getDate() + " : " + m.getEntityID() + " - " + m.getText();
+            text.add(t);
+            Logger.debug(t);
         }
-        Logger.debug(output.toString());
-        return output.toString();
+        return text;
     }
 
     public static List<String> messageText(List<Message> list) {

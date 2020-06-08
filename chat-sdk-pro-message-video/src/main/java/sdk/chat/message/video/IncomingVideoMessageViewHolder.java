@@ -4,10 +4,8 @@ import android.view.View;
 import android.widget.ImageView;
 
 import butterknife.BindView;
-import co.chatsdk.message.video.R;
-import co.chatsdk.message.video.R2;
-import co.chatsdk.ui.icons.Icons;
-import co.chatsdk.ui.view_holders.base.BaseIncomingImageMessageViewHolder;
+import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.view_holders.base.BaseIncomingImageMessageViewHolder;
 
 public class IncomingVideoMessageViewHolder extends BaseIncomingImageMessageViewHolder<VideoMessageHolder> {
 

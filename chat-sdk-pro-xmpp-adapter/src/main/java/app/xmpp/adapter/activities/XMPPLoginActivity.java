@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.activities;
+package app.xmpp.adapter.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,15 +9,15 @@ import androidx.annotation.LayoutRes;
 
 import com.google.android.material.button.MaterialButton;
 
+import app.xmpp.adapter.R;
+import app.xmpp.adapter.R2;
+import app.xmpp.adapter.XMPPManager;
+import app.xmpp.adapter.module.XMPPModule;
+import app.xmpp.adapter.utils.XMPPServer;
+import app.xmpp.adapter.utils.XMPPServerDetails;
 import butterknife.BindView;
+import sdk.chat.ui.activities.LoginActivity;
 import sdk.chat.core.utils.StringChecker;
-import co.chatsdk.ui.activities.LoginActivity;
-import co.chatsdk.xmpp.R;
-import co.chatsdk.xmpp.R2;
-import co.chatsdk.xmpp.XMPPManager;
-import co.chatsdk.xmpp.module.XMPPModule;
-import co.chatsdk.xmpp.utils.XMPPServer;
-import co.chatsdk.xmpp.utils.XMPPServerDetails;
 
 public class XMPPLoginActivity extends LoginActivity {
 

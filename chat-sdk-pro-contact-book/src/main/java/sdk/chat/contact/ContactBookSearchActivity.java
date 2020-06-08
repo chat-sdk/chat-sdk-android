@@ -1,47 +1,30 @@
-package co.chatsdk.contact;
+package sdk.chat.contact;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.pmw.tinylog.Logger;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import butterknife.BindView;
-import io.reactivex.CompletableSource;
-import io.reactivex.SingleSource;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
+import io.reactivex.Single;
 import sdk.chat.core.dao.User;
-import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ConnectionType;
 import sdk.chat.core.utils.PermissionRequestHandler;
-import co.chatsdk.ui.activities.BaseActivity;
-import co.chatsdk.ui.adapters.UsersListAdapter;
-import io.reactivex.Completable;
-import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
+import sdk.chat.ui.activities.BaseActivity;
+import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.guru.common.RX;
-import sdk.guru.common.RX;
-import sdk.chat.core.utils.StringChecker;
 
 /**
  * Created by ben on 10/9/17.

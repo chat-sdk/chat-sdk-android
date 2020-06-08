@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.handlers;
+package app.xmpp.adapter.handlers;
 
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.chat2.Chat;
@@ -12,7 +12,7 @@ import org.jxmpp.jid.impl.JidCreate;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.handlers.TypingIndicatorHandler;
 import sdk.chat.core.interfaces.ThreadType;
-import co.chatsdk.xmpp.XMPPManager;
+import app.xmpp.adapter.XMPPManager;
 import io.reactivex.Completable;
 import sdk.guru.common.RX;
 

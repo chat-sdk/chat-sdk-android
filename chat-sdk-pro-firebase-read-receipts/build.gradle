@@ -38,7 +38,7 @@ dependencies {
 
 ext {
     libraryName = 'FirbaseReadReceiptPro'
-    artifact = 'pro-firebase-read-receipt'
+    artifact = 'pro-firebase-read-receipts'
     libraryDescription = 'Firebase Read Receipts Pro Module'
 }
 

@@ -25,22 +25,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.functions.BiConsumer;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.R;
-import co.chatsdk.ui.R2;
+import sdk.chat.core.utils.StringChecker;
+import sdk.chat.ui.R;
+import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.MediaSelector;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.utils.ImagePickerUploader;
 import sdk.chat.ui.utils.ThreadImageBuilder;
-import de.hdodenhof.circleimageview.CircleImageView;
 import sdk.guru.common.RX;
-import io.reactivex.functions.BiConsumer;
-import sdk.chat.core.utils.StringChecker;
 
 /**
  * Created by Pepe Becker on 09/05/18.
@@ -194,7 +194,7 @@ public class EditThreadActivity extends BaseActivity {
                 thread.setImageUrl(threadImageURL);
             }
             thread.update();
-            dm.add(ChatSDK.thread().pushThread(thread).subscribe(this::finish, this));
+            dm.add(ChatSDK.thread().pushThreadMeta(thread).subscribe(this::finish, this));
         }
     }
 

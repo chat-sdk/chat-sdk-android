@@ -53,7 +53,7 @@
         android:layout_toRightOf="@id/messageUserAvatar"
         android:adjustViewBounds="true"
         android:scaleType="fitXY"
-        app:siShape="@drawable/shape_incoming_message_bubble"
+        app:siShape="?incomingBubbleDrawable"
         app:siSquare="false"/>
 
     <ImageView

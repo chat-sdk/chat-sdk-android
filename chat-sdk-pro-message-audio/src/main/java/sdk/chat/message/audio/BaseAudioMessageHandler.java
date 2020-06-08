@@ -1,4 +1,4 @@
-package sdk.chat.audio;
+package sdk.chat.message.audio;
 
 import android.content.Context;
 

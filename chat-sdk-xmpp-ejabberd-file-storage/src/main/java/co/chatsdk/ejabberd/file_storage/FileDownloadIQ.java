@@ -6,7 +6,7 @@ import org.jxmpp.jid.impl.JidCreate;
 
 import java.util.UUID;
 
-import co.chatsdk.xmpp.iq.CustomIQ;
+import app.xmpp.adapter.iq.CustomIQ;
 
 public class FileDownloadIQ extends FileTransferIQ {
 

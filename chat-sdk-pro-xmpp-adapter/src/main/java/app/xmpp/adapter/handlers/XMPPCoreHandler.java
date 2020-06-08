@@ -1,11 +1,11 @@
-package co.chatsdk.xmpp.handlers;
+package app.xmpp.adapter.handlers;
 
 import org.jxmpp.jid.impl.JidCreate;
 
 import sdk.chat.core.base.AbstractCoreHandler;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.xmpp.XMPPManager;
+import app.xmpp.adapter.XMPPManager;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import sdk.guru.common.RX;

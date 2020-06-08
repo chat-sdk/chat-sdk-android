@@ -1,4 +1,4 @@
-package guru.sdk.realtime;
+package sdk.guru.realtime;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;

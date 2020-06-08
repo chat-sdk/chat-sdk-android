@@ -16,6 +16,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import id.zelory.compressor.Compressor;
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.disposables.Disposable;
 import sdk.chat.core.avatar.gravatar.Utils;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -25,13 +29,9 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.utils.Dimen;
 import sdk.chat.core.utils.StringChecker;
-import co.chatsdk.ui.R;
+import sdk.chat.ui.R;
 import sdk.chat.ui.icons.Icons;
-import id.zelory.compressor.Compressor;
-import io.reactivex.Single;
-import io.reactivex.SingleSource;
 import sdk.guru.common.RX;
-import io.reactivex.disposables.Disposable;
 
 /**
  * Created by benjaminsmiley-andrews on 12/06/2017.

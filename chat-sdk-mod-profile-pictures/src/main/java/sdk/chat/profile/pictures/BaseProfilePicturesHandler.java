@@ -1,4 +1,4 @@
-package co.chatsdk.profile.pictures;
+package sdk.chat.profile.pictures;
 
 import android.content.Context;
 import android.content.Intent;
@@ -96,7 +96,7 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
     public void addPicture(User user, String url) {
         ArrayList<String> urls = fromUser(user);
         if (urls.size() == 0) {
-            user.setAvatarURL(url);
+            setDefaultPicture(user, url);
         } else {
             urls.add(url);
             setPictures(user, urls);

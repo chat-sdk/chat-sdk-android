@@ -1,4 +1,4 @@
-package co.chatsdk.message.sticker.integration;
+package sdk.chat.message.sticker.integration;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -7,8 +7,6 @@ import android.net.Uri;
 
 import org.pmw.tinylog.Logger;
 
-import co.chatsdk.message.sticker.Configuration;
-import co.chatsdk.message.sticker.R;
 import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
@@ -18,6 +16,8 @@ import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.utils.StringChecker;
+import sdk.chat.message.sticker.Configuration;
+import sdk.chat.message.sticker.R;
 
 /**
  * Created by ben on 10/11/17.

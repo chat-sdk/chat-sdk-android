@@ -1,9 +1,8 @@
-package co.chatsdk.xmpp;
+package app.xmpp.adapter;
 
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.StandardExtensionElement;
 import org.jivesoftware.smackx.delay.packet.DelayInformation;
-
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import app.xmpp.adapter.defines.XMPPDefines;
+import app.xmpp.adapter.utils.XMPPMessageParseHelper;
+import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -18,9 +20,6 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.types.ReadStatus;
-import co.chatsdk.xmpp.defines.XMPPDefines;
-import co.chatsdk.xmpp.utils.XMPPMessageParseHelper;
-import co.chatsdk.xmpp.utils.XMPPMessageWrapper;
 
 /**
  * Created by benjaminsmiley-andrews on 11/07/2017.

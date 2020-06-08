@@ -1,4 +1,4 @@
-package co.chatsdk.xmpp.listeners;
+package app.xmpp.adapter.listeners;
 
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.packet.Message;
@@ -11,10 +11,10 @@ import java.lang.ref.WeakReference;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.xmpp.XMPPMUCManager;
-import co.chatsdk.xmpp.XMPPManager;
-import co.chatsdk.xmpp.XMPPMessageParser;
-import co.chatsdk.xmpp.utils.XMPPMessageWrapper;
+import app.xmpp.adapter.XMPPMUCManager;
+import app.xmpp.adapter.XMPPManager;
+import app.xmpp.adapter.XMPPMessageParser;
+import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import io.reactivex.disposables.Disposable;
 
 

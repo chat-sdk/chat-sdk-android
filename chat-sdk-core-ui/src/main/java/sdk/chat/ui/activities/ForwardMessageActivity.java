@@ -17,7 +17,7 @@ import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
-import co.chatsdk.ui.R;
+import sdk.chat.ui.R;
 import sdk.guru.common.RX;
 
 public class ForwardMessageActivity extends SelectContactActivity {
