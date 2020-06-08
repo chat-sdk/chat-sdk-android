@@ -9,6 +9,8 @@ package co.chatsdk.ui.threads;
 
 import android.view.MenuItem;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -70,7 +72,22 @@ public class PrivateThreadsFragment extends ThreadsFragment {
 
     @Override
     protected List<Thread> getThreads() {
-        return ChatSDK.thread().getThreads(ThreadType.Private);
+
+        List<Thread> threads = ChatSDK.thread().getThreads(ThreadType.Private);
+
+        if (ChatSDK.config().privateChatRoomLifetimeMinutes == 0) {
+            return threads;
+        } else {
+            // Do we need to filter the list to remove old chat rooms?
+            long now = new Date().getTime();
+            List<Thread> filtered = new ArrayList<>();
+            for (Thread t : threads) {
+                if (t.getCreationDate() == null || now - t.getCreationDate().getTime() < ChatSDK.config().privateChatRoomLifetimeMinutes * 60000) {
+                    filtered.add(t);
+                }
+            }
+            return filtered;
+        }
     }
 
 }

@@ -89,9 +89,10 @@ public class BaseMessageViewHolder extends AbstractMessageViewHolder {
 
             ArrayList<MessageAction> actions = new ArrayList<>();
 
-            if (message.getSender().isMe()) {
+            if (message.getSender().isMe() && ChatSDK.config().messageDeletionEnabled) {
                 actions.add(new DeleteMessageAction(message));
             }
+
             actions.add(new CopyMessageAction(message));
             actions.add(new ForwardMessageAction(message));
 

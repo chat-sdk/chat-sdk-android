@@ -77,8 +77,6 @@ dependencies {
     implementation project(path: ':chat-sdk-firebase-file-storage')
     implementation project(path: ':chat-sdk-firebase-ui')
     implementation project(path: ':chat-sdk-profile-pictures')
-    compile project(path: ':chat-sdk-micro')
-    compile project(path: ':chat-sdk-firestore-adapter')
 }
 
 apply plugin: 'com.google.gms.google-services'

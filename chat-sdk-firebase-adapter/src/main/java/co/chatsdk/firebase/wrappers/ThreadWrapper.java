@@ -195,7 +195,11 @@ public class ThreadWrapper  {
                 query = query.startAt(startTimestamp, Keys.Date);
             }
 
-            query = query.orderByChild(Keys.Date).limitToLast(ChatSDK.config().messageHistoryDownloadLimit);
+            query = query.orderByChild(Keys.Date);
+
+            if (ChatSDK.config().messageHistoryDownloadLimit > 0 && startTimestamp == null) {
+                query = query.limitToLast(ChatSDK.config().messageHistoryDownloadLimit);
+            }
 
             ChildEventListener listener = query.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
                 if (hasValue) {

@@ -13,17 +13,12 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-import co.chatsdk.android.app.test.MicroChatSDKTest;
-import co.chatsdk.core.hook.Hook;
-import co.chatsdk.core.hook.HookEvent;
-import co.chatsdk.core.interfaces.ThreadType;
 import co.chatsdk.core.session.ChatSDK;
 import co.chatsdk.core.session.Configuration;
 import co.chatsdk.firebase.FirebaseNetworkAdapter;
 import co.chatsdk.firebase.FirebasePaths;
 import co.chatsdk.firebase.file_storage.FirebaseFileStorageModule;
 import co.chatsdk.firebase.push.FirebasePushModule;
-import co.chatsdk.firestore.FirestoreNetworkAdapter;
 import co.chatsdk.profile.pictures.ProfilePicturesModule;
 import co.chatsdk.ui.manager.BaseInterfaceAdapter;
 import io.reactivex.BackpressureStrategy;
@@ -51,11 +46,18 @@ public class AppObj extends MultiDexApplication {
 
             Configuration.Builder config = new Configuration.Builder();
 
-            config.firebaseRootPath("pre_1");
+            config.firebaseRootPath("pre_3");
             config.googleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE");
             config.publicRoomCreationEnabled(true);
             config.pushNotificationSound("default");
+            config.setMainActivityBackButtonEnabled(true);
             config.pushNotificationsForPublicChatRoomsEnabled(false);
+
+
+//            config.messageDeletionEnabled(false);
+//            config.setDisablePresence(true);
+//            config.privateChatRoomLifetimeMinutes(TimeUnit.DAYS.toMinutes(2));
+
 
 //            config.setDevelopmentModeEnabled(false);
 //            config.setDisablePresence(true);
@@ -79,7 +81,6 @@ public class AppObj extends MultiDexApplication {
             FirebaseFileStorageModule.activate();
             FirebasePushModule.activate();
             ProfilePicturesModule.activate();
-
 
             // Uncomment this to enable Firebase UI
             // FirebaseUIModule.activate(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID);

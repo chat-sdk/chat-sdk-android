@@ -77,6 +77,8 @@ public abstract class MainActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        // Fixes an issue where if we press back the whole app goes blank
+        if (ChatSDK.config().mainActivityBackButtonEnabled) {
+            super.onBackPressed();
+        }
     }
 }

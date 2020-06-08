@@ -70,6 +70,7 @@ public class Configuration {
     public boolean xmppCompressionEnabled;
     public String xmppSecurityMode = "disabled";
     public int xmppMucMessageHistory = 20;
+    public boolean messageDeletionEnabled = true;
 
     // Push notification
     public int pushNotificationImageDefaultResourceId;
@@ -82,7 +83,8 @@ public class Configuration {
     // Rooms that are older than this will be hidden
     // Zero is infinite lifetime
     // Default - 7 days
-    public int publicChatRoomLifetimeMinutes = 60 * 24 * 7;
+    public long publicChatRoomLifetimeMinutes = 60 * 24 * 7;
+    public long privateChatRoomLifetimeMinutes = 0;
 
     // Should the client send the push or is a server script handling it?
     public boolean clientPushEnabled = false;
@@ -138,6 +140,7 @@ public class Configuration {
     public boolean imageCroppingEnabled = true;
 
     public boolean remoteConfigEnabled = false;
+    public boolean mainActivityBackButtonEnabled = false;
 
     @Deprecated
     public boolean removeUserFromPublicThreadOnExit = true;
@@ -402,6 +405,11 @@ public class Configuration {
 
         public Builder publicRoomCreationEnabled(boolean value) {
             config.publicRoomCreationEnabled = value;
+            return this;
+        }
+
+        public Builder messageDeletionEnabled(boolean value) {
+            config.messageDeletionEnabled = value;
             return this;
         }
 
@@ -699,6 +707,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder privateChatRoomLifetimeMinutes (long minutes) {
+            config.privateChatRoomLifetimeMinutes = minutes;
+            return this;
+        }
+
         public Builder publicChatRoomLifetimeMinutes (long minutes) {
             config.publicChatRoomLifetimeMinutes = (int) minutes;
             return this;
@@ -767,6 +780,11 @@ public class Configuration {
 
         public Builder setDisablePublicThreads(boolean disablePublicThreads) {
             config.disablePublicThreads = disablePublicThreads;
+            return this;
+        }
+
+        public Builder setMainActivityBackButtonEnabled(boolean enabled) {
+            config.mainActivityBackButtonEnabled = enabled;
             return this;
         }
 
