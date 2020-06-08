@@ -1,4 +1,4 @@
-package sdk.guru.realtime;
+package guru.sdk.realtime;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -152,6 +152,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
             }
         })).subscribeOn(RX.io()).observeOn(RX.db());
     }
+
     public Single<Optional<DataSnapshot>> get(Query ref) {
         return Single.defer((Callable<SingleSource<? extends Optional<DataSnapshot>>>) () -> {
             ref.keepSynced(true);

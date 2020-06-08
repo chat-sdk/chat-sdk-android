@@ -1,6 +1,4 @@
-package sdk.guru.realtime;
-
-import android.os.AsyncTask;
+package guru.sdk.realtime;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
