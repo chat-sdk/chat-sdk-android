@@ -17,7 +17,7 @@ public class DeliveryReceipt extends Sendable {
         body.put(MessageId, messageUid);
     }
 
-    public String getMessageId() throws Exception {
+    public String getMessageId() {
         return getBodyString(MessageId);
     }
 

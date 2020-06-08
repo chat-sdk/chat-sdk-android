@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Path {
 
-    protected ArrayList<String> components = new ArrayList<>();
+    protected List<String> components = new ArrayList<>();
 
     /**
      * The remainder type used to fix an issue which arises with Firestore. In Firestore

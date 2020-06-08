@@ -1,6 +1,6 @@
 package firestream.chat.firebase.service;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import firestream.chat.chat.Meta;
 import io.reactivex.Completable;
@@ -28,9 +28,9 @@ public abstract class FirebaseChatHandler {
 
     public abstract Completable setMetaField(String chatId, String key, Object value);
 
-    public abstract Single<String> add(HashMap<String, Object> data, @Nullable Consumer<String> newId);
+    public abstract Single<String> add(Map<String, Object> data, @Nullable Consumer<String> newId);
 
-    public Single<String> add(HashMap<String, Object> data) {
+    public Single<String> add(Map<String, Object> data) {
         return add(data, null);
     }
 

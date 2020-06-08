@@ -82,7 +82,7 @@ public interface IAbstractChat extends Consumer<Throwable>, CompletableObserver 
      * @param toDate load message TO AND INCLUDING this date
      * @return a stream of messages
      */
-    Single<List<Sendable>> loadMoreMessages(Date fromDate, Date toDate);
+    Single<List<Sendable>> loadMoreMessages(Date fromDate, Date toDate, boolean desc);
 
     /**
      * Load a batch of historic messages
@@ -91,7 +91,7 @@ public interface IAbstractChat extends Consumer<Throwable>, CompletableObserver 
      * @param limit the number of messages returned
      * @return a stream of messages
      */
-    Single<List<Sendable>> loadMoreMessagesFrom(Date fromDate, Integer limit);
+    Single<List<Sendable>> loadMoreMessagesFrom(Date fromDate, Integer limit, boolean desc);
 
     /**
      * Load a batch of historic messages
@@ -100,7 +100,7 @@ public interface IAbstractChat extends Consumer<Throwable>, CompletableObserver 
      * @param limit the number of messages returned
      * @return a stream of messages
      */
-    Single<List<Sendable>> loadMoreMessagesTo(Date toDate, Integer limit);
+    Single<List<Sendable>> loadMoreMessagesTo(Date toDate, Integer limit, boolean desc);
 
     /**
      * Load a batch of historic messages
@@ -109,7 +109,7 @@ public interface IAbstractChat extends Consumer<Throwable>, CompletableObserver 
      * @param limit the number of messages returned
      * @return a stream of messages
      */
-    Single<List<Sendable>> loadMoreMessagesBefore(Date toDate, Integer limit);
+    Single<List<Sendable>> loadMoreMessagesBefore(Date toDate, Integer limit, boolean desc);
 
 
 }

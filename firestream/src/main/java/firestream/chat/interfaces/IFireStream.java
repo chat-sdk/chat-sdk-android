@@ -3,8 +3,8 @@ package firestream.chat.interfaces;
 import android.content.Context;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import firestream.chat.FirestreamConfig;
 import firestream.chat.chat.Chat;
@@ -12,6 +12,7 @@ import firestream.chat.chat.User;
 import firestream.chat.events.ConnectionEvent;
 import firestream.chat.firebase.rx.MultiQueueSubject;
 import firestream.chat.firebase.service.FirebaseService;
+import firestream.chat.message.Body;
 import firestream.chat.message.Sendable;
 import firestream.chat.types.ContactType;
 import firestream.chat.types.DeliveryReceiptType;
@@ -78,8 +79,9 @@ public interface IFireStream extends IAbstractChat {
      * @return completion
      */
     Completable deleteSendable(Sendable sendable);
+    Completable deleteSendable(String toUserId, Sendable sendable);
     Completable deleteSendable(String sendableId);
-    Completable deleteSendable(String userId, String sendableId);
+    Completable deleteSendable(String toUserId, String sendableId);
 
     Completable sendPresence(String userId, PresenceType type);
     Completable sendPresence(String userId, PresenceType type, @Nullable Consumer<String> newId);
@@ -87,8 +89,8 @@ public interface IFireStream extends IAbstractChat {
     Completable sendMessageWithText(String userId, String text);
     Completable sendMessageWithText(String userId, String text, @Nullable Consumer<String> newId);
 
-    Completable sendMessageWithBody(String userId, HashMap<String, Object> body);
-    Completable sendMessageWithBody(String userId, HashMap<String, Object> body, @Nullable Consumer<String> newId);
+    Completable sendMessageWithBody(String userId, Body body);
+    Completable sendMessageWithBody(String userId, Body body, @Nullable Consumer<String> newId);
 
     /**
      * Send a typing indicator update to a user. This should be sent when the user
@@ -121,9 +123,9 @@ public interface IFireStream extends IAbstractChat {
     // Chats
 
     Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, User... users);
-    Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, @Nullable HashMap<String, Object> customData, User... users);
+    Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, @Nullable Map<String, Object> customData, User... users);
     Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, List<? extends User> users);
-    Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, @Nullable HashMap<String, Object> customData, List<? extends User> users);
+    Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, @Nullable Map<String, Object> customData, List<? extends User> users);
 
     /**
      * Leave the chat. When you leave, you will be removed from the
@@ -194,4 +196,16 @@ public interface IFireStream extends IAbstractChat {
      * @return true / false
      */
     boolean muted(User user);
+
+    /**
+     * Get the current FireStream configuration
+     * @return
+     */
+    FirestreamConfig getConfig();
+
+    /**
+     * Get the current Firebase service
+     * @return
+     */
+    FirebaseService getFirebaseService();
 }

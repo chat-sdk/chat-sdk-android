@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import firestream.chat.chat.AbstractChat;
 import firestream.chat.chat.Chat;
@@ -27,6 +28,7 @@ import firestream.chat.firebase.service.Path;
 import firestream.chat.firebase.service.Paths;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.interfaces.IFireStream;
+import firestream.chat.message.Body;
 import firestream.chat.message.DeliveryReceipt;
 import firestream.chat.message.Invitation;
 import firestream.chat.message.Message;
@@ -49,7 +51,6 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
 import io.reactivex.subjects.BehaviorSubject;
 import sdk.guru.common.Event;
-import sdk.guru.common.EventType;
 import sdk.guru.common.RX;
 
 public class FireStream extends AbstractChat implements IFireStream {
@@ -58,9 +59,9 @@ public class FireStream extends AbstractChat implements IFireStream {
 
     protected FirebaseUser user;
 
-    protected ArrayList<User> contacts = new ArrayList<>();
-    protected ArrayList<User> blocked = new ArrayList<>();
-    protected HashMap<String, Date> muted = new HashMap<>();
+    protected List<User> contacts = new ArrayList<>();
+    protected List<User> blocked = new ArrayList<>();
+    protected Map<String, Date> muted = new HashMap<>();
 
     protected MultiQueueSubject<Event<Chat>> chatEvents = MultiQueueSubject.create();
     protected MultiQueueSubject<Event<User>> contactEvents = MultiQueueSubject.create();
@@ -84,7 +85,7 @@ public class FireStream extends AbstractChat implements IFireStream {
         return instance;
     }
 
-    protected ArrayList<IChat> chats = new ArrayList<>();
+    protected List<IChat> chats = new ArrayList<>();
 
     public FireStream() {
 
@@ -141,10 +142,17 @@ public class FireStream extends AbstractChat implements IFireStream {
         // We always delete delivery receipt and presence messages
         Observable<Event<Sendable>> stream = getSendableEvents().getSendables().pastAndNewEvents();
         if (!config.deleteMessagesOnReceipt) {
-            stream = stream.filter(Filter.eventBySendableType(SendableType.deliveryReceipt(), SendableType.presence()));
+            List<SendableType> typesToDelete = new ArrayList<>();
+            typesToDelete.add(SendableType.presence());
+            if (config.deleteDeliveryReceiptsOnReceipt) {
+                typesToDelete.add(SendableType.deliveryReceipt());
+            }
+            stream = stream.filter(Filter.eventBySendableType(typesToDelete));
         }
         // If deletion is enabled, we don't filter so we delete all the message types
-        stream.map(Event::get).flatMapCompletable(this::deleteSendable).subscribe(this);
+        stream.filter(Event::isAdded)
+                .map(Event::get)
+                .flatMapCompletable(this::deleteSendable).subscribe(this);
 
         // DELIVERY RECEIPTS
 
@@ -157,17 +165,17 @@ public class FireStream extends AbstractChat implements IFireStream {
 
         // If message deletion is disabled, send a received receipt to our-self for each message. This means
         // that when we add a childListener, we only get new messages
-        if (!config.deleteMessagesOnReceipt && config.startListeningFromLastSentMessageDate) {
-            getSendableEvents()
-                    .getMessages()
-                    .pastAndNewEvents()
-                    .filter(Filter.notFromMe())
-                    .flatMapCompletable(event -> {
-
-                    return sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), event.get().getId());
-
-            }).subscribe(this);
-        }
+//        if (!config.deleteMessagesOnReceipt && config.startListeningFromLastSentMessageDate) {
+//            getSendableEvents()
+//                    .getMessages()
+//                    .pastAndNewEvents()
+//                    .filter(Filter.notFromMe())
+//                    .flatMapCompletable(event -> {
+//
+//                    return sendDeliveryReceipt(currentUserId(), DeliveryReceiptType.received(), event.get().getId());
+//
+//            }).subscribe(this);
+//        }
 
         // INVITATIONS
 
@@ -182,10 +190,10 @@ public class FireStream extends AbstractChat implements IFireStream {
 
         dm.add(listChangeOn(Paths.blockedPath()).subscribe(listEvent -> {
             Event<User> ue = listEvent.to(User.from(listEvent));
-            if (ue.typeIs(EventType.Added)) {
+            if (ue.isAdded()) {
                 blocked.add(ue.get());
             }
-            if (ue.typeIs(EventType.Removed)) {
+            if (ue.isRemoved()) {
                 blocked.remove(ue.get());
             }
             blockedEvents.onNext(ue);
@@ -195,10 +203,10 @@ public class FireStream extends AbstractChat implements IFireStream {
 
         dm.add(listChangeOn(Paths.contactsPath()).subscribe(listEvent -> {
             Event<User> ue = listEvent.to(User.from(listEvent));
-            if (ue.typeIs(EventType.Added)) {
+            if (ue.isAdded()) {
                 contacts.add(ue.get());
             }
-            else if (ue.typeIs(EventType.Removed)) {
+            else if (ue.isRemoved()) {
                 contacts.remove(ue.get());
             }
             contactEvents.onNext(ue);
@@ -209,12 +217,12 @@ public class FireStream extends AbstractChat implements IFireStream {
         dm.add(listChangeOn(Paths.userChatsPath()).subscribe(listEvent -> {
             Event<Chat> chatEvent = listEvent.to(Chat.from(listEvent));
             IChat chat = chatEvent.get();
-            if (chatEvent.typeIs(EventType.Added)) {
+            if (chatEvent.isAdded()) {
                 chat.connect();
                 chats.add(chat);
                 chatEvents.onNext(chatEvent);
             }
-            else if (chatEvent.typeIs(EventType.Removed)) {
+            else if (chatEvent.isRemoved()) {
                 dm.add(chat.leave().subscribe(() -> {
                     chats.remove(chat);
                     chatEvents.onNext(chatEvent);
@@ -226,7 +234,7 @@ public class FireStream extends AbstractChat implements IFireStream {
 
         dm.add(listChangeOn(Paths.userMutedPath()).subscribe(listDataEvent -> {
             String id = listDataEvent.get().getId();
-            if (listDataEvent.typeIs(EventType.Removed)) {
+            if (listDataEvent.isRemoved()) {
                 muted.remove(id);
             } else {
                 Object date = listDataEvent.get().getData().get(Keys.Date);
@@ -264,13 +272,18 @@ public class FireStream extends AbstractChat implements IFireStream {
     }
 
     @Override
+    public Completable deleteSendable (String toUserId, Sendable sendable) {
+        return deleteSendable(toUserId, sendable.getId());
+    }
+
+    @Override
     public Completable deleteSendable (String sendableId) {
         return deleteSendable(Paths.messagePath(sendableId));
     }
 
     @Override
-    public Completable deleteSendable (String userId, String sendableId) {
-        return deleteSendable(Paths.messagePath(userId, sendableId));
+    public Completable deleteSendable (String toUserId, String sendableId) {
+        return deleteSendable(Paths.messagePath(toUserId, sendableId));
     }
 
     @Override
@@ -353,12 +366,12 @@ public class FireStream extends AbstractChat implements IFireStream {
     }
 
     @Override
-    public Completable sendMessageWithBody(String userId, HashMap<String, Object> body) {
+    public Completable sendMessageWithBody(String userId, Body body) {
         return sendMessageWithBody(userId, body, null);
     }
 
     @Override
-    public Completable sendMessageWithBody(String userId, HashMap<String, Object> body, @Nullable Consumer<String> newId) {
+    public Completable sendMessageWithBody(String userId, Body body, @Nullable Consumer<String> newId) {
         return send(userId, new Message(body), newId);
     }
 
@@ -377,7 +390,7 @@ public class FireStream extends AbstractChat implements IFireStream {
     }
 
     @Override
-    public ArrayList<User> getBlocked() {
+    public List<User> getBlocked() {
         return blocked;
     }
 
@@ -402,7 +415,7 @@ public class FireStream extends AbstractChat implements IFireStream {
     }
 
     @Override
-    public ArrayList<User> getContacts() {
+    public List<User> getContacts() {
         return contacts;
     }
 
@@ -416,7 +429,7 @@ public class FireStream extends AbstractChat implements IFireStream {
     }
 
     @Override
-    public Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, @Nullable HashMap<String, Object> customData, User... users) {
+    public Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, @Nullable Map<String, Object> customData, User... users) {
         return createChat(name, imageURL, customData, Arrays.asList(users));
     }
 
@@ -426,7 +439,7 @@ public class FireStream extends AbstractChat implements IFireStream {
     }
 
     @Override
-    public Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, @Nullable HashMap<String, Object> customData, List<? extends User> users) {
+    public Single<Chat> createChat(@Nullable String name, @Nullable String imageURL, @Nullable Map<String, Object> customData, List<? extends User> users) {
         return Chat.create(name, imageURL, customData, users).flatMap(chat -> {
             return joinChat(chat).toSingle(() -> chat);
         });
@@ -517,15 +530,6 @@ public class FireStream extends AbstractChat implements IFireStream {
     //
     // Utility
     //
-
-    @Override
-    protected Single<Date> dateOfLastDeliveryReceipt() {
-        if (config.deleteMessagesOnReceipt) {
-            return Single.just(config.listenToMessagesWithTimeAgo.getDate());
-        } else {
-            return super.dateOfLastDeliveryReceipt();
-        }
-    }
 
     @Override
     public User currentUser() {

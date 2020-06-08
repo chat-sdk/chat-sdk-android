@@ -65,8 +65,8 @@ public class RoleType extends BaseType {
         return new RoleType(Banned);
     }
 
-    public HashMap<String, Object> data () {
-        HashMap<String, Object> data = new HashMap<>();
+    public Map<String, Object> data () {
+        Map<String, Object> data = new HashMap<>();
         data.put(Keys.Role, get());
         return data;
     }
@@ -134,7 +134,7 @@ public class RoleType extends BaseType {
     }
 
     public static List<RoleType> allExcluding(RoleType... excluding) {
-        ArrayList<RoleType> list = new ArrayList<RoleType>() {{
+        List<RoleType> list = new ArrayList<RoleType>() {{
             add(RoleType.owner());
             add(RoleType.admin());
             add(RoleType.member());
@@ -148,7 +148,7 @@ public class RoleType extends BaseType {
     }
 
     public static List<String> rolesToStringValues(List<RoleType> roleTypes) {
-        ArrayList<String> stringValues = new ArrayList<>();
+        List<String> stringValues = new ArrayList<>();
 
         for (RoleType rt: roleTypes) {
             stringValues.add(rt.stringValue());
@@ -158,7 +158,7 @@ public class RoleType extends BaseType {
     }
 
     public static Map<String, RoleType> reverseMap() {
-        HashMap<String, RoleType> map = new HashMap<>();
+        Map<String, RoleType> map = new HashMap<>();
         for (RoleType rt: all()) {
             map.put(rt.stringValue(), rt);
         }

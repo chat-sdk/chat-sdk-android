@@ -1,6 +1,7 @@
 package firestream.chat.types;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import firestream.chat.firebase.service.Keys;
 
@@ -23,8 +24,8 @@ public class ContactType extends BaseType {
         return new ContactType(Contact);
     }
 
-    public HashMap<String, Object> data () {
-        HashMap<String, Object> data = new HashMap<>();
+    public Map<String, Object> data () {
+        Map<String, Object> data = new HashMap<>();
         data.put(Keys.Type, get());
         return data;
     }

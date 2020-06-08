@@ -2,6 +2,7 @@ package firestream.chat.chat;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.namespace.Fire;
@@ -11,7 +12,7 @@ public class Meta {
     protected String name = "";
     protected String imageURL = "";
     protected Date created;
-    protected HashMap<String, Object> data;
+    protected Map<String, Object> data;
     protected Object timestamp;
     protected boolean wrap = false;
 
@@ -22,11 +23,11 @@ public class Meta {
         this(name, imageURL, null);
     }
 
-    public Meta(String name, String imageURL, HashMap<String, Object> data) {
+    public Meta(String name, String imageURL, Map<String, Object> data) {
         this(name, imageURL, null, data);
     }
 
-    public Meta(String name, String imageURL, Date created, HashMap<String, Object> data) {
+    public Meta(String name, String imageURL, Date created, Map<String, Object> data) {
         this.name = name;
         this.imageURL = imageURL;
         this.created = created;
@@ -51,17 +52,17 @@ public class Meta {
         return this;
     }
 
-    public Meta setData(HashMap<String, Object> data) {
+    public Meta setData(Map<String, Object> data) {
         this.data = data;
         return this;
     }
 
-    public HashMap<String, Object> getData() {
+    public Map<String, Object> getData() {
         return data;
     }
 
     public Meta addTimestamp() {
-        timestamp = Fire.internal().getFirebaseService().core.timestamp();
+        timestamp = Fire.stream().getFirebaseService().core.timestamp();
         return this;
     }
 
@@ -78,26 +79,26 @@ public class Meta {
         this.created = created;
     }
 
-    public static HashMap<String, Object> nameData(String name) {
+    public static Map<String, Object> nameData(String name) {
         return new HashMap<String, Object>(){{
             put(Keys.Name, name);
         }};
     }
 
-    public static HashMap<String, Object> imageURLData(String imageURL) {
+    public static Map<String, Object> imageURLData(String imageURL) {
         return new HashMap<String, Object>(){{
             put(Keys.ImageURL, imageURL);
         }};
     }
 
-    public static HashMap<String, Object> dataData(HashMap<String, Object> data) {
+    public static Map<String, Object> dataData(Map<String, Object> data) {
         return new HashMap<String, Object>(){{
             put(Keys.Data, data);
         }};
     }
 
-    public HashMap<String, Object> toData() {
-        HashMap<String, Object> data = new HashMap<>();
+    public Map<String, Object> toData() {
+        Map<String, Object> data = new HashMap<>();
 
         if (name != null) {
             data.put(Keys.Name, name);
@@ -117,7 +118,7 @@ public class Meta {
         return data;
     }
 
-    protected static HashMap<String, Object> wrap(HashMap<String, Object> map) {
+    protected static Map<String, Object> wrap(Map<String, Object> map) {
         return new HashMap<String, Object>() {{
             put(Keys.Meta, map);
         }};
@@ -134,7 +135,7 @@ public class Meta {
         return new Meta(name, imageURL);
     }
 
-    public static Meta from(String name, String imageURL, HashMap<String, Object> data) {
+    public static Meta from(String name, String imageURL, Map<String, Object> data) {
         return new Meta(name, imageURL, data);
     }
 

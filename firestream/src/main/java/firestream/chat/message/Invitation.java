@@ -25,7 +25,7 @@ public class Invitation extends Sendable {
         return new InvitationType(super.getBodyType());
     }
 
-    public String getChatId() throws Exception {
+    public String getChatId() {
         return getBodyString(ChatId);
     }
 

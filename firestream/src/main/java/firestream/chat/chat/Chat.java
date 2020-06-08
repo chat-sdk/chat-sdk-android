@@ -5,8 +5,8 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import firestream.chat.R;
 import firestream.chat.events.ListData;
@@ -15,6 +15,7 @@ import firestream.chat.firebase.service.Keys;
 import firestream.chat.firebase.service.Path;
 import firestream.chat.firebase.service.Paths;
 import firestream.chat.interfaces.IChat;
+import firestream.chat.message.Body;
 import firestream.chat.message.Message;
 import firestream.chat.message.Sendable;
 import firestream.chat.message.TextMessage;
@@ -32,7 +33,6 @@ import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
 import sdk.guru.common.Event;
-import sdk.guru.common.EventType;
 
 public class Chat extends AbstractChat implements IChat {
 
@@ -40,12 +40,12 @@ public class Chat extends AbstractChat implements IChat {
     protected Date joined;
     protected Meta meta = new Meta();
 
-    protected ArrayList<User> users = new ArrayList<>();
+    protected List<User> users = new ArrayList<>();
     protected MultiQueueSubject<Event<User>> userEvents = MultiQueueSubject.create();
 
     protected BehaviorSubject<String> nameChangedEvents = BehaviorSubject.create();
     protected BehaviorSubject<String> imageURLChangedEvents = BehaviorSubject.create();
-    protected BehaviorSubject<HashMap<String, Object>> customDataChangedEvents = BehaviorSubject.create();
+    protected BehaviorSubject<Map<String, Object>> customDataChangedEvents = BehaviorSubject.create();
 
     public Chat(String id) {
         this.id = id;
@@ -72,7 +72,7 @@ public class Chat extends AbstractChat implements IChat {
         debug("Connect to chat: " + id);
 
         // If delivery receipts are enabled, send the delivery receipt
-        if (Fire.internal().getConfig().deliveryReceiptsEnabled) {
+        if (Fire.stream().getConfig().deliveryReceiptsEnabled) {
             getSendableEvents()
                     .getMessages()
                     .pastAndNewEvents()
@@ -88,7 +88,7 @@ public class Chat extends AbstractChat implements IChat {
             // If we start by removing the user. If it type a remove event
             // we leave it at that. Otherwise we add that user back in
             users.remove(user);
-            if (!userEvent.typeIs(EventType.Removed)) {
+            if (!userEvent.isRemoved()) {
                 users.add(user);
             }
 
@@ -96,7 +96,7 @@ public class Chat extends AbstractChat implements IChat {
         }));
 
         // Handle name and image change
-        dm.add(Fire.internal().getFirebaseService().chat
+        dm.add(Fire.stream().getFirebaseService().chat
                 .metaOn(getId())
                 .subscribe(newMeta -> {
                     if (newMeta != null) {
@@ -137,7 +137,7 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     protected Completable delete() {
-        return Fire.internal().getFirebaseService().chat.delete(getId());
+        return Fire.stream().getFirebaseService().chat.delete(getId());
     }
 
     @Override
@@ -152,7 +152,7 @@ public class Chat extends AbstractChat implements IChat {
         } else if(this.meta.getName().equals(name)) {
             return Completable.complete();
         } else {
-            return Fire.internal().getFirebaseService().chat.setMetaField(getId(), Keys.Name, name).doOnComplete(() -> {
+            return Fire.stream().getFirebaseService().chat.setMetaField(getId(), Keys.Name, name).doOnComplete(() -> {
                 meta.setName(name);
             });
         }
@@ -170,36 +170,36 @@ public class Chat extends AbstractChat implements IChat {
         } else if (this.meta.getImageURL().equals(url)) {
             return Completable.complete();
         } else {
-            return Fire.internal().getFirebaseService().chat.setMetaField(getId(), Keys.ImageURL, url).doOnComplete(() -> {
+            return Fire.stream().getFirebaseService().chat.setMetaField(getId(), Keys.ImageURL, url).doOnComplete(() -> {
                 meta.setImageURL(url);
             });
         }
     }
 
     @Override
-    public HashMap<String, Object> getCustomData() {
+    public Map<String, Object> getCustomData() {
         return meta.getData();
     }
 
     @Override
-    public Completable setCustomData(final HashMap<String, Object> data) {
+    public Completable setCustomData(final Map<String, Object> data) {
         if (!hasPermission(RoleType.admin())) {
             return Completable.error(this::adminPermissionRequired);
         } else {
-            return Fire.internal().getFirebaseService().chat.setMetaField(getId(), Paths.Data, data).doOnComplete(() -> {
+            return Fire.stream().getFirebaseService().chat.setMetaField(getId(), Paths.Data, data).doOnComplete(() -> {
                 meta.setData(data);
             });
         }
     }
 
     @Override
-    public ArrayList<User> getUsers() {
+    public List<User> getUsers() {
         return users;
     }
 
     @Override
-    public ArrayList<FireStreamUser> getFireStreamUsers() {
-        ArrayList<FireStreamUser> fireStreamUsers = new ArrayList<>();
+    public List<FireStreamUser> getFireStreamUsers() {
+        List<FireStreamUser> fireStreamUsers = new ArrayList<>();
         for (User u : users) {
             fireStreamUsers.add(FireStreamUser.fromUser(u));
         }
@@ -256,7 +256,7 @@ public class Chat extends AbstractChat implements IChat {
     @Override
     public Completable inviteUsers(List<? extends User> users) {
         return Completable.defer(() -> {
-            ArrayList<Completable> completables = new ArrayList<>();
+            List<Completable> completables = new ArrayList<>();
             for (User user : users) {
                 if (!user.isMe()) {
                     completables.add(Fire.stream().sendInvitation(user.id, InvitationType.chat(), id));
@@ -268,7 +268,7 @@ public class Chat extends AbstractChat implements IChat {
 
     @Override
     public List<User> getUsersForRoleType(RoleType roleType) {
-        ArrayList<User> result = new ArrayList<>();
+        List<User> result = new ArrayList<>();
         for (User user: users) {
             if (user.roleType.equals(roleType)) {
                 result.add(user);
@@ -326,7 +326,7 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     @Override
-    public Observable<HashMap<String, Object>> getCustomDataChangedEvents() {
+    public Observable<Map<String, Object>> getCustomDataChangedEvents() {
         return customDataChangedEvents.hide();
     }
 
@@ -336,12 +336,12 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     @Override
-    public Completable sendMessageWithBody(HashMap<String, Object> body) {
+    public Completable sendMessageWithBody(Body body) {
         return sendMessageWithBody(body, null);
     }
 
     @Override
-    public Completable sendMessageWithBody(HashMap<String, Object> body, @Nullable Consumer<String> newId) {
+    public Completable sendMessageWithBody(Body body, @Nullable Consumer<String> newId) {
         return send(new Message(body), newId);
     }
 
@@ -467,12 +467,12 @@ public class Chat extends AbstractChat implements IChat {
         return new Exception(Fire.internal().context().getString(R.string.error_member_permission_required));
     }
 
-    public static Single<Chat> create(final String name, final String imageURL, final HashMap<String, Object> data, final List<? extends User> users) {
+    public static Single<Chat> create(final String name, final String imageURL, final Map<String, Object> data, final List<? extends User> users) {
 
-        return Fire.internal().getFirebaseService().chat.add(Meta.from(name, imageURL, data).addTimestamp().wrap().toData()).flatMap(chatId -> {
+        return Fire.stream().getFirebaseService().chat.add(Meta.from(name, imageURL, data).addTimestamp().wrap().toData()).flatMap(chatId -> {
             Chat chat = new Chat(chatId, null, new Meta(name, imageURL, data));
 
-            ArrayList<User> usersToAdd = new ArrayList<>(users);
+            List<User> usersToAdd = new ArrayList<>(users);
 
             // Make sure the current user type the owner
             usersToAdd.remove(User.currentUser());

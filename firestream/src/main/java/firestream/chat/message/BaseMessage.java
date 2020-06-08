@@ -1,7 +1,6 @@
 package firestream.chat.message;
 
 import java.util.Date;
-import java.util.HashMap;
 
 import firestream.chat.types.SendableType;
 
@@ -9,7 +8,7 @@ public class BaseMessage {
 
     protected String from;
     protected Date date = new Date();
-    protected HashMap<String, Object> body = new HashMap<>();
+    protected Body body = new Body();
     protected String type;
 
     public BaseMessage() {
@@ -32,11 +31,11 @@ public class BaseMessage {
         this.date = date;
     }
 
-    public HashMap<String, Object> getBody() {
+    public Body getBody() {
         return body;
     }
 
-    public void setBody(HashMap<String, Object> body) {
+    public void setBody(Body body) {
         this.body = body;
     }
 

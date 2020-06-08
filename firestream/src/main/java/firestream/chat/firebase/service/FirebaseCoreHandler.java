@@ -3,8 +3,8 @@ package firestream.chat.firebase.service;
 import androidx.annotation.Nullable;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import firestream.chat.chat.User;
 import firestream.chat.events.ListData;
@@ -14,6 +14,7 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import sdk.guru.common.Event;
+import sdk.guru.common.Optional;
 
 public abstract class FirebaseCoreHandler {
 
@@ -89,16 +90,15 @@ public abstract class FirebaseCoreHandler {
      * @param messagesPath
      * @return single date
      */
-    public abstract Single<Date> dateOfLastSentMessage(Path messagesPath);
+    public abstract Single<Optional<Sendable>> lastMessage(Path messagesPath);
 
     /**
      * Start listening to the current message reference and pass the messages to the events
      * @param messagesPath
      * @param newerThan only listen for messages after this date
-     * @param limit limit the maximum number of historic messages
      * @return a events of message results
      */
-    public abstract Observable<Event<Sendable>> messagesOn(Path messagesPath, Date newerThan, int limit);
+    public abstract Observable<Event<Sendable>> messagesOn(Path messagesPath, Date newerThan);
 
     /**
      * Return a Firebase timestamp object
@@ -106,7 +106,7 @@ public abstract class FirebaseCoreHandler {
      */
     public abstract Object timestamp();
 
-    public abstract Completable mute(Path path, HashMap<String, Object> data);
+    public abstract Completable mute(Path path, Map<String, Object> data);
     public abstract Completable unmute(Path path);
 
 }

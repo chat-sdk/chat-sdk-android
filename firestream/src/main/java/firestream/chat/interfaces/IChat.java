@@ -2,13 +2,13 @@ package firestream.chat.interfaces;
 
 import androidx.annotation.Nullable;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import firestream.chat.chat.User;
 import firestream.chat.firebase.rx.MultiQueueSubject;
+import firestream.chat.message.Body;
 import firestream.chat.message.Sendable;
 import firestream.chat.namespace.FireStreamUser;
 import firestream.chat.types.DeliveryReceiptType;
@@ -66,7 +66,7 @@ public interface IChat extends IAbstractChat {
      * Get any custom data associated from the chat
      * @return custom data
      */
-    HashMap<String, Object> getCustomData();
+    Map<String, Object> getCustomData();
 
     /**
      * Associate custom data from the chat - you can add your own
@@ -74,13 +74,13 @@ public interface IChat extends IAbstractChat {
      * @param data custom data to write
      * @return completion
      */
-    Completable setCustomData(final HashMap<String, Object> data);
+    Completable setCustomData(final Map<String, Object> data);
 
     /**
      * Get a list of members of the chat
      * @return list of users
      */
-    ArrayList<User> getUsers();
+    List<User> getUsers();
 
     /**
      * Get a list of users from the FireStreamUser namespace
@@ -88,7 +88,7 @@ public interface IChat extends IAbstractChat {
      * your project already has a User class to avoid a clash
      * @return list of FireStreamUsers
      */
-    ArrayList<FireStreamUser> getFireStreamUsers();
+    List<FireStreamUser> getFireStreamUsers();
 
     /**
      * Add users to a chat
@@ -209,7 +209,7 @@ public interface IChat extends IAbstractChat {
      * chat type updated
      * @return observable
      */
-    Observable<HashMap<String, Object>> getCustomDataChangedEvents();
+    Observable<Map<String, Object>> getCustomDataChangedEvents();
 
     /**
      * Get an observable which type called when the a user type added, removed or updated
@@ -223,14 +223,14 @@ public interface IChat extends IAbstractChat {
      * @param newId message's new ID before sending
      * @return completion
      */
-    Completable sendMessageWithBody(HashMap<String, Object> body, @Nullable Consumer<String> newId);
+    Completable sendMessageWithBody(Body body, @Nullable Consumer<String> newId);
 
     /**
      * Send a custom message
      * @param body custom message data
      * @return completion
      */
-    Completable sendMessageWithBody(HashMap<String, Object> body);
+    Completable sendMessageWithBody(Body body);
 
     /**
      * Send a text message

@@ -1,14 +1,14 @@
 package firestream.chat.chat;
 
 import java.util.HashMap;
+import java.util.Map;
 
-import sdk.guru.common.Event;
 import firestream.chat.events.ListData;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.namespace.Fire;
-
 import firestream.chat.types.ContactType;
 import firestream.chat.types.RoleType;
+import sdk.guru.common.Event;
 
 public class User {
 
@@ -91,13 +91,13 @@ public class User {
     }
 
     public interface DataProvider {
-        HashMap<String, Object> data(User user);
+        Map<String, Object> data(User user);
     }
 
     public static DataProvider dateDataProvider() {
         return user -> {
-            HashMap<String, Object> data = new HashMap<>();
-            data.put(Keys.Date, Fire.internal().getFirebaseService().core.timestamp());
+            Map<String, Object> data = new HashMap<>();
+            data.put(Keys.Date, Fire.stream().getFirebaseService().core.timestamp());
             return data;
         };
     }

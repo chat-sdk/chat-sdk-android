@@ -40,6 +40,10 @@ public class Filter {
     }
 
     public static Predicate<Event<? extends Sendable>> eventBySendableType(final SendableType... types) {
+        return eventBySendableType(Arrays.asList(types));
+    }
+
+    public static Predicate<Event<? extends Sendable>> eventBySendableType(final List<SendableType> types) {
         return e -> {
             for (SendableType type : types) {
                 if (e.get().getType().equals(type.get())) {

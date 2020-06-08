@@ -1,7 +1,5 @@
 package firestream.chat.message;
 
-import java.util.HashMap;
-
 import firestream.chat.types.SendableType;
 
 public class Message extends Sendable {
@@ -10,12 +8,12 @@ public class Message extends Sendable {
         type = SendableType.Message;
     }
 
-    public Message (HashMap<String, Object> body) {
+    public Message (Body body) {
         this();
         this.body = body;
     }
 
-    public Message (String id, HashMap<String, Object> body) {
+    public Message (String id, Body body) {
         this(body);
         this.id = id;
     }
