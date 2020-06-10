@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.novoda.bintray-release'
 apply plugin: 'com.jakewharton.butterknife'
 
 android {
@@ -23,49 +22,31 @@ android {
 
 }
 
-ext {
-    libraryName = 'Demo'
-    artifact = 'demo'
-    libraryDescription = 'Demo'
-}
-
-publish {
-    userOrg = BINTRAY_USER_ORG
-    groupId = CHAT_SDK_GROUP
-    artifactId = artifact
-    repoName = BINTRAY_REPO
-    publishVersion = CHAT_SDK_VERSION
-    desc = libraryDescription
-    licences = ["GPL-3.0"]
-    uploadName = libraryName
-    website = GIT_URL
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation "sdk.chat:firebase-app:$CHAT_SDK_VERSION"
-    implementation "sdk.chat:firestream-app:$CHAT_SDK_VERSION"
-    implementation "sdk.chat:xmpp-app:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:firebase-app:$CHAT_SDK_DEMO_VERSION"
+    implementation "sdk.chat:firestream-app:$CHAT_SDK_DEMO_VERSION"
+    implementation "sdk.chat:xmpp-app:$CHAT_SDK_DEMO_VERSION"
 
-    implementation "sdk.chat:mod-profile-pictures:$CHAT_SDK_VERSION"
-    implementation "sdk.chat:pro-message-audio:$CHAT_SDK_VERSION"
-    implementation "sdk.chat:pro-message-sticker:$CHAT_SDK_VERSION"
-    implementation "sdk.chat:pro-message-file:$CHAT_SDK_VERSION"
-    implementation "sdk.chat:pro-message-video:$CHAT_SDK_VERSION"
-    implementation "sdk.chat:pro-encryption:$CHAT_SDK_VERSION"
-    implementation "sdk.chat:pro-contact-book:$CHAT_SDK_VERSION"
-    implementation "sdk.chat:pro-firebase-nearby-users:$CHAT_SDK_VERSION"
-    implementation "sdk.chat:pro-firebase-blocking:$CHAT_SDK_VERSION"
-    implementation "sdk.chat:pro-firebase-last-online:$CHAT_SDK_VERSION"
-    implementation "sdk.chat:pro-firebase-typing-indicator:$CHAT_SDK_VERSION"
-    implementation "sdk.chat:pro-firebase-read-receipts:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:mod-profile-pictures:$CHAT_SDK_DEMO_VERSION"
+    implementation "sdk.chat:pro-message-audio:$CHAT_SDK_DEMO_VERSION"
+    implementation "sdk.chat:pro-message-sticker:$CHAT_SDK_DEMO_VERSION"
+    implementation "sdk.chat:pro-message-file:$CHAT_SDK_DEMO_VERSION"
+    implementation "sdk.chat:pro-message-video:$CHAT_SDK_DEMO_VERSION"
+    implementation "sdk.chat:pro-encryption:$CHAT_SDK_DEMO_VERSION"
+    implementation "sdk.chat:pro-contact-book:$CHAT_SDK_DEMO_VERSION"
+    implementation "sdk.chat:pro-firebase-nearby-users:$CHAT_SDK_DEMO_VERSION"
+    implementation "sdk.chat:pro-firebase-blocking:$CHAT_SDK_DEMO_VERSION"
+    implementation "sdk.chat:pro-firebase-last-online:$CHAT_SDK_DEMO_VERSION"
+    implementation "sdk.chat:pro-firebase-typing-indicator:$CHAT_SDK_DEMO_VERSION"
+    implementation "sdk.chat:pro-firebase-read-receipts:$CHAT_SDK_DEMO_VERSION"
 
-    implementation "sdk.chat:pro-xmpp-read-receipts:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:pro-xmpp-read-receipts:$CHAT_SDK_DEMO_VERSION"
 
-    implementation "sdk.chat:pro-firestream-blocking:$CHAT_SDK_VERSION"
-    implementation "sdk.chat:pro-firestream-read-receipts:$CHAT_SDK_VERSION"
-    implementation "sdk.chat:pro-firestream-typing-indicator:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:pro-firestream-blocking:$CHAT_SDK_DEMO_VERSION"
+    implementation "sdk.chat:pro-firestream-read-receipts:$CHAT_SDK_DEMO_VERSION"
+    implementation "sdk.chat:pro-firestream-typing-indicator:$CHAT_SDK_DEMO_VERSION"
 //    implementation "sdk.chat:mod-auto:$CHAT_SDK_VERSION"
 
 //    implementation project(':chat-sdk-core-ui')

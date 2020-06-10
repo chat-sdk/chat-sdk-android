@@ -68,6 +68,7 @@ public class FirebaseUIModule extends AbstractModule {
             this.providers.addAll(Arrays.asList(providers));
             return this;
         }
+
     }
 
     protected Config<FirebaseUIModule> config = new Config<>(this);
@@ -80,7 +81,7 @@ public class FirebaseUIModule extends AbstractModule {
         Intent authUILoginIntent = authUI()
                 .createSignInIntentBuilder()
                 .setLogo(ChatSDK.config().logoDrawableResourceID)
-//                .setTheme(R.style.FirebaseLoginTheme)
+                .setTheme(R.style.ChatSDKTheme)
                 .setIsSmartLockEnabled(false)
                 .setAvailableProviders(idps)
                 .build();

@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
@@ -20,6 +22,18 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude("META-INF/*.kotlin_module")
+    }
+
     signingConfigs {
         debug {
             keyAlias 'androiddebugkey'
@@ -36,8 +50,22 @@ android {
         }
     }
 
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
+    }
+
 }
 
 dependencies {
     implementation project(':chat-sdk-demo')
+
+    // Recommended: Add the Firebase SDK for Google Analytics.
+    implementation "com.google.firebase:firebase-analytics:$firebaseAnalyticsVersion"
+
+    // Add the Firebase Crashlytics SDK.
+    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
+    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
+
 }

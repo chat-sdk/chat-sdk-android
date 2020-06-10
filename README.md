@@ -45,7 +45,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 
 ## Extras
 
-Sponsor us on either Github Sponsors or Paetron and get these features:
+Sponsor us on either [Github sponsors](https://github.com/sponsors/chat-sdk) or [Paetron](https://www.patreon.com/chatsdk) and get these features. For full details visit our [Modules](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/ryODENucU) page.
 
 - Typing indicator [⇘GIF](https://giphy.com/gifs/typing-chat-sdk-KxcLVS0IFrRtsM2OjR)
 - Read receipts
