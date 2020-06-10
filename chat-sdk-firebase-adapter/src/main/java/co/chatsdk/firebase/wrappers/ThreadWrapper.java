@@ -158,7 +158,6 @@ public class ThreadWrapper  {
             query = query.orderByChild(Keys.Date);
             query = query.limitToLast(ChatSDK.config().messageDeletionListenerLimit);
 
-
             ChildEventListener removedListener = query.addChildEventListener(new FirebaseEventListener().onChildRemoved((snapshot, hasValue) -> {
                 if(hasValue) {
                     MessageWrapper message = new MessageWrapper(snapshot);
