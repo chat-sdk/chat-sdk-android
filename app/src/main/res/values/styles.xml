@@ -1,6 +1,7 @@
 <resources>
 
     <style name="GGTheme" parent="ChatSDKTheme">
+
         <item name="colorPrimary">#2D8659</item>
         <item name="colorPrimaryDark">#2D8659</item>
 
