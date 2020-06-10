@@ -53,7 +53,6 @@ public class AppObj extends MultiDexApplication {
             config.setMainActivityBackButtonEnabled(true);
             config.pushNotificationsForPublicChatRoomsEnabled(false);
 
-
 //            config.messageDeletionEnabled(false);
 //            config.setDisablePresence(true);
 //            config.privateChatRoomLifetimeMinutes(TimeUnit.DAYS.toMinutes(2));
