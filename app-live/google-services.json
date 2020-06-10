@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1033351204480",
+    "firebase_url": "https://chat-sdk-v5-live.firebaseio.com",
+    "project_id": "chat-sdk-v5-live",
+    "storage_bucket": "chat-sdk-v5-live.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1033351204480:android:d5273c5241e88d16f26065",
+        "android_client_info": {
+          "package_name": "sdk.chat.live"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1033351204480-h8h9ia80rnnle30gjhcgaeqhi5k516aj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5HtiYjB_nV7rReoWTst0XVUYjh50TOVY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1033351204480-h8h9ia80rnnle30gjhcgaeqhi5k516aj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -80,7 +80,7 @@ public class FirebaseUIModule extends AbstractModule {
         Intent authUILoginIntent = authUI()
                 .createSignInIntentBuilder()
                 .setLogo(ChatSDK.config().logoDrawableResourceID)
-                .setTheme(R.style.FirebaseLoginTheme)
+//                .setTheme(R.style.FirebaseLoginTheme)
                 .setIsSmartLockEnabled(false)
                 .setAvailableProviders(idps)
                 .build();

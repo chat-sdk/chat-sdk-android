@@ -7,19 +7,19 @@ import com.mikepenz.iconics.typeface.library.fontawesome.FontAwesome;
 
 import java.util.concurrent.TimeUnit;
 
-import sdk.chat.firebase.upload.FirebaseUploadModule;
-import sdk.chat.firebase.adapter.module.FirebaseModule;
-import sdk.chat.firebase.push.FirebasePushModule;
-import sdk.chat.profile.pictures.ProfilePicturesModule;
-import sdk.chat.ui.icons.Icons;
-import sdk.chat.ui.module.UIModule;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.demo.R;
 import sdk.chat.demo.examples.activities.AChatActivity;
 import sdk.chat.demo.examples.activities.APrivateThreadsFragment;
 import sdk.chat.demo.examples.activities.MessageTestChatOption;
-import sdk.chat.realtime.R;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.push.FirebasePushModule;
+import sdk.chat.firebase.upload.FirebaseUploadModule;
+import sdk.chat.profile.pictures.ProfilePicturesModule;
 import sdk.chat.ui.extras.ExtrasModule;
+import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.module.UIModule;
 
 public class CustomiseInterfaceExample extends BaseExample {
     public CustomiseInterfaceExample(Context context) {

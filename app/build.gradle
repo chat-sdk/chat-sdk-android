@@ -18,12 +18,6 @@ android {
     }
 
     signingConfigs {
-        release {
-            storeFile file('release.keystore')
-            keyAlias 'androidreleasekey'
-            storePassword 'R3l3ase123!'
-            keyPassword 'R3l3ase123!'
-        }
         debug {
             keyAlias 'androiddebugkey'
             keyPassword 'D3bug123'
@@ -39,13 +33,13 @@ android {
     }
 
     buildTypes {
-        release {
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-            signingConfig signingConfigs.release
-            debuggable false
-            jniDebuggable false
-            zipAlignEnabled true
-        }
+//        release {
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+//            signingConfig signingConfigs.release
+//            debuggable false
+//            jniDebuggable false
+//            zipAlignEnabled true
+//        }
         debug {
             debuggable true
             jniDebuggable true

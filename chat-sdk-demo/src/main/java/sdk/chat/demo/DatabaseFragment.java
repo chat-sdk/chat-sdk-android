@@ -10,8 +10,6 @@ import androidx.cardview.widget.CardView;
 import butterknife.BindView;
 import io.reactivex.Completable;
 import io.reactivex.annotations.NonNull;
-import sdk.chat.realtime.R;
-import sdk.chat.realtime.R2;
 
 public class DatabaseFragment extends CardViewFragment {
     @BindView(R2.id.firestoreCardView)

@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.demo.R;
 import sdk.chat.encryption.EncryptionModule;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
@@ -24,7 +25,6 @@ import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
 import sdk.chat.profile.pictures.ProfilePicturesModule;
-import sdk.chat.realtime.R;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
 

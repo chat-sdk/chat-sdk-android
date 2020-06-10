@@ -20,8 +20,6 @@ import butterknife.BindView;
 import sdk.chat.ui.activities.BaseActivity;
 import sdk.chat.ui.fragments.BaseFragment;
 import app.xmpp.adapter.fragments.XMPPConfigureFragment;
-import sdk.chat.realtime.R;
-import sdk.chat.realtime.R2;
 import sdk.guru.common.RX;
 
 import static androidx.fragment.app.FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT;
@@ -60,18 +58,27 @@ public class DemoActivity extends BaseActivity {
         adapter.add(welcomeFragment);
         adapter.add(infoFragment);
         adapter.add(styleFragment);
-        adapter.add(backendFragment);
+
+        // TODO: XX1 For the moment, only allow the Firebase mode
+        // adapter.add(backendFragment);
 
         viewPager.setAdapter(adapter);
+
+        // TODO: XX1 For the moment, only allow the Firebase mode
+        DemoConfigBuilder.shared().setBackend(DemoConfigBuilder.Backend.Firebase);
+        DemoConfigBuilder.shared().setDatabase(DemoConfigBuilder.Database.Realtime);
 
         dm.add(DemoConfigBuilder.shared().updated.subscribeOn(RX.io()).observeOn(RX.io()).subscribe(s -> {
             Set<Fragment> fragmentSet = new HashSet<>(adapter.get());
 
             List<Fragment> fragments = new ArrayList<>(adapter.get());
 
-            if (s == DemoConfigBuilder.Updated.Backend || s == DemoConfigBuilder.Updated.All) {
+            if ((s == DemoConfigBuilder.Updated.Backend || s == DemoConfigBuilder.Updated.All)) {
 
-                fragments.subList(4, fragments.size()).clear();
+                //  TODO: XX1 For the moment, only allow the Firebase mode
+                if (fragments.size() > 3) {
+                    fragments.subList(4, fragments.size()).clear();
+                }
 
                 DemoConfigBuilder.Backend backend = DemoConfigBuilder.shared().backend;
 

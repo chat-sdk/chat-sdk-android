@@ -12,7 +12,7 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.GoogleUtils;
-import sdk.chat.realtime.R;
+import sdk.chat.demo.R;
 
 public class ThreadExamples extends BaseExample {
     public ThreadExamples(Context context, ArrayList<User> users) {

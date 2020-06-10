@@ -10,8 +10,6 @@ import butterknife.BindView;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.fragments.BaseFragment;
 import io.reactivex.annotations.NonNull;
-import sdk.chat.realtime.R;
-import sdk.chat.realtime.R2;
 
 public class WelcomeFragment extends BaseFragment {
 

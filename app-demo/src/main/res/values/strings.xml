@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chat SDK</string>
+    <string name="firestream_link"><a href="https://www.google.com/">More Details</a></string>
+</resources>

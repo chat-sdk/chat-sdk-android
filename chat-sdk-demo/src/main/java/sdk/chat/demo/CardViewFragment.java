@@ -7,7 +7,6 @@ import android.os.Build;
 
 import androidx.cardview.widget.CardView;
 
-import sdk.chat.realtime.R;
 import sdk.guru.common.DisposableMap;
 import sdk.chat.ui.fragments.BaseFragment;
 import io.reactivex.Completable;

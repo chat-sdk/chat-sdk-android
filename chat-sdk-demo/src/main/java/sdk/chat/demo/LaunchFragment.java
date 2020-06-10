@@ -11,8 +11,6 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.fragments.BaseFragment;
 import app.xmpp.adapter.utils.ServerKeyStorage;
 import io.reactivex.annotations.NonNull;
-import sdk.chat.realtime.R;
-import sdk.chat.realtime.R2;
 import sdk.guru.common.RX;
 
 public class LaunchFragment extends BaseFragment {

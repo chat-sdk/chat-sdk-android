@@ -36,4 +36,6 @@ include 'app',
         'sdk-guru-firestore',
         'firestream',
         'firestream-firestore',
-        'firestream-realtime'
+        'firestream-realtime',
+        'app-demo',
+        'app-live'

@@ -8,6 +8,7 @@ import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.receipts.XMPPReadReceiptsModule;
 import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.demo.R;
 import sdk.chat.encryption.EncryptionModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
@@ -16,7 +17,6 @@ import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
 import sdk.chat.profile.pictures.ProfilePicturesModule;
-import sdk.chat.realtime.R;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
 

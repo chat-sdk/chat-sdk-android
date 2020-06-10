@@ -1,12 +1,6 @@
 <resources>
 
     <style name="CustomChatSDKTheme" parent="ChatSDKTheme">
-<!--        <item name="colorAccent">#FF0000</item>-->
-        <item name="colorPrimaryDark">@color/primary</item>
-<!--        <item name="colorAccent">@color/accent</item>-->
-        <item name="colorControlNormal">@color/text_primary</item>
-
-        <!--        <item name="actionBarTheme">@style/ThemeOverlay.SdkTheme.ActionBar</item>-->
     </style>
 
 </resources>
