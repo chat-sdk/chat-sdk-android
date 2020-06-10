@@ -10,7 +10,8 @@
     <application
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:hardwareAccelerated="true">
+        android:hardwareAccelerated="true"
+        >
 
         <service android:name="sdk.chat.core.notifications.MessagingService" />
 

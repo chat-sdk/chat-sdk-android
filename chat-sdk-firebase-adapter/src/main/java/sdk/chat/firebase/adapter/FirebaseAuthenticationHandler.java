@@ -38,7 +38,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
     public FirebaseAuthenticationHandler() {
         // Handle login and log out automatically
-        FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
+        FirebaseAuth.getInstance(FirebaseCoreHandler.app()).addAuthStateListener(firebaseAuth -> {
             // We are connecting for the first time
             if (this.currentUserID == null && firebaseAuth.getCurrentUser() != null) {
                 if (!isAuthenticating()) {
@@ -51,6 +51,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 }
             }
         });
+
+
     }
 
     public Completable authenticate() {

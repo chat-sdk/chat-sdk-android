@@ -23,11 +23,10 @@ public class EmptyActivity extends Activity {
                          @Nullable PersistableBundle persistentState) {
         super.onCreate(savedInstanceState, persistentState);
 
-
-
     }
 
     public EmptyActivity() {
+
 
 ////        a().concatWith(b()).subscribe();
 //        Disposable d = a().flatMap(new Function<String, SingleSource<?>>() {

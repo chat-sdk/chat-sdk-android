@@ -86,30 +86,43 @@ You can also help us by:
 + Fixing bugs
 + Writing documentation
 
-## Documentation
+Email us at: [team@sdk.chat](mailto:team@sdk.chat)
+
+## Chat SDK Firebase Documentation
+
+#### Migrating from v4
+
+- [Migration guide](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/SJLWjxdcL)
+- If you want to see the v4 docs, they are available on the v4 branch
 
 #### Quick Start
 
-1. Building a messaging app using Chat SDK
-2. Adding Chat SDK to a Firebase app
-3. Adding Chat SDK to a non-Firebase app
+- Building a messaging app using Chat SDK
+- Adding Chat SDK to a Firebase app
+- Adding Chat SDK to a non-Firebase app
 
 #### Integration
 
-1. Add the Chat SDK libraries to your app
-2. Configure Firebase
-3. Configure the Chat SDK
-4. Displaying / customizing the login screen
-5. Enable file uploads with Firebase Cloud Storage
-6. Enable push notifications with Firebase Cloud Messaging
+- Add the Chat SDK libraries to your app
+- Configure Firebase
+- Configure the Chat SDK
+- Displaying / customizing the login screen
+- Enable file uploads with Firebase Cloud Storage
+- Enable push notifications with Firebase Cloud Messaging
 
 #### Customization
 
 - Chat SDK Configuration 
 - UI Customization
-- UI Components
+- Using Chat SDK UI components
+- Customizing Chat SDK UI Components
 - Custom Authentication using token
 - Chat SDK API
+
+#### Recommended background
+
+- [RxJava for beginners](https://medium.com/@factoryhr/understanding-java-rxjava-for-beginners-5eacb8de12ca)
+- [Chat SDK tips and tricks]()
  
 
 ### API and Customization

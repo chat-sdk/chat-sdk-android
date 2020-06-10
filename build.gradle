@@ -57,7 +57,7 @@ ext {
     matisseVersion = "0.5.3-beta3b1"
     chatKit = "0.3.3b11"
     shapeImageViewVersion = "0.9.+@aar"
-    circleImageViewVersion = "3.0.1"
+    circleImageViewVersion = "3.1.0"
     dexterVersion = "6.0.2"
     tinyLogVersion = "1.3.6"
     butterKnifeVersion = "10.2.1"

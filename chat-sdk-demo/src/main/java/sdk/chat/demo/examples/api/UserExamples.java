@@ -1,10 +1,10 @@
 package sdk.chat.demo.examples.api;
 
+import io.reactivex.functions.Predicate;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
-import io.reactivex.functions.Predicate;
 
 public class UserExamples extends BaseExample {
 
@@ -12,6 +12,8 @@ public class UserExamples extends BaseExample {
 
         // Get the current user
         User currentUser = ChatSDK.core().currentUser();
+        currentUser.setName("name");
+        currentUser.setAvatarURL("URL");
 
         // Add some custom data
         currentUser.setMetaValue("Key", "Value");
@@ -19,7 +21,9 @@ public class UserExamples extends BaseExample {
         // Update the user's details on Firebase
         dm.add(ChatSDK.core().pushUser().subscribe(() -> {
 
-        }, this));
+        }, throwable -> {
+
+        }));
 
         // Go online or offline
         ChatSDK.core().goOffline();

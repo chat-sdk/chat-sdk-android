@@ -2,21 +2,17 @@ package sdk.chat.firebase.adapter;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import org.pmw.tinylog.Logger;
-
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import sdk.chat.core.base.AbstractCoreHandler;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.adapter.wrappers.UserWrapper;
-import io.reactivex.Completable;
-import io.reactivex.Single;
 import sdk.guru.common.RX;
-import sdk.guru.realtime.RealtimeEventListener;
 
 
 /**
@@ -74,19 +70,28 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public void goOffline() {
         ChatSDK.core().save();
-        ChatSDK.events().disposeOnLogout(setUserOffline().subscribe(DatabaseReference::goOffline));
+        ChatSDK.events().disposeOnLogout(setUserOffline().subscribe(() -> {
+            if(ChatSDK.config().disconnectFromServerWhenInBackground) {
+                FirebaseCoreHandler.database().goOffline();
+            }
+        }));
     }
 
     public void goOnline() {
         super.goOnline();
-        FirebasePaths.firebaseRawRef().child(".info/connected").addListenerForSingleValueEvent(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
-            if (hasValue) {
-                Logger.debug("Already online!");
-            } else {
-                DatabaseReference.goOnline();
-            }
-            setUserOnline().subscribe(ChatSDK.events());
-        }));
+        if(ChatSDK.config().disconnectFromServerWhenInBackground) {
+            FirebaseCoreHandler.database().goOnline();
+        }
+        setUserOnline().subscribe(ChatSDK.events());
+
+//        FirebasePaths.firebaseRawRef().child(".info/connected").addListenerForSingleValueEvent(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
+//            if (hasValue) {
+//                Logger.debug("Already online!");
+//            } else {
+////                DatabaseReference.goOnline();
+//                setUserOnline().subscribe(ChatSDK.events());
+//            }
+//        }));
     }
 
     public Completable updateLastOnline() {

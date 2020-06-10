@@ -38,9 +38,6 @@ public class Config<T> extends BaseConfig<T> {
     // Default - 7 days
     public long publicChatRoomLifetimeMinutes = TimeUnit.DAYS.toMinutes(7);
 
-    // Should we call disconnect when the app is in the background for more than 5 seconds?
-    public boolean disconnectFromFirebaseWhenInBackground = true;
-
     // Push notification
     public int pushNotificationImageDefaultResourceId;
     public String pushNotificationAction;
@@ -99,6 +96,8 @@ public class Config<T> extends BaseConfig<T> {
     public HashMap<String, Object> customProperties = new HashMap<>();
 
     public boolean disablePresence = false;
+
+    public boolean disconnectFromServerWhenInBackground = true;
 
     public Config(T onBuild) {
         super(onBuild);
@@ -177,17 +176,6 @@ public class Config<T> extends BaseConfig<T> {
      */
     public Config<T> setReplyFromNotificationEnabled(boolean enabled) {
         this.replyFromNotificationEnabled = enabled;
-        return this;
-    }
-
-    /**
-     * Disconnect from Firebase when in the background. This will ensure that the
-     * user's online status is set to "offline"
-     * @param disconnect
-     * @return
-     */
-    public Config<T> setDisconnectFromFirebaseWhenInBackground(boolean disconnect) {
-        this.disconnectFromFirebaseWhenInBackground = disconnect;
         return this;
     }
 
@@ -535,5 +523,17 @@ public class Config<T> extends BaseConfig<T> {
         this.showLocalNotifications = value;
         return this;
     }
+
+    /**
+     * Disconnect from Firebase when in the background. This will ensure that the
+     * user's online status is set to "offline"
+     * @param disconnect
+     * @return
+     */
+    public Config<T> setDisconnectFromServerWhenInBackground(boolean disconnect) {
+        this.disconnectFromServerWhenInBackground = disconnect;
+        return this;
+    }
+
 
 }

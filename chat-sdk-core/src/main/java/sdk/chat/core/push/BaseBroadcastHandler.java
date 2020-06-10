@@ -8,6 +8,7 @@ import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.interfaces.BroadcastHandler;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.AppBackgroundMonitor;
 
 public class BaseBroadcastHandler implements BroadcastHandler {
 
@@ -39,9 +40,9 @@ public class BaseBroadcastHandler implements BroadcastHandler {
         if (ChatSDK.auth() == null || !ChatSDK.auth().isAuthenticatedThisSession() || ChatSDK.config().backgroundPushTestModeEnabled) {
             appIntent = new Intent(context, ChatSDK.ui().getSplashScreenActivity());
         }
-//        else if (AppBackgroundMonitor.shared().inBackground() && ChatSDK.auth().isAuthenticatedThisSession()) {
-//            appIntent = new Intent(context, ChatSDK.ui().getChatActivity());
-//        }
+        else if (AppBackgroundMonitor.shared().inBackground() && ChatSDK.auth().isAuthenticatedThisSession() && ChatSDK.config().disconnectFromServerWhenInBackground) {
+            appIntent = new Intent(context, ChatSDK.ui().getChatActivity());
+        }
         if (appIntent != null) {
             appIntent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
             appIntent.setAction(threadEntityID);
