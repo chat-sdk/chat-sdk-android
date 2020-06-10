@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:color="?systemDefaultBubbleColor"
+        android:state_selected="false"
+        android:state_pressed="false"/>
+    <item
+        android:color="?systemDefaultBubbleSelectedColor"
+        android:state_selected="true" />
+    <item
+        android:color="?systemDefaultBubblePressedColor"
+        android:state_pressed="true" />
+
+</selector>

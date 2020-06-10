@@ -27,13 +27,15 @@ android {
     }
     lintOptions {
         abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
     }
 }
 
 ext {
-    libraryName = 'ChatSDKFirebaseAdapter'
-    artifact = 'chat-sdk-firebase-adapter'
-    libraryDescription = 'Chat SDK Firebase Adapter'
+    libraryName = 'FirebaseAdapter'
+    artifact = 'firebase-adapter'
+    libraryDescription = 'Firebase Adapter'
 }
 
 publish {
@@ -52,9 +54,10 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     api project(':chat-sdk-core')
+    api project(':sdk-guru-realtime')
 
-    api "com.google.firebase:firebase-core:$firebaseCoreVersion"
-    api "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
+//    api "com.google.firebase:firebase-core:$firebaseCoreVersion"
     api "com.google.firebase:firebase-auth:$firebaseAuthVersion"
+
 }
 

@@ -26,13 +26,15 @@ android {
     }
     lintOptions {
         abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
     }
 }
 
 ext {
-    libraryName = 'ChatSDKFirebasePush'
-    artifact = 'chat-sdk-firebase-push'
-    libraryDescription = 'Chat SDK Firebase Push'
+    libraryName = 'FirebasePush'
+    artifact = 'firebase-push'
+    libraryDescription = 'Firebase Push'
 }
 
 publish {
@@ -50,10 +52,17 @@ publish {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation project(':chat-sdk-ui')
+    implementation project(':chat-sdk-core')
+    implementation project(':chat-sdk-core-ui')
     implementation project(':chat-sdk-firebase-adapter')
 
     implementation "com.google.firebase:firebase-messaging:$firebaseMessagingVersion"
     implementation "com.google.firebase:firebase-functions:$firebaseFunctionsVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
+
+    
+
+    
+
+
 }

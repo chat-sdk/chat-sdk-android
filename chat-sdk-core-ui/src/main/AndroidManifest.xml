@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="sdk.chat.ui">
+
+    <!--For capturing photos in profile and chat UI-->
+    <uses-feature android:name="android.hardware.camera" android:required="true" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <application
+        android:hardwareAccelerated="true">
+
+        <activity android:name="sdk.chat.ui.activities.LoginActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity android:name="sdk.chat.ui.activities.SplashScreenActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name="sdk.chat.ui.activities.ThreadDetailsActivity"
+            android:windowSoftInputMode="stateHidden" />
+
+        <activity android:name="sdk.chat.ui.activities.CreateThreadActivity"
+            android:windowSoftInputMode="stateHidden" />
+
+        <activity android:name="sdk.chat.ui.activities.EditThreadActivity"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity android:name="sdk.chat.ui.activities.ChatActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
+        <activity android:name="sdk.chat.ui.activities.EditProfileActivity"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
+
+        <activity android:name="sdk.chat.ui.activities.PostRegistrationActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait" />
+
+        <activity android:name="sdk.chat.ui.activities.SearchActivity"
+            android:windowSoftInputMode="stateVisible" />
+
+        <activity android:name="sdk.chat.ui.activities.ProfileActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="portrait" />
+
+        <activity android:name="sdk.chat.ui.activities.MainAppBarActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize"/>
+
+        <activity android:name="sdk.chat.ui.activities.AddUsersToThreadActivity"
+            android:windowSoftInputMode="stateHidden" />
+
+        <activity android:name="sdk.chat.ui.activities.ForwardMessageActivity"
+            android:windowSoftInputMode="stateHidden" />
+
+        <!--Crop image-->
+        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.contentprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
+
+    </application>
+</manifest>

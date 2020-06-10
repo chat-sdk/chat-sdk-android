@@ -1,0 +1,112 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
+apply plugin: 'com.jakewharton.butterknife'
+
+android {
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+
+    defaultConfig {
+        minSdkVersion Integer.parseInt(project.MIN_SDK)
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
+    }
+
+}
+
+ext {
+    libraryName = 'Demo'
+    artifact = 'demo'
+    libraryDescription = 'Demo'
+}
+
+publish {
+    userOrg = BINTRAY_USER_ORG
+    groupId = CHAT_SDK_GROUP
+    artifactId = artifact
+    repoName = BINTRAY_REPO
+    publishVersion = CHAT_SDK_VERSION
+    desc = libraryDescription
+    licences = ["GPL-3.0"]
+    uploadName = libraryName
+    website = GIT_URL
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation "sdk.chat:firebase-app:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:firestream-app:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:xmpp-app:$CHAT_SDK_VERSION"
+
+    implementation "sdk.chat:mod-profile-pictures:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:pro-message-audio:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:pro-message-sticker:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:pro-message-file:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:pro-message-video:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:pro-encryption:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:pro-contact-book:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:pro-firebase-nearby-users:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:pro-firebase-blocking:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:pro-firebase-last-online:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:pro-firebase-typing-indicator:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:pro-firebase-read-receipts:$CHAT_SDK_VERSION"
+
+    implementation "sdk.chat:pro-xmpp-read-receipts:$CHAT_SDK_VERSION"
+
+    implementation "sdk.chat:pro-firestream-blocking:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:pro-firestream-read-receipts:$CHAT_SDK_VERSION"
+    implementation "sdk.chat:pro-firestream-typing-indicator:$CHAT_SDK_VERSION"
+//    implementation "sdk.chat:mod-auto:$CHAT_SDK_VERSION"
+
+//    implementation project(':chat-sdk-core-ui')
+//    implementation project(':chat-sdk-firebase-adapter')
+//    implementation project(':chat-sdk-firebase-push')
+//    implementation project(':chat-sdk-firebase-upload')
+//
+//    implementation project(':chat-sdk-firestream-adapter')
+//
+//    implementation project(':chat-sdk-mod-ui-extras')
+//    implementation project(':chat-sdk-mod-firebase-ui')
+//    implementation project(':chat-sdk-mod-profile-pictures')
+//
+//    implementation project(':chat-sdk-pro-message-audio')
+//    implementation project(':chat-sdk-pro-message-sticker')
+//    implementation project(':chat-sdk-pro-message-file')
+//    implementation project(':chat-sdk-pro-message-video')
+//
+//    implementation project(':chat-sdk-pro-encryption')
+//    implementation project(':chat-sdk-pro-contact-book')
+//
+//    implementation project(':chat-sdk-pro-firebase-nearby-users')
+//    implementation project(':chat-sdk-pro-firebase-blocking')
+//    implementation project(':chat-sdk-pro-firebase-last-online')
+//    implementation project(':chat-sdk-pro-firebase-typing-indicator')
+//    implementation project(':chat-sdk-pro-firebase-read-receipts')
+//
+//    implementation project(':chat-sdk-pro-xmpp-adapter')
+//    implementation project(':chat-sdk-pro-xmpp-read-receipts')
+
+    // Demo
+    implementation 'com.romandanylyk:pageindicatorview:1.0.3'
+
+//    implementation project(':firestream')
+
+    implementation "com.jakewharton:butterknife:$butterKnifeVersion"
+    annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
+
+    implementation "com.mikepenz:iconics-views:$iconicsVersion"
+    implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
+
+
+}
+

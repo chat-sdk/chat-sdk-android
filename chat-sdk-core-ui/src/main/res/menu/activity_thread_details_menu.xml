@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/action_edit"
+        android:title="@string/action_edit"
+        android:orderInCategory="1" />
+
+    <item android:id="@+id/action_add_users"
+        android:title="@string/add_users"
+        android:orderInCategory="2" />
+
+    <item android:id="@+id/action_mute"
+        android:title="@string/mute_notifications"
+        android:orderInCategory="3" />
+
+    <item android:id="@+id/action_leave"
+        android:title="@string/leave_chat"
+        android:orderInCategory="4" />
+
+</menu>

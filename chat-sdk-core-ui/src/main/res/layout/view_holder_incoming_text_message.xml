@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="4dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:layout_marginTop="4dp">
+
+    <TextView
+        android:id="@+id/userName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="3dp"
+        android:textColor="?incomingUserNameTextColor"
+        android:textSize="?incomingUserNameTextSize"
+        android:fontFamily="?incomingUserNameTextFont"
+        android:ellipsize="end"
+        android:maxLines="1"
+        />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@id/messageUserAvatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_below="@id/userName"
+        app:civ_circle_background_color="?avatarBackgroundColor"
+        />
+
+    <!--this view is needed for custom holder-->
+    <ImageView
+        android:id="@+id/onlineIndicator"
+        android:contentDescription="@string/online"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:layout_alignEnd="@id/messageUserAvatar"
+        android:layout_alignRight="@id/messageUserAvatar"
+        android:layout_alignTop="@id/messageUserAvatar"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"/>
+
+    <LinearLayout
+        android:id="@id/bubble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_toEndOf="@id/messageUserAvatar"
+        android:layout_toRightOf="@id/messageUserAvatar"
+        android:layout_below="@id/userName"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/replyView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingRight="2dp"
+            android:paddingEnd="2dp"
+            android:paddingLeft="6dp"
+            android:paddingStart="6dp"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:layout_marginBottom="6dp"
+            android:visibility="gone"
+            android:background="?outcomingReplyDrawable"
+            >
+
+            <ImageView
+                android:id="@+id/replyImageView"
+                android:layout_width="@dimen/reply_image_width"
+                android:layout_height="@dimen/reply_image_height"
+                android:layout_marginStart="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                />
+
+            <TextView
+                android:id="@+id/replyTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="?outcomingReplyTextSize"
+                android:textColor="?outcomingReplyTextColor"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:layout_marginLeft="2dp"
+                android:layout_marginStart="2dp"
+                android:padding="2dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/messageIcon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
+                />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical">
+
+                <TextView
+                    android:id="@id/messageText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:autoLink="all"
+                    android:layout_weight="1"
+                    android:linksClickable="true"
+                    />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@id/messageTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/bubble"
+        android:layout_alignEnd="@id/bubble"
+        android:layout_below="@id/bubble"
+        android:layout_marginLeft="0dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        />
+
+</RelativeLayout>

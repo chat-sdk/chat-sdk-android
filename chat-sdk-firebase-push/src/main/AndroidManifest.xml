@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 
-    package="co.chatsdk.firebase.push">
+    package="sdk.chat.firebase.push">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -10,25 +10,10 @@
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
     <application
-        android:label="@string/app_name"
-        android:supportsRtl="true">
-
-        <service
-            android:name="co.chatsdk.firebase.push.InstanceIdService">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
-            </intent-filter>
-        </service>
-
-        <service
-            android:name=".DefaultFirebaseMessagingService">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-            </intent-filter>
-        </service>
+        android:label="@string/app_name" >
 
         <receiver
-            android:name="co.chatsdk.core.push.DefaultBroadcastReceiver"
+            android:name="sdk.chat.core.push.DefaultBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND"
             android:enabled="true"
             android:exported="true">

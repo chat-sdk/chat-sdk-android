@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="4dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:layout_marginTop="4dp">
+
+    <LinearLayout
+        android:id="@id/bubble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="40dp"
+        android:layout_marginStart="40dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/replyView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="?outcomingReplyDrawable"
+            android:paddingRight="2dp"
+            android:paddingEnd="2dp"
+            android:paddingLeft="6dp"
+            android:paddingStart="6dp"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:layout_marginBottom="6dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/replyImageView"
+                android:layout_width="@dimen/reply_image_width"
+                android:layout_height="@dimen/reply_image_height"
+                android:layout_marginStart="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                />
+
+            <TextView
+                android:id="@+id/replyTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="?outcomingReplyTextSize"
+                android:textColor="?outcomingReplyTextColor"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:padding="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginStart="2dp"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/messageIcon"
+                android:layout_width="40dp"
+                android:layout_height="50dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
+                android:scaleType="centerInside" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical">
+
+                <TextView
+                    android:id="@id/messageText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:autoLink="all"
+                    android:linksClickable="true"
+                    />
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bubble"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@id/messageTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginRight="5dp"
+            android:layout_marginEnd="5dp"
+            android:maxLines="1"
+            />
+
+        <ImageView
+            android:id="@+id/readStatus"
+            android:layout_width="24dp"
+            android:layout_height="12dp"
+            android:layout_gravity="center_vertical" />
+
+    </LinearLayout>
+</RelativeLayout>

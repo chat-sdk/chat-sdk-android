@@ -30,19 +30,21 @@ android {
     }
     lintOptions {
         abortOnError false
+//        checkReleaseBuilds false
+        lintConfig file('lint.xml')
     }
 }
 
 greendao {
-    schemaVersion 11
+    schemaVersion 15
     targetGenDir "src/main/java"
-    daoPackage "co.chatsdk.core.dao"
+    daoPackage "sdk.chat.core.dao"
 }
 
 ext {
-    libraryName = 'ChatSDKCore'
-    artifact = 'chat-sdk-core'
-    libraryDescription = 'Chat SDK Core'
+    libraryName = 'Core'
+    artifact = 'core'
+    libraryDescription = 'Core'
 }
 
 publish {
@@ -57,9 +59,20 @@ publish {
     website = GIT_URL
 }
 
+rootProject.allprojects {
+    repositories {
+        google()
+        jcenter()
+        maven { url "https://jitpack.io" }
+        maven { url "http://dl.bintray.com/chat-sdk/dexter" }
+        maven { url "https://dl.bintray.com/mikepenz/maven" }
+    }
+}
+
 dependencies {
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    api project(':sdk-guru-common')
 
     implementation "com.google.android.gms:play-services-maps:$playMapsVersion"
     implementation "com.google.android.gms:play-services-location:$playLocationVersion"
@@ -71,22 +84,21 @@ dependencies {
 
     // Dependencies that are also used by other Chat SDK libraries
     api "org.greenrobot:greendao:$greenDaoVersion"
-    api "joda-time:joda-time:$jodaTimeVersion"
-    api "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
-    api "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-    api "id.zelory:compressor:$compressorVersion"
-    api "org.tinylog:tinylog:$tinyLogVersion"
 
-    api "com.karumi:dexter:$dexterVersion"
+
+    implementation "id.zelory:compressor:$compressorVersion"
+
+
+    implementation "com.karumi:dexter:$dexterVersion"
 //    api 'com.caverock:androidsvg-aar:1.4'
 //    api 'com.amitshekhar.android:android-networking:1.0.2'
 
     // Audio
     implementation "com.google.android.exoplayer:exoplayer:$exoplayerVersion"
 
-    api "com.github.bumptech.glide:glide:$glideVersion"
-    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
-
-
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+//    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
 }
+
+
