@@ -89,6 +89,23 @@ Email us at: [team@sdk.chat](mailto:team@sdk.chat)
 We also offer development services we are a team of full stack developers who are Firebase experts.
 For more information check out our [consulting site](https://chat-sdk.github.io/hire-us/). 
 
+### Firestream - A light-weight messaging library for Firebase
+
+If you are looking for something that is more-light weight than Chat SDK, we also have a library which only provides instant messaging functionality. 
+
+1. 1-to-1 Messaging
+2. Group chat, roles, moderation
+3. Android, iOS, Web and Node.js
+2. Fully customisable messages
+3. Typing Indicator
+4. Delivery receipts
+5. User blocking
+6. Presence
+7. Message history (optional)
+7. **Firestore** or **Realtime** database
+
+You can check out the project: [Firestream on Github](https://github.com/chat-sdk/firestream-android). 
+
 ## Chat SDK Firebase Documentation
 
 #### Migrating from v4
