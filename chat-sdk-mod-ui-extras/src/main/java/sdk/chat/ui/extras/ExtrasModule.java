@@ -1,13 +1,19 @@
 package sdk.chat.ui.extras;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
+import sdk.chat.core.utils.ProfileOption;
 import sdk.guru.common.BaseConfig;
 
 
@@ -35,12 +41,13 @@ public class ExtrasModule extends AbstractModule {
     public static class Config<T> extends BaseConfig<T> {
 
         public boolean drawerEnabled = true;
+        public boolean qrCodesEnabled = true;
 
         /**
          * Default image drawer header area
          */
         @DrawableRes
-        public int drawerHeaderImage = R.drawable.header2;
+        public int drawerHeaderImage = R.drawable.header;
 
         public Config(T onBuild) {
             super(onBuild);
@@ -66,6 +73,16 @@ public class ExtrasModule extends AbstractModule {
             return this;
         }
 
+        /**
+         * Enable Qr code invitations
+         * @param enabled
+         * @return
+         */
+        public Config<T> setQrCodesEnabled(boolean enabled) {
+            qrCodesEnabled = enabled;
+            return this;
+        }
+
     }
 
     protected Config<ExtrasModule> config = new Config<>(this);
@@ -74,6 +91,15 @@ public class ExtrasModule extends AbstractModule {
     public void activate(@Nullable Context context) {
         if (config.drawerEnabled) {
             ChatSDK.ui().setMainActivity(MainDrawActivity.class);
+        }
+        if (config.qrCodesEnabled) {
+            ChatSDK.ui().addSearchActivity(ScanQRCodeActivity.class, ChatSDK.getString(sdk.chat.ui.extras.R.string.qr_code));
+
+            // Show the QR code when the user clicks the profile option
+            ChatSDK.ui().addProfileOption(new ProfileOption(ChatSDK.getString(sdk.chat.ui.extras.R.string.qr_code), activity -> {
+                Intent intent = new Intent(activity, ShowQRCodeActivity.class);
+                activity.startActivity(intent);
+            }));
         }
     }
 
@@ -85,4 +111,14 @@ public class ExtrasModule extends AbstractModule {
     public static Config config() {
         return shared().config;
     }
+
+    public List<String> requiredPermissions() {
+        List<String> permissions= new ArrayList<>();
+        if (config.qrCodesEnabled) {
+            permissions.add(Manifest.permission.VIBRATE);
+            permissions.add(Manifest.permission.CAMERA);
+        }
+        return permissions;
+    }
+
 }

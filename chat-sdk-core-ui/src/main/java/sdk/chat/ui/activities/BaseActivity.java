@@ -9,7 +9,8 @@ package sdk.chat.ui.activities;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -334,27 +335,27 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     }
 
     /** Show a SuperToast with the given text. */
-    protected void showToast(@StringRes int textResourceId){
+    public void showToast(@StringRes int textResourceId){
         alert.showToast(textResourceId);
     }
 
-    protected void showToast(String text){
+    public void showToast(String text){
         alert.showToast(text);
     }
 
-    protected void showSnackbar(int textResourceId, int duration){
+    public void showSnackbar(int textResourceId, int duration){
         alert.showSnackbar(textResourceId, duration);
     }
 
-    protected void showSnackbar(int textResourceId){
+    public void showSnackbar(int textResourceId){
         alert.showSnackbar(textResourceId);
     }
 
-    protected void showSnackbar (String text) {
+    public void showSnackbar (String text) {
         alert.showSnackbar(text);
     }
 
-    protected void showSnackbar (String text, int duration) {
+    public void showSnackbar (String text, int duration) {
         alert.showSnackbar(text, duration);
     }
 
@@ -374,7 +375,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         alert.showProgressDialog(message);
     }
 
-    protected ProgressDialog getProgressDialog() {
+    protected AlertDialog getProgressDialog() {
         return alert.getProgressDialog();
     }
 

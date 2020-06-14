@@ -16,10 +16,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import app.xmpp.adapter.fragments.XMPPConfigureFragment;
 import butterknife.BindView;
+import io.reactivex.plugins.RxJavaPlugins;
 import sdk.chat.ui.activities.BaseActivity;
 import sdk.chat.ui.fragments.BaseFragment;
-import app.xmpp.adapter.fragments.XMPPConfigureFragment;
 import sdk.guru.common.RX;
 
 import static androidx.fragment.app.FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT;
@@ -27,6 +28,7 @@ import static androidx.fragment.app.FragmentStatePagerAdapter.BEHAVIOR_RESUME_ON
 public class DemoActivity extends BaseActivity {
 
     protected DemoPagerAdapter adapter;
+
     @BindView(R2.id.viewPager)
     ViewPager viewPager;
 
@@ -53,6 +55,8 @@ public class DemoActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        RxJavaPlugins.setErrorHandler(this);
 
         adapter = new DemoPagerAdapter(getSupportFragmentManager(), BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         adapter.add(welcomeFragment);

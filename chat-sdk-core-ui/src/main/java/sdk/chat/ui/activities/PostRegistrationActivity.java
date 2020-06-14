@@ -134,7 +134,7 @@ public class PostRegistrationActivity extends BaseActivity {
 
         nameEditView.setText(name);
         nameEditView.setNextFocusDown(R.id.locationEditView);
-        nameEditView.setIcon(Icons.get(Icons.choose().user, R.color.edit_profile_icon_color));
+        nameEditView.setIcon(Icons.get(this, Icons.choose().user, R.color.edit_profile_icon_color));
         nameEditView.setHint(R.string.name_hint_required);
         nameEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 

@@ -9,7 +9,6 @@ import app.xmpp.receipts.XMPPReadReceiptsModule;
 import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.demo.R;
-import sdk.chat.encryption.EncryptionModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.audio.AudioMessageModule;
@@ -85,7 +84,7 @@ public class AddXMPPModules extends Activity {
                         .setThreadDetailsEnabled(true)
                         .setSaveImagesToDirectoryEnabled(true)
                         .setDefaultProfilePlaceholder(R.drawable.icn_100_profile)
-                        .setProfileHeaderImage(R.drawable.header2)
+                        .setProfileHeaderImage(R.drawable.header)
                         .setUsernameHint("Email")
                         .setAllowBackPressFromMainActivity(false)
                         .build()
@@ -110,7 +109,7 @@ public class AddXMPPModules extends Activity {
                         .build())
 
                 // Encryption module
-                .addModule(EncryptionModule.shared())
+//                .addModule(EncryptionModule.shared())
 
                 // File messages module
                 .addModule(FileMessageModule.shared())
@@ -129,7 +128,7 @@ public class AddXMPPModules extends Activity {
                 // UI extras - drawer
                 .addModule(ExtrasModule.builder()
                         .setDrawerEnabled(true)
-                        .setDrawerHeaderImage(sdk.chat.ui.extras.R.drawable.header2)
+                        .setDrawerHeaderImage(sdk.chat.ui.extras.R.drawable.header)
                         .build())
 
                 // XMPP Read receipts

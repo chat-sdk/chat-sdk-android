@@ -28,7 +28,7 @@ public class ReplyViewBinder {
 
                 replyImageView.setVisibility(View.VISIBLE);
 
-                imageLoader.loadImage(replyImageView, holder.getQuotedImageUrl(), new ImageLoaderPayload(maxWidth, maxHeight, R.drawable.icn_200_image_message_placeholder, R.drawable.icn_200_image_message_error));
+                imageLoader.loadImage(replyImageView, holder.getQuotedImageUrl(), new ImageLoaderPayload(maxWidth, maxHeight, R.drawable.icn_200_image_message_placeholder, R.drawable.icn_200_image_message_loading));
 
 //                Glide.with(replyImageView)
 //                        .load(holder.getQuotedImageUrl())

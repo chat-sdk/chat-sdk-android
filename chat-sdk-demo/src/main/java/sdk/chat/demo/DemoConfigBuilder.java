@@ -11,14 +11,11 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-import app.xmpp.adapter.module.XMPPModule;
-import app.xmpp.receipts.XMPPReadReceiptsModule;
 import io.reactivex.subjects.PublishSubject;
 import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
-import sdk.chat.demo.testing.Testing;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
@@ -30,7 +27,6 @@ import sdk.chat.firebase.ui.FirebaseUIModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.firestream.adapter.FireStreamModule;
 import sdk.chat.firestream.adapter.FirebaseServiceType;
-import sdk.chat.firestream.blocking.FirestreamBlockingModule;
 import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
@@ -185,7 +181,7 @@ public class DemoConfigBuilder {
                     .setDeleteMessagesOnReceiptEnabled(false)
                     .setDeliveryReceiptsEnabled(false)
             ));
-            modules.add(FirestreamBlockingModule.shared());
+//            modules.add(FirestreamBlockingModule.shared());
             modules.add(FirebaseNearbyUsersModule.shared());
 //            modules.add(FireStreamReadReceiptsModule.shared());
 //            modules.add(FirestreamTypingIndicatorModule.shared());
@@ -212,8 +208,8 @@ public class DemoConfigBuilder {
             };
 
             if (backend == Backend.XMPP) {
-                modules.add(Testing.myOpenFire(XMPPModule.builder()).build().configureUI(uiConfigConfigure));
-                modules.add(XMPPReadReceiptsModule.shared());
+//                modules.add(Testing.myOpenFire(XMPPModule.builder()).build().configureUI(uiConfigConfigure));
+//                modules.add(XMPPReadReceiptsModule.shared());
             } else {
                 modules.add(UIModule.builder(uiConfigConfigure));
             }
@@ -223,9 +219,9 @@ public class DemoConfigBuilder {
                             .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)
                 ));
             }
-            if (style == Style.Drawer) {
-                modules.add(ExtrasModule.shared());
-            }
+            modules.add(ExtrasModule.builder(config -> {
+                config.setDrawerEnabled(style == Style.Drawer);
+            }));
 
             ChatSDK.builder()
 

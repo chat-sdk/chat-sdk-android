@@ -12,7 +12,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Scalable.** Supports millons of daily users [[1](https://firebase.google.com/docs/database/usage/limits), [2](https://blog.process-one.net/ejabberd-massive-scalability-1node-2-million-concurrent-users/)]
 - **Backend agnostic.** Chat SDK can be customized to [support any backend](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/SJUgMoJTU) 
 
-[![](https://raw.githubusercontent.com/chat-sdk/chat-sdk-android/master/graphics/chat-sdk-play.png)](https://i.diawi.com/zR6YVe)
+[![](https://raw.githubusercontent.com/chat-sdk/chat-sdk-android/master/graphics/chat-sdk-play.png)](https://i.diawi.com/wKRkmX)
 
 ## Technical details
 
@@ -37,6 +37,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - User Profiles [⇘GIF](https://giphy.com/gifs/profile-chat-sdk-UVZIcvzSjBy6ZrJq7E)
 - User Search [⇘GIF](https://giphy.com/gifs/search-chat-sdk-ducLm14OeuX0pUzVEl)
 - Contacts [⇘GIF](https://giphy.com/gifs/profile-chat-sdk-UVZIcvzSjBy6ZrJq7E)
+- Add contact by QR code [⇘GIF](https://github.com/chat-sdk/chat-sdk-android)
 - Firebase UI [⇘GIF](https://giphy.com/gifs/chat-sdk-firebase-ui-hrps78wBSz49QXbuv3)
 - [iOS Version](https://github.com/chat-sdk/chat-sdk-ios)
 - [Web Version](https://github.com/chat-sdk/chat-sdk-web)

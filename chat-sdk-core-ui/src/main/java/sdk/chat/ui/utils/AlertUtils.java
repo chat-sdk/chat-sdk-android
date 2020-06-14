@@ -1,20 +1,59 @@
 package sdk.chat.ui.utils;
 
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.StringRes;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import sdk.chat.core.session.ChatSDK;
 import io.reactivex.functions.Consumer;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.ui.R;
 
 public class AlertUtils implements Consumer<Throwable> {
 
+    protected class CustomProgressDialog {
+
+        AlertDialog dialog;
+        TextView textView;
+
+        public CustomProgressDialog(Context context) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(provider.getContext());
+            builder.setCancelable(false); // if you want user to wait for some process to finish,
+            LayoutInflater inflater = LayoutInflater.from(provider.getContext());
+            View view = inflater.inflate(R.layout.dialog_progress, null);
+            textView = view.findViewById(R.id.textView);
+            builder.setView(view);
+            dialog = builder.create();
+        }
+
+        public boolean isShowing() {
+            return dialog.isShowing();
+        }
+
+        public void show() {
+            dialog.show();
+        }
+
+        public void dismiss() {
+            dialog.dismiss();
+        }
+
+        public void setMessage(String text) {
+            textView.setText(text);
+        }
+
+        public AlertDialog getDialog() {
+            return dialog;
+        }
+    }
+
     protected Snackbar snackbar;
-    protected ProgressDialog progressDialog;
+    protected CustomProgressDialog progressDialog;
     protected Provider provider;
 
     public interface Provider {
@@ -83,11 +122,10 @@ public class AlertUtils implements Consumer<Throwable> {
 
     public void showProgressDialog(String message) {
         if (progressDialog == null) {
-            progressDialog = new ProgressDialog(provider.getContext());
+            progressDialog = new CustomProgressDialog(provider.getContext());
         }
-
         if (!progressDialog.isShowing()) {
-            progressDialog = new ProgressDialog(provider.getContext());
+//            progressDialog = newProgressDialog();
             progressDialog.setMessage(message);
             progressDialog.show();
         }
@@ -95,16 +133,14 @@ public class AlertUtils implements Consumer<Throwable> {
 
     public void showOrUpdateProgressDialog(String message) {
         if (progressDialog == null) {
-            progressDialog = new ProgressDialog(provider.getContext());
+            progressDialog = new CustomProgressDialog(provider.getContext());
         }
 
         if (!progressDialog.isShowing()) {
-            progressDialog = new ProgressDialog(provider.getContext());
-            progressDialog.setMessage(message);
+//            progressDialog = newProgressDialog();
             progressDialog.show();
-        } else {
-            progressDialog.setMessage(message);
         }
+        progressDialog.setMessage(message);
     }
 
     public void dismissProgressDialog() {
@@ -127,7 +163,7 @@ public class AlertUtils implements Consumer<Throwable> {
         onError(throwable);
     }
 
-    public ProgressDialog getProgressDialog() {
-        return progressDialog;
+    public AlertDialog getProgressDialog() {
+        return progressDialog.getDialog();
     }
 }
