@@ -22,6 +22,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Java 8** supports Java 8 and lamda expressions
 - **Multi-threaded** agressively multi-threaded
 - **API Level 16+** Compatible with 99.3% of Android devices
+- **Demo** [Download it here](https://i.diawi.com/wKRkmX)
 
 ## Features
 
@@ -37,7 +38,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - User Profiles [⇘GIF](https://giphy.com/gifs/profile-chat-sdk-UVZIcvzSjBy6ZrJq7E)
 - User Search [⇘GIF](https://giphy.com/gifs/search-chat-sdk-ducLm14OeuX0pUzVEl)
 - Contacts [⇘GIF](https://giphy.com/gifs/profile-chat-sdk-UVZIcvzSjBy6ZrJq7E)
-- Add contact by QR code [⇘GIF](https://github.com/chat-sdk/chat-sdk-android)
+- Add contact by QR code [⇘GIF](https://giphy.com/gifs/jOnq7hTrHMFEHJDbim)
 - Firebase UI [⇘GIF](https://giphy.com/gifs/chat-sdk-firebase-ui-hrps78wBSz49QXbuv3)
 - [iOS Version](https://github.com/chat-sdk/chat-sdk-ios)
 - [Web Version](https://github.com/chat-sdk/chat-sdk-web)
