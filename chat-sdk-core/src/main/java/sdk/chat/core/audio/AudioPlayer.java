@@ -58,7 +58,7 @@ public class AudioPlayer {
 
     }
 
-    public void play () {
+    public void play() {
         player.setPlayWhenReady(true);
 
         playingDisposable = Observable.interval(0, 30, TimeUnit.MILLISECONDS)

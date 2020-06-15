@@ -11,9 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import sdk.chat.firebase.adapter.moderation.Permission;
-import sdk.chat.firebase.adapter.wrappers.MessageWrapper;
-import sdk.chat.firebase.adapter.wrappers.ThreadWrapper;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.Single;
@@ -29,6 +26,9 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.utils.Debug;
+import sdk.chat.firebase.adapter.moderation.Permission;
+import sdk.chat.firebase.adapter.wrappers.MessageWrapper;
+import sdk.chat.firebase.adapter.wrappers.ThreadWrapper;
 import sdk.guru.common.RX;
 import sdk.guru.realtime.RXRealtime;
 
@@ -425,5 +425,14 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return false;
     }
 
+    @Override
+    public Message newMessage(int type, Thread thread) {
+        Message message = newMessage(type, thread);
+        // User Firebase to generate an ID
+        String id = FirebasePaths.threadMessagesRef(thread.getEntityID()).push().getKey();
+        message.setEntityID(id);
+        message.update();
+        return message;
+    }
 
 }

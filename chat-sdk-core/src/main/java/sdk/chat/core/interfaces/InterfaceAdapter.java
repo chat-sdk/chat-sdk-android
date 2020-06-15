@@ -119,16 +119,14 @@ public interface InterfaceAdapter {
     void addSearchActivity(Class className, String name, int requestCode);
     void addSearchActivity(Class className, String name);
 
+
+
     void removeSearchActivity(Class className);
     List<SearchActivityType> getSearchActivities();
 
     void addChatOption(ChatOption option);
     void removeChatOption(ChatOption option);
     List<ChatOption> getChatOptions();
-
-    void addProfileOption(ProfileOption option);
-    void removeProfileOption(ProfileOption option);
-    List<ProfileOption> getProfileOptions();
 
     void setChatOptionsHandler(ChatOptionsHandler handler);
     ChatOptionsHandler getChatOptionsHandler(ChatOptionsDelegate delegate);
@@ -140,5 +138,10 @@ public interface InterfaceAdapter {
 
     AvatarGenerator getAvatarGenerator();
     void setAvatarGenerator(AvatarGenerator avatarGenerator);
+
+    void addProfileOption(ProfileOption option);
+    void removeProfileOption(ProfileOption option);
+    List<ProfileOption> getProfileOptions();
+
 
 }

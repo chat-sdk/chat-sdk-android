@@ -6,7 +6,6 @@ import android.os.Bundle;
 
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
-import sdk.chat.core.interfaces.BroadcastHandler;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.AppBackgroundMonitor;
 

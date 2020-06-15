@@ -83,7 +83,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return createThread(name, users, type, entityID, null);
     }
 
-    public static Message newMessage(int type, Thread thread) {
+    public Message newMessage(int type, Thread thread) {
         Message message = ChatSDK.db().createEntity(Message.class);
         message.setSender(ChatSDK.currentUser());
         message.setDate(new Date());
@@ -108,7 +108,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return message;
     }
 
-    public static Message newMessage(MessageType type, Thread thread) {
+    public Message newMessage(MessageType type, Thread thread) {
         return newMessage(type.ordinal(), thread);
     }
 

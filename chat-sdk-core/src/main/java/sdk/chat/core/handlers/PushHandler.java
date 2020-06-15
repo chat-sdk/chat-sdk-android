@@ -3,7 +3,7 @@ package sdk.chat.core.handlers;
 import java.util.HashMap;
 
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.interfaces.BroadcastHandler;
+import sdk.chat.core.push.BroadcastHandler;
 import io.reactivex.Completable;
 
 /**

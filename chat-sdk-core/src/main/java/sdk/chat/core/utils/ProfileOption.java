@@ -5,7 +5,7 @@ import android.app.Activity;
 public class ProfileOption {
 
     public interface Executor {
-        void execute(Activity activity);
+        void execute(Activity activity, String userEntityID);
     }
 
     protected String name;
@@ -17,9 +17,9 @@ public class ProfileOption {
         this.executor = executor;
     }
 
-    public void execute(Activity activity) {
+    public void execute(Activity activity, String userEntityID) {
         if (executor != null) {
-            executor.execute(activity);
+            executor.execute(activity, userEntityID);
         }
     }
 

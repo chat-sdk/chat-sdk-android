@@ -48,6 +48,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
     @BindView(R2.id.messagesList) protected MessagesList messagesList;
     @BindView(R2.id.root) protected LinearLayout root;
+    protected boolean listenersAdded = false;
 
     public interface Delegate {
         Thread getThread();
@@ -156,58 +157,58 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         });
         messagesList.setAdapter(messagesListAdapter);
 
-        addListeners();
         onLoadMore(0, 0);
 
     }
 
-    protected void addListeners() {
-        RX.onBackground(() -> {
-            // Add the event listeners
-            dm.add(ChatSDK.events().sourceOnMain()
-                    .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.MessageSendStatusUpdated))
-                    .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
-                    .subscribe(networkEvent -> {
-                        networkEvent.debug();
-                        Message message = networkEvent.getMessage();
-                        // We listed to the MessageAdded event when we receive but we listen to the message created status when we send
-                        // Because we need to wait until the message payload is set which happens after it is added to the thread
-                        if (networkEvent.typeIs(EventType.MessageAdded) || (networkEvent.typeIs(EventType.MessageSendStatusUpdated) && networkEvent.getMessageSendProgress().status == MessageSendStatus.Created)) {
-                            addMessageToStartOrUpdate(message);
-                            if (!AppBackgroundMonitor.shared().inBackground()) {
-                                message.markReadIfNecessary();
-                            }
+    public void addListeners() {
+        if (listenersAdded) {
+            return;
+        }
+        listenersAdded = true;
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.MessageSendStatusUpdated))
+                .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
+                .subscribe(networkEvent -> {
+                    networkEvent.debug();
+                    Message message = networkEvent.getMessage();
+                    // We listed to the MessageAdded event when we receive but we listen to the message created status when we send
+                    // Because we need to wait until the message payload is set which happens after it is added to the thread
+                    if (networkEvent.typeIs(EventType.MessageAdded) || (networkEvent.typeIs(EventType.MessageSendStatusUpdated) && networkEvent.getMessageSendProgress().status == MessageSendStatus.Created)) {
+                        addMessageToStartOrUpdate(message);
+                        if (!AppBackgroundMonitor.shared().inBackground()) {
+                            message.markReadIfNecessary();
                         }
-                        if (networkEvent.typeIs(EventType.MessageUpdated)) {
-                            if (message.getSender().isMe()) {
-                                softUpdate(message);
-                            } else {
-                                // If this is not from us, then we need to calculate when to
-                                // how the time and name that requires a full update
-                                addMessageToStartOrUpdate(message);
-                            }
-                        }
-                        if (networkEvent.typeIs(EventType.MessageRemoved)) {
-                            removeMessage(networkEvent.getMessage());
-                        }
-                        if (networkEvent.typeIs(EventType.MessageReadReceiptUpdated) && ChatSDK.readReceipts() != null && message.getSender().isMe()) {
+                    }
+                    if (networkEvent.typeIs(EventType.MessageUpdated)) {
+                        if (message.getSender().isMe()) {
                             softUpdate(message);
+                        } else {
+                            // If this is not from us, then we need to calculate when to
+                            // how the time and name that requires a full update
+                            addMessageToStartOrUpdate(message);
                         }
-                        if (networkEvent.typeIs(EventType.MessageSendStatusUpdated)) {
-                            MessageSendProgress progress = networkEvent.getMessageSendProgress();
-                            softUpdate(message, progress);
-                        }
-                    }));
+                    }
+                    if (networkEvent.typeIs(EventType.MessageRemoved)) {
+                        removeMessage(networkEvent.getMessage());
+                    }
+                    if (networkEvent.typeIs(EventType.MessageReadReceiptUpdated) && ChatSDK.readReceipts() != null && message.getSender().isMe()) {
+                        softUpdate(message);
+                    }
+                    if (networkEvent.typeIs(EventType.MessageSendStatusUpdated)) {
+                        MessageSendProgress progress = networkEvent.getMessageSendProgress();
+                        softUpdate(message, progress);
+                    }
+                }));
 
-            dm.add(ChatSDK.events().sourceOnMain()
-                    .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated, EventType.UserMetaUpdated))
-                    .subscribe(networkEvent -> {
-                        if (delegate.getThread().containsUser(networkEvent.getUser())) {
-                            notifyDataSetChanged();
-                        }
-                    }));
-
-        });
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated, EventType.UserMetaUpdated))
+                .subscribe(networkEvent -> {
+                    if (delegate.getThread().containsUser(networkEvent.getUser())) {
+                        notifyDataSetChanged();
+                    }
+                }));
     }
 
     protected int maxImageWidth() {
@@ -420,9 +421,14 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         messagesListAdapter.addToEnd(messageHolders, true);
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
+//    @Override
+//    protected void onDetachedFromWindow() {
+//        super.onDetachedFromWindow();
+//        dm.dispose();
+//    }
+
+    public void removeListeners() {
         dm.dispose();
+        listenersAdded = false;
     }
 }

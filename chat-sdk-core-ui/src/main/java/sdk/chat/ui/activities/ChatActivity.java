@@ -37,7 +37,6 @@ import java.util.List;
 import butterknife.BindView;
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -81,8 +80,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected static boolean enableTrace = false;
 
     protected Thread thread;
-
-//    protected Bundle bundle;
+    protected Single<Optional<Thread>> getThreadSingle = null;
 
     @BindView(R2.id.chatActionBar) protected ChatActionBar chatActionBar;
     @BindView(R2.id.chatView) protected ChatView chatView;
@@ -93,8 +91,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @BindView(R2.id.searchView) protected MaterialSearchView searchView;
     @BindView(R2.id.root) protected FrameLayout root;
     @BindView(R2.id.messageInputLinearLayout) protected LinearLayout messageInputLinearLayout;
-
-    protected Single<Optional<Thread>> threadSingle = null;
 
     AudioBinder audioBinder = null;
 
@@ -107,13 +103,28 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getThread(savedInstanceState).doOnSuccess(threadOptional -> {
-            if (!threadOptional.isEmpty()) {
-                initViews();
-            } else {
-                finish();
+        updateThread(savedInstanceState);
+        initViews();
+
+    }
+
+    public void updateThread(Bundle bundle) {
+        thread = null;
+
+        if (bundle == null) {
+            bundle = getIntent().getExtras();
+        }
+
+        if (bundle != null && bundle.containsKey(Keys.IntentKeyThreadEntityID)) {
+            String threadEntityID = bundle.getString(Keys.IntentKeyThreadEntityID);
+            if (threadEntityID != null) {
+                thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
             }
-        }).ignoreElement().subscribe(this);
+        }
+
+        if (thread == null) {
+            finish();
+        }
     }
 
     public void updateOptionsButton() {
@@ -319,6 +330,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         return ChatSDK.thread().hasVoice(thread, user) && !thread.isReadOnly();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
     /**
      * Send text text
      *
@@ -368,30 +384,30 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         removeUserFromChatOnExit = !ChatSDK.config().publicChatAutoSubscriptionEnabled;
 
-        getThread(null).doOnSuccess(threadOptional -> {
-            if (thread != null && thread.typeIs(ThreadType.Public)) {
-                User currentUser = ChatSDK.currentUser();
-                ChatSDK.thread().addUsersToThread(thread, currentUser).subscribe();
-            }
+        if (thread.typeIs(ThreadType.Public)) {
+            User currentUser = ChatSDK.currentUser();
+            ChatSDK.thread().addUsersToThread(thread, currentUser).subscribe();
+        }
 
-            chatActionBar.setSubtitleText(thread, null);
+        chatActionBar.setSubtitleText(thread, null);
 
-            // Show a local notification if the text is from a different thread
-            ChatSDK.ui().setLocalNotificationHandler(thread -> !thread.getEntityID().equals(this.thread.getEntityID()));
+        // Show a local notification if the text is from a different thread
+        ChatSDK.ui().setLocalNotificationHandler(thread -> !thread.getEntityID().equals(this.thread.getEntityID()));
 
-            if (audioBinder != null) {
-                audioBinder.updateRecordMode();
-            }
+        if (audioBinder != null) {
+            audioBinder.updateRecordMode();
+        }
 
-            if (!StringChecker.isNullOrEmpty(thread.getDraft())) {
-                input.getInputEditText().setText(thread.getDraft());
-            }
+        if (!StringChecker.isNullOrEmpty(thread.getDraft())) {
+            input.getInputEditText().setText(thread.getDraft());
+        }
 
-            // Put it here in the case that they closed the app with this screen open
-            thread.markReadAsync().subscribe();
+        // Put it here in the case that they closed the app with this screen open
+        thread.markReadAsync().subscribe();
 
-        }).ignoreElement().subscribe();
-
+        if (chatView != null) {
+            chatView.addListeners();
+        }
 
     }
 
@@ -404,6 +420,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             thread.setDraft(input.getInputEditText().getText().toString());
         } else {
             thread.setDraft(null);
+        }
+
+        if (chatView != null) {
+            chatView.removeListeners();
         }
 
     }
@@ -444,16 +464,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        thread = null;
-        getThread(intent.getExtras()).doOnSuccess(threadOptional -> {
-            if (!threadOptional.isEmpty()) {
-                clear();
-                chatView.onLoadMore(0, 0);
-                chatActionBar.reload(thread);
-            } else {
-                finish();
-            }
-        }).ignoreElement().subscribe(this);
+        updateThread(intent.getExtras());
+
+        clear();
+        chatView.onLoadMore(0, 0);
+        chatActionBar.reload(thread);
     }
 
     public void clear() {
@@ -592,32 +607,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         removeUserFromChatOnExit = false;
 
         ChatSDK.ui().startThreadDetailsActivity(this, thread.getEntityID());
-    }
-
-    protected Single<Optional<Thread>> getThread(final Bundle inputBundle) {
-        return Single.defer(() -> {
-            if (thread != null) {
-                return Single.just(new Optional<>(thread));
-            } if (threadSingle == null) {
-                threadSingle = Single.create((SingleOnSubscribe<Optional<Thread>>) emitter -> {
-                    Bundle bundle = inputBundle;
-                    if (bundle == null) {
-                        bundle = getIntent().getExtras();
-                    }
-
-                    if (bundle.containsKey(Keys.IntentKeyThreadEntityID)) {
-                        String threadEntityID = bundle.getString(Keys.IntentKeyThreadEntityID);
-                        if (threadEntityID != null && thread == null) {
-                            thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
-                            emitter.onSuccess(new Optional<>(thread));
-                            return;
-                        }
-                    }
-                    emitter.onSuccess(new Optional<>());
-                }).subscribeOn(RX.db()).observeOn(RX.main());
-            }
-            return threadSingle;
-        });
     }
 
     @Override

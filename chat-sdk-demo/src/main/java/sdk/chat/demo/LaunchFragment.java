@@ -6,10 +6,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 import butterknife.BindView;
+import io.reactivex.annotations.NonNull;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.fragments.BaseFragment;
-import io.reactivex.annotations.NonNull;
 import sdk.guru.common.RX;
 
 public class LaunchFragment extends BaseFragment {
@@ -42,9 +44,14 @@ public class LaunchFragment extends BaseFragment {
 //                }
             }
             DemoConfigBuilder.shared().save(getContext());
-            DemoConfigBuilder.shared().setupChatSDK(getContext());
 
-            dm.add(ChatSDK.auth().logout().observeOn(RX.main()).subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getContext())));
+            try {
+                DemoConfigBuilder.shared().setupChatSDK(getContext());
+                dm.add(ChatSDK.auth().logout().observeOn(RX.main()).subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getContext())));
+            } catch (Exception e) {
+                showToast(e.getLocalizedMessage());
+                FirebaseCrashlytics.getInstance().recordException(e);
+            }
 
         });
     }

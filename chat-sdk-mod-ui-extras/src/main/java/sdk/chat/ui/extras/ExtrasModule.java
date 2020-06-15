@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import sdk.chat.core.dao.Keys;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
@@ -96,8 +97,9 @@ public class ExtrasModule extends AbstractModule {
             ChatSDK.ui().addSearchActivity(ScanQRCodeActivity.class, ChatSDK.getString(sdk.chat.ui.extras.R.string.qr_code));
 
             // Show the QR code when the user clicks the profile option
-            ChatSDK.ui().addProfileOption(new ProfileOption(ChatSDK.getString(sdk.chat.ui.extras.R.string.qr_code), activity -> {
+            ChatSDK.ui().addProfileOption(new ProfileOption(ChatSDK.getString(sdk.chat.ui.extras.R.string.qr_code), (activity, userEntityID) -> {
                 Intent intent = new Intent(activity, ShowQRCodeActivity.class);
+                intent.putExtra(Keys.IntentKeyUserEntityID, userEntityID);
                 activity.startActivity(intent);
             }));
         }

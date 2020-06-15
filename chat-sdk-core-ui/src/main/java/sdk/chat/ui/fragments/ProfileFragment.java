@@ -230,7 +230,7 @@ public class ProfileFragment extends BaseFragment {
                 }
 
                 builder.setItems(options.toArray(new String[0]), (dialog, which) -> {
-                    ChatSDK.ui().getProfileOptions().get(which).execute(getActivity());
+                    ChatSDK.ui().getProfileOptions().get(which).execute(getActivity(), user.getEntityID());
                     dialog.dismiss();
                 });
 

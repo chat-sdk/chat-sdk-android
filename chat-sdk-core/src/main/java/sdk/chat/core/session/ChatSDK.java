@@ -81,6 +81,7 @@ public class ChatSDK {
     protected List<String> requiredPermissions = new ArrayList<>();
 
     protected ConfigBuilder<ChatSDK> builder;
+    protected boolean isActive = false;
 
     protected ChatSDK () {
     }
@@ -219,6 +220,7 @@ public class ChatSDK {
 //            }
         }), HookEvent.MessageReceived);
 
+        isActive = true;
     }
 
     public static Context ctx() {
@@ -424,4 +426,10 @@ public class ChatSDK {
     public List<String> getRequiredPermissions() {
         return requiredPermissions;
     }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
 }
+

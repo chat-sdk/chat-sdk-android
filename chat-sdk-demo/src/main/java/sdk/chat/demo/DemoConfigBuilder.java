@@ -2,11 +2,11 @@ package sdk.chat.demo;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Debug;
 
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
-
-import org.pmw.tinylog.Logger;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -168,8 +168,10 @@ public class DemoConfigBuilder {
         return backend != null && style != null && loginStyle != null && database != null;
     }
 
-    public void setupChatSDK(Context context) {
+    public void setupChatSDK(Context context) throws Exception {
         List<Module> modules = new ArrayList<>();
+
+        Debug.waitForDebugger();
 
         // Backend module
         if (backend == Backend.FireStream) {
@@ -201,62 +203,61 @@ public class DemoConfigBuilder {
 
         }
 
-        try {
+        Configure<UIConfig> uiConfigConfigure = config -> {
+            config.setPublicRoomCreationEnabled(true);
+        };
 
-            Configure<UIConfig> uiConfigConfigure = config -> {
-                config.setPublicRoomCreationEnabled(true);
-            };
-
-            if (backend == Backend.XMPP) {
+        if (backend == Backend.XMPP) {
 //                modules.add(Testing.myOpenFire(XMPPModule.builder()).build().configureUI(uiConfigConfigure));
 //                modules.add(XMPPReadReceiptsModule.shared());
-            } else {
-                modules.add(UIModule.builder(uiConfigConfigure));
-            }
+        } else {
+            modules.add(UIModule.builder(uiConfigConfigure));
+        }
 
-            if (loginStyle == LoginStyle.FirebaseUI) {
-                modules.add(FirebaseUIModule.builder(config -> config
-                            .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)
-                ));
-            }
-            modules.add(ExtrasModule.builder(config -> {
-                config.setDrawerEnabled(style == Style.Drawer);
-            }));
+        if (loginStyle == LoginStyle.FirebaseUI) {
+            modules.add(FirebaseUIModule.builder(config -> config
+                        .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)
+            ));
+        }
+        modules.add(ExtrasModule.builder(config -> {
+            config.setDrawerEnabled(style == Style.Drawer);
+        }));
 
-            ChatSDK.builder()
+        ChatSDK.builder()
 
-                    // Configure the library
-                    .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
-                    .setPublicChatRoomLifetimeMinutes(60 * 24)
-                    .setAnonymousLoginEnabled(false)
-                    .setDebugModeEnabled(false)
-                    .setRemoteConfigEnabled(true)
-                    .build()
+                // Configure the library
+                .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
+                .setPublicChatRoomLifetimeMinutes(60 * 24)
+                .setAnonymousLoginEnabled(false)
+                .setDebugModeEnabled(false)
+                .setRemoteConfigEnabled(true)
+                // We are handling this ourselves
+                .setInboundPushHandlingEnabled(false)
+                .build()
 
-                    .addModules(modules)
+                .addModules(modules)
 
-                    // Add modules to handle file uploads, push notifications
-                    .addModule(FirebaseUploadModule.shared())
-                    .addModule(FirebasePushModule.shared())
-                    .addModule(ProfilePicturesModule.shared())
+                // Add modules to handle file uploads, push notifications
+                .addModule(FirebaseUploadModule.shared())
+                .addModule(FirebasePushModule.shared())
+                .addModule(ProfilePicturesModule.shared())
 
-                    .addModule(ContactBookModule.shared())
+                .addModule(ContactBookModule.shared())
 //                    .addModule(EncryptionModule.shared())
-                    .addModule(FileMessageModule.shared())
-                    .addModule(AudioMessageModule.shared())
-                    .addModule(StickerMessageModule.shared())
-                    .addModule(VideoMessageModule.shared())
+                .addModule(FileMessageModule.shared())
+                .addModule(AudioMessageModule.shared())
+                .addModule(StickerMessageModule.shared())
+                .addModule(VideoMessageModule.shared())
 
-                    // Activate
-                    .build()
-                    .activate(context);
+                // Activate
+                .build()
+                .activate(context);
 
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            Logger.debug("Error");
-            assert(false);
-        }
+        // Pass non-fatal exceptions to Crashlytics
+        ChatSDK.events().errorSourceOnMain().doOnNext(throwable -> {
+            FirebaseCrashlytics.getInstance().recordException(throwable);
+        }).ignoreElements().subscribe(ChatSDK.events());
+
     }
 
 }
