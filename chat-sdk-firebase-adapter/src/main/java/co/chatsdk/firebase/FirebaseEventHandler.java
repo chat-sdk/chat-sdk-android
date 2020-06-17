@@ -69,26 +69,27 @@ public class FirebaseEventHandler extends AbstractEventHandler {
     protected void threadsOn (User user) {
         String entityID = user.getEntityID();
 
-        final DatabaseReference threadsRef = FirebasePaths.userThreadsRef(entityID);
+        Query threadsRef = FirebasePaths.userThreadsRef(entityID);
 
         long now = new Date().getTime();
 
         ChildEventListener threadsListener = threadsRef.addChildEventListener(new FirebaseEventListener().onChildAdded((snapshot, s, hasValue) -> {
             if(hasValue) {
                 final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
-                if (!thread.getModel().typeIs(ThreadType.Public) && (ChatSDK.config().privateChatRoomLifetimeMinutes == 0 || (now - thread.getModel().getCreationDate().getTime()) < ChatSDK.config().privateChatRoomLifetimeMinutes * 60000)) {
+                if (!thread.getModel().typeIs(ThreadType.Public)) {
 
-                    thread.getModel().addUser(user);
+                    if (ChatSDK.config().privateChatRoomLifetimeMinutes == 0 || thread.getModel().getCreationDate() == null || (now - thread.getModel().getCreationDate().getTime()) < TimeUnit.MINUTES.toMillis(ChatSDK.config().privateChatRoomLifetimeMinutes)) {
+                        thread.getModel().addUser(user);
 
-                    // Starting to listen to thread changes.
-                    thread.on().doOnNext(thread14 -> eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread14))).subscribe(new CrashReportingObserver<>(disposableList));
-                    thread.lastMessageOn().doOnNext(thread13 -> eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread13))).subscribe(new CrashReportingObserver<>(disposableList));
-                    thread.messagesOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message))).subscribe(new CrashReportingObserver<>(disposableList));
-                    thread.messageRemovedOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageRemoved(message.getThread(), message))).subscribe(new CrashReportingObserver<>(disposableList));
-                    thread.usersOn().doOnNext(user12 -> eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user12))).subscribe(new CrashReportingObserver<>(disposableList));
-                    thread.metaOn().doOnNext(thread1 -> eventSource.onNext(NetworkEvent.threadMetaUpdated(thread.getModel()))).subscribe(new CrashReportingObserver<>(disposableList));
+                        // Starting to listen to thread changes.
+                        thread.on().doOnNext(thread14 -> eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread14))).subscribe(new CrashReportingObserver<>(disposableList));
+                        thread.messagesOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message))).subscribe(new CrashReportingObserver<>(disposableList));
+                        thread.messageRemovedOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageRemoved(message.getThread(), message))).subscribe(new CrashReportingObserver<>(disposableList));
+                        thread.usersOn().doOnNext(user12 -> eventSource.onNext(NetworkEvent.threadUsersChanged(thread.getModel(), user12))).subscribe(new CrashReportingObserver<>(disposableList));
+                        thread.metaOn().doOnNext(thread1 -> eventSource.onNext(NetworkEvent.threadMetaUpdated(thread.getModel()))).subscribe(new CrashReportingObserver<>(disposableList));
 
-                    eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
+                        eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
+                    }
                 }
             }
         }).onChildRemoved((snapshot, hasValue) -> {
@@ -125,7 +126,6 @@ public class FirebaseEventHandler extends AbstractEventHandler {
 
                 // Starting to listen to thread changes.
                 thread.on().doOnNext(thread12 -> eventSource.onNext(NetworkEvent.threadDetailsUpdated(thread12))).subscribe(new CrashReportingObserver<>(disposableList));
-                thread.lastMessageOn().doOnNext(thread15 -> eventSource.onNext(NetworkEvent.threadLastMessageUpdated(thread15))).subscribe(new CrashReportingObserver<>(disposableList));
                 thread.messagesOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageAdded(message.getThread(), message))).subscribe(new CrashReportingObserver<>(disposableList));
                 if (ChatSDK.config().messageDeletionEnabled) {
                     thread.messageRemovedOn().doOnNext(message -> eventSource.onNext(NetworkEvent.messageRemoved(message.getThread(), message))).subscribe(new CrashReportingObserver<>(disposableList));

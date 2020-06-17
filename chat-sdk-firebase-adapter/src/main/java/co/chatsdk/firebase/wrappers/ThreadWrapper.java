@@ -96,29 +96,6 @@ public class ThreadWrapper  {
         }).subscribeOn(Schedulers.single());
     }
 
-    public Observable<Thread> lastMessageOn () {
-        return Observable.create((ObservableOnSubscribe<Thread>) e -> {
-
-            DatabaseReference ref = FirebasePaths.threadLastMessageRef(model.getEntityID());
-
-            if (FirebaseReferenceManager.shared().isOn(ref)) {
-                e.onComplete();
-                return;
-            }
-
-            ValueEventListener listener = ref.addValueEventListener(new FirebaseEventListener().onValue((snapshot, hasValue) -> {
-                // We just update the thread. The last text will already have been
-                // set by the text listener
-                if (hasValue) {
-                    e.onNext(model);
-                }
-            }));
-
-            FirebaseReferenceManager.shared().addRef(ref, listener);
-
-        }).subscribeOn(Schedulers.single());
-    }
-
     public DatabaseReference messagesRef () {
         return FirebasePaths.threadMessagesRef(model.getEntityID());
     }
@@ -143,7 +120,6 @@ public class ThreadWrapper  {
      **/
     public void off() {
         FirebaseReferenceManager.shared().removeListeners(FirebasePaths.threadDetailsRef(model.getEntityID()));
-        FirebaseReferenceManager.shared().removeListeners(FirebasePaths.threadLastMessageRef(model.getEntityID()));
         metaOff();
         if(ChatSDK.typingIndicator() != null) {
             ChatSDK.typingIndicator().typingOff(model);
