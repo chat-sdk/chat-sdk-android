@@ -279,7 +279,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     public void loadData() {
         if (dialogsListAdapter != null) {
-            getThreads().observeOn(RX.db()).map(threads -> {
+            getThreads().observeOn(RX.single()).map(threads -> {
                 ArrayList<ThreadHolder> threadHolders = new ArrayList<>();
                 threads = filter(threads);
                 for (Thread thread : threads) {
@@ -319,9 +319,11 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         ThreadHolder holder = threadHolderHashMap.get(thread);
         if (holder == null) {
             getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder1 -> {
-                dialogsListAdapter.addItem(holder1);
-                sortByLastMessageDate();
-            }).subscribe();
+//                if (!threadHolderHashMap.containsValue(holder1)) {
+                    dialogsListAdapter.addItem(holder1);
+                    sortByLastMessageDate();
+//                }
+            }).ignoreElement().subscribe(this);
         } else {
             dialogsListAdapter.updateItemById(holder);
             sortByLastMessageDate();
@@ -342,7 +344,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 threadHolderHashMap.put(thread, holder);
             }
             emitter.onSuccess(holder);
-        }).subscribeOn(RX.db());
+        }).subscribeOn(RX.single());
     }
 
     public ThreadHolder getOrCreateThreadHolder(Thread thread) {
