@@ -49,6 +49,7 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.subjects.BehaviorSubject;
 import sdk.guru.common.Event;
 import sdk.guru.common.RX;
@@ -88,6 +89,8 @@ public class FireStream extends AbstractChat implements IFireStream {
     protected List<IChat> chats = new ArrayList<>();
 
     public FireStream() {
+
+        RxJavaPlugins.setErrorHandler(Fire.stream());
 
         FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
             // We are connecting for the first time

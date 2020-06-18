@@ -10,14 +10,26 @@
         android:theme="@style/CustomChatSDKTheme"
         android:name=".MainApp"
         android:hardwareAccelerated="true"
-        tools:replace="allowBackup"
-        >
+        tools:replace="allowBackup">
         <activity android:name="sdk.chat.demo.DemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".DemoBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="${applicationId}" />
+            </intent-filter>
+        </receiver>
+
+
     </application>
 
 </manifest>

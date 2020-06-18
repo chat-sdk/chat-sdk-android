@@ -103,50 +103,52 @@ public class AudioPlayerView extends LinearLayout {
     }
 
     public void setup() {
-        if (player == null) {
+        if (source != null) {
+            if (player == null) {
 
-            updatePlayPauseButton();
+                updatePlayPauseButton();
 
-            player = new AudioPlayer(source, new Player.EventListener() {
-                @Override
-                public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                    if (playbackState == STATE_ENDED) {
-                        stop();
+                player = new AudioPlayer(source, new Player.EventListener() {
+                    @Override
+                    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                        if (playbackState == STATE_ENDED) {
+                            stop();
+                        }
+                        if (playbackState == STATE_READY) {
+                            updateTime();
+                            updatePlayPauseButton();
+                        }
                     }
-                    if (playbackState == STATE_READY) {
+                });
+
+                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        if (userTracking) {
+                            player.setPosition(progress);
+                        }
                         updateTime();
-                        updatePlayPauseButton();
                     }
-                }
-            });
 
-            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    if (userTracking) {
-                        player.setPosition(progress);
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+                        userTracking = true;
                     }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                        userTracking = false;
+                    }
+                });
+
+                dm.add(player.getTimeObservable().subscribe(integer -> {
+                    seekBar.setProgress(integer.intValue());
                     updateTime();
-                }
+                }));
 
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                    userTracking = true;
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                    userTracking = false;
-                }
-            });
-
-            dm.add(player.getTimeObservable().subscribe(integer -> {
-                seekBar.setProgress(integer.intValue());
-                updateTime();
-            }));
-
-        } else {
-            player.setSource(source);
+            } else {
+                player.setSource(source);
+            }
         }
 
         updatePlayPauseButton();

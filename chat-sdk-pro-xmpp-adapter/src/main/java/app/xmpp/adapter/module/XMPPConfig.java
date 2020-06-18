@@ -114,7 +114,8 @@ public class XMPPConfig<T> extends BaseConfig<T> {
         this.compressionEnabled = compressionEnabled;
         return this;
     }
-//
+
+    //
 //
 //    public XMPPConfig<T> xmppAcceptAllCertificates(boolean acceptAllCertificates) {
 //        this.xmppAcceptAllCertificates = acceptAllCertificates;

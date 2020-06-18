@@ -15,13 +15,12 @@ import org.pmw.tinylog.Logger;
 
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.PublishSubject;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.CurrentLocale;
-import io.reactivex.Observable;
 import sdk.guru.common.RX;
-import io.reactivex.disposables.Disposable;
-import sdk.guru.common.RX;
-import io.reactivex.subjects.PublishSubject;
 
 import static com.google.android.exoplayer2.Player.STATE_READY;
 
@@ -59,7 +58,7 @@ public class AudioPlayer {
 
     }
 
-    public void play () {
+    public void play() {
         player.setPlayWhenReady(true);
 
         playingDisposable = Observable.interval(0, 30, TimeUnit.MILLISECONDS)
@@ -72,7 +71,7 @@ public class AudioPlayer {
     }
 
     public void setSource(String url) {
-        if (!url.equals(mediaSource)) {
+        if (url != null && !url.equals(mediaSource)) {
             stop();
             isReady = false;
 

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sdk.chat.core.dao.Message;
+import sdk.chat.core.utils.ProfileOption;
 import sdk.chat.ui.chat.model.MessageHolder;
 
 public class Customiser implements IMessageHandler {
@@ -29,6 +30,8 @@ public class Customiser implements IMessageHandler {
     public List<IMessageHandler> getMessageHandlers() {
         return messageHandlers;
     }
+
+
 
     @Override
     public void onBindMessageHolders(Context context, MessageHolders holders) {
@@ -79,4 +82,6 @@ public class Customiser implements IMessageHandler {
         }
         return false;
     }
+
+
 }

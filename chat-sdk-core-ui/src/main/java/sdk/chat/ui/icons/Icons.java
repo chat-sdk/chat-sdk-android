@@ -13,15 +13,13 @@ import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.iconics.typeface.library.fontawesome.FontAwesome;
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial;
 
-import java.lang.ref.WeakReference;
-
+import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
 import sdk.chat.ui.R;
 
 public class Icons {
 
     public static final Icons instance = new Icons();
-    protected WeakReference<Context> context;
 
     public static Icons shared() {
         return instance;
@@ -31,8 +29,7 @@ public class Icons {
     public @ColorRes int chatOptionIconColor = R.color.white;
     public @ColorRes int tabIconColor = R.color.tab_icon_color;
 
-    public void setContext(Context context) {
-        this.context = new WeakReference<>(context);
+    public void initialize(Context context) {
 
         // First icon doesn't load for some reason 🤷
         dummy = new IconicsDrawable(context, FontAwesome.Icon.faw_dumbbell);
@@ -61,6 +58,8 @@ public class Icons {
         play = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_play_arrow);
         pause = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_pause);
         send = context.getResources().getDrawable(R.drawable.ic_send);
+        options = new IconicsDrawable(context, FontAwesome.Icon.faw_ellipsis_h);
+
     }
 
     public IconicsDrawable dummy;
@@ -87,6 +86,7 @@ public class Icons {
     public IconicsDrawable cancel;
     public IconicsDrawable play;
     public IconicsDrawable pause;
+    public IconicsDrawable options;
     public Drawable send;
 
     public static Icons choose() {
@@ -98,7 +98,11 @@ public class Icons {
     }
 
     public static Drawable get(Drawable icon, @ColorRes int colorRes) {
-        icon.setColorFilter(ContextCompat.getColor(context(), colorRes), PorterDuff.Mode.MULTIPLY);
+        return get(context(), icon, colorRes);
+    }
+
+    public static Drawable get(Context context, Drawable icon, @ColorRes int colorRes) {
+        icon.setColorFilter(ContextCompat.getColor(context, colorRes), PorterDuff.Mode.MULTIPLY);
         return icon;
     }
 
@@ -126,7 +130,7 @@ public class Icons {
 
 
     public static Context context() {
-        return shared().context.get();
+        return ChatSDK.ctx();
     }
 
 }

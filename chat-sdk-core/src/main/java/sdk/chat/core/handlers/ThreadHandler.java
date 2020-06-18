@@ -5,12 +5,12 @@ import androidx.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.SystemMessageType;
-import io.reactivex.Completable;
-import io.reactivex.Single;
 
 /**
  * Created by benjaminsmiley-andrews on 04/05/2017.
@@ -106,6 +106,8 @@ public interface ThreadHandler {
     boolean muteEnabled(Thread thread);
     Completable mute(Thread thread);
     Completable unmute(Thread thread);
+
+    Message newMessage(int type, Thread thread);
 
     // Roles
     // Generally it works like this:

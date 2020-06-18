@@ -12,17 +12,17 @@ public class ChatOptionBuilder {
 
     }
 
-    public ChatOptionBuilder icon (Drawable iconDrawable) {
+    public ChatOptionBuilder icon(Drawable iconDrawable) {
         this.drawable = iconDrawable;
         return this;
     }
 
-    public ChatOptionBuilder icon (String title) {
+    public ChatOptionBuilder title(String title) {
         this.title = title;
         return this;
     }
 
-    public ChatOptionBuilder action (BaseChatOption.Action action) {
+    public ChatOptionBuilder action(BaseChatOption.Action action) {
         this.action = action;
         return this;
     }

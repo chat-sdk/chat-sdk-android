@@ -1,5 +1,6 @@
 package sdk.chat.ui.fragments;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,9 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import sdk.chat.core.dao.Keys;
@@ -29,6 +33,7 @@ import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ConnectionType;
+import sdk.chat.core.utils.ProfileOption;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
@@ -62,7 +67,8 @@ public class ProfileFragment extends BaseFragment {
     @BindView(R2.id.availabilityCardView) protected CardView availabilityCardView;
     @BindView(R2.id.iconLinearLayout) protected LinearLayout iconLinearLayout;
     @BindView(R2.id.buttonsLinearLayout) protected LinearLayout buttonsLinearLayout;
-    @BindView(R2.id.fab) protected FloatingActionButton fab;
+    @BindView(R2.id.editFab) protected FloatingActionButton editFab;
+    @BindView(R2.id.optionsFab) protected FloatingActionButton optionsFab;
     @BindView(R2.id.avatarImageView) protected CircleImageView avatarImageView;
     @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
     @BindView(R2.id.avatarContainerLayout) protected RelativeLayout avatarContainerLayout;
@@ -207,15 +213,40 @@ public class ProfileFragment extends BaseFragment {
         boolean isCurrentUser = user.isMe();
         setHasOptionsMenu(isCurrentUser);
 
+        // Allow custom options to be added
+        if (ChatSDK.ui().getProfileOptions().isEmpty()) {
+            optionsFab.setVisibility(View.INVISIBLE);
+        } else {
+            optionsFab.setVisibility(View.VISIBLE);
+            optionsFab.setImageDrawable(Icons.get(Icons.choose().options, R.color.white));
+            optionsFab.setOnClickListener(v -> {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(R.string.options);
+
+                List<String> options = new ArrayList<>();
+                for (ProfileOption option: ChatSDK.ui().getProfileOptions()) {
+                    options.add(option.getName());
+                }
+
+                builder.setItems(options.toArray(new String[0]), (dialog, which) -> {
+                    ChatSDK.ui().getProfileOptions().get(which).execute(getActivity(), user.getEntityID());
+                    dialog.dismiss();
+                });
+
+                builder.show();
+            });
+        }
+
         if (isCurrentUser) {
-            fab.setImageDrawable(Icons.get(Icons.choose().edit, R.color.white));
-            fab.setOnClickListener(v -> {
+            editFab.setImageDrawable(Icons.get(Icons.choose().edit, R.color.white));
+            editFab.setOnClickListener(v -> {
                 showEditProfileScreen();
             });
             onlineIndicator.setVisibility(View.GONE);
         } else {
-            fab.setImageDrawable(Icons.get(Icons.choose().chat, R.color.white));
-            fab.setOnClickListener(v -> {
+            editFab.setImageDrawable(Icons.get(Icons.choose().chat, R.color.white));
+            editFab.setOnClickListener(v -> {
                 startChat();
             });
             onlineIndicator.setVisibility(View.VISIBLE);

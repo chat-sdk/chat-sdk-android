@@ -109,7 +109,7 @@ dependencies {
     implementation "com.github.adrielcafe:AndroidAudioRecorder:$androidAudioRecorderVersion"
 
     api "com.github.bumptech.glide:glide:$glideVersion"
-//    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
+    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
 }
 

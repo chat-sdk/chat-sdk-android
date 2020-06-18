@@ -164,7 +164,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         final List<SearchActivityType> activities = new ArrayList<>(ChatSDK.ui().getSearchActivities());
 
         if (activities.size() == 1) {
-            ChatSDK.ui().startActivity(getActivity(), activities.get(0).className);
+            activities.get(0).startFrom(getActivity());
             return;
         }
 
@@ -177,7 +177,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
 
         builder.setTitle(getActivity().getString(R.string.search)).setItems(items, (dialogInterface, index) -> {
             // Launch the appropriate context
-            ChatSDK.ui().startActivity(getActivity(), activities.get(index).className);
+            activities.get(index).startFrom(getActivity());
         });
 
         builder.show();

@@ -19,7 +19,6 @@ public class Keys {
     public static final String State = "state";
     public static final String PresenceSubscription = "presence-subscription";
 
-    // TODO: This will be deprecated in favour of the from variable
     public static final String Name = "name";
     public static final String NameLowercase = "name-lowercase";
     public static final String InvitedBy = "invitedBy";
@@ -27,6 +26,7 @@ public class Keys {
     public static final String To = "to";
     public static final String From = "from";
     public static final String Subject = "subject";
+    public static final String Weight = "weight";
 
     // Deprecated in favour of type
     public static final String Type = "type";

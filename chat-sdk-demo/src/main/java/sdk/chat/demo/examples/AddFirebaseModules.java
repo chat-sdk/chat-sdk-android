@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.demo.R;
-import sdk.chat.encryption.EncryptionModule;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
@@ -95,7 +94,7 @@ public class AddFirebaseModules extends Activity {
                         .setThreadDetailsEnabled(true)
                         .setSaveImagesToDirectoryEnabled(true)
                         .setDefaultProfilePlaceholder(R.drawable.icn_100_profile)
-                        .setProfileHeaderImage(R.drawable.header2)
+                        .setProfileHeaderImage(R.drawable.header)
                         .setUsernameHint("Email")
                         .setAllowBackPressFromMainActivity(false)
                         .build()
@@ -120,14 +119,13 @@ public class AddFirebaseModules extends Activity {
                         .build())
 
                 // Encryption module
-                .addModule(EncryptionModule.shared())
+//                .addModule(EncryptionModule.shared())
 
                 // File messages module
                 .addModule(FileMessageModule.shared())
 
                 // Audio messages module
                 .addModule(AudioMessageModule.builder()
-                        .setCompressionEnabled(true)
                         .build())
 
                 // Sticker messages module
@@ -164,7 +162,7 @@ public class AddFirebaseModules extends Activity {
                 // UI extras - drawer
                 .addModule(ExtrasModule.builder()
                         .setDrawerEnabled(true)
-                        .setDrawerHeaderImage(sdk.chat.ui.extras.R.drawable.header2)
+                        .setDrawerHeaderImage(sdk.chat.ui.extras.R.drawable.header)
                         .build())
 
                 // Firebase UI

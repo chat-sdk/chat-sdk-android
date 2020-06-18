@@ -2,10 +2,10 @@ package sdk.chat.demo.testing;
 
 import android.content.Context;
 
-import sdk.chat.core.session.Config;
-import sdk.chat.core.utils.Device;
 import app.xmpp.adapter.module.XMPPConfig;
 import app.xmpp.adapter.module.XMPPModule;
+import sdk.chat.core.session.Config;
+import sdk.chat.core.utils.Device;
 
 public class Testing {
 

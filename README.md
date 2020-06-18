@@ -1,29 +1,30 @@
-# Chat SDK for Android
+# Chat SDK for Android v5
 ### Open Source Messaging framework for Android
 
 ![Main Image](https://media.giphy.com/media/L05Bq9WHSP3PUH6uTF/giphy.gif)
 
 Chat SDK is a fully featured open source instant messaging framework for Android. Chat SDK is fully featured, scalable and flexible and follows the following key principles:
 
-- **Free.** The Chat SDK is free for [commercial use](https://github.com/chat-sdk/chat-sdk-android/blob/master/LICENSE.md)
-- **Open Source.** The Chat SDK is open source
+- **Free.** Chat SDK uses the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0)
+- **Open Source.** Chat SDK is open source
 - **Full control of the data.** You have full and exclusive access to the user's chat data
 - **Quick integration.** Chat SDK is fully featured out of the box
-<!--- Install the demo **[Firebase](https://i.diawi.com/2JGr4o)** app now by clicking the link on your Android phone! -->
-- **Demo Versions.** **[XMPP](https://i.diawi.com/mE5GkM)** open this link on your Android phone to install
 - **Scalable.** Supports millons of daily users [[1](https://firebase.google.com/docs/database/usage/limits), [2](https://blog.process-one.net/ejabberd-massive-scalability-1node-2-million-concurrent-users/)]
-- **Backend agnostic.** Chat SDK can be customized to [support any backend](https://github.com/chat-sdk/chat-sdk-android#backend-agnostic-architecture) 
+- **Backend agnostic.** Chat SDK can be customized to [support any backend](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/SJUgMoJTU) 
 
-[![](https://raw.githubusercontent.com/chat-sdk/chat-sdk-android/master/graphics/chat-sdk-play.png)](https://play.google.com/store/apps/details?id=co.chatsdk.android.app_modules&hl=en)
+[![](https://raw.githubusercontent.com/chat-sdk/chat-sdk-android/master/graphics/chat-sdk-play.png)](https://play.google.com/store/apps/details?id=sdk.chat.live)
 
 ## Technical details
 
-- **Multiple Backends Support** [Firestore](https://firebase.google.com/), [Firebase](https://firebase.google.com/), [ejabberd](https://www.ejabberd.im/), [OpenFire](https://www.igniterealtime.org/projects/openfire/)
+- **Multiple Backends Support** [Firestore](https://firebase.google.com/), [Firebase](https://firebase.google.com/), [ejabberd](https://www.ejabberd.im/), [OpenFire](https://www.igniterealtime.org/projects/openfire/), [Prosody](https://prosody.im/), [Tigase](https://tigase.net/), [MongooseIM](https://mongooseim.readthedocs.io/en/latest/)
 - **Persistence -** [GreenDao](http://greenrobot.org/greendao/)
 - **Reactive -** [RXAndroid](https://github.com/ReactiveX/RxAndroid)
 - **Java 8** supports Java 8 and lamda expressions
 - **Multi-threaded** agressively multi-threaded
 - **API Level 16+** Compatible with 99.3% of Android devices
+- **Demo** [Download v5.0.0RC9](https://play.google.com/store/apps/details?id=sdk.chat.live)
+
+> Please bear in mind that this version is a major update. As a result we are making new releases every few days to fix bugs and crashes. If you see an issue, please report it on the Github bug tracker and we will fix it. 
 
 ## Features
 
@@ -39,13 +40,14 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - User Profiles [⇘GIF](https://giphy.com/gifs/profile-chat-sdk-UVZIcvzSjBy6ZrJq7E)
 - User Search [⇘GIF](https://giphy.com/gifs/search-chat-sdk-ducLm14OeuX0pUzVEl)
 - Contacts [⇘GIF](https://giphy.com/gifs/profile-chat-sdk-UVZIcvzSjBy6ZrJq7E)
+- Add contact by QR code [⇘GIF](https://giphy.com/gifs/jOnq7hTrHMFEHJDbim)
 - Firebase UI [⇘GIF](https://giphy.com/gifs/chat-sdk-firebase-ui-hrps78wBSz49QXbuv3)
 - [iOS Version](https://github.com/chat-sdk/chat-sdk-ios)
 - [Web Version](https://github.com/chat-sdk/chat-sdk-web)
 
 ## Extras
 
-Sponsor us on either Github Sponsors or Paetron and get these features:
+Sponsor us on either [Github sponsors](https://github.com/sponsors/chat-sdk) or [Paetron](https://www.patreon.com/chatsdk) and get these features. For full details visit our [Modules](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/ryODENucU) page.
 
 - Typing indicator [⇘GIF](https://giphy.com/gifs/typing-chat-sdk-KxcLVS0IFrRtsM2OjR)
 - Read receipts
@@ -90,6 +92,23 @@ Email us at: [team@sdk.chat](mailto:team@sdk.chat)
 
 We also offer development services we are a team of full stack developers who are Firebase experts.
 For more information check out our [consulting site](https://chat-sdk.github.io/hire-us/). 
+
+### Firestream - A light-weight messaging library for Firebase
+
+If you are looking for something that is more-light weight than Chat SDK, we also have a library which only provides instant messaging functionality. 
+
+1. 1-to-1 Messaging
+2. Group chat, roles, moderation
+3. Android, iOS, Web and Node.js
+2. Fully customisable messages
+3. Typing Indicator
+4. Delivery receipts
+5. User blocking
+6. Presence
+7. Message history (optional)
+7. **Firestore** or **Realtime** database
+
+You can check out the project: [Firestream on Github](https://github.com/chat-sdk/firestream-android). 
 
 ## Chat SDK Firebase Documentation
 

@@ -2,23 +2,20 @@ package sdk.chat.demo;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Debug;
 
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
-
-import org.pmw.tinylog.Logger;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import app.xmpp.adapter.module.XMPPModule;
-import app.xmpp.receipts.XMPPReadReceiptsModule;
 import io.reactivex.subjects.PublishSubject;
 import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
-import sdk.chat.demo.testing.Testing;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
@@ -30,7 +27,6 @@ import sdk.chat.firebase.ui.FirebaseUIModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.firestream.adapter.FireStreamModule;
 import sdk.chat.firestream.adapter.FirebaseServiceType;
-import sdk.chat.firestream.blocking.FirestreamBlockingModule;
 import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
@@ -172,8 +168,10 @@ public class DemoConfigBuilder {
         return backend != null && style != null && loginStyle != null && database != null;
     }
 
-    public void setupChatSDK(Context context) {
+    public void setupChatSDK(Context context) throws Exception {
         List<Module> modules = new ArrayList<>();
+
+        Debug.waitForDebugger();
 
         // Backend module
         if (backend == Backend.FireStream) {
@@ -185,7 +183,7 @@ public class DemoConfigBuilder {
                     .setDeleteMessagesOnReceiptEnabled(false)
                     .setDeliveryReceiptsEnabled(false)
             ));
-            modules.add(FirestreamBlockingModule.shared());
+//            modules.add(FirestreamBlockingModule.shared());
             modules.add(FirebaseNearbyUsersModule.shared());
 //            modules.add(FireStreamReadReceiptsModule.shared());
 //            modules.add(FirestreamTypingIndicatorModule.shared());
@@ -205,62 +203,61 @@ public class DemoConfigBuilder {
 
         }
 
-        try {
+        Configure<UIConfig> uiConfigConfigure = config -> {
+            config.setPublicRoomCreationEnabled(true);
+        };
 
-            Configure<UIConfig> uiConfigConfigure = config -> {
-                config.setPublicRoomCreationEnabled(true);
-            };
+        if (backend == Backend.XMPP) {
+//                modules.add(Testing.myOpenFire(XMPPModule.builder()).build().configureUI(uiConfigConfigure));
+//                modules.add(XMPPReadReceiptsModule.shared());
+        } else {
+            modules.add(UIModule.builder(uiConfigConfigure));
+        }
 
-            if (backend == Backend.XMPP) {
-                modules.add(Testing.myOpenFire(XMPPModule.builder()).build().configureUI(uiConfigConfigure));
-                modules.add(XMPPReadReceiptsModule.shared());
-            } else {
-                modules.add(UIModule.builder(uiConfigConfigure));
-            }
+        if (loginStyle == LoginStyle.FirebaseUI) {
+            modules.add(FirebaseUIModule.builder(config -> config
+                        .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)
+            ));
+        }
+        modules.add(ExtrasModule.builder(config -> {
+            config.setDrawerEnabled(style == Style.Drawer);
+        }));
 
-            if (loginStyle == LoginStyle.FirebaseUI) {
-                modules.add(FirebaseUIModule.builder(config -> config
-                            .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)
-                ));
-            }
-            if (style == Style.Drawer) {
-                modules.add(ExtrasModule.shared());
-            }
+        ChatSDK.builder()
 
-            ChatSDK.builder()
+                // Configure the library
+                .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
+                .setPublicChatRoomLifetimeMinutes(60 * 24)
+                .setAnonymousLoginEnabled(false)
+                .setDebugModeEnabled(false)
+                .setRemoteConfigEnabled(true)
+                // We are handling this ourselves
+                .setInboundPushHandlingEnabled(false)
+                .build()
 
-                    // Configure the library
-                    .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
-                    .setPublicChatRoomLifetimeMinutes(60 * 24)
-                    .setAnonymousLoginEnabled(false)
-                    .setDebugModeEnabled(false)
-                    .setRemoteConfigEnabled(true)
-                    .build()
+                .addModules(modules)
 
-                    .addModules(modules)
+                // Add modules to handle file uploads, push notifications
+                .addModule(FirebaseUploadModule.shared())
+                .addModule(FirebasePushModule.shared())
+                .addModule(ProfilePicturesModule.shared())
 
-                    // Add modules to handle file uploads, push notifications
-                    .addModule(FirebaseUploadModule.shared())
-                    .addModule(FirebasePushModule.shared())
-                    .addModule(ProfilePicturesModule.shared())
-
-                    .addModule(ContactBookModule.shared())
+                .addModule(ContactBookModule.shared())
 //                    .addModule(EncryptionModule.shared())
-                    .addModule(FileMessageModule.shared())
-                    .addModule(AudioMessageModule.shared())
-                    .addModule(StickerMessageModule.shared())
-                    .addModule(VideoMessageModule.shared())
+                .addModule(FileMessageModule.shared())
+                .addModule(AudioMessageModule.shared())
+                .addModule(StickerMessageModule.shared())
+                .addModule(VideoMessageModule.shared())
 
-                    // Activate
-                    .build()
-                    .activate(context);
+                // Activate
+                .build()
+                .activate(context);
 
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            Logger.debug("Error");
-            assert(false);
-        }
+        // Pass non-fatal exceptions to Crashlytics
+        ChatSDK.events().errorSourceOnMain().doOnNext(throwable -> {
+            FirebaseCrashlytics.getInstance().recordException(throwable);
+        }).ignoreElements().subscribe(ChatSDK.events());
+
     }
 
 }

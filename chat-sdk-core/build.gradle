@@ -90,14 +90,12 @@ dependencies {
 
 
     implementation "com.karumi:dexter:$dexterVersion"
-//    api 'com.caverock:androidsvg-aar:1.4'
-//    api 'com.amitshekhar.android:android-networking:1.0.2'
 
     // Audio
     implementation "com.google.android.exoplayer:exoplayer:$exoplayerVersion"
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
-//    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
+    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
 }
 

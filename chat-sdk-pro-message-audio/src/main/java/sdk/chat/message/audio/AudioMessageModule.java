@@ -10,8 +10,8 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 import java.util.ArrayList;
 import java.util.List;
 
-import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
-import cafe.adriel.androidaudioconverter.callback.ILoadCallback;
+//import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
+//import cafe.adriel.androidaudioconverter.callback.ILoadCallback;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
@@ -50,7 +50,7 @@ public class AudioMessageModule extends AbstractModule {
 
     public static class Config<T> extends BaseConfig<T> {
 
-        public boolean compressionEnabled = true;
+//        public boolean compressionEnabled = true;
 
         public Config(T onBuild) {
             super(onBuild);
@@ -61,10 +61,10 @@ public class AudioMessageModule extends AbstractModule {
          * @param compressionEnabled
          * @return
          */
-        public Config<T> setCompressionEnabled(boolean compressionEnabled) {
-            this.compressionEnabled = compressionEnabled;
-            return this;
-        }
+//        public Config<T> setCompressionEnabled(boolean compressionEnabled) {
+//            this.compressionEnabled = compressionEnabled;
+//            return this;
+//        }
 
     }
 
@@ -78,17 +78,17 @@ public class AudioMessageModule extends AbstractModule {
     public void activate(Context context) {
         ChatSDK.a().audioMessage = new BaseAudioMessageHandler();
 
-        AndroidAudioConverter.load(context, new ILoadCallback() {
-            @Override
-            public void onSuccess() {
-                ChatSDK.a().audioMessage.setCompressionEnabled(true);
-            }
-
-            @Override
-            public void onFailure(Exception error) {
-                ChatSDK.events().onError(error);
-            }
-        });
+//        AndroidAudioConverter.load(context, new ILoadCallback() {
+//            @Override
+//            public void onSuccess() {
+//                ChatSDK.a().audioMessage.setCompressionEnabled(true);
+//            }
+//
+//            @Override
+//            public void onFailure(Exception error) {
+//                ChatSDK.events().onError(error);
+//            }
+//        });
 
         Customiser.shared().addMessageHandler(new IMessageHandler() {
             @Override

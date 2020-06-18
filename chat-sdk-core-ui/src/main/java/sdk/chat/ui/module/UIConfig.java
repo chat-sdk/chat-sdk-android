@@ -20,7 +20,7 @@ public class UIConfig<T> extends BaseConfig<T> {
      * Default image for profile header
      */
     @DrawableRes
-    public int profileHeaderImage = R.drawable.header2;
+    public int profileHeaderImage = R.drawable.header;
 
     @DrawableRes
     public int defaultProfilePlaceholder = R.drawable.icn_100_profile;

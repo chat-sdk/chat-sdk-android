@@ -22,12 +22,24 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude("META-INF/*.kotlin_module")
+    }
+
     signingConfigs {
         release {
-            storeFile file('release.keystore')
-            keyAlias 'androidreleasekey'
-            storePassword 'R3l3ase123!'
-            keyPassword 'R3l3ase123!'
+            storeFile file('release-key.keystore')
+            keyAlias 'release_key'
+            storePassword 'ChatSDK123xx!'
+            keyPassword 'ChatSDK123xx!'
         }
         debug {
             keyAlias 'androiddebugkey'
@@ -38,14 +50,28 @@ android {
     }
 
     buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            debuggable true
+            jniDebuggable true
+            zipAlignEnabled true
+        }
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
             debuggable false
             jniDebuggable false
             zipAlignEnabled true
         }
+    }
+
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
     }
 
 }

@@ -41,7 +41,9 @@ dependencies {
     implementation project(':chat-sdk-core-ui')
 
     implementation "com.github.adrielcafe:AndroidAudioRecorder:$androidAudioRecorderVersion"
-    implementation "com.github.adrielcafe:AndroidAudioConverter:$androidAudioConverterVersion"
+
+//    implementation "com.github.adrielcafe:AndroidAudioConverter:$androidAudioConverterVersion"
+
     implementation "com.google.android.exoplayer:exoplayer:$exoplayerVersion"
 
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"

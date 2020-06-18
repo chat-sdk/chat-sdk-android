@@ -4,9 +4,9 @@ import android.content.Context;
 
 import java.io.File;
 
-import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
-import cafe.adriel.androidaudioconverter.callback.IConvertCallback;
-import cafe.adriel.androidaudioconverter.model.AudioFormat;
+//import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
+//import cafe.adriel.androidaudioconverter.callback.IConvertCallback;
+//import cafe.adriel.androidaudioconverter.model.AudioFormat;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import sdk.chat.core.dao.Keys;
@@ -47,22 +47,22 @@ public class BaseAudioMessageHandler implements AudioMessageHandler {
 
     public Single<File> compressAudio(Context context, File audioFile) {
         return Single.defer(() -> {
-            if (!compressionEnabled || !AudioMessageModule.config().compressionEnabled) {
+//            if (!compressionEnabled || !AudioMessageModule.config().compressionEnabled) {
                 return Single.just(audioFile);
-            }
-            return Single.create(emitter -> {
-                AndroidAudioConverter.with(context).setFile(audioFile).setFormat(AudioFormat.MP3).setCallback(new IConvertCallback() {
-                    @Override
-                    public void onSuccess(File convertedFile) {
-                        emitter.onSuccess(convertedFile);
-                    }
-
-                    @Override
-                    public void onFailure(Exception error) {
-                        emitter.onError(error);
-                    }
-                }).convert();
-            });
+//            }
+//            return Single.create(emitter -> {
+//                AndroidAudioConverter.with(context).setFile(audioFile).setFormat(AudioFormat.MP3).setCallback(new IConvertCallback() {
+//                    @Override
+//                    public void onSuccess(File convertedFile) {
+//                        emitter.onSuccess(convertedFile);
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Exception error) {
+//                        emitter.onError(error);
+//                    }
+//                }).convert();
+//            });
         }).subscribeOn(RX.computation());
     }
 

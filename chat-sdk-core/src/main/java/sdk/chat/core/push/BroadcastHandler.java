@@ -1,4 +1,4 @@
-package sdk.chat.core.interfaces;
+package sdk.chat.core.push;
 
 import android.content.Context;
 import android.content.Intent;

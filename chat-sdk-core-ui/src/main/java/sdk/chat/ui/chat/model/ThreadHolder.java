@@ -130,4 +130,8 @@ public class ThreadHolder implements IDialog<MessageHolder> {
         }
         return new Date();
     }
+
+    public Long getWeight() {
+        return thread.getWeight();
+    }
 }

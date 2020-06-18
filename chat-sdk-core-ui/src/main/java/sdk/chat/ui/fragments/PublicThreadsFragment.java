@@ -59,7 +59,7 @@ public class PublicThreadsFragment extends ThreadsFragment {
                 }
                 emitter.onSuccess(filtered);
             }
-        }).subscribeOn(RX.db());
+        }).subscribeOn(RX.single());
     }
 
     @Override

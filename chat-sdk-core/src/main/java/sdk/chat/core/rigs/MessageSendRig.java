@@ -1,16 +1,14 @@
 package sdk.chat.core.rigs;
 
-import com.google.android.exoplayer2.C;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
 
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
-import sdk.chat.core.base.AbstractThreadHandler;
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.NetworkEvent;
@@ -20,11 +18,6 @@ import sdk.chat.core.types.FileUploadResult;
 import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
-import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
 import sdk.guru.common.RX;
 
 public class MessageSendRig {
@@ -125,7 +118,7 @@ public class MessageSendRig {
     }
 
     protected Message createMessage() {
-        message = AbstractThreadHandler.newMessage(messageType, thread);
+        message = ChatSDK.thread().newMessage(messageType.value(), thread);
         if (messageDidCreateUpdateAction != null) {
             messageDidCreateUpdateAction.update(message);
         }

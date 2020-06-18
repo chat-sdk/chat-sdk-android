@@ -20,6 +20,7 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.notifications.NotificationDisplayHandler;
 import sdk.chat.core.types.SearchActivityType;
 import sdk.chat.core.ui.ProfileFragmentProvider;
+import sdk.chat.core.utils.ProfileOption;
 
 /**
  * Created by benjaminsmiley-andrews on 12/07/2017.
@@ -115,7 +116,11 @@ public interface InterfaceAdapter {
 
     void startSplashScreenActivity(Context context);
 
+    void addSearchActivity(Class className, String name, int requestCode);
     void addSearchActivity(Class className, String name);
+
+
+
     void removeSearchActivity(Class className);
     List<SearchActivityType> getSearchActivities();
 
@@ -133,5 +138,10 @@ public interface InterfaceAdapter {
 
     AvatarGenerator getAvatarGenerator();
     void setAvatarGenerator(AvatarGenerator avatarGenerator);
+
+    void addProfileOption(ProfileOption option);
+    void removeProfileOption(ProfileOption option);
+    List<ProfileOption> getProfileOptions();
+
 
 }

@@ -90,7 +90,7 @@ public class NearbyUsersFragment extends BaseFragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
 
-//        this.reloadData();
+        reloadData();
 
         return view;
     }

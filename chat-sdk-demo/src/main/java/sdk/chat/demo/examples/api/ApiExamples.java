@@ -27,7 +27,7 @@ import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
-import sdk.chat.core.interfaces.BroadcastHandler;
+import sdk.chat.core.push.BroadcastHandler;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;

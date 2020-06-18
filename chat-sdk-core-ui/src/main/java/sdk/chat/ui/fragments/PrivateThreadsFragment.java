@@ -40,7 +40,7 @@ public class PrivateThreadsFragment extends ThreadsFragment {
 
     @Override
     protected Single<List<Thread>> getThreads() {
-        return Single.defer(() -> Single.just(ChatSDK.thread().getThreads(ThreadType.Private))).subscribeOn(RX.db());
+        return Single.defer(() -> Single.just(ChatSDK.thread().getThreads(ThreadType.Private))).subscribeOn(RX.single());
     }
 
     @Override

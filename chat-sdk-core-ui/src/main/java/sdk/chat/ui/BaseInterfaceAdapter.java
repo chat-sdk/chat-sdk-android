@@ -33,6 +33,7 @@ import sdk.chat.core.notifications.NotificationDisplayHandler;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.SearchActivityType;
 import sdk.chat.core.ui.ProfileFragmentProvider;
+import sdk.chat.core.utils.ProfileOption;
 import sdk.chat.ui.activities.AddUsersToThreadActivity;
 import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.activities.CreateThreadActivity;
@@ -99,10 +100,12 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Tab publicThreadsTab;
     protected Tab contactsTab;
 
+    protected List<ProfileOption> profileOptions = new ArrayList<>();
+
     public BaseInterfaceAdapter (Context context) {
         this.context = new WeakReference<>(context);
 
-        Icons.shared().setContext(context);
+        Icons.shared().initialize(context);
 
         searchActivities.add(new SearchActivityType(searchActivity, context.getString(R.string.search_with_name)));
 
@@ -509,10 +512,15 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
 
     @Override
-    public void addSearchActivity(Class className, String title) {
-        SearchActivityType activity = new SearchActivityType(className, title);
+    public void addSearchActivity(Class className, String title, int requestCode) {
+        SearchActivityType activity = new SearchActivityType(className, title, requestCode);
         removeSearchActivity(className);
         searchActivities.add(activity);
+    }
+
+    @Override
+    public void addSearchActivity(Class className, String title) {
+        addSearchActivity(className, title, -1);
     }
 
     @Override
@@ -619,5 +627,16 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         startActivity(context, postRegistrationActivity, extras, 0);
     }
 
+    public void addProfileOption(ProfileOption option) {
+        profileOptions.add(option);
+    }
+
+    public void removeProfileOption(ProfileOption option) {
+        profileOptions.remove(option);
+    }
+
+    public List<ProfileOption> getProfileOptions() {
+        return profileOptions;
+    }
 
 }
