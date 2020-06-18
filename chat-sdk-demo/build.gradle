@@ -100,9 +100,5 @@ dependencies {
     implementation "com.mikepenz:iconics-views:$iconicsVersion"
     implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
 
-    // Add the Firebase Crashlytics SDK.
-    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
-
-
 }
 

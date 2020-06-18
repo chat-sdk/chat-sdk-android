@@ -122,7 +122,6 @@ public class AddFireStreamModules extends Activity {
 
                 // Audio messages module
                 .addModule(AudioMessageModule.builder()
-                        .setCompressionEnabled(true)
                         .build())
 
                 // Sticker messages module

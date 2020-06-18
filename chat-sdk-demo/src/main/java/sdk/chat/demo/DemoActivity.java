@@ -1,7 +1,6 @@
 package sdk.chat.demo;
 
 import android.os.Bundle;
-import android.os.Handler;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -63,7 +62,13 @@ public class DemoActivity extends BaseActivity {
         adapter.add(infoFragment);
         adapter.add(styleFragment);
 
+        // TODO: XX1 For the moment
+
+//        adapter.add(firebaseLoginTypeFragment);
+//        adapter.add(welcomeFragment);
+
         // TODO: XX1 For the moment, only allow the Firebase mode
+
         // adapter.add(backendFragment);
 
         viewPager.setAdapter(adapter);
@@ -114,11 +119,10 @@ public class DemoActivity extends BaseActivity {
             }
 
             if (!fragmentSet.equals(new HashSet<>(fragments))) {
-                Handler mainHandler = new Handler(DemoActivity.this.getMainLooper());
-                mainHandler.post(() -> {
+                RX.main().scheduleDirect(() -> {
                     adapter.setFragments(fragments);
                     adapter.notifyDataSetChanged();
-                    pageIndicatorView.setCount(fragments.size());
+                    pageIndicatorView.setCount(adapter.getCount());
                 });
             }
         }));
@@ -140,6 +144,7 @@ public class DemoActivity extends BaseActivity {
 
             @Override
             public void onPageSelected(int position) {
+                pageIndicatorView.setCount(adapter.getCount());
                 pageIndicatorView.setSelection(position);
                 BaseFragment fragment = (BaseFragment) adapter.get().get(position);
                 fragment.setTabVisibility(true);

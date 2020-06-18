@@ -332,6 +332,9 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     public void sortByLastMessageDate() {
         dialogsListAdapter.sort((o1, o2) -> {
+            if (!o1.getWeight().equals(o2.getWeight())) {
+                return o1.getWeight().compareTo(o2.getWeight());
+            }
             return o2.getDate().compareTo(o1.getDate());
         });
     }

@@ -98,8 +98,8 @@ public class AudioBinder {
 
                         // Optional
                         .setSource(AudioSource.MIC)
-                        .setChannel(AudioChannel.STEREO)
-                        .setSampleRate(AudioSampleRate.HZ_48000)
+                        .setChannel(AudioChannel.MONO)
+                        .setSampleRate(AudioSampleRate.HZ_16000)
                         .setKeepDisplayOn(true)
 
                         // Start recording

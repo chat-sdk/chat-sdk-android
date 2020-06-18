@@ -116,7 +116,6 @@ public class AddXMPPModules extends Activity {
 
                 // Audio messages module
                 .addModule(AudioMessageModule.builder()
-                        .setCompressionEnabled(true)
                         .build())
 
                 // Sticker messages module

@@ -427,7 +427,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     @Override
     public Message newMessage(int type, Thread thread) {
-        Message message = newMessage(type, thread);
+        Message message = super.newMessage(type, thread);
         // User Firebase to generate an ID
         String id = FirebasePaths.threadMessagesRef(thread.getEntityID()).push().getKey();
         message.setEntityID(id);

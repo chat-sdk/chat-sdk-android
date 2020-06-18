@@ -83,6 +83,8 @@ public class ChatSDK {
     protected ConfigBuilder<ChatSDK> builder;
     protected boolean isActive = false;
 
+    protected Runnable onActivateListener = null;
+
     protected ChatSDK () {
     }
 
@@ -219,6 +221,10 @@ public class ChatSDK {
                 }
 //            }
         }), HookEvent.MessageReceived);
+
+        if (onActivateListener != null) {
+            onActivateListener.run();
+        }
 
         isActive = true;
     }
@@ -431,5 +437,8 @@ public class ChatSDK {
         return isActive;
     }
 
+    public void setOnActivateListener(Runnable runnable) {
+        onActivateListener = runnable;
+    }
 }
 

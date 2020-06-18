@@ -6,7 +6,6 @@ import android.os.Debug;
 
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -252,11 +251,6 @@ public class DemoConfigBuilder {
                 // Activate
                 .build()
                 .activate(context);
-
-        // Pass non-fatal exceptions to Crashlytics
-        ChatSDK.events().errorSourceOnMain().doOnNext(throwable -> {
-            FirebaseCrashlytics.getInstance().recordException(throwable);
-        }).ignoreElements().subscribe(ChatSDK.events());
 
     }
 

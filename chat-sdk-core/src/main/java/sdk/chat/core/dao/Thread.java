@@ -862,5 +862,12 @@ public class Thread extends AbstractEntity {
         return false;
     }
 
+    public Long getWeight() {
+        Object value = metaMap().get(Keys.Weight);
+        if (value instanceof Long) {
+            return (Long) value;
+        }
+        return Long.MAX_VALUE;
+    }
 
 }
