@@ -18,6 +18,7 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
     protected String currentUserID = null;
 
     protected Completable authenticating;
+
     protected Completable loggingOut;
 
     public Boolean isAuthenticating () {
@@ -84,6 +85,10 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
         return ChatSDK.shared().getPreferences().getString(Keys.CurrentUserID, null);
     }
 
-
+    public void cancel() {
+        if (isAuthenticating()) {
+            authenticating = null;
+        }
+    }
 
 }

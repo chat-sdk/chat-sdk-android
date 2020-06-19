@@ -114,7 +114,7 @@ public class MainAppBarActivity extends MainActivity {
     public void onStart() {
         super.onStart();
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setHomeAsUpIndicator(Icons.get(Icons.choose().user, Icons.shared().actionBarIconColor));
+            getSupportActionBar().setHomeAsUpIndicator(Icons.get(this, Icons.choose().user, Icons.shared().actionBarIconColor));
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }

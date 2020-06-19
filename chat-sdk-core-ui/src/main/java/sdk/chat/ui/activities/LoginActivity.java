@@ -126,8 +126,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         showProgressDialog(getString(R.string.authenticating));
 
         getProgressDialog().setOnDismissListener(dialog -> {
-            // Dispose
             dm.dispose();
+            ChatSDK.auth().cancel();
         });
 
         if (i == R.id.loginButton) {

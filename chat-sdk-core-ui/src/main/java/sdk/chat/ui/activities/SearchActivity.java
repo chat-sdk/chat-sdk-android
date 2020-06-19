@@ -172,7 +172,7 @@ public class SearchActivity extends BaseActivity {
         getMenuInflater().inflate(R.menu.activity_search_menu, menu);
 
         MenuItem item = menu.findItem(R.id.action_search);
-        item.setIcon(Icons.get(Icons.choose().search, Icons.shared().actionBarIconColor));
+        item.setIcon(Icons.get(this, Icons.choose().search, Icons.shared().actionBarIconColor));
 
         searchView.setMenuItem(item);
 
@@ -269,7 +269,7 @@ public class SearchActivity extends BaseActivity {
     }
 
     public void refreshDoneButton() {
-        fab.setImageDrawable(Icons.get(Icons.choose().check, R.color.white));
+        fab.setImageDrawable(Icons.get(this, Icons.choose().check, R.color.white));
         fab.setVisibility(adapter.getSelectedCount() > 0 ? View.VISIBLE : View.INVISIBLE);
     }
 

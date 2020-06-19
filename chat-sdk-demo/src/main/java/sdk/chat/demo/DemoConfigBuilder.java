@@ -76,11 +76,10 @@ public class DemoConfigBuilder {
         Custom
     }
 
-    protected Backend backend = null;
-    protected Style style = null;
-    protected LoginStyle loginStyle = null;
-    protected Database database = null;
-
+    protected Backend backend = Backend.Firebase;
+    protected Style style = Style.Drawer;
+    protected LoginStyle loginStyle = LoginStyle.FirebaseUI;
+    protected Database database = Database.Realtime;
 
     public DemoConfigBuilder setBackend(Backend backend) {
         if (this.backend != backend) {

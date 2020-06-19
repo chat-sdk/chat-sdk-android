@@ -69,7 +69,7 @@ public class PostRegistrationActivity extends BaseActivity {
             }, this));
         });
 
-        doneFab.setImageDrawable(Icons.get(Icons.choose().check, Icons.shared().actionBarIconColor));
+        doneFab.setImageDrawable(Icons.get(this, Icons.choose().check, Icons.shared().actionBarIconColor));
         doneFab.setOnClickListener(v -> next());
 
         reloadData();
@@ -140,18 +140,18 @@ public class PostRegistrationActivity extends BaseActivity {
 
         locationEditView.setText(location);
         locationEditView.setNextFocusDown(R.id.phoneEditView);
-        locationEditView.setIcon(Icons.get(Icons.choose().location, R.color.edit_profile_icon_color));
+        locationEditView.setIcon(Icons.get(this, Icons.choose().location, R.color.edit_profile_icon_color));
         locationEditView.setHint(R.string.location_hint);
         locationEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
         phoneEditView.setText(phoneNumber);
         phoneEditView.setNextFocusDown(R.id.emailEditView);
-        phoneEditView.setIcon(Icons.get(Icons.choose().phone, R.color.edit_profile_icon_color));
+        phoneEditView.setIcon(Icons.get(this, Icons.choose().phone, R.color.edit_profile_icon_color));
         phoneEditView.setHint(R.string.phone_number_hint);
         phoneEditView.setInputType(InputType.TYPE_CLASS_PHONE);
 
         emailEditView.setText(email);
-        emailEditView.setIcon(Icons.get(Icons.choose().email, R.color.edit_profile_icon_color));
+        emailEditView.setIcon(Icons.get(this, Icons.choose().email, R.color.edit_profile_icon_color));
         emailEditView.setHint(R.string.email_hint);
         emailEditView.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
     }

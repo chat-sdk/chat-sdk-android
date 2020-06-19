@@ -12,7 +12,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Scalable.** Supports millons of daily users [[1](https://firebase.google.com/docs/database/usage/limits), [2](https://blog.process-one.net/ejabberd-massive-scalability-1node-2-million-concurrent-users/)]
 - **Backend agnostic.** Chat SDK can be customized to [support any backend](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/SJUgMoJTU) 
 
-[![](https://raw.githubusercontent.com/chat-sdk/chat-sdk-android/master/graphics/chat-sdk-play.png)](https://i.diawi.com/oTD1dS)
+[![](https://raw.githubusercontent.com/chat-sdk/chat-sdk-android/master/graphics/chat-sdk-play.png)](https://i.diawi.com/PrtX9S)
 
 ## Technical details
 
@@ -22,7 +22,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Java 8** supports Java 8 and lamda expressions
 - **Multi-threaded** agressively multi-threaded
 - **API Level 16+** Compatible with 99.3% of Android devices
-- **Demo** [Download v5.0.0RC12](https://i.diawi.com/oTD1dS)
+- **Demo** [Download v5.0.0RC15](https://i.diawi.com/PrtX9S)
 
 > Please bear in mind that this version is a major update. As a result we are making new releases every few days to fix bugs and crashes. If you see an issue, please report it on the Github bug tracker and we will fix it. 
 
@@ -150,7 +150,7 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 #### Recommended background
 
 - [RxJava for beginners](https://medium.com/@factoryhr/understanding-java-rxjava-for-beginners-5eacb8de12ca)
-- [Chat SDK tips and tricks]() 
+- [API Examples](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat-sdk-demo/src/main/java/sdk/chat/demo/examples/api)
 
 #### Setup Service
 

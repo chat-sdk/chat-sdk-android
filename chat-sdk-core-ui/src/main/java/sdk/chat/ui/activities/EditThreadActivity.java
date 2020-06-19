@@ -109,7 +109,7 @@ public class EditThreadActivity extends BaseActivity {
         });
 
         fab.setOnClickListener(v -> didClickOnSaveButton());
-        fab.setImageDrawable(Icons.get(Icons.choose().check, R.color.fab_icon_color));
+        fab.setImageDrawable(Icons.get(this, Icons.choose().check, R.color.fab_icon_color));
 
         threadImageView.setOnClickListener(view -> {
             dm.add(pickerUploader.choosePhoto(this).subscribe(files -> {

@@ -67,6 +67,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 authenticating = authenticateWithUser(FirebaseCoreHandler.auth().getCurrentUser());
             }
             return authenticating;
+        }).doOnDispose(() -> {
+            cancel();
         });
     }
 
@@ -107,6 +109,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 }).subscribeOn(RX.io()).flatMapCompletable(this::authenticateWithUser);
             }
             return authenticating;
+        }).doOnDispose(() -> {
+            cancel();
         });
     }
 

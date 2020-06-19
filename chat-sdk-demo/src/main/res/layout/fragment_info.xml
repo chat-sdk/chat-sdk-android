@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
-        app:layout_constraintBottom_toTopOf="@+id/textView5"
+        app:layout_constraintBottom_toTopOf="@+id/swipeTextView"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
@@ -118,7 +118,7 @@
     </androidx.cardview.widget.CardView>
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/swipeTextView"
         android:layout_width="0dp"
         android:layout_height="28dp"
         android:layout_marginBottom="40dp"

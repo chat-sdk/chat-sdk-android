@@ -484,10 +484,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
                 getMenuInflater().inflate(R.menu.activity_chat_actions_menu, menu);
 
-                menu.findItem(R.id.action_copy).setIcon(Icons.get(Icons.choose().copy, Icons.shared().actionBarIconColor));
-                menu.findItem(R.id.action_delete).setIcon(Icons.get(Icons.choose().delete, Icons.shared().actionBarIconColor));
-                menu.findItem(R.id.action_forward).setIcon(Icons.get(Icons.choose().forward, Icons.shared().actionBarIconColor));
-                menu.findItem(R.id.action_reply).setIcon(Icons.get(Icons.choose().reply, Icons.shared().actionBarIconColor));
+                menu.findItem(R.id.action_copy).setIcon(Icons.get(this, Icons.choose().copy, Icons.shared().actionBarIconColor));
+                menu.findItem(R.id.action_delete).setIcon(Icons.get(this, Icons.choose().delete, Icons.shared().actionBarIconColor));
+                menu.findItem(R.id.action_forward).setIcon(Icons.get(this, Icons.choose().forward, Icons.shared().actionBarIconColor));
+                menu.findItem(R.id.action_reply).setIcon(Icons.get(this, Icons.choose().reply, Icons.shared().actionBarIconColor));
 
                 if (chatView.getSelectedMessages().size() != 1) {
                     menu.removeItem(R.id.action_reply);
@@ -517,7 +517,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
                 if (ChatSDK.thread().canAddUsersToThread(thread)) {
                     getMenuInflater().inflate(R.menu.add_menu, menu);
-                    menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, Icons.shared().actionBarIconColor));
+                    menu.findItem(R.id.action_add).setIcon(Icons.get(this, Icons.choose().add, Icons.shared().actionBarIconColor));
                 }
 
                 chatActionBar.showText();

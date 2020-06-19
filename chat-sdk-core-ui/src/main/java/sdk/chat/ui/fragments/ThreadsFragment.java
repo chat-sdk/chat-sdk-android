@@ -229,7 +229,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.add_menu, menu);
-        menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, Icons.shared().actionBarIconColor));
+        menu.findItem(R.id.action_add).setIcon(Icons.get(getContext(), Icons.choose().add, Icons.shared().actionBarIconColor));
         if (!allowThreadCreation()) {
             menu.removeItem(R.id.action_add);
         }
@@ -319,10 +319,10 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         ThreadHolder holder = threadHolderHashMap.get(thread);
         if (holder == null) {
             getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder1 -> {
-//                if (!threadHolderHashMap.containsValue(holder1)) {
+                if (!threadHolderHashMap.containsValue(holder1)) {
                     dialogsListAdapter.addItem(holder1);
-                    sortByLastMessageDate();
-//                }
+                }
+                sortByLastMessageDate();
             }).ignoreElement().subscribe(this);
         } else {
             dialogsListAdapter.updateItemById(holder);

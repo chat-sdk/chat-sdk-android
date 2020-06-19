@@ -108,10 +108,10 @@ class MainDrawActivity : MainActivity() {
 
         buildHeader(false, savedInstanceState)
 
-        val logoutItem = PrimaryDrawerItem().withName(R.string.logout).withIcon(Icons.get(Icons.choose().logout, R.color.logout_button_color))
+        val logoutItem = PrimaryDrawerItem().withName(R.string.logout).withIcon(Icons.get(this, Icons.choose().logout, R.color.logout_button_color))
         logoutItem.isSelectable = false
 
-        val profileItem = PrimaryDrawerItem().withName(R.string.profile).withIcon(Icons.get(Icons.choose().user, R.color.profile_icon_color))
+        val profileItem = PrimaryDrawerItem().withName(R.string.profile).withIcon(Icons.get(this, Icons.choose().user, R.color.profile_icon_color))
         profileItem.isSelectable = false
 
         slider.apply {
@@ -207,7 +207,7 @@ class MainDrawActivity : MainActivity() {
                     //don't ask but google uses 14dp for the add account icon in gmail but 20dp for the normal icons (like manage account)
 //                    ProfileSettingDrawerItem().apply {
 //                        name = StringHolder(R.string.logout)
-//                        icon = ImageHolder(Icons.get(Icons.choose().logout, R.color.logout_button_color))
+//                        icon = ImageHolder(Icons.get(this, Icons.choose().logout, R.color.logout_button_color))
 //                    }
             )
             selectionListEnabledForSingleProfile = false

@@ -1,1 +1,12 @@
-<manifest package="sdk.chat.demo" />
+<manifest package="sdk.chat.demo"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+
+        <activity android:name=".activities.WelcomeActivity"/>
+        <activity android:name=".activities.InfoActivity"/>
+        <activity android:name=".activities.StyleActivity"/>
+        <activity android:name=".activities.FirebaseLoginTypeActivity"/>
+        <activity android:name=".activities.LaunchActivity"/>
+
+    </application>
+</manifest>

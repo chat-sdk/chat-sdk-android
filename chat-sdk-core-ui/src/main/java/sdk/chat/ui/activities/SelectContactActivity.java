@@ -83,7 +83,7 @@ public abstract class SelectContactActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuItem item = menu.add(Menu.NONE, R.id.action_search, 0, getString(R.string.search));
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(Icons.get(Icons.choose().search, Icons.shared().actionBarIconColor));
+        item.setIcon(Icons.get(this, Icons.choose().search, Icons.shared().actionBarIconColor));
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -100,7 +100,7 @@ public abstract class SelectContactActivity extends BaseActivity {
         fab.setOnClickListener(v -> {
             doneButtonPressed(adapter.getSelectedUsers());
         });
-        fab.setImageDrawable(Icons.get(Icons.choose().check, R.color.fab_icon_color));
+        fab.setImageDrawable(Icons.get(this, Icons.choose().check, R.color.fab_icon_color));
     }
 
     protected void initList() {

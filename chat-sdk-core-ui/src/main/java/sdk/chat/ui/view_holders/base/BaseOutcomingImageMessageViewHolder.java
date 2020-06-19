@@ -37,7 +37,7 @@ public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> e
             imageLoader.loadImage(image, url, getPayloadForImageLoader(message));
         }
 
-        imageOverlay.setImageDrawable(Icons.get(Icons.choose().check, R.color.white));
+        imageOverlay.setImageDrawable(Icons.get(imageOverlay.getContext(), Icons.choose().check, R.color.white));
 
         if (imageOverlayContainer != null) {
             imageOverlayContainer.setVisibility(isSelected() ? View.VISIBLE : View.INVISIBLE);

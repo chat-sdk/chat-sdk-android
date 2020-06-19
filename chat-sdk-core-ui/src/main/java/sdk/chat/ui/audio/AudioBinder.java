@@ -151,7 +151,7 @@ public class AudioBinder {
     }
 
     protected void startRecordingMode() {
-        messageInput.getButton().setImageDrawable(Icons.get(Icons.choose().microphone, R.color.white));
+        messageInput.getButton().setImageDrawable(Icons.get(activity, Icons.choose().microphone, R.color.white));
         messageInput.getButton().setEnabled(true);
         audioModeEnabled = true;
     }

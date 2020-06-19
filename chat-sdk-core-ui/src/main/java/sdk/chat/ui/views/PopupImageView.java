@@ -59,7 +59,7 @@ public class PopupImageView extends RelativeLayout {
         inflater.inflate(R.layout.view_popup_image, this);
         ButterKnife.bind(this);
 
-        fab.setImageDrawable(Icons.get(Icons.choose().save, R.color.fab_icon_color));
+        fab.setImageDrawable(Icons.get(getContext(), Icons.choose().save, R.color.fab_icon_color));
 
         fab.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.VISIBLE);
