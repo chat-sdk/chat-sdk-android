@@ -22,7 +22,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Java 8** supports Java 8 and lamda expressions
 - **Multi-threaded** agressively multi-threaded
 - **API Level 16+** Compatible with 99.3% of Android devices
-- **Demo** [Download v5.0.0RC15](https://i.diawi.com/SdiQWy)
+- **Demo** [Download v5.0.0RC16](https://i.diawi.com/SdiQWy)
 
 > Please bear in mind that this version is a major update. As a result we are making new releases every few days to fix bugs and crashes. If you see an issue, please report it on the Github bug tracker and we will fix it. 
 
