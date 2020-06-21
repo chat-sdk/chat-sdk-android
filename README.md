@@ -119,6 +119,8 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 
 #### Quick Start
 
+[![Video Tutorial](https://img.youtube.com/vi/ZzfSd3hc3xw/0.jpg)](https://www.youtube.com/watch?v=ZzfSd3hc3xw)
+
 - [Full video tutorial](https://www.youtube.com/watch?v=ZzfSd3hc3xw)
 - [Building a messaging app using Chat SDK](https://hackmd.io/iBIxiQ24RDiMY-W76DomfA#Building-a-messaging-app-using-Chat-SDK)
 - [Adding Chat SDK to a Firebase app](https://hackmd.io/iBIxiQ24RDiMY-W76DomfA#Add-the-Chat-SDK-to-a-Firebase-app)
