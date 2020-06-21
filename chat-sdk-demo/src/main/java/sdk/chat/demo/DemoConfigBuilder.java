@@ -2,7 +2,6 @@ package sdk.chat.demo;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Debug;
 
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
@@ -168,8 +167,6 @@ public class DemoConfigBuilder {
 
     public void setupChatSDK(Context context) throws Exception {
         List<Module> modules = new ArrayList<>();
-
-        Debug.waitForDebugger();
 
         // Backend module
         if (backend == Backend.FireStream) {
