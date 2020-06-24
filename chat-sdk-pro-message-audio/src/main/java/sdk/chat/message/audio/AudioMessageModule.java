@@ -43,7 +43,7 @@ public class AudioMessageModule extends AbstractModule {
         return instance.config;
     }
 
-    public static AudioMessageModule builder(Configure<Config> config) {
+    public static AudioMessageModule builder(Configure<Config> config) throws Exception {
         config.with(instance.config);
         return instance;
     }

@@ -25,7 +25,7 @@ public class FirebaseModule extends AbstractModule implements NetworkAdapterProv
         return instance.config;
     }
 
-    public static FirebaseModule builder(Configure<FirebaseConfig> config) {
+    public static FirebaseModule builder(Configure<FirebaseConfig> config) throws Exception {
         config.with(instance.config);
         return instance;
     }

@@ -80,6 +80,10 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if(UIModule.config().theme != 0) {
+            setTheme(UIModule.config().theme);
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
             getWindow().setEnterTransition(new Explode());
@@ -93,9 +97,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
 
         updateExtras(getIntent().getExtras());
 
-        if(UIModule.config().theme != 0) {
-            setTheme(UIModule.config().theme);
-        }
 
         // Setting the default task description.
         if (getTaskDescriptionBitmap() != null) {

@@ -39,7 +39,7 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
         return instance.config;
     }
 
-    public static FirebaseNearbyUsersModule builder(Configure<Config> config) {
+    public static FirebaseNearbyUsersModule builder(Configure<Config> config) throws Exception {
         config.with(instance.config);
         return instance;
     }

@@ -83,6 +83,8 @@ public class ChatSDK {
     protected ConfigBuilder<ChatSDK> builder;
     protected boolean isActive = false;
 
+    protected Runnable onActivateListener = null;
+
     protected ChatSDK () {
     }
 
@@ -199,26 +201,22 @@ public class ChatSDK {
                 Thread thread = (Thread) threadObject;
 
                 if (!thread.isMuted()) {
-//                    if (!AppBackgroundMonitor.shared().inBackground()) {
-                        if (thread.typeIs(ThreadType.Private) || (thread.typeIs(ThreadType.Public) && ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled)) {
-
-//                            if (!message.getSender().isMe() && !message.isDelivered() && ChatSDK.ui().showLocalNotifications(thread) || NotificationDisplayHandler.connectedToAuto(ChatSDK.ctx())) {
-//                                ReadStatus status = message.readStatusForUser(ChatSDK.currentUser());
-//                                if (!message.isRead() && !status.is(ReadStatus.delivered()) && !status.is(ReadStatus.read())) {
-//                                    // Only show the alert if we'recyclerView not on the private threads tab
-//                                    RX.onMain(() -> ChatSDK.ui().notificationDisplayHandler().createMessageNotification(message));
-//                                }
-//                            }
-
-                            if (!message.isDelivered() && (ChatSDK.ui().showLocalNotifications(thread) || AppBackgroundMonitor.shared().inBackground() || NotificationDisplayHandler.connectedToAuto(ChatSDK.ctx()))) {
-                                // Only show the alert if we'recyclerView not on the private threads tab
-                                RX.onMain(() -> ChatSDK.ui().notificationDisplayHandler().createMessageNotification(message));
+                        if (thread.typeIs(ThreadType.Private) || ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled) {
+                            if (!message.isDelivered()) {
+                                boolean inBackground = AppBackgroundMonitor.shared().inBackground();
+                                boolean connectedToAuto = NotificationDisplayHandler.connectedToAuto(ChatSDK.ctx());
+                                if ((ChatSDK.ui().showLocalNotifications(thread) && !inBackground) || (inBackground && connectedToAuto)) {
+                                    RX.onMain(() -> ChatSDK.ui().notificationDisplayHandler().createMessageNotification(message));
+                                }
                             }
                         }
                     }
                 }
-//            }
         }), HookEvent.MessageReceived);
+
+        if (onActivateListener != null) {
+            onActivateListener.run();
+        }
 
         isActive = true;
     }
@@ -431,5 +429,12 @@ public class ChatSDK {
         return isActive;
     }
 
+    public boolean isValid() {
+        return isActive && (context != null && context.get() != null && networkAdapter != null && interfaceAdapter != null);
+    }
+
+    public void setOnActivateListener(Runnable runnable) {
+        onActivateListener = runnable;
+    }
 }
 

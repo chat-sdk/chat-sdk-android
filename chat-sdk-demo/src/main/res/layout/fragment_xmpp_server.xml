@@ -96,7 +96,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/swipeTextView"
         android:layout_width="0dp"
         android:layout_height="28dp"
         android:layout_marginBottom="40dp"

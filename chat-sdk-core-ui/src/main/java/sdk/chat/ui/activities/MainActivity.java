@@ -132,7 +132,7 @@ public abstract class MainActivity extends BaseActivity {
         if (searchEnabled()) {
             getMenuInflater().inflate(R.menu.activity_search_menu, menu);
             MenuItem item = menu.findItem(R.id.action_search);
-            item.setIcon(Icons.get(Icons.choose().search, Icons.shared().actionBarIconColor));
+            item.setIcon(Icons.get(this, Icons.choose().search, Icons.shared().actionBarIconColor));
             searchView().setMenuItem(item);
         }
 

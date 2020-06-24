@@ -36,6 +36,8 @@ public class LaunchFragment extends BaseFragment {
     @Override
     protected void initViews() {
         button.setOnClickListener(v -> {
+            button.setEnabled(false);
+
             DemoConfigBuilder.Database database = DemoConfigBuilder.shared().getDatabase();
             if (database == DemoConfigBuilder.Database.Custom) {
 //                if (!new ServerKeyStorage(getContext()).valid()) {
@@ -47,10 +49,17 @@ public class LaunchFragment extends BaseFragment {
 
             try {
                 DemoConfigBuilder.shared().setupChatSDK(getContext());
-                dm.add(ChatSDK.auth().logout().observeOn(RX.main()).subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getContext())));
+
+                if (ChatSDK.a() != null) {
+                    ChatSDK.ui().startSplashScreenActivity(getContext());
+                } else {
+                    showToast("Something went wrong! Please contact team@sdk.chat");
+                    dm.add(ChatSDK.auth().logout().observeOn(RX.main()).subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getContext())));
+                }
             } catch (Exception e) {
                 showToast(e.getLocalizedMessage());
                 FirebaseCrashlytics.getInstance().recordException(e);
+                e.printStackTrace();
             }
 
         });
@@ -64,5 +73,11 @@ public class LaunchFragment extends BaseFragment {
     @Override
     public void reloadData() {
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        button.setEnabled(true);
     }
 }

@@ -30,7 +30,7 @@ public class FirebaseReadReceiptsModule extends AbstractModule {
         return instance.config;
     }
 
-    public static FirebaseReadReceiptsModule builder(Configure<Config> config) {
+    public static FirebaseReadReceiptsModule builder(Configure<Config> config) throws Exception {
         config.with(instance.config);
         return instance;
     }

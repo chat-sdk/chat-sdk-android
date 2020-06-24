@@ -33,37 +33,52 @@ public interface InterfaceAdapter {
     Fragment contactsFragment();
     Fragment profileFragment(User user);
 
-    Class getLoginActivity();
-    Class getMainActivity();
-    Class getChatActivity();
-    Class getThreadDetailsActivity();
-    Class getThreadEditDetailsActivity();
+    Class<? extends Activity> getLoginActivity();
+    Class<? extends Activity> getMainActivity();
+    Class<? extends Activity> getChatActivity();
+    Class<? extends Activity> getThreadDetailsActivity();
 
-    Class getAddUsersToThreadActivity();
-    Class getCreateThreadActivity();
-    Class getForwardMessageActivity();
+    /**
+     * Use getEditThreadActivity
+     * @return
+     */
+    @Deprecated
+    Class<? extends Activity> getThreadEditDetailsActivity();
+    Class<? extends Activity> getEditThreadActivity();
 
-    Class getSearchActivity();
-    Class getEditProfileActivity();
-    Class getProfileActivity();
-    Class getSplashScreenActivity();
-    Class getPostRegistrationActivity();
+    Class<? extends Activity> getAddUsersToThreadActivity();
+    Class<? extends Activity> getCreateThreadActivity();
+    Class<? extends Activity> getForwardMessageActivity();
 
-    void setLoginActivity(Class loginActivity);
-    void setSplashScreenActivity(Class splashScreenActivity);
-    void setMainActivity(Class mainActivity);
-    void setChatActivity(Class chatActivity);
-    void setThreadDetailsActivity(Class threadDetailsActivity);
-    void setThreadEditDetailsActivity(Class threadEditDetailsActivity);
-    void setForwardMessageActivity(Class forwardMessageActivity);
-    void setAddUsersToThreadActivity(Class addUsersToThreadActivity);
-    void setCreateThreadActivity(Class createThreadActivity);
+    Class<? extends Activity> getSearchActivity();
+    Class<? extends Activity> getEditProfileActivity();
+    Class<? extends Activity> getProfileActivity();
+    Class<? extends Activity> getSplashScreenActivity();
+    Class<? extends Activity> getPostRegistrationActivity();
 
-    void setSearchActivity(Class searchActivity);
-    void setEditProfileActivity(Class editProfileActivity);
-    void setProfileActivity(Class profileActivity);
+    void setLoginActivity(Class<? extends Activity> loginActivity);
+    void setSplashScreenActivity(Class<? extends Activity> splashScreenActivity);
+    void setMainActivity(Class<? extends Activity> mainActivity);
+    void setChatActivity(Class<? extends Activity> chatActivity);
+    void setThreadDetailsActivity(Class<? extends Activity> threadDetailsActivity);
 
-    public void setPostRegistrationActivity (Class postRegistrationActivity);
+    /**
+     * Use setEditThreadActivity
+     * @param threadEditDetailsActivity
+     */
+    @Deprecated
+    void setThreadEditDetailsActivity(Class<? extends Activity> threadEditDetailsActivity);
+    void setEditThreadActivity(Class<? extends Activity> editThreadActivity);
+
+    void setForwardMessageActivity(Class<? extends Activity> forwardMessageActivity);
+    void setAddUsersToThreadActivity(Class<? extends Activity> addUsersToThreadActivity);
+    void setCreateThreadActivity(Class<? extends Activity> createThreadActivity);
+
+    void setSearchActivity(Class<? extends Activity> searchActivity);
+    void setEditProfileActivity(Class<? extends Activity> editProfileActivity);
+    void setProfileActivity(Class<? extends Activity> profileActivity);
+
+    void setPostRegistrationActivity (Class<? extends Activity> postRegistrationActivity);
     void setPrivateThreadsFragment(Fragment privateThreadsFragment);
     void setPublicThreadsFragment(Fragment publicThreadsFragment);
     void setContactsFragment(Fragment contactsFragment);
@@ -85,7 +100,7 @@ public interface InterfaceAdapter {
 
     void removeTab(int index);
 
-    void startActivity(Context context, Class activity);
+    void startActivity(Context context, Class<? extends Activity> activity);
     void startActivity(Context context, Intent intent);
     void startChatActivityForID(Context context, String threadEntityID);
     void startChatActivityForID(Context context, String threadEntityID, @Nullable Integer flags);
@@ -116,12 +131,12 @@ public interface InterfaceAdapter {
 
     void startSplashScreenActivity(Context context);
 
-    void addSearchActivity(Class className, String name, int requestCode);
-    void addSearchActivity(Class className, String name);
+    void addSearchActivity(Class<? extends Activity> className, String name, int requestCode);
+    void addSearchActivity(Class<? extends Activity> className, String name);
 
 
 
-    void removeSearchActivity(Class className);
+    void removeSearchActivity(Class<? extends Activity> className);
     List<SearchActivityType> getSearchActivities();
 
     void addChatOption(ChatOption option);

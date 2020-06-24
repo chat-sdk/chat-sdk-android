@@ -1,7 +1,5 @@
 package sdk.chat.firebase.adapter.module;
 
-import org.pmw.tinylog.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +37,7 @@ public class FirebaseConfig<T> extends BaseConfig<T> {
         searchIndexes.add(Keys.NameLowercase);
     }
 
-    public FirebaseConfig<T> firebase(String rootPath) {
+    public FirebaseConfig<T> firebase(String rootPath) throws Exception {
 
         if (rootPath != null && rootPath.length() > 0 && !rootPath.substring(rootPath.length() - 1).equals('/')) {
             rootPath += "/";
@@ -74,7 +72,7 @@ public class FirebaseConfig<T> extends BaseConfig<T> {
      * @param rootPath
      * @return
      */
-    public FirebaseConfig<T> setFirebaseRootPath(String rootPath) {
+    public FirebaseConfig<T> setFirebaseRootPath(String rootPath) throws Exception {
         String path = validatePath(rootPath);
         if (path != null) {
             this.firebaseRootPath = path;
@@ -82,21 +80,20 @@ public class FirebaseConfig<T> extends BaseConfig<T> {
         return this;
     }
 
-    protected String validatePath(String path) {
+    protected String validatePath(String path) throws Exception {
         if (path != null) {
             String validPath = path.replaceAll("[^a-zA-Z0-9_]", "");
             if (!validPath.isEmpty()) {
                 if (!validPath.equals(path)) {
-                    Logger.warn("The root path cannot contain special characters, they were removed so your new root path is: " + validPath);
+                    throw new Exception("The root path cannot contain special characters, they were removed so your new root path is: " + validPath);
                 }
                 return validPath;
             } else {
-                Logger.warn("The root path cannot contain special characters, when removed your root path was empty so the default was used instead");
+                throw new Exception("The root path cannot contain special characters, when removed your root path was empty so the default was used instead");
             }
         } else {
-            Logger.warn("The root path provided cannot be null, the default was used instead");
+            throw new Exception("The root path provided cannot be null, the default was used instead");
         }
-        return null;
     }
 
     /**

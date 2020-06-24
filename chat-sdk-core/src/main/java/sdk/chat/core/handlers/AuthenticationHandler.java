@@ -31,6 +31,8 @@ public interface AuthenticationHandler {
     Boolean isAuthenticated();
     Boolean isAuthenticating();
 
+    void cancel();
+
     /**
      * Has been authenticated this session. If they are authenticated this session
      * it means that the server is fully setup and the session is established

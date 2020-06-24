@@ -1,17 +1,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="sdk.chat.app_demo">
+    package="sdk.chat.demo.live">
+
+    <!--        android:icon="@drawable/ic_launcher"-->
 
     <application
         android:allowBackup="false"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/icn_100_profile"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/CustomChatSDKTheme"
-        android:name=".MainApp"
+        android:name="sdk.chat.demo.MainApp"
         android:hardwareAccelerated="true"
-        tools:replace="allowBackup">
-        <activity android:name="sdk.chat.demo.DemoActivity">
+        tools:replace="allowBackup"
+        >
+        <activity android:name="sdk.chat.demo.activities.WelcomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -19,7 +22,7 @@
         </activity>
 
         <receiver
-            android:name=".DemoBroadcastReceiver"
+            android:name="sdk.chat.demo.DemoBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND"
             android:enabled="true"
             android:exported="true">

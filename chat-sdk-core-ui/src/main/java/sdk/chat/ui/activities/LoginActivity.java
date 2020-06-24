@@ -121,13 +121,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     @Override
     public void onClick(View v) {
+        v.setEnabled(false);
+
         int i = v.getId();
 
         showProgressDialog(getString(R.string.authenticating));
 
         getProgressDialog().setOnDismissListener(dialog -> {
-            // Dispose
+            v.setEnabled(true);
             dm.dispose();
+            ChatSDK.auth().cancel();
         });
 
         if (i == R.id.loginButton) {
@@ -144,6 +147,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     @Override
     protected void onResume() {
         super.onResume();
+
+        loginButton.setEnabled(true);
+        registerButton.setEnabled(true);
+        anonymousButton.setEnabled(true);
+        resetPasswordButton.setEnabled(true);
 
         initListeners();
     }

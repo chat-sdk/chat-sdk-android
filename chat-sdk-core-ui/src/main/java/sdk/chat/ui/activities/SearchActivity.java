@@ -145,10 +145,12 @@ public class SearchActivity extends BaseActivity {
         });
 
         addUserButton.setOnClickListener(v -> {
+            addUserButton.setEnabled(false);
             dm.add(ChatSDK.core()
                     .getUserForEntityID(text)
                     .flatMapCompletable(user -> ChatSDK.contact().addContact(user, ConnectionType.Contact))
                     .subscribe(this::finish, error -> {
+                        addUserButton.setEnabled(true);
                         Logger.debug("Errr");
                     }));
         });
@@ -157,7 +159,10 @@ public class SearchActivity extends BaseActivity {
             refreshDoneButton();
         }).ignoreElements().subscribe(this);
 
-        fab.setOnClickListener(v -> done());
+        fab.setOnClickListener(v -> {
+            fab.setEnabled(false);
+            done();
+        });
 
     }
 
@@ -172,7 +177,7 @@ public class SearchActivity extends BaseActivity {
         getMenuInflater().inflate(R.menu.activity_search_menu, menu);
 
         MenuItem item = menu.findItem(R.id.action_search);
-        item.setIcon(Icons.get(Icons.choose().search, Icons.shared().actionBarIconColor));
+        item.setIcon(Icons.get(this, Icons.choose().search, Icons.shared().actionBarIconColor));
 
         searchView.setMenuItem(item);
 
@@ -199,6 +204,8 @@ public class SearchActivity extends BaseActivity {
 
         refreshDoneButton();
         searchView.showSearch(false);
+        addUserButton.setEnabled(true);
+        fab.setEnabled(true);
 
     }
 
@@ -269,7 +276,7 @@ public class SearchActivity extends BaseActivity {
     }
 
     public void refreshDoneButton() {
-        fab.setImageDrawable(Icons.get(Icons.choose().check, R.color.white));
+        fab.setImageDrawable(Icons.get(this, Icons.choose().check, R.color.white));
         fab.setVisibility(adapter.getSelectedCount() > 0 ? View.VISIBLE : View.INVISIBLE);
     }
 

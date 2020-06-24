@@ -68,7 +68,7 @@ public class ChatActionBar extends AppBarLayout {
         titleTextView.setOnClickListener(this::onClick);
         imageView.setOnClickListener(this::onClick);
         subtitleTextView.setOnClickListener(this::onClick);
-        searchImageView.setImageDrawable(Icons.get(Icons.choose().search, Icons.shared().actionBarIconColor));
+        searchImageView.setImageDrawable(Icons.get(getContext(), Icons.choose().search, Icons.shared().actionBarIconColor));
     }
 
     public void onClick(View view) {

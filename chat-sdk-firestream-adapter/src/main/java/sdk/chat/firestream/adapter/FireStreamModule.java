@@ -29,7 +29,7 @@ public class FireStreamModule extends AbstractModule implements NetworkAdapterPr
      * @param configure
      * @return
      */
-    public static FireStreamModule builder(FirebaseServiceType serviceType, Configure<Config> configure) {
+    public static FireStreamModule builder(FirebaseServiceType serviceType, Configure<Config> configure) throws Exception {
         instance.config.serviceType = serviceType;
         configure.with(instance.config);
         return instance;
@@ -47,7 +47,7 @@ public class FireStreamModule extends AbstractModule implements NetworkAdapterPr
     public Config<FireStreamModule> config = new Config<>(this);
 
     @Override
-    public void activate(@Nullable Context context) {
+    public void activate(@Nullable Context context) throws Exception {
         FirebaseService service = config.serviceType == FirebaseServiceType.Firestore ? new FirestoreService() : new RealtimeService();
         config.emitEventForLastMessage = true;
         Fire.stream().initialize(ChatSDK.ctx(), config, service);

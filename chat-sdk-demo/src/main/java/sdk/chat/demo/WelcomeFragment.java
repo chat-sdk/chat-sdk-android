@@ -6,17 +6,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
-
 import butterknife.BindView;
+import io.reactivex.annotations.NonNull;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.fragments.BaseFragment;
-import io.reactivex.annotations.NonNull;
 
 public class WelcomeFragment extends BaseFragment {
 
     @BindView(R2.id.button)
-    Button button;
+    public Button button;
 
     @Override
     protected int getLayout() {
@@ -48,7 +46,7 @@ public class WelcomeFragment extends BaseFragment {
                 ChatSDK.ui().startSplashScreenActivity(getContext());
             } catch (Exception e) {
                 showToast(e.getLocalizedMessage());
-                FirebaseCrashlytics.getInstance().recordException(e);
+                e.printStackTrace();
             }
         });
 

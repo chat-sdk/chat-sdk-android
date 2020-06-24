@@ -22,7 +22,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Java 8** supports Java 8 and lamda expressions
 - **Multi-threaded** agressively multi-threaded
 - **API Level 16+** Compatible with 99.3% of Android devices
-- **Demo** [Download v5.0.0RC9](https://play.google.com/store/apps/details?id=sdk.chat.live)
+- **Demo** [Download v5.0.0RC16](https://play.google.com/store/apps/details?id=sdk.chat.live)
 
 > Please bear in mind that this version is a major update. As a result we are making new releases every few days to fix bugs and crashes. If you see an issue, please report it on the Github bug tracker and we will fix it. 
 
@@ -119,6 +119,9 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 
 #### Quick Start
 
+[![Video Tutorial](https://img.youtube.com/vi/ZzfSd3hc3xw/0.jpg)](https://www.youtube.com/watch?v=ZzfSd3hc3xw)
+
+- [Full video tutorial](https://www.youtube.com/watch?v=ZzfSd3hc3xw)
 - [Building a messaging app using Chat SDK](https://hackmd.io/iBIxiQ24RDiMY-W76DomfA#Building-a-messaging-app-using-Chat-SDK)
 - [Adding Chat SDK to a Firebase app](https://hackmd.io/iBIxiQ24RDiMY-W76DomfA#Add-the-Chat-SDK-to-a-Firebase-app)
 - [Adding Chat SDK to a non-Firebase app](https://hackmd.io/iBIxiQ24RDiMY-W76DomfA#Add-the-Chat-SDK-to-a-non-Firebase-app)
@@ -135,6 +138,12 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 8. [Synchronize user profiles with your app](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/ByPlWV6h8)
 9. [Enable token authentication](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/H18dFBRhL)
 
+#### Customization
+
+1. [Chat SDK customizable attributes](https://github.com/chat-sdk/chat-sdk-android/blob/master/chat-sdk-core-ui/src/main/res/values/attr.xml)
+2. [Chat Kit ChatView customizable attributes](https://github.com/stfalcon-studio/ChatKit/blob/master/docs/COMPONENT_MESSAGES_LIST.md#styling-via-attributes)
+3. [Override Activity or Fragment](https://github.com/chat-sdk/chat-sdk-android/blob/master/app-demo/src/main/java/sdk/chat/demo/examples/override/OverrideViewExample.java)
+
 <!--
 #### Customization
 
@@ -150,7 +159,8 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 #### Recommended background
 
 - [RxJava for beginners](https://medium.com/@factoryhr/understanding-java-rxjava-for-beginners-5eacb8de12ca)
-- [Chat SDK tips and tricks]() 
+- [API Examples](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat-sdk-demo/src/main/java/sdk/chat/demo/examples/api)
+- [Firebase vs. Firestream vs. XMPP](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/Sk8-jryC8)
 
 #### Setup Service
 

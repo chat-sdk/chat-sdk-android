@@ -99,7 +99,7 @@ public class StickerMessageModule extends AbstractModule {
         return instance.config;
     }
 
-    public static StickerMessageModule builder(Configure<Config> config) {
+    public static StickerMessageModule builder(Configure<Config> config) throws Exception {
         config.with(instance.config);
         return instance;
     }

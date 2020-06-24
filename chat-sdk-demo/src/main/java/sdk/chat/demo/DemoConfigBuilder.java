@@ -2,11 +2,9 @@ package sdk.chat.demo;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Debug;
 
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,11 +75,10 @@ public class DemoConfigBuilder {
         Custom
     }
 
-    protected Backend backend = null;
-    protected Style style = null;
-    protected LoginStyle loginStyle = null;
-    protected Database database = null;
-
+    protected Backend backend = Backend.Firebase;
+    protected Style style;
+    protected LoginStyle loginStyle;
+    protected Database database;
 
     public DemoConfigBuilder setBackend(Backend backend) {
         if (this.backend != backend) {
@@ -133,10 +130,18 @@ public class DemoConfigBuilder {
 
     public void save(Context context) {
         SharedPreferences.Editor editor = prefs(context).edit();
-        editor.putString("backend", backend.toString());
-        editor.putString("style", style.toString());
-        editor.putString("loginStyle", loginStyle.toString());
-        editor.putString("database", database.toString());
+        if (backend != null) {
+            editor.putString("backend", backend.toString());
+        }
+        if (style != null) {
+            editor.putString("style", style.toString());
+        }
+        if (loginStyle != null) {
+            editor.putString("loginStyle", loginStyle.toString());
+        }
+        if (database != null) {
+            editor.putString("database", database.toString());
+        }
         editor.apply();
     }
 
@@ -165,13 +170,21 @@ public class DemoConfigBuilder {
     }
 
     public boolean isConfigured() {
-        return backend != null && style != null && loginStyle != null && database != null;
+        return backend != null && style != null && loginStyle != null; // && database != null;
+    }
+
+    @Deprecated
+    public boolean isConfiguredForFirebase() {
+        return isConfigured();
+//        return backend != null && style != null && loginStyle != null;
     }
 
     public void setupChatSDK(Context context) throws Exception {
-        List<Module> modules = new ArrayList<>();
+        if (ChatSDK.shared().isValid() || !isConfigured()) {
+            return;
+        }
 
-        Debug.waitForDebugger();
+        List<Module> modules = new ArrayList<>();
 
         // Backend module
         if (backend == Backend.FireStream) {
@@ -205,6 +218,7 @@ public class DemoConfigBuilder {
 
         Configure<UIConfig> uiConfigConfigure = config -> {
             config.setPublicRoomCreationEnabled(true);
+//            config.setTheme(R.style.ChatSDKTheme);
         };
 
         if (backend == Backend.XMPP) {
@@ -253,10 +267,6 @@ public class DemoConfigBuilder {
                 .build()
                 .activate(context);
 
-        // Pass non-fatal exceptions to Crashlytics
-        ChatSDK.events().errorSourceOnMain().doOnNext(throwable -> {
-            FirebaseCrashlytics.getInstance().recordException(throwable);
-        }).ignoreElements().subscribe(ChatSDK.events());
 
     }
 

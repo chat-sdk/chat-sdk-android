@@ -36,7 +36,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import io.reactivex.Completable;
-import io.reactivex.Single;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -63,7 +62,6 @@ import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.interfaces.TextInputDelegate;
 import sdk.chat.ui.views.ChatView;
 import sdk.chat.ui.views.ReplyView;
-import sdk.guru.common.Optional;
 import sdk.guru.common.RX;
 
 public class ChatActivity extends BaseActivity implements TextInputDelegate, ChatOptionsDelegate, ChatView.Delegate {
@@ -80,7 +78,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected static boolean enableTrace = false;
 
     protected Thread thread;
-    protected Single<Optional<Thread>> getThreadSingle = null;
 
     @BindView(R2.id.chatActionBar) protected ChatActionBar chatActionBar;
     @BindView(R2.id.chatView) protected ChatView chatView;
@@ -202,6 +199,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void initViews() {
         super.initViews();
 
+
         chatView.setDelegate(this);
 
         chatActionBar.onSearchClicked(v -> {
@@ -274,10 +272,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         replyView.setOnCancelListener(v -> hideReplyView());
 
         // Action bar
-        chatActionBar.setOnClickListener(v -> openThreadDetailsActivity());
+        chatActionBar.setOnClickListener(v -> {
+            chatActionBar.setEnabled(false);
+            openThreadDetailsActivity();
+        });
         setSupportActionBar(chatActionBar.getToolbar());
         chatActionBar.reload(thread);
-
 
         setChatState(TypingIndicatorHandler.State.active);
 
@@ -390,6 +390,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
 
         chatActionBar.setSubtitleText(thread, null);
+        chatActionBar.setEnabled(true);
 
         // Show a local notification if the text is from a different thread
         ChatSDK.ui().setLocalNotificationHandler(thread -> !thread.getEntityID().equals(this.thread.getEntityID()));
@@ -408,6 +409,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if (chatView != null) {
             chatView.addListeners();
         }
+
 
     }
 
@@ -484,10 +486,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
                 getMenuInflater().inflate(R.menu.activity_chat_actions_menu, menu);
 
-                menu.findItem(R.id.action_copy).setIcon(Icons.get(Icons.choose().copy, Icons.shared().actionBarIconColor));
-                menu.findItem(R.id.action_delete).setIcon(Icons.get(Icons.choose().delete, Icons.shared().actionBarIconColor));
-                menu.findItem(R.id.action_forward).setIcon(Icons.get(Icons.choose().forward, Icons.shared().actionBarIconColor));
-                menu.findItem(R.id.action_reply).setIcon(Icons.get(Icons.choose().reply, Icons.shared().actionBarIconColor));
+                menu.findItem(R.id.action_copy).setIcon(Icons.get(this, Icons.choose().copy, Icons.shared().actionBarIconColor));
+                menu.findItem(R.id.action_delete).setIcon(Icons.get(this, Icons.choose().delete, Icons.shared().actionBarIconColor));
+                menu.findItem(R.id.action_forward).setIcon(Icons.get(this, Icons.choose().forward, Icons.shared().actionBarIconColor));
+                menu.findItem(R.id.action_reply).setIcon(Icons.get(this, Icons.choose().reply, Icons.shared().actionBarIconColor));
 
                 if (chatView.getSelectedMessages().size() != 1) {
                     menu.removeItem(R.id.action_reply);
@@ -517,7 +519,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
                 if (ChatSDK.thread().canAddUsersToThread(thread)) {
                     getMenuInflater().inflate(R.menu.add_menu, menu);
-                    menu.findItem(R.id.action_add).setIcon(Icons.get(Icons.choose().add, Icons.shared().actionBarIconColor));
+                    menu.findItem(R.id.action_add).setIcon(Icons.get(this, Icons.choose().add, Icons.shared().actionBarIconColor));
                 }
 
                 chatActionBar.showText();

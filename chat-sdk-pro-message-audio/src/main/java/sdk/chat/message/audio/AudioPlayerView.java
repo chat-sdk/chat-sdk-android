@@ -167,9 +167,9 @@ public class AudioPlayerView extends LinearLayout {
             seekBar.setEnabled(ready);
         }
         if (player != null && player.isPlaying()) {
-            playButton.setImageDrawable(Icons.get(Icons.choose().pause, buttonColor));
+            playButton.setImageDrawable(Icons.get(getContext(), Icons.choose().pause, buttonColor));
         } else {
-            playButton.setImageDrawable(Icons.get(Icons.choose().play, buttonColor));
+            playButton.setImageDrawable(Icons.get(getContext(), Icons.choose().play, buttonColor));
         }
     }
 

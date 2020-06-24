@@ -22,6 +22,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
 
 public class NotificationDisplayHandler implements Consumer<Throwable> {
@@ -51,29 +52,37 @@ public class NotificationDisplayHandler implements Consumer<Throwable> {
     public Disposable createMessageNotification(final Context context, Intent resultIntent, String userEntityID, String threadEntityId, String title, String message) {
 
         Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityId);
-        if (connectedToAuto(context) && thread != null) {
-            return new NotificationBuilder(context).forAuto(title, message, thread).build().subscribe(builder -> {
-                NotificationManagerCompat.from(context).notify(MESSAGE_NOTIFICATION_ID, builder.build());
-            }, this);
+
+        NotificationBuilder builder = new NotificationBuilder(context);
+        boolean connectedToAuto = connectedToAuto(context);
+
+        if (thread != null) {
+            builder = builder.forAuto(title, message, thread);
+            if (!connectedToAuto) {
+                builder = builder.setIntent(resultIntent);
+            }
         } else {
-            NotificationBuilder builder = new NotificationBuilder(context)
-                    .useDefault()
+            builder = builder.useDefault()
                     .setIntent(resultIntent)
                     .addIconForUserEntityID(userEntityID)
                     .setTitle(title)
                     .setText(message);
-            if (thread != null && ChatSDK.config().replyFromNotificationEnabled) {
-                builder = builder.addMessageReplyActionsForThread(thread);
-            }
-            return builder.build().subscribe(b -> {
-                Notification notification = b.build();
-                notification.flags = Notification.FLAG_AUTO_CANCEL;
-                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.notify(MESSAGE_NOTIFICATION_ID, notification);
-                wakeScreen(context);
-            }, this);
         }
+        User user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
+        if (user != null) {
+            builder.addIconForUser(user);
+        }
+
+        return builder.build().subscribe(nb -> {
+            NotificationManagerCompat.from(context).notify(MESSAGE_NOTIFICATION_ID, nb.build());
+            if (!connectedToAuto) {
+                wakeScreen(context);
+            }
+        }, this);
+
     }
+
+
 
     /**
      * Waking up the screen
@@ -82,7 +91,6 @@ public class NotificationDisplayHandler implements Consumer<Throwable> {
 
         // Waking the screen so the user will see the notification
         PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
-
 
         boolean isScreenOn;
 

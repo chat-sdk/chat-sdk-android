@@ -118,6 +118,8 @@ public class EditProfileActivity extends BaseActivity {
         super.initViews();
 
         avatarImageView.setOnClickListener(view -> {
+            avatarImageView.setEnabled(false);
+
             if (ChatSDK.profilePictures() != null) {
                 ChatSDK.profilePictures().startProfilePicturesActivity(this, currentUser.getEntityID());
             } else {
@@ -133,6 +135,7 @@ public class EditProfileActivity extends BaseActivity {
 
         appbar.addOnOffsetChangedListener(new ProfileViewOffsetChangeListener(avatarImageView));
         appbar.setOnClickListener(v -> {
+            appbar.setEnabled(false);
             ImagePickerUploader uploader = new ImagePickerUploader(MediaSelector.CropType.None);
             dm.add(uploader.choosePhoto(this, false).subscribe(results -> {
                 setHeaderImage(results.get(0).url);
@@ -140,12 +143,27 @@ public class EditProfileActivity extends BaseActivity {
             }, this));
         });
 
-        doneFab.setImageDrawable(Icons.get(Icons.choose().check, Icons.shared().actionBarIconColor));
-        doneFab.setOnClickListener(v -> saveAndExit());
-        logoutFab.setImageDrawable(Icons.get(Icons.choose().logout, Icons.shared().actionBarIconColor));
-        logoutFab.setOnClickListener(v -> logout());
+        doneFab.setImageDrawable(Icons.get(this, Icons.choose().check, Icons.shared().actionBarIconColor));
+        doneFab.setOnClickListener(v -> {
+            doneFab.setEnabled(false);
+            saveAndExit();
+        });
+        logoutFab.setImageDrawable(Icons.get(this, Icons.choose().logout, Icons.shared().actionBarIconColor));
+        logoutFab.setOnClickListener(v -> {
+            logoutFab.setEnabled(false);
+            logout();
+        });
 
         reloadData();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        avatarImageView.setEnabled(true);
+        appbar.setEnabled(true);
+        doneFab.setEnabled(true);
+        logoutFab.setEnabled(true);
     }
 
     protected void setHeaderImage(@Nullable String url) {
@@ -195,24 +213,24 @@ public class EditProfileActivity extends BaseActivity {
 
         nameEditView.setText(name);
         nameEditView.setNextFocusDown(R.id.locationEditView);
-        nameEditView.setIcon(Icons.get(Icons.choose().user, R.color.edit_profile_icon_color));
+        nameEditView.setIcon(Icons.get(this, Icons.choose().user, R.color.edit_profile_icon_color));
         nameEditView.setHint(R.string.name_hint);
         nameEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
         locationEditView.setText(location);
         locationEditView.setNextFocusDown(R.id.phoneEditView);
-        locationEditView.setIcon(Icons.get(Icons.choose().location, R.color.edit_profile_icon_color));
+        locationEditView.setIcon(Icons.get(this, Icons.choose().location, R.color.edit_profile_icon_color));
         locationEditView.setHint(R.string.location_hint);
         locationEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
         phoneEditView.setText(phoneNumber);
         phoneEditView.setNextFocusDown(R.id.emailEditView);
-        phoneEditView.setIcon(Icons.get(Icons.choose().phone, R.color.edit_profile_icon_color));
+        phoneEditView.setIcon(Icons.get(this, Icons.choose().phone, R.color.edit_profile_icon_color));
         phoneEditView.setHint(R.string.phone_number_hint);
         phoneEditView.setInputType(InputType.TYPE_CLASS_PHONE);
 
         emailEditView.setText(email);
-        emailEditView.setIcon(Icons.get(Icons.choose().email, R.color.edit_profile_icon_color));
+        emailEditView.setIcon(Icons.get(this, Icons.choose().email, R.color.edit_profile_icon_color));
         emailEditView.setHint(R.string.email_hint);
         emailEditView.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
     }

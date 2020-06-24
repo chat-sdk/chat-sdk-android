@@ -47,7 +47,7 @@ public class ReplyView extends ConstraintLayout {
         LayoutInflater.from(getContext()).inflate(R.layout.view_chat_reply, this, true);
         ButterKnife.bind(this);
 
-        cancelButton.setImageDrawable(Icons.get(Icons.choose().cancel, R.color.gray_light));
+        cancelButton.setImageDrawable(Icons.get(getContext(), Icons.choose().cancel, R.color.gray_light));
         hide();
     }
 

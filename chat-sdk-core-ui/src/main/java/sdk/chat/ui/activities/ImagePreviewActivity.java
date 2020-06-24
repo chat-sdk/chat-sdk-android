@@ -253,4 +253,6 @@ public class ImagePreviewActivity extends BaseActivity {
         set1.start();
         currentAnimator = set1;
     }
+
+
 }

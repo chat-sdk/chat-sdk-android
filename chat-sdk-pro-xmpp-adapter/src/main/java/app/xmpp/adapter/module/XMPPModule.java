@@ -33,7 +33,7 @@ public class XMPPModule extends AbstractModule implements NetworkAdapterProvider
         return instance.config;
     }
 
-    public XMPPModule configureUI(Configure<UIConfig> configure) {
+    public XMPPModule configureUI(Configure<UIConfig> configure) throws Exception {
         configure.with(UIModule.config());
         return instance;
     }

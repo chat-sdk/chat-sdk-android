@@ -97,6 +97,10 @@ public class Icons {
         return get(icon, colorRes, 0, 0);
     }
 
+    public static Drawable get(Context context, IconicsDrawable icon, @ColorRes int colorRes) {
+        return get(context, icon, colorRes, 0, 0);
+    }
+
     public static Drawable get(Drawable icon, @ColorRes int colorRes) {
         return get(context(), icon, colorRes);
     }

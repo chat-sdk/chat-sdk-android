@@ -14,7 +14,6 @@ import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.ReadStatus;
 
 public class MessageActionBuilder {
 
@@ -95,7 +94,7 @@ public class MessageActionBuilder {
         style.setGroupConversation(thread.typeIs(ThreadType.Group));
 
         for (Message message : thread.getMessages()) {
-            if (!message.readStatusForUser(ChatSDK.currentUser()).is(ReadStatus.read())) {
+            if (!message.isRead()) {
                 Person sender = new Person.Builder()
                         .setName(message.getSender().getName())
                         .setIcon(null)
@@ -115,7 +114,9 @@ public class MessageActionBuilder {
         NotificationCompat.Action markAsReadAction = createMarkAsReadAction(context, thread.getEntityID(), getMarkReadId(thread.getId()));
         NotificationCompat.MessagingStyle style = createMessagingStyle(thread);
 
-        builder.setStyle(style);
+        if (!style.getMessages().isEmpty()) {
+            builder.setStyle(style);
+        }
         builder.addAction(replyAction);
         builder.addAction(markAsReadAction);
 

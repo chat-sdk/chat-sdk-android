@@ -108,10 +108,14 @@ public class EditThreadActivity extends BaseActivity {
             }
         });
 
-        fab.setOnClickListener(v -> didClickOnSaveButton());
-        fab.setImageDrawable(Icons.get(Icons.choose().check, R.color.fab_icon_color));
+        fab.setOnClickListener(v -> {
+            fab.setEnabled(false);
+            didClickOnSaveButton();
+        });
+        fab.setImageDrawable(Icons.get(this, Icons.choose().check, R.color.fab_icon_color));
 
         threadImageView.setOnClickListener(view -> {
+            threadImageView.setEnabled(false);
             dm.add(pickerUploader.choosePhoto(this).subscribe(files -> {
                 if (!files.isEmpty()) {
                     showProgressDialog(EditThreadActivity.this.getString(R.string.uploading));
@@ -127,6 +131,13 @@ public class EditThreadActivity extends BaseActivity {
         });
 
         refreshView();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fab.setEnabled(true);
+        threadImageView.setEnabled(true);
     }
 
     protected void updateSaveButtonState() {
