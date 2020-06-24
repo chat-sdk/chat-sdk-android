@@ -63,6 +63,8 @@ public class UserWrapper {
     private UserWrapper(FirebaseUser authData){
         model = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, authData.getUid());
         updateUserFromAuthData(authData);
+
+
     }
 
     public UserWrapper(User model) {

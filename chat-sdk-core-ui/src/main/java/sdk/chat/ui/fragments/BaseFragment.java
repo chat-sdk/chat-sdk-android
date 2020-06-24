@@ -52,6 +52,7 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
         rootView = inflater.inflate(getLayout(), container, false);
         ButterKnife.bind(this, rootView);
 
+
         setHasOptionsMenu(true);
 
         alert = new AlertUtils(new AlertUtils.Provider() {

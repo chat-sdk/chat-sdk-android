@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 import butterknife.BindView;
 import io.reactivex.annotations.NonNull;
 import sdk.chat.core.session.ChatSDK;
@@ -45,9 +47,16 @@ public class LaunchFragment extends BaseFragment {
 
             try {
                 DemoConfigBuilder.shared().setupChatSDK(getContext());
-                dm.add(ChatSDK.auth().logout().observeOn(RX.main()).subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getContext())));
+
+                if (ChatSDK.a() != null) {
+                    ChatSDK.ui().startSplashScreenActivity(getContext());
+                } else {
+                    showToast("Something went wrong! Please contact team@sdk.chat");
+                    dm.add(ChatSDK.auth().logout().observeOn(RX.main()).subscribe(() -> ChatSDK.ui().startSplashScreenActivity(getContext())));
+                }
             } catch (Exception e) {
                 showToast(e.getLocalizedMessage());
+                FirebaseCrashlytics.getInstance().recordException(e);
                 e.printStackTrace();
             }
 

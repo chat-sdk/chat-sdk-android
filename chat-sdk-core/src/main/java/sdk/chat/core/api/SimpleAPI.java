@@ -17,6 +17,7 @@ public class SimpleAPI {
 
     public static void updateUser(String name, String avatarURL) {
         updateUserAsync(name, avatarURL).subscribe();
+
     }
 
 }

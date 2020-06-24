@@ -159,6 +159,7 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 
 - [RxJava for beginners](https://medium.com/@factoryhr/understanding-java-rxjava-for-beginners-5eacb8de12ca)
 - [API Examples](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat-sdk-demo/src/main/java/sdk/chat/demo/examples/api)
+- [Firebase vs. Firestream vs. XMPP](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/Sk8-jryC8)
 
 #### Setup Service
 

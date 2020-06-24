@@ -76,9 +76,9 @@ public class DemoConfigBuilder {
     }
 
     protected Backend backend = Backend.Firebase;
-    protected Style style = Style.Drawer;
-    protected LoginStyle loginStyle = LoginStyle.FirebaseUI;
-    protected Database database = Database.Realtime;
+    protected Style style;
+    protected LoginStyle loginStyle;
+    protected Database database;
 
     public DemoConfigBuilder setBackend(Backend backend) {
         if (this.backend != backend) {
@@ -130,10 +130,18 @@ public class DemoConfigBuilder {
 
     public void save(Context context) {
         SharedPreferences.Editor editor = prefs(context).edit();
-        editor.putString("backend", backend.toString());
-        editor.putString("style", style.toString());
-        editor.putString("loginStyle", loginStyle.toString());
-        editor.putString("database", database.toString());
+        if (backend != null) {
+            editor.putString("backend", backend.toString());
+        }
+        if (style != null) {
+            editor.putString("style", style.toString());
+        }
+        if (loginStyle != null) {
+            editor.putString("loginStyle", loginStyle.toString());
+        }
+        if (database != null) {
+            editor.putString("database", database.toString());
+        }
         editor.apply();
     }
 
@@ -163,6 +171,10 @@ public class DemoConfigBuilder {
 
     public boolean isConfigured() {
         return backend != null && style != null && loginStyle != null && database != null;
+    }
+
+    public boolean isConfiguredForFirebase() {
+        return backend != null && style != null && loginStyle != null;
     }
 
     public void setupChatSDK(Context context) throws Exception {
@@ -200,6 +212,7 @@ public class DemoConfigBuilder {
 
         Configure<UIConfig> uiConfigConfigure = config -> {
             config.setPublicRoomCreationEnabled(true);
+//            config.setTheme(R.style.ChatSDKTheme);
         };
 
         if (backend == Backend.XMPP) {
@@ -247,6 +260,7 @@ public class DemoConfigBuilder {
                 // Activate
                 .build()
                 .activate(context);
+
 
     }
 

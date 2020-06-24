@@ -63,7 +63,7 @@ public interface InterfaceAdapter {
     void setEditProfileActivity(Class editProfileActivity);
     void setProfileActivity(Class profileActivity);
 
-    public void setPostRegistrationActivity (Class postRegistrationActivity);
+    void setPostRegistrationActivity (Class postRegistrationActivity);
     void setPrivateThreadsFragment(Fragment privateThreadsFragment);
     void setPublicThreadsFragment(Fragment publicThreadsFragment);
     void setContactsFragment(Fragment contactsFragment);

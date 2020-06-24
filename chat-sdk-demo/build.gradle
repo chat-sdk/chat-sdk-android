@@ -100,5 +100,7 @@ dependencies {
     implementation "com.mikepenz:iconics-views:$iconicsVersion"
     implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
 
+    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
+
 }
 
