@@ -33,7 +33,7 @@ public class WelcomeActivity extends AbstractDemoActivity {
         }
 
         launch.setImageResource(R.drawable.icons8_launched_rocket_filled);
-        if (!DemoConfigBuilder.shared().isConfiguredForFirebase()) {
+        if (!DemoConfigBuilder.shared().isConfigured()) {
             launch.setVisibility(View.INVISIBLE);
         } else {
             launch.setVisibility(View.VISIBLE);
@@ -41,11 +41,11 @@ public class WelcomeActivity extends AbstractDemoActivity {
         }
 
         launch.setOnClickListener(v -> {
-
+            launch.setEnabled(false);
             try {
                 DemoConfigBuilder.shared().setupChatSDK(this);
 
-                if (ChatSDK.a() != null) {
+                if (ChatSDK.shared().isValid()) {
                     ChatSDK.ui().startSplashScreenActivity(this);
                 } else {
                     showToast("Something went wrong! Please contact team@sdk.chat");
@@ -55,12 +55,20 @@ public class WelcomeActivity extends AbstractDemoActivity {
                 showToast(e.getLocalizedMessage());
                 FirebaseCrashlytics.getInstance().recordException(e);
                 e.printStackTrace();
+                launch.setEnabled(true);
             }
 
         });
 
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        launch.setEnabled(true);
+    }
+
 
     @Override
     protected int getLayout() {

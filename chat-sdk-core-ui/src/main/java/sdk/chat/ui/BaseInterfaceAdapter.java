@@ -69,20 +69,20 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public LocalNotificationHandler localNotificationHandler;
     public NotificationDisplayHandler notificationDisplayHandler;
 
-    protected Class loginActivity = LoginActivity.class;
-    protected Class splashScreenActivity = SplashScreenActivity.class;
-    protected Class mainActivity = MainAppBarActivity.class;
-    protected Class chatActivity = ChatActivity.class;
-    protected Class threadDetailsActivity = ThreadDetailsActivity.class;
-    protected Class threadEditDetailsActivity = EditThreadActivity.class;
-    protected Class postRegistrationActivity = PostRegistrationActivity.class;
+    protected Class<? extends Activity> loginActivity = LoginActivity.class;
+    protected Class<? extends Activity> splashScreenActivity = SplashScreenActivity.class;
+    protected Class<? extends Activity> mainActivity = MainAppBarActivity.class;
+    protected Class<? extends Activity> chatActivity = ChatActivity.class;
+    protected Class<? extends Activity> threadDetailsActivity = ThreadDetailsActivity.class;
+    protected Class<? extends Activity> editThreadActivity = EditThreadActivity.class;
+    protected Class<? extends Activity> postRegistrationActivity = PostRegistrationActivity.class;
 
-    protected Class searchActivity = SearchActivity.class;
-    protected Class editProfileActivity = EditProfileActivity.class;
-    protected Class profileActivity = ProfileActivity.class;
-    protected Class createThreadActivity = CreateThreadActivity.class;
-    protected Class addUsersToThreadActivity = AddUsersToThreadActivity.class;
-    protected Class forwardMessageActivity = ForwardMessageActivity.class;
+    protected Class<? extends Activity> searchActivity = SearchActivity.class;
+    protected Class<? extends Activity> editProfileActivity = EditProfileActivity.class;
+    protected Class<? extends Activity> profileActivity = ProfileActivity.class;
+    protected Class<? extends Activity> createThreadActivity = CreateThreadActivity.class;
+    protected Class<? extends Activity> addUsersToThreadActivity = AddUsersToThreadActivity.class;
+    protected Class<? extends Activity> forwardMessageActivity = ForwardMessageActivity.class;
     protected AvatarGenerator avatarGenerator = new HashAvatarGenerator();
 
     protected Intent loginIntent;
@@ -223,137 +223,147 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public Class getLoginActivity() {
+    public Class<? extends Activity> getLoginActivity() {
         return loginActivity;
     }
 
     @Override
-    public void setLoginActivity (Class loginActivity) {
+    public void setLoginActivity (Class<? extends Activity> loginActivity) {
         this.loginActivity = loginActivity;
     }
 
     @Override
-    public Class getSplashScreenActivity() {
+    public Class<? extends Activity> getSplashScreenActivity() {
         return splashScreenActivity;
     }
 
     @Override
-    public void setSplashScreenActivity (Class splashScreenActivity) {
+    public void setSplashScreenActivity (Class<? extends Activity> splashScreenActivity) {
         this.splashScreenActivity = splashScreenActivity;
     }
 
     @Override
-    public Class getMainActivity() {
+    public Class<? extends Activity> getMainActivity() {
         return mainActivity;
     }
 
     @Override
-    public Class getPostRegistrationActivity() {
+    public Class<? extends Activity> getPostRegistrationActivity() {
         return postRegistrationActivity;
     }
 
     @Override
-    public void setMainActivity (Class mainActivity) {
+    public void setMainActivity (Class<? extends Activity> mainActivity) {
         this.mainActivity = mainActivity;
     }
 
     @Override
-    public Class getChatActivity() {
+    public Class<? extends Activity> getChatActivity() {
         return chatActivity;
     }
 
     @Override
-    public void setChatActivity (Class chatActivity) {
+    public void setChatActivity (Class<? extends Activity> chatActivity) {
         this.chatActivity = chatActivity;
     }
 
     @Override
-    public Class getThreadDetailsActivity() {
+    public Class<? extends Activity> getThreadDetailsActivity() {
         return ThreadDetailsActivity.class;
     }
 
     @Override
-    public void setThreadDetailsActivity (Class threadDetailsActivity) {
+    public void setThreadDetailsActivity (Class<? extends Activity> threadDetailsActivity) {
         this.threadDetailsActivity = threadDetailsActivity;
     }
 
     @Override
-    public Class getThreadEditDetailsActivity() {
-        return threadEditDetailsActivity;
+    public Class<? extends Activity> getThreadEditDetailsActivity() {
+        return getEditThreadActivity();
     }
 
     @Override
-    public void setThreadEditDetailsActivity (Class threadEditDetailsActivity) {
-        this.threadEditDetailsActivity = threadEditDetailsActivity;
+    public Class<? extends Activity> getEditThreadActivity() {
+        return editThreadActivity;
     }
 
     @Override
-    public void setPostRegistrationActivity (Class postRegistrationActivity) {
+    public void setThreadEditDetailsActivity (Class<? extends Activity> threadEditDetailsActivity) {
+        setEditThreadActivity(threadEditDetailsActivity);
+    }
+
+    @Override
+    public void setEditThreadActivity(Class<? extends Activity> editThreadActivity) {
+        this.editThreadActivity = editThreadActivity;
+    }
+
+    @Override
+    public void setPostRegistrationActivity (Class<? extends Activity> postRegistrationActivity) {
         this.postRegistrationActivity = postRegistrationActivity;
     }
 
     @Override
-    public void setForwardMessageActivity(Class forwardMessageActivity) {
+    public void setForwardMessageActivity(Class<? extends Activity> forwardMessageActivity) {
         this.forwardMessageActivity = forwardMessageActivity;
     }
 
     @Override
-    public Class getAddUsersToThreadActivity() {
+    public Class<? extends Activity> getAddUsersToThreadActivity() {
         return addUsersToThreadActivity;
     }
 
     @Override
-    public Class getCreateThreadActivity() {
+    public Class<? extends Activity> getCreateThreadActivity() {
         return createThreadActivity;
     }
 
     @Override
-    public Class getForwardMessageActivity() {
+    public Class<? extends Activity> getForwardMessageActivity() {
         return forwardMessageActivity;
     }
 
     @Override
-    public void setAddUsersToThreadActivity(Class addUsersToThreadActivity) {
+    public void setAddUsersToThreadActivity(Class<? extends Activity> addUsersToThreadActivity) {
         this.addUsersToThreadActivity = addUsersToThreadActivity;
     }
 
     @Override
-    public void setCreateThreadActivity(Class createThreadActivity) {
+    public void setCreateThreadActivity(Class<? extends Activity> createThreadActivity) {
         this.createThreadActivity = createThreadActivity;
     }
 
     @Override
-    public Class getSearchActivity() {
+    public Class<? extends Activity> getSearchActivity() {
         return searchActivity;
     }
 
 
     @Override
-    public void setSearchActivity (Class searchActivity) {
+    public void setSearchActivity (Class<? extends Activity> searchActivity) {
         this.searchActivity = searchActivity;
     }
 
     @Override
-    public Class getEditProfileActivity() {
+    public Class<? extends Activity> getEditProfileActivity() {
         return editProfileActivity;
     }
 
     @Override
-    public void setEditProfileActivity (Class editProfileActivity) {
+    public void setEditProfileActivity (Class<? extends Activity> editProfileActivity) {
         this.editProfileActivity = editProfileActivity;
     }
 
     @Override
-    public Class getProfileActivity() {
+    public Class<? extends Activity> getProfileActivity() {
         return profileActivity;
     }
 
     @Override
-    public void setProfileActivity (Class profileActivity) {
+    public void setProfileActivity (Class<? extends Activity> profileActivity) {
         this.profileActivity = profileActivity;
     }
 
-    public Intent intentForActivity(Context context, Class activity, HashMap<String, Object> extras, int flags) {
+    public Intent intentForActivity(Context context, Class<? extends Activity> activity, HashMap<String, Object> extras, int flags) {
         Intent intent = new Intent(context, activity);
         addExtrasToIntent(intent, extras);
         if (flags != 0) {
@@ -382,11 +392,11 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         }
     }
 
-    public void startActivity(Context context, Class activity, HashMap<String, Object> extras, int flags) {
+    public void startActivity(Context context, Class<? extends Activity> activity, HashMap<String, Object> extras, int flags) {
         startActivity(context, intentForActivity(context, activity, extras, flags));
     }
 
-    public void startActivity(Context context, Class activity){
+    public void startActivity(Context context, Class<? extends Activity> activity){
         startActivity(context, activity, null, 0);
     }
 
@@ -512,19 +522,19 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
 
     @Override
-    public void addSearchActivity(Class className, String title, int requestCode) {
+    public void addSearchActivity(Class<? extends Activity> className, String title, int requestCode) {
         SearchActivityType activity = new SearchActivityType(className, title, requestCode);
         removeSearchActivity(className);
         searchActivities.add(activity);
     }
 
     @Override
-    public void addSearchActivity(Class className, String title) {
+    public void addSearchActivity(Class<? extends Activity> className, String title) {
         addSearchActivity(className, title, -1);
     }
 
     @Override
-    public void removeSearchActivity(Class className) {
+    public void removeSearchActivity(Class<? extends Activity> className) {
         Iterator<SearchActivityType> iterator = searchActivities.iterator();
         while (iterator.hasNext()) {
             if(iterator.next().className.equals(className)) {

@@ -73,12 +73,15 @@ public class NotificationBuilder {
     }
 
     public NotificationBuilder useDefaultIcons() {
-        int pushIcon = ChatSDK.config().pushNotificationImageDefaultResourceId;
-        if(pushIcon <= 0) {
-            pushIcon = R.drawable.icn_72_push_mask;
+        smallIcon = ChatSDK.config().pushNotificationImageDefaultResourceId;
+        if(smallIcon <= 0) {
+            smallIcon = R.drawable.icn_72_push_mask;
         }
-        return setSmallIcon(pushIcon)
-                .setLargeIcon(BitmapFactory.decodeResource(context.get().getResources(), pushIcon));
+        if (largeIcon == null) {
+            largeIcon = BitmapFactory.decodeResource(context.get().getResources(), R.drawable.ic_launcher);
+        }
+        return setSmallIcon(smallIcon)
+                .setLargeIcon(largeIcon);
     }
 
     public NotificationBuilder useDefaultColor() {
@@ -283,17 +286,19 @@ public class NotificationBuilder {
                 .useDefaultChannel()
                 .addTitleAndTextForMessage(message)
                 .addMessageReplyActionsForThread(message.getThread());
+        if (message.getSender() != null) {
+            builder.addIconForUser(message.getSender());
+        }
         return builder;
     }
 
     public NotificationBuilder forAuto(String title, String text, Thread thread) {
-        NotificationBuilder builder = useDefaultIcons()
+        return useDefaultIcons()
                 .setVibrationEnabled(true)
                 .useDefaultChannel()
                 .setTitle(title)
                 .setText(text)
                 .addMessageReplyActionsForThread(thread);
-        return builder;
     }
 
     public NotificationBuilder addMessageReplyActionsForThread(Thread thread) {

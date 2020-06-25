@@ -170,14 +170,20 @@ public class DemoConfigBuilder {
     }
 
     public boolean isConfigured() {
-        return backend != null && style != null && loginStyle != null && database != null;
+        return backend != null && style != null && loginStyle != null; // && database != null;
     }
 
+    @Deprecated
     public boolean isConfiguredForFirebase() {
-        return backend != null && style != null && loginStyle != null;
+        return isConfigured();
+//        return backend != null && style != null && loginStyle != null;
     }
 
     public void setupChatSDK(Context context) throws Exception {
+        if (ChatSDK.shared().isValid() || !isConfigured()) {
+            return;
+        }
+
         List<Module> modules = new ArrayList<>();
 
         // Backend module
@@ -259,7 +265,7 @@ public class DemoConfigBuilder {
 
                 // Activate
                 .build()
-                .activate(context);
+                .activate(context, "team@sdk.chat");
 
 
     }

@@ -23,7 +23,10 @@ public abstract class AbstractDemoActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         fab.setVisibility(View.VISIBLE);
-        fab.setOnClickListener(v -> next());
+        fab.setOnClickListener(v -> {
+            fab.setEnabled(false);
+            next();
+        });
         fab.setImageResource(R.drawable.icons8_forward);
 
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment);
@@ -36,6 +39,12 @@ public abstract class AbstractDemoActivity extends BaseActivity {
 
         overridePendingTransition(R.anim.fragment_fade_enter, R.anim.fragment_fade_exit);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fab.setEnabled(true);
     }
 
     protected void next() {

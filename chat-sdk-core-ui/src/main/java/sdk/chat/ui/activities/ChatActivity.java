@@ -272,10 +272,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         replyView.setOnCancelListener(v -> hideReplyView());
 
         // Action bar
-        chatActionBar.setOnClickListener(v -> openThreadDetailsActivity());
+        chatActionBar.setOnClickListener(v -> {
+            chatActionBar.setEnabled(false);
+            openThreadDetailsActivity();
+        });
         setSupportActionBar(chatActionBar.getToolbar());
         chatActionBar.reload(thread);
-
 
         setChatState(TypingIndicatorHandler.State.active);
 
@@ -388,6 +390,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
 
         chatActionBar.setSubtitleText(thread, null);
+        chatActionBar.setEnabled(true);
 
         // Show a local notification if the text is from a different thread
         ChatSDK.ui().setLocalNotificationHandler(thread -> !thread.getEntityID().equals(this.thread.getEntityID()));
@@ -406,6 +409,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if (chatView != null) {
             chatView.addListeners();
         }
+
 
     }
 

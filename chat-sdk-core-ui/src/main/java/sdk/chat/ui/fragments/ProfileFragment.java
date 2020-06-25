@@ -108,6 +108,7 @@ public class ProfileFragment extends BaseFragment {
 
         if (ChatSDK.profilePictures() != null) {
             avatarImageView.setOnClickListener(v -> {
+                avatarImageView.setEnabled(false);
                 ChatSDK.profilePictures().startProfilePicturesActivity(getContext(), getUser().getEntityID());
             });
         }
@@ -138,6 +139,8 @@ public class ProfileFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        avatarImageView.setEnabled(true);
+        editFab.setEnabled(true);
     }
 
     protected void block() {
@@ -241,6 +244,7 @@ public class ProfileFragment extends BaseFragment {
         if (isCurrentUser) {
             editFab.setImageDrawable(Icons.get(getContext(), Icons.choose().edit, R.color.white));
             editFab.setOnClickListener(v -> {
+                editFab.setEnabled(false);
                 showEditProfileScreen();
             });
             onlineIndicator.setVisibility(View.GONE);

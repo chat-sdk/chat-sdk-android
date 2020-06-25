@@ -14,7 +14,7 @@ public class UIConfig<T> extends BaseConfig<T> {
      * The theme to use in all activities
      */
     @StyleRes
-    public int theme;
+    public int theme = R.style.ChatSDKTheme;
 
     /**
      * Default image for profile header
@@ -60,6 +60,11 @@ public class UIConfig<T> extends BaseConfig<T> {
      */
     public UIConfig<T> setTheme(@StyleRes int theme) {
         this.theme = theme;
+        return this;
+    }
+
+    public UIConfig<T> overrideTheme() {
+        this.theme = 0;
         return this;
     }
 

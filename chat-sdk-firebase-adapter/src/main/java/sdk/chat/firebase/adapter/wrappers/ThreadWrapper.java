@@ -185,6 +185,10 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             return;
         }
 
+        // Disable local notifications during setup
+        boolean localPushEnabled = ChatSDK.config().showLocalNotifications;
+        ChatSDK.config().setShowLocalNotifications(false);
+
         threadDeletedDate().flatMapCompletable(deletedTimestamp -> {
 
             Long startTimestamp = null;
@@ -219,6 +223,8 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             }
 
             return loadMessages.observeOn(RX.db()).andThen(Completable.defer(() -> {
+
+                ChatSDK.config().setShowLocalNotifications(localPushEnabled);
 
                 Query query = messagesRef();
 

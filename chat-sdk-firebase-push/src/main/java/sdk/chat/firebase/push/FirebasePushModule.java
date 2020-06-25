@@ -30,7 +30,7 @@ public class FirebasePushModule extends AbstractModule {
         return instance.config;
     }
 
-    public static FirebasePushModule builder(Configure<Config> config) {
+    public static FirebasePushModule builder(Configure<Config> config) throws Exception {
         config.with(instance.config);
         return instance;
     }

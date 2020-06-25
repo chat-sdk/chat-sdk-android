@@ -36,6 +36,8 @@ public class LaunchFragment extends BaseFragment {
     @Override
     protected void initViews() {
         button.setOnClickListener(v -> {
+            button.setEnabled(false);
+
             DemoConfigBuilder.Database database = DemoConfigBuilder.shared().getDatabase();
             if (database == DemoConfigBuilder.Database.Custom) {
 //                if (!new ServerKeyStorage(getContext()).valid()) {
@@ -71,5 +73,11 @@ public class LaunchFragment extends BaseFragment {
     @Override
     public void reloadData() {
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        button.setEnabled(true);
     }
 }

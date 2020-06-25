@@ -98,6 +98,7 @@ public abstract class SelectContactActivity extends BaseActivity {
     protected void initViews() {
         super.initViews();
         fab.setOnClickListener(v -> {
+            fab.setEnabled(false);
             doneButtonPressed(adapter.getSelectedUsers());
         });
         fab.setImageDrawable(Icons.get(this, Icons.choose().check, R.color.fab_icon_color));
@@ -111,6 +112,12 @@ public abstract class SelectContactActivity extends BaseActivity {
 
         loadData();
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fab.setEnabled(true);
     }
 
     protected void loadData() {

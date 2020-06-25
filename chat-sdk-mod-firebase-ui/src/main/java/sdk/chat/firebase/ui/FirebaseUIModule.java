@@ -47,7 +47,7 @@ public class FirebaseUIModule extends AbstractModule {
         return instance.config;
     }
 
-    public static FirebaseUIModule builder(Configure<Config> config) {
+    public static FirebaseUIModule builder(Configure<Config> config) throws Exception {
         config.with(instance.config);
         return instance;
     }

@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="sdk.chat.app">
+    package="sdk.chat.demo.pre">
 
     <application
         android:allowBackup="false"
@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="sdk.chat.demo.examples.override.view.CustomPostRegistrationActivity"/>
+        <activity android:name="sdk.chat.demo.examples.helper.CustomPostRegistrationActivity"/>
     </application>
 
 </manifest>

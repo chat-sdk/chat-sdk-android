@@ -13,7 +13,7 @@ import sdk.chat.core.handlers.MessageHandler;
  */
 
 public interface Module {
-    void activate(@NonNull Context context);
+    void activate(@NonNull Context context) throws Exception;
     String getName();
 
     MessageHandler getMessageHandler();

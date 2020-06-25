@@ -140,9 +140,11 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 
 #### Customization
 
-1. [Chat SDK customizable attributes](https://github.com/chat-sdk/chat-sdk-android/blob/master/chat-sdk-core-ui/src/main/res/values/attr.xml)
-2. [Chat Kit ChatView customizable attributes](https://github.com/stfalcon-studio/ChatKit/blob/master/docs/COMPONENT_MESSAGES_LIST.md#styling-via-attributes)
-3. [Override Activity or Fragment](https://github.com/chat-sdk/chat-sdk-android/blob/master/app-demo/src/main/java/sdk/chat/demo/examples/override/OverrideViewExample.java)
+1. [Override Activity or Fragment](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/ByL0mWG0L)
+2. [Theme Chat SDK](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/r1xStjFcU)
+3. [Customize the Icons](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/r1ZeZWGCI)
+4. [Customize the Tabs](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/BkClVbzAU)
+5. [Add a Chat Option](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/HymyNWfA8)
 
 <!--
 #### Customization

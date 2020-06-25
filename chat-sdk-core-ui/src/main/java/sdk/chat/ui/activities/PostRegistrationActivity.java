@@ -70,7 +70,10 @@ public class PostRegistrationActivity extends BaseActivity {
         });
 
         doneFab.setImageDrawable(Icons.get(this, Icons.choose().check, Icons.shared().actionBarIconColor));
-        doneFab.setOnClickListener(v -> next());
+        doneFab.setOnClickListener(v -> {
+            doneFab.setEnabled(false);
+            next();
+        });
 
         reloadData();
     }
@@ -158,6 +161,12 @@ public class PostRegistrationActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        doneFab.setEnabled(true);
     }
 
 }

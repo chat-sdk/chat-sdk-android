@@ -31,7 +31,7 @@ public class UIModule extends AbstractModule implements InterfaceAdapterProvider
         return instance.config;
     }
 
-    public static UIModule builder(Configure<UIConfig> config) {
+    public static UIModule builder(Configure<UIConfig> config) throws Exception {
         config.with(instance.config);
         return instance;
     }

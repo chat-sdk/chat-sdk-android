@@ -15,7 +15,7 @@ public class BaseBroadcastHandler implements BroadcastHandler {
 
         Bundle extras = intent.getExtras();
 
-        if(ChatSDK.config() == null || !ChatSDK.config().inboundPushHandlingEnabled) {
+        if(!ChatSDK.shared().isValid() || !ChatSDK.config().inboundPushHandlingEnabled || extras == null) {
             return;
         }
 

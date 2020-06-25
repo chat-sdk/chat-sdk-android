@@ -118,6 +118,8 @@ public class EditProfileActivity extends BaseActivity {
         super.initViews();
 
         avatarImageView.setOnClickListener(view -> {
+            avatarImageView.setEnabled(false);
+
             if (ChatSDK.profilePictures() != null) {
                 ChatSDK.profilePictures().startProfilePicturesActivity(this, currentUser.getEntityID());
             } else {
@@ -133,6 +135,7 @@ public class EditProfileActivity extends BaseActivity {
 
         appbar.addOnOffsetChangedListener(new ProfileViewOffsetChangeListener(avatarImageView));
         appbar.setOnClickListener(v -> {
+            appbar.setEnabled(false);
             ImagePickerUploader uploader = new ImagePickerUploader(MediaSelector.CropType.None);
             dm.add(uploader.choosePhoto(this, false).subscribe(results -> {
                 setHeaderImage(results.get(0).url);
@@ -141,11 +144,26 @@ public class EditProfileActivity extends BaseActivity {
         });
 
         doneFab.setImageDrawable(Icons.get(this, Icons.choose().check, Icons.shared().actionBarIconColor));
-        doneFab.setOnClickListener(v -> saveAndExit());
+        doneFab.setOnClickListener(v -> {
+            doneFab.setEnabled(false);
+            saveAndExit();
+        });
         logoutFab.setImageDrawable(Icons.get(this, Icons.choose().logout, Icons.shared().actionBarIconColor));
-        logoutFab.setOnClickListener(v -> logout());
+        logoutFab.setOnClickListener(v -> {
+            logoutFab.setEnabled(false);
+            logout();
+        });
 
         reloadData();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        avatarImageView.setEnabled(true);
+        appbar.setEnabled(true);
+        doneFab.setEnabled(true);
+        logoutFab.setEnabled(true);
     }
 
     protected void setHeaderImage(@Nullable String url) {
