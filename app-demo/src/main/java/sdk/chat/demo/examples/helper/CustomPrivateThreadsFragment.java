@@ -1,4 +1,4 @@
-package sdk.chat.demo.examples.override.view;
+package sdk.chat.demo.examples.helper;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.LayoutRes;
 
-import sdk.chat.app.R;
+import sdk.chat.demo.pre.R;
 import sdk.chat.ui.fragments.PrivateThreadsFragment;
 
 public class CustomPrivateThreadsFragment extends PrivateThreadsFragment {

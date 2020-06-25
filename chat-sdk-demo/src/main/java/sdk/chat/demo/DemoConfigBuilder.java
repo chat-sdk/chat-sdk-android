@@ -265,7 +265,7 @@ public class DemoConfigBuilder {
 
                 // Activate
                 .build()
-                .activate(context);
+                .activate(context, "team@sdk.chat");
 
 
     }

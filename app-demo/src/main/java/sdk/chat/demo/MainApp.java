@@ -3,7 +3,7 @@ package sdk.chat.demo;
 import android.app.Application;
 
 import sdk.chat.app.firebase.ChatSDKFirebase;
-import sdk.chat.demo.examples.override.OverrideViewExample;
+import sdk.chat.demo.examples.OverrideViewExample;
 
 public class MainApp extends Application {
 

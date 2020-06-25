@@ -24,6 +24,10 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':sdk-guru-common')
+    implementation project(':chat-sdk-core')
+    implementation("com.squareup.okhttp3:okhttp:4.7.2")
+    implementation "com.google.code.gson:gson:$gsonVersion"
 }
 
 ext {

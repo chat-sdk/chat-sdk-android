@@ -1,11 +1,11 @@
-package sdk.chat.demo.examples.override.view;
+package sdk.chat.demo.examples.helper;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
-import sdk.chat.app.R;
+import sdk.chat.demo.pre.R;
 import sdk.chat.ui.activities.PostRegistrationActivity;
 
 public class CustomPostRegistrationActivity extends PostRegistrationActivity {

@@ -74,6 +74,7 @@ ext {
     glideVersion = "4.11.0"
     exoplayerVersion = "2.11.3"
     androidAudioConverterVersion = "0.0.8"
+    gsonVersion = "2.8.6"
 
     // Used by file messagesf
     androidNetworkingVersion = "1.0.2"

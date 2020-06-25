@@ -32,7 +32,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':chat-sdk-core')
 
-    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation "com.google.code.gson:gson:$gsonVersion"
 
     implementation 'com.virgilsecurity.sdk:crypto-android:5.0.2@aar'
     implementation 'com.virgilsecurity.sdk:sdk:5.0.9'

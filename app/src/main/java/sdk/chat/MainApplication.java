@@ -57,6 +57,7 @@ public class MainApplication extends Application {
         String rootPath = "pre_5";
 
 
+
         ChatSDK.builder()
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
                 .setAnonymousLoginEnabled(false)
@@ -117,6 +118,7 @@ public class MainApplication extends Application {
                 // Activate
                 .build()
                 .activate(this);
+
 
 //        ChatSDK.ui().setTab("Debug", null, new DebugFragment(), 99);
 //        ChatSDK.ui().removeTab(0);

@@ -82,6 +82,7 @@ public class ChatSDK {
 
     protected ConfigBuilder<ChatSDK> builder;
     protected boolean isActive = false;
+    protected String licenseEmail;
 
     protected Runnable onActivateListener = null;
 
@@ -218,6 +219,7 @@ public class ChatSDK {
             onActivateListener.run();
         }
 
+        licenseEmail = email;
         isActive = true;
     }
 
@@ -435,6 +437,10 @@ public class ChatSDK {
 
     public void setOnActivateListener(Runnable runnable) {
         onActivateListener = runnable;
+    }
+
+    public String getLicenseEmail() {
+        return licenseEmail;
     }
 }
 
