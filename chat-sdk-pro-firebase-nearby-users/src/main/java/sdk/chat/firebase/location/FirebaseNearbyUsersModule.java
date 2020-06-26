@@ -5,6 +5,8 @@ import android.content.Context;
 
 import androidx.fragment.app.Fragment;
 
+import com.firebase.geofire.GeoFire;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +28,9 @@ import sdk.guru.common.BaseConfig;
 public class FirebaseNearbyUsersModule extends AbstractModule {
 
     public static final FirebaseNearbyUsersModule instance = new FirebaseNearbyUsersModule();
+    protected GeoFireManager geoFireManager = null;
+    protected GeoItemManager geoItemManager = null;
+    protected LocationHandler locationHandler = null;
 
     public static FirebaseNearbyUsersModule shared() {
         return instance;
@@ -55,28 +60,28 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
         index = Math.max(index, 0);
 
         ChatSDK.ui().setTab(nearbyUsersTab(), index);
-        LocationHandler.shared().initialize(context);
+        getLocationHandler().initialize(context);
 
         ChatSDK.hook().addHook(Hook.sync(data -> {
 
             // When we get the first location update, then start listening for new users
-            ChatSDK.events().disposeOnLogout(LocationHandler.shared().once().subscribe(location -> {
-                GeoFireManager.shared().startListeningForItems(location.getLatitude(), location.getLongitude(), config().maxDistance);
+            ChatSDK.events().disposeOnLogout(getLocationHandler().once().subscribe(location -> {
+                getGeoFireManager().startListeningForItems(location.getLatitude(), location.getLongitude(), config().maxDistance);
             }));
 
             // Add the current user
-            GeoItemManager.shared().addTrackedItem(currentUser(), false);
+            getGeoItemManager().addTrackedItem(currentUser(), false);
 
         }), HookEvent.DidAuthenticate);
 
         ChatSDK.hook().addHook(Hook.sync(data -> {
-            GeoFireManager.shared().stopListeningForItems();
-            GeoItemManager.shared().remove(currentUser());
+            getGeoFireManager().stopListeningForItems();
+            getGeoItemManager().remove(currentUser());
         }), HookEvent.WillLogout);
 
         ChatSDK.hook().addHook(Hook.sync(data -> {
             if (currentUser() != null) {
-                GeoItemManager.shared().remove(currentUser());
+                getGeoItemManager().remove(currentUser());
             }
         }), HookEvent.UserWillDisconnect);
 
@@ -84,7 +89,7 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
             @Override
             public void didStart() {
                 if (ChatSDK.auth().isAuthenticatedThisSession()) {
-                    GeoItemManager.shared().addTrackedItem(currentUser(), true);
+                    getGeoItemManager().addTrackedItem(currentUser(), true);
                 }
              }
 
@@ -222,4 +227,32 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
 
         return permissions;
     }
+
+    @Override
+    public void stop() {
+        config = new Config<>(this);
+        geoFireManager = null;
+    }
+
+    public GeoFireManager getGeoFireManager() {
+        if (geoFireManager == null) {
+            geoFireManager = new GeoFireManager();
+        }
+        return geoFireManager;
+    }
+
+    public GeoItemManager getGeoItemManager() {
+        if (geoItemManager == null) {
+            geoItemManager = new GeoItemManager();
+        }
+        return geoItemManager;
+    }
+
+    public LocationHandler getLocationHandler() {
+        if (locationHandler == null) {
+            locationHandler = new LocationHandler();
+        }
+        return locationHandler;
+    }
+
 }

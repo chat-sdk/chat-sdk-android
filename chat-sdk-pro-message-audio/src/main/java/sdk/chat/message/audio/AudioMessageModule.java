@@ -143,4 +143,9 @@ public class AudioMessageModule extends AbstractModule {
         return permissions;
     }
 
+    @Override
+    public void stop() {
+        config = new Config<>(this);
+    }
+
 }

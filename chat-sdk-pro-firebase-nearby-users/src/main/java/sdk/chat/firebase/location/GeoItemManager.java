@@ -8,18 +8,13 @@ import java.util.List;
 import sdk.guru.common.DisposableMap;
 
 public class GeoItemManager {
-    protected static final GeoItemManager instance = new GeoItemManager();
 
     protected final DisposableMap dm = new DisposableMap();
 
     protected final List<GeoItem> trackedItems = new ArrayList<>();
 
-    public static GeoItemManager shared() {
-        return instance;
-    }
-
     public GeoItemManager() {
-        dm.add(LocationHandler.shared().getLocationUpdateWhenMinDistance().subscribe(location -> {
+        dm.add(FirebaseNearbyUsersModule.shared().getLocationHandler().getLocationUpdateWhenMinDistance().subscribe(location -> {
             for (GeoItem item: trackedItems) {
                 pushToGeoFire(item, location, true);
             }
@@ -27,14 +22,14 @@ public class GeoItemManager {
     }
 
     public void addOneTimeItem(GeoItem item) {
-        dm.add(LocationHandler.shared().once().subscribe(location -> {
+        dm.add(FirebaseNearbyUsersModule.shared().getLocationHandler().once().subscribe(location -> {
             pushToGeoFire(item, location, false);
         }));
     }
 
     public void addTrackedItem(GeoItem item, boolean force) {
         if (!trackedItems.contains(item) || force) {
-            dm.add(LocationHandler.shared().once().subscribe(location -> {
+            dm.add(FirebaseNearbyUsersModule.shared().getLocationHandler().once().subscribe(location -> {
                 pushToGeoFire(item, location, true);
             }));
         }
@@ -44,12 +39,12 @@ public class GeoItemManager {
     }
 
     protected void pushToGeoFire(GeoItem item, Location location, boolean removeOnDisconnect) {
-        GeoFireManager.shared().addItem(item, location.getLatitude(), location.getLongitude(), removeOnDisconnect);
+        FirebaseNearbyUsersModule.shared().getGeoFireManager().addItem(item, location.getLatitude(), location.getLongitude(), removeOnDisconnect);
     }
 
     protected void removeFromGeoFire(GeoItem item) {
         trackedItems.remove(item);
-        GeoFireManager.shared().removeItem(item);
+        FirebaseNearbyUsersModule.shared().getGeoFireManager().removeItem(item);
     }
 
     protected void remove(GeoItem item) {

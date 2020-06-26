@@ -134,4 +134,9 @@ public class FirebaseUIModule extends AbstractModule {
         return "FirebaseUIModule";
     }
 
+    @Override
+    public void stop() {
+        config = new Config<>(this);
+    }
+
 }

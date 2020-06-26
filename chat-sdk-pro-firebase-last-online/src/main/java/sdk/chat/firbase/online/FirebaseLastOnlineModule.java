@@ -21,4 +21,9 @@ public class FirebaseLastOnlineModule extends AbstractModule {
     public String getName() {
         return null;
     }
+
+    @Override
+    public void stop() {
+
+    }
 }

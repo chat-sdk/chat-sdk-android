@@ -112,4 +112,8 @@ public class FileMessageModule extends AbstractModule {
         return permissions;
     }
 
+    @Override
+    public void stop() {
+    }
+
 }

@@ -68,4 +68,10 @@ public class FirebaseTypingIndicatorModule extends AbstractModule {
     public static Config config() {
         return instance.config;
     }
+
+    @Override
+    public void stop() {
+        config = new Config<>(this);
+    }
+
 }

@@ -1,6 +1,7 @@
 package sdk.chat.firebase.adapter;
 
 import sdk.chat.core.base.BaseNetworkAdapter;
+import sdk.guru.realtime.RealtimeReferenceManager;
 
 /**
  * Created by benjaminsmiley-andrews on 03/05/2017.
@@ -16,6 +17,11 @@ public class FirebaseNetworkAdapter extends BaseNetworkAdapter {
         publicThread = new FirebasePublicThreadHandler();
         search = new FirebaseSearchHandler();
         contact = new FirebaseContactHandler();
+    }
+
+    public void stop() {
+        super.stop();
+        RealtimeReferenceManager.shared().removeAllListeners();
     }
 
 }

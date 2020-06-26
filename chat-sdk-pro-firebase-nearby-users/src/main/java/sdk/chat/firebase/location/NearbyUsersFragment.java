@@ -56,7 +56,7 @@ public class NearbyUsersFragment extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        GeoFireManager.shared().locationUsersEvents().observeOn(RX.db()).doOnNext(locationUsers -> {
+        FirebaseNearbyUsersModule.shared().getGeoFireManager().locationUsersEvents().observeOn(RX.db()).doOnNext(locationUsers -> {
             reloadData();
         }).ignoreElements().subscribe(this);
 
@@ -70,7 +70,7 @@ public class NearbyUsersFragment extends BaseFragment {
     }
 
     public void start() {
-        LocationHandler.shared().start();
+        FirebaseNearbyUsersModule.shared().getLocationHandler().start();
         textView.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
     }
@@ -133,7 +133,7 @@ public class NearbyUsersFragment extends BaseFragment {
             // Build a list of location Users
             ArrayList<LocationUser> users = new ArrayList<>();
 
-            for (LocationUser lu : GeoFireManager.shared().getLocationUsers()) {
+            for (LocationUser lu : FirebaseNearbyUsersModule.shared().getGeoFireManager().getLocationUsers()) {
                 if (lu.distanceToMe() < FirebaseNearbyUsersModule.config().maxDistance && lu.getIsOnline()) {
                     users.add(lu);
                 }

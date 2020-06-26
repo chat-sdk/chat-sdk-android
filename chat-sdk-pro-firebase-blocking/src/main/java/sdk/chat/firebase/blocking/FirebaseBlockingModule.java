@@ -25,4 +25,9 @@ public class FirebaseBlockingModule extends AbstractModule {
     public String getName() {
         return "FirebaseBlockingModule";
     }
+
+    @Override
+    public void stop() {
+
+    }
 }

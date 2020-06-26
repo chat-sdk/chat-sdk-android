@@ -16,6 +16,7 @@ import sdk.chat.core.dao.Message;
 import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.session.Config;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.chat.options.MediaChatOption;
@@ -102,6 +103,10 @@ public class VideoMessageModule extends AbstractModule {
         permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
         return permissions;
+    }
+
+    @Override
+    public void stop() {
     }
 
 }

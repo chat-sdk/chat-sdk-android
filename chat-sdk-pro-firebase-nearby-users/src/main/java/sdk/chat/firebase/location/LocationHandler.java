@@ -24,7 +24,6 @@ import sdk.chat.core.utils.PermissionRequestHandler;
 
 public class LocationHandler {
 
-    protected static final LocationHandler instance = new LocationHandler();
     protected FusedLocationProviderClient client;
 
     protected Context context;
@@ -35,12 +34,7 @@ public class LocationHandler {
     protected PublishSubject<Location> onLocationUpdate = PublishSubject.create();
     protected PublishSubject<Location> onLocationUpdateWhenMinDistance = PublishSubject.create();
 
-
     Disposable timerDisposable;
-
-    public static LocationHandler shared() {
-        return instance;
-    }
 
     public LocationHandler() {
         AppBackgroundMonitor.shared().addListener(new AppBackgroundMonitor.Listener() {
@@ -88,6 +82,7 @@ public class LocationHandler {
         if (timerDisposable != null) {
             timerDisposable.dispose();
         }
+//        singleEmitters.clear();
     }
 
     protected void updateLocation(Location newLocation) {
@@ -126,4 +121,5 @@ public class LocationHandler {
     public Location getLocation() {
         return location;
     }
+
 }

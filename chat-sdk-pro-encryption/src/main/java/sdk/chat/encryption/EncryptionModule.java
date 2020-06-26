@@ -52,6 +52,11 @@ public class EncryptionModule extends AbstractModule {
         return "EncryptionModule";
     }
 
+    @Override
+    public void stop() {
+
+    }
+
     public static Config config() {
         return shared().config;
     }

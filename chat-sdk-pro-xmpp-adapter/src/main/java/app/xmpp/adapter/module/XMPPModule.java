@@ -7,6 +7,7 @@ import app.xmpp.adapter.ui.XMPPInterfaceAdapter;
 import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.chat.core.interfaces.InterfaceAdapter;
 import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.session.Config;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.session.InterfaceAdapterProvider;
 import sdk.chat.core.session.NetworkAdapterProvider;
@@ -65,4 +66,10 @@ public class XMPPModule extends AbstractModule implements NetworkAdapterProvider
     public static XMPPConfig config() {
         return shared().config;
     }
+
+    @Override
+    public void stop() {
+        config = new XMPPConfig<>(this);
+    }
+
 }

@@ -70,4 +70,13 @@ public class BaseNetworkAdapter {
         return handlers.get(name);
     }
 
+    public void stop() {
+        if (auth != null) {
+            auth.stop();
+        }
+        if (events != null) {
+            events.stop();
+        }
+    }
+
 }

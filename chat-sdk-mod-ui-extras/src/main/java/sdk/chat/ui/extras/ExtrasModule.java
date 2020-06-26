@@ -123,4 +123,9 @@ public class ExtrasModule extends AbstractModule {
         return permissions;
     }
 
+    @Override
+    public void stop() {
+        config = new Config<>(this);
+    }
+
 }

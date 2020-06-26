@@ -76,5 +76,7 @@ public class UIModule extends AbstractModule implements InterfaceAdapterProvider
         return permissions;
     }
 
-
+    public void stop() {
+        config = new UIConfig<>(this);
+    }
 }

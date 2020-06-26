@@ -70,7 +70,7 @@ public class RealtimeReferenceManager {
         }
     }
 
-    public void removeAllListeners () {
+    public void removeAllListeners() {
         Collection<Value> values = references.values();
         for(Value v : values) {
             v.removeListener();

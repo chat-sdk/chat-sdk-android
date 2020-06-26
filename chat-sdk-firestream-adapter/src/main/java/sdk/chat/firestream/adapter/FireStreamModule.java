@@ -96,6 +96,9 @@ public class FireStreamModule extends AbstractModule implements NetworkAdapterPr
         return config.networkAdapter;
     }
 
-
+    @Override
+    public void stop() {
+        config = new Config<>(this);
+    }
 
 }

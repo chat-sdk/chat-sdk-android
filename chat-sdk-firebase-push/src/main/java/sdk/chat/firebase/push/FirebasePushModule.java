@@ -69,4 +69,10 @@ public class FirebasePushModule extends AbstractModule {
     public static Config config() {
         return shared().config;
     }
+
+    @Override
+    public void stop() {
+        config = new Config<>(this);
+    }
+
 }

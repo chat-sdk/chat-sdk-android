@@ -23,7 +23,7 @@ public class DemoBroadcastReceiver extends BroadcastReceiver {
             if (!ChatSDK.shared().isValid()) {
                 try {
                     DemoConfigBuilder.shared().load(context);
-                    if (DemoConfigBuilder.shared().isConfigured()) {
+                    if (DemoConfigBuilder.shared().isConfigured() && DemoConfigBuilder.shared().isValid()) {
                         DemoConfigBuilder.shared().setupChatSDK(context);
 
                         if (ChatSDK.shared().isValid()) {

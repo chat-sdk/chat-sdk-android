@@ -80,8 +80,9 @@ public class AudioPlayerView extends LinearLayout {
 
         playButton.setOnClickListener(view -> {
             if (player == null) {
-                setup();
-                play();
+                if (setup()) {
+                    play();
+                }
             } else {
                 if (player.isPlaying()) {
                     pause();
@@ -102,7 +103,7 @@ public class AudioPlayerView extends LinearLayout {
         updateTime();
     }
 
-    public void setup() {
+    public boolean setup() {
         if (source != null) {
             if (player == null) {
 
@@ -153,23 +154,29 @@ public class AudioPlayerView extends LinearLayout {
 
         updatePlayPauseButton();
         updateTime();
+
+        return player != null;
     }
 
     public void updatePlayPauseButton() {
-
-        if (player == null) {
-            playButton.setEnabled(true);
+        if (source == null) {
+            playButton.setEnabled(false);
             seekBar.setEnabled(false);
         } else {
-            boolean ready = player.isReady();
+            if (player == null) {
+                playButton.setEnabled(true);
+                seekBar.setEnabled(false);
+            } else {
+                boolean ready = player.isReady();
 
-            playButton.setEnabled(ready);
-            seekBar.setEnabled(ready);
-        }
-        if (player != null && player.isPlaying()) {
-            playButton.setImageDrawable(Icons.get(getContext(), Icons.choose().pause, buttonColor));
-        } else {
-            playButton.setImageDrawable(Icons.get(getContext(), Icons.choose().play, buttonColor));
+                playButton.setEnabled(ready);
+                seekBar.setEnabled(ready);
+            }
+            if (player != null && player.isPlaying()) {
+                playButton.setImageDrawable(Icons.get(getContext(), Icons.choose().pause, buttonColor));
+            } else {
+                playButton.setImageDrawable(Icons.get(getContext(), Icons.choose().play, buttonColor));
+            }
         }
     }
 

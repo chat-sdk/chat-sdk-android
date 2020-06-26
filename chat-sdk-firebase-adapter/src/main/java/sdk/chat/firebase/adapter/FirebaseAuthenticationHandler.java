@@ -36,23 +36,26 @@ import sdk.guru.realtime.RealtimeReferenceManager;
 
 public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler {
 
+    protected FirebaseAuth.AuthStateListener authStateListener = null;
+
     public FirebaseAuthenticationHandler() {
         // Handle login and log out automatically
-        FirebaseAuth.getInstance(FirebaseCoreHandler.app()).addAuthStateListener(firebaseAuth -> {
-            // We are connecting for the first time
-            if (this.currentUserID == null && firebaseAuth.getCurrentUser() != null) {
-                if (!isAuthenticating()) {
-                    authenticate().subscribe(ChatSDK.events());
+        authStateListener = firebaseAuth -> {
+            if (ChatSDK.shared().isValid()) {
+                // We are connecting for the first time
+                if (this.currentUserID == null && firebaseAuth.getCurrentUser() != null) {
+                    if (!isAuthenticating()) {
+                        authenticate().subscribe(ChatSDK.events());
+                    }
+                }
+                if(this.currentUserID != null && firebaseAuth.getCurrentUser() == null) {
+                    if (isAuthenticated()) {
+                        logout().subscribe(ChatSDK.events());
+                    }
                 }
             }
-            if(this.currentUserID != null && firebaseAuth.getCurrentUser() == null) {
-                if (isAuthenticated()) {
-                    logout().subscribe(ChatSDK.events());
-                }
-            }
-        });
-
-
+        };
+        FirebaseAuth.getInstance(FirebaseCoreHandler.app()).addAuthStateListener(authStateListener);
     }
 
     public Completable authenticate() {
@@ -263,5 +266,12 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
         }
     }
 
+    @Override
+    public void stop() {
+        super.stop();
+        if (authStateListener != null) {
+            FirebaseAuth.getInstance(FirebaseCoreHandler.app()).removeAuthStateListener(authStateListener);
+        }
+    }
 
 }

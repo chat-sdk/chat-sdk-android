@@ -28,4 +28,9 @@ public class ProfilePicturesModule extends AbstractModule {
         return "ProfilePicturesModule";
     }
 
+    @Override
+    public void stop() {
+
+    }
+
 }

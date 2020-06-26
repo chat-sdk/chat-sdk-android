@@ -266,4 +266,8 @@ public class BaseEncryptionHandler implements EncryptionHandler {
             return Single.error(new Throwable("No private key available"));
         }).subscribeOn(RX.computation());
     }
+
+    public void stop() {
+
+    }
 }

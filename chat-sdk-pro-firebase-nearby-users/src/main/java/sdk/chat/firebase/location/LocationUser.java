@@ -67,7 +67,7 @@ public class LocationUser implements UserListItem {
     }
 
     public double distanceToMe() {
-        Location currentLocation = LocationHandler.shared().getLocation();
+        Location currentLocation = FirebaseNearbyUsersModule.shared().getLocationHandler().getLocation();
         if (currentLocation != null && location != null) {
             GeoLocation toLocation = new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude());
             return Math.round(GeoFireManager.distanceBetween(location, toLocation));

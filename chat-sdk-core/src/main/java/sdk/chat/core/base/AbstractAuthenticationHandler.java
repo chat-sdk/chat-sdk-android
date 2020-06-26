@@ -91,4 +91,10 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
         }
     }
 
+    public void stop() {
+        authenticatedThisSession = false;
+        currentUserID = null;
+        authenticating = null;
+        loggingOut = null;
+    }
 }

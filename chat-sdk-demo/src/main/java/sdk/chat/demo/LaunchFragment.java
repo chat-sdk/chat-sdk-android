@@ -36,7 +36,6 @@ public class LaunchFragment extends BaseFragment {
     @Override
     protected void initViews() {
         button.setOnClickListener(v -> {
-            button.setEnabled(false);
 
             DemoConfigBuilder.Database database = DemoConfigBuilder.shared().getDatabase();
             if (database == DemoConfigBuilder.Database.Custom) {
@@ -51,6 +50,7 @@ public class LaunchFragment extends BaseFragment {
                 DemoConfigBuilder.shared().setupChatSDK(getContext());
 
                 if (ChatSDK.a() != null) {
+                    button.setEnabled(false);
                     ChatSDK.ui().startSplashScreenActivity(getContext());
                 } else {
                     showToast("Something went wrong! Please contact team@sdk.chat");

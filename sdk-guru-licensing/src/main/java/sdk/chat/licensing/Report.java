@@ -44,7 +44,7 @@ public class Report {
         Gson gson = new Gson();
         String json = gson.toJson(map);
 
-        OkHttpClient client = new OkHttpClient();
+//        OkHttpClient client = new OkHttpClient();
 
 //        MediaType JSON = MediaType.get("application/json; charset=utf-8");
 //        RequestBody body = RequestBody.create(json, JSON);

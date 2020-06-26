@@ -38,18 +38,11 @@ public class GeoFireManager {
     protected ReplayRelay<GeoEvent> eventReplaySubject = ReplayRelay.create();
     protected PublishRelay<List<LocationUser>> locationUsersPublishRelay = PublishRelay.create();
 
-    protected static GeoFireManager shared = new GeoFireManager();
-
     protected Map<String, GeoItem> itemMap = new HashMap<>();
 
     protected List<LocationUser> locationUsers = new ArrayList<>();
 
-    public static GeoFireManager shared () {
-        return shared;
-    }
-
-    public GeoFireManager () {
-
+    public GeoFireManager() {
         allEvents().observeOn(RX.db()).doOnNext(geoEvent -> {
             if (geoEvent.item.isType(GeoItem.USER)) {
                 String entityID = geoEvent.item.entityID;
@@ -217,6 +210,11 @@ public class GeoFireManager {
 
         return l0.distanceTo(l1);
 
+    }
+
+    public void stop() {
+        locationUsers.clear();
+        itemMap.clear();
     }
 
     Map<String, GeoItem> getItemMap() {

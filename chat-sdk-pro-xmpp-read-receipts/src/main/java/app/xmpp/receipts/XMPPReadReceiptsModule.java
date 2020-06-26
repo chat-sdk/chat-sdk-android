@@ -22,4 +22,9 @@ public class XMPPReadReceiptsModule extends AbstractModule {
     public String getName() {
         return "XMPPReadReceiptsModule";
     }
+
+    @Override
+    public void stop() {
+
+    }
 }
