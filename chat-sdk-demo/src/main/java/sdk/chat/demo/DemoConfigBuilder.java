@@ -76,9 +76,11 @@ public class DemoConfigBuilder {
     }
 
     protected Backend backend = Backend.Firebase;
-    protected Style style;
-    protected LoginStyle loginStyle;
+    protected Style style = Style.Tabs;
+    protected LoginStyle loginStyle = LoginStyle.FirebaseUI;
     protected Database database;
+
+    protected boolean configured = false;
 
     public DemoConfigBuilder setBackend(Backend backend) {
         if (this.backend != backend) {
@@ -142,6 +144,9 @@ public class DemoConfigBuilder {
         if (database != null) {
             editor.putString("database", database.toString());
         }
+        if (isValid()) {
+            editor.putBoolean("chat-sdk-configured", true);
+        }
         editor.apply();
     }
 
@@ -163,14 +168,19 @@ public class DemoConfigBuilder {
         if (database != null) {
             this.database = Database.valueOf(database);
         }
+        configured = prefs.getBoolean("chat-sdk-configured", false);
     }
 
     public SharedPreferences prefs(Context context) {
         return context.getSharedPreferences("chat-sdk-demo-config", Context.MODE_PRIVATE);
     }
 
-    public boolean isConfigured() {
+    public boolean isValid() {
         return backend != null && style != null && loginStyle != null; // && database != null;
+    }
+
+    public boolean isConfigured() {
+        return configured;
     }
 
     @Deprecated
@@ -180,7 +190,8 @@ public class DemoConfigBuilder {
     }
 
     public void setupChatSDK(Context context) throws Exception {
-        if (ChatSDK.shared().isValid() || !isConfigured()) {
+
+        if (ChatSDK.shared().isValid() || !isValid()) {
             return;
         }
 

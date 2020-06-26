@@ -68,22 +68,24 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         new RXRealtime().childOn(threadsRef).flatMapCompletable(change -> {
             final ThreadWrapper thread = new ThreadWrapper(change.getSnapshot().getKey());
             if (change.getType() == EventType.Added && !thread.getModel().typeIs(ThreadType.Public)) {
-                Logger.debug("Thread added: " + change.getSnapshot().getKey());
 
-                if (thread.getModel().typeIs(ThreadType.Group)) {
-                    String permission = thread.getModel().getPermission(user.getEntityID());
-                    if (permission != null && permission.equals(Permission.None)) {
-                        ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(R.string.you_were_added_to_the_thread), thread.getModel());
+                long now = new Date().getTime();
+                if (ChatSDK.config().privateChatRoomLifetimeMinutes == 0 || thread.getModel().getCreationDate() == null || (now - thread.getModel().getCreationDate().getTime()) < TimeUnit.MINUTES.toMillis(ChatSDK.config().privateChatRoomLifetimeMinutes)) {
+
+                    Logger.debug("Thread added: " + change.getSnapshot().getKey());
+
+                    if (thread.getModel().typeIs(ThreadType.Group)) {
+                        String permission = thread.getModel().getPermission(user.getEntityID());
+                        if (permission != null && permission.equals(Permission.None)) {
+                            ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(R.string.you_were_added_to_the_thread), thread.getModel());
+                        }
                     }
+
+                    thread.getModel().addUser(user, false);
+
+                    thread.on().subscribe(this);
+
                 }
-
-                thread.getModel().addUser(user, false);
-
-                thread.on().subscribe(this);
-
-//                thread.on().doOnComplete(() -> {
-//                    eventSource.onNext(NetworkEvent.threadAdded(thread.getModel()));
-//                }).subscribe(this);
 
             }
             if (change.getType() == EventType.Removed) {
@@ -114,20 +116,11 @@ public class FirebaseEventHandler extends AbstractEventHandler {
             ChildEventListener publicThreadsListener = query.addChildEventListener(new RealtimeEventListener().onChildAdded((snapshot, s, hasValue) -> {
                 final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
 
-                // Make sure that we're not in the thread
-                // there's an edge case where the user could kill the app and remain
-                // a member of a public thread
-//                if (!ChatSDK.config().publicChatAutoSubscriptionEnabled) {
-//                    ChatSDK.thread().removeUsersFromThread(thread.getModel(), user).subscribe(ChatSDK.events());
-//                }
-
                 thread.on().subscribe(this);
-//                eventSource.onNexqt(NetworkEvent.threadAdded(thread.getModel()));
 
             }).onChildRemoved((snapshot, hasValue) -> {
                 ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
                 thread.off();
-//                eventSource.onNext(NetworkEvent.threadRemoved(thread.getModel()));
             }));
             RealtimeReferenceManager.shared().addRef(publicThreadsRef, publicThreadsListener);
         }

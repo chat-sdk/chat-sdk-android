@@ -2,6 +2,8 @@ package sdk.chat.ui.chat.model;
 
 import com.stfalcon.chatkit.commons.models.IMessage;
 
+import org.pmw.tinylog.Logger;
+
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -70,6 +72,9 @@ public class MessageHolder implements IMessage {
 
     @Override
     public Date getCreatedAt() {
+        if (message == null || message.getDate() == null) {
+            Logger.debug("HERE");
+        }
         return message.getDate();
     }
 

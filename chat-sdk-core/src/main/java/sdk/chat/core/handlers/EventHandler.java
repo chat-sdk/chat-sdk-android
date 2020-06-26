@@ -22,5 +22,5 @@ public interface EventHandler extends Consumer<Throwable>, CompletableObserver {
     void impl_currentUserOff (String userEntityID);
 
     void disposeOnLogout(Disposable d);
-
+    void stop();
 }

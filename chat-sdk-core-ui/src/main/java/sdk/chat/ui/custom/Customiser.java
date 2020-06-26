@@ -31,8 +31,6 @@ public class Customiser implements IMessageHandler {
         return messageHandlers;
     }
 
-
-
     @Override
     public void onBindMessageHolders(Context context, MessageHolders holders) {
         for (IMessageHandler handler: messageHandlers) {
@@ -83,5 +81,7 @@ public class Customiser implements IMessageHandler {
         return false;
     }
 
-
+    public void stop() {
+        messageHandlers.clear();
+    }
 }

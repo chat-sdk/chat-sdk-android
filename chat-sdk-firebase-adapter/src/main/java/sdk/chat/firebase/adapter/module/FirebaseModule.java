@@ -39,7 +39,12 @@ public class FirebaseModule extends AbstractModule implements NetworkAdapterProv
 
     @Override
     public String getName() {
-        return "FirebaseLegacyNetworkAdapterModule";
+        return "FirebaseModule";
+    }
+
+    @Override
+    public void stop() {
+        config = new FirebaseConfig<>(this);
     }
 
     @Override
@@ -50,5 +55,6 @@ public class FirebaseModule extends AbstractModule implements NetworkAdapterProv
     public static FirebaseConfig config() {
         return shared().config;
     }
+
 
 }

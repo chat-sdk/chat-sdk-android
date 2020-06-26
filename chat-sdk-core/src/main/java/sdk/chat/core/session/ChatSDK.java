@@ -223,6 +223,26 @@ public class ChatSDK {
         isActive = true;
     }
 
+    public void stop() {
+        context = null;
+        config = new Config<>(this);
+        if (networkAdapter != null) {
+            networkAdapter = null;
+        }
+        if (interfaceAdapter != null) {
+            interfaceAdapter = null;
+        }
+        requiredPermissions.clear();
+        AppBackgroundMonitor.shared().stop();
+
+        if (builder != null) {
+            for (Module module: builder.modules) {
+                module.stop();
+            }
+        }
+        isActive = false;
+    }
+
     public static Context ctx() {
         return shared().context();
     }

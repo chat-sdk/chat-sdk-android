@@ -37,6 +37,7 @@ public class Config<T> extends BaseConfig<T> {
     // Zero is infinite lifetime
     // Default - 7 days
     public long publicChatRoomLifetimeMinutes = TimeUnit.DAYS.toMinutes(7);
+    public long privateChatRoomLifetimeMinutes = 0;
 
     // Push notification
     public int pushNotificationImageDefaultResourceId;
@@ -481,6 +482,18 @@ public class Config<T> extends BaseConfig<T> {
      */
     public Config<T> setPublicChatRoomLifetimeMinutes (long minutes) {
         this.publicChatRoomLifetimeMinutes = minutes;
+        return this;
+    }
+
+    /**
+     * How long will a private chat exist for. 0 is forever
+     * this can stop getting hundreds of new public chat rooms
+     * created by users
+     * @param minutes
+     * @return
+     */
+    public Config<T> setPrivateChatRoomLifetimeMinutes (long minutes) {
+        this.privateChatRoomLifetimeMinutes = minutes;
         return this;
     }
 

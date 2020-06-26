@@ -20,4 +20,5 @@ public interface Module {
 
     List<String> requiredPermissions();
 
+    void stop();
 }

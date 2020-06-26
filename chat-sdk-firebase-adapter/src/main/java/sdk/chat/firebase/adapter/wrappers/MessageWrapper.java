@@ -126,15 +126,9 @@ public class MessageWrapper  {
 
         if (snapshot.hasChild(Keys.Date)) {
             Long date = snapshot.child(Keys.Date).getValue(Long.class);
-
-            // If the server time of the text is too different to local time
-            // set the status to none, which causes the text to be refreshed
-            // in the chat view.
-//            if (this.getModel().getDate() == null || Math.abs(this.getModel().getDate().toDate().getTime() - date) > 1000) {
-//                model.setMessageStatus(MessageSendStatus.None);
-                Logger.debug("Do we need this");
-//            }
             model.setDate(new Date(date));
+        } else {
+            Logger.debug("No Date");
         }
 
         if (snapshot.hasChild(Keys.From)) {

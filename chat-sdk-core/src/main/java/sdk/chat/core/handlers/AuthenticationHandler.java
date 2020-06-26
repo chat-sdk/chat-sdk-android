@@ -67,4 +67,6 @@ public interface AuthenticationHandler {
     Completable changePassword(String email, String oldPassword, final String newPassword);
     Completable sendPasswordResetMail(String email);
 
+    void stop();
+
 }

@@ -158,5 +158,5 @@ public interface InterfaceAdapter {
     void removeProfileOption(ProfileOption option);
     List<ProfileOption> getProfileOptions();
 
-
+    void stop();
 }

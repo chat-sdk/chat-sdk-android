@@ -35,7 +35,6 @@ public class DisposableMap {
 
     protected HashMap<Object, DisposableList> map = new HashMap<>();
 
-
     public void put(Object key, Disposable disposable) {
         get(key).add(disposable);
     }

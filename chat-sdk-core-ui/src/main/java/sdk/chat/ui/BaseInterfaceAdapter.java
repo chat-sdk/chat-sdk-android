@@ -52,6 +52,7 @@ import sdk.chat.ui.chat.options.LocationChatOption;
 import sdk.chat.ui.chat.options.MediaChatOption;
 import sdk.chat.ui.chat.options.MediaType;
 import sdk.chat.ui.custom.BaseProfileFragmentProvider;
+import sdk.chat.ui.custom.Customiser;
 import sdk.chat.ui.fragments.ContactsFragment;
 import sdk.chat.ui.fragments.PrivateThreadsFragment;
 import sdk.chat.ui.fragments.PublicThreadsFragment;
@@ -647,6 +648,15 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     public List<ProfileOption> getProfileOptions() {
         return profileOptions;
+    }
+
+    public void stop() {
+        Customiser.shared().stop();
+        searchActivities.clear();
+        chatOptions.clear();
+        extraTabs.clear();
+        removeTabs.clear();
+        profileOptions.clear();
     }
 
 }

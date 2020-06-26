@@ -128,25 +128,31 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                     final boolean inList = inList(thread);
 
                     // This stops a case where the thread details updated could be called before the thread is added
-                    if (networkEvent.typeIs(EventType.ThreadAdded) && !inList) {
-                        batcher.addAction(ThreadUpdateAction.add(thread));
-                    } else if (networkEvent.typeIs(EventType.ThreadRemoved) && inList) {
-                        batcher.addAction(ThreadUpdateAction.remove(thread));
+                    if (networkEvent.typeIs(EventType.ThreadAdded)) {
+                        if (!inList) {
+                            batcher.addAction(ThreadUpdateAction.add(thread));
+                        }
+                    } else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
+                        if (inList) {
+                            batcher.addAction(ThreadUpdateAction.remove(thread));
+                        }
                     }
                     else if (networkEvent.typeIs(EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated, EventType.MessageReadReceiptUpdated)) {
                         if (inList) {
                             batcher.addAction(ThreadUpdateAction.add(thread));
                         }
                     }
-                    else if (networkEvent.typeIs(EventType.TypingStateUpdated) && inList) {
-                        if (networkEvent.getText() != null) {
-                            String typingText = networkEvent.getText();
-                            typingText += getString(R.string.typing);
-                            batcher.addAction(ThreadUpdateAction.update(thread, new TypingThreadHolder(thread, typingText)));
-                        } else {
-                            getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder -> {
-                                batcher.addAction(ThreadUpdateAction.update(thread, holder));
-                            }).subscribe();
+                    else if (networkEvent.typeIs(EventType.TypingStateUpdated)) {
+                        if (inList) {
+                            if (networkEvent.getText() != null) {
+                                String typingText = networkEvent.getText();
+                                typingText += getString(R.string.typing);
+                                batcher.addAction(ThreadUpdateAction.update(thread, new TypingThreadHolder(thread, typingText)));
+                            } else {
+                                getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder -> {
+                                    batcher.addAction(ThreadUpdateAction.update(thread, holder));
+                                }).subscribe();
+                            }
                         }
                     }
                     else if (networkEvent.typeIs(EventType.UserMetaUpdated, EventType.UserPresenceUpdated)) {
@@ -319,7 +325,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         ThreadHolder holder = threadHolderHashMap.get(thread);
         if (holder == null) {
             getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder1 -> {
-                if (!threadHolderHashMap.containsValue(holder1)) {
+                if (dialogsListAdapter.getItemById(holder1.getId()) == null) {
                     dialogsListAdapter.addItem(holder1);
                 }
                 sortByLastMessageDate();

@@ -468,8 +468,9 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             }
 
             query.addListenerForSingleValueEvent(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
+                List<Message> messages = new ArrayList<>();
+
                 if(hasValue) {
-                    List<Message> messages = new ArrayList<>();
 
                     Map<String, Object> hashData = snapshot.getValue(Generic.mapStringObject());
 
@@ -478,7 +479,6 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                     {
                         message = new MessageWrapper(snapshot.child(key));
                         model.addMessage(message.getModel(), false);
-
                         messages.add(message.getModel());
                     }
 
@@ -488,11 +488,9 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
                     ChatSDK.events().source().onNext(NetworkEvent.messageAdded(messages.get(0)));
 
-                    e.onSuccess(messages);
                 }
-                else {
-                    e.onSuccess(new ArrayList<>());
-                }
+
+                e.onSuccess(messages);
             }));
         }).subscribeOn(RX.io());
     }

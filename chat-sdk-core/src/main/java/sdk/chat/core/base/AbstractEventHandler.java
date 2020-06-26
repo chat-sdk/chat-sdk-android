@@ -75,5 +75,8 @@ public abstract class AbstractEventHandler implements EventHandler {
         errorSource.onNext(e);
     }
 
+    public void stop() {
+        dm.dispose();
+    }
 
 }

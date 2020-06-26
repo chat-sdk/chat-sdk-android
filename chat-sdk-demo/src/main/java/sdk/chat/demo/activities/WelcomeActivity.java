@@ -25,6 +25,8 @@ public class WelcomeActivity extends AbstractDemoActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        ChatSDK.shared().stop();
+
         DemoConfigBuilder.shared().load(this);
 
         WelcomeFragment fragment = (WelcomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
@@ -57,9 +59,7 @@ public class WelcomeActivity extends AbstractDemoActivity {
                 e.printStackTrace();
                 launch.setEnabled(true);
             }
-
         });
-
 
     }
 

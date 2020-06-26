@@ -69,4 +69,9 @@ public class FirebaseUploadModule extends AbstractModule {
         return shared().config;
     }
 
+    @Override
+    public void stop() {
+        config = new Config<>(this);
+    }
+
 }

@@ -2,9 +2,14 @@ package sdk.chat.ui.fragments;
 
 import android.view.MenuItem;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Predicate;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.NetworkEvent;
@@ -40,7 +45,25 @@ public class PrivateThreadsFragment extends ThreadsFragment {
 
     @Override
     protected Single<List<Thread>> getThreads() {
-        return Single.defer(() -> Single.just(ChatSDK.thread().getThreads(ThreadType.Private))).subscribeOn(RX.single());
+        return Single.defer(() -> {
+
+            List<Thread> threads = ChatSDK.thread().getThreads(ThreadType.Private);
+
+            if (ChatSDK.config().privateChatRoomLifetimeMinutes == 0) {
+                return Single.just(threads);
+            } else {
+                // Do we need to filter the list to remove old chat rooms?
+                long now = new Date().getTime();
+                List<Thread> filtered = new ArrayList<>();
+                for (Thread t : threads) {
+                    if (t.getCreationDate() == null || now - t.getCreationDate().getTime() < TimeUnit.MINUTES.toMillis(ChatSDK.config().privateChatRoomLifetimeMinutes)) {
+                        filtered.add(t);
+                    }
+                }
+                return Single.just(filtered);
+            }
+        }).subscribeOn(RX.single());
+
     }
 
     @Override

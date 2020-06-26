@@ -132,7 +132,6 @@ public class Icons {
         return new BitmapDrawable(context.getResources(), drawable.toBitmap());
     }
 
-
     public static Context context() {
         return ChatSDK.ctx();
     }

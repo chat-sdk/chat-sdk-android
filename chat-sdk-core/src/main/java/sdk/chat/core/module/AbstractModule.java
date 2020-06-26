@@ -16,4 +16,9 @@ public abstract class AbstractModule implements Module {
         return new ArrayList<>();
     }
 
+    @Override
+    public void stop() {
+
+    }
+
 }
