@@ -15,4 +15,10 @@ public abstract class AbstractModule implements Module {
     public List<String> requiredPermissions() {
         return new ArrayList<>();
     }
+
+    @Override
+    public void stop() {
+
+    }
+
 }

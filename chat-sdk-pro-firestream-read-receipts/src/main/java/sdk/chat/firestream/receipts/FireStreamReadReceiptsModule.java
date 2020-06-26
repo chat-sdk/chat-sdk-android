@@ -24,4 +24,5 @@ public class FireStreamReadReceiptsModule extends AbstractModule {
     public String getName() {
         return "FireStreamReadReceiptsModule";
     }
+
 }

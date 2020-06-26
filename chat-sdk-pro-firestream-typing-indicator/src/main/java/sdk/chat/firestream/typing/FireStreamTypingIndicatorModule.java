@@ -24,4 +24,9 @@ public class FireStreamTypingIndicatorModule extends AbstractModule {
     public String getName() {
         return "FireStreamTypingIndicatorModule";
     }
+
+    @Override
+    public void stop() {
+
+    }
 }
