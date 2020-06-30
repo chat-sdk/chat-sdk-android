@@ -11,6 +11,7 @@ import sdk.chat.ui.R2;
 import sdk.chat.ui.binders.OnlineStatusBinder;
 import sdk.chat.ui.binders.ReadStatusViewBinder;
 import sdk.chat.ui.chat.model.ThreadHolder;
+import sdk.chat.ui.module.UIModule;
 
 public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<ThreadHolder> {
 
@@ -29,12 +30,12 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
         if (dialog.getUsers().size() == 1) {
             onlineIndicator.setVisibility(View.VISIBLE);
             boolean isOnline = dialog.getUsers().get(0).isOnline();
-            OnlineStatusBinder.bind(onlineIndicator, isOnline);
+            UIModule.shared().getOnlineStatusBinder().bind(onlineIndicator, isOnline);
         } else {
             onlineIndicator.setVisibility(View.GONE);
         }
 
-        ReadStatusViewBinder.onBind(readStatus, dialog.getLastMessage());
+        UIModule.shared().getReadStatusViewBinder().onBind(readStatus, dialog.getLastMessage());
     }
 
 }

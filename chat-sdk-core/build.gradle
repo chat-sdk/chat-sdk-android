@@ -74,8 +74,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(':sdk-guru-common')
 
-    implementation "com.google.android.gms:play-services-maps:$playMapsVersion"
-    implementation "com.google.android.gms:play-services-location:$playLocationVersion"
+
     implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     implementation "androidx.lifecycle:lifecycle-extensions:$androidxLifecycleExtensionsVersion"
 

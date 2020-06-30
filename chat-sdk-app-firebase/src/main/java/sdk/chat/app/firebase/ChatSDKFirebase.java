@@ -16,6 +16,7 @@ import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.ui.FirebaseUIModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
+import sdk.chat.message.location.LocationMessageModule;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
 
@@ -45,6 +46,8 @@ public class ChatSDKFirebase extends QuickStart {
                         .build(),
 
                 FirebaseUploadModule.shared(),
+
+                LocationMessageModule.shared(),
 
                 FirebasePushModule.shared(),
 

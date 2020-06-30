@@ -13,11 +13,11 @@ import sdk.chat.ui.module.UIModule;
 
 public class MessageBinder {
 
-    public static DateFormat messageTimeComparisonDateFormat(Context context) {
+    public DateFormat messageTimeComparisonDateFormat(Context context) {
         return new SimpleDateFormat("dd-M-yyyy hh:mm", CurrentLocale.get(context));
     }
 
-    public static void onBindSendStatus(TextView textView, MessageHolder holder) {
+    public void onBindSendStatus(TextView textView, MessageHolder holder) {
 
         if (UIModule.config().dateFormat != null) {
             DateFormat format = new SimpleDateFormat(UIModule.config().dateFormat, CurrentLocale.get());

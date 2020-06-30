@@ -27,6 +27,7 @@ import sdk.chat.firestream.adapter.FireStreamModule;
 import sdk.chat.firestream.adapter.FirebaseServiceType;
 import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
+import sdk.chat.message.location.LocationMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
 import sdk.chat.profile.pictures.ProfilePicturesModule;
@@ -266,6 +267,7 @@ public class DemoConfigBuilder {
                 .addModule(FirebaseUploadModule.shared())
                 .addModule(FirebasePushModule.shared())
                 .addModule(ProfilePicturesModule.shared())
+                .addModule(LocationMessageModule.shared())
 
                 .addModule(ContactBookModule.shared())
 //                    .addModule(EncryptionModule.shared())

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import sdk.chat.core.api.SimpleAPI;
 import sdk.chat.core.image.ImageUploadResult;
 import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.utils.PermissionRequestHandler;
@@ -28,9 +29,9 @@ public class ImagePickerUploader {
         return choosePhoto(activity, multiSelectEnabled, 0, 0);
     }
 
-    public Single<List<ImageUploadResult>> choosePhoto (Activity activity, boolean multiSelectEnabled, int width, int height) {
+    public Single<List<ImageUploadResult>> choosePhoto(Activity activity, boolean multiSelectEnabled, int width, int height) {
         return PermissionRequestHandler.requestImageMessage(activity)
-                .andThen(mediaSelector.startChooseMediaActivity(activity, MimeType.ofImage(), cropType, multiSelectEnabled, width, height)
+                .andThen(mediaSelector.startChooseMediaActivity(activity, MimeType.ofImage(), cropType, multiSelectEnabled, true, width, height)
                         .flatMap(this::uploadImageFiles));
     }
 
@@ -47,6 +48,7 @@ public class ImagePickerUploader {
             for (File file: files) {
                 singles.add(ImageUtils.uploadImageFile(file));
             }
+
 
             return Single.concat(singles).doOnNext(results::add).ignoreElements().toSingle((Callable<List<ImageUploadResult>>) () -> results);
         });

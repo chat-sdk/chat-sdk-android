@@ -31,6 +31,9 @@ public class UserHolder implements IUser {
 
     @Override
     public String getAvatar() {
+        if (!UIModule.config().showAvatarInChatView) {
+            return null;
+        }
         String url = user.getAvatarURL();
         if (url == null) {
             url =  ImageUtils.uriForResourceId(ChatSDK.ctx(), UIModule.config().defaultProfilePlaceholder).toString();

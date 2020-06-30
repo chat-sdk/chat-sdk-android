@@ -19,6 +19,7 @@ import sdk.chat.ui.binders.MessageBinder;
 import sdk.chat.ui.binders.ReadStatusViewBinder;
 import sdk.chat.ui.binders.ReplyViewBinder;
 import sdk.chat.ui.chat.model.MessageHolder;
+import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.DrawableUtil;
 
 public class BaseOutcomingTextMessageViewHolder<T extends MessageHolder>
@@ -43,10 +44,10 @@ public class BaseOutcomingTextMessageViewHolder<T extends MessageHolder>
     public void onBind(T message) {
         super.onBind(message);
 
-        ReplyViewBinder.onBind(replyView, replyTextView, replyImageView, message, imageLoader);
-        ReadStatusViewBinder.onBind(readStatus, message);
-        MessageBinder.onBindSendStatus(time, message);
-        IconBinder.bind(messageIcon, message, imageLoader);
+        UIModule.shared().getReplyViewBinder().onBind(replyView, replyTextView, replyImageView, message, imageLoader);
+        UIModule.shared().getReadStatusViewBinder().onBind(readStatus, message);
+        UIModule.shared().getMessageBinder().onBindSendStatus(time, message);
+        UIModule.shared().getIconBinder().bind(messageIcon, message, imageLoader);
 
         // Color state lists don't work for old versions of Android
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {

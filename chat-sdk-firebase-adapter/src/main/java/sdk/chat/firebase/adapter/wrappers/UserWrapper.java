@@ -124,6 +124,7 @@ public class UserWrapper {
         }
         model.update();
 
+
         if (StringChecker.isNullOrEmpty(model.getAvailability())) {
             model.setAvailability(Availability.Available);
         }

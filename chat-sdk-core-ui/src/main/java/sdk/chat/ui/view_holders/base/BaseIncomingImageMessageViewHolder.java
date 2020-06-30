@@ -15,6 +15,7 @@ import sdk.chat.ui.binders.NameBinder;
 import sdk.chat.ui.binders.OnlineStatusBinder;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
 import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ImageLoaderPayload;
 
 public class BaseIncomingImageMessageViewHolder<T extends ImageMessageHolder> extends MessageHolders.BaseIncomingMessageViewHolder<T>  {
@@ -45,9 +46,9 @@ public class BaseIncomingImageMessageViewHolder<T extends ImageMessageHolder> ex
         }
 
         boolean isOnline = message.getUser().isOnline();
-        OnlineStatusBinder.bind(onlineIndicator, isOnline);
+        UIModule.shared().getOnlineStatusBinder().bind(onlineIndicator, isOnline);
 
-        NameBinder.bind(userName, message);
+        UIModule.shared().getNameBinder().bind(userName, message);
 
     }
 

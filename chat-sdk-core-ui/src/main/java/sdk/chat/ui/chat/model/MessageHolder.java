@@ -16,6 +16,7 @@ import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.ReadStatus;
 import sdk.chat.ui.binders.MessageBinder;
+import sdk.chat.ui.module.UIModule;
 
 public class MessageHolder implements IMessage {
 
@@ -39,7 +40,7 @@ public class MessageHolder implements IMessage {
 
         previousSenderEqualsSender = previousMessage != null && message.getSender().equalsEntity(previousMessage.getSender());
 
-        DateFormat format = MessageBinder.messageTimeComparisonDateFormat(ChatSDK.ctx());
+        DateFormat format = UIModule.shared().getMessageBinder().messageTimeComparisonDateFormat(ChatSDK.ctx());
         showDate = nextMessage == null || !format.format(message.getDate()).equals(format.format(nextMessage.getDate()));
         isGroup = message.getThread().typeIs(ThreadType.Group);
 
@@ -129,7 +130,7 @@ public class MessageHolder implements IMessage {
     }
 
     public boolean showNames() {
-        return isGroup && !previousSenderEqualsSender;
+        return UIModule.config().showNamesInGroupChatView && isGroup && !previousSenderEqualsSender;
     }
 
     public boolean showDate() {

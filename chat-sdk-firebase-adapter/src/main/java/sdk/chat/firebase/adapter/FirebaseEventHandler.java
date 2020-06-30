@@ -102,7 +102,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         }).subscribe(this);
     }
 
-    protected void publicThreadsOn (User user) {
+    protected void publicThreadsOn(User user) {
         if (!FirebaseModule.config().disablePublicThreads) {
             DatabaseReference publicThreadsRef = FirebasePaths.publicThreadsRef();
 

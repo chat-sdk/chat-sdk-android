@@ -68,7 +68,7 @@ public class UserViewHolder extends RecyclerView.ViewHolder  {
             availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(item.getAvailability()));
         }
 
-        OnlineStatusBinder.bind(onlineIndicator, item.getIsOnline());
+        UIModule.shared().getOnlineStatusBinder().bind(onlineIndicator, item.getIsOnline());
 
         if (provider != null) {
             statusTextView.setText(provider.subtitle(item));

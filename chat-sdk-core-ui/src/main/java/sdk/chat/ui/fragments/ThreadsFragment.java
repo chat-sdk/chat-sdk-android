@@ -38,6 +38,7 @@ import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.ThreadHolder;
@@ -172,7 +173,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     }
 
     public boolean inList(Thread thread) {
-        return threadHolderHashMap.containsKey(thread);
+        return dialogsListAdapter.getItemById(thread.getEntityID()) != null;
+//        return threadHolderHashMap.containsKey(thread);
     }
 
     public void initViews() {
