@@ -246,7 +246,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     public Completable deleteMessage(Message message) {
         return Completable.defer(() -> {
-            if ((message.getSender().isMe() && message.getMessageStatus().equals(MessageSendStatus.Sent)) || !message.getSender().isMe() || !message.getMessageType().is(MessageType.System)) {
+            if (message.getSender().isMe() && message.getMessageStatus().equals(MessageSendStatus.Sent) && !message.getMessageType().is(MessageType.System)) {
                 return new MessageWrapper(message).delete();
             }
             message.getThread().removeMessage(message);

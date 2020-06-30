@@ -14,7 +14,7 @@ import sdk.chat.ui.utils.ImageLoaderPayload;
 
 public class ReplyViewBinder {
 
-    public static void onBind(View replyView, TextView replyTextView, ImageView replyImageView, MessageHolder holder, ImageLoader imageLoader) {
+    public void onBind(View replyView, TextView replyTextView, ImageView replyImageView, MessageHolder holder, ImageLoader imageLoader) {
         if (replyView == null) {
             return;
         }

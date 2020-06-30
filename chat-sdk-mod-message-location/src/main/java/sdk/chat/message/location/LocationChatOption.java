@@ -1,9 +1,9 @@
-package sdk.chat.ui.chat.options;
+package sdk.chat.message.location;
 
 import android.graphics.drawable.Drawable;
 
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.ui.chat.LocationSelector;
+import sdk.chat.ui.chat.options.BaseChatOption;
 
 /**
  * Created by ben on 10/11/17.

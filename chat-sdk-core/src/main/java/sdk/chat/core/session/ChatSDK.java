@@ -15,7 +15,6 @@ import java.util.List;
 
 import io.reactivex.plugins.RxJavaPlugins;
 import sdk.chat.core.base.BaseNetworkAdapter;
-import sdk.chat.core.base.LocationProvider;
 import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -75,7 +74,6 @@ public class ChatSDK {
     protected StorageManager storageManager;
     protected BaseNetworkAdapter networkAdapter;
 
-    protected LocationProvider locationProvider;
     protected FileManager fileManager;
 
     protected List<String> requiredPermissions = new ArrayList<>();
@@ -179,7 +177,6 @@ public class ChatSDK {
         DaoCore.init(ctx());
 
         storageManager = new StorageManager();
-        locationProvider = new LocationProvider();
 
         // Monitor the app so if it goes into the background we know
         AppBackgroundMonitor.shared().setEnabled(true);
@@ -387,10 +384,6 @@ public class ChatSDK {
 
     public static ProfilePicturesHandler profilePictures () {
         return a().profilePictures;
-    }
-
-    public static LocationProvider locationProvider () {
-        return shared().locationProvider;
     }
 
     public static BaseNetworkAdapter a() {

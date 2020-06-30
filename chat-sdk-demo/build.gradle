@@ -50,6 +50,7 @@ dependencies {
         api project(':chat-sdk-pro-firebase-last-online')
         api project(':chat-sdk-pro-firebase-typing-indicator')
         api project(':chat-sdk-pro-firebase-read-receipts')
+        api project(':chat-sdk-mod-message-location')
 
 //        api project(':chat-sdk-pro-encryption')
 
@@ -66,6 +67,7 @@ dependencies {
         implementation "sdk.chat:xmpp-app:$CHAT_SDK_DEMO_VERSION"
 
         implementation "sdk.chat:mod-profile-pictures:$CHAT_SDK_DEMO_VERSION"
+        implementation "sdk.chat:mod-message-location:$CHAT_SDK_DEMO_VERSION"
         implementation "sdk.chat:pro-message-audio:$CHAT_SDK_DEMO_VERSION"
         implementation "sdk.chat:pro-message-sticker:$CHAT_SDK_DEMO_VERSION"
         implementation "sdk.chat:pro-message-file:$CHAT_SDK_DEMO_VERSION"
@@ -83,6 +85,7 @@ dependencies {
         implementation "sdk.chat:pro-firestream-blocking:$CHAT_SDK_DEMO_VERSION"
         implementation "sdk.chat:pro-firestream-read-receipts:$CHAT_SDK_DEMO_VERSION"
         implementation "sdk.chat:pro-firestream-typing-indicator:$CHAT_SDK_DEMO_VERSION"
+
     }
 
 //    implementation "sdk.chat:mod-auto:$CHAT_SDK_VERSION"

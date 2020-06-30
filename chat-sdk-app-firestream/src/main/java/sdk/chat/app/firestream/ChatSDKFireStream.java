@@ -17,6 +17,7 @@ import sdk.chat.firebase.ui.FirebaseUIModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.firestream.adapter.FireStreamModule;
 import sdk.chat.firestream.adapter.FirebaseServiceType;
+import sdk.chat.message.location.LocationMessageModule;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
 
@@ -42,6 +43,8 @@ public class ChatSDKFireStream extends QuickStart {
                         .setPublicRoomCreationEnabled(true)
                         .setPublicRoomsEnabled(true)
                         .build(),
+
+                LocationMessageModule.shared(),
 
                 FirebaseUploadModule.shared(),
 

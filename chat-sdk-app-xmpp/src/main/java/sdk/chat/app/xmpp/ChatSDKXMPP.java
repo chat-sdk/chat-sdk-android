@@ -12,6 +12,7 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.QuickStart;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
+import sdk.chat.message.location.LocationMessageModule;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
 
@@ -42,6 +43,8 @@ public class ChatSDKXMPP extends QuickStart {
                         .build(),
 
                 FirebaseUploadModule.shared(),
+
+                LocationMessageModule.shared(),
 
                 FirebasePushModule.shared(),
 

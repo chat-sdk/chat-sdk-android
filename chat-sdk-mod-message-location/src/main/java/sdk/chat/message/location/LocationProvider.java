@@ -1,4 +1,4 @@
-package sdk.chat.core.base;
+package sdk.chat.message.location;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -38,7 +38,6 @@ import sdk.guru.common.RX;
  * Created by Pepe on 01/25/19.
  */
 
-@Deprecated
 public class LocationProvider {
 
     protected final FusedLocationProviderClient locationClient;

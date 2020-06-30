@@ -30,6 +30,7 @@ public class MainApp extends Application {
         }
 
 
+
 //        ChatSDK.shared().setOnActivateListener(() -> {
 //            ChatSDK.hook().addHook(Hook.sync(data -> ChatSDK.core().getUserForEntityID("4hekpBRhB6gO03EvUwcl53W9xX83").subscribe(user -> {
 //                Logger.debug("");

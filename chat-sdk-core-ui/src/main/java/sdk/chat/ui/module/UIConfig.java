@@ -38,6 +38,8 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean publicRoomRoomsEnabled = true;
     public boolean saveImagesToDirectory = false;
     public boolean requestPermissionsOnStartup = true;
+    public boolean showNamesInGroupChatView = true;
+    public boolean showAvatarInChatView = true;
 
     public String dateFormat = "HH:mm";
 
@@ -237,4 +239,23 @@ public class UIConfig<T> extends BaseConfig<T> {
         return this;
     }
 
+    /**
+     * Show user names in the public / private group chat view
+     * @param request
+     * @return
+     */
+    public UIConfig<T> setShowNamesInGroupChatView(boolean request) {
+        this.showNamesInGroupChatView = request;
+        return this;
+    }
+
+    /**
+     * Show user avatar in chat view
+     * @param request
+     * @return
+     */
+    public UIConfig<T> setShowAvatarInChatView(boolean request) {
+        this.showAvatarInChatView = request;
+        return this;
+    }
 }

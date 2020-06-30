@@ -49,6 +49,8 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 
 Sponsor us on either [Github sponsors](https://github.com/sponsors/chat-sdk) or [Paetron](https://www.patreon.com/chatsdk) and get these features. For full details visit our [Modules](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/ryODENucU) page.
 
+When you support us on Patreon, you get: **extra modules**, **code updates**, **support** as well as special access to the Discord Server. 
+
 - Typing indicator [⇘GIF](https://giphy.com/gifs/typing-chat-sdk-KxcLVS0IFrRtsM2OjR)
 - Read receipts
 - Last online indicator
@@ -70,6 +72,14 @@ Sponsor us on either [Github sponsors](https://github.com/sponsors/chat-sdk) or 
 
 Visit our [Animated GIF Gallery](https://giphy.com/channel/chat-sdk) to see all the features.
 
+## About Us
+
+Learn about the history of Chat SDK and our future plans in [this post](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/BkBKhRO0I).
+
+## Scalability and Cost
+
+People always ask about how much Chat SDK costs to run. And will it scale to millions of users? So I wrote an article talking about [just that](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/r1LJ26d0L). 
+
 ## Community
 
 + **Discord:** If you need support, join our [Server](https://discord.gg/abT5BM4)
@@ -80,6 +90,7 @@ Document](https://github.com/chat-sdk/chat-sdk-ios/blob/master/CONTRIBUTING.md) 
 + **Give us a star** on Github ⭐
 + **Upvoting us:** [Product Hunt](https://www.producthunt.com/posts/chat-sdk)
 + **Tweet:** about your Chat SDK project using [@chat_sdk](https://mobile.twitter.com/chat_sdk) 
++ **Live Stream** Join us every Saturday 18:00 CEST for a live stream where I answer questions about Chat SDK. For more details please join the Discord Server 
 
 You can also help us by:
 

@@ -70,7 +70,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(':chat-sdk-core')
 
-    implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
+    api "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     implementation "org.ocpsoft.prettytime:prettytime:$rootProject.ext.prettyTimeVersion"
     implementation "com.theartofdev.edmodo:android-image-cropper:$rootProject.ext.imageCropperVersion"
     implementation "com.github.chrisbanes:PhotoView:$rootProject.ext.photoViewVersion"

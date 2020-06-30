@@ -14,6 +14,7 @@ import sdk.chat.ui.binders.MessageBinder;
 import sdk.chat.ui.binders.ReadStatusViewBinder;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
 import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ImageLoaderPayload;
 
 public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> extends MessageHolders.BaseOutcomingMessageViewHolder<T>  {
@@ -43,8 +44,8 @@ public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> e
             imageOverlayContainer.setVisibility(isSelected() ? View.VISIBLE : View.INVISIBLE);
         }
 
-        ReadStatusViewBinder.onBind(readStatus, message);
-        MessageBinder.onBindSendStatus(time, message);
+        UIModule.shared().getReadStatusViewBinder().onBind(readStatus, message);
+        UIModule.shared().getMessageBinder().onBindSendStatus(time, message);
 
     }
 

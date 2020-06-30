@@ -24,6 +24,7 @@ import sdk.chat.ui.binders.NameBinder;
 import sdk.chat.ui.binders.OnlineStatusBinder;
 import sdk.chat.ui.binders.ReplyViewBinder;
 import sdk.chat.ui.chat.model.MessageHolder;
+import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.DrawableUtil;
 
 public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
@@ -49,7 +50,7 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
 
         context = new WeakReference<>(itemView.getContext());
 
-        format = MessageBinder.messageTimeComparisonDateFormat(context.get());
+        format = UIModule.shared().getMessageBinder().messageTimeComparisonDateFormat(context.get());
     }
 
     protected void bindButterKnife() {
@@ -60,8 +61,8 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
     public void onBind(T message) {
         super.onBind(message);
 
-        ReplyViewBinder.onBind(replyView, replyTextView, replyImageView, message, imageLoader);
-        OnlineStatusBinder.bind(onlineIndicator, message);
+        UIModule.shared().getReplyViewBinder().onBind(replyView, replyTextView, replyImageView, message, imageLoader);
+        UIModule.shared().getOnlineStatusBinder().bind(onlineIndicator, message);
 
         //We can set onClick listener on view from payload
         final Payload payload = (Payload) this.payload;
@@ -71,9 +72,9 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
             }
         });
 
-        NameBinder.bind(userName, message);
+        UIModule.shared().getNameBinder().bind(userName, message);
 
-        IconBinder.bind(messageIcon, message, imageLoader);
+        UIModule.shared().getIconBinder().bind(messageIcon, message, imageLoader);
 
         // Hide the time if it's the same as the next message
         if (!message.showDate()) {

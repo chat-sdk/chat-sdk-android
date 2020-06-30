@@ -48,7 +48,6 @@ import sdk.chat.ui.activities.SearchActivity;
 import sdk.chat.ui.activities.SplashScreenActivity;
 import sdk.chat.ui.activities.ThreadDetailsActivity;
 import sdk.chat.ui.chat.options.DialogChatOptionsHandler;
-import sdk.chat.ui.chat.options.LocationChatOption;
 import sdk.chat.ui.chat.options.MediaChatOption;
 import sdk.chat.ui.chat.options.MediaType;
 import sdk.chat.ui.custom.BaseProfileFragmentProvider;
@@ -567,9 +566,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public List<ChatOption> getChatOptions() {
         // Setup the default chat options
         if (!defaultChatOptionsAdded) {
-            if(UIModule.config().locationMessagesEnabled) {
-                chatOptions.add(new LocationChatOption(context.get().getResources().getString(R.string.location)));
-            }
 
             if(UIModule.config().imageMessagesEnabled) {
                 //chatOptions.add(new MediaChatOption(stringTakePhoto, MediaType.takePhoto()));

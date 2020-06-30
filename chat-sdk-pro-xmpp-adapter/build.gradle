@@ -35,7 +35,7 @@ dependencies {
     implementation project(':chat-sdk-core-ui')
 
     implementation "id.zelory:compressor:$compressorVersion"
-    implementation "com.google.android.gms:play-services-maps:$playMapsVersion"
+//    implementation "com.google.android.gms:play-services-maps:$playMapsVersion"
 
     implementation "org.igniterealtime.smack:smack-android:$smackVersion"
 

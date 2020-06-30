@@ -1,4 +1,4 @@
-package sdk.chat.ui.chat;
+package sdk.chat.message.location;
 
 import android.app.Activity;
 import android.location.Location;
@@ -35,7 +35,7 @@ public class LocationSelector {
     }
 
     public Single<Result> startChooseLocationActivity (Activity activity) {
-        return ChatSDK.locationProvider().getLastLocation(activity).map(location -> {
+        return LocationMessageModule.shared().getLocationProvider().getLastLocation(activity).map(location -> {
 
             int width = Dimen.from(activity, R.dimen.message_image_width);
             int height = Dimen.from(activity, R.dimen.message_image_height);

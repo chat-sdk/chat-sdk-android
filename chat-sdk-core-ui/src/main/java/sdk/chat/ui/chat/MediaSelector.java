@@ -54,6 +54,7 @@ public class MediaSelector {
     protected SingleEmitter<List<File>> emitter;
     protected int width = ChatSDK.config().imageMaxThumbnailDimension;
     protected int height = ChatSDK.config().imageMaxThumbnailDimension;
+    protected boolean scale = true;
 
     protected CropType cropType = CropType.Rectangle;
 
@@ -77,7 +78,7 @@ public class MediaSelector {
         Single<List<File>> single = null;
 
         if (type.isEqual(MediaType.ChoosePhoto)) {
-            single = startChooseMediaActivity(activity, MimeType.ofImage(), this.cropType, true);
+            single = startChooseMediaActivity(activity, MimeType.ofImage(), this.cropType, true, false, 0, 0);
         }
 
         if (type.isEqual(MediaType.TakeVideo)) {
@@ -94,10 +95,10 @@ public class MediaSelector {
     }
 
     public Single<List<File>> startChooseMediaActivity(Activity activity, Set<MimeType> mimeTypeSet, CropType cropType, boolean multiSelectEnabled) {
-        return startChooseMediaActivity(activity, mimeTypeSet, cropType, multiSelectEnabled, 0, 0);
+        return startChooseMediaActivity(activity, mimeTypeSet, cropType, multiSelectEnabled, true, 0, 0);
     }
 
-    public Single<List<File>> startChooseMediaActivity(Activity activity, Set<MimeType> mimeTypeSet, CropType cropType, boolean multiSelectEnabled, int width, int height) {
+    public Single<List<File>> startChooseMediaActivity(Activity activity, Set<MimeType> mimeTypeSet, CropType cropType, boolean multiSelectEnabled, boolean scale, int width, int height) {
         return Single.create(emitter -> {
 
             this.emitter = emitter;
@@ -113,6 +114,8 @@ public class MediaSelector {
             if (height != 0) {
                 this.height = height;
             }
+
+            this.scale = scale;
 
             disposable = ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
                 handleResult(activity, activityResult.requestCode, activityResult.resultCode, activityResult.data);
@@ -165,15 +168,19 @@ public class MediaSelector {
     protected void processPickedImage(Activity activity, List<Uri> uris) throws Exception {
         if (!UIModule.config().imageCroppingEnabled || cropType == CropType.None || uris.size() > 1) {
 
-            ArrayList<File> files = new ArrayList<File>();
+            ArrayList<File> files = new ArrayList<>();
             for (Uri uri: uris) {
                 File imageFile = fileFromURI(uri, activity, MediaStore.Images.Media.DATA);
                 if (imageFile != null) {
-                    File compressed = new Compressor(ChatSDK.ctx())
-                            .setMaxHeight(width)
-                            .setMaxWidth(height)
-                            .compressToFile(imageFile);
-                    files.add(compressed);
+                    if (scale) {
+                        File compressed = new Compressor(ChatSDK.ctx())
+                                .setMaxHeight(width)
+                                .setMaxWidth(height)
+                                .compressToFile(imageFile);
+                        files.add(compressed);
+                    } else {
+                        files.add(imageFile);
+                    }
                 }
             }
             // New

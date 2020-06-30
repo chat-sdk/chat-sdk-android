@@ -2,6 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.novoda.bintray-release'
 
 android {
+
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
 
     defaultConfig {
@@ -14,6 +15,13 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
     lintOptions {
         abortOnError false
         checkReleaseBuilds false
@@ -24,20 +32,18 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':chat-sdk-core')
+    implementation project(':chat-sdk-core-ui')
 
-    api project(':chat-sdk-core-ui')
-    api project(':chat-sdk-pro-xmpp-adapter')
-    api project(':chat-sdk-firebase-push')
-    api project(':chat-sdk-firebase-upload')
-    api project(':chat-sdk-mod-ui-extras')
-    api project(':chat-sdk-mod-message-location')
+    implementation "com.google.android.gms:play-services-maps:$playMapsVersion"
+    implementation "com.google.android.gms:play-services-location:$playLocationVersion"
 
 }
 
 ext {
-    libraryName = 'XMPPApp'
-    artifact = 'xmpp-app'
-    libraryDescription = 'XMPP App'
+    libraryName = 'LocationMessageMod'
+    artifact = 'mod-message-location'
+    libraryDescription = 'Location Message Module'
 }
 
 publish {

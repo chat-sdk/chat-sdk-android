@@ -8,11 +8,11 @@ import sdk.chat.ui.chat.model.MessageHolder;
 
 public class OnlineStatusBinder {
 
-    public static void bind(View onlineIndicator, MessageHolder holder) {
+    public void bind(View onlineIndicator, MessageHolder holder) {
         bind(onlineIndicator, holder.getUser().isOnline());
     }
 
-    public static void bind(View onlineIndicator, boolean isOnline) {
+    public void bind(View onlineIndicator, boolean isOnline) {
         if (ChatSDK.config().disablePresence) {
             onlineIndicator.setVisibility(View.GONE);
         } else {
