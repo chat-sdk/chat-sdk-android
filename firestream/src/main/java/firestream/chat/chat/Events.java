@@ -1,6 +1,8 @@
 package firestream.chat.chat;
 
-import firestream.chat.firebase.rx.MultiQueueSubject;
+import com.jakewharton.rxrelay2.PublishRelay;
+
+import firestream.chat.firebase.rx.MultiRelay;
 import firestream.chat.message.DeliveryReceipt;
 import firestream.chat.message.Invitation;
 import firestream.chat.message.Message;
@@ -9,24 +11,23 @@ import firestream.chat.message.Sendable;
 import firestream.chat.message.TypingState;
 import firestream.chat.namespace.FireStreamMessage;
 import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
 import sdk.guru.common.Event;
 
 public class Events {
 
-    protected MultiQueueSubject<Event<Message>> messages = MultiQueueSubject.create();
-    protected MultiQueueSubject<Event<DeliveryReceipt>> deliveryReceipts = MultiQueueSubject.create();
-    protected MultiQueueSubject<Event<TypingState>> typingStates = MultiQueueSubject.create();
-    protected MultiQueueSubject<Event<Presence>> presences = MultiQueueSubject.create();
-    protected MultiQueueSubject<Event<Invitation>> invitations = MultiQueueSubject.create();
+    protected MultiRelay<Event<Message>> messages = MultiRelay.create();
+    protected MultiRelay<Event<DeliveryReceipt>> deliveryReceipts = MultiRelay.create();
+    protected MultiRelay<Event<TypingState>> typingStates = MultiRelay.create();
+    protected MultiRelay<Event<Presence>> presences = MultiRelay.create();
+    protected MultiRelay<Event<Invitation>> invitations = MultiRelay.create();
 
     /**
      * The sendable event stream provides the most information. It passes a sendable event
      * when will include the kind of action that has been performed.
      */
-    protected MultiQueueSubject<Event<Sendable>> sendables = MultiQueueSubject.create();
+    protected MultiRelay<Event<Sendable>> sendables = MultiRelay.create();
 
-    protected PublishSubject<Throwable> errors = PublishSubject.create();
+    protected PublishRelay<Throwable> errors = PublishRelay.create();
 
 
     /**
@@ -37,7 +38,7 @@ public class Events {
      * with the server timestamp.
      * @return
      */
-    public MultiQueueSubject<Event<Message>> getMessages() {
+    public MultiRelay<Event<Message>> getMessages() {
         return messages;
     }
 
@@ -60,27 +61,27 @@ public class Events {
         return errors.hide();
     }
 
-    public MultiQueueSubject<Event<DeliveryReceipt>> getDeliveryReceipts() {
+    public MultiRelay<Event<DeliveryReceipt>> getDeliveryReceipts() {
         return deliveryReceipts;
     }
 
-    public MultiQueueSubject<Event<TypingState>> getTypingStates() {
+    public MultiRelay<Event<TypingState>> getTypingStates() {
         return typingStates;
     }
 
-    public MultiQueueSubject<Event<Sendable>> getSendables() {
+    public MultiRelay<Event<Sendable>> getSendables() {
         return sendables;
     }
 
 
-    public MultiQueueSubject<Event<Presence>> getPresences() {
+    public MultiRelay<Event<Presence>> getPresences() {
         return presences;
     }
-    public MultiQueueSubject<Event<Invitation>> getInvitations() {
+    public MultiRelay<Event<Invitation>> getInvitations() {
         return invitations;
     }
 
-    public PublishSubject<Throwable> publishThrowable() {
+    public PublishRelay<Throwable> publishThrowable() {
         return errors;
     }
 

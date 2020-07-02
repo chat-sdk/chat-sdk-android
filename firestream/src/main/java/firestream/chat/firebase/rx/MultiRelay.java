@@ -1,38 +1,19 @@
 package firestream.chat.firebase.rx;
 
+import com.jakewharton.rxrelay2.BehaviorRelay;
 import com.jakewharton.rxrelay2.PublishRelay;
-import com.victorrendina.rxqueue2.QueueSubject;
+import com.jakewharton.rxrelay2.Relay;
+import com.jakewharton.rxrelay2.ReplayRelay;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import sdk.guru.common.RX;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.ReplaySubject;
 
 /**
  * The MultiQueueSubject type a versatile events object. It has a number of options:
  * The main function of this events type to cache events until there type a consumer available to
  * consume them. This means that if a new emitter type added, unconsumed events will be
  * emitted once and then new events will be emitted as they arise. For example:
- *
- * In these examples, A and B are observers
- *
- * Events: 1, [A added], 2, [B added], 3
- * Output A: 1, 2, 3
- * Output B: 3
- * B only received the latest event because no events were cached because a was observing
- *
- * In this case:
- *
- * Events: 1, [A added], 2, [A disposed], 3, [B added], 4
- * Output A: 1, 2
- * Output B: 3, 4
- *
- * This means that events are never missed.
- *
- * This class also has some other options:
  *
  * By calling {@link #newEvents()} the observer will only receive new events:
  *
@@ -57,64 +38,37 @@ import io.reactivex.subjects.ReplaySubject;
  *
  * @param <T> the object type that will be emitted
  */
-public class MultiQueueSubject<T> extends Observable<T> implements Observer<T> {
+public class MultiRelay<T> extends Relay<T> {
 
-    protected final QueueSubject<T> queueSubject = QueueSubject.create();
     protected final PublishRelay<T> publishRelay = PublishRelay.create();
+    protected final BehaviorRelay<T> behaviorRelay = BehaviorRelay.create();
+    protected final ReplayRelay<T> replaySubject = ReplayRelay.create();
 
-    protected final PublishSubject<T> publishSubject = PublishSubject.create();
-    protected final BehaviorSubject<T> behaviorSubject = BehaviorSubject.create();
-    protected final ReplaySubject<T> replaySubject = ReplaySubject.create();
+    public static <T> MultiRelay<T> create() {
+        return new MultiRelay<T>();
+    }
 
-    protected Disposable queueDisposable = null;
+    @Override
+    public void accept(T t) {
 
-    public static <T> MultiQueueSubject<T> create() {
-        return new MultiQueueSubject<T>();
+        // Allow them to only subscribe to new events
+        publishRelay.accept(t);
+
+        // Allow them to get a behavour subject too
+        behaviorRelay.accept(t);
+
+        // Allow them to replay all events
+        replaySubject.accept(t);
+
+    }
+
+    @Override
+    public boolean hasObservers() {
+        return publishRelay.hasObservers() || behaviorRelay.hasObservers() || replaySubject.hasObservers();
     }
 
     @Override
     protected void subscribeActual(Observer<? super T> observer) {
-        boolean hasObservers = publishRelay.hasObservers();
-        publishRelay.subscribe(observer);
-        if (!hasObservers) {
-            queueDisposable = queueSubject.subscribe(publishRelay);
-        }
-    }
-
-    @Override
-    public void onSubscribe(Disposable d) {
-        queueSubject.onSubscribe(d);
-    }
-
-    @Override
-    public void onNext(T t) {
-        if (publishRelay.hasObservers() && queueDisposable == null) {
-            queueDisposable = queueSubject.subscribe(publishRelay);
-        }
-        if(!publishRelay.hasObservers() && queueDisposable != null) {
-            queueDisposable.dispose();
-        }
-        queueSubject.onNext(t);
-
-        // Allow them to only subscribe to new events
-        publishSubject.onNext(t);
-
-        // Allow them to get a behavour subject too
-        behaviorSubject.onNext(t);
-
-        // Allow them to replay all events
-        replaySubject.onNext(t);
-
-    }
-
-    @Override
-    public void onError(Throwable e) {
-        queueSubject.onError(e);
-    }
-
-    @Override
-    public void onComplete() {
-        queueSubject.onComplete();
     }
 
     /**
@@ -123,7 +77,7 @@ public class MultiQueueSubject<T> extends Observable<T> implements Observer<T> {
      * @return a events of new events
      */
     public Observable<T> newEvents() {
-        return publishSubject
+        return publishRelay
                 .hide().observeOn(RX.main());
     }
 
@@ -142,6 +96,7 @@ public class MultiQueueSubject<T> extends Observable<T> implements Observer<T> {
      * @return a events of the last emitted event and all future events
      */
     public Observable<T> currentAndNewEvents() {
-        return behaviorSubject.hide().observeOn(RX.main());
+        return behaviorRelay.hide().observeOn(RX.main());
     }
+
 }

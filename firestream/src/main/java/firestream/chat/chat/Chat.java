@@ -10,7 +10,7 @@ import java.util.Map;
 
 import firestream.chat.R;
 import firestream.chat.events.ListData;
-import firestream.chat.firebase.rx.MultiQueueSubject;
+import firestream.chat.firebase.rx.MultiRelay;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.firebase.service.Path;
 import firestream.chat.firebase.service.Paths;
@@ -41,7 +41,7 @@ public class Chat extends AbstractChat implements IChat {
     protected Meta meta = new Meta();
 
     protected List<User> users = new ArrayList<>();
-    protected MultiQueueSubject<Event<User>> userEvents = MultiQueueSubject.create();
+    protected MultiRelay<Event<User>> userEvents = MultiRelay.create();
 
     protected BehaviorSubject<String> nameChangedEvents = BehaviorSubject.create();
     protected BehaviorSubject<String> imageURLChangedEvents = BehaviorSubject.create();
@@ -92,7 +92,7 @@ public class Chat extends AbstractChat implements IChat {
                 users.add(user);
             }
 
-            userEvents.onNext(userEvent);
+            userEvents.accept(userEvent);
         }));
 
         // Handle name and image change
@@ -331,7 +331,7 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     @Override
-    public MultiQueueSubject<Event<User>> getUserEvents() {
+    public MultiRelay<Event<User>> getUserEvents() {
         return userEvents;
     }
 

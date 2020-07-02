@@ -21,7 +21,7 @@ import firestream.chat.chat.Chat;
 import firestream.chat.chat.User;
 import firestream.chat.events.ConnectionEvent;
 import firestream.chat.filter.Filter;
-import firestream.chat.firebase.rx.MultiQueueSubject;
+import firestream.chat.firebase.rx.MultiRelay;
 import firestream.chat.firebase.service.FirebaseService;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.firebase.service.Path;
@@ -64,9 +64,9 @@ public class FireStream extends AbstractChat implements IFireStream {
     protected List<User> blocked = new ArrayList<>();
     protected Map<String, Date> muted = new HashMap<>();
 
-    protected MultiQueueSubject<Event<Chat>> chatEvents = MultiQueueSubject.create();
-    protected MultiQueueSubject<Event<User>> contactEvents = MultiQueueSubject.create();
-    protected MultiQueueSubject<Event<User>> blockedEvents = MultiQueueSubject.create();
+    protected MultiRelay<Event<Chat>> chatEvents = MultiRelay.create();
+    protected MultiRelay<Event<User>> contactEvents = MultiRelay.create();
+    protected MultiRelay<Event<User>> blockedEvents = MultiRelay.create();
 
     protected BehaviorSubject<ConnectionEvent> connectionEvents = BehaviorSubject.create();
 
@@ -99,7 +99,7 @@ public class FireStream extends AbstractChat implements IFireStream {
                 try {
                     connect();
                 } catch (Exception e) {
-                    events.publishThrowable().onNext(e);
+                    events.publishThrowable().accept(e);
                 }
             }
             if(this.user != null && firebaseAuth.getCurrentUser() == null) {
@@ -199,7 +199,7 @@ public class FireStream extends AbstractChat implements IFireStream {
             if (ue.isRemoved()) {
                 blocked.remove(ue.get());
             }
-            blockedEvents.onNext(ue);
+            blockedEvents.accept(ue);
         }));
 
         // CONTACTS
@@ -212,7 +212,7 @@ public class FireStream extends AbstractChat implements IFireStream {
             else if (ue.isRemoved()) {
                 contacts.remove(ue.get());
             }
-            contactEvents.onNext(ue);
+            contactEvents.accept(ue);
         }));
 
         // CONNECT TO EXISTING GROUP CHATS
@@ -223,15 +223,15 @@ public class FireStream extends AbstractChat implements IFireStream {
             if (chatEvent.isAdded()) {
                 chat.connect();
                 chats.add(chat);
-                chatEvents.onNext(chatEvent);
+                chatEvents.accept(chatEvent);
             }
             else if (chatEvent.isRemoved()) {
                 dm.add(chat.leave().subscribe(() -> {
                     chats.remove(chat);
-                    chatEvents.onNext(chatEvent);
+                    chatEvents.accept(chatEvent);
                 }, this));
             } else {
-                chatEvents.onNext(chatEvent);
+                chatEvents.accept(chatEvent);
             }
         }));
 
@@ -511,17 +511,17 @@ public class FireStream extends AbstractChat implements IFireStream {
     //
 
     @Override
-    public MultiQueueSubject<Event<Chat>> getChatEvents() {
+    public MultiRelay<Event<Chat>> getChatEvents() {
         return chatEvents;
     }
 
     @Override
-    public MultiQueueSubject<Event<User>> getBlockedEvents() {
+    public MultiRelay<Event<User>> getBlockedEvents() {
         return blockedEvents;
     }
 
     @Override
-    public MultiQueueSubject<Event<User>> getContactEvents() {
+    public MultiRelay<Event<User>> getContactEvents() {
         return contactEvents;
     }
 

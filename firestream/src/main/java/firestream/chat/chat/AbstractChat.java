@@ -88,9 +88,9 @@ public abstract class AbstractChat implements IAbstractChat {
                     sendables.remove(previous);
                 }
             }
-            getSendableEvents().getSendables().onNext(event);
+            getSendableEvents().getSendables().accept(event);
         }).doOnError(throwable -> {
-            events.publishThrowable().onNext(throwable);
+            events.publishThrowable().accept(throwable);
         }).observeOn(RX.main());
     }
 
@@ -322,10 +322,10 @@ public abstract class AbstractChat implements IAbstractChat {
 
         // In general, we are mostly interested when messages are added
         if (sendable.isType(SendableType.message())) {
-            events.getMessages().onNext(event.to(sendable.toMessage()));
+            events.getMessages().accept(event.to(sendable.toMessage()));
         }
         if (sendable.isType(SendableType.deliveryReceipt())) {
-            events.getDeliveryReceipts().onNext(event.to(sendable.toDeliveryReceipt()));
+            events.getDeliveryReceipts().accept(event.to(sendable.toDeliveryReceipt()));
         }
         if (sendable.isType(SendableType.typingState())) {
             TypingState typingState = sendable.toTypingState();
@@ -335,13 +335,13 @@ public abstract class AbstractChat implements IAbstractChat {
             if (event.isRemoved()) {
                 typingState.setBodyType(TypingStateType.none());
             }
-            events.getTypingStates().onNext(new Event<>(typingState, EventType.Modified));
+            events.getTypingStates().accept(new Event<>(typingState, EventType.Modified));
         }
         if (sendable.isType(SendableType.invitation())) {
-            events.getInvitations().onNext(event.to(sendable.toInvitation()));
+            events.getInvitations().accept(event.to(sendable.toInvitation()));
         }
         if (sendable.isType(SendableType.presence())) {
-            events.getPresences().onNext(event.to(sendable.toPresence()));
+            events.getPresences().accept(event.to(sendable.toPresence()));
         }
     }
 
@@ -440,7 +440,7 @@ public abstract class AbstractChat implements IAbstractChat {
 
     @Override
     public void onError(Throwable e) {
-        events.publishThrowable().onNext(e);
+        events.publishThrowable().accept(e);
     }
 
     /**

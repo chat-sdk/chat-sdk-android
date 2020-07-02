@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import firestream.chat.chat.User;
-import firestream.chat.firebase.rx.MultiQueueSubject;
+import firestream.chat.firebase.rx.MultiRelay;
 import firestream.chat.message.Body;
 import firestream.chat.message.Sendable;
 import firestream.chat.namespace.FireStreamUser;
@@ -215,7 +215,7 @@ public interface IChat extends IAbstractChat {
      * Get an observable which type called when the a user type added, removed or updated
      * @return observable
      */
-    MultiQueueSubject<Event<User>> getUserEvents();
+    MultiRelay<Event<User>> getUserEvents();
 
     /**
      * Send a custom message

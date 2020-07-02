@@ -10,7 +10,7 @@ import firestream.chat.FirestreamConfig;
 import firestream.chat.chat.Chat;
 import firestream.chat.chat.User;
 import firestream.chat.events.ConnectionEvent;
-import firestream.chat.firebase.rx.MultiQueueSubject;
+import firestream.chat.firebase.rx.MultiRelay;
 import firestream.chat.firebase.service.FirebaseService;
 import firestream.chat.message.Body;
 import firestream.chat.message.Sendable;
@@ -147,9 +147,9 @@ public interface IFireStream extends IAbstractChat {
 
     // Events
 
-    MultiQueueSubject<Event<Chat>> getChatEvents();
-    MultiQueueSubject<Event<User>> getBlockedEvents();
-    MultiQueueSubject<Event<User>> getContactEvents();
+    MultiRelay<Event<Chat>> getChatEvents();
+    MultiRelay<Event<User>> getBlockedEvents();
+    MultiRelay<Event<User>> getContactEvents();
     Observable<ConnectionEvent> getConnectionEvents();
 
     Completable markReceived(String fromUserId, String sendableId);
