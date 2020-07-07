@@ -146,7 +146,7 @@ public class MessageWrapper  {
         if (readMap != null) {
             updateReadReceipts(readMap).doOnSuccess(aBoolean -> {
                 if (aBoolean) {
-                    ChatSDK.events().source().onNext(NetworkEvent.messageReadReceiptUpdated(model));
+                    ChatSDK.events().source().accept(NetworkEvent.messageReadReceiptUpdated(model));
                 }
             }).ignoreElement().subscribe(ChatSDK.events());
         }

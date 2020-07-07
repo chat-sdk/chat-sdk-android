@@ -22,4 +22,7 @@ public interface PushHandler {
     void setBroadcastHandler(BroadcastHandler broadcastHandler);
 
     String hashChannel(String channel) throws Exception;
+
+    boolean enabled();
+
 }

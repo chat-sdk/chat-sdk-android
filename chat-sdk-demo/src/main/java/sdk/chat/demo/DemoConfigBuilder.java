@@ -5,11 +5,11 @@ import android.content.SharedPreferences;
 
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.jakewharton.rxrelay2.PublishRelay;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.subjects.PublishSubject;
 import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
@@ -51,7 +51,7 @@ public class DemoConfigBuilder {
         return instance;
     }
 
-    public PublishSubject<Updated> updated = PublishSubject.create();
+    public PublishRelay<Updated> updated = PublishRelay.create();
 
     public enum Backend {
         Firebase,
@@ -86,7 +86,7 @@ public class DemoConfigBuilder {
     public DemoConfigBuilder setBackend(Backend backend) {
         if (this.backend != backend) {
             this.backend = backend;
-            updated.onNext(Updated.Backend);
+            updated.accept(Updated.Backend);
         }
         return this;
     }
@@ -94,7 +94,7 @@ public class DemoConfigBuilder {
     public DemoConfigBuilder setStyle(Style style) {
         if (this.style != style) {
             this.style = style;
-            updated.onNext(Updated.Style);
+            updated.accept(Updated.Style);
         }
         return this;
     }
@@ -102,7 +102,7 @@ public class DemoConfigBuilder {
     public DemoConfigBuilder setLoginStyle(LoginStyle style) {
         if (this.loginStyle != style) {
             this.loginStyle = style;
-            updated.onNext(Updated.LoginStyle);
+            updated.accept(Updated.LoginStyle);
         }
         return this;
     }
@@ -110,7 +110,7 @@ public class DemoConfigBuilder {
     public DemoConfigBuilder setDatabase(Database database) {
         if (this.database != database) {
             this.database = database;
-            updated.onNext(Updated.Database);
+            updated.accept(Updated.Database);
         }
         return this;
     }

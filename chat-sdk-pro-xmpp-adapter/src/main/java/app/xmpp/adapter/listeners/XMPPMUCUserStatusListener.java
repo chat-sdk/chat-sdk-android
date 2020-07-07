@@ -131,7 +131,7 @@ public class XMPPMUCUserStatusListener implements UserStatusListener {
             this.affiliates.addAll(affiliates);
 
             updateMembershipMap();
-            ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread.get(), ChatSDK.currentUser()));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread.get(), ChatSDK.currentUser()));
         }).subscribeOn(RX.io());
     }
 
@@ -155,7 +155,7 @@ public class XMPPMUCUserStatusListener implements UserStatusListener {
             if (changedAffiliation || changedRole) {
                 User user = ChatSDK.db().fetchUserWithEntityID(affiliate.getJid().toString());
                 if (user != null) {
-                    ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread.get(), ChatSDK.currentUser()));
+                    ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread.get(), ChatSDK.currentUser()));
                 }
             }
         }

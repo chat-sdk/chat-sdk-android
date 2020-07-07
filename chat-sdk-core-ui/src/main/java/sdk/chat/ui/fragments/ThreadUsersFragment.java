@@ -14,13 +14,14 @@ import androidx.annotation.StringRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.jakewharton.rxrelay2.PublishRelay;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
 import io.reactivex.functions.Consumer;
-import io.reactivex.subjects.PublishSubject;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -57,8 +58,8 @@ public class ThreadUsersFragment extends BaseFragment {
 
     protected UsersListAdapter adapter;
 
-    protected PublishSubject<User> onClickSubject = PublishSubject.create();
-    protected PublishSubject<User> onLongClickSubject = PublishSubject.create();
+    protected PublishRelay<User> onClickRelay = PublishRelay.create();
+    protected PublishRelay<User> onLongClickRelay = PublishRelay.create();
 
     protected List<User> sourceUsers = new ArrayList<>();
 
@@ -123,7 +124,7 @@ public class ThreadUsersFragment extends BaseFragment {
         dm.add(adapter.onClickObservable().subscribe(o -> {
             if (o instanceof User) {
                 User user = (User) o;
-                onClickSubject.onNext(user);
+                onClickRelay.accept(user);
 
                 List<Option> options = getOptionsForUser(user);
 
@@ -139,7 +140,7 @@ public class ThreadUsersFragment extends BaseFragment {
         dm.add(adapter.onLongClickObservable().subscribe(o -> {
             if (o instanceof User) {
                 User user = (User) o;
-                onLongClickSubject.onNext(user);
+                onLongClickRelay.accept(user);
             }
         }));
     }

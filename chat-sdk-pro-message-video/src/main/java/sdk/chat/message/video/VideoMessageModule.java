@@ -1,7 +1,6 @@
 package sdk.chat.message.video;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
@@ -16,12 +15,12 @@ import sdk.chat.core.dao.Message;
 import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.session.Config;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.chat.options.MediaChatOption;
 import sdk.chat.ui.chat.options.MediaType;
-import sdk.chat.ui.custom.Customiser;
+import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.custom.IMessageHandler;
 
 /**
@@ -42,7 +41,7 @@ public class VideoMessageModule extends AbstractModule {
         ChatSDK.ui().addChatOption(new MediaChatOption(context.getResources().getString(R.string.take_video), MediaType.takeVideo()));
         ChatSDK.ui().addChatOption(new MediaChatOption(context.getResources().getString(R.string.choose_video), MediaType.chooseVideo()));
 
-        Customiser.shared().addMessageHandler(new IMessageHandler() {
+        MessageCustomizer.shared().addMessageHandler(new IMessageHandler() {
             @Override
             public boolean hasContentFor(MessageHolder message, byte type) {
                 return type == MessageType.Video && message instanceof VideoMessageHolder;
@@ -55,7 +54,8 @@ public class VideoMessageModule extends AbstractModule {
                         IncomingVideoMessageViewHolder.class,
                         R.layout.view_holder_incoming_video_message,
                         OutcomingVideoMessageViewHolder.class,
-                        R.layout.view_holder_outcoming_video_message, this);
+                        R.layout.view_holder_outcoming_video_message,
+                        MessageCustomizer.shared());
             }
 
             @Override
@@ -67,7 +67,7 @@ public class VideoMessageModule extends AbstractModule {
             }
 
             @Override
-            public void onClick(Activity activity, View rootView, Message message) {
+            public void onClick(ChatActivity activity, View rootView, Message message) {
                 if (message.getMessageType().is(MessageType.Video)) {
                     String videoURL = (String) message.valueForKey(Keys.MessageVideoURL);
                     if(videoURL != null) {
@@ -79,7 +79,7 @@ public class VideoMessageModule extends AbstractModule {
             }
 
             @Override
-            public void onLongClick(Activity activity, View rootView, Message message) {
+            public void onLongClick(ChatActivity activity, View rootView, Message message) {
 
             }
         });    }

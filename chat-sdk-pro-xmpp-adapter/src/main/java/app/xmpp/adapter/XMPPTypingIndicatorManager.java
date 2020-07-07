@@ -41,7 +41,7 @@ public class XMPPTypingIndicatorManager {
             setTyping(thread, user, state.equals(ChatState.composing));
             // TODO: We could create the thread here... so they will see typing... on the empty thread
             // if this thread has not been created yet
-            ChatSDK.events().source().onNext(NetworkEvent.typingStateChanged(notificationForThread(thread), thread));
+            ChatSDK.events().source().accept(NetworkEvent.typingStateChanged(notificationForThread(thread), thread));
         }
 
     }

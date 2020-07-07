@@ -42,7 +42,7 @@ public class PresenceHelper {
             }
 
             if (!oldMeta.entrySet().equals(user.metaMap().entrySet()) || wasOnline != user.getIsOnline()) {
-                ChatSDK.events().source().onNext(NetworkEvent.userPresenceUpdated(user));
+                ChatSDK.events().source().accept(NetworkEvent.userPresenceUpdated(user));
             }
         }
     }

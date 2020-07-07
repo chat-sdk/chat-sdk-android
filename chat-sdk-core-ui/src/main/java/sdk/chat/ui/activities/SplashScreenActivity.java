@@ -50,17 +50,20 @@ public class SplashScreenActivity extends BaseActivity {
     }
 
     protected void startNextActivity() {
-        if (ChatSDK.auth() != null && ChatSDK.auth().isAuthenticatedThisSession()) {
-            startMainActivity();
-        } else if (ChatSDK.auth() != null && (ChatSDK.auth().isAuthenticated() || ChatSDK.auth().isAuthenticating())) {
-            startProgressBar();
-            dm.add(ChatSDK.auth().authenticate()
-                    .observeOn(RX.main())
-                    .doFinally(this::stopProgressBar)
-                    .subscribe(this::startMainActivity, throwable -> startLoginActivity()));
-        } else {
-            startLoginActivity();
+        if (ChatSDK.auth() != null) {
+            if (ChatSDK.auth().isAuthenticatedThisSession()) {
+                startMainActivity();
+                return;
+            } else if (ChatSDK.auth().isAuthenticated() || ChatSDK.auth().isAuthenticating()) {
+                startProgressBar();
+                dm.add(ChatSDK.auth().authenticate()
+                        .observeOn(RX.main())
+                        .doFinally(this::stopProgressBar)
+                        .subscribe(this::startMainActivity, throwable -> startLoginActivity()));
+                return;
+            }
         }
+        startLoginActivity();
     }
 
     protected void startMainActivity() {

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.bumptech.glide.Glide;
+import com.jakewharton.rxrelay2.PublishRelay;
 import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 
@@ -30,7 +31,6 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Predicate;
-import io.reactivex.subjects.PublishSubject;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -38,7 +38,6 @@ import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
-import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.ThreadHolder;
@@ -59,13 +58,14 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     protected DialogsListAdapter<ThreadHolder> dialogsListAdapter;
     protected HashMap<Thread, ThreadHolder> threadHolderHashMap = new HashMap<>();
 
-    protected PublishSubject<Thread> onClickPublishSubject = PublishSubject.create();
-    protected PublishSubject<Thread> onLongClickPublishSubject = PublishSubject.create();
+    protected PublishRelay<Thread> onClickPublishRelay = PublishRelay.create();
+    protected PublishRelay<Thread> onLongClickPublishRelay = PublishRelay.create();
 
     @BindView(R2.id.dialogsList) protected DialogsList dialogsList;
     @BindView(R2.id.root) protected RelativeLayout root;
 
-    protected UpdateActionBatcher batcher;
+    protected UpdateActionBatcher batcher = new UpdateActionBatcher(100);
+    ;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -75,7 +75,18 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.batcher = new UpdateActionBatcher(100);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        addListeners();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        removeListeners();
     }
 
     @Override
@@ -83,11 +94,20 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
         initViews();
-        addListeners();
+//        addListeners();
 
         loadData();
 
         hideKeyboard();
+
+        return view;
+    }
+
+    public void addListeners() {
+
+        removeListeners();
+
+        this.batcher = new UpdateActionBatcher(100);
 
         // We batch updates to the threads fragment because potentially it could be updated from a lot of places
         // Thread meta, user meta, user presence, messages, read receipts
@@ -112,13 +132,9 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 }
             }
         }, throwable -> {
-            Logger.error(throwable);
+            onError(throwable);
         }));
 
-        return view;
-    }
-
-    public void addListeners() {
         dm.add(ChatSDK.events().sourceOnBackground()
                 .filter(mainEventFilter())
                 .subscribe(networkEvent -> {
@@ -172,6 +188,13 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 }));
     }
 
+    public void removeListeners() {
+        if(batcher != null) {
+            batcher.dispose();
+        }
+        dm.dispose();
+    }
+
     public boolean inList(Thread thread) {
         return dialogsListAdapter.getItemById(thread.getEntityID()) != null;
 //        return threadHolderHashMap.containsKey(thread);
@@ -218,7 +241,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         dialogsListAdapter.setOnDialogLongClickListener(dialog -> {
             Thread thread = ChatSDK.db().fetchThreadWithEntityID(dialog.getId());
             if (thread != null) {
-                onLongClickPublishSubject.onNext(thread);
+                onLongClickPublishRelay.accept(thread);
             }
         });
     }
@@ -396,7 +419,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     }
 
     public Observable<Thread> getOnLongClickObservable() {
-        return onLongClickPublishSubject.hide();
+        return onLongClickPublishRelay.hide();
     }
 
     public void filter(String text) {
@@ -407,7 +430,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        batcher.dispose();
+//        batcher.dispose();
     }
 
 }

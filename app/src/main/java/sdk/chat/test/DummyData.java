@@ -77,7 +77,7 @@ public class DummyData {
             addMessage(thread, String.valueOf(i));
         }
 
-        ChatSDK.events().source().onNext(NetworkEvent.threadAdded(thread));
+        ChatSDK.events().source().accept(NetworkEvent.threadAdded(thread));
     }
 
     public void addMessage(Thread thread, String text) {

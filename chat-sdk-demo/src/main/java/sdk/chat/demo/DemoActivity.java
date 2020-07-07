@@ -128,7 +128,7 @@ public class DemoActivity extends BaseActivity {
         }));
 
         DemoConfigBuilder.shared().load(this);
-        DemoConfigBuilder.shared().updated.onNext(DemoConfigBuilder.Updated.All);
+        DemoConfigBuilder.shared().updated.accept(DemoConfigBuilder.Updated.All);
 
         pageIndicatorView.setSelectedColor(ContextCompat.getColor(this, R.color.chat_orange));
         pageIndicatorView.setUnselectedColor(ContextCompat.getColor(this, R.color.light_grey));

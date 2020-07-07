@@ -102,7 +102,7 @@ public class User extends AbstractEntity implements UserListItem {
                 daoSession.insertOrReplace(contactLink);
 
                 if (notify) {
-                    ChatSDK.events().source().onNext(NetworkEvent.contactAdded(user));
+                    ChatSDK.events().source().accept(NetworkEvent.contactAdded(user));
                 }
             }
         }
@@ -134,7 +134,7 @@ public class User extends AbstractEntity implements UserListItem {
                 }
 
                 if (notify) {
-                    ChatSDK.events().source().onNext(NetworkEvent.contactDeleted(user));
+                    ChatSDK.events().source().accept(NetworkEvent.contactDeleted(user));
                 }
             }
         }
@@ -266,7 +266,7 @@ public class User extends AbstractEntity implements UserListItem {
 
     public void setAvailability(String availability, boolean notify) {
         if (setMetaString(Keys.Availability, availability, false) && notify) {
-            ChatSDK.events().source().onNext(NetworkEvent.userPresenceUpdated(this));
+            ChatSDK.events().source().accept(NetworkEvent.userPresenceUpdated(this));
         }
     }
 
@@ -343,7 +343,7 @@ public class User extends AbstractEntity implements UserListItem {
                 setMetaValue(key, meta.get(key), false);
             }
             if (notify) {
-                ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(this));
+                ChatSDK.events().source().accept(NetworkEvent.userMetaUpdated(this));
             }
         }
     }
@@ -384,7 +384,7 @@ public class User extends AbstractEntity implements UserListItem {
                 update();
 
                 if (notify) {
-                    ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(this));
+                    ChatSDK.events().source().accept(NetworkEvent.userMetaUpdated(this));
                 }
                 return true;
             }
@@ -528,7 +528,7 @@ public class User extends AbstractEntity implements UserListItem {
             this.isOnline = isOnline;
             update();
             if (notify) {
-                ChatSDK.events().source().onNext(NetworkEvent.userPresenceUpdated(this));
+                ChatSDK.events().source().accept(NetworkEvent.userPresenceUpdated(this));
             }
         }
     }

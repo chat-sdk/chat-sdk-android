@@ -4,7 +4,7 @@ import org.jivesoftware.smack.provider.IQProvider;
 import org.xmlpull.v1.XmlPullParser;
 
 import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
+
 
 public class FileTransferIQProvider extends IQProvider<FileTransferIQ> {
 

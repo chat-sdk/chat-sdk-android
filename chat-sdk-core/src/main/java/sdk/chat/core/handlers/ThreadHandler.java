@@ -4,6 +4,7 @@ import androidx.annotation.Nullable;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -21,12 +22,16 @@ public interface ThreadHandler {
     /**
      * The list of users should not contain the current user.
      */
-    Single<Thread> createThread(String name, List<User> users);
+    Single<Thread> createThread(@Nullable String name, List<User> users);
     Single<Thread> createThread(List<User> users);
-    Single<Thread> createThread(String name, User... users);
-    Single<Thread> createThread(String name, List<User> users, int type);
-    Single<Thread> createThread(String name, List<User> users, int type, String entityID);
-    Single<Thread> createThread(String name, List<User> users, int type, String entityID, String imageURL);
+    Single<Thread> createThread(@Nullable String name, User... users);
+    Single<Thread> createThread(@Nullable String name, List<User> users, int type);
+    Single<Thread> createThread(@Nullable String name, List<User> users, int type, @Nullable String entityID);
+    Single<Thread> createThread(@Nullable String name, List<User> users, int type, @Nullable String entityID, @Nullable String imageURL);
+    Single<Thread> createThread(@Nullable String name, List<User> users, int type, @Nullable String entityID, @Nullable String imageURL, @Nullable Map<String, Object> meta);
+
+    Single<Thread> create1to1Thread(User otherUser, @Nullable Map<String, Object> meta);
+    Single<Thread> createPrivateGroupThread(@Nullable String name, List<User> users, @Nullable String entityID, @Nullable String imageURL, @Nullable Map<String, Object> meta);
 
     /**
      * Remove users from a thread

@@ -1,5 +1,7 @@
 package app.xmpp.adapter.listeners;
 
+import com.jakewharton.rxrelay2.PublishRelay;
+
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.RosterListener;
 import org.jxmpp.jid.Jid;
@@ -8,13 +10,13 @@ import org.pmw.tinylog.Logger;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 
+import app.xmpp.adapter.XMPPManager;
+import io.reactivex.Observable;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ConnectionType;
-import app.xmpp.adapter.XMPPManager;
-import io.reactivex.Observable;
 import sdk.guru.common.RX;
-import io.reactivex.subjects.PublishSubject;
+
 
 
 /**
@@ -23,7 +25,7 @@ import io.reactivex.subjects.PublishSubject;
 
 public class XMPPRosterListener implements RosterListener {
 
-    protected PublishSubject<Presence> presenceEventSource = PublishSubject.create();
+    protected PublishRelay<Presence> presenceEventSource = PublishRelay.create();
     private WeakReference<XMPPManager> manager;
 
     public XMPPRosterListener (XMPPManager manager) {
@@ -58,7 +60,7 @@ public class XMPPRosterListener implements RosterListener {
     public void presenceChanged(Presence presence) {
         // Recommended to freshen the presence
         Presence freshPresence = manager.get().roster().getPresence(presence.getFrom().asBareJid());
-        presenceEventSource.onNext(freshPresence);
+        presenceEventSource.accept(freshPresence);
     }
 
     public Observable<Presence> getPresenceEvents() {

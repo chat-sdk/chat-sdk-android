@@ -7,7 +7,11 @@ import android.widget.TextView;
 
 import com.stfalcon.chatkit.commons.ImageLoader;
 
+import io.reactivex.functions.Consumer;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.utils.ImageLoaderPayload;
@@ -41,12 +45,14 @@ public class ReplyViewBinder {
                 replyImageView.setVisibility(View.GONE);
             }
 
+
             // Build the string for the textView
             replyTextView.setText(Html.fromHtml("<b>" + holder.getUser().getName() + "</b><br/>" + holder.getQuotedText()));
 
         } else {
             replyView.setVisibility(View.GONE);
         }
+
     }
 
 }

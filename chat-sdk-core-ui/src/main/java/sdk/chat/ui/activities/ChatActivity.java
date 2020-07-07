@@ -57,7 +57,7 @@ import sdk.chat.ui.appbar.ChatActionBar;
 import sdk.chat.ui.audio.AudioBinder;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.Customiser;
+import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.interfaces.TextInputDelegate;
 import sdk.chat.ui.views.ChatView;
@@ -89,7 +89,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @BindView(R2.id.root) protected FrameLayout root;
     @BindView(R2.id.messageInputLinearLayout) protected LinearLayout messageInputLinearLayout;
 
-    AudioBinder audioBinder = null;
+    protected AudioBinder audioBinder = null;
 
     protected @LayoutRes
     int getLayout() {
@@ -672,21 +672,19 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     @Override
     public void onClick(Message message) {
-        Customiser.shared().onClick(this, root, message);
+        MessageCustomizer.shared().onClick(this, root, message);
     }
 
     @Override
     public void onLongClick(Message message) {
-        Customiser.shared().onLongClick(this, root, message);
+        MessageCustomizer.shared().onLongClick(this, root, message);
     }
 
     @Override
     public void onBackPressed() {
         // Do this so that even if we were editing the thread, we always go back to the
         // main activity
-
         ChatSDK.ui().startMainActivity(this);
     }
-
 
 }

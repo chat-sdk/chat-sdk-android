@@ -1,6 +1,5 @@
 package sdk.chat.message.sticker.module;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 
@@ -18,8 +17,9 @@ import sdk.chat.message.sticker.integration.IncomingStickerMessageViewHolder;
 import sdk.chat.message.sticker.integration.OutcomingStickerMessageViewHolder;
 import sdk.chat.message.sticker.integration.StickerChatOption;
 import sdk.chat.message.sticker.integration.StickerMessageHolder;
+import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.Customiser;
+import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.custom.IMessageHandler;
 import sdk.guru.common.BaseConfig;
 
@@ -43,7 +43,7 @@ public class StickerMessageModule extends AbstractModule {
         ChatSDK.a().stickerMessage = new BaseStickerMessageHandler();
         ChatSDK.ui().addChatOption(new StickerChatOption(context.getResources().getString(R.string.sticker_message)));
 
-        Customiser.shared().addMessageHandler(new IMessageHandler() {
+        MessageCustomizer.shared().addMessageHandler(new IMessageHandler() {
             @Override
             public boolean hasContentFor(MessageHolder message, byte type) {
                 return type == MessageType.Sticker && message instanceof StickerMessageHolder;
@@ -57,7 +57,7 @@ public class StickerMessageModule extends AbstractModule {
                         R.layout.view_holder_incoming_image_message,
                         OutcomingStickerMessageViewHolder.class,
                         R.layout.view_holder_outcoming_image_message,
-                        this);
+                        MessageCustomizer.shared());
             }
 
             @Override
@@ -69,12 +69,12 @@ public class StickerMessageModule extends AbstractModule {
             }
 
             @Override
-            public void onClick(Activity activity, View rootView, Message message) {
+            public void onClick(ChatActivity activity, View rootView, Message message) {
 
             }
 
             @Override
-            public void onLongClick(Activity activity, View rootView, Message message) {
+            public void onLongClick(ChatActivity activity, View rootView, Message message) {
 
             }
         });

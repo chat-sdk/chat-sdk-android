@@ -47,7 +47,7 @@ public class AppBackgroundMonitor implements LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onAppForeground() {
         inBackground = false;
-        if(ChatSDK.shared().isValid() && ChatSDK.auth().isAuthenticated() && ChatSDK.config().disconnectFromServerWhenInBackground) {
+        if(ChatSDK.shared().isValid() && ChatSDK.auth().isAuthenticated()) {
             ChatSDK.core().goOnline();
         }
         for (Listener l : listeners) {
@@ -58,8 +58,8 @@ public class AppBackgroundMonitor implements LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onAppBackground() {
         inBackground = true;
-        if (ChatSDK.shared().isValid() && ChatSDK.config().disconnectFromServerWhenInBackground) {
-            ChatSDK.core().goOffline();
+        if (ChatSDK.shared().isValid()) {
+            ChatSDK.core().setUserOffline();
         }
         for (Listener l : listeners) {
             l.didStop();

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.location.Location;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.jakewharton.rxrelay2.PublishRelay;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,6 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.PublishSubject;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
@@ -31,8 +31,8 @@ public class LocationHandler {
 
     protected List<SingleEmitter<Location>> singleEmitters = new ArrayList<>();
 
-    protected PublishSubject<Location> onLocationUpdate = PublishSubject.create();
-    protected PublishSubject<Location> onLocationUpdateWhenMinDistance = PublishSubject.create();
+    protected PublishRelay<Location> onLocationUpdate = PublishRelay.create();
+    protected PublishRelay<Location> onLocationUpdateWhenMinDistance = PublishRelay.create();
 
     Disposable timerDisposable;
 
@@ -91,9 +91,9 @@ public class LocationHandler {
         }
         if (location == null || location.distanceTo(newLocation) > FirebaseNearbyUsersModule.config().minRefreshDistance) {
             location = newLocation;
-            onLocationUpdateWhenMinDistance.onNext(location);
+            onLocationUpdateWhenMinDistance.accept(location);
         }
-        onLocationUpdate.onNext(location);
+        onLocationUpdate.accept(location);
         for (SingleEmitter<Location> emitter: singleEmitters) {
             emitter.onSuccess(location);
         }

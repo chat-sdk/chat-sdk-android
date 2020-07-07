@@ -15,7 +15,7 @@ public class BaseBroadcastHandler implements BroadcastHandler {
 
         Bundle extras = intent.getExtras();
 
-        if(!ChatSDK.shared().isValid() || !ChatSDK.config().inboundPushHandlingEnabled || extras == null) {
+        if(!ChatSDK.shared().isValid() || !ChatSDK.config().inboundPushHandlingEnabled || !ChatSDK.push().enabled() || extras == null) {
             return;
         }
 
@@ -39,7 +39,7 @@ public class BaseBroadcastHandler implements BroadcastHandler {
         if (ChatSDK.auth() == null || !ChatSDK.auth().isAuthenticatedThisSession() || ChatSDK.config().backgroundPushTestModeEnabled) {
             appIntent = new Intent(context, ChatSDK.ui().getSplashScreenActivity());
         }
-        else if (AppBackgroundMonitor.shared().inBackground() && ChatSDK.auth().isAuthenticatedThisSession() && ChatSDK.config().disconnectFromServerWhenInBackground) {
+        else if (AppBackgroundMonitor.shared().inBackground() && ChatSDK.auth().isAuthenticatedThisSession()) {
             appIntent = new Intent(context, ChatSDK.ui().getChatActivity());
         }
         if (appIntent != null) {

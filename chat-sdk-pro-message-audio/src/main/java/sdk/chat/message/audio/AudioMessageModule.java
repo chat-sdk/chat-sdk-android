@@ -1,7 +1,6 @@
 package sdk.chat.message.audio;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 
@@ -10,18 +9,20 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 import java.util.ArrayList;
 import java.util.List;
 
-//import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
-//import cafe.adriel.androidaudioconverter.callback.ILoadCallback;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.Customiser;
+import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.custom.IMessageHandler;
 import sdk.guru.common.BaseConfig;
+
+//import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
+//import cafe.adriel.androidaudioconverter.callback.ILoadCallback;
 
 /**
  * Created by ben on 9/28/17.
@@ -90,7 +91,7 @@ public class AudioMessageModule extends AbstractModule {
 //            }
 //        });
 
-        Customiser.shared().addMessageHandler(new IMessageHandler() {
+        MessageCustomizer.shared().addMessageHandler(new IMessageHandler() {
             @Override
             public boolean hasContentFor(MessageHolder message, byte type) {
                 return type == MessageType.Audio && message instanceof AudioMessageHolder;
@@ -103,7 +104,7 @@ public class AudioMessageModule extends AbstractModule {
                         IncomingAudioMessageViewHolder.class,
                         R.layout.view_holder_incoming_audio_message,
                         OutcomingAudioMessageViewHolder.class,
-                        R.layout.view_holder_outcoming_audio_message, this);
+                        R.layout.view_holder_outcoming_audio_message, MessageCustomizer.shared());
             }
 
             @Override
@@ -115,11 +116,11 @@ public class AudioMessageModule extends AbstractModule {
             }
 
             @Override
-            public void onClick(Activity activity, View rootView, Message message) {
+            public void onClick(ChatActivity activity, View rootView, Message message) {
             }
 
             @Override
-            public void onLongClick(Activity activity, View rootView, Message message) {
+            public void onLongClick(ChatActivity activity, View rootView, Message message) {
 
             }
         });

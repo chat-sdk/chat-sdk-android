@@ -53,6 +53,10 @@ public class DemoBroadcastReceiver extends BroadcastReceiver {
 
     public void handlePush(Context context, Bundle extras) {
 
+        if(!ChatSDK.push().enabled()) {
+            return;
+        }
+
         final String threadEntityID = extras.getString(Keys.PushKeyThreadEntityID);
         final String userEntityID = extras.getString(Keys.PushKeyUserEntityID);
         final String title = extras.getString(Keys.PushKeyTitle);
@@ -73,7 +77,7 @@ public class DemoBroadcastReceiver extends BroadcastReceiver {
         if (ChatSDK.auth() == null || !ChatSDK.auth().isAuthenticatedThisSession() || ChatSDK.config().backgroundPushTestModeEnabled) {
             appIntent = new Intent(context, ChatSDK.ui().getSplashScreenActivity());
         }
-        else if (AppBackgroundMonitor.shared().inBackground() && ChatSDK.auth().isAuthenticatedThisSession() && ChatSDK.config().disconnectFromServerWhenInBackground) {
+        else if (AppBackgroundMonitor.shared().inBackground() && ChatSDK.auth().isAuthenticatedThisSession()) {
             appIntent = new Intent(context, ChatSDK.ui().getChatActivity());
         }
         if (appIntent != null) {

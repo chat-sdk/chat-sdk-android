@@ -36,22 +36,22 @@ import sdk.guru.realtime.RealtimeReferenceManager;
 
 public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler {
 
-    protected FirebaseAuth.AuthStateListener authStateListener = null;
+    protected FirebaseAuth.AuthStateListener authStateListener;
 
     public FirebaseAuthenticationHandler() {
         // Handle login and log out automatically
         authStateListener = firebaseAuth -> {
-            if (ChatSDK.shared().isValid()) {
-                // We are connecting for the first time
-                if (this.currentUserID == null && firebaseAuth.getCurrentUser() != null) {
-                    if (!isAuthenticating()) {
+            if (ChatSDK.shared().isValid() && !isAuthenticating()) {
+                // We are logged in with Firebase
+                if (firebaseAuth.getCurrentUser() != null) {
+                    // We are logged in with the wrong user
+                    if (isAuthenticatedThisSession() && !currentUserID.equals(firebaseAuth.getCurrentUser().getUid())) {
+                        logout().concatWith(authenticate()).subscribe(ChatSDK.events());
+                    } else {
                         authenticate().subscribe(ChatSDK.events());
                     }
-                }
-                if(this.currentUserID != null && firebaseAuth.getCurrentUser() == null) {
-                    if (isAuthenticated()) {
-                        logout().subscribe(ChatSDK.events());
-                    }
+                } else {
+                    logout().subscribe(ChatSDK.events());
                 }
             }
         };
@@ -70,15 +70,13 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 authenticating = authenticateWithUser(FirebaseCoreHandler.auth().getCurrentUser());
             }
             return authenticating;
-        }).doOnDispose(() -> {
-            cancel();
-        });
+        }).doFinally(this::cancel);
     }
 
     @Override
     public Completable authenticate(final AccountDetails details) {
         return Completable.defer(() -> {
-            if (isAuthenticatedThisSession() || isAuthenticated()) {
+            if (isAuthenticated()) {
                 return Completable.error(ChatSDK.getException(R.string.already_authenticated));
             }
             else if (!isAuthenticating()) {
@@ -112,9 +110,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 }).subscribeOn(RX.io()).flatMapCompletable(this::authenticateWithUser);
             }
             return authenticating;
-        }).doOnDispose(() -> {
-            cancel();
-        });
+        }).doFinally(this::cancel);
     }
 
     public Completable retrieveRemoteConfig() {
@@ -159,7 +155,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
     protected void completeAuthentication(User user) {
 
-        saveCurrentUserEntityID(user.getEntityID());
+        setCurrentUserEntityID(user.getEntityID());
 
         ChatSDK.events().impl_currentUserOn(user.getEntityID());
 
@@ -173,7 +169,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
         Logger.debug("Complete authentication");
 
-        authenticatedThisSession = true;
         setAuthStateToIdle();
 
     }
@@ -220,11 +215,9 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
                             FirebaseCoreHandler.auth().signOut();
 
-                            clearSavedCurrentUserEntityID();
+                            clearCurrentUserEntityID();
 
-                            ChatSDK.events().source().onNext(NetworkEvent.logout());
-
-                            authenticatedThisSession = false;
+                            ChatSDK.events().source().accept(NetworkEvent.logout());
 
                             if (ChatSDK.hook() != null) {
                                 HashMap<String, Object> data = new HashMap<>();

@@ -71,17 +71,13 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     public void goOffline() {
         ChatSDK.core().save();
         ChatSDK.events().disposeOnLogout(setUserOffline().subscribe(() -> {
-            if(ChatSDK.config().disconnectFromServerWhenInBackground) {
-                FirebaseCoreHandler.database().goOffline();
-            }
+            FirebaseCoreHandler.database().goOffline();
         }));
     }
 
     public void goOnline() {
         super.goOnline();
-        if(ChatSDK.config().disconnectFromServerWhenInBackground) {
-            FirebaseCoreHandler.database().goOnline();
-        }
+        FirebaseCoreHandler.database().goOnline();
         setUserOnline().subscribe(ChatSDK.events());
 
 //        FirebasePaths.firebaseRawRef().child(".info/connected").addListenerForSingleValueEvent(new RealtimeEventListener().onValue((snapshot, hasValue) -> {

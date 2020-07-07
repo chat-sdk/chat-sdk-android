@@ -237,7 +237,7 @@ public class XMPPMUCManager {
             return Single.error(ChatSDK.getException(R.string.could_not_join_muc));
 
         }).doOnSuccess(thread -> {
-            ChatSDK.events().source().onNext(NetworkEvent.threadAdded(thread));
+            ChatSDK.events().source().accept(NetworkEvent.threadAdded(thread));
         }).subscribeOn(RX.io());
     }
 
@@ -331,7 +331,7 @@ public class XMPPMUCManager {
             thread.setCreationDate(new Date());
             thread.setType(ThreadType.PrivateGroup);
             thread.update();
-            ChatSDK.events().source().onNext(NetworkEvent.threadAdded(thread));
+            ChatSDK.events().source().accept(NetworkEvent.threadAdded(thread));
         }
         return thread;
     }

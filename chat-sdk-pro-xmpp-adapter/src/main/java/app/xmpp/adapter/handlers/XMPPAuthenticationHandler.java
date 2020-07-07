@@ -9,7 +9,7 @@ import org.jxmpp.stringprep.XmppStringprepException;
 
 import app.xmpp.adapter.R;
 import app.xmpp.adapter.XMPPManager;
-import app.xmpp.adapter.utils.KeyStorage;
+import sdk.chat.core.utils.KeyStorage;
 import io.reactivex.Completable;
 import sdk.chat.core.base.AbstractAuthenticationHandler;
 import sdk.chat.core.dao.User;
@@ -24,8 +24,6 @@ import sdk.guru.common.RX;
  */
 
 public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
-
-    KeyStorage keyStorage = new KeyStorage();
 
     public XMPPAuthenticationHandler () {
     }
@@ -73,7 +71,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                     switch (details.type) {
                         case Username:
                             return XMPPManager.shared().login(details.username, details.password).andThen(Completable.defer(() -> {
-                                keyStorage.save(details.username, details.password);
+                                ChatSDK.shared().getKeyStorage().save(details.username, details.password);
 
                                 if(!details.username.contains("@")) {
                                     details.username = details.username + "@" + XMPPManager.shared().getDomain();
@@ -103,7 +101,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
 
     private void userAuthenticationCompletedWithJID (Jid jid) {
 
-        saveCurrentUserEntityID(jid.asBareJid().toString());
+        setCurrentUserEntityID(jid.asBareJid().toString());
 
         AbstractXMPPConnection conn = XMPPManager.shared().getConnection();
         if(conn.isAuthenticated() && conn.isConnected()) {
@@ -117,13 +115,11 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
             }
 
             XMPPManager.shared().performPostAuthenticationSetup();
-
-            authenticatedThisSession = true;
         }
     }
 
     public AccountDetails cachedAccountDetails () {
-        return AccountDetails.username(keyStorage.get(KeyStorage.UsernameKey), keyStorage.get(KeyStorage.PasswordKey));
+        return AccountDetails.username(ChatSDK.shared().getKeyStorage().get(KeyStorage.UsernameKey), ChatSDK.shared().getKeyStorage().get(KeyStorage.PasswordKey));
     }
 
     @Override
@@ -137,12 +133,10 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
         return Completable.create(emitter -> {
             XMPPManager.shared().logout();
 
-            clearSavedCurrentUserEntityID();
-            keyStorage.clear();
+            clearCurrentUserEntityID();
+            ChatSDK.shared().getKeyStorage().clear();
 
-            ChatSDK.events().source().onNext(NetworkEvent.logout());
-
-            authenticatedThisSession = false;
+            ChatSDK.events().source().accept(NetworkEvent.logout());
 
             emitter.onComplete();
         }).subscribeOn(RX.computation());

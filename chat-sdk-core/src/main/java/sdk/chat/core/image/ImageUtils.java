@@ -23,7 +23,6 @@ import androidx.annotation.DrawableRes;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
-import com.google.android.exoplayer2.C;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -32,16 +31,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
-import io.reactivex.SingleSource;
-import sdk.chat.core.rigs.FileUploadable;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.storage.FileManager;
-import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import sdk.guru.common.RX;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.types.FileUploadResult;
 import sdk.guru.common.RX;
 

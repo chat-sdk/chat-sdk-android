@@ -143,7 +143,7 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
                     if (map != null) {
                         new MessageWrapper(message).updateReadReceipts(map).doOnSuccess(aBoolean -> {
                             if (aBoolean) {
-                                ChatSDK.events().source().onNext(NetworkEvent.messageReadReceiptUpdated(message));
+                                ChatSDK.events().source().accept(NetworkEvent.messageReadReceiptUpdated(message));
                             }
                         }).ignoreElement().subscribe(ChatSDK.events());
                     }

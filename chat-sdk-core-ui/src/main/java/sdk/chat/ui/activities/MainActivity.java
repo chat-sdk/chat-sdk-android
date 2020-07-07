@@ -150,6 +150,7 @@ public abstract class MainActivity extends BaseActivity {
         if (UIModule.config().allowBackPressFromMainActivity) {
             super.onBackPressed();
         }
+
     }
 
     public boolean showLocalNotificationsForTab (Fragment fragment, Thread thread) {

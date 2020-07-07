@@ -486,7 +486,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                     // We need to do this because the data comes as a hash map that's not sorted
                     Collections.sort(messages, new MessageSorter());
 
-                    ChatSDK.events().source().onNext(NetworkEvent.messageAdded(messages.get(0)));
+                    ChatSDK.events().source().accept(NetworkEvent.messageAdded(messages.get(0)));
 
                 }
 
@@ -560,7 +560,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         model.setMetaValues(meta, false);
 
         model.update();
-        ChatSDK.events().source().onNext(NetworkEvent.threadDetailsUpdated(model));
+        ChatSDK.events().source().accept(NetworkEvent.threadDetailsUpdated(model));
     }
 
     /**

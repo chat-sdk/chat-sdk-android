@@ -61,7 +61,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                     thread.setCreationDate(new Date());
                     thread.update();
 
-                    eventSource.onNext(NetworkEvent.threadAdded(thread));
+                    eventSource.accept(NetworkEvent.threadAdded(thread));
                 }
 
                 final Thread finalThread = thread;
@@ -69,12 +69,12 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                 // TODO: manage name image change
                 cdm.add(chat.getNameChangeEvents().subscribe(s -> {
                     finalThread.setName(s);
-                    eventSource.onNext(NetworkEvent.threadDetailsUpdated(finalThread));
+                    eventSource.accept(NetworkEvent.threadDetailsUpdated(finalThread));
                 }, this));
 
                 cdm.add(chat.getImageURLChangeEvents().subscribe(s -> {
                     finalThread.setImageUrl(s);
-                    eventSource.onNext(NetworkEvent.threadDetailsUpdated(finalThread));
+                    eventSource.accept(NetworkEvent.threadDetailsUpdated(finalThread));
                 }, this));
 
                 cdm.add(chat.getUserEvents().subscribe(userEvent -> {
@@ -107,7 +107,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
             if (chatEvent.isRemoved()) {
                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(chat.getId());
                 if (thread != null) {
-                    eventSource.onNext(NetworkEvent.threadRemoved(thread));
+                    eventSource.accept(NetworkEvent.threadRemoved(thread));
                 }
             }
         }, this));

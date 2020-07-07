@@ -62,7 +62,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Single<Thread> createThread(String name, List<User> users, final int type, String entityID, String imageURL) {
+    public Single<Thread> createThread(String name, List<User> users, final int type, String entityID, String imageURL, Map<String, Object> meta) {
         return Single.create((SingleOnSubscribe<Thread>) e -> {
 
         // Make sure that the current user type in the list and
@@ -125,7 +125,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 final Thread finalThread = thread;
 
                 // We need to actually create the chat
-                Fire.stream().manage(Fire.stream().createChat(name, imageURL, null, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
+                Fire.stream().manage(Fire.stream().createChat(name, imageURL, meta, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
                     if (throwable == null) {
                         finalThread.setEntityID(groupChat.getId());
                         e.onSuccess(finalThread);

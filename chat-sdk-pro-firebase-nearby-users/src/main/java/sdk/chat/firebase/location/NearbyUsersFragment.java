@@ -81,9 +81,17 @@ public class NearbyUsersFragment extends BaseFragment {
 
         reloadData();
 
-        FirebaseNearbyUsersModule.shared().getGeoFireManager().locationUsersEvents().observeOn(RX.db()).doOnNext(locationUsers -> {
+
+        return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        dm.add(FirebaseNearbyUsersModule.shared().getGeoFireManager().locationUsersEvents().observeOn(RX.db()).subscribe(locationUsers -> {
             reloadData();
-        }).ignoreElements().subscribe(this);
+        }));
 
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
@@ -93,7 +101,13 @@ public class NearbyUsersFragment extends BaseFragment {
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
                 .subscribe(networkEvent -> reloadData(), throwable -> ToastHelper.show(getContext(), throwable.getLocalizedMessage())));
 
-        return view;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        dm.dispose();
     }
 
     @Override

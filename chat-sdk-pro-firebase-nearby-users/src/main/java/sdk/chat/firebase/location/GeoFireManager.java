@@ -34,8 +34,8 @@ public class GeoFireManager {
 
     protected GeoQuery query;
 
-    protected PublishRelay<GeoEvent> eventPublishSubject = PublishRelay.create();
-    protected ReplayRelay<GeoEvent> eventReplaySubject = ReplayRelay.create();
+    protected PublishRelay<GeoEvent> eventPublishRelay = PublishRelay.create();
+    protected ReplayRelay<GeoEvent> eventReplayRelay = ReplayRelay.create();
     protected PublishRelay<List<LocationUser>> locationUsersPublishRelay = PublishRelay.create();
 
     protected Map<String, GeoItem> itemMap = new HashMap<>();
@@ -142,16 +142,16 @@ public class GeoFireManager {
     }
 
     protected void onNext (GeoEvent event) {
-        eventPublishSubject.accept(event);
-        eventReplaySubject.accept(event);
+        eventPublishRelay.accept(event);
+        eventReplayRelay.accept(event);
     }
 
     public Observable<GeoEvent> events() {
-        return eventPublishSubject.observeOn(RX.main());
+        return eventPublishRelay.observeOn(RX.main());
     }
 
     public Observable<GeoEvent> allEvents() {
-        return eventReplaySubject.observeOn(RX.main());
+        return eventReplayRelay.observeOn(RX.main());
     }
 
     public Observable<List<LocationUser>> locationUsersEvents() {

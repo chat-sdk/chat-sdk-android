@@ -281,7 +281,7 @@ public class Message extends AbstractEntity {
             link.update();
 
             if (notify) {
-                ChatSDK.events().source().onNext(NetworkEvent.messageReadReceiptUpdated(this));
+                ChatSDK.events().source().accept(NetworkEvent.messageReadReceiptUpdated(this));
             }
             return true;
         }
@@ -324,6 +324,10 @@ public class Message extends AbstractEntity {
         return new MessageType(MessageType.None);
     }
 
+    public boolean typeIs(int type) {
+        return getMessageType().is(type);
+    }
+
     public void setType(Integer type) {
         this.type = type;
     }
@@ -350,11 +354,11 @@ public class Message extends AbstractEntity {
     }
 
     public void setMessageStatus(@NonNull MessageSendStatus status, boolean notify) {
-        if (status != null || this.status != status.ordinal()) {
+        if (this.status == null ||  this.status != status.ordinal()) {
             this.status = status.ordinal();
             this.update();
             if (notify) {
-                ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(this)));
+                ChatSDK.events().source().accept(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(this)));
             }
         }
     }

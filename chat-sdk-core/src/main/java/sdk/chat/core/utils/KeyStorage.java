@@ -1,8 +1,9 @@
-package app.xmpp.adapter.utils;
+package sdk.chat.core.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import sdk.chat.core.interfaces.IKeyStorage;
 import sdk.chat.core.session.ChatSDK;
 
 import static sdk.chat.core.session.ChatSDK.Preferences;
@@ -11,16 +12,12 @@ import static sdk.chat.core.session.ChatSDK.Preferences;
  * Created by benjaminsmiley-andrews on 04/07/2017.
  */
 
-public class KeyStorage {
+public class KeyStorage implements IKeyStorage {
 
     public static String UsernameKey = "user";
     public static String PasswordKey = "password";
 
     Context context;
-
-    public KeyStorage () {
-        context = ChatSDK.ctx();
-    }
 
     public KeyStorage (Context context) {
         this.context = context;
@@ -47,12 +44,18 @@ public class KeyStorage {
         editor.apply();
     }
 
-    public String get (String key) {
+    public String get(String key) {
         return pref().getString(key, null);
     }
 
     public int getInt(String key) {
         return pref().getInt(key, 0);
+    }
+
+    public void remove(String key) {
+        SharedPreferences.Editor editor = ChatSDK.shared().getPreferences().edit();
+        editor.remove(key);
+        editor.apply();
     }
 
     public void clear() {

@@ -1,6 +1,7 @@
 package sdk.chat.core.utils;
 
-import io.reactivex.subjects.PublishSubject;
+
+import com.jakewharton.rxrelay2.PublishRelay;
 
 /**
  * We have to use this because in some versions of Android when the camera
@@ -8,9 +9,9 @@ import io.reactivex.subjects.PublishSubject;
  */
 public class ActivityResultPushSubjectHolder {
 
-    private static PublishSubject<ActivityResult> instance = PublishSubject.create();
+    private static PublishRelay<ActivityResult> instance = PublishRelay.create();
 
-    public static PublishSubject<ActivityResult> shared() {
+    public static PublishRelay<ActivityResult> shared() {
         return instance;
     }
 

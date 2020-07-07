@@ -67,6 +67,7 @@ public class Keys {
     public static final String Status = "status";
     public static final String Permission = "permission";
 
+    public static final String Id = "id";
     public static final String IntentKeyUserEntityID = "user-entity-id";
     public static final String IntentKeyUserEntityIDList = "user-entity-id-list";
     public static final String IntentKeyMessageEntityIDs = "text-entity-ids";

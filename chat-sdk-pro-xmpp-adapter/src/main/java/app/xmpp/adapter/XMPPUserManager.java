@@ -329,7 +329,7 @@ public class XMPPUserManager {
 
         // Update the UI if necessary
         if (!oldMeta.entrySet().equals(user.metaMap().entrySet())) {
-            ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(user));
+            ChatSDK.events().source().accept(NetworkEvent.userMetaUpdated(user));
         }
 
         return user;
@@ -366,7 +366,7 @@ public class XMPPUserManager {
             final Runnable updateVCard = () -> {
                 try {
                     vCardManager.saveVCard(vCard);
-                    ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(ChatSDK.currentUser()));
+                    ChatSDK.events().source().accept(NetworkEvent.userMetaUpdated(ChatSDK.currentUser()));
                     e.onComplete();
                 }
                 catch (Exception ex) {

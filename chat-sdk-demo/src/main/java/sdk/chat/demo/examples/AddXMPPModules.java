@@ -28,7 +28,6 @@ public class AddXMPPModules extends Activity {
                 .setDebugPassword(null)
                 .setGoogleMaps(null)
                 .setReplyFromNotificationEnabled(true)
-                .setDisconnectFromServerWhenInBackground(true)
                 .setAnonymousLoginEnabled(true)
                 .setPushNotificationAction(null)
                 .setShowEmptyChats(true)

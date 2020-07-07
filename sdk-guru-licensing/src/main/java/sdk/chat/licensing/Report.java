@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Completable;
 import io.reactivex.disposables.Disposable;
-import okhttp3.OkHttpClient;
 import sdk.chat.core.session.ChatSDK;
 
 public class Report {

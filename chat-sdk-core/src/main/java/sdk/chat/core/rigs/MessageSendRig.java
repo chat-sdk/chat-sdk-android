@@ -152,7 +152,7 @@ public class MessageSendRig {
             for (Uploadable item : uploadables) {
                 completables.add(ChatSDK.upload().uploadFile(item.getBytes(), item.name, item.mimeType).flatMapMaybe(result -> {
 
-                    ChatSDK.events().source().onNext(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message, MessageSendStatus.Uploading, result.progress)));
+                    ChatSDK.events().source().accept(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message, MessageSendStatus.Uploading, result.progress)));
 
                     if (result.urlValid() && messageDidUploadUpdateAction != null) {
                         messageDidUploadUpdateAction.update(message, result);

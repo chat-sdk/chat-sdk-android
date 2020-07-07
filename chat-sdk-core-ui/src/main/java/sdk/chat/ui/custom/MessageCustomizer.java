@@ -1,6 +1,5 @@
 package sdk.chat.ui.custom;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 
@@ -10,30 +9,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.utils.ProfileOption;
+import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
 
-public class Customiser implements IMessageHandler {
+public class MessageCustomizer implements IMessageHandler {
 
-    static final Customiser instance = new Customiser();
+    static final MessageCustomizer instance = new MessageCustomizer();
 
-    public static Customiser shared() {
+    public static MessageCustomizer shared() {
         return instance;
     }
 
     protected List<IMessageHandler> messageHandlers = new ArrayList<>();
 
-    public Customiser() {
-        messageHandlers.add(new MessageHandler());
+    protected IMessageHandler textMessageHandler = new TextMessageHandler();
+    protected IMessageHandler imageMessageHandler = new ImageMessageHandler();
+    protected IMessageHandler systemMessageHandler = new SystemMessageHandler();
+
+    public void setTextMessageHandler(TextMessageHandler handler) {
+        this.textMessageHandler = handler;
+    }
+
+    public void setTextMessageHandler(ImageMessageHandler handler) {
+        this.imageMessageHandler = handler;
+    }
+
+    public void setTextMessageHandler(SystemMessageHandler handler) {
+        this.systemMessageHandler = handler;
     }
 
     public List<IMessageHandler> getMessageHandlers() {
-        return messageHandlers;
+        List<IMessageHandler> handlers = new ArrayList<>();
+        handlers.add(textMessageHandler);
+        handlers.add(imageMessageHandler);
+        handlers.add(systemMessageHandler);
+        handlers.addAll(messageHandlers);
+        return handlers;
     }
 
     @Override
     public void onBindMessageHolders(Context context, MessageHolders holders) {
-        for (IMessageHandler handler: messageHandlers) {
+        for (IMessageHandler handler: getMessageHandlers()) {
             handler.onBindMessageHolders(context, holders);
         }
     }
@@ -48,7 +64,7 @@ public class Customiser implements IMessageHandler {
     @Override
     public MessageHolder onNewMessageHolder(Message message) {
         MessageHolder holder;
-        for (IMessageHandler handler: messageHandlers) {
+        for (IMessageHandler handler: getMessageHandlers()) {
             holder = handler.onNewMessageHolder(message);
             if (holder != null) {
                 return holder;
@@ -58,22 +74,22 @@ public class Customiser implements IMessageHandler {
     }
 
     @Override
-    public void onClick(Activity activity, View rootView, Message message) {
-        for (IMessageHandler handler: messageHandlers) {
+    public void onClick(ChatActivity activity, View rootView, Message message) {
+        for (IMessageHandler handler: getMessageHandlers()) {
             handler.onClick(activity, rootView, message);
         }
     }
 
     @Override
-    public void onLongClick(Activity activity, View rootView, Message message) {
-        for (IMessageHandler handler: messageHandlers) {
+    public void onLongClick(ChatActivity activity, View rootView, Message message) {
+        for (IMessageHandler handler: getMessageHandlers()) {
             handler.onLongClick(activity, rootView, message);
         }
     }
 
     @Override
     public boolean hasContentFor(MessageHolder message, byte type) {
-        for (IMessageHandler handler: messageHandlers) {
+        for (IMessageHandler handler: getMessageHandlers()) {
             if (handler.hasContentFor(message, type)) {
                 return true;
             }

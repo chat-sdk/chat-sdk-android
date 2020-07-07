@@ -10,6 +10,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+import com.jakewharton.rxrelay2.PublishRelay;
 
 import org.pmw.tinylog.Logger;
 
@@ -17,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.PublishSubject;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.CurrentLocale;
 import sdk.guru.common.RX;
@@ -33,7 +33,7 @@ public class AudioPlayer {
     protected final SimpleExoPlayer player = new SimpleExoPlayer.Builder(ChatSDK.ctx()).build();
     protected Disposable playingDisposable;
 
-    protected PublishSubject<Long> timePublishSubject = PublishSubject.create();
+    protected PublishRelay<Long> timePublishRelay = PublishRelay.create();
     protected boolean isReady = false;
 
     protected String mediaSource = null;
@@ -65,7 +65,7 @@ public class AudioPlayer {
                 .observeOn(RX.main())
                 .subscribe(aLong -> {
                     if (player.isPlaying()) {
-                        timePublishSubject.onNext(player.getCurrentPosition());
+                        timePublishRelay.accept(player.getCurrentPosition());
                     }
                 }, throwable -> Logger.error(throwable.getMessage()));
     }
@@ -143,7 +143,7 @@ public class AudioPlayer {
     }
 
     public Observable<Long> getTimeObservable() {
-        return timePublishSubject.hide().observeOn(RX.main());
+        return timePublishRelay.hide().observeOn(RX.main());
     }
 
     public void dispose() {
