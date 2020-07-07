@@ -51,7 +51,7 @@ import sdk.chat.ui.chat.options.DialogChatOptionsHandler;
 import sdk.chat.ui.chat.options.MediaChatOption;
 import sdk.chat.ui.chat.options.MediaType;
 import sdk.chat.ui.custom.BaseProfileFragmentProvider;
-import sdk.chat.ui.custom.Customiser;
+import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.fragments.ContactsFragment;
 import sdk.chat.ui.fragments.PrivateThreadsFragment;
 import sdk.chat.ui.fragments.PublicThreadsFragment;
@@ -647,7 +647,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     public void stop() {
-        Customiser.shared().stop();
+        MessageCustomizer.shared().stop();
         searchActivities.clear();
         chatOptions.clear();
         extraTabs.clear();

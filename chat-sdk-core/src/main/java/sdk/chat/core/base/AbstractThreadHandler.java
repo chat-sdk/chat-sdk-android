@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import io.reactivex.Completable;
@@ -81,6 +82,22 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Single<Thread> createThread(String name, List<User> users, int type, String entityID) {
         return createThread(name, users, type, entityID, null);
+    }
+
+    public Single<Thread> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL) {
+        return createThread(name, theUsers, type, entityID, imageURL, null);
+    }
+
+    public Single<Thread> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL, Map<String, Object> meta) {
+        return createThread(name, theUsers, type, entityID, imageURL, meta);
+    }
+
+    public Single<Thread> create1to1Thread(User otherUser, @Nullable Map<String, Object> meta) {
+        return createThread(null, Collections.singletonList(otherUser), ThreadType.Private1to1, null, null, meta);
+    }
+
+    public Single<Thread> createPrivateGroupThread(@Nullable String name, List<User> users, @Nullable String entityID, @Nullable String imageURL, @Nullable Map<String, Object> meta) {
+        return createThread(name, users, ThreadType.PrivateGroup, entityID, imageURL, meta);
     }
 
     public Message newMessage(int type, Thread thread) {
@@ -293,6 +310,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             } else {
                 newMessage.setMetaValues(message.getMetaValuesAsMap());
                 newMessage.setValueForKey(message.getType(), Keys.Type);
+                newMessage.setValueForKey(message.getEntityID(), Keys.Id);
             }
             newMessage.setValueForKey(reply, Keys.Reply);
             return new MessageSendRig(newMessage, thread).run();
@@ -340,7 +358,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable grantVoice(Thread thread, User user) {
         return Completable.create(emitter -> {
-            ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread, user));
             emitter.onComplete();
         });
     }
@@ -348,7 +366,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable revokeVoice(Thread thread, User user) {
         return Completable.create(emitter -> {
-            ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread, user));
             emitter.onComplete();
         });
     }
@@ -371,7 +389,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable grantModerator(Thread thread, User user) {
         return Completable.create(emitter -> {
-            ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread, user));
             emitter.onComplete();
         });
     }
@@ -379,7 +397,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable revokeModerator(Thread thread, User user) {
         return Completable.create(emitter -> {
-            ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(thread, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread, user));
             emitter.onComplete();
         });
     }

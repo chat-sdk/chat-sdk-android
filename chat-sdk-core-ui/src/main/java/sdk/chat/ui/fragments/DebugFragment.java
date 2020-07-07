@@ -56,10 +56,10 @@ public class DebugFragment extends BaseFragment {
             for (Object o: toDelete) {
                 ChatSDK.db().delete(o);
                 if (o instanceof Thread) {
-                    ChatSDK.events().source().onNext(NetworkEvent.threadRemoved((Thread) o));
+                    ChatSDK.events().source().accept(NetworkEvent.threadRemoved((Thread) o));
                 }
                 if (o instanceof Message) {
-                    ChatSDK.events().source().onNext(NetworkEvent.messageRemoved((Message) o));
+                    ChatSDK.events().source().accept(NetworkEvent.messageRemoved((Message) o));
                 }
             }
 

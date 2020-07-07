@@ -22,7 +22,9 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -195,7 +197,11 @@ public class EditThreadActivity extends BaseActivity {
                         .observeOn(RX.main())
                         .subscribe(consumer));
             } else {
-                dm.add(ChatSDK.thread().createThread(threadName, users, ThreadType.PrivateGroup, null, threadImageURL)
+
+                Map<String, Object> testMap = new HashMap<>();
+                testMap.put("test", 123);
+
+                dm.add(ChatSDK.thread().createThread(threadName, users, ThreadType.PrivateGroup, null, threadImageURL, testMap)
                         .observeOn(RX.main())
                         .subscribe(consumer));
             }

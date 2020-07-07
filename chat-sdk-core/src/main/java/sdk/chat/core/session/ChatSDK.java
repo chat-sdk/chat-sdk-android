@@ -44,12 +44,14 @@ import sdk.chat.core.handlers.UploadHandler;
 import sdk.chat.core.handlers.VideoMessageHandler;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.interfaces.IKeyStorage;
 import sdk.chat.core.interfaces.InterfaceAdapter;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.notifications.NotificationDisplayHandler;
 import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.utils.AppBackgroundMonitor;
+import sdk.chat.core.utils.KeyStorage;
 import sdk.chat.core.utils.StringChecker;
 import sdk.guru.common.RX;
 
@@ -81,6 +83,7 @@ public class ChatSDK {
     protected ConfigBuilder<ChatSDK> builder;
     protected boolean isActive = false;
     protected String licenseEmail;
+    protected IKeyStorage keyStorage;
 
     protected Runnable onActivateListener = null;
 
@@ -120,6 +123,7 @@ public class ChatSDK {
 
     public void activate(Context context, @Nullable String email) throws Exception {
         setContext(context);
+         keyStorage = new KeyStorage(context);
 
         config = builder.config();
 
@@ -203,7 +207,7 @@ public class ChatSDK {
                             if (!message.isDelivered()) {
                                 boolean inBackground = AppBackgroundMonitor.shared().inBackground();
                                 boolean connectedToAuto = NotificationDisplayHandler.connectedToAuto(ChatSDK.ctx());
-                                if ((ChatSDK.ui().showLocalNotifications(thread) && !inBackground) || (inBackground && connectedToAuto)) {
+                                if (inBackground || connectedToAuto || (ChatSDK.ui().showLocalNotifications(thread))) {
                                     RX.onMain(() -> ChatSDK.ui().notificationDisplayHandler().createMessageNotification(message));
                                 }
                             }
@@ -455,5 +459,10 @@ public class ChatSDK {
     public String getLicenseEmail() {
         return licenseEmail;
     }
+
+    public IKeyStorage getKeyStorage() {
+        return keyStorage;
+    }
+
 }
 

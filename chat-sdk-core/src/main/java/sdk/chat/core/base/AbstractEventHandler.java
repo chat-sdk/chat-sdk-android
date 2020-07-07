@@ -1,33 +1,21 @@
 package sdk.chat.core.base;
 
-import java.util.HashMap;
+import com.jakewharton.rxrelay2.PublishRelay;
 
+import io.reactivex.Observable;
 import io.reactivex.Scheduler;
-import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.handlers.EventHandler;
-import sdk.chat.core.hook.Executor;
-import sdk.chat.core.hook.Hook;
-import sdk.chat.core.hook.HookEvent;
-import sdk.chat.core.interfaces.ThreadType;
-import sdk.chat.core.notifications.NotificationDisplayHandler;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.ReadStatus;
-import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.guru.common.DisposableMap;
-import io.reactivex.Observable;
 import sdk.guru.common.RX;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
-import sdk.guru.common.RX;
-import io.reactivex.subjects.PublishSubject;
 
 public abstract class AbstractEventHandler implements EventHandler {
 
-    final protected PublishSubject<NetworkEvent> eventSource = PublishSubject.create();
-    final protected PublishSubject<Throwable> errorSource = PublishSubject.create();
+    final protected PublishRelay<NetworkEvent> eventSource = PublishRelay.create();
+    final protected PublishRelay<Throwable> errorSource = PublishRelay.create();
 
     final protected DisposableMap dm = new DisposableMap();
 
@@ -37,7 +25,7 @@ public abstract class AbstractEventHandler implements EventHandler {
         }, this));
     }
 
-    public PublishSubject<NetworkEvent> source() {
+    public PublishRelay<NetworkEvent> source() {
         return eventSource;
     }
 
@@ -72,7 +60,7 @@ public abstract class AbstractEventHandler implements EventHandler {
     public void onComplete() {}
 
     public void onError(@NonNull Throwable e) {
-        errorSource.onNext(e);
+        errorSource.accept(e);
     }
 
     public void stop() {

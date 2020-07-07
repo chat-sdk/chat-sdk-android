@@ -9,12 +9,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.Map;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.Single;
-import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import sdk.chat.core.base.AbstractThreadHandler;
 import sdk.chat.core.dao.Keys;
@@ -152,8 +151,8 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         });
     }
 
-    public Single<Thread> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL) {
-        return Single.defer((Callable<SingleSource<? extends Thread>>) () -> {
+    public Single<Thread> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL, Map<String, Object> meta) {
+        return Single.defer(() -> {
 
             // If the entity ID is set, see if the thread exists and return it if it does
             // TODO: Check this - what if for some reason the user isn't a member of this thread?
@@ -206,9 +205,22 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             thread.setEntityID(entityID);
             thread.setCreator(currentUser);
             thread.setCreationDate(new Date());
-            thread.setName(name, false);
-            thread.setImageUrl(imageURL, false);
+
+            if (name != null) {
+                thread.setName(name, false);
+            }
+
+            if (imageURL != null) {
+                thread.setImageUrl(imageURL, false);
+            }
+
             thread.addUsers(users);
+
+            if (meta != null) {
+                for (String key: meta.keySet()) {
+                    thread.setMetaValue(key, meta.get(key), false);
+                }
+            }
 
             if (type != -1) {
                 thread.setType(type);

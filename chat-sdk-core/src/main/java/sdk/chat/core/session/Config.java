@@ -45,6 +45,7 @@ public class Config<T> extends BaseConfig<T> {
 
     public boolean inboundPushHandlingEnabled = true;
     public boolean replyFromNotificationEnabled = true;
+    public boolean markAsReadFromNotificationEnabled = true;
 
     // Should the client send the push or is a server script handling it?
     public boolean clientPushEnabled = false;
@@ -98,7 +99,7 @@ public class Config<T> extends BaseConfig<T> {
 
     public boolean disablePresence = false;
 
-    public boolean disconnectFromServerWhenInBackground = true;
+//    public boolean disconnectFromServerWhenInBackground = true;
 
     public Config(T onBuild) {
         super(onBuild);
@@ -180,6 +181,15 @@ public class Config<T> extends BaseConfig<T> {
         return this;
     }
 
+    /**
+     * Allow the user to mark as read from a push notification
+     * @param enabled
+     * @return
+     */
+    public Config<T> setMarkAsReadFromNotificationEnabled(boolean enabled) {
+        this.markAsReadFromNotificationEnabled = enabled;
+        return this;
+    }
     /**
      * Allow users to login anonymously
      * @param value
@@ -536,17 +546,5 @@ public class Config<T> extends BaseConfig<T> {
         this.showLocalNotifications = value;
         return this;
     }
-
-    /**
-     * Disconnect from Firebase when in the background. This will ensure that the
-     * user's online status is set to "offline"
-     * @param disconnect
-     * @return
-     */
-    public Config<T> setDisconnectFromServerWhenInBackground(boolean disconnect) {
-        this.disconnectFromServerWhenInBackground = disconnect;
-        return this;
-    }
-
 
 }

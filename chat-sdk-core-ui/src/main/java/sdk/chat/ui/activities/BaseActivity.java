@@ -272,7 +272,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        ActivityResultPushSubjectHolder.shared().onNext(new ActivityResult(requestCode, resultCode, data));
+        ActivityResultPushSubjectHolder.shared().accept(new ActivityResult(requestCode, resultCode, data));
     }
 
     public void hideKeyboard() {

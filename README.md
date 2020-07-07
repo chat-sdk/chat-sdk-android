@@ -22,7 +22,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Java 8** supports Java 8 and lamda expressions
 - **Multi-threaded** agressively multi-threaded
 - **API Level 16+** Compatible with 99.3% of Android devices
-- **Demo** [Download v5.0.0RC16](https://play.google.com/store/apps/details?id=sdk.chat.live)
+- **Demo** [Download v5.0.1](https://play.google.com/store/apps/details?id=sdk.chat.live)
 
 > Please bear in mind that this version is a major update. As a result we are making new releases every few days to fix bugs and crashes. If you see an issue, please report it on the Github bug tracker and we will fix it. 
 
@@ -156,6 +156,7 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 3. [Customize the Icons](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/r1ZeZWGCI)
 4. [Customize the Tabs](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/BkClVbzAU)
 5. [Add a Chat Option](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/HymyNWfA8)
+6. [Custom Message Types](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/ryxEXfA08)
 
 <!--
 #### Customization

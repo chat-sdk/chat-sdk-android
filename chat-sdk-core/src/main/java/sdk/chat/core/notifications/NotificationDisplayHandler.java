@@ -53,11 +53,15 @@ public class NotificationDisplayHandler implements Consumer<Throwable> {
 
         Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityId);
 
+        // We are not connected... so we can't mark read or reply
         NotificationBuilder builder = new NotificationBuilder(context);
+//        builder.disableMarkRead();
+//        builder.disableReply();
+
         boolean connectedToAuto = connectedToAuto(context);
 
         if (thread != null) {
-            builder = builder.forAuto(title, message, thread);
+            builder = builder.forAuto(title, message, null);
             if (!connectedToAuto) {
                 builder = builder.setIntent(resultIntent);
             }

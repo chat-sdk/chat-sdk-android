@@ -59,15 +59,15 @@ public class MessageActionBuilder {
 
         NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(0, context.getString(R.string.reply), replyPendingIntent)
                 .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
-                .setShowsUserInterface(false)
+                .setShowsUserInterface(true)
                 .addRemoteInput(createReplyRemoteInput())
                 .build();
 
         return replyAction;
     }
 
-    public NotificationCompat.Action createMarkAsReadAction (Context context, String threadEnityID, int markAsReadId) {
-        Intent markAsReadIntent = createMarkAsReadIntent(context, threadEnityID);
+    public NotificationCompat.Action createMarkAsReadAction (Context context, String threadEntityID, int markAsReadId) {
+        Intent markAsReadIntent = createMarkAsReadIntent(context, threadEntityID);
         PendingIntent markAsReadPendingIntent = PendingIntent.getService(context, markAsReadId, markAsReadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Action markAsReadAction = new NotificationCompat.Action.Builder(0, context.getString(R.string.mark_as_read), markAsReadPendingIntent)
@@ -108,18 +108,27 @@ public class MessageActionBuilder {
         return style;
     }
 
-    public void addActions(NotificationCompat.Builder builder, Context context, Thread thread) {
+    public void addStyle(NotificationCompat.Builder builder, Context context, Thread thread) {
 
-        NotificationCompat.Action replyAction = createReplyAction(context, thread.getEntityID(), getReplyId(thread.getId()));
-        NotificationCompat.Action markAsReadAction = createMarkAsReadAction(context, thread.getEntityID(), getMarkReadId(thread.getId()));
         NotificationCompat.MessagingStyle style = createMessagingStyle(thread);
 
         if (!style.getMessages().isEmpty()) {
             builder.setStyle(style);
         }
-        builder.addAction(replyAction);
-        builder.addAction(markAsReadAction);
+    }
 
+    public void addReply(NotificationCompat.Builder builder, Context context, Thread thread) {
+        if (ChatSDK.config().replyFromNotificationEnabled) {
+            NotificationCompat.Action replyAction = createReplyAction(context, thread.getEntityID(), getReplyId(thread.getId()));
+            builder.addAction(replyAction);
+        }
+    }
+
+    public void addMarkRead(NotificationCompat.Builder builder, Context context, Thread thread) {
+        if (ChatSDK.config().markAsReadFromNotificationEnabled) {
+            NotificationCompat.Action markAsReadAction = createMarkAsReadAction(context, thread.getEntityID(), getMarkReadId(thread.getId()));
+            builder.addAction(markAsReadAction);
+        }
     }
 
 }

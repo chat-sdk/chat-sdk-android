@@ -25,6 +25,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.EventType;
@@ -39,7 +40,7 @@ import sdk.chat.core.utils.Dimen;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.Customiser;
+import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.utils.ImageLoaderPayload;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
@@ -88,7 +89,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         ButterKnife.bind(this);
 
         final MessageHolders holders = new MessageHolders();
-        Customiser.shared().onBindMessageHolders(getContext(), holders);
+        MessageCustomizer.shared().onBindMessageHolders(getContext(), holders);
 
         messagesListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, (imageView, url, payload) -> {
 
@@ -149,6 +150,21 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         messagesListAdapter.setDateHeadersFormatter(date -> prettyTime.format(date));
 
         messagesListAdapter.setOnMessageClickListener(holder -> {
+            Message message = holder.getMessage();
+            if (message.isReply()) {
+                String originalMessageEntityID = message.stringForKey(Keys.Id);
+                if (originalMessageEntityID != null) {
+                    Message originalMessage = ChatSDK.db().fetchEntityWithEntityID(originalMessageEntityID, Message.class);
+                    MessageHolder originalHolder = messageHolderHashMap.get(originalMessage);
+                    if (originalHolder != null) {
+                        int index = messageHolders.indexOf(originalHolder);
+                        if (index >= 0) {
+                            messagesList.smoothScrollToPosition(index);
+                            return;
+                        }
+                    }
+                }
+            }
             delegate.onClick(holder.getMessage());
         });
 
@@ -307,7 +323,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
         if (holder == null) {
 
-            final MessageHolder finalHolder = Customiser.shared().onNewMessageHolder(message);
+            final MessageHolder finalHolder = MessageCustomizer.shared().onNewMessageHolder(message);
 
             messageHolders.add(0, finalHolder);
             messageHolderHashMap.put(finalHolder.getMessage(), finalHolder);
@@ -366,7 +382,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
             for (Message message : messages) {
                 MessageHolder holder = messageHolderHashMap.get(message);
                 if (holder == null) {
-                    holder = Customiser.shared().onNewMessageHolder(message);
+                    holder = MessageCustomizer.shared().onNewMessageHolder(message);
                     messageHolderHashMap.put(message, holder);
                     holders.add(holder);
                 }

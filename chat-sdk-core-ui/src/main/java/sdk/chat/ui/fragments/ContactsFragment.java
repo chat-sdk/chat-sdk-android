@@ -21,6 +21,8 @@ import androidx.annotation.LayoutRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.jakewharton.rxrelay2.PublishRelay;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +31,6 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.PublishSubject;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
@@ -54,8 +55,8 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
 
     protected UsersListAdapter adapter;
 
-    protected PublishSubject<User> onClickSubject = PublishSubject.create();
-    protected PublishSubject<User> onLongClickSubject = PublishSubject.create();
+    protected PublishRelay<User> onClickRelay = PublishRelay.create();
+    protected PublishRelay<User> onLongClickRelay = PublishRelay.create();
     protected Disposable listOnClickListenerDisposable;
     protected Disposable listOnLongClickListenerDisposable;
 
@@ -76,11 +77,25 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
         initViews();
-        addListeners();
 
         loadData(true);
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        addListeners();
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        dm.dispose();
     }
 
     public void addListeners() {
@@ -92,7 +107,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
             if (o instanceof User) {
                 final User clickedUser = (User) o;
 
-                onClickSubject.onNext(clickedUser);
+                onClickRelay.accept(clickedUser);
                 startProfileActivity(clickedUser.getEntityID());
             }
         });
@@ -103,7 +118,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         listOnLongClickListenerDisposable = adapter.onLongClickObservable().subscribe(o -> {
             if (o instanceof User) {
                 final User user = (User) o;
-                onLongClickSubject.onNext(user);
+                onLongClickRelay.accept(user);
 
                 DialogUtils.showToastDialog(getContext(), R.string.delete_contact, 0, R.string.delete, R.string.cancel, () -> {
                     ChatSDK.contact()
@@ -219,11 +234,11 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
     }
 
     public Observable<User> onClickObservable() {
-        return onClickSubject;
+        return onClickRelay;
     }
 
     public Observable<User> onLongClickObservable() {
-        return onLongClickSubject;
+        return onLongClickRelay;
     }
 
     @Override

@@ -49,6 +49,8 @@ public class NotificationBuilder {
     protected String channelName = null;
     protected String channelDescription = null;
     protected String largeIconUrl = null;
+    protected boolean replyEnabled = true;
+    protected boolean markReadEnabled = true;
 
     protected Thread messageReplyActionThread = null;
 
@@ -235,7 +237,14 @@ public class NotificationBuilder {
             }
 
             if (messageReplyActionThread != null) {
-                new MessageActionBuilder().addActions(builder, context.get(), messageReplyActionThread);
+                MessageActionBuilder mab = new MessageActionBuilder();
+                mab.addStyle(builder, context.get(), messageReplyActionThread);
+                if (replyEnabled) {
+                    mab.addReply(builder, context.get(), messageReplyActionThread);
+                }
+                if (markReadEnabled && ChatSDK.readReceipts() != null) {
+                    mab.addMarkRead(builder, context.get(), messageReplyActionThread);
+                }
             }
 
             emitter.onSuccess(builder);
@@ -274,9 +283,9 @@ public class NotificationBuilder {
                 .addOpenChatIntentForMessage(message)
                 .addTitleAndTextForMessage(message)
                 .addIconForUser(message.getSender());
-        if (ChatSDK.config().replyFromNotificationEnabled) {
-            builder.addMessageReplyActionsForThread(message.getThread());
-        }
+
+        builder.addMessageReplyActionsForThread(message.getThread());
+
         return builder;
     }
 
@@ -299,6 +308,16 @@ public class NotificationBuilder {
                 .setTitle(title)
                 .setText(text)
                 .addMessageReplyActionsForThread(thread);
+    }
+
+    public NotificationBuilder disableMarkRead() {
+        markReadEnabled = false;
+        return this;
+    }
+
+    public NotificationBuilder disableReply() {
+        replyEnabled = false;
+        return this;
     }
 
     public NotificationBuilder addMessageReplyActionsForThread(Thread thread) {

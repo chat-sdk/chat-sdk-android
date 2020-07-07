@@ -16,13 +16,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.jakewharton.rxrelay2.PublishRelay;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.ui.R;
 import sdk.chat.ui.view_holders.UserViewHolder;
@@ -34,9 +35,9 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     protected SparseBooleanArray selectedUsersPositions = new SparseBooleanArray();
 
     protected boolean multiSelectEnabled;
-    protected final PublishSubject<UserListItem> onClickSubject = PublishSubject.create();
-    protected final PublishSubject<UserListItem> onLongClickSubject = PublishSubject.create();
-    protected final PublishSubject<List<UserListItem>> onToggleSubject = PublishSubject.create();
+    protected final PublishRelay<UserListItem> onClickRelay = PublishRelay.create();
+    protected final PublishRelay<UserListItem> onLongClickRelay = PublishRelay.create();
+    protected final PublishRelay<List<UserListItem>> onToggleRelay = PublishRelay.create();
 
     public interface SubtitleProvider {
         String subtitle(UserListItem user);
@@ -94,18 +95,18 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 } else {
                     selectedUsersPositions.delete(position);
                 }
-                onToggleSubject.onNext(getSelectedUsers());
+                onToggleRelay.accept(getSelectedUsers());
             });
         }
 
         viewHolder.itemView.setOnClickListener(view -> {
             if (!multiSelectEnabled) {
-                onClickSubject.onNext(item);
+                onClickRelay.accept(item);
             }
         });
         viewHolder.itemView.setOnLongClickListener(view -> {
             if (!multiSelectEnabled) {
-                onLongClickSubject.onNext(item);
+                onLongClickRelay.accept(item);
             }
             return true;
         });
@@ -229,15 +230,15 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     public Observable<UserListItem> onClickObservable() {
-        return onClickSubject;
+        return onClickRelay;
     }
 
     public Observable<List<UserListItem>> onToggleObserver() {
-        return onToggleSubject;
+        return onToggleRelay;
     }
 
     public Observable<UserListItem> onLongClickObservable() {
-        return onLongClickSubject;
+        return onLongClickRelay;
     }
 
     public void setMultiSelectEnabled(boolean enabled) {

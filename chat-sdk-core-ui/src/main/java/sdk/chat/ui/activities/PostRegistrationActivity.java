@@ -109,7 +109,7 @@ public class PostRegistrationActivity extends BaseActivity {
         if (v instanceof EditText) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null) imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-            ChatSDK.events().source().onNext(NetworkEvent.userMetaUpdated(currentUser));
+            ChatSDK.events().source().accept(NetworkEvent.userMetaUpdated(currentUser));
         }
 
         dm.add(ChatSDK.core().pushUser()

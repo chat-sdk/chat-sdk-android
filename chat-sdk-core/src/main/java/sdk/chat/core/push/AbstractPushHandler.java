@@ -26,7 +26,6 @@ public abstract class AbstractPushHandler implements PushHandler {
     public static String Action = "action";
     public static String Sound = "sound";
 
-
     public AbstractPushHandler() {
 
         // We need to subscribe / unsubscribe to all the necessary channels after login and logout
@@ -154,6 +153,10 @@ public abstract class AbstractPushHandler implements PushHandler {
             sb.append(Integer.toHexString((b & 0xFF) | 0x100).substring(1, 3));
         }
         return sb.toString();
+    }
+
+    public boolean enabled() {
+        return true;
     }
 
 }

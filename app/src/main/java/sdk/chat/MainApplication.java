@@ -79,6 +79,8 @@ public class MainApplication extends Application {
                     }
                 }))
 
+
+
                 .addModule(FirebaseUIModule.builder()
                         .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)
                         .build()
@@ -87,6 +89,7 @@ public class MainApplication extends Application {
                 // Activate
                 .build()
                 .activate(this);
+
 
         Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {
             networkEvent.debug();

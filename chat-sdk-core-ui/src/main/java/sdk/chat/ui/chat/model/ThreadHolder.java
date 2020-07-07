@@ -12,7 +12,7 @@ import io.reactivex.Completable;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
-import sdk.chat.ui.custom.Customiser;
+import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.guru.common.RX;
 
 public class ThreadHolder implements IDialog<MessageHolder> {
@@ -40,7 +40,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
     public void update() {
         Message message = thread.lastMessage();
         if (message != null) {
-            lastMessage = Customiser.shared().onNewMessageHolder(message);
+            lastMessage = MessageCustomizer.shared().onNewMessageHolder(message);
         } else {
             lastMessage = null;
         }

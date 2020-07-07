@@ -85,7 +85,6 @@ public class UpdateActionBatcher {
             }
             if (!toExecute.isEmpty()) {
                 publishRelay.accept(toExecute);
-//                publishSubject.onNext(toExecute);
             }
         }
         reload = false;

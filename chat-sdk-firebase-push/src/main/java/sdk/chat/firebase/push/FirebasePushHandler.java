@@ -1,6 +1,10 @@
 package sdk.chat.firebase.push;
 
 import com.google.android.gms.tasks.Continuation;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -9,11 +13,12 @@ import org.pmw.tinylog.Logger;
 
 import java.util.HashMap;
 
-import sdk.chat.firebase.adapter.module.FirebaseModule;
+import io.reactivex.Completable;
 import sdk.chat.core.push.AbstractPushHandler;
 import sdk.chat.firebase.adapter.FirebaseCoreHandler;
-import io.reactivex.Completable;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.guru.common.RX;
+import sdk.guru.realtime.RealtimeReferenceManager;
 
 
 /**
@@ -22,8 +27,28 @@ import sdk.guru.common.RX;
 
 public class FirebasePushHandler extends AbstractPushHandler {
 
+    protected boolean enabled = true;
+
     public FirebasePushHandler () {
 
+        DatabaseReference connectedRef = FirebaseCoreHandler.database().getReference(".info/connected");
+        ValueEventListener listener = connectedRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                boolean connected = snapshot.getValue(Boolean.class);
+                if (connected) {
+                    enabled = false;
+                } else {
+                    enabled = true;
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                System.err.println("Listener was cancelled");
+            }
+        });
+        RealtimeReferenceManager.shared().addRef(connectedRef, listener);
     }
 
     // Rather than subscribing for one user topic, subscribe to each thread as a new topic
@@ -82,6 +107,10 @@ public class FirebasePushHandler extends AbstractPushHandler {
         } else {
             return super.hashChannel(channel);
         }
+    }
+
+    public boolean enabled() {
+        return enabled;
     }
 
 }

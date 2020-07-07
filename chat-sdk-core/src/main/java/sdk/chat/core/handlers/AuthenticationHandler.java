@@ -11,10 +11,7 @@ public interface AuthenticationHandler {
 
     /**
      * Check to see if the user is already authenticated
-     * @deprecated use {@link #authenticate()}
      */
-    @Deprecated
-    Completable authenticateWithCachedToken();
     Completable authenticate();
 
     /**
@@ -24,10 +21,7 @@ public interface AuthenticationHandler {
 
     /**
      * Checks whether the user is authenticated
-     * @deprecated use {@link #isAuthenticated()}
      */
-    @Deprecated
-    Boolean userAuthenticated();
     Boolean isAuthenticated();
     Boolean isAuthenticating();
 
@@ -36,10 +30,7 @@ public interface AuthenticationHandler {
     /**
      * Has been authenticated this session. If they are authenticated this session
      * it means that the server is fully setup and the session is established
-     * @deprecated use {@link #isAuthenticatedThisSession()}
      */
-    @Deprecated
-    Boolean userAuthenticatedThisSession();
     Boolean isAuthenticatedThisSession();
 
     /**
@@ -48,16 +39,6 @@ public interface AuthenticationHandler {
     Completable logout();
 
     Boolean accountTypeEnabled(AccountDetails.Type type);
-
-    /**
-    * Get the user's stored login credentials
-    */
-    String getSavedCurrentUserEntityID();
-
-    /**
-    * Set the user's stored login credentials
-    */
-    void saveCurrentUserEntityID(String userEntityID);
 
     /**
     * Get the current user's authentication id

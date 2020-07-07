@@ -151,7 +151,7 @@ public class Thread extends AbstractEntity {
 
     public void addUser(User user, boolean notify) {
         if (DaoCore.connectUserAndThread(user, this) && notify) {
-            ChatSDK.events().source().onNext(NetworkEvent.threadUsersChanged(this, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersChanged(this, user));
         }
 //        user.update();
 //        update();
@@ -164,7 +164,7 @@ public class Thread extends AbstractEntity {
 
     public void removeUser(User user, boolean notify) {
         if(DaoCore.breakUserAndThread(user, this) && notify) {
-            ChatSDK.events().source().onNext(NetworkEvent.threadUsersChanged(this, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersChanged(this, user));
         }
 //        user.update();
 //        update();
@@ -260,7 +260,7 @@ public class Thread extends AbstractEntity {
                 previousMessage.update();
                 message.setPreviousMessage(previousMessage);
                 if (notify) {
-                    ChatSDK.events().source().onNext(NetworkEvent.messageUpdated(previousMessage));
+                    ChatSDK.events().source().accept(NetworkEvent.messageUpdated(previousMessage));
                 }
             }
             getMessages().add(message);
@@ -268,7 +268,7 @@ public class Thread extends AbstractEntity {
             update();
 //            refresh();
             if (notify) {
-                ChatSDK.events().source().onNext(NetworkEvent.messageAdded(message));
+                ChatSDK.events().source().accept(NetworkEvent.messageAdded(message));
             }
         }
     }
@@ -306,7 +306,7 @@ public class Thread extends AbstractEntity {
             update();
 
             if (notify) {
-                ChatSDK.events().source().onNext(NetworkEvent.threadMetaUpdated(this));
+                ChatSDK.events().source().accept(NetworkEvent.threadMetaUpdated(this));
             }
         }
     }
@@ -332,7 +332,7 @@ public class Thread extends AbstractEntity {
             }
 
             if (notify) {
-                ChatSDK.events().source().onNext(NetworkEvent.threadMetaUpdated(this));
+                ChatSDK.events().source().accept(NetworkEvent.threadMetaUpdated(this));
             }
         }
     }
@@ -397,14 +397,14 @@ public class Thread extends AbstractEntity {
                 previousMessage.setNextMessage(nextMessage);
                 previousMessage.update();
                 if (notify) {
-                    ChatSDK.events().source().onNext(NetworkEvent.messageUpdated(previousMessage));
+                    ChatSDK.events().source().accept(NetworkEvent.messageUpdated(previousMessage));
                 }
             }
             if (nextMessage != null) {
                 nextMessage.setPreviousMessage(previousMessage);
                 nextMessage.update();
                 if (notify) {
-                    ChatSDK.events().source().onNext(NetworkEvent.messageUpdated(nextMessage));
+                    ChatSDK.events().source().accept(NetworkEvent.messageUpdated(nextMessage));
                 }
             }
 
@@ -417,7 +417,7 @@ public class Thread extends AbstractEntity {
         resetMessages();
 
         if(notify) {
-            ChatSDK.events().source().onNext(NetworkEvent.messageRemoved(message));
+            ChatSDK.events().source().accept(NetworkEvent.messageRemoved(message));
         }
     }
 
@@ -503,9 +503,9 @@ public class Thread extends AbstractEntity {
             update();
             if (notify) {
                 if (deleted) {
-                    ChatSDK.events().source().onNext(NetworkEvent.threadRemoved(this));
+                    ChatSDK.events().source().accept(NetworkEvent.threadRemoved(this));
                 } else {
-                    ChatSDK.events().source().onNext(NetworkEvent.threadAdded(this));
+                    ChatSDK.events().source().accept(NetworkEvent.threadAdded(this));
                 }
             }
         }
@@ -777,7 +777,7 @@ public class Thread extends AbstractEntity {
             UserThreadLink link = getUserThreadLink(user.getId());
             if (link != null) {
                 if(link.setMetaValue(Keys.Permission, permission) && notify) {
-                    ChatSDK.events().source().onNext(NetworkEvent.threadUsersRoleChanged(this, user));
+                    ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(this, user));
                     if (sendSystemMessage && user.isMe()) {
                         String message = String.format(ChatSDK.getString(R.string.role_changed_to__), ChatSDK.thread().localizeRole(permission));
                         ChatSDK.thread().sendLocalSystemMessage(message, this);
