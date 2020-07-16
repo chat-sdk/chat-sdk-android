@@ -8,6 +8,7 @@ import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.AppBackgroundMonitor;
+import sdk.chat.core.utils.StringChecker;
 
 public class BaseBroadcastHandler implements BroadcastHandler {
 
@@ -23,6 +24,10 @@ public class BaseBroadcastHandler implements BroadcastHandler {
         final String userEntityID = extras.getString(Keys.PushKeyUserEntityID);
         final String title = extras.getString(Keys.PushKeyTitle);
         final String body = extras.getString(Keys.PushKeyBody);
+
+        if (StringChecker.isNullOrEmpty(threadEntityID) || StringChecker.isNullOrEmpty(userEntityID)) {
+            return;
+        }
 
         // Check if notifications are muted
         Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);

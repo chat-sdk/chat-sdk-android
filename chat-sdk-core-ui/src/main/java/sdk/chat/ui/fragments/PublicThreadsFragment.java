@@ -75,7 +75,7 @@ public class PublicThreadsFragment extends ThreadsFragment {
     }
 
     @Override
-    public boolean allowThreadCreation () {
+    public boolean allowThreadCreation() {
         return UIModule.config().publicRoomCreationEnabled;
     }
 }

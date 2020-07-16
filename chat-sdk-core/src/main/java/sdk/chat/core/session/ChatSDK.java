@@ -85,7 +85,7 @@ public class ChatSDK {
     protected String licenseEmail;
     protected IKeyStorage keyStorage;
 
-    protected Runnable onActivateListener = null;
+    protected List<Runnable> onActivateListeners = new ArrayList<>();
 
     protected ChatSDK () {
     }
@@ -122,6 +122,11 @@ public class ChatSDK {
     }
 
     public void activate(Context context, @Nullable String email) throws Exception {
+
+        if (isActive) {
+            throw new Exception("Chat SDK is already active. It is not recommended to call activate twice. If you must do this, make sure to call stop() first.");
+        }
+
         setContext(context);
          keyStorage = new KeyStorage(context);
 
@@ -216,8 +221,8 @@ public class ChatSDK {
                 }
         }), HookEvent.MessageReceived);
 
-        if (onActivateListener != null) {
-            onActivateListener.run();
+        for (Runnable r: onActivateListeners) {
+            r.run();
         }
 
         licenseEmail = email;
@@ -452,8 +457,8 @@ public class ChatSDK {
         return isActive && (context != null && context.get() != null && networkAdapter != null && interfaceAdapter != null);
     }
 
-    public void setOnActivateListener(Runnable runnable) {
-        onActivateListener = runnable;
+    public void addOnActivateListener(Runnable runnable) {
+        onActivateListeners.add(runnable);
     }
 
     public String getLicenseEmail() {

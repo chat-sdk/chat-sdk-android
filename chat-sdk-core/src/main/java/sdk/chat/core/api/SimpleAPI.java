@@ -6,6 +6,12 @@ import sdk.chat.core.session.ChatSDK;
 
 public class SimpleAPI {
 
+    /**
+     * Passing null to either parameter will mean that it is ignored
+     * @param name
+     * @param avatarURL
+     * @return
+     */
     public static Completable updateUserAsync(String name, String avatarURL) {
         User currentUser = ChatSDK.core().currentUser();
 

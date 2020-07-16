@@ -130,7 +130,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
 
         DatabaseReference ref = FirebasePaths.userContactsRef(user.getEntityID());
 
-        ref.addChildEventListener(new RealtimeEventListener().onChildAdded((snapshot, s, hasValue) -> {
+        ChildEventListener addedListener = ref.addChildEventListener(new RealtimeEventListener().onChildAdded((snapshot, s, hasValue) -> {
             if (hasValue) {
                 User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
 
@@ -145,7 +145,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
             }
         }));
 
-        ref.addChildEventListener(new RealtimeEventListener().onChildRemoved((snapshot, hasValue) -> {
+        ChildEventListener removedListener = ref.addChildEventListener(new RealtimeEventListener().onChildRemoved((snapshot, hasValue) -> {
             if (hasValue) {
                 User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, snapshot.getKey());
 
@@ -159,6 +159,9 @@ public class FirebaseEventHandler extends AbstractEventHandler {
                 }
             }
         }));
+
+        RealtimeReferenceManager.shared().addRef(ref, addedListener);
+        RealtimeReferenceManager.shared().addRef(ref, removedListener);
 
     }
 

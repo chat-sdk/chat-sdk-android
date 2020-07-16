@@ -41,7 +41,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     public FirebaseAuthenticationHandler() {
         // Handle login and log out automatically
         authStateListener = firebaseAuth -> {
-            if (ChatSDK.shared().isValid() && !isAuthenticating()) {
+            if (ChatSDK.shared().isValid() && !isAuthenticating() && loggingOut == null) {
                 // We are logged in with Firebase
                 if (firebaseAuth.getCurrentUser() != null) {
                     // We are logged in with the wrong user
@@ -60,15 +60,16 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
     public Completable authenticate() {
         return Completable.defer(() -> {
+            if (authenticating != null) {
+                return authenticating;
+            }
             if (isAuthenticatedThisSession()) {
                 return Completable.complete();
             }
             if (!isAuthenticated()) {
                 return Completable.error(ChatSDK.getException(R.string.authentication_required));
             }
-            if (!isAuthenticating()) {
-                authenticating = authenticateWithUser(FirebaseCoreHandler.auth().getCurrentUser());
-            }
+            authenticating = authenticateWithUser(FirebaseCoreHandler.auth().getCurrentUser());
             return authenticating;
         }).doFinally(this::cancel);
     }
@@ -76,39 +77,41 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     @Override
     public Completable authenticate(final AccountDetails details) {
         return Completable.defer(() -> {
-            if (isAuthenticated()) {
-                return Completable.error(ChatSDK.getException(R.string.already_authenticated));
+            if (authenticating != null) {
+                return authenticating;
             }
-            else if (!isAuthenticating()) {
-                authenticating = Single.create((SingleOnSubscribe<FirebaseUser>) emitter -> {
+            else if (isAuthenticated()) {
+                return Completable.complete();
+            }
+            authenticating = Single.create((SingleOnSubscribe<FirebaseUser>) emitter -> {
 
-                    OnCompleteListener<AuthResult> resultHandler = task->AsyncTask.execute(()-> {
-                        if (task.isComplete() && task.isSuccessful() && task.getResult() != null) {
-                            emitter.onSuccess(task.getResult().getUser());
-                        } else {
-                            emitter.onError(task.getException());
-                        }
-                    });
-
-                    switch (details.type) {
-                        case Username:
-                            FirebaseCoreHandler.auth().signInWithEmailAndPassword(details.username, details.password).addOnCompleteListener(resultHandler);
-                            break;
-                        case Register:
-                            FirebaseCoreHandler.auth().createUserWithEmailAndPassword(details.username, details.password).addOnCompleteListener(resultHandler);
-                            break;
-                        case Anonymous:
-                            FirebaseCoreHandler.auth().signInAnonymously().addOnCompleteListener(resultHandler);
-                            break;
-                        case Custom:
-                            FirebaseCoreHandler.auth().signInWithCustomToken(details.token).addOnCompleteListener(resultHandler);
-                            break;
-                        default:
-                            emitter.onError(ChatSDK.getException(R.string.no_login_type_defined));
-                            break;
+                OnCompleteListener<AuthResult> resultHandler = task->AsyncTask.execute(()-> {
+                    if (task.isComplete() && task.isSuccessful() && task.getResult() != null) {
+                        emitter.onSuccess(task.getResult().getUser());
+                    } else {
+                        emitter.onError(task.getException());
                     }
-                }).subscribeOn(RX.io()).flatMapCompletable(this::authenticateWithUser);
-            }
+                });
+
+                switch (details.type) {
+                    case Username:
+                        FirebaseCoreHandler.auth().signInWithEmailAndPassword(details.username, details.password).addOnCompleteListener(resultHandler);
+                        break;
+                    case Register:
+                        FirebaseCoreHandler.auth().createUserWithEmailAndPassword(details.username, details.password).addOnCompleteListener(resultHandler);
+                        break;
+                    case Anonymous:
+                        FirebaseCoreHandler.auth().signInAnonymously().addOnCompleteListener(resultHandler);
+                        break;
+                    case Custom:
+                        FirebaseCoreHandler.auth().signInWithCustomToken(details.token).addOnCompleteListener(resultHandler);
+                        break;
+                    default:
+                        emitter.onError(ChatSDK.getException(R.string.no_login_type_defined));
+                        break;
+                }
+            }).subscribeOn(RX.io()).flatMapCompletable(this::authenticateWithUser);
+
             return authenticating;
         }).doFinally(this::cancel);
     }
@@ -150,7 +153,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             return userWrapper.push().doOnComplete(() -> {
                 completeAuthentication(userWrapper.getModel());
             });
-        }).subscribeOn(RX.db()), retrieveRemoteConfig()));
+        }).doFinally(this::setAuthStateToIdle).subscribeOn(RX.db()), retrieveRemoteConfig()));
     }
 
     protected void completeAuthentication(User user) {
@@ -167,7 +170,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
         ChatSDK.core().setUserOnline().subscribe(ChatSDK.events());
 
-        Logger.debug("Complete authentication");
+        Logger.info("Authentication complete! name = " +user.getName()+ ", id = " + user.getEntityID());
 
         setAuthStateToIdle();
 
@@ -198,37 +201,40 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
     public Completable logout() {
         return Completable.defer(() -> {
-            if (!isAuthenticated()) {
+            if (loggingOut != null) {
+                return loggingOut;
+            }
+            else if (!isAuthenticated() && currentUserID == null) {
                 return Completable.complete();
             }
-            else if (loggingOut == null) {
-                loggingOut = ChatSDK.hook().executeHook(HookEvent.WillLogout)
-                        .concatWith(ChatSDK.core().setUserOffline())
-                        .concatWith(Completable.defer(() -> {
+            loggingOut = ChatSDK.hook().executeHook(HookEvent.WillLogout)
+                    .concatWith(ChatSDK.core().setUserOffline())
+                    .concatWith(Completable.defer(() -> {
 
-                            final User user = ChatSDK.currentUser();
+                        final User user = ChatSDK.currentUser();
 
-                            // Stop listening to user related alerts. (added text or thread.)
-                            ChatSDK.events().impl_currentUserOff(user.getEntityID());
+                        Logger.info("Logout complete! name = " +user.getName()+ ", id = " + user.getEntityID());
 
-                            RealtimeReferenceManager.shared().removeAllListeners();
+                        // Stop listening to user related alerts. (added text or thread.)
+                        ChatSDK.events().impl_currentUserOff(user.getEntityID());
 
-                            FirebaseCoreHandler.auth().signOut();
+                        RealtimeReferenceManager.shared().removeAllListeners();
 
-                            clearCurrentUserEntityID();
+                        FirebaseCoreHandler.auth().signOut();
 
-                            ChatSDK.events().source().accept(NetworkEvent.logout());
+                        clearCurrentUserEntityID();
 
-                            if (ChatSDK.hook() != null) {
-                                HashMap<String, Object> data = new HashMap<>();
-                                data.put(HookEvent.User, user);
-                                return ChatSDK.hook().executeHook(HookEvent.DidLogout, data);
-                            } else {
-                                return Completable.complete();
-                            }
-                        }).subscribeOn(RX.computation()));
-            }
-            return loggingOut;
+                        ChatSDK.events().source().accept(NetworkEvent.logout());
+
+                        if (ChatSDK.hook() != null) {
+                            HashMap<String, Object> data = new HashMap<>();
+                            data.put(HookEvent.User, user);
+                            return ChatSDK.hook().executeHook(HookEvent.DidLogout, data);
+                        } else {
+                            return Completable.complete();
+                        }
+                    }).subscribeOn(RX.computation()));
+            return loggingOut.doFinally(this::setAuthStateToIdle);
         });
     }
 

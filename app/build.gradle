@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'com.google.firebase.firebase-perf'
+//apply plugin: 'com.google.firebase.crashlytics'
+//apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
@@ -24,6 +24,12 @@ android {
             storeFile file('debug.keystore')
             storePassword 'D3bug123'
         }
+        release {
+            keyAlias 'androiddebugkey'
+            keyPassword 'D3bug123'
+            storeFile file('debug.keystore')
+            storePassword 'D3bug123'
+        }
     }
 
     if(project.hasProperty('devBuild')) {
@@ -33,13 +39,11 @@ android {
     }
 
     buildTypes {
-//        release {
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-//            signingConfig signingConfigs.release
-//            debuggable false
-//            jniDebuggable false
-//            zipAlignEnabled true
-//        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
         debug {
             debuggable true
             jniDebuggable true
@@ -87,35 +91,35 @@ android {
 
 dependencies {
 
-    implementation project(':chat-sdk-demo')
+//    implementation project(':chat-sdk-demo')
 
     implementation project(':chat-sdk-core-ui')
     implementation project(':chat-sdk-firebase-adapter')
     implementation project(':chat-sdk-firebase-push')
     implementation project(':chat-sdk-firebase-upload')
 
-    implementation project(':chat-sdk-firestream-adapter')
-
-    implementation project(':chat-sdk-mod-ui-extras')
-    implementation project(':chat-sdk-mod-firebase-ui')
-    implementation project(':chat-sdk-mod-profile-pictures')
-
-    implementation project(':chat-sdk-pro-message-audio')
-    implementation project(':chat-sdk-pro-message-sticker')
-    implementation project(':chat-sdk-pro-message-file')
-    implementation project(':chat-sdk-pro-message-video')
-
-    implementation project(':chat-sdk-pro-encryption')
-    implementation project(':chat-sdk-pro-contact-book')
-
-    implementation project(':chat-sdk-pro-firebase-nearby-users')
-    implementation project(':chat-sdk-pro-firebase-blocking')
-    implementation project(':chat-sdk-pro-firebase-last-online')
-    implementation project(':chat-sdk-pro-firebase-typing-indicator')
-    implementation project(':chat-sdk-pro-firebase-read-receipts')
-
-    implementation project(':chat-sdk-pro-firestream-typing-indicator')
-    implementation project(':chat-sdk-pro-firestream-read-receipts')
+//    implementation project(':chat-sdk-firestream-adapter')
+//
+//    implementation project(':chat-sdk-mod-ui-extras')
+//    implementation project(':chat-sdk-mod-firebase-ui')
+//    implementation project(':chat-sdk-mod-profile-pictures')
+//
+//    implementation project(':chat-sdk-pro-message-audio')
+//    implementation project(':chat-sdk-pro-message-sticker')
+//    implementation project(':chat-sdk-pro-message-file')
+//    implementation project(':chat-sdk-pro-message-video')
+//
+//    implementation project(':chat-sdk-pro-encryption')
+//    implementation project(':chat-sdk-pro-contact-book')
+//
+//    implementation project(':chat-sdk-pro-firebase-nearby-users')
+//    implementation project(':chat-sdk-pro-firebase-blocking')
+//    implementation project(':chat-sdk-pro-firebase-last-online')
+//    implementation project(':chat-sdk-pro-firebase-typing-indicator')
+//    implementation project(':chat-sdk-pro-firebase-read-receipts')
+//
+//    implementation project(':chat-sdk-pro-firestream-typing-indicator')
+//    implementation project(':chat-sdk-pro-firestream-read-receipts')
 
 
 //    implementation project(path: ':chat-sdk-pro-xmpp-adapter')
@@ -126,12 +130,12 @@ dependencies {
 
     implementation "org.greenrobot:greendao:$greenDaoVersion"
 
-    // Recommended: Add the Firebase SDK for Google Analytics.
-    implementation "com.google.firebase:firebase-analytics:$firebaseAnalyticsVersion"
-
-    // Add the Firebase Crashlytics SDK.
-    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
-    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
+//    // Recommended: Add the Firebase SDK for Google Analytics.
+//    implementation "com.google.firebase:firebase-analytics:$firebaseAnalyticsVersion"
+//
+//    // Add the Firebase Crashlytics SDK.
+//    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
+//    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
 
 }
 

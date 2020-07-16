@@ -65,7 +65,6 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @BindView(R2.id.root) protected RelativeLayout root;
 
     protected UpdateActionBatcher batcher = new UpdateActionBatcher(100);
-    ;
 
     @Override
     protected @LayoutRes int getLayout() {

@@ -19,8 +19,6 @@ import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
-import sdk.chat.core.events.EventType;
-import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.PermissionRequestHandler;
@@ -86,10 +84,6 @@ public abstract class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.Logout))
-                .subscribe(networkEvent -> clearData()));
 
         updateLocalNotificationsForTab();
         reloadData();
