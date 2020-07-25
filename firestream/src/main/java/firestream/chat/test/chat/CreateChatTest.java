@@ -1,4 +1,4 @@
-package sdk.chat.app.firestream.test.chat;
+package firestream.chat.test.chat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,9 +6,9 @@ import java.util.List;
 
 import firestream.chat.chat.User;
 import firestream.chat.namespace.Fire;
-import sdk.chat.app.firestream.test.Result;
-import sdk.chat.app.firestream.test.Test;
-import sdk.chat.app.firestream.test.TestScript;
+import firestream.chat.test.Result;
+import firestream.chat.test.Test;
+import firestream.chat.test.TestScript;
 import firestream.chat.types.RoleType;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;

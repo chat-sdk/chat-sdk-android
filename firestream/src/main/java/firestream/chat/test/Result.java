@@ -1,4 +1,4 @@
-package sdk.chat.app.firestream.test;
+package firestream.chat.test;
 
 public class Result {
 

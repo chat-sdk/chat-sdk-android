@@ -1,4 +1,4 @@
-package sdk.chat.app.firestream.test.chat;
+package firestream.chat.test.chat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,9 +14,9 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.disposables.Disposable;
-import sdk.chat.app.firestream.test.Result;
-import sdk.chat.app.firestream.test.Test;
-import sdk.chat.app.firestream.test.TestScript;
+import firestream.chat.test.Result;
+import firestream.chat.test.Test;
+import firestream.chat.test.TestScript;
 import sdk.guru.common.Event;
 import sdk.guru.common.RX;
 

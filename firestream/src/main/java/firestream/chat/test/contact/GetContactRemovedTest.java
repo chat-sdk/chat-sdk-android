@@ -1,11 +1,11 @@
-package sdk.chat.app.firestream.test.contact;
+package firestream.chat.test.contact;
 
 import firestream.chat.namespace.Fire;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
-import sdk.chat.app.firestream.test.Result;
-import sdk.chat.app.firestream.test.Test;
-import sdk.chat.app.firestream.test.TestScript;
+import firestream.chat.test.Result;
+import firestream.chat.test.Test;
+import firestream.chat.test.TestScript;
 import sdk.guru.common.RX;
 
 public class GetContactRemovedTest extends Test {

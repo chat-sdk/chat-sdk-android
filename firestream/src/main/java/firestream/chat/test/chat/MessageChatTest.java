@@ -1,4 +1,4 @@
-package sdk.chat.app.firestream.test.chat;
+package firestream.chat.test.chat;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -15,8 +15,8 @@ import firestream.chat.message.Sendable;
 import firestream.chat.message.TextMessage;
 import firestream.chat.message.TypingState;
 import firestream.chat.namespace.Fire;
-import sdk.chat.app.firestream.test.Result;
-import sdk.chat.app.firestream.test.Test;
+import firestream.chat.test.Result;
+import firestream.chat.test.Test;
 import firestream.chat.types.DeliveryReceiptType;
 import firestream.chat.types.SendableType;
 import firestream.chat.types.TypingStateType;

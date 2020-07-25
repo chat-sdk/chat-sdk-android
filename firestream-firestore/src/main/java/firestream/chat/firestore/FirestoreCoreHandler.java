@@ -11,6 +11,7 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,7 @@ import firestream.chat.events.ListData;
 import firestream.chat.firebase.service.FirebaseCoreHandler;
 import firestream.chat.firebase.service.Keys;
 import firestream.chat.firebase.service.Path;
+import firestream.chat.message.Body;
 import firestream.chat.message.Sendable;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -159,7 +161,8 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
                     if (snapshots.get().getDocumentChanges().size() > 0) {
                         DocumentChange change = snapshots.get().getDocumentChanges().get(0);
                         if (change.getDocument().exists()) {
-                            Sendable sendable = change.getDocument().toObject(Sendable.class);
+//                            Sendable sendable = change.getDocument().toObject(Sendable.class);
+                            Sendable sendable = sendableFromDocumentSnapshot(change.getDocument());
                             return Optional.with(sendable);
                         }
                     }
@@ -167,6 +170,27 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
                 return Optional.empty();
             });
         });
+    }
+
+    public static Sendable sendableFromDocumentSnapshot(DocumentSnapshot snapshot) {
+
+        // Get the data
+        String id = snapshot.getId();
+        String from = snapshot.get(Keys.From, String.class);
+
+        Date date = snapshot.get(Keys.Date, Date.class, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE) ;
+        String type = snapshot.get(Keys.Type, String.class);
+
+        Map<String, Object> body = (HashMap<String, Object>) snapshot.get(Keys.Body);
+
+        Map<String, Object> data = new HashMap<String, Object>() {{
+            put(Keys.From, from);
+            put(Keys.Date, date);
+            put(Keys.Type, type);
+            put(Keys.Body, new Body(body));
+        }};
+
+        return new Sendable(id, data);
     }
 
     /**
@@ -187,8 +211,9 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
         }).flatMapObservable(query -> new RXFirestore().on(query).flatMapMaybe(change -> {
             DocumentSnapshot ds = change.getDocument();
             if (ds.exists()) {
-                Sendable sendable = ds.toObject(Sendable.class, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE);
-                sendable.setId(ds.getId());
+                Sendable sendable = sendableFromDocumentSnapshot(ds);
+//                Sendable sendable = ds.toObject(Sendable.class, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE);
+//                sendable.setId(ds.getId());
 
                 return Maybe.just(new Event<>(sendable, typeForDocumentChange(change)));
             }

@@ -42,7 +42,7 @@ public class MultiRelay<T> extends Relay<T> {
 
     protected final PublishRelay<T> publishRelay = PublishRelay.create();
     protected final BehaviorRelay<T> behaviorRelay = BehaviorRelay.create();
-    protected final ReplayRelay<T> replaySubject = ReplayRelay.create();
+    protected final ReplayRelay<T> replayRelay = ReplayRelay.create();
 
     public static <T> MultiRelay<T> create() {
         return new MultiRelay<T>();
@@ -58,17 +58,20 @@ public class MultiRelay<T> extends Relay<T> {
         behaviorRelay.accept(t);
 
         // Allow them to replay all events
-        replaySubject.accept(t);
+        replayRelay.accept(t);
 
     }
 
     @Override
     public boolean hasObservers() {
-        return publishRelay.hasObservers() || behaviorRelay.hasObservers() || replaySubject.hasObservers();
+        return publishRelay.hasObservers() || behaviorRelay.hasObservers() || replayRelay.hasObservers();
     }
 
     @Override
     protected void subscribeActual(Observer<? super T> observer) {
+//        publishRelay.subscribe(observer);
+//        behaviorRelay.subscribe(observer);
+//        replayRelay.subscribe(observer);
     }
 
     /**
@@ -87,7 +90,7 @@ public class MultiRelay<T> extends Relay<T> {
      * @return a events of all events past and future
      */
     public Observable<T> pastAndNewEvents() {
-        return replaySubject.hide().observeOn(RX.main());
+        return replayRelay.hide().observeOn(RX.main());
     }
 
     /**

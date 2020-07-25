@@ -1,4 +1,4 @@
-package sdk.chat.app.firestream.test;
+package firestream.chat.test;
 
 import sdk.guru.common.DisposableMap;
 import io.reactivex.Emitter;

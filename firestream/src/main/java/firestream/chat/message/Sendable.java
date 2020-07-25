@@ -47,7 +47,7 @@ public class Sendable extends BaseMessage {
     }
 
     public void setBodyType(BaseType type) {
-        body.setType(type);
+        body.setType(type.get());
     }
 
     public BaseType getBodyType() {

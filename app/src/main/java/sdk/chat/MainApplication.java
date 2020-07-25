@@ -34,6 +34,8 @@ public class MainApplication extends Application {
     public void firebase() throws Exception {
         String rootPath = "pre_5";
 
+
+
         ChatSDK.builder()
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
                 .setAnonymousLoginEnabled(false)
@@ -43,6 +45,8 @@ public class MainApplication extends Application {
                 .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                 .setSendSystemMessageWhenRoleChanges(true)
                 .setRemoteConfigEnabled(true)
+
+
                 .build()
 
                 // Add the network adapter module
@@ -85,6 +89,7 @@ public class MainApplication extends Application {
 //                        config.setDrawerEnabled(false);
 //                    }
 //                }))
+
 //
 //                .addModule(FirebaseUIModule.builder()
 //                        .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)
@@ -106,6 +111,9 @@ public class MainApplication extends Application {
         d = ChatSDK.events().errorSourceOnMain().subscribe(t -> {
             t.printStackTrace();
         });
+
+
+
 
 
 //        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true);

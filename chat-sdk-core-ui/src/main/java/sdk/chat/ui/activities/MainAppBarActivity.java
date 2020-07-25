@@ -125,6 +125,7 @@ public class MainAppBarActivity extends MainActivity {
 
         viewPager.setCurrentItem(index);
 
+
         final List<Tab> tabs = adapter.getTabs();
 
 //        Fragment currentFragment = adapter.getTabs().get(index).fragment;

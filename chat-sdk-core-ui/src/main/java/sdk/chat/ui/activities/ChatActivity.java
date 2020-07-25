@@ -411,6 +411,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
 
 
+
     }
 
     @Override
