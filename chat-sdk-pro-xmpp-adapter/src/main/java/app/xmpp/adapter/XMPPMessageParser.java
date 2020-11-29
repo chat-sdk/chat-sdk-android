@@ -16,6 +16,7 @@ import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
@@ -60,6 +61,13 @@ public class XMPPMessageParser {
 
     public static Message addMessageToThread(Thread thread, final XMPPMessageWrapper xmppMessage, String from) {
         Message message = buildMessage(xmppMessage, from);
+
+        ChatSDK.hook().executeHook(HookEvent.MessageReceived, new HashMap<String, Object>() {{
+            put(HookEvent.Message, message);
+            put(HookEvent.Thread, thread);
+            put(HookEvent.IsNew_Boolean, true);
+        }}).subscribe(ChatSDK.events());
+
         thread.addMessage(message);
         updateReadReceipts(message, xmppMessage);
         return message;

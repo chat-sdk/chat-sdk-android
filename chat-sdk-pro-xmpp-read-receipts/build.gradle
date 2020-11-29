@@ -37,6 +37,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':chat-sdk-core')
     implementation project(':chat-sdk-pro-xmpp-adapter')
+    implementation project(":sdk-guru-licensing")
 }
 
 ext {

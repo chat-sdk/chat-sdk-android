@@ -75,7 +75,7 @@ public class FirebasePushHandler extends AbstractPushHandler {
     }
 
     @Override
-    public void sendPushNotification (HashMap<String, Object> data) {
+    public void sendPushNotification(HashMap<String, Object> data) {
         if (data != null) {
             functions().getHttpsCallable("pushToChannels").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
                 if(task.getException() != null) {

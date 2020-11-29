@@ -21,8 +21,6 @@ import org.jxmpp.stringprep.XmppStringprepException;
 import org.pmw.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -44,7 +42,6 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.utils.CurrentLocale;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
 
@@ -300,10 +297,13 @@ public class XMPPMUCManager {
         }).subscribeOn(RX.io());
     }
 
+    // Make a room ID in the form - name_[current date in hex]
     private String generateRoomId(String name) throws Exception {
         String domain = mucServiceDomain();
-        DateFormat format = new SimpleDateFormat("mm.dd.yy-HHmmss", CurrentLocale.get());
-        return name.replaceAll("[^a-zA-Z0-9]", "") + "." + format.format(new Date()) + "@" + domain;
+
+        long roomIntID = new Date().getTime() / 1000;
+
+        return name.replaceAll("[^a-zA-Z0-9]", "") + "_" + String.format("%08X", roomIntID) + "@" + domain;
     }
 
     public String mucServiceDomain() throws Exception {

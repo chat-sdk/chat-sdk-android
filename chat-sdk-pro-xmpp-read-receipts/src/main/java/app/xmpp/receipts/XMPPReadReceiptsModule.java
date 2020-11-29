@@ -4,6 +4,7 @@ import android.content.Context;
 
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.licensing.Report;
 
 public class XMPPReadReceiptsModule extends AbstractModule {
 
@@ -15,6 +16,7 @@ public class XMPPReadReceiptsModule extends AbstractModule {
 
     @Override
     public void activate(Context context) {
+        Report.shared().add(getName());
         ChatSDK.a().readReceipts = new XMPPReadReceiptHandler();
     }
 

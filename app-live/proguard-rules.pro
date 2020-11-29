@@ -1,27 +1,12 @@
 # ChatSDK
--keep public class * {
+-keep public class sdk.chat.**, sdk.guru.**, firestream.chat.**, app.xmpp.**, co.chatsdk.** {
     public protected *;
 }
 
--keepparameternames
--renamesourcefileattribute SourceFile
--keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
+-keep class org.ocpsoft.prettytime.i18n.**
 
--keepclasseswithmembernames,includedescriptorclasses class * {
-    native <methods>;
-}
-
--keepclassmembers,allowoptimization enum * {
-    public static **[] values();
-    public static ** valueOf(java.lang.String);
-}
-
--keepclassmembers class * implements java.io.Serializable {
-    static final long serialVersionUID;
-    private static final java.io.ObjectStreamField[] serialPersistentFields;
-    private void writeObject(java.io.ObjectOutputStream);
-    private void readObject(java.io.ObjectInputStream);
-    java.lang.Object writeReplace();
-    java.lang.Object readResolve();
+-keep class .R
+-keep class **.R$* {
+    <fields>;
 }
 # End

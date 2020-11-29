@@ -16,12 +16,13 @@ import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.licensing.Report;
 import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.chat.options.MediaChatOption;
 import sdk.chat.ui.chat.options.MediaType;
-import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.custom.IMessageHandler;
+import sdk.chat.ui.custom.MessageCustomizer;
 
 /**
  * Created by ben on 10/6/17.
@@ -37,6 +38,7 @@ public class VideoMessageModule extends AbstractModule {
 
     @Override
     public void activate(Context context) {
+        Report.shared().add(getName());
         ChatSDK.a().videoMessage = new BaseVideoMessageHandler();
         ChatSDK.ui().addChatOption(new MediaChatOption(context.getResources().getString(R.string.take_video), MediaType.takeVideo()));
         ChatSDK.ui().addChatOption(new MediaChatOption(context.getResources().getString(R.string.choose_video), MediaType.chooseVideo()));

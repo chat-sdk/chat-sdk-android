@@ -24,7 +24,7 @@ public class MainApplication extends Application {
         try {
             firebase();
 //            firestream();
-//        xmpp();
+//            xmpp();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -32,8 +32,7 @@ public class MainApplication extends Application {
     }
 
     public void firebase() throws Exception {
-        String rootPath = "pre_5";
-
+        String rootPath = "pre_1";
 
 
         ChatSDK.builder()
@@ -45,7 +44,6 @@ public class MainApplication extends Application {
                 .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                 .setSendSystemMessageWhenRoleChanges(true)
                 .setRemoteConfigEnabled(true)
-
 
                 .build()
 
@@ -67,9 +65,13 @@ public class MainApplication extends Application {
                         .build()
                 )
 
-                // Add modules to handle file uploads, push notifications
+
+
+
+        // Add modules to handle file uploads, push notifications
                 .addModule(FirebaseUploadModule.shared())
                 .addModule(FirebasePushModule.shared())
+//                .addModule(EncryptionModule.shared())
 //                .addModule(ProfilePicturesModule.shared())
 //
 //                .addModule(ContactBookModule.shared())
@@ -103,6 +105,7 @@ public class MainApplication extends Application {
 
 //        ChatSDK.ui().setTab("Debug", null, new DebugFragment(), 99);
 //        ChatSDK.ui().removeTab(0);
+
 
         Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {
             networkEvent.debug();
@@ -217,54 +220,6 @@ public class MainApplication extends Application {
 ////            ChatSDK.ui().addChatOption(new MessageTestChatOption("BaseMessage Burst"));
 //
 //    }
-//    public void xmpp() {
-//        try {
-//
-//            ChatSDK.builder().configure()
-//
-//                    // Configure the library
-//                    .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
-//                    .setAnonymousLoginEnabled(false)
-//                    .setDebugModeEnabled(true)
-//                    .setIdenticonType(Config.IdenticonType.Gravatar).build()
-//
-//                    // Add modules to handle file uploads, push notifications
-//                    .addModule(FirebaseFileStorageModule.shared())
-//                    .addModule(FirebasePushModule.shared())
-//
-////                    .addModule(ContactBookModule.shared())
-////                    .addModule(EncryptionModule.shared())
-////                    .addModule(FileMessageModule.shared())
-////                    .addModule(AudioMessageModule.shared())
-////                    .addModule(StickerMessageModule.shared())
-////                    .addModule(VideoMessageModule.shared())
-//
-//                    .addModule(XMPPReadReceiptsModule.shared())
-//                    .addModule(
-//                            Testing.myOpenFire(XMPPModule.configure())
-//                                    .build()
-//                                    .configureUI(config -> config.setResetPasswordEnabled(false))
-//                    )
-//                    .addModule(ExtrasModule.shared())
-//
-//                    .build().activate(this);
-//
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//            Logger.debug("Error");
-//            assert(false);
-//        }
-//
-//        Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {
-//
-//        });
-//
-//        d = ChatSDK.events().errorSourceOnMain().subscribe(throwable -> {
-//            // Catch errors
-//            throwable.printStackTrace();
-//        });
-//
-//    }
+
 
 }

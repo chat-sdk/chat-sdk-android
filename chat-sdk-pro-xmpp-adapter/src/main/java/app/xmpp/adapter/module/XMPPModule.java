@@ -7,12 +7,12 @@ import app.xmpp.adapter.ui.XMPPInterfaceAdapter;
 import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.chat.core.interfaces.InterfaceAdapter;
 import sdk.chat.core.module.AbstractModule;
-import sdk.chat.core.session.Config;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.session.InterfaceAdapterProvider;
 import sdk.chat.core.session.NetworkAdapterProvider;
-import sdk.chat.ui.module.UIModule;
+import sdk.chat.licensing.Report;
 import sdk.chat.ui.module.UIConfig;
+import sdk.chat.ui.module.UIModule;
 
 /**
  * Created by benjaminsmiley-andrews on 12/07/2017.
@@ -43,8 +43,10 @@ public class XMPPModule extends AbstractModule implements NetworkAdapterProvider
 
     @Override
     public void activate(Context context) {
-        if ( UIModule.config().usernameHint == null) {
+        Report.shared().add(getName());
+        if (UIModule.config().usernameHint == null) {
             UIModule.config().usernameHint = context.getString(R.string.user_jid);
+            UIModule.config().customizeGroupImageEnabled = false;
         }
     }
 

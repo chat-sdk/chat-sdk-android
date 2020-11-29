@@ -65,5 +65,6 @@ publish {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(':chat-sdk-firestream-adapter')
+    implementation project(":sdk-guru-licensing")
 }
 

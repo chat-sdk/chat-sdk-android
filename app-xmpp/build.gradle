@@ -1,0 +1,93 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+
+android {
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+
+    defaultConfig {
+        applicationId "sdk.chat.android.live"
+
+        multiDexEnabled = true
+        minSdkVersion Integer.parseInt(project.MIN_SDK)
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+
+        versionName CHAT_SDK_VERSION
+        versionCode CHAT_SDK_BUILD_NUMBER as int
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('release-key.keystore')
+            keyAlias 'release_key'
+            storePassword 'ChatSDK123xx!'
+            keyPassword 'ChatSDK123xx!'
+        }
+        debug {
+            keyAlias 'androiddebugkey'
+            keyPassword 'D3bug123'
+            storeFile file('debug.keystore')
+            storePassword 'D3bug123'
+        }
+    }
+
+    if(project.hasProperty('devBuild')) {
+        splits.abi.enable = false
+        splits.density.enable = false
+        aaptOptions.cruncherEnabled = false
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            debuggable true
+            jniDebuggable true
+            ext.alwaysUpdateBuildId = false
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude("META-INF/*.kotlin_module")
+    }
+
+    dexOptions {
+        javaMaxHeapSize "6g"
+        preDexLibraries = false
+    }
+
+    flavorDimensions "default"
+    productFlavors {
+        development {
+            dimension "default"
+            minSdkVersion 21
+            resConfigs("en", "xxhdpi")
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
+    }}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation project(':chat-sdk-app-xmpp')
+    implementation project(':chat-sdk-pro-xmpp-read-receipts')
+}

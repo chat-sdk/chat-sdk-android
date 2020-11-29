@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.licensing.Report;
 
 public class FireStreamReadReceiptsModule extends AbstractModule {
 
@@ -18,6 +19,7 @@ public class FireStreamReadReceiptsModule extends AbstractModule {
     @Override
     public void activate(@NonNull Context context) {
         ChatSDK.a().readReceipts = new FirestreamReadReceiptHandler();
+        Report.shared().add(getName());
     }
 
     @Override

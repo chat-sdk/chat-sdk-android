@@ -4,6 +4,7 @@ import android.content.Context;
 
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.licensing.Report;
 
 /**
  * Created by pepe on 08.03.18.
@@ -19,6 +20,7 @@ public class FirebaseBlockingModule extends AbstractModule {
     @Override
     public void activate(Context context) {
         ChatSDK.a().blocking = new FirebaseBlockingHandler();
+        Report.shared().add(getName());
     }
 
     @Override

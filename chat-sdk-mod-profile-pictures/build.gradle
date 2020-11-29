@@ -65,13 +65,7 @@ publish {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':chat-sdk-core')
-    implementation project(':chat-sdk-core-ui')
-
-//    implementation "com.mikepenz:material-design-icons-dx-typeface:$iconicsMaterialDesignIconsVersion"
-    implementation "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
-    implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
-    implementation "com.mikepenz:iconics-core:$iconicsVersion"
-    implementation "com.mikepenz:iconics-views:$iconicsVersion"
+    api project(':chat-sdk-core-ui')
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"

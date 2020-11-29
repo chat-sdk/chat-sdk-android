@@ -109,46 +109,48 @@ public class BaseEncryptionHandler implements EncryptionHandler {
 
     //Checking if the key was saved before. If so, the key is retrieved. If not, the key is generated and stored.
 
-
-    public Single<VirgilKeyPair> getKeys(String entityID) {
+    public Single<VirgilKeyPair> getKeys(final String entityID) {
         return Single.create((SingleOnSubscribe<VirgilKeyPair>) emitter -> {
-            // We can have multiple private keys because we can have multiple users on one device
-            // Append the users entity iD to the private key key
-
-            String privateKeyString = ChatSDK.shared().getPreferences().getString(MyPrivateKey + entityID, null);
-            String publicKeyString = ChatSDK.shared().getPreferences().getString(MyPublicKey + entityID, null);
-
-            VirgilKeyPair keyPair;
-
-            if (privateKeyString == null || privateKeyString.isEmpty() || publicKeyString == null || publicKeyString.isEmpty()) {
-
-                keyPair = virgilCrypto.generateKeys();
-                VirgilPublicKey publicKey = keyPair.getPublicKey();
-                VirgilPrivateKey privateKey = keyPair.getPrivateKey();
-
-                byte [] privateKeyBytes = virgilCrypto.exportPrivateKey(privateKey);
-                privateKeyString = Base64.encode(privateKeyBytes);
-                byte [] publicKeyBytes = virgilCrypto.exportPublicKey(publicKey);
-                publicKeyString = Base64.encode(publicKeyBytes);
-
-                ChatSDK.shared().getPreferences().edit().putString(MyPrivateKey + entityID, privateKeyString).apply();
-                ChatSDK.shared().getPreferences().edit().putString(MyPublicKey + entityID, publicKeyString).apply();
-
-            }
-            else {
-
-                byte [] privateKeyBytes = Base64.decode(privateKeyString);
-                byte [] publicKeyBytes = Base64.decode(publicKeyString);
-
-                VirgilPrivateKey privateKey = virgilCrypto.importPrivateKey(privateKeyBytes);
-                VirgilPublicKey publicKey = virgilCrypto.importPublicKey(publicKeyBytes);
-                keyPair = new VirgilKeyPair(publicKey, privateKey);
-            }
-
-            emitter.onSuccess(keyPair);
+            emitter.onSuccess(getKeysNow(entityID));
         }).subscribeOn(RX.computation());
     }
 
+    public VirgilKeyPair getKeysNow(String entityID) throws Exception {
+        // We can have multiple private keys because we can have multiple users on one device
+        // Append the users entity iD to the private key key
+
+        String privateKeyString = ChatSDK.shared().getPreferences().getString(MyPrivateKey + entityID, null);
+        String publicKeyString = ChatSDK.shared().getPreferences().getString(MyPublicKey + entityID, null);
+
+        VirgilKeyPair keyPair;
+
+        if (privateKeyString == null || privateKeyString.isEmpty() || publicKeyString == null || publicKeyString.isEmpty()) {
+
+            keyPair = virgilCrypto.generateKeys();
+            VirgilPublicKey publicKey = keyPair.getPublicKey();
+            VirgilPrivateKey privateKey = keyPair.getPrivateKey();
+
+            byte [] privateKeyBytes = virgilCrypto.exportPrivateKey(privateKey);
+            privateKeyString = Base64.encode(privateKeyBytes);
+            byte [] publicKeyBytes = virgilCrypto.exportPublicKey(publicKey);
+            publicKeyString = Base64.encode(publicKeyBytes);
+
+            ChatSDK.shared().getPreferences().edit().putString(MyPrivateKey + entityID, privateKeyString).apply();
+            ChatSDK.shared().getPreferences().edit().putString(MyPublicKey + entityID, publicKeyString).apply();
+
+        }
+        else {
+
+            byte [] privateKeyBytes = Base64.decode(privateKeyString);
+            byte [] publicKeyBytes = Base64.decode(publicKeyString);
+
+            VirgilPrivateKey privateKey = virgilCrypto.importPrivateKey(privateKeyBytes);
+            VirgilPublicKey publicKey = virgilCrypto.importPublicKey(publicKeyBytes);
+            keyPair = new VirgilKeyPair(publicKey, privateKey);
+        }
+
+        return keyPair;
+    }
     // Here is where we actually encrypt and decrypt the messages;
 
     @Override
@@ -247,6 +249,19 @@ public class BaseEncryptionHandler implements EncryptionHandler {
             message.getThread().removeMessage(message);
         }).subscribeOn(RX.computation());
 
+    }
+
+    @Override
+    public Map<String, Object> decrypt(String message) throws Exception {
+        if (!message.isEmpty() && ChatSDK.auth().isAuthenticatedThisSession()) {
+            VirgilPrivateKey key = getKeysNow(ChatSDK.currentUserID()).getPrivateKey();
+            if (!message.isEmpty()) {
+                byte [] encryptedMessageData = Base64.decode(message);
+                byte [] decryptedMessageData = virgilCrypto.decrypt(encryptedMessageData, key);
+                return bytesToMap(decryptedMessageData);
+            }
+        }
+        return null;
     }
 
     protected Single<VirgilPrivateKey> privateKeyFor(final Message message) {

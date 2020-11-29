@@ -38,6 +38,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':chat-sdk-core')
     implementation project(':chat-sdk-core-ui')
+    implementation project(":sdk-guru-licensing")
 
     implementation "id.zelory:compressor:$compressorVersion"
 //    implementation "com.google.android.gms:play-services-maps:$playMapsVersion"

@@ -35,6 +35,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(":sdk-guru-licensing")
     implementation project(':chat-sdk-firestream-adapter')
 }
 

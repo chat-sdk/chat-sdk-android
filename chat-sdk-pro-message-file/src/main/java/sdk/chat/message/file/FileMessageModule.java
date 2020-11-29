@@ -19,10 +19,11 @@ import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.licensing.Report;
 import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.custom.IMessageHandler;
+import sdk.chat.ui.custom.MessageCustomizer;
 
 /**
  * Created by Pepe on 01/05/18.
@@ -42,6 +43,7 @@ public class FileMessageModule extends AbstractModule {
     public void activate(Context context) {
         ChatSDK.a().fileMessage = new BaseFileMessageHandler();
         ChatSDK.ui().addChatOption(new FileChatOption(ChatSDK.shared().context().getString(R.string.file_message)));
+        Report.shared().add(getName());
 
         MessageCustomizer.shared().addMessageHandler(new IMessageHandler() {
             @Override

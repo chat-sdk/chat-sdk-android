@@ -54,7 +54,7 @@ public class SplashScreenActivity extends BaseActivity {
             if (ChatSDK.auth().isAuthenticatedThisSession()) {
                 startMainActivity();
                 return;
-            } else if (ChatSDK.auth().isAuthenticated() || ChatSDK.auth().isAuthenticating()) {
+            } else if (!ChatSDK.auth().isAuthenticating() && (ChatSDK.auth().cachedCredentialsAvailable())) {
                 startProgressBar();
                 dm.add(ChatSDK.auth().authenticate()
                         .observeOn(RX.main())

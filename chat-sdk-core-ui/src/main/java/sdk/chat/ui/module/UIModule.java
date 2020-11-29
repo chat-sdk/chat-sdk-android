@@ -8,21 +8,19 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import sdk.chat.core.dao.Message;
 import sdk.chat.core.interfaces.InterfaceAdapter;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.session.InterfaceAdapterProvider;
 import sdk.chat.core.utils.StringChecker;
-import sdk.chat.ui.binders.AvailabilityHelper;
 import sdk.chat.ui.binders.IconBinder;
 import sdk.chat.ui.binders.MessageBinder;
 import sdk.chat.ui.binders.NameBinder;
 import sdk.chat.ui.binders.OnlineStatusBinder;
 import sdk.chat.ui.binders.ReadStatusViewBinder;
 import sdk.chat.ui.binders.ReplyViewBinder;
-import sdk.chat.ui.views.ReplyView;
+import sdk.chat.ui.binders.TimeBinder;
 
 public class UIModule extends AbstractModule implements InterfaceAdapterProvider {
 
@@ -34,6 +32,7 @@ public class UIModule extends AbstractModule implements InterfaceAdapterProvider
     protected OnlineStatusBinder onlineStatusBinder = new OnlineStatusBinder();
     protected ReadStatusViewBinder readStatusViewBinder = new ReadStatusViewBinder();
     protected ReplyViewBinder replyViewBinder = new ReplyViewBinder();
+    protected TimeBinder timeBinder = new TimeBinder();
 
     public static UIModule shared() {
         return instance;
@@ -124,6 +123,10 @@ public class UIModule extends AbstractModule implements InterfaceAdapterProvider
         return onlineStatusBinder;
     }
 
+    public TimeBinder getTimeBinder() {
+        return timeBinder;
+    }
+
     public void setOnlineStatusBinder(OnlineStatusBinder onlineStatusBinder) {
         this.onlineStatusBinder = onlineStatusBinder;
     }
@@ -143,4 +146,6 @@ public class UIModule extends AbstractModule implements InterfaceAdapterProvider
     public void setReplyViewBinder(ReplyViewBinder replyViewBinder) {
         this.replyViewBinder = replyViewBinder;
     }
+
+
 }

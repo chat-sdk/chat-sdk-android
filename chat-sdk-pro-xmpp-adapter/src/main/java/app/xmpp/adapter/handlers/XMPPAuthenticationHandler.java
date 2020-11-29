@@ -37,16 +37,13 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
     public Completable authenticate() {
         return Completable.defer(() -> {
 
-            if (isAuthenticatedThisSession()) {
+            if (isAuthenticatedThisSession() || isAuthenticated()) {
                 return Completable.complete();
-            }
-            if (!isAuthenticated()) {
-                return Completable.error(ChatSDK.getException(R.string.authentication_required));
             }
             if (!isAuthenticating()) {
                 AccountDetails details = cachedAccountDetails();
                 if (details.areValid()) {
-                    authenticating = authenticate(details);
+                    return authenticate(details);
                 } else {
                     return Completable.error(new Exception());
                 }
@@ -72,7 +69,6 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                         case Username:
                             return XMPPManager.shared().login(details.username, details.password).andThen(Completable.defer(() -> {
                                 ChatSDK.shared().getKeyStorage().save(details.username, details.password);
-
                                 if(!details.username.contains("@")) {
                                     details.username = details.username + "@" + XMPPManager.shared().getDomain();
                                 }
@@ -122,10 +118,14 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
         return AccountDetails.username(ChatSDK.shared().getKeyStorage().get(KeyStorage.UsernameKey), ChatSDK.shared().getKeyStorage().get(KeyStorage.PasswordKey));
     }
 
+    public Boolean cachedCredentialsAvailable() {
+        return cachedAccountDetails().areValid();
+    }
+
     @Override
     public Boolean isAuthenticated() {
         XMPPConnection connection = XMPPManager.shared().getConnection();
-        return connection != null && connection.isAuthenticated() || cachedAccountDetails().areValid();
+        return connection != null && connection.isAuthenticated();
     }
 
     @Override

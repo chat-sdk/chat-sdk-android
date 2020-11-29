@@ -33,6 +33,8 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     // Chat options
     public boolean groupsEnabled = true;
+    public boolean customizeGroupImageEnabled = true;
+
     public boolean threadDetailsEnabled = true;
     public boolean publicRoomCreationEnabled = false;
     public boolean publicRoomRoomsEnabled = true;
@@ -40,6 +42,7 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean requestPermissionsOnStartup = true;
     public boolean showNamesInGroupChatView = true;
     public boolean showAvatarInChatView = true;
+    public String messageTimeFormat = null;
 
     public String dateFormat = "HH:mm";
 
@@ -97,6 +100,16 @@ public class UIConfig<T> extends BaseConfig<T> {
      */
     public UIConfig<T> setPublicRoomCreationEnabled(boolean value) {
         this.publicRoomCreationEnabled = value;
+        return this;
+    }
+
+    /**
+     * Allow users to create public chat rooms
+     * @param value
+     * @return
+     */
+    public UIConfig<T> setCustomizeGroupImageEnabled(boolean value) {
+        this.customizeGroupImageEnabled = value;
         return this;
     }
 
@@ -256,6 +269,16 @@ public class UIConfig<T> extends BaseConfig<T> {
      */
     public UIConfig<T> setShowAvatarInChatView(boolean request) {
         this.showAvatarInChatView = request;
+        return this;
+    }
+
+    /**
+     * Show local notifications or not
+     * @param format i.e. HH:mm
+     * @return
+     */
+    public UIConfig<T> setMessageTimeFormat(String format) {
+        this.messageTimeFormat = format;
         return this;
     }
 }

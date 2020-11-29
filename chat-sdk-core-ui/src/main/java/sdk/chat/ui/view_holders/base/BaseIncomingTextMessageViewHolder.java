@@ -18,11 +18,6 @@ import butterknife.ButterKnife;
 import sdk.chat.core.dao.User;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
-import sdk.chat.ui.binders.IconBinder;
-import sdk.chat.ui.binders.MessageBinder;
-import sdk.chat.ui.binders.NameBinder;
-import sdk.chat.ui.binders.OnlineStatusBinder;
-import sdk.chat.ui.binders.ReplyViewBinder;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.DrawableUtil;
@@ -63,6 +58,7 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
 
         UIModule.shared().getReplyViewBinder().onBind(replyView, replyTextView, replyImageView, message, imageLoader);
         UIModule.shared().getOnlineStatusBinder().bind(onlineIndicator, message);
+        UIModule.shared().getTimeBinder().bind(time, message);
 
         //We can set onClick listener on view from payload
         final Payload payload = (Payload) this.payload;
@@ -93,6 +89,8 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
                     R.attr.incomingDefaultBubblePressedColor,
                     R.attr.incomingBubbleDrawable));
         }
+
+
 
     }
 

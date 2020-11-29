@@ -9,35 +9,7 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import sdk.guru.common.RX;
 
-/**
- * The MultiQueueSubject type a versatile events object. It has a number of options:
- * The main function of this events type to cache events until there type a consumer available to
- * consume them. This means that if a new emitter type added, unconsumed events will be
- * emitted once and then new events will be emitted as they arise. For example:
- *
- * By calling {@link #newEvents()} the observer will only receive new events:
- *
- * Events: 1, 2, [A added], 3, 4
- * Output: 3, 4
- *
- * Only events that happened after the observer was added are emitted
- *
- * By calling {@link #pastAndNewEvents()} the observer receive all events past and new:
- *
- * Events: 1, 2, [A added], 3, 4
- * Output: 1, 2, 3, 4
- *
- * All events are emitted
- *
- * By calling {@link #currentAndNewEvents()} the observer receive the last event and all new events
- *
- * Events: 1, 2, [A added], 3, 4
- * Output: 2, 3, 4
- *
- * The previous event and then all new events will be emitted
- *
- * @param <T> the object type that will be emitted
- */
+
 public class MultiRelay<T> extends Relay<T> {
 
     protected final PublishRelay<T> publishRelay = PublishRelay.create();
@@ -54,7 +26,7 @@ public class MultiRelay<T> extends Relay<T> {
         // Allow them to only subscribe to new events
         publishRelay.accept(t);
 
-        // Allow them to get a behavour subject too
+        // Allow them to get a behavior subject too
         behaviorRelay.accept(t);
 
         // Allow them to replay all events
@@ -65,13 +37,6 @@ public class MultiRelay<T> extends Relay<T> {
     @Override
     public boolean hasObservers() {
         return publishRelay.hasObservers() || behaviorRelay.hasObservers() || replayRelay.hasObservers();
-    }
-
-    @Override
-    protected void subscribeActual(Observer<? super T> observer) {
-//        publishRelay.subscribe(observer);
-//        behaviorRelay.subscribe(observer);
-//        replayRelay.subscribe(observer);
     }
 
     /**
@@ -102,4 +67,8 @@ public class MultiRelay<T> extends Relay<T> {
         return behaviorRelay.hide().observeOn(RX.main());
     }
 
+    @Override
+    protected void subscribeActual(Observer<? super T> observer) {
+
+    }
 }

@@ -11,6 +11,7 @@ import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.licensing.Report;
 import sdk.chat.message.sticker.R;
 import sdk.chat.message.sticker.integration.BaseStickerMessageHandler;
 import sdk.chat.message.sticker.integration.IncomingStickerMessageViewHolder;
@@ -19,8 +20,8 @@ import sdk.chat.message.sticker.integration.StickerChatOption;
 import sdk.chat.message.sticker.integration.StickerMessageHolder;
 import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.custom.IMessageHandler;
+import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.guru.common.BaseConfig;
 
 /**
@@ -40,6 +41,8 @@ public class StickerMessageModule extends AbstractModule {
 
     @Override
     public void activate(Context context) {
+        Report.shared().add(getName());
+
         ChatSDK.a().stickerMessage = new BaseStickerMessageHandler();
         ChatSDK.ui().addChatOption(new StickerChatOption(context.getResources().getString(R.string.sticker_message)));
 

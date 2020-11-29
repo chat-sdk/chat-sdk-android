@@ -15,10 +15,11 @@ import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.licensing.Report;
 import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.custom.IMessageHandler;
+import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.guru.common.BaseConfig;
 
 //import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
@@ -78,6 +79,7 @@ public class AudioMessageModule extends AbstractModule {
     @Override
     public void activate(Context context) {
         ChatSDK.a().audioMessage = new BaseAudioMessageHandler();
+        Report.shared().add(getName());
 
 //        AndroidAudioConverter.load(context, new ILoadCallback() {
 //            @Override

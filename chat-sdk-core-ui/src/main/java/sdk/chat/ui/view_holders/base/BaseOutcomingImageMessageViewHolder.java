@@ -10,8 +10,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
-import sdk.chat.ui.binders.MessageBinder;
-import sdk.chat.ui.binders.ReadStatusViewBinder;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
@@ -46,6 +44,7 @@ public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> e
 
         UIModule.shared().getReadStatusViewBinder().onBind(readStatus, message);
         UIModule.shared().getMessageBinder().onBindSendStatus(time, message);
+        UIModule.shared().getTimeBinder().bind(time, message);
 
     }
 

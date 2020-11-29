@@ -90,13 +90,14 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
             getWindow().setExitTransition(new Explode());
         }
 
-        setContentView(getLayout());
-        ButterKnife.bind(this);
+        if (getLayout() != 0) {
+            setContentView(getLayout());
+            ButterKnife.bind(this);
+        }
 
         Logger.debug("onCreate: " + this);
 
         updateExtras(getIntent().getExtras());
-
 
         // Setting the default task description.
         if (getTaskDescriptionBitmap() != null) {

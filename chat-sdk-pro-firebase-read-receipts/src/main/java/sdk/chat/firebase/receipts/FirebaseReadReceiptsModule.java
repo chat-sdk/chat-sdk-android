@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
+import sdk.chat.licensing.Report;
 import sdk.guru.common.BaseConfig;
 
 
@@ -71,6 +72,7 @@ public class FirebaseReadReceiptsModule extends AbstractModule {
     @Override
     public void activate(Context context) {
         ChatSDK.a().readReceipts = new FirebaseReadReceiptHandler();
+        Report.shared().add(getName());
     }
 
     @Override

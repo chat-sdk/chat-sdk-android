@@ -5,8 +5,6 @@ import android.content.Context;
 
 import androidx.fragment.app.Fragment;
 
-import com.firebase.geofire.GeoFire;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +15,7 @@ import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.utils.AppBackgroundMonitor;
+import sdk.chat.licensing.Report;
 import sdk.chat.ui.icons.Icons;
 import sdk.guru.common.BaseConfig;
 
@@ -53,6 +52,7 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
 
     @Override
     public void activate(Context context) {
+        Report.shared().add(getName());
 
         int index = config().tabIndex;
 

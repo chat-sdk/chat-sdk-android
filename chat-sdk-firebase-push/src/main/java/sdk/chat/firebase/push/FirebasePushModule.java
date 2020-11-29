@@ -59,6 +59,11 @@ public class FirebasePushModule extends AbstractModule {
     @Override
     public void activate(@NonNull Context context) {
         ChatSDK.a().push = new FirebasePushHandler();
+//        try {
+//            FirebaseApp.initializeApp(context);
+//        } catch (Exception e) {
+//            Logger.debug(e);
+//        }
     }
 
     @Override

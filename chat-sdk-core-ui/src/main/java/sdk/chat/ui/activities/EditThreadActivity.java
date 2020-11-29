@@ -40,6 +40,7 @@ import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.MediaSelector;
 import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ImagePickerUploader;
 import sdk.chat.ui.utils.ThreadImageBuilder;
 import sdk.guru.common.RX;
@@ -116,21 +117,23 @@ public class EditThreadActivity extends BaseActivity {
         });
         fab.setImageDrawable(Icons.get(this, Icons.choose().check, R.color.fab_icon_color));
 
-        threadImageView.setOnClickListener(view -> {
-            threadImageView.setEnabled(false);
-            dm.add(pickerUploader.choosePhoto(this).subscribe(files -> {
-                if (!files.isEmpty()) {
-                    showProgressDialog(EditThreadActivity.this.getString(R.string.uploading));
-                    dm.add(ImageUtils.uploadImageFile(files.get(0)).subscribe(result -> {
-                        if (result != null) {
-                            updateThreadImageURL(result.url);
-                            refreshView();
-                        }
-                        dismissProgressDialog();
-                    }, this));
-                }
-            }, this));
-        });
+        if (UIModule.config().customizeGroupImageEnabled && ChatSDK.upload() != null) {
+            threadImageView.setOnClickListener(view -> {
+                threadImageView.setEnabled(false);
+                dm.add(pickerUploader.choosePhoto(this).subscribe(files -> {
+                    if (!files.isEmpty()) {
+                        showProgressDialog(EditThreadActivity.this.getString(R.string.uploading));
+                        dm.add(ImageUtils.uploadImageFile(files.get(0)).subscribe(result -> {
+                            if (result != null) {
+                                updateThreadImageURL(result.url);
+                                refreshView();
+                            }
+                            dismissProgressDialog();
+                        }, this));
+                    }
+                }, this));
+            });
+        }
 
         refreshView();
     }

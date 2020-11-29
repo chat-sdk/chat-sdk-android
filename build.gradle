@@ -12,7 +12,7 @@ buildscript {
         classpath 'com.novoda:bintray-release:0.9.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.71"
         classpath 'com.jakewharton:butterknife-gradle-plugin:10.2.1'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.1.1'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.2.0'
         classpath 'com.google.firebase:perf-plugin:1.3.1'
     }
 }
@@ -21,7 +21,7 @@ ext {
     bintrayVersion = "1.8.4"
     mavenGradleVersion = "2.1"
     androidxAppcompatVersion = "1.1.0"
-    androidxConstraintLayoutVersion = "2.0.0-beta7"
+    androidxConstraintLayoutVersion = "2.0.0-beta8"
     androidxLifecycleExtensionsVersion = "2.2.0"
     androidxRecyclerViewVersion = "1.1.0"
     androidxMultidexVersion = "2.0.1"
@@ -31,16 +31,16 @@ ext {
     playLocationVersion = "17.0.0"
     firebaseUiVersion = "6.2.0"
     firebaseCoreVersion = "17.4.1"
-    firebaseDatabaseVersion = "19.3.0"
-    firebaseFirestoreVersion = "21.4.3"
-    firebaseAuthVersion = "19.3.1"
+    firebaseDatabaseVersion = "19.3.1"
+    firebaseFirestoreVersion = "21.5.0"
+    firebaseAuthVersion = "19.3.2"
     firebaseStorageVersion = "19.1.1"
-    firebaseMessagingVersion = "20.1.7"
+    firebaseMessagingVersion = "20.2.3"
     firebaseFunctionsVersion = "19.0.2"
     firebaseIIDVersion = "18.0.0"
-    firebasePerformanceVersion = "19.0.7"
-    firebaseCrashlyticsVersion = "17.0.1"
-    firebaseAnalyticsVersion = "17.4.3"
+    firebasePerformanceVersion = "19.0.8"
+    firebaseCrashlyticsVersion = "17.1.1"
+    firebaseAnalyticsVersion = "17.4.4"
     greenDaoVersion = "3.2.2"
     frescoVersion = "1.13.0"
     rxJavaVersion = "2.2.17"
@@ -49,6 +49,7 @@ ext {
     rxQueueVersion = "2.0.0"
     compressorVersion = "2.1.0"
     okHttpVersion = "3.11.0"
+//    okHttpVersion = "4.7.2"
     okHttpDownloaderVersion = "1.1.0"
     prettyTimeVersion = "4.0.1.Final"
     imageCropperVersion = "2.8.0"

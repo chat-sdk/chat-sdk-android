@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import app.xmpp.adapter.R;
@@ -44,22 +45,7 @@ import sdk.guru.common.RX;
 public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
-    public Single<Thread> createThread(final String name, final List<User> users) {
-        return createThread(name, users, -1);
-    }
-
-    @Override
-    public Single<Thread> createThread(final String name, final List<User> users, final int type) {
-        return createThread(name, users, type, null);
-    }
-
-    @Override
-    public Single<Thread> createThread(String name, List<User> users, int type, String entityID) {
-        return createThread(name, users,type, entityID, null);
-    }
-
-    @Override
-    public Single<Thread> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL) {
+    public Single<Thread> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL, Map<String, Object> meta) {
         return Single.defer((Callable<SingleSource<Thread>>) () -> {
 
             if (entityID != null) {
@@ -79,19 +65,16 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
             users.add(currentUser);
 
             if (users.size() == 2 && (type == ThreadType.None || ThreadType.is(type, ThreadType.Private1to1))) {
-
                 User otherUser = users.get(0);
+
                 // Check if the thread exists
                 Thread thread = ChatSDK.db().fetchThreadWithEntityID(otherUser.getEntityID());
                 if (thread != null && (ChatSDK.config().reuseDeleted1to1Threads || !thread.isDeleted())) {
                     thread.setDeleted(false);
                     return Single.just(thread);
                 }
-            }
 
-
-            if (users.size() == 2 && (type == ThreadType.None || ThreadType.is(type, ThreadType.Private1to1))) {
-                final Thread thread = ChatSDK.db().createEntity(Thread.class);
+                thread = ChatSDK.db().createEntity(Thread.class);
                 thread.setCreator(currentUser);
                 thread.setCreationDate(new Date());
                 thread.setName(name);

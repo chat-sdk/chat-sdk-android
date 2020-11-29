@@ -36,6 +36,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':chat-sdk-firebase-adapter')
+    implementation project(":sdk-guru-licensing")
 }
 
 ext {

@@ -5,6 +5,7 @@ import android.content.Context;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
+import sdk.chat.licensing.Report;
 import sdk.guru.common.BaseConfig;
 
 
@@ -45,6 +46,7 @@ public class EncryptionModule extends AbstractModule {
     @Override
     public void activate(Context context) {
         ChatSDK.a().encryption = new BaseEncryptionHandler();
+        Report.shared().add(getName());
     }
 
     @Override

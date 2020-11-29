@@ -75,17 +75,12 @@ dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
 
     // Add for NavController support
-    implementation "com.mikepenz:materialdrawer-nav:$materialDrawerVersion"
+    api "com.mikepenz:materialdrawer-nav:$materialDrawerVersion"
 
     // Need this: maven { url "https://dl.bintray.com/mikepenz/maven" }
-    implementation "com.mikepenz:materialdrawer-iconics:$materialDrawerVersion"
+    api "com.mikepenz:materialdrawer-iconics:$materialDrawerVersion"
 
     api "com.miguelcatalan:materialsearchview:$materialSearchVersion"
-
-    implementation "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
-    implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
-    implementation "com.mikepenz:iconics-core:$iconicsVersion"
-    implementation "com.mikepenz:iconics-views:$iconicsVersion"
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"

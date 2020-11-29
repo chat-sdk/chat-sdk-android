@@ -38,6 +38,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':chat-sdk-core')
     implementation project(':chat-sdk-core-ui')
+    implementation project(":sdk-guru-licensing")
 
     implementation "com.amitshekhar.android:android-networking:$androidNetworkingVersion"
     implementation "com.github.barteksc:pdfium-android:$pdfiumVersion"

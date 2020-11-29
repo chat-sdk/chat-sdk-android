@@ -11,8 +11,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
-import sdk.chat.ui.binders.NameBinder;
-import sdk.chat.ui.binders.OnlineStatusBinder;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
@@ -49,6 +47,7 @@ public class BaseIncomingImageMessageViewHolder<T extends ImageMessageHolder> ex
         UIModule.shared().getOnlineStatusBinder().bind(onlineIndicator, isOnline);
 
         UIModule.shared().getNameBinder().bind(userName, message);
+        UIModule.shared().getTimeBinder().bind(time, message);
 
     }
 

@@ -116,6 +116,10 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
         }).doFinally(this::cancel);
     }
 
+    public Boolean cachedCredentialsAvailable() {
+        return FirebaseAuth.getInstance().getCurrentUser() != null;
+    }
+
     public Completable retrieveRemoteConfig() {
         return Completable.create(emitter -> {
             if (ChatSDK.config().remoteConfigEnabled) {

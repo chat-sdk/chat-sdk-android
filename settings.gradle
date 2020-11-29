@@ -1,3 +1,4 @@
+include ':app-xmpp'
 include 'app',
         'chat-sdk-app-firestream',
         'chat-sdk-app-firebase',

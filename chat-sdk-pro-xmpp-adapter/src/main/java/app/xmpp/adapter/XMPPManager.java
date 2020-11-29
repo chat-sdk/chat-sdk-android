@@ -21,6 +21,7 @@ import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.iqlast.LastActivityManager;
 import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jivesoftware.smackx.mam.MamManager;
+import org.jivesoftware.smackx.ping.PingManager;
 import org.jivesoftware.smackx.receipts.DeliveryReceipt;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptRequest;
@@ -210,6 +211,10 @@ public class XMPPManager {
 
     public EntityTimeManager entityTimeManager() {
         return EntityTimeManager.getInstanceFor(getConnection());
+    }
+
+    public PingManager pingManager() {
+        return PingManager.getInstanceFor(getConnection());
     }
 
     public VCardManager vCardManager() {
@@ -603,10 +608,14 @@ public class XMPPManager {
     public static XMPPServer getCurrentServer(Context context) {
 
         // First get configured server
-        ServerKeyStorage storage = new ServerKeyStorage(context);
-        XMPPServer server = storage.getServer();
-        if (server.isValid()) {
-            return server;
+        XMPPServer server = null;
+
+        if (XMPPModule.config().allowServerConfiguration) {
+            ServerKeyStorage storage = new ServerKeyStorage(context);
+            server = storage.getServer();
+            if (server.isValid()) {
+                return server;
+            }
         }
 
         server = XMPPModule.config().getServer();
