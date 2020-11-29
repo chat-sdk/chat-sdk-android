@@ -1,5 +1,8 @@
-apply plugin: 'com.android.library'
-
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+}
 
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
@@ -32,14 +35,17 @@ android {
     }
 }
 
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api project(':firestream')
+    api project(':sdk-guru-firestore')
+}
+
 ext {
     libraryName = 'FireStreamFirestore'
     artifact = 'firestream-firestore'
     libraryDescription = 'FireStream: Messaging Framework for Firebase and Firestore'
 }
 
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':firestream')
-    api project(':sdk-guru-firestore')
-}
+apply from: '../bintray.gradle'
+

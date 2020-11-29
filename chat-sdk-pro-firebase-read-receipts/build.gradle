@@ -1,5 +1,8 @@
-apply plugin: 'com.android.library'
-
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+}
 
 android {
 
@@ -46,3 +49,5 @@ ext {
     artifact = 'pro-firebase-read-receipts'
     libraryDescription = 'Firebase Read Receipts Pro Module'
 }
+
+apply from: '../bintray.gradle'

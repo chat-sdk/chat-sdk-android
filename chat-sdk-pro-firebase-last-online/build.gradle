@@ -1,5 +1,8 @@
-apply plugin: 'com.android.library'
-
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+}
 
 android {
 
@@ -45,3 +48,5 @@ ext {
     artifact = 'pro-firebase-last-online'
     libraryDescription = 'Firebase Last Online Pro Module'
 }
+
+apply from: '../bintray.gradle'

@@ -1,5 +1,8 @@
-apply plugin: 'com.android.library'
-
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+}
 
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
@@ -43,3 +46,12 @@ dependencies {
     api project(':firestream')
     api project(':sdk-guru-realtime')
 }
+
+ext {
+    libraryName = 'FireStreamRealtime'
+    artifact = 'firestream-realtime'
+    libraryDescription = 'FireStream: Messaging Framework for Firebase and Firestore'
+}
+
+apply from: '../bintray.gradle'
+

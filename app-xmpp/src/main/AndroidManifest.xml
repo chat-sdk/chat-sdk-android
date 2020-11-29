@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="sdk.chat.app.xmpp">
+    package="sdk.chat.demo.xmpp">
 
     <application
         android:name="sdk.chat.app.xmpp.MainApplication"

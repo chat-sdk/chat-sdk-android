@@ -1,6 +1,9 @@
-apply plugin: 'com.android.library'
-apply plugin: 'com.jakewharton.butterknife'
-
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+    id 'com.jakewharton.butterknife'
+}
 
 android {
 
@@ -54,3 +57,5 @@ ext {
     artifact = 'pro-message-video'
     libraryDescription = 'Video Message Pro Module'
 }
+
+apply from: '../bintray.gradle'

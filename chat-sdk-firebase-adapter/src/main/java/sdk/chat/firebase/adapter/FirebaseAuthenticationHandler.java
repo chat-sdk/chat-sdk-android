@@ -58,9 +58,10 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
         FirebaseAuth.getInstance(FirebaseCoreHandler.app()).addAuthStateListener(authStateListener);
     }
 
+    @Override
     public Completable authenticate() {
         return Completable.defer(() -> {
-            if (authenticating != null) {
+            if (isAuthenticating()) {
                 return authenticating;
             }
             if (isAuthenticatedThisSession()) {
@@ -77,7 +78,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     @Override
     public Completable authenticate(final AccountDetails details) {
         return Completable.defer(() -> {
-            if (authenticating != null) {
+            if (isAuthenticating()) {
                 return authenticating;
             }
             else if (isAuthenticated()) {

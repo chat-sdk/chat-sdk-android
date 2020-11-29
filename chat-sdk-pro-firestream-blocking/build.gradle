@@ -1,5 +1,8 @@
-apply plugin: 'com.android.library'
-
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+}
 
 android {
 
@@ -44,3 +47,5 @@ ext {
     artifact = 'pro-firestream-blocking'
     libraryDescription = 'Firestream Blocking Pro Module'
 }
+
+apply from: '../bintray.gradle'

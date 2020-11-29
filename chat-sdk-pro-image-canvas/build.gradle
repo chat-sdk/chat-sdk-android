@@ -1,5 +1,8 @@
-apply plugin: 'com.android.library'
-
+plugins {
+    id 'com.android.library'
+//    id 'com.jfrog.bintray'
+//    id 'maven-publish'
+}
 
 android {
 
@@ -45,8 +48,10 @@ dependencies {
     implementation 'com.github.bensmiley:image-canvas:1.0.4'
 }
 
-ext {
-    libraryName = 'ImageCanvasPro'
-    artifact = 'pro-image-canvas'
-    libraryDescription = 'Image Canvas Pro Module'
-}
+//ext {
+//    libraryName = 'ImageCanvasPro'
+//    artifact = 'pro-image-canvas'
+//    libraryDescription = 'Image Canvas Pro Module'
+//}
+
+//apply from: '../bintray.gradle'

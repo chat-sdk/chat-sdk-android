@@ -7,14 +7,14 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.3'
-        classpath "com.google.gms:google-services:4.3.3"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.71"
+        classpath 'com.android.tools.build:gradle:4.1.1'
+        classpath "com.google.gms:google-services:4.3.4"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.72"
         classpath 'com.jakewharton:butterknife-gradle-plugin:10.2.1'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.2.0'
-        classpath 'com.google.firebase:perf-plugin:1.3.1'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.4.1'
+        classpath 'com.google.firebase:perf-plugin:1.3.4'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
-        classpath "org.greenrobot:greendao-gradle-plugin:3.2.2"
+        classpath "org.greenrobot:greendao-gradle-plugin:3.3.0"
     }
 }
 
@@ -32,17 +32,17 @@ ext {
     playLocationVersion = "17.0.0"
     firebaseUiVersion = "6.2.0"
     firebaseCoreVersion = "17.4.1"
-    firebaseDatabaseVersion = "19.3.1"
+    firebaseDatabaseVersion = "19.5.1"
     firebaseFirestoreVersion = "21.5.0"
-    firebaseAuthVersion = "19.3.2"
-    firebaseStorageVersion = "19.1.1"
-    firebaseMessagingVersion = "20.2.3"
-    firebaseFunctionsVersion = "19.0.2"
+    firebaseAuthVersion = "20.0.1"
+    firebaseStorageVersion = "19.2.0"
+    firebaseMessagingVersion = "21.0.0"
+    firebaseFunctionsVersion = "19.1.0"
     firebaseIIDVersion = "18.0.0"
     firebasePerformanceVersion = "19.0.8"
     firebaseCrashlyticsVersion = "17.1.1"
     firebaseAnalyticsVersion = "17.4.4"
-    greenDaoVersion = "3.2.2"
+    greenDaoVersion = "3.3.0"
     frescoVersion = "1.13.0"
     rxJavaVersion = "2.2.17"
     rxAndroidVersion = "2.1.1"

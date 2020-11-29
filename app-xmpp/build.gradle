@@ -38,11 +38,13 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled project.hasProperty('minifyRelease')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
         debug {
+            minifyEnabled project.hasProperty('minifyDebug')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             debuggable true
             jniDebuggable true
             ext.alwaysUpdateBuildId = false
@@ -66,14 +68,14 @@ android {
         preDexLibraries = false
     }
 
-    flavorDimensions "default"
-    productFlavors {
-        development {
-            dimension "default"
-            minSdkVersion 21
-            resConfigs("en", "xxhdpi")
-        }
-    }
+//    flavorDimensions "default"
+//    productFlavors {
+//        development {
+//            dimension "default"
+//            minSdkVersion 21
+//            resConfigs("en", "xxhdpi")
+//        }
+//    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

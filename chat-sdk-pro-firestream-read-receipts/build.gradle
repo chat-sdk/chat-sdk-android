@@ -1,15 +1,7 @@
-apply plugin: 'com.android.library'
-
-
-buildscript {
-    repositories {
-        google()
-        maven { url "https://jitpack.io" }
-        jcenter()
-    }
-
-    dependencies {
-    }
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
 }
 
 android {
@@ -55,4 +47,6 @@ dependencies {
     api project(':chat-sdk-firestream-adapter')
     implementation project(":sdk-guru-licensing")
 }
+
+apply from: '../bintray.gradle'
 

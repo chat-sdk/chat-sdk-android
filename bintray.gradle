@@ -5,8 +5,6 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
 
-//            artifact sourcesJar
-//            artifact javadocJar
                 groupId CHAT_SDK_GROUP
                 artifactId artifact
                 version CHAT_SDK_VERSION
@@ -29,14 +27,14 @@ afterEvaluate {
     }
 }
 
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-def bintrayUser = properties.getProperty('bintray.user')
-def bintrayKey = properties.getProperty('bintray.key')
+// Properties properties = new Properties()
+// properties.load(project.rootProject.file('local.properties').newDataInputStream())
+// def bintrayUser = properties.getProperty('bintray.user')
+// def bintrayKey = properties.getProperty('bintray.key')
 
 bintray {
-    user = bintrayUser
-    key = bintrayKey
+    user = "bensmiley"
+    key = "fc2e8af5dd56da6204fb85924f70e012a0f75757"
     publications = ['release']
     publish = true
     override = true

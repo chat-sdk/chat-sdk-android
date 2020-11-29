@@ -1,5 +1,8 @@
-apply plugin: 'com.android.library'
-
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+}
 
 android {
 
@@ -46,4 +49,6 @@ ext {
     artifact = 'pro-firebase-typing-indicator'
     libraryDescription = 'Firebase Typing Indicator Pro Module'
 }
+
+apply from: '../bintray.gradle'
 

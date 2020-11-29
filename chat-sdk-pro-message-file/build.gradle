@@ -1,5 +1,8 @@
-apply plugin: 'com.android.library'
-
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+}
 
 android {
 
@@ -50,3 +53,5 @@ ext {
     artifact = 'pro-message-file'
     libraryDescription = 'File Message Pro Module'
 }
+
+apply from: '../bintray.gradle'
