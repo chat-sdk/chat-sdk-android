@@ -1,6 +1,3 @@
-apply plugin: 'com.android.library'
-
-
 buildscript {
     repositories {
         google()
@@ -8,12 +5,14 @@ buildscript {
         jcenter()
     }
 
-    dependencies {
-        classpath "org.greenrobot:greendao-gradle-plugin:$greenDaoVersion"
-    }
 }
 
-apply plugin: 'org.greenrobot.greendao'
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+    id 'org.greenrobot.greendao'
+}
 
 android {
 
@@ -98,4 +97,5 @@ ext {
     libraryDescription = 'Core'
 }
 
+apply from: '../bintray.gradle'
 
