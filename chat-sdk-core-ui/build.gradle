@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.novoda.bintray-release'
+
 apply plugin: 'com.jakewharton.butterknife'
 
 buildscript {
@@ -43,24 +43,6 @@ android {
         checkReleaseBuilds false
         lintConfig file('lint.xml')
     }
-}
-
-ext {
-    libraryName = 'CoreUI'
-    artifact = 'ui'
-    libraryDescription = 'Core UI'
-}
-
-publish {
-    userOrg = BINTRAY_USER_ORG
-    groupId = CHAT_SDK_GROUP
-    artifactId = artifact
-    repoName = BINTRAY_REPO
-    publishVersion = CHAT_SDK_VERSION
-    desc = libraryDescription
-    licences = ["GPL-3.0"]
-    uploadName = libraryName
-    website = GIT_URL
 }
 
 rootProject.allprojects {
@@ -116,5 +98,11 @@ dependencies {
     api "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
+}
+
+ext {
+    libraryName = 'CoreUI'
+    artifact = 'ui'
+    libraryDescription = 'Core UI'
 }
 

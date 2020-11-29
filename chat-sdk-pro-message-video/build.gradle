@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.jakewharton.butterknife'
-apply plugin: 'com.novoda.bintray-release'
+
 
 android {
 
@@ -53,16 +53,4 @@ ext {
     libraryName = 'VideoMessagePro'
     artifact = 'pro-message-video'
     libraryDescription = 'Video Message Pro Module'
-}
-
-publish {
-    userOrg = BINTRAY_USER_ORG
-    groupId = CHAT_SDK_GROUP
-    artifactId = artifact
-    repoName = BINTRAY_REPO
-    publishVersion = CHAT_SDK_VERSION
-    desc = libraryDescription
-    licences = ["GPL-3.0"]
-    uploadName = libraryName
-    website = GIT_URL
 }
