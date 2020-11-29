@@ -1,16 +1,8 @@
-apply plugin: 'com.android.library'
-
-apply plugin: 'com.jakewharton.butterknife'
-
-buildscript {
-    repositories {
-        google()
-        maven { url "https://jitpack.io" }
-        jcenter()
-    }
-
-    dependencies {
-    }
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+    id 'com.jakewharton.butterknife'
 }
 
 android {
@@ -44,12 +36,6 @@ android {
     }
 }
 
-ext {
-    libraryName = 'ProfilePicturesMod'
-    artifact = 'mod-profile-pictures'
-    libraryDescription = 'Profile Pictures Module'
-}
-
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':chat-sdk-core')
@@ -61,3 +47,11 @@ dependencies {
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
 }
+
+ext {
+    libraryName = 'ProfilePicturesMod'
+    artifact = 'mod-profile-pictures'
+    libraryDescription = 'Profile Pictures Module'
+}
+
+apply from: '../bintray.gradle'

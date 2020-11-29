@@ -1,19 +1,10 @@
-apply plugin: 'com.android.library'
-
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
-//apply plugin: 'com.jakewharton.butterknife'
-
-buildscript {
-    repositories {
-        google()
-        maven { url "https://jitpack.io" }
-        jcenter()
-    }
-
-    dependencies {
-    }
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -48,12 +39,6 @@ android {
     }
 }
 
-ext {
-    libraryName = 'UIExtrasMod'
-    artifact = 'mod-ui-extras'
-    libraryDescription = 'UI Extras Module'
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api project(':chat-sdk-core-ui')
@@ -75,5 +60,12 @@ dependencies {
 
     implementation 'androidmads.library.qrgenearator:QRGenearator:1.0.4'
     implementation 'me.dm7.barcodescanner:zxing:1.9.13'
-
 }
+
+ext {
+    libraryName = 'UIExtrasMod'
+    artifact = 'mod-ui-extras'
+    libraryDescription = 'UI Extras Module'
+}
+
+apply from: '../bintray.gradle'

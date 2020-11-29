@@ -1,15 +1,7 @@
-apply plugin: 'com.android.library'
-
-
-buildscript {
-    repositories {
-        google()
-        maven { url "https://jitpack.io" }
-        jcenter()
-    }
-
-    dependencies {
-    }
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
 }
 
 android {
@@ -44,22 +36,18 @@ android {
     }
 }
 
-ext {
-    libraryName = 'FirebaseUpload'
-    artifact = 'firebase-upload'
-    libraryDescription = 'Firebase Upload'
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':chat-sdk-core')
 
     implementation project(':chat-sdk-firebase-adapter')
     implementation "com.google.firebase:firebase-storage:$firebaseStorageVersion"
-
-    
-
-    
-
-
 }
+
+ext {
+    libraryName = 'FirebaseUpload'
+    artifact = 'firebase-upload'
+    libraryDescription = 'Firebase Upload'
+}
+
+apply from: '../bintray.gradle'

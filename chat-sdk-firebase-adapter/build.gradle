@@ -1,15 +1,7 @@
-apply plugin: 'com.android.library'
-
-
-buildscript {
-    repositories {
-        google()
-        maven { url "https://jitpack.io" }
-        jcenter()
-    }
-
-    dependencies {
-    }
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
 }
 
 android {
@@ -44,12 +36,6 @@ android {
     }
 }
 
-ext {
-    libraryName = 'FirebaseAdapter'
-    artifact = 'firebase-adapter'
-    libraryDescription = 'Firebase Adapter'
-}
-
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
@@ -61,3 +47,10 @@ dependencies {
 
 }
 
+ext {
+    libraryName = 'FirebaseAdapter'
+    artifact = 'firebase-adapter'
+    libraryDescription = 'Firebase Adapter'
+}
+
+apply from: '../bintray.gradle'

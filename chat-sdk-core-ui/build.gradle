@@ -1,16 +1,8 @@
-apply plugin: 'com.android.library'
-
-apply plugin: 'com.jakewharton.butterknife'
-
-buildscript {
-    repositories {
-        google()
-        maven { url "https://jitpack.io" }
-        jcenter()
-    }
-
-    dependencies {
-    }
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+    id 'com.jakewharton.butterknife'
 }
 
 android {
@@ -105,4 +97,7 @@ ext {
     artifact = 'ui'
     libraryDescription = 'Core UI'
 }
+
+apply from: '../bintray.gradle'
+
 

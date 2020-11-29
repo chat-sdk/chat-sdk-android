@@ -1,15 +1,7 @@
-apply plugin: 'com.android.library'
-
-
-buildscript {
-    repositories {
-        google()
-        maven { url "https://jitpack.io" }
-        jcenter()
-    }
-
-    dependencies {
-    }
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
 }
 
 android {
@@ -44,12 +36,6 @@ android {
     }
 }
 
-ext {
-    libraryName = 'FirebaseUIMod'
-    artifact = 'mod-firebase-ui'
-    libraryDescription = 'Firebase UI Module'
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -58,10 +44,12 @@ dependencies {
     implementation project(':chat-sdk-firebase-adapter')
 
     implementation "com.firebaseui:firebase-ui-auth:$firebaseUiVersion"
-
-    
-
-    
-
-
 }
+
+ext {
+    libraryName = 'FirebaseUIMod'
+    artifact = 'mod-firebase-ui'
+    libraryDescription = 'Firebase UI Module'
+}
+
+apply from: '../bintray.gradle'

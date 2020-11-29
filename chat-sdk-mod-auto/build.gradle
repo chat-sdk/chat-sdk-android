@@ -1,5 +1,8 @@
-apply plugin: 'com.android.library'
-
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+}
 
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
@@ -42,3 +45,5 @@ ext {
     artifact = 'mod-auto'
     libraryDescription = 'Auto'
 }
+
+apply from: '../bintray.gradle'

@@ -1,5 +1,8 @@
-apply plugin: 'com.android.library'
-
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+}
 
 android {
 
@@ -41,7 +44,6 @@ dependencies {
 
     implementation "com.google.android.gms:play-services-maps:$playMapsVersion"
     implementation "com.google.android.gms:play-services-location:$playLocationVersion"
-
 }
 
 ext {
@@ -49,3 +51,5 @@ ext {
     artifact = 'mod-message-location'
     libraryDescription = 'Location Message Module'
 }
+
+apply from: '../bintray.gradle'

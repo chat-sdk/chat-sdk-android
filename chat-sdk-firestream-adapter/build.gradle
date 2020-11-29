@@ -1,5 +1,8 @@
-apply plugin: 'com.android.library'
-
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+}
 
 android {
 
@@ -33,15 +36,17 @@ android {
     }
 }
 
-ext {
-    libraryName = 'FirestreamAdapter'
-    artifact = 'firestream-adapter'
-    libraryDescription = 'Firestream Adapter'
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api project(':firestream-realtime')
     api project(':firestream-firestore')
     api project(':chat-sdk-firebase-adapter')
 }
+
+ext {
+    libraryName = 'FirestreamAdapter'
+    artifact = 'firestream-adapter'
+    libraryDescription = 'Firestream Adapter'
+}
+
+apply from: '../bintray.gradle'

@@ -1,12 +1,3 @@
-buildscript {
-    repositories {
-        google()
-        maven { url "https://jitpack.io" }
-        jcenter()
-    }
-
-}
-
 plugins {
     id 'com.android.library'
     id 'com.jfrog.bintray'

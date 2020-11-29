@@ -1,15 +1,7 @@
-apply plugin: 'com.android.library'
-
-
-buildscript {
-    repositories {
-        google()
-        maven { url "https://jitpack.io" }
-        jcenter()
-    }
-
-    dependencies {
-    }
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
 }
 
 android {
@@ -44,12 +36,6 @@ android {
     }
 }
 
-ext {
-    libraryName = 'FirebasePush'
-    artifact = 'firebase-push'
-    libraryDescription = 'Firebase Push'
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -60,10 +46,12 @@ dependencies {
     implementation "com.google.firebase:firebase-messaging:$firebaseMessagingVersion"
     implementation "com.google.firebase:firebase-functions:$firebaseFunctionsVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
-
-    
-
-    
-
-
 }
+
+ext {
+    libraryName = 'FirebasePush'
+    artifact = 'firebase-push'
+    libraryDescription = 'Firebase Push'
+}
+
+apply from: '../bintray.gradle'
