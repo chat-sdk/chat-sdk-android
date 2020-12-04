@@ -1,16 +1,8 @@
-apply plugin: 'com.android.library'
-apply plugin: 'com.novoda.bintray-release'
-apply plugin: 'com.jakewharton.butterknife'
-
-buildscript {
-    repositories {
-        google()
-        maven { url "https://jitpack.io" }
-        jcenter()
-    }
-
-    dependencies {
-    }
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+    id 'com.jakewharton.butterknife'
 }
 
 android {
@@ -23,39 +15,26 @@ android {
     }
 
     buildTypes {
-        release {
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-fresco.pro'
-        }
         debug {
+            minifyEnabled project.hasProperty('minifyDebug')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled project.hasProperty('minifyRelease')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     lintOptions {
         abortOnError false
         checkReleaseBuilds false
         lintConfig file('lint.xml')
     }
-}
-
-ext {
-    libraryName = 'CoreUI'
-    artifact = 'ui'
-    libraryDescription = 'Core UI'
-}
-
-publish {
-    userOrg = BINTRAY_USER_ORG
-    groupId = CHAT_SDK_GROUP
-    artifactId = artifact
-    repoName = BINTRAY_REPO
-    publishVersion = CHAT_SDK_VERSION
-    desc = libraryDescription
-    licences = ["GPL-3.0"]
-    uploadName = libraryName
-    website = GIT_URL
 }
 
 rootProject.allprojects {
@@ -84,7 +63,7 @@ dependencies {
     api "com.google.android.material:material:$materialVersion"
 
     api "com.github.siyamed:android-shape-imageview:$shapeImageViewVersion"
-    api "co.chatsdk.chatsdk:chatkit:$chatKit"
+    api "co.chatsdk.chatsdk:chatkit:$chatKitVersion"
 
     api "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
     api "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
@@ -112,4 +91,13 @@ dependencies {
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
 }
+
+ext {
+    libraryName = 'CoreUI'
+    artifact = 'ui'
+    libraryDescription = 'Core UI'
+}
+
+apply from: '../bintray.gradle'
+
 

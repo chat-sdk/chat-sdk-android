@@ -24,6 +24,7 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
 
     protected void setAuthStateToIdle() {
         authenticating = null;
+        loggingOut = null;
     }
 
     public Boolean isAuthenticatedThisSession() {

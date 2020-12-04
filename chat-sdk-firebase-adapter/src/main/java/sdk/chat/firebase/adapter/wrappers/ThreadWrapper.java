@@ -224,8 +224,6 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
             return loadMessages.observeOn(RX.db()).andThen(Completable.defer(() -> {
 
-                ChatSDK.config().setShowLocalNotifications(localPushEnabled);
-
                 Query query = messagesRef();
 
                 Date messageAddedDate = model.getLastMessageAddedDate();
@@ -279,6 +277,8 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
                 return Completable.complete();
             }).subscribeOn(RX.db()));
+        }).doFinally(() -> {
+            ChatSDK.config().setShowLocalNotifications(localPushEnabled);
         }).subscribe(ChatSDK.events());
 
     }

@@ -170,7 +170,6 @@ public class ApiExamples {
      */
     public int getUnreadMessageCount (Thread thread) {
         return thread.getUnreadMessagesCount();
-
     }
 
     /**

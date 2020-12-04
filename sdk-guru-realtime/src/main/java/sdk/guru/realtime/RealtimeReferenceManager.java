@@ -4,8 +4,11 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by benjaminsmiley-andrews on 18/05/2017.
@@ -41,7 +44,7 @@ public class RealtimeReferenceManager {
     }
 
     private static RealtimeReferenceManager instance;
-    private HashMap<String, Value> references = new HashMap<>();
+    private Map<String, List<Value>> references = new HashMap<>();
 
     public static RealtimeReferenceManager shared() {
         if (instance == null) {
@@ -51,29 +54,41 @@ public class RealtimeReferenceManager {
     }
 
     public void addRef (Query ref, ChildEventListener l) {
-        references.put(ref.getRef().toString(), new Value(ref, l));
+        listForRef(ref).add(new Value(ref, l));
     }
 
     public void addRef (Query ref, ValueEventListener l) {
-        references.put(ref.getRef().toString(), new Value(ref, l));
+        listForRef(ref).add(new Value(ref, l));
+    }
+
+    protected List<Value> listForRef(Query ref) {
+        List<Value> list = references.get(ref.getRef().toString());
+        if (list == null) {
+            list = new ArrayList<>();
+            references.put(ref.getRef().toString(), list);
+        }
+        return list;
     }
 
     public boolean isOn (Query ref) {
-        return references.get(ref.getRef().toString()) != null;
+        return references.containsKey(ref.getRef().toString());
     }
 
     public void removeListeners (Query ref) {
         if(isOn(ref)) {
-            Value v = references.get(ref.getRef().toString());
-            v.removeListener();
+            for (Value v: listForRef(ref)) {
+                v.removeListener();
+            }
             references.remove(ref.getRef().toString());
         }
     }
 
     public void removeAllListeners() {
-        Collection<Value> values = references.values();
-        for(Value v : values) {
-            v.removeListener();
+        Collection<List<Value>> lists = references.values();
+        for (List<Value> l: lists) {
+            for(Value v : l) {
+                v.removeListener();
+            }
         }
     }
 

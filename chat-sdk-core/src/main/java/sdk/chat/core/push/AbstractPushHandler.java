@@ -22,9 +22,11 @@ public abstract class AbstractPushHandler implements PushHandler {
     public static String Type = "type";
     public static String Body = "body";
     public static String SenderId = "senderId";
+    public static String SenderName = "senderName";
     public static String ThreadId = "threadId";
     public static String Action = "action";
     public static String Sound = "sound";
+    public static String EncryptedMessage = "encrypted-message";
 
     public AbstractPushHandler() {
 
@@ -108,12 +110,17 @@ public abstract class AbstractPushHandler implements PushHandler {
 
         data.put(UserIds, users);
         data.put(Body, body);
+        data.put(SenderName, ChatSDK.currentUser().getName());
         data.put(Type, message.getType());
         data.put(SenderId, message.getSender().getEntityID());
         data.put(ThreadId, message.getThread().getEntityID());
         data.put(Action, ChatSDK.config().pushNotificationAction != null ? ChatSDK.config().pushNotificationAction : QuickReplyNotificationCategory);
         if(!StringChecker.isNullOrEmpty(ChatSDK.config().pushNotificationSound)) {
             data.put(Sound, ChatSDK.config().pushNotificationSound);
+        }
+
+        if (ChatSDK.encryption() != null) {
+            data.put(EncryptedMessage, message.stringForKey(EncryptedMessage));
         }
 
         return data;

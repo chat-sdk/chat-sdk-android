@@ -1,7 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
@@ -83,7 +81,7 @@ android {
 
 dependencies {
 
-    implementation project(':chat-sdk-demo')
+//    implementation project(':chat-sdk-demo')
 
     implementation project(':chat-sdk-core-ui')
     implementation project(':chat-sdk-firebase-adapter')
@@ -94,12 +92,12 @@ dependencies {
     implementation project(':chat-sdk-mod-firebase-ui')
     implementation project(':chat-sdk-mod-profile-pictures')
 
-    // Recommended: Add the Firebase SDK for Google Analytics.
-    implementation "com.google.firebase:firebase-analytics:$firebaseAnalyticsVersion"
-
-    // Add the Firebase Crashlytics SDK.
-    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
-    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
+//    // Recommended: Add the Firebase SDK for Google Analytics.
+//    implementation "com.google.firebase:firebase-analytics:$firebaseAnalyticsVersion"
+//
+//    // Add the Firebase Crashlytics SDK.
+//    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
+//    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
 
 }
 

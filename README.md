@@ -80,6 +80,11 @@ Learn about the history of Chat SDK and our future plans in [this post](https://
 
 People always ask about how much Chat SDK costs to run. And will it scale to millions of users? So I wrote an article talking about [just that](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/r1LJ26d0L). 
 
+### Library Size
+
+The Chat SDK library with **ALL** modules is around 
+
+
 ## Community
 
 + **Discord:** If you need support, join our [Server](https://discord.gg/abT5BM4)
@@ -157,6 +162,12 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 4. [Customize the Tabs](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/BkClVbzAU)
 5. [Add a Chat Option](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/HymyNWfA8)
 6. [Custom Message Types](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/ryxEXfA08)
+7. [Handling Events](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/rJFli-GRL)
+8. [Custom Push Handling](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/rywUHXikv)
+
+#### Extras
+
+1. [Example Firebase Schema](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/Bk9i0lUJv)
 
 <!--
 #### Customization

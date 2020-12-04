@@ -10,8 +10,7 @@
         android:theme="@style/CustomChatSDKTheme"
         android:name="sdk.chat.demo.MainApp"
         android:hardwareAccelerated="true"
-        tools:replace="allowBackup"
-        >
+        tools:replace="allowBackup, icon">
 <!--        <activity android:name="sdk.chat.demo.DemoActivity">-->
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->

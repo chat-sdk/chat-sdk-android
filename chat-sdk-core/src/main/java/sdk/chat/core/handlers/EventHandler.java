@@ -20,8 +20,8 @@ public interface EventHandler extends Consumer<Throwable>, CompletableObserver {
     Observable<NetworkEvent> sourceOnBackground();
     Observable<Throwable> errorSourceOnMain();
 
-    void impl_currentUserOn (String userEntityID);
-    void impl_currentUserOff (String userEntityID);
+    void impl_currentUserOn(String userEntityID);
+    void impl_currentUserOff(String userEntityID);
 
     void disposeOnLogout(Disposable d);
     void stop();

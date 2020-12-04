@@ -71,7 +71,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
     @Override
     public Single<Thread> createThread(final String name, final List<User> users) {
-        return createThread(name, users, -1);
+        return createThread(name, users, ThreadType.None);
     }
 
     @Override
@@ -88,9 +88,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return createThread(name, theUsers, type, entityID, imageURL, null);
     }
 
-    public Single<Thread> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL, Map<String, Object> meta) {
-        return createThread(name, theUsers, type, entityID, imageURL, meta);
-    }
+    public abstract Single<Thread> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL, Map<String, Object> meta);
 
     public Single<Thread> create1to1Thread(User otherUser, @Nullable Map<String, Object> meta) {
         return createThread(null, Collections.singletonList(otherUser), ThreadType.Private1to1, null, null, meta);

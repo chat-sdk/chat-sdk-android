@@ -4,7 +4,6 @@ import android.app.Application;
 
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.concurrent.TimeUnit;
 
@@ -99,9 +98,6 @@ public class MainApplication extends Application {
             t.printStackTrace();
         });
 
-
-        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true);
-        FirebaseCrashlytics.getInstance().log("Start");
 
     }
 

@@ -613,6 +613,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public void setLocalNotificationHandler(LocalNotificationHandler handler) {
         this.localNotificationHandler = handler;
+
     }
 
     public NotificationDisplayHandler notificationDisplayHandler () {

@@ -5,11 +5,9 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Single;
-import io.reactivex.SingleSource;
 import io.reactivex.functions.Predicate;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.NetworkEvent;
@@ -30,7 +28,10 @@ public class PrivateThreadsFragment extends ThreadsFragment {
     @Override
     public void initViews() {
         super.initViews();
+    }
 
+    @Override public void addListeners() {
+        super.addListeners();
         dm.add(getOnLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), 0, R.string.alert_delete_thread, R.string.delete,
                 R.string.cancel,  () -> {
                     dm.add(ChatSDK.thread().deleteThread(thread)
@@ -41,7 +42,6 @@ public class PrivateThreadsFragment extends ThreadsFragment {
                             }, throwable -> ToastHelper.show(getContext(), throwable.getLocalizedMessage())));
                 }, null)));
     }
-
 
     @Override
     protected Single<List<Thread>> getThreads() {

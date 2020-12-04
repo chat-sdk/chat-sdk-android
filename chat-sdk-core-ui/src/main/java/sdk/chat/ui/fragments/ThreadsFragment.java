@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.jakewharton.rxrelay2.PublishRelay;
 import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
+import com.stfalcon.chatkit.utils.DateFormatter;
 
 import org.pmw.tinylog.Logger;
 
@@ -65,7 +66,6 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @BindView(R2.id.root) protected RelativeLayout root;
 
     protected UpdateActionBatcher batcher = new UpdateActionBatcher(100);
-    ;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -220,6 +220,12 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 }
             }
         });
+
+        if (UIModule.config().messageTimeFormat != null) {
+            dialogsListAdapter.setDatesFormatter(date -> {
+                return DateFormatter.format(date, UIModule.config().messageTimeFormat);
+            });
+        }
 
         dialogsList.setAdapter(dialogsListAdapter);
 

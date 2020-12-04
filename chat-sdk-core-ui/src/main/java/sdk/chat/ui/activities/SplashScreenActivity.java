@@ -45,16 +45,16 @@ public class SplashScreenActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
         startNextActivity();
     }
 
     protected void startNextActivity() {
+        stopProgressBar();
         if (ChatSDK.auth() != null) {
             if (ChatSDK.auth().isAuthenticatedThisSession()) {
                 startMainActivity();
                 return;
-            } else if (ChatSDK.auth().isAuthenticated() || ChatSDK.auth().isAuthenticating()) {
+            } else if (ChatSDK.auth().cachedCredentialsAvailable()) {
                 startProgressBar();
                 dm.add(ChatSDK.auth().authenticate()
                         .observeOn(RX.main())
@@ -85,7 +85,7 @@ public class SplashScreenActivity extends BaseActivity {
     }
 
     protected void stopProgressBar() {
-//        progressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
         progressBar.setProgress(0);
         progressBar.setIndeterminate(false);
     }

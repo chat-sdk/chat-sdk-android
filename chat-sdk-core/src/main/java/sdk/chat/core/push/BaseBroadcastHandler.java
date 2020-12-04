@@ -4,10 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import java.util.Map;
+
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.AppBackgroundMonitor;
+import sdk.chat.core.utils.StringChecker;
 
 public class BaseBroadcastHandler implements BroadcastHandler {
 
@@ -22,7 +25,10 @@ public class BaseBroadcastHandler implements BroadcastHandler {
         final String threadEntityID = extras.getString(Keys.PushKeyThreadEntityID);
         final String userEntityID = extras.getString(Keys.PushKeyUserEntityID);
         final String title = extras.getString(Keys.PushKeyTitle);
-        final String body = extras.getString(Keys.PushKeyBody);
+
+        if (StringChecker.isNullOrEmpty(threadEntityID) || StringChecker.isNullOrEmpty(userEntityID)) {
+            return;
+        }
 
         // Check if notifications are muted
         Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
@@ -30,6 +36,23 @@ public class BaseBroadcastHandler implements BroadcastHandler {
             if (thread.isMuted()) {
                 return;
             }
+        }
+
+        final String encryptedMessage = extras.getString(Keys.PushKeyUserEntityID);
+        String body = extras.getString(Keys.PushKeyBody);
+        if (StringChecker.isNullOrEmpty(encryptedMessage) && ChatSDK.encryption() != null) {
+            try {
+                Map<String, Object> meta = ChatSDK.encryption().decrypt(encryptedMessage);
+                if (meta != null) {
+                    Object textObject = meta.get(Keys.MessageText);
+                    if (textObject instanceof String) {
+                        String text = (String) textObject;
+                        if (!StringChecker.isNullOrEmpty(text)) {
+                            body = text;
+                        }
+                    }
+                }
+            } catch (Exception e) {}
         }
 
         // Only show the notification if the user is offline

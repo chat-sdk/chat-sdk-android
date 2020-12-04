@@ -19,15 +19,16 @@ import androidx.annotation.StringRes;
 import androidx.fragment.app.DialogFragment;
 
 import butterknife.ButterKnife;
-import sdk.chat.core.session.ChatSDK;
-import sdk.guru.common.DisposableMap;
-import sdk.chat.ui.activities.BaseActivity;
-import sdk.chat.ui.utils.AlertUtils;
-import sdk.chat.ui.utils.ToastHelper;
 import io.reactivex.CompletableObserver;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.ui.ChatSDKUI;
+import sdk.chat.ui.activities.BaseActivity;
+import sdk.chat.ui.utils.AlertUtils;
+import sdk.chat.ui.utils.ToastHelper;
+import sdk.guru.common.DisposableMap;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -51,7 +52,6 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
 
         rootView = inflater.inflate(getLayout(), container, false);
         ButterKnife.bind(this, rootView);
-
 
         setHasOptionsMenu(true);
 
@@ -105,6 +105,18 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
     public void onDestroyView() {
         super.onDestroyView();
         dm.dispose();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        ChatSDKUI.shared().getFragmentLifecycleManager().add(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        ChatSDKUI.shared().getFragmentLifecycleManager().remove(this);
     }
 
     public void onSubscribe(@NonNull Disposable d) {

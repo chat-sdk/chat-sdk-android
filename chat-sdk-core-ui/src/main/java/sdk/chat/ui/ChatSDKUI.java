@@ -15,11 +15,22 @@ import sdk.chat.ui.activities.ProfileActivity;
 import sdk.chat.ui.activities.SearchActivity;
 import sdk.chat.ui.activities.SplashScreenActivity;
 import sdk.chat.ui.activities.ThreadDetailsActivity;
+import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.fragments.ContactsFragment;
 import sdk.chat.ui.fragments.PrivateThreadsFragment;
 import sdk.chat.ui.fragments.PublicThreadsFragment;
+import sdk.chat.ui.utils.FragmentLifecycleManager;
 
 public class ChatSDKUI {
+
+    protected static final ChatSDKUI instance = new ChatSDKUI();
+
+    protected MessageCustomizer messageCustomizer = new MessageCustomizer();
+    protected FragmentLifecycleManager fragmentLifecycleManager = new FragmentLifecycleManager();
+
+    public static ChatSDKUI shared() {
+        return instance;
+    }
 
     public static void setLoginActivity(Class<? extends LoginActivity> loginActivity) {
         ChatSDK.ui().setLoginActivity(loginActivity);
@@ -87,6 +98,18 @@ public class ChatSDKUI {
 
     public static void setProfileFragmentProvider(ProfileFragmentProvider profileFragmentProvider) {
         ChatSDK.ui().setProfileFragmentProvider(profileFragmentProvider);
+    }
+
+    public MessageCustomizer getMessageCustomizer() {
+        return messageCustomizer;
+    }
+
+    public FragmentLifecycleManager getFragmentLifecycleManager() {
+        return fragmentLifecycleManager;
+    }
+
+    public void stop() {
+        messageCustomizer.stop();
     }
 
 }

@@ -36,6 +36,7 @@ public class Keys {
     public static final String Users = "users";
     public static final String UID = "uid";
     public static final String Read = "read";
+
     public static final String Reply = "reply";
 
     public static final String Owner = "owner";
@@ -78,6 +79,7 @@ public class Keys {
     // For push notifications
     public static final String PushKeyUserEntityID = "chat_sdk_user_entity_id";
     public static final String PushKeyThreadEntityID = "chat_sdk_thread_entity_id";
+    public static final String PushKeyEncryptedMessage = "chat_sdk_encrypted_message";
     public static final String PushKeyTitle = "chat_sdk_push_title";
     public static final String PushKeyBody = "chat_sdk_push_body";
 

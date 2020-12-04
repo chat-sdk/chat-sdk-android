@@ -1,19 +1,9 @@
-apply plugin: 'com.android.library'
-apply plugin: 'com.novoda.bintray-release'
-
-buildscript {
-    repositories {
-        google()
-        maven { url "https://jitpack.io" }
-        jcenter()
-    }
-
-    dependencies {
-        classpath "org.greenrobot:greendao-gradle-plugin:$greenDaoVersion"
-    }
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+    id 'org.greenrobot.greendao'
 }
-
-apply plugin: 'org.greenrobot.greendao'
 
 android {
 
@@ -24,10 +14,22 @@ android {
         targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
     }
 
+    buildTypes {
+        debug {
+            minifyEnabled project.hasProperty('minifyDebug')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled project.hasProperty('minifyRelease')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     lintOptions {
         abortOnError false
 //        checkReleaseBuilds false
@@ -39,24 +41,6 @@ greendao {
     schemaVersion 15
     targetGenDir "src/main/java"
     daoPackage "sdk.chat.core.dao"
-}
-
-ext {
-    libraryName = 'Core'
-    artifact = 'core'
-    libraryDescription = 'Core'
-}
-
-publish {
-    userOrg = BINTRAY_USER_ORG
-    groupId = CHAT_SDK_GROUP
-    artifactId = artifact
-    repoName = BINTRAY_REPO
-    publishVersion = CHAT_SDK_VERSION
-    desc = libraryDescription
-    licences = ["GPL-3.0"]
-    uploadName = libraryName
-    website = GIT_URL
 }
 
 rootProject.allprojects {
@@ -98,4 +82,11 @@ dependencies {
 
 }
 
+ext {
+    libraryName = 'Core'
+    artifact = 'core'
+    libraryDescription = 'Core'
+}
+
+apply from: '../bintray.gradle'
 

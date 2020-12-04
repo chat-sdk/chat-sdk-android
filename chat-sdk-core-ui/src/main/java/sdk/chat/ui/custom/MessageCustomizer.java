@@ -9,15 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sdk.chat.core.dao.Message;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
 
 public class MessageCustomizer implements IMessageHandler {
 
-    static final MessageCustomizer instance = new MessageCustomizer();
-
+    /**
+     * @deprecated use {@link ChatSDKUI#shared().getMessageCustomizer() }
+     */
+    @Deprecated
     public static MessageCustomizer shared() {
-        return instance;
+        return ChatSDKUI.shared().getMessageCustomizer();
     }
 
     protected List<IMessageHandler> messageHandlers = new ArrayList<>();
@@ -100,4 +103,5 @@ public class MessageCustomizer implements IMessageHandler {
     public void stop() {
         messageHandlers.clear();
     }
+
 }

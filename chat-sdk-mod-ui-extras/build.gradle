@@ -1,19 +1,10 @@
-apply plugin: 'com.android.library'
-apply plugin: 'com.novoda.bintray-release'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
-//apply plugin: 'com.jakewharton.butterknife'
-
-buildscript {
-    repositories {
-        google()
-        maven { url "https://jitpack.io" }
-        jcenter()
-    }
-
-    dependencies {
-    }
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -26,12 +17,16 @@ android {
     }
 
     buildTypes {
-        release {
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-fresco.pro'
-        }
         debug {
+            minifyEnabled project.hasProperty('minifyDebug')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled project.hasProperty('minifyRelease')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -44,24 +39,6 @@ android {
     }
 }
 
-ext {
-    libraryName = 'UIExtrasMod'
-    artifact = 'mod-ui-extras'
-    libraryDescription = 'UI Extras Module'
-}
-
-publish {
-    userOrg = BINTRAY_USER_ORG
-    groupId = CHAT_SDK_GROUP
-    artifactId = artifact
-    repoName = BINTRAY_REPO
-    publishVersion = CHAT_SDK_VERSION
-    desc = libraryDescription
-    licences = ["GPL-3.0"]
-    uploadName = libraryName
-    website = GIT_URL
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api project(':chat-sdk-core-ui')
@@ -71,22 +48,24 @@ dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
 
     // Add for NavController support
-    implementation "com.mikepenz:materialdrawer-nav:$materialDrawerVersion"
+    api "com.mikepenz:materialdrawer-nav:$materialDrawerVersion"
 
     // Need this: maven { url "https://dl.bintray.com/mikepenz/maven" }
-    implementation "com.mikepenz:materialdrawer-iconics:$materialDrawerVersion"
+    api "com.mikepenz:materialdrawer-iconics:$materialDrawerVersion"
 
     api "com.miguelcatalan:materialsearchview:$materialSearchVersion"
-
-    implementation "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
-    implementation "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
-    implementation "com.mikepenz:iconics-core:$iconicsVersion"
-    implementation "com.mikepenz:iconics-views:$iconicsVersion"
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
     implementation 'androidmads.library.qrgenearator:QRGenearator:1.0.4'
     implementation 'me.dm7.barcodescanner:zxing:1.9.13'
-
 }
+
+ext {
+    libraryName = 'UIExtrasMod'
+    artifact = 'mod-ui-extras'
+    libraryDescription = 'UI Extras Module'
+}
+
+apply from: '../bintray.gradle'

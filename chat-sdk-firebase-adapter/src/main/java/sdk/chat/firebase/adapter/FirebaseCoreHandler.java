@@ -49,19 +49,13 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public Completable setUserOffline() {
         return Completable.defer(() -> {
-            if (!ChatSDK.config().disablePresence) {
+            if (!ChatSDK.config().disablePresence && ChatSDK.auth().isAuthenticated()) {
 
                 final User current = ChatSDK.currentUser();
 
-                Completable completable = Completable.complete();
-                if (ChatSDK.hook() != null) {
-                    completable = ChatSDK.hook().executeHook(HookEvent.UserWillDisconnect, null);
-                }
-
                 if (current != null && !current.getEntityID().isEmpty()) {
                     // Update the last online figure then go offline
-                    return completable.concatWith(updateLastOnline()
-                            .concatWith(UserWrapper.initWithModel(current).goOffline()));
+                    return updateLastOnline().concatWith(UserWrapper.initWithModel(current).goOffline());
                 }
             }
             return Completable.complete();
@@ -70,9 +64,18 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public void goOffline() {
         ChatSDK.core().save();
-        ChatSDK.events().disposeOnLogout(setUserOffline().subscribe(() -> {
+
+        Completable hookExecute;
+        if (ChatSDK.hook() != null) {
+            hookExecute = ChatSDK.hook().executeHook(HookEvent.UserWillDisconnect, null);
+        } else {
+            hookExecute = Completable.complete();
+        }
+
+        hookExecute.concatWith(setUserOffline()).doOnComplete(() -> {
             FirebaseCoreHandler.database().goOffline();
-        }));
+        }).subscribe(ChatSDK.events());
+
     }
 
     public void goOnline() {

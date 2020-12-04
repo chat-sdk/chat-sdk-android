@@ -188,6 +188,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         showProgressDialog(getString(R.string.connecting));
 
+
         dm.add(ChatSDK.auth().authenticate(details)
                 .observeOn(RX.main())
                 .doFinally(() -> {
