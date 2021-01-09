@@ -126,16 +126,13 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 
 ## Chat SDK Firebase Documentation
 
-#### Migrating from v4
-
-- [Migration guide](https://chat-sdk.gitbook.io/android/chat-sdk-v4/updating-from-v4-to-v5)
-- If you want to see the v4 docs, they are available on the [v4 branch](https://github.com/chat-sdk/chat-sdk-android/tree/v4)
 
 #### Quick Start
 
 [![Video Tutorial](https://img.youtube.com/vi/ZzfSd3hc3xw/0.jpg)](https://www.youtube.com/watch?v=ZzfSd3hc3xw)
 
 - [Full video tutorial](https://www.youtube.com/watch?v=ZzfSd3hc3xw)
+- [Documentation Homepage](https://chat-sdk.gitbook.io/chat-sdk/)
 - [Building a messaging app using Chat SDK](https://chat-sdk.gitbook.io/android/getting-started/chat-sdk-quickstart)
 - [Adding Chat SDK to a Firebase app](https://chat-sdk.gitbook.io/android/getting-started/getting-started)
 - [Adding Chat SDK to a non-Firebase app](https://chat-sdk.gitbook.io/android/getting-started/add-the-chat-sdk-to-a-non-firebase-app)
@@ -168,6 +165,11 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 #### Extras
 
 1. [Example Firebase Schema](https://chat-sdk.gitbook.io/android/api/firebase-schema)
+
+#### Migrating from v4
+
+- [Migration guide](https://chat-sdk.gitbook.io/android/chat-sdk-v4/updating-from-v4-to-v5)
+- If you want to see the v4 docs, they are available on the [v4 branch](https://github.com/chat-sdk/chat-sdk-android/tree/v4)
 
 <!--
 #### Customization
