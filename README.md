@@ -132,6 +132,7 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 [![Video Tutorial](https://img.youtube.com/vi/ZzfSd3hc3xw/0.jpg)](https://www.youtube.com/watch?v=ZzfSd3hc3xw)
 
 - [Full video tutorial](https://www.youtube.com/watch?v=ZzfSd3hc3xw)
+- [API - Useful for Chat SDK customization](https://chat-sdk.gitbook.io/chat-sdk/guides/api-cheatsheet)
 - [Documentation Homepage](https://chat-sdk.gitbook.io/chat-sdk/)
 - [Building a messaging app using Chat SDK](https://chat-sdk.gitbook.io/android/getting-started/chat-sdk-quickstart)
 - [Adding Chat SDK to a Firebase app](https://chat-sdk.gitbook.io/android/getting-started/getting-started)
