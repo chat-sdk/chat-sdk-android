@@ -24,6 +24,7 @@ public class DaoMaster extends AbstractDaoMaster {
         ContactLinkDao.createTable(db, ifNotExists);
         MessageDao.createTable(db, ifNotExists);
         MessageMetaValueDao.createTable(db, ifNotExists);
+        PublicKeyDao.createTable(db, ifNotExists);
         ReadReceiptUserLinkDao.createTable(db, ifNotExists);
         ThreadDao.createTable(db, ifNotExists);
         ThreadMetaValueDao.createTable(db, ifNotExists);
@@ -38,6 +39,7 @@ public class DaoMaster extends AbstractDaoMaster {
         ContactLinkDao.dropTable(db, ifExists);
         MessageDao.dropTable(db, ifExists);
         MessageMetaValueDao.dropTable(db, ifExists);
+        PublicKeyDao.dropTable(db, ifExists);
         ReadReceiptUserLinkDao.dropTable(db, ifExists);
         ThreadDao.dropTable(db, ifExists);
         ThreadMetaValueDao.dropTable(db, ifExists);
@@ -66,6 +68,7 @@ public class DaoMaster extends AbstractDaoMaster {
         registerDaoClass(ContactLinkDao.class);
         registerDaoClass(MessageDao.class);
         registerDaoClass(MessageMetaValueDao.class);
+        registerDaoClass(PublicKeyDao.class);
         registerDaoClass(ReadReceiptUserLinkDao.class);
         registerDaoClass(ThreadDao.class);
         registerDaoClass(ThreadMetaValueDao.class);

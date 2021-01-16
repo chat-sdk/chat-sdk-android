@@ -2,8 +2,6 @@ package sdk.chat.core.session;
 
 import androidx.annotation.Nullable;
 
-import com.google.android.exoplayer2.C;
-
 import org.greenrobot.greendao.query.Join;
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.pmw.tinylog.Logger;
@@ -11,17 +9,13 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
 import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.MessageDao;
+import sdk.chat.core.dao.PublicKey;
 import sdk.chat.core.dao.ReadReceiptUserLink;
 import sdk.chat.core.dao.ReadReceiptUserLinkDao;
 import sdk.chat.core.dao.Thread;
@@ -31,7 +25,6 @@ import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.dao.UserThreadLinkDao;
 import sdk.chat.core.interfaces.CoreEntity;
 import sdk.chat.core.types.ReadStatus;
-import sdk.chat.core.utils.TimeLog;
 import sdk.guru.common.Optional;
 import sdk.guru.common.RX;
 
@@ -284,6 +277,31 @@ public class StorageManager {
         List<Message> list = qb.list();
 
         return  list;
+    }
+
+    public PublicKey getPublicKey(String userId) {
+        return fetchEntityWithEntityID(userId, PublicKey.class);
+    }
+
+    public void deletePublicKey(String userId) {
+        PublicKey key = getPublicKey(userId);
+        if (key != null) {
+            DaoCore.deleteEntity(key);
+        }
+    }
+
+    public void deleteAllPublicKeys() {
+        List<PublicKey> keys = DaoCore.fetchEntitiesOfClass(PublicKey.class);
+        for (PublicKey key: keys) {
+            DaoCore.deleteEntity(key);
+        }
+    }
+
+    public void addPublicKey(String userId, String identifier, String key) {
+        PublicKey publicKey = fetchOrCreateEntityWithEntityID(PublicKey.class, userId);
+        publicKey.setKey(key);
+        publicKey.setIdentifier(identifier);
+        DaoCore.updateEntity(publicKey);
     }
 
     public Single<List<Message>> fetchMessagesForThreadWithIDAsync(long threadID, Date from, Date to, int limit) {

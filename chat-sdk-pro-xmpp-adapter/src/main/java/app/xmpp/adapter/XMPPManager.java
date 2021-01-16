@@ -52,6 +52,7 @@ import app.xmpp.adapter.listeners.XMPPReconnectionListener;
 import app.xmpp.adapter.listeners.XMPPRosterListener;
 import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.adapter.utils.PresenceHelper;
+import app.xmpp.adapter.utils.PublicKeyExtras;
 import app.xmpp.adapter.utils.ServerKeyStorage;
 import app.xmpp.adapter.utils.XMPPServer;
 import io.reactivex.Completable;
@@ -632,6 +633,9 @@ public class XMPPManager {
     
     public void sendPresence (Presence presence) {
         try {
+
+            PublicKeyExtras.addTo(presence);
+
             sendStanza(presence);
         }
         catch (Exception e) {

@@ -11,6 +11,7 @@ import org.greenrobot.greendao.internal.DaoConfig;
 import sdk.chat.core.dao.ContactLink;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.MessageMetaValue;
+import sdk.chat.core.dao.PublicKey;
 import sdk.chat.core.dao.ReadReceiptUserLink;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.ThreadMetaValue;
@@ -22,6 +23,7 @@ import sdk.chat.core.dao.UserThreadLinkMetaValue;
 import sdk.chat.core.dao.ContactLinkDao;
 import sdk.chat.core.dao.MessageDao;
 import sdk.chat.core.dao.MessageMetaValueDao;
+import sdk.chat.core.dao.PublicKeyDao;
 import sdk.chat.core.dao.ReadReceiptUserLinkDao;
 import sdk.chat.core.dao.ThreadDao;
 import sdk.chat.core.dao.ThreadMetaValueDao;
@@ -42,6 +44,7 @@ public class DaoSession extends AbstractDaoSession {
     private final DaoConfig contactLinkDaoConfig;
     private final DaoConfig messageDaoConfig;
     private final DaoConfig messageMetaValueDaoConfig;
+    private final DaoConfig publicKeyDaoConfig;
     private final DaoConfig readReceiptUserLinkDaoConfig;
     private final DaoConfig threadDaoConfig;
     private final DaoConfig threadMetaValueDaoConfig;
@@ -53,6 +56,7 @@ public class DaoSession extends AbstractDaoSession {
     private final ContactLinkDao contactLinkDao;
     private final MessageDao messageDao;
     private final MessageMetaValueDao messageMetaValueDao;
+    private final PublicKeyDao publicKeyDao;
     private final ReadReceiptUserLinkDao readReceiptUserLinkDao;
     private final ThreadDao threadDao;
     private final ThreadMetaValueDao threadMetaValueDao;
@@ -73,6 +77,9 @@ public class DaoSession extends AbstractDaoSession {
 
         messageMetaValueDaoConfig = daoConfigMap.get(MessageMetaValueDao.class).clone();
         messageMetaValueDaoConfig.initIdentityScope(type);
+
+        publicKeyDaoConfig = daoConfigMap.get(PublicKeyDao.class).clone();
+        publicKeyDaoConfig.initIdentityScope(type);
 
         readReceiptUserLinkDaoConfig = daoConfigMap.get(ReadReceiptUserLinkDao.class).clone();
         readReceiptUserLinkDaoConfig.initIdentityScope(type);
@@ -98,6 +105,7 @@ public class DaoSession extends AbstractDaoSession {
         contactLinkDao = new ContactLinkDao(contactLinkDaoConfig, this);
         messageDao = new MessageDao(messageDaoConfig, this);
         messageMetaValueDao = new MessageMetaValueDao(messageMetaValueDaoConfig, this);
+        publicKeyDao = new PublicKeyDao(publicKeyDaoConfig, this);
         readReceiptUserLinkDao = new ReadReceiptUserLinkDao(readReceiptUserLinkDaoConfig, this);
         threadDao = new ThreadDao(threadDaoConfig, this);
         threadMetaValueDao = new ThreadMetaValueDao(threadMetaValueDaoConfig, this);
@@ -109,6 +117,7 @@ public class DaoSession extends AbstractDaoSession {
         registerDao(ContactLink.class, contactLinkDao);
         registerDao(Message.class, messageDao);
         registerDao(MessageMetaValue.class, messageMetaValueDao);
+        registerDao(PublicKey.class, publicKeyDao);
         registerDao(ReadReceiptUserLink.class, readReceiptUserLinkDao);
         registerDao(Thread.class, threadDao);
         registerDao(ThreadMetaValue.class, threadMetaValueDao);
@@ -122,6 +131,7 @@ public class DaoSession extends AbstractDaoSession {
         contactLinkDaoConfig.clearIdentityScope();
         messageDaoConfig.clearIdentityScope();
         messageMetaValueDaoConfig.clearIdentityScope();
+        publicKeyDaoConfig.clearIdentityScope();
         readReceiptUserLinkDaoConfig.clearIdentityScope();
         threadDaoConfig.clearIdentityScope();
         threadMetaValueDaoConfig.clearIdentityScope();
@@ -141,6 +151,10 @@ public class DaoSession extends AbstractDaoSession {
 
     public MessageMetaValueDao getMessageMetaValueDao() {
         return messageMetaValueDao;
+    }
+
+    public PublicKeyDao getPublicKeyDao() {
+        return publicKeyDao;
     }
 
     public ReadReceiptUserLinkDao getReadReceiptUserLinkDao() {

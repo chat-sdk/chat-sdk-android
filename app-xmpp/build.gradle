@@ -98,6 +98,6 @@ dependencies {
     api project(':chat-sdk-pro-message-sticker')
     api project(':chat-sdk-pro-message-file')
     api project(':chat-sdk-pro-message-video')
-
+    api project(':chat-sdk-pro-encryption')
 
 }

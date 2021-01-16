@@ -9,9 +9,12 @@ public class XMPPDefines {
     public static String DelayNamespace = "co:chatsdk:delay";
     public static String NoRetryNamespace = "co:chatsdk:no:retry";
     public static String MessageNamespace = "co:chatsdk:message";
+    public static String PublicKeyNamespace = "co:chatsdk:public:key";
     public static String MessageReadNamespace = "co:chatsdk:message:read";
     public static String Extras = "extras";
     public static String Type = "message-type";
+    public static String ID = "id";
+
 
     public static String BlockingCommandNamespace = "urn:xmpp:blocking";
 

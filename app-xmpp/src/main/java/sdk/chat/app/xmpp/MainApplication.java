@@ -8,6 +8,7 @@ import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.receipts.XMPPReadReceiptsModule;
 import io.reactivex.disposables.Disposable;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.encryption.EncryptionModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.audio.AudioMessageModule;
@@ -61,7 +62,10 @@ public class MainApplication extends Application {
                     .addModule(LocationMessageModule.shared())
                     .addModule(ExtrasModule.builder()
                             .setQrCodesEnabled(true)
+                            .setDrawerEnabled(false)
                             .build())
+
+                    .addModule(EncryptionModule.shared())
 
                     .build().activate(this, "Ben");
 

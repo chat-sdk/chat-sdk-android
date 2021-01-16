@@ -160,6 +160,7 @@ public class XMPPMUCManager {
                 MucEnterConfiguration.Builder config = chat.getEnterConfigurationBuilder(nickname);
 
                 // Work out how much history to request
+                // TODO: For iOS we use the last online date - which is better?
                 Date lastMessageDate = thread.lastMessageAddedDate();
                 if (lastMessageDate != null) {
                     lastMessageDate = manager.get().clientToServerTime(lastMessageDate);
@@ -199,9 +200,9 @@ public class XMPPMUCManager {
                 }
 
                 chat.removePresenceInterceptor(userStatusListener);
-                chat.removeUserStatusListener(userStatusListener);
-
                 chat.addPresenceInterceptor(userStatusListener);
+
+                chat.removeUserStatusListener(userStatusListener);
                 chat.addUserStatusListener(userStatusListener);
 
                 chat.join(config.build());

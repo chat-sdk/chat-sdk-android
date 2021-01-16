@@ -204,6 +204,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                 builder.setBody((String) message.valueForKey(Keys.MessageImageURL));
             }
 
+
             if(message.getThread().typeIs(ThreadType.Private1to1)) {
 //                ChatManager chatManager = XMPPManager.shared().chatManager();
 //                Chat chat = chatManager.chatWith(JidCreate.entityBareFrom(message.getThread().getEntityID()));

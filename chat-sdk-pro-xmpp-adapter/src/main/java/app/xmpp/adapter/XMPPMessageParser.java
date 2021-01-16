@@ -13,6 +13,7 @@ import java.util.Map;
 
 import app.xmpp.adapter.defines.XMPPDefines;
 import app.xmpp.adapter.message.queue.OutgoingStanza;
+import app.xmpp.adapter.utils.PublicKeyExtras;
 import app.xmpp.adapter.utils.XMPPMessageParseHelper;
 import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import sdk.chat.core.dao.Message;
@@ -135,6 +136,8 @@ public class XMPPMessageParser {
         message.setSender(user);
         message.update();
 
+        // Handle the public keys
+        PublicKeyExtras.handle(user.getEntityID(), xmr.getMessage());
 
         return message;
     }

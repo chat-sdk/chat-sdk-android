@@ -10,6 +10,7 @@ import org.jxmpp.jid.BareJid;
 import java.util.HashMap;
 
 import app.xmpp.adapter.defines.XMPPDefines;
+import app.xmpp.adapter.utils.PublicKeyExtras;
 import sdk.chat.core.utils.GoogleUtils;
 
 /**
@@ -68,8 +69,12 @@ public class XMPPMessageBuilder {
 //        message.add
 //    }
 
+
     public Message build () {
         message.addExtension(extensionBuilder.build());
+
+        PublicKeyExtras.addTo(message);
+
         return message;
     }
 

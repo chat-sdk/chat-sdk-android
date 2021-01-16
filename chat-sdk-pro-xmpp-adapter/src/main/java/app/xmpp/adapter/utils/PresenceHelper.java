@@ -24,6 +24,8 @@ public class PresenceHelper {
         if (!user.isMe()) {
             HashMap<String, Object> oldMeta = new HashMap<>(user.metaMap());
 
+            PublicKeyExtras.handle(user.getEntityID(), presence);
+
             String availability = presence.getMode().toString();
             if(presence.getType().equals(Presence.Type.unavailable)) {
                 availability = Availability.Unavailable;

@@ -10,4 +10,10 @@ public interface EncryptionHandler {
     Completable encrypt (Message message);
     Completable decrypt (Message message);
     Map<String, Object> decrypt (String message) throws Exception;
+
+    String publicKey();
+    String privateKeyId();
+    Completable publishKey();
+    void addPublicKey(String userEntityID, String identifier, String key);
+
 }
