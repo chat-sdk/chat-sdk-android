@@ -34,6 +34,7 @@ public class UIConfig<T> extends BaseConfig<T> {
     // Chat options
     public boolean groupsEnabled = true;
     public boolean customizeGroupImageEnabled = true;
+    public boolean messageSelectionEnabled = true;
 
     public boolean threadDetailsEnabled = true;
     public boolean publicRoomCreationEnabled = false;
@@ -259,6 +260,16 @@ public class UIConfig<T> extends BaseConfig<T> {
      */
     public UIConfig<T> setShowNamesInGroupChatView(boolean request) {
         this.showNamesInGroupChatView = request;
+        return this;
+    }
+
+    /**
+     * Allow messages to be selected
+     * @param enabled
+     * @return
+     */
+    public UIConfig<T> setMessageSelectionEnabled(boolean enabled) {
+        this.messageSelectionEnabled = enabled;
         return this;
     }
 

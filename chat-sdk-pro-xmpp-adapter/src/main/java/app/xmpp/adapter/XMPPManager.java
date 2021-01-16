@@ -9,6 +9,7 @@ import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
@@ -45,6 +46,7 @@ import app.xmpp.adapter.listeners.XMPPCarbonCopyReceivedListener;
 import app.xmpp.adapter.listeners.XMPPChatStateListener;
 import app.xmpp.adapter.listeners.XMPPConnectionListener;
 import app.xmpp.adapter.listeners.XMPPMessageListener;
+import app.xmpp.adapter.listeners.XMPPPingListener;
 import app.xmpp.adapter.listeners.XMPPReceiptReceivedListener;
 import app.xmpp.adapter.listeners.XMPPReconnectionListener;
 import app.xmpp.adapter.listeners.XMPPRosterListener;
@@ -84,6 +86,8 @@ public class XMPPManager {
     protected XMPPReceiptReceivedListener receiptReceivedListener;
     protected XMPPReconnectionListener reconnectionListener;
     protected XMPPCarbonCopyReceivedListener carbonCopyReceivedListener;
+    protected XMPPPingListener pingListener;
+//    protected OutgoingStanzaQueue outgoingStanzaQueue = new OutgoingStanzaQueue();
 
     // Managers
     public XMPPUserManager userManager;
@@ -130,12 +134,15 @@ public class XMPPManager {
 
         // Enable stream management
         // TODO: Check this
-        XMPPTCPConnection.setUseStreamManagementDefault(false);
-        XMPPTCPConnection.setUseStreamManagementResumptionDefault(false);
+        XMPPTCPConnection.setUseStreamManagementDefault(XMPPModule.config().streamManagementEnabled);
+        XMPPTCPConnection.setUseStreamManagementResumptionDefault(XMPPModule.config().streamManagementEnabled);
+
 
         DeliveryReceiptManager.setDefaultAutoReceiptMode(DeliveryReceiptManager.AutoReceiptMode.always);
         ProviderManager.addExtensionProvider(DeliveryReceipt.ELEMENT, DeliveryReceipt.NAMESPACE, new DeliveryReceipt.Provider());
         ProviderManager.addExtensionProvider(DeliveryReceiptRequest.ELEMENT, DeliveryReceipt.NAMESPACE, new DeliveryReceiptRequest.Provider());
+
+        PingManager.setDefaultPingInterval(XMPPModule.config().pingInterval);
 
         // Enable reconnection
         ReconnectionManager.setEnabledPerDefault(true);
@@ -269,7 +276,6 @@ public class XMPPManager {
         return Single.create((SingleOnSubscribe<XMPPConnection>) e -> {
 
             if(isConnected()) {
-                connection.removeConnectionListener(connectionListener);
                 connection.disconnect();
             }
 
@@ -283,7 +289,9 @@ public class XMPPManager {
                 e.onSuccess(connection);
             }
             catch (Exception exception){
-                connection.disconnect();
+                if (connection.isConnected()) {
+                    connection.disconnect();
+                }
                 e.onError(exception);
             }
         }).subscribeOn(RX.io());
@@ -293,7 +301,6 @@ public class XMPPManager {
         return Single.create((SingleOnSubscribe<XMPPConnection>) e -> {
 
             if(isConnected()) {
-                connection.removeConnectionListener(connectionListener);
                 connection.disconnect();
             }
 
@@ -301,9 +308,13 @@ public class XMPPManager {
 
             connection = new XMPPTCPConnection(config);
 
-            connection.addConnectionListener(connectionListener);
+
+//            connection.removeConnectionListener(outgoingStanzaQueue);
+//            connection.addConnectionListener(outgoingStanzaQueue);
 
             addListeners();
+
+            mucManager = new XMPPMUCManager(this);
 
             try {
                 connection.connect();
@@ -311,23 +322,42 @@ public class XMPPManager {
                 e.onSuccess(connection);
             }
             catch (Exception exception) {
-                connection.disconnect();
-                e.onError(exception);
+                if (connection.isConnected()) {
+                    connection.disconnect();
+                }
+                e.onError(ChatSDK.getException(R.string.username_or_password_incorrect));
             }
         }).subscribeOn(RX.io());
     }
 
     private void addListeners() {
+
+        connection.removeConnectionListener(connectionListener);
+        connection.addConnectionListener(connectionListener);
+
+        chatManager().removeIncomingListener(messageListener);
         chatManager().addIncomingListener(messageListener);
+
+        chatManager().removeOutgoingListener(messageListener);
         chatManager().addOutgoingListener(messageListener);
+
+        chatStateManager().removeChatStateListener(chatStateListener);
         chatStateManager().addChatStateListener(chatStateListener);
+
+        reconnectionManager().removeReconnectionListener(reconnectionListener);
         reconnectionManager().addReconnectionListener(reconnectionListener);
+
+        deliveryReceiptManager().removeReceiptReceivedListener(receiptReceivedListener);
         deliveryReceiptManager().addReceiptReceivedListener(receiptReceivedListener);
+
+        roster().removeRosterListener(rosterListener);
         roster().addRosterListener(rosterListener);
+
+        carbonManager().removeCarbonCopyReceivedListener(carbonCopyReceivedListener);
         carbonManager().addCarbonCopyReceivedListener(carbonCopyReceivedListener);
 
-        mucManager = new XMPPMUCManager(this);
-
+        pingManager().unregisterPingFailedListener(pingListener);
+        pingManager().registerPingFailedListener(pingListener);
     }
 
     public Date clientToServerTime(Date date) {
@@ -436,14 +466,14 @@ public class XMPPManager {
         this.server = server;
 
         XMPPTCPConnectionConfiguration.Builder builder = XMPPTCPConnectionConfiguration.builder()
-            .setUsernameAndPassword(userAlias, password)
-            .setXmppDomain(domain)
-            .setSecurityMode(securityMode)
-            .setHostAddress(hostAddress)
-            //.setHost(domainString)
-            .setPort(server.port)
-            .setResource(resource)
-            .setCompressionEnabled(compressionEnabled);
+                .setUsernameAndPassword(userAlias, password)
+                .setXmppDomain(domain)
+                .setSecurityMode(securityMode)
+                .setHostAddress(hostAddress)
+                //.setHost(domainString)
+                .setPort(server.port)
+                .setResource(resource)
+                .setCompressionEnabled(compressionEnabled);
 
 //        builder.setHostnameVerifier(new HostnameVerifier() {
 //            @Override
@@ -508,7 +538,7 @@ public class XMPPManager {
             return openConnection(server, userJID, password).flatMapCompletable(xmppConnection -> {
 
                 if(xmppConnection.isConnected()) {
-                    return userManager.updateUserFromVCard(xmppConnection.getUser().asBareJid()).toCompletable();
+                    return userManager.updateUserFromVCard(xmppConnection.getUser().asBareJid()).ignoreElement();
                 }
                 else {
                     return Completable.error(ChatSDK.getException(R.string.cannot_connect));
@@ -538,7 +568,15 @@ public class XMPPManager {
                 try {
                     accountManager.sensitiveOperationOverInsecureConnection(true);
                     accountManager.createAccount(Localpart.from(username), password);
-                    return Completable.complete();
+
+                    connection.login(username, password);
+
+                    if(xmppConnection.isConnected()) {
+                        return userManager.updateUserFromVCard(xmppConnection.getUser().asBareJid()).ignoreElement();
+                    }
+                    else {
+                        return Completable.error(ChatSDK.getException(R.string.cannot_connect));
+                    }
                 }
                 catch (Exception exception) {
                     getConnection().disconnect();
@@ -594,11 +632,32 @@ public class XMPPManager {
     
     public void sendPresence (Presence presence) {
         try {
-            getConnection().sendStanza(presence);
+            sendStanza(presence);
         }
         catch (Exception e) {
             ChatSDK.events().onError(e);
         }
+    }
+
+    public void sendStanza(Stanza stanza) {
+        try {
+//            if (isConnectedAndAuthenticated()) {
+                getConnection().sendStanza(stanza);
+//            } else {
+//                outgoingStanzaQueue.add(stanza);
+//            }
+        } catch (Exception e) {
+            e.printStackTrace();
+//            outgoingStanzaQueue.add(stanza);
+        }
+    }
+
+    public XMPPTCPConnection getTCPConnection() {
+        AbstractXMPPConnection connection = getConnection();
+        if (connection instanceof XMPPTCPConnection) {
+            return (XMPPTCPConnection) connection;
+        }
+        return null;
     }
 
     public boolean isConnected() {

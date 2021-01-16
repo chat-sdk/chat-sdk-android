@@ -3,7 +3,10 @@ package app.xmpp.adapter.listeners;
 import com.jakewharton.rxrelay2.PublishRelay;
 
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterListener;
+import org.jivesoftware.smack.roster.packet.RosterPacket;
+import org.jxmpp.jid.BareJid;
 import org.jxmpp.jid.Jid;
 import org.pmw.tinylog.Logger;
 
@@ -36,7 +39,21 @@ public class XMPPRosterListener implements RosterListener {
     public void entriesAdded(Collection<Jid> addresses) {
         for(Jid jid : addresses) {
             Logger.debug("Added to roster " + jid.toString());
-            manager.get().userManager.addContact(jid.asBareJid()).subscribe(ChatSDK.events());
+
+            BareJid bare = jid.asBareJid();
+
+            // Only add as a contact if this is actually a contact...
+            RosterEntry entry = manager.get().roster().getEntry(bare);
+            if (entry.getType() == RosterPacket.ItemType.to || entry.getType() == RosterPacket.ItemType.both) {
+                manager.get().userManager.addContact(bare).subscribe(ChatSDK.events());
+            } else {
+                try {
+                    manager.get().roster().preApprove(bare);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
         }
     }
 
@@ -50,9 +67,13 @@ public class XMPPRosterListener implements RosterListener {
     @Override
     public void entriesDeleted(Collection<Jid> addresses) {
         for(Jid jid : addresses) {
-            User user = ChatSDK.db().fetchUserWithEntityID(jid.asBareJid().toString());
-            ChatSDK.contact().deleteContact(user, ConnectionType.Contact).subscribe(ChatSDK.events());
-            Logger.debug("Deleted from roster " + jid);
+
+            RosterEntry entry = manager.get().roster().getEntry(jid.asBareJid());
+            if (entry.getType() == RosterPacket.ItemType.to || entry.getType() == RosterPacket.ItemType.both) {
+                User user = ChatSDK.db().fetchUserWithEntityID(jid.asBareJid().toString());
+                ChatSDK.contact().deleteContact(user, ConnectionType.Contact).subscribe(ChatSDK.events());
+                Logger.debug("Deleted from roster " + jid);
+            }
         }
     }
 

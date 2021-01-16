@@ -3,6 +3,7 @@ plugins {
     id 'com.jfrog.bintray'
     id 'maven-publish'
     id 'com.jakewharton.butterknife'
+//    id 'com.jakewharton.hugo'
 }
 
 android {

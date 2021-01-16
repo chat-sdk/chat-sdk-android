@@ -221,6 +221,8 @@ public class NotificationBuilder {
                 builder.setColor(ChatSDK.config().pushNotificationColor);
             }
 
+            builder.setAutoCancel(true);
+
             if (channelName != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 // Create the NotificationChannel, but only on API 26+ because
                 // the NotificationChannel class is new and not in the support library

@@ -20,6 +20,8 @@ public class XMPPConfig<T> extends BaseConfig<T> {
     public int mucMessageHistoryDownloadLimit = 20;
     public int messageHistoryDownloadLimit = 30;
     public boolean debugEnabled = false;
+    public int pingInterval = 15;
+    public boolean streamManagementEnabled = true;
 
     public boolean allowServerConfiguration = true;
 
@@ -146,6 +148,25 @@ public class XMPPConfig<T> extends BaseConfig<T> {
         return this;
     }
 
+    /**
+     * Enable or disable stream management
+     * @param enabled
+     * @return
+     */
+    public XMPPConfig<T> setStreamManagementEnabled(boolean enabled) {
+        this.streamManagementEnabled = streamManagementEnabled;
+        return this;
+    }
+
+    /**
+     * Ping interval in seconds
+     * @param interval
+     * @return
+     */
+    public XMPPConfig<T> setPingInterval(int interval) {
+        this.pingInterval = pingInterval;
+        return this;
+    }
     public XMPPServer getServer() {
         return new XMPPServer(hostAddress, domain, port, resource);
     }

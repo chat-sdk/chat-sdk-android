@@ -60,6 +60,7 @@ import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.interfaces.TextInputDelegate;
+import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.views.ChatView;
 import sdk.chat.ui.views.ReplyView;
 import sdk.guru.common.RX;
@@ -237,10 +238,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         chatView.initViews();
 
-        chatView.enableSelectionMode(count -> {
-            invalidateOptionsMenu();
-            updateOptionsButton();
-        });
+        if (UIModule.config().messageSelectionEnabled) {
+            chatView.enableSelectionMode(count -> {
+                invalidateOptionsMenu();
+                updateOptionsButton();
+            });
+        }
 
         if (!hasVoice(ChatSDK.currentUser())) {
             hideTextInput();
@@ -284,6 +287,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if (enableTrace) {
             Debug.startMethodTracing("chat");
         }
+
 
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated))
@@ -409,9 +413,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if (chatView != null) {
             chatView.addListeners();
         }
-
-
-
     }
 
     @Override

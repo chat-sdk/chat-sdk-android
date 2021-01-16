@@ -4,6 +4,7 @@
     <string name="message_already_exists">Message already exists</string>
     <string name="login_method_doesnt_exist">Login method does not exist</string>
     <string name="unable_to_create_thread">Unable to create thread</string>
+    <string name="username_or_password_incorrect">Username or password incorrect</string>
 
     <string name="owner">Owner</string>
     <string name="admin">Admin</string>

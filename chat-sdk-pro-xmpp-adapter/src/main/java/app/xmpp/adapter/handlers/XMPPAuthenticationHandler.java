@@ -9,13 +9,13 @@ import org.jxmpp.stringprep.XmppStringprepException;
 
 import app.xmpp.adapter.R;
 import app.xmpp.adapter.XMPPManager;
-import sdk.chat.core.utils.KeyStorage;
 import io.reactivex.Completable;
 import sdk.chat.core.base.AbstractAuthenticationHandler;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.AccountDetails;
+import sdk.chat.core.utils.KeyStorage;
 import sdk.guru.common.RX;
 
 
@@ -53,7 +53,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
     }
 
     @Override
-    public Completable authenticate (final AccountDetails details) {
+    public Completable authenticate(final AccountDetails details) {
         return Completable.defer(() -> {
             if (isAuthenticatedThisSession() || isAuthenticated()) {
                 return Completable.error(ChatSDK.getException(R.string.already_authenticated));
@@ -68,23 +68,11 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                     switch (details.type) {
                         case Username:
                             return XMPPManager.shared().login(details.username, details.password).andThen(Completable.defer(() -> {
-                                ChatSDK.shared().getKeyStorage().save(details.username, details.password);
-                                if(!details.username.contains("@")) {
-                                    details.username = details.username + "@" + XMPPManager.shared().getDomain();
-                                }
-
-                                try {
-                                    userAuthenticationCompletedWithJID(JidCreate.bareFrom(details.username));
-                                    return Completable.complete();
-                                }
-                                catch (XmppStringprepException ex) {
-                                    return Completable.error(ex);
-                                }
+                                return loginSuccessful(details);
                             }));
                         case Register:
                             return XMPPManager.shared().register(details.username, details.password).andThen(Completable.defer(() -> {
-                                details.type = AccountDetails.Type.Username;
-                                return authenticate(details);
+                                return loginSuccessful(details);
                             }));
                         default:
                             return Completable.error(ChatSDK.getException(R.string.login_method_doesnt_exist));
@@ -93,6 +81,23 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
             }
             return authenticating;
         }).doOnComplete(this::setAuthStateToIdle);
+    }
+
+    protected Completable loginSuccessful(AccountDetails details) {
+        return Completable.defer(() -> {
+            ChatSDK.shared().getKeyStorage().save(details.username, details.password);
+            if(!details.username.contains("@")) {
+                details.username = details.username + "@" + XMPPManager.shared().getDomain();
+            }
+
+            try {
+                userAuthenticationCompletedWithJID(JidCreate.bareFrom(details.username));
+                return Completable.complete();
+            }
+            catch (XmppStringprepException ex) {
+                return Completable.error(ex);
+            }
+        });
     }
 
     private void userAuthenticationCompletedWithJID (Jid jid) {

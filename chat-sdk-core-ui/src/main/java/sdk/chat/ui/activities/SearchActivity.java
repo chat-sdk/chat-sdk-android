@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -61,6 +62,7 @@ public class SearchActivity extends BaseActivity {
     @BindView(R2.id.fab) protected FloatingActionButton fab;
     @BindView(R2.id.searchView) protected MaterialSearchView searchView;
     @BindView(R2.id.root) protected FrameLayout root;
+    @BindView(R2.id.progress) protected ProgressBar progressBar;
 
     protected String text = "";
 
@@ -219,6 +221,7 @@ public class SearchActivity extends BaseActivity {
         }
 
         users.clear();
+        progressBar.setVisibility(View.VISIBLE);
 
         ChatSDK.search().usersForIndex(searchText)
                 .observeOn(RX.main())
@@ -239,6 +242,7 @@ public class SearchActivity extends BaseActivity {
                     public void onError(@NonNull Throwable e) {
                         showSnackbar(e.getLocalizedMessage());
                         showAddUserButton();
+                        progressBar.setVisibility(View.INVISIBLE);
                     }
 
                     @Override
@@ -250,6 +254,7 @@ public class SearchActivity extends BaseActivity {
                                 showAddUserButton();
                             }
                         }
+                        progressBar.setVisibility(View.INVISIBLE);
                     }
                 });
     }

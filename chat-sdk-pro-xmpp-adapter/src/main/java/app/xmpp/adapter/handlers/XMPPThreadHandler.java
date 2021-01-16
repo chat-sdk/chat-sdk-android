@@ -1,13 +1,10 @@
 package app.xmpp.adapter.handlers;
 
-import org.jivesoftware.smack.chat2.Chat;
-import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MUCAffiliation;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jxmpp.jid.impl.JidCreate;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -97,16 +94,24 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean canRemoveUsersFromThread(Thread thread, List<User> users) {
-        if (thread.typeIs(ThreadType.Group)) {
-            int role = XMPPManager.shared().mucManager.getRoleForUser(thread, ChatSDK.currentUser());
-            return Role.isOr(role, Role.Owner, Role.Admin, Role.Moderator);
-        }
+        // TODO: this isn't currently working properly
         return false;
+//        if (thread.typeIs(ThreadType.Group)) {
+//            int role = XMPPManager.shared().mucManager.getRoleForUser(thread, ChatSDK.currentUser());
+//            return Role.isOr(role, Role.Owner, Role.Admin, Role.Moderator);
+//        }
+//        return false;
     }
 
     @Override
     public Completable removeUsersFromThread(Thread thread, List<User> users) {
-        return Completable.error(new Throwable("Method not implemented"));
+        return Completable.defer(() -> {
+            List<Completable> completables = new ArrayList<>();
+            for (User user: users) {
+                completables.add(XMPPManager.shared().mucManager.removeUser(thread, user));
+            }
+            return Completable.concat(completables);
+        });
     }
 
     @Override
@@ -119,18 +124,33 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable addUsersToThread(Thread thread, List<User> users) {
-        return Completable.error(new Throwable("Method not implemented"));
+    public Completable addUsersToThread(final Thread thread, List<User> users) {
+        return Completable.defer(() -> {
+            List<Completable> completables = new ArrayList<>();
+            for (User user: users) {
+                completables.add(XMPPManager.shared().mucManager.inviteUser(thread, user));
+            }
+            return Completable.concat(completables);
+        }).subscribeOn(RX.io());
     }
 
     @Override
     public Completable deleteThread(Thread thread) {
-        List<Message> messages = thread.getMessages();
-        for (Message m : messages) {
-            DaoCore.deleteEntity(m);
-        }
-        thread.setDeleted(true);
-        return Completable.complete();
+        return Completable.defer(() -> {
+            List<Message> messages = thread.getMessages();
+            for (Message m : messages) {
+                DaoCore.deleteEntity(m);
+            }
+            if (thread.typeIs(ThreadType.Group)) {
+                return leaveThread(thread).andThen(Completable.create(emitter -> {
+                    DaoCore.deleteEntity(thread);
+                    emitter.onComplete();
+                }));
+            } else {
+                thread.setDeleted(true);
+                return Completable.complete();
+            }
+        }).subscribeOn(RX.io());
     }
 
     @Override
@@ -140,7 +160,9 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                 MultiUserChat chat = XMPPManager.shared().mucManager.chatForThreadID(thread.getEntityID());
                 if (chat != null) {
                     chat.leave();
+                    XMPPManager.shared().bookmarkManager().removeBookmarkedConference(chat.getRoom());
                 }
+
             }
             return Completable.complete();
         }).subscribeOn(RX.io());
@@ -183,27 +205,35 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
             }
 
             if(message.getThread().typeIs(ThreadType.Private1to1)) {
-                ChatManager chatManager = XMPPManager.shared().chatManager();
-                Chat chat = chatManager.chatWith(JidCreate.entityBareFrom(message.getThread().getEntityID()));
+//                ChatManager chatManager = XMPPManager.shared().chatManager();
+//                Chat chat = chatManager.chatWith(JidCreate.entityBareFrom(message.getThread().getEntityID()));
 
                 // Unlock the resource using reflection
-                Class<?> chatClass = chat.getClass();
-                Method unlockMethod = chatClass.getDeclaredMethod("unlockResource");
-                if (unlockMethod != null) {
-                    unlockMethod.setAccessible(true);
-                    unlockMethod.invoke(chat);
-                }
+//                Class<?> chatClass = chat.getClass();
+//                Method unlockMethod = chatClass.getDeclaredMethod("unlockResource");
+//                if (unlockMethod != null) {
+//                    unlockMethod.setAccessible(true);
+//                    unlockMethod.invoke(chat);
+//                }
 
-                chat.send(builder.build());
+                builder.setAsChatType();
+                builder.setTo(JidCreate.entityBareFrom(message.getThread().getEntityID()));
+
+
+                XMPPManager.shared().sendStanza(builder.build());
+//                chat.send(builder.build());
             }
             else if (message.getThread().typeIs(ThreadType.Group)) {
-                MultiUserChat chat = XMPPManager.shared().mucManager.chatForThreadID(message.getThread().getEntityID());
-                if(chat != null) {
-                    chat.sendMessage(builder.build());
-                }
-                else {
-                    emitter.onError(new Throwable("Unable send message to group chat"));
-                }
+//                MultiUserChat chat = XMPPManager.shared().mucManager.chatForThreadID(message.getThread().getEntityID());
+//                if(chat != null) {
+                    builder.setAsGroupChatType();
+                    builder.setTo(JidCreate.entityBareFrom(message.getThread().getEntityID()));
+                    XMPPManager.shared().sendStanza(builder.build());
+//                    chat.sendMessage(builder.build());
+//                }
+//                else {
+//                    emitter.onError(new Throwable("Unable send message to group chat"));
+//                }
             }
 
             if (ChatSDK.push() != null && message.getThread().typeIs(ThreadType.Private)) {

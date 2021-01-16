@@ -9,10 +9,10 @@ import org.jxmpp.jid.Jid;
 
 import java.lang.ref.WeakReference;
 
-import sdk.chat.core.dao.Thread;
-import sdk.chat.core.session.ChatSDK;
 import app.xmpp.adapter.XMPPMUCManager;
 import io.reactivex.disposables.Disposable;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.session.ChatSDK;
 
 /**
  * Created by ben on 8/25/17.
@@ -33,37 +33,14 @@ public class XMPPChatParticipantListener implements PresenceListener, Disposable
     public void processPresence(Presence presence) {
         // Here we need to add the users to the lookup so we can
         // get from the user's room JID to their real JID
-//        ExtensionElement element = presence.getExtension();
-        Jid userJID = null;
-
-        ExtensionElement element = presence.getExtension("http://jabber.org/protocol/muc#user");
-        if(element instanceof MUCUser) {
-            MUCUser userElement = (MUCUser) element;
-            userJID = userElement.getItem().getJid();
-        }
-
         Thread thread = parent.get().threadForRoomID(chat.get().getRoom().toString());
 
-        if (userJID != null) {
+        ExtensionElement element = presence.getExtension("http://jabber.org/protocol/muc#user");
+        if(element instanceof MUCUser && thread != null) {
+            MUCUser userElement = (MUCUser) element;
+            Jid userJID = userElement.getItem().getJid();
             ChatSDK.events().disposeOnLogout(ChatSDK.core().getUserForEntityID(userJID.asBareJid().toString()).subscribe(thread::addUser, ChatSDK.events()));
         }
-
-//
-//        User user = ChatSDK.db().fetchUserWithEntityID(userJID.asBareJid().toString());
-//        if(thread != null && user != null) {
-//            thread.addUser(user);
-//        }
-//
-//        try {
-//            disposable = XMPPManager.shared().userManager.updateUserFromVCard(userJID).subscribe((user1, throwable) -> {
-//
-//            });
-//        }
-//        catch (Exception e) {
-//            ChatSDK.events().onError(e);
-//        }
-
-//        parent.get().addUserToLookup(chat.get(), presence.getFrom(), userJID.asBareJid());
     }
 
     @Override

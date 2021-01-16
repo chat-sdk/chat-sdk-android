@@ -6,6 +6,8 @@ package app.xmpp.adapter.defines;
 
 public class XMPPDefines {
 
+    public static String DelayNamespace = "co:chatsdk:delay";
+    public static String NoRetryNamespace = "co:chatsdk:no:retry";
     public static String MessageNamespace = "co:chatsdk:message";
     public static String MessageReadNamespace = "co:chatsdk:message:read";
     public static String Extras = "extras";

@@ -43,8 +43,8 @@
     <!-- Login Activity-->
     <string name="login_activity_no_mail_toast">Please enter your email</string>
     <string name="login_activity_no_password_toast">Please enter password</string>
-    <string name="login_activity_failed_to_login_toast">Failed to connect</string>
-    <string name="login_activity_failed_to_register_toast">Failed to register</string>
+    <string name="login_activity_failed_to_login_toast">Login Failed</string>
+    <string name="login_activity_failed_to_register_toast">Registration Failed</string>
 
     <!--SelectContactActivity-->
     <string name="select_at_least_one_user">Please select at least one user</string>

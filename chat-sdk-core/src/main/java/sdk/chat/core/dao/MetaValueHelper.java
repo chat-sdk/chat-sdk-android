@@ -1,5 +1,8 @@
 package sdk.chat.core.dao;
 
+import org.pmw.tinylog.Logger;
+
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -9,7 +12,19 @@ import java.util.List;
 public class MetaValueHelper {
 
     public static <T extends MetaValue<?>> T metaValueForKey (String key, List<T> values) {
+
         if (values != null) {
+
+            // Check for duplicates
+            HashMap<String, T> hash = new HashMap<>();
+            for (T value: values) {
+                if (hash.get(value.getKey()) == null) {
+                    hash.put(value.getKey(), value);
+                } else {
+                    Logger.debug("Duplicate");
+                }
+            }
+
             for (T value : values) {
                 if (value.getKey() != null && key != null) {
                     if (value.getKey().equals(key)) {

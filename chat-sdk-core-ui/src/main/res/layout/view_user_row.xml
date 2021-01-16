@@ -40,8 +40,7 @@
         <TextView
             android:id="@+id/nameTextView"
             android:layout_width="0dp"
-            android:layout_height="27dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="35dp"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginEnd="8dp"
@@ -80,6 +79,7 @@
             android:layout_marginStart="12dp"
             android:layout_marginRight="8dp"
             android:layout_marginEnd="8dp"
+            android:layout_marginTop="-5dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:scrollHorizontally="true"

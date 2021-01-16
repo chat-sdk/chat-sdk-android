@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
-import com.bumptech.glide.Glide;
 import com.jakewharton.rxrelay2.PublishRelay;
 import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
@@ -48,6 +47,7 @@ import sdk.chat.ui.interfaces.SearchSupported;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.update.ThreadUpdateAction;
 import sdk.chat.ui.update.UpdateActionBatcher;
+import sdk.chat.ui.utils.GlideWith;
 import sdk.chat.ui.utils.ThreadImageBuilder;
 import sdk.chat.ui.view_holders.ThreadViewHolder;
 import sdk.guru.common.RX;
@@ -196,7 +196,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     }
 
     public boolean inList(Thread thread) {
-        return dialogsListAdapter.getItemById(thread.getEntityID()) != null;
+        return thread != null && dialogsListAdapter.getItemById(thread.getEntityID()) != null;
 //        return threadHolderHashMap.containsKey(thread);
     }
 
@@ -212,11 +212,14 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                         dm.add(ThreadImageBuilder.load(imageView, threadHolder.getThread(), size));
                     } else {
                         Drawable placeholder = ThreadImageBuilder.defaultDrawable(null);
-                        Glide.with(this).load(url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
+                        // Check if the file exists
+                        GlideWith.load(this, url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
+//                        Glide.with(this).load(url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
                     }
                 } else {
                     int placeholder = UIModule.config().defaultProfilePlaceholder;
-                    Glide.with(this).load(url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
+                    GlideWith.load(this, url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
+//                    Glide.with(this).load(url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
                 }
             }
         });

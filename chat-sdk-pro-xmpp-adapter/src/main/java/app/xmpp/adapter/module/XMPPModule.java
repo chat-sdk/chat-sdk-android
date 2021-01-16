@@ -46,8 +46,8 @@ public class XMPPModule extends AbstractModule implements NetworkAdapterProvider
         Report.shared().add(getName());
         if (UIModule.config().usernameHint == null) {
             UIModule.config().usernameHint = context.getString(R.string.user_jid);
-            UIModule.config().customizeGroupImageEnabled = false;
         }
+        UIModule.config().customizeGroupImageEnabled = false;
     }
 
     @Override

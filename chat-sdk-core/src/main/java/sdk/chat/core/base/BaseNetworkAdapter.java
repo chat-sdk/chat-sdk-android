@@ -27,6 +27,7 @@ import sdk.chat.core.handlers.ThreadHandler;
 import sdk.chat.core.handlers.TypingIndicatorHandler;
 import sdk.chat.core.handlers.UploadHandler;
 import sdk.chat.core.handlers.VideoMessageHandler;
+import sdk.chat.core.session.ChatSDK;
 
 /**
  * Created by benjaminsmiley-andrews on 02/05/2017.
@@ -77,6 +78,10 @@ public class BaseNetworkAdapter {
         if (events != null) {
             events.stop();
         }
+
+
+
+
     }
 
 }

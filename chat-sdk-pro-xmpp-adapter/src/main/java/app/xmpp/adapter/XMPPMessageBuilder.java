@@ -5,6 +5,7 @@ import android.location.Location;
 
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.StandardExtensionElement;
+import org.jxmpp.jid.BareJid;
 
 import java.util.HashMap;
 
@@ -40,6 +41,21 @@ public class XMPPMessageBuilder {
 
     public XMPPMessageBuilder setType (Integer type) {
         extensionBuilder.addElement(XMPPDefines.Type, type.toString());
+        return this;
+    }
+
+    public XMPPMessageBuilder setAsChatType() {
+        message.setType(Message.Type.chat);
+        return this;
+    }
+
+    public XMPPMessageBuilder setAsGroupChatType() {
+        message.setType(Message.Type.groupchat);
+        return this;
+    }
+
+    public XMPPMessageBuilder setTo(BareJid to) {
+        message.setTo(to);
         return this;
     }
 

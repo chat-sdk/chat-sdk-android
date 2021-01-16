@@ -15,6 +15,18 @@
         <include
             layout="@layout/app_bar_default"/>
 
+        <ProgressBar
+            android:id="@+id/progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:indeterminate="true"
+            android:layout_marginTop="-7dp"
+            android:layout_below="@id/toolbar"
+            android:visibility="gone"/>
+
         <Button
             android:id="@+id/addUserButton"
             android:layout_width="match_parent"
@@ -32,7 +44,7 @@
         android:clipToPadding="false"
         android:paddingBottom="68dp"
         android:scrollbars="none"
-        android:layout_below="@id/toolbar"/>
+        android:layout_below="@id/progress"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"

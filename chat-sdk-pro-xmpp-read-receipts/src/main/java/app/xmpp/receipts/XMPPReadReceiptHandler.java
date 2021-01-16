@@ -19,7 +19,7 @@ public class XMPPReadReceiptHandler implements ReadReceiptHandler {
         if (!message.getSender().isMe()) {
             try {
                 Stanza ack = ReadReceiptHelper.getReadAck(message.getEntityID(), message.getThread());
-                XMPPManager.shared().getConnection().sendStanza(ack);
+                XMPPManager.shared().sendStanza(ack);
             } catch (Exception e) {
                 ChatSDK.events().onError(e);
             } finally {
@@ -33,8 +33,7 @@ public class XMPPReadReceiptHandler implements ReadReceiptHandler {
         if (!message.getSender().isMe()) {
             try {
                 Stanza ack = ReadReceiptHelper.getAck(message.getEntityID(), message.getThread());
-
-                XMPPManager.shared().getConnection().sendStanza(ack);
+                XMPPManager.shared().sendStanza(ack);
             } catch (Exception e) {
                 ChatSDK.events().onError(e);
             } finally {

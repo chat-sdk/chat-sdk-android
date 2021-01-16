@@ -7,6 +7,7 @@ import android.net.Uri;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
+import org.jivesoftware.smack.roster.packet.RosterPacket;
 import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
 import org.jivesoftware.smackx.search.ReportedData;
@@ -84,16 +85,16 @@ public class XMPPUserManager {
 //    }
 
     public Completable addUserToRoster (final User user) {
-        return Completable.create(e -> {
+        return Completable.defer(() -> {
             Roster roster = manager.get().roster();
             String [] groups = {ContactGroupName};
             roster.createEntry(JidCreate.bareFrom(user.getEntityID()), user.getName(), groups);
-            e.onComplete();
-        }).concatWith(subscribeToUser(user)).subscribeOn(RX.io());
+            return subscribeToUser(user);
+        }).subscribeOn(RX.io());
     }
 
     public Completable removeUserFromRoster (final User user) {
-        return Completable.create(e -> {
+        return Completable.defer(() -> {
             Roster roster = manager.get().roster();
             RosterEntry entry = null;
             for(RosterEntry en : roster.getEntries()) {
@@ -105,8 +106,8 @@ public class XMPPUserManager {
             if(entry != null) {
                 roster.removeEntry(entry);
             }
-            e.onComplete();
-        }).concatWith(unsubscribeFromUser(user)).subscribeOn(RX.io());
+            return unsubscribeFromUser(user);
+        }).subscribeOn(RX.io());
     }
 
     public Single<List<KeyValue>> getAvailableSearchFields () {
@@ -239,7 +240,7 @@ public class XMPPUserManager {
         return Completable.create(e -> {
             Presence request = new Presence(Presence.Type.subscribe);
             request.setTo(user.getEntityID());
-            manager.get().getConnection().sendStanza(request);
+            manager.get().sendStanza(request);
             e.onComplete();
         }).subscribeOn(RX.io());
     }
@@ -248,7 +249,7 @@ public class XMPPUserManager {
         return Completable.create(e -> {
             Presence request = new Presence(Presence.Type.unsubscribe);
             request.setTo(user.getEntityID());
-            manager.get().getConnection().sendStanza(request);
+            manager.get().sendStanza(request);
             e.onComplete();
         }).subscribeOn(RX.io());
     }
@@ -416,6 +417,10 @@ public class XMPPUserManager {
             Set<RosterEntry> entries = manager.get().roster().getEntries();
             for(RosterEntry entry : entries) {
 
+                if (entry.getType() == RosterPacket.ItemType.from || entry.getType() == RosterPacket.ItemType.none) {
+                    continue;
+                }
+
                 // Get the entity ID and try to get the user
                 String entityID = entry.getJid().asBareJid().toString();
 
@@ -432,7 +437,7 @@ public class XMPPUserManager {
             // These are contacts that exist in out current contacts but
             // aren't in the roster so they should be deleted
             for(User user : contacts) {
-                completables.add(ChatSDK.contact().deleteContact(user, ConnectionType.Contact));
+                ChatSDK.contact().deleteContactLocal(user, ConnectionType.Contact);
             }
 
             return Completable.concat(completables).doOnComplete(() -> {

@@ -19,7 +19,7 @@ public class MainApp extends Application {
         try {
 
             // Setup Chat SDK
-            ChatSDKFirebase.quickStart(this, "test_1", "AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE", true,
+            ChatSDKFirebase.quickStart(this, "pre_1", "AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE", true,
                     AudioMessageModule.shared(),
                     FirebaseBlockingModule.shared(),
                     FirebaseReadReceiptsModule.shared()

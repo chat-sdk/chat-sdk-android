@@ -3,6 +3,7 @@ package app.xmpp.adapter;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.StandardExtensionElement;
 import org.jivesoftware.smackx.delay.packet.DelayInformation;
+import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import app.xmpp.adapter.defines.XMPPDefines;
+import app.xmpp.adapter.message.queue.OutgoingStanza;
 import app.xmpp.adapter.utils.XMPPMessageParseHelper;
 import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import sdk.chat.core.dao.Message;
@@ -81,7 +83,11 @@ public class XMPPMessageParser {
             message.setEntityID(xmr.getMessage().getStanzaId());
         }
 
-        message.setText(xmr.getMessage().getBody());
+        if (xmr.getMessage().getBody() != null && !xmr.getMessage().getBody().isEmpty()) {
+            message.setText(xmr.getMessage().getBody());
+        } else {
+            Logger.debug("No Body");
+        }
 
         DelayInformation delay = xmr.getMessage().getExtension(DelayInformation.ELEMENT, DelayInformation.NAMESPACE);
         if(delay != null) {
@@ -90,6 +96,20 @@ public class XMPPMessageParser {
         }
         else {
             message.setDate(new Date());
+        }
+
+        // Is there a delay sending it?
+        ExtensionElement delayExtension = xmr.getMessage().getExtension(XMPPDefines.Extras, XMPPDefines.DelayNamespace);
+        if (delayExtension instanceof StandardExtensionElement) {
+            StandardExtensionElement extras = (StandardExtensionElement) delayExtension;
+            StandardExtensionElement delayElement = extras.getFirstElement(OutgoingStanza.Delay, OutgoingStanza.DelayXMLNS);
+            if (delayElement != null) {
+                try {
+                    Double timeDelay = Double.parseDouble(delayElement.getText());
+                    Date newDate = new Date(message.getDate().getTime() + timeDelay.longValue() * 1000);
+                    message.setDate(newDate);
+                } catch (Exception e) {}
+            }
         }
 
         message.setMessageStatus(MessageSendStatus.Sent);

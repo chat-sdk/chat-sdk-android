@@ -6,8 +6,13 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.disposables.Disposable;
 import sdk.chat.android.live.R;
+import sdk.chat.contact.ContactBookModule;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.events.EventType;
+import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.location.FirebaseNearbyUsersModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.ui.module.UIModule;
@@ -74,7 +79,7 @@ public class MainApplication extends Application {
 //                .addModule(EncryptionModule.shared())
 //                .addModule(ProfilePicturesModule.shared())
 //
-//                .addModule(ContactBookModule.shared())
+                .addModule(ContactBookModule.shared())
 //                            .addModule(EncryptionModule.shared())
 //                .addModule(FileMessageModule.shared())
 //                .addModule(AudioMessageModule.shared())
@@ -82,7 +87,7 @@ public class MainApplication extends Application {
 //                .addModule(VideoMessageModule.shared())
 //                .addModule(FirebaseBlockingModule.shared())
 //                .addModule(FirebaseLastOnlineModule.shared())
-//                .addModule(FirebaseNearbyUsersModule.builder().build())
+                .addModule(FirebaseNearbyUsersModule.builder().build())
 //                .addModule(FirebaseReadReceiptsModule.shared())
 //                .addModule(FirebaseTypingIndicatorModule.shared())
 
@@ -113,6 +118,26 @@ public class MainApplication extends Application {
 
         d = ChatSDK.events().errorSourceOnMain().subscribe(t -> {
             t.printStackTrace();
+        });
+
+
+        ChatSDK.ui().startProfileActivity(this, "UserID");
+
+        ChatSDK.db().fetchEntityWithEntityID("UserID", User.class);
+
+        Thread thread = ChatSDK.db().createEntity(Thread.class);
+
+
+        //
+
+        ChatSDK.core().currentUser();
+
+        ChatSDK.auth().isAuthenticated();
+
+//        ChatSDK.thread().createThread(null, ).subscribe();
+
+        Disposable di = ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageAdded)).subscribe(networkEvent -> {
+
         });
 
 

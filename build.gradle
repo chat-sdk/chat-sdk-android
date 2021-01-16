@@ -15,6 +15,7 @@ buildscript {
         classpath 'com.google.firebase:perf-plugin:1.3.4'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
         classpath "org.greenrobot:greendao-gradle-plugin:3.3.0"
+        classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
     }
 }
 
@@ -30,18 +31,17 @@ ext {
     playAuthVersion = "17.0.0"
     playMapsVersion = "17.0.0"
     playLocationVersion = "17.0.0"
-    firebaseUiVersion = "6.2.0"
+    firebaseUiVersion = "7.1.1"
     firebaseCoreVersion = "17.4.1"
-    firebaseDatabaseVersion = "19.5.1"
-    firebaseFirestoreVersion = "21.5.0"
+    firebaseDatabaseVersion = "19.6.0"
+    firebaseFirestoreVersion = "22.0.1"
     firebaseAuthVersion = "20.0.1"
-    firebaseStorageVersion = "19.2.0"
-    firebaseMessagingVersion = "21.0.0"
-    firebaseFunctionsVersion = "19.1.0"
-    firebaseIIDVersion = "18.0.0"
-    firebasePerformanceVersion = "19.0.8"
-    firebaseCrashlyticsVersion = "17.1.1"
-    firebaseAnalyticsVersion = "17.4.4"
+    firebaseStorageVersion = "19.2.1"
+    firebaseMessagingVersion = "21.0.1"
+    firebaseFunctionsVersion = "19.2.0"
+    firebasePerformanceVersion = "19.0.11"
+    firebaseCrashlyticsVersion = "17.3.0"
+    firebaseAnalyticsVersion = "18.0.0"
     greenDaoVersion = "3.3.0"
     frescoVersion = "1.13.0"
     rxJavaVersion = "2.2.17"

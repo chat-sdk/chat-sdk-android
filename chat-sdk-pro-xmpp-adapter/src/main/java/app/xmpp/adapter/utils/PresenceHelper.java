@@ -20,7 +20,7 @@ import app.xmpp.adapter.XMPPManager;
 
 public class PresenceHelper {
 
-    public static void updateUserFromPresence (User user, Presence presence) throws XmppStringprepException {
+    public static void updateUserFromPresence(User user, Presence presence) throws XmppStringprepException {
         if (!user.isMe()) {
             HashMap<String, Object> oldMeta = new HashMap<>(user.metaMap());
 

@@ -4,6 +4,8 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.google.firebase.FirebaseApp;
+
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
@@ -58,6 +60,7 @@ public class FirebaseUploadModule extends AbstractModule {
     @Override
     public void activate(@NonNull Context context) {
         ChatSDK.a().upload = new FirebaseUploadHandler();
+        FirebaseApp.initializeApp(context);
     }
 
     @Override

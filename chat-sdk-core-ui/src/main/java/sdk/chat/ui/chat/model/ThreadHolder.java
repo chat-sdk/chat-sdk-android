@@ -71,6 +71,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                 url = getUsers().get(0).getAvatar();
             }
         }
+
         return url;
     }
 

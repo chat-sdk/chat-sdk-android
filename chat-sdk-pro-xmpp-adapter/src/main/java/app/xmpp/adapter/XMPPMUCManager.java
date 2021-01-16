@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import app.xmpp.adapter.listeners.XMPPChatParticipantListener;
 import app.xmpp.adapter.listeners.XMPPMUCMessageListener;
@@ -35,6 +36,7 @@ import app.xmpp.adapter.utils.JidEntityID;
 import app.xmpp.adapter.utils.PresenceHelper;
 import app.xmpp.adapter.utils.Role;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.Thread;
@@ -84,9 +86,9 @@ public class XMPPMUCManager {
 
             final MultiUserChat chat = chatManager.getMultiUserChat(JidCreate.entityBareFrom(roomID));
 
-            Resourcepart nickname = Resourcepart.from(name);
+//            Resourcepart nickname = Resourcepart.from(name);
 
-            chat.create(nickname);
+            chat.create(nickname());
 
             Form configurationForm = chat.getConfigurationForm();
             Form form = configurationForm.createAnswerForm();
@@ -144,11 +146,11 @@ public class XMPPMUCManager {
         }).subscribeOn(RX.io());
     }
 
-    public Single<Thread> joinRoom (String roomJID) throws Exception {
+    public Single<Thread> joinRoom(String roomJID) throws Exception {
         return joinRoom(getRoom(roomJID), true);
     }
 
-    public Single<Thread> joinRoom (MultiUserChat chat, boolean bookmark) {
+    public Single<Thread> joinRoom(MultiUserChat chat, boolean bookmark) {
         return Single.defer(() -> {
             Thread thread = threadForRoomID(chat.getRoom().toString());
 
@@ -181,11 +183,13 @@ public class XMPPMUCManager {
                 XMPPSubjectUpdatedListener subjectUpdatedListener = new XMPPSubjectUpdatedListener(chat);
                 dm.add(subjectUpdatedListener);
 
+                chat.removeMessageListener(chatMessageListener);
                 chat.addMessageListener(chatMessageListener);
-                chat.addPresenceInterceptor(presence1 -> {
-                    Logger.debug(presence1);
-                });
+
+                chat.removeParticipantListener(chatParticipantListener);
                 chat.addParticipantListener(chatParticipantListener);
+
+                chat.removeSubjectUpdatedListener(subjectUpdatedListener);
                 chat.addSubjectUpdatedListener(subjectUpdatedListener);
 
                 XMPPMUCUserStatusListener userStatusListener = getUserStatusListener(thread.getEntityID());
@@ -194,8 +198,11 @@ public class XMPPMUCManager {
                     putUserStatusListener(thread.getEntityID(), userStatusListener);
                 }
 
-                chat.addUserStatusListener(userStatusListener);
+                chat.removePresenceInterceptor(userStatusListener);
+                chat.removeUserStatusListener(userStatusListener);
 
+                chat.addPresenceInterceptor(userStatusListener);
+                chat.addUserStatusListener(userStatusListener);
 
                 chat.join(config.build());
 
@@ -248,8 +255,12 @@ public class XMPPMUCManager {
     }
 
     public Resourcepart nickname() {
+        return nickname(ChatSDK.currentUser());
+    }
+
+    public Resourcepart nickname(User user) {
         try {
-            Jid jid = JidCreate.entityBareFrom(ChatSDK.currentUserID());
+            Jid jid = JidCreate.entityBareFrom(user.getEntityID());
             Localpart local = jid.getLocalpartOrNull();
             if (local != null) {
                 return Resourcepart.from(local.toString());
@@ -294,6 +305,35 @@ public class XMPPMUCManager {
             chat.invite(JidCreate.entityBareFrom(user.getEntityID()), "");
             chat.grantMembership(jid);
             e.onComplete();
+        }).subscribeOn(RX.io());
+    }
+
+    public Completable inviteUser(final Thread thread, final User user) {
+        return Completable.defer(() -> {
+            MultiUserChat chat = chatForThreadID(thread.getEntityID());
+            if (chat != null) {
+                return inviteUser(user, chat);
+            }
+            return Completable.error(ChatSDK.getException(R.string.permission_denied));
+        }).subscribeOn(RX.io());
+    }
+
+    public Completable removeUser(final User user, MultiUserChat chat) {
+        return Completable.create(e -> {
+            Jid jid = JidEntityID.fromEntityID(user.getEntityID());
+            chat.revokeMembership(jid);
+            chat.kickParticipant(nickname(user), "");
+            e.onComplete();
+        }).subscribeOn(RX.io());
+    }
+
+    public Completable removeUser(final Thread thread, final User user) {
+        return Completable.defer(() -> {
+            MultiUserChat chat = chatForThreadID(thread.getEntityID());
+            if (chat != null) {
+                return removeUser(user, chat);
+            }
+            return Completable.error(ChatSDK.getException(R.string.permission_denied));
         }).subscribeOn(RX.io());
     }
 
@@ -414,82 +454,62 @@ public class XMPPMUCManager {
         return Role.fromAffiliate(getAffiliateForUser(thread, user));
     }
 
-//    public Completable setRole(Thread thread, User user, MUCRole role) {
-//        return Completable.create(emitter -> {
-//            MultiUserChat chat = chatForThreadID(thread.getEntityID());
-//            Affiliate affiliate = getAffiliateForUser(thread, user);
-//            if (chat != null && affiliate != null && affiliate.getRole() != role) {
-//                if (role == MUCRole.moderator) {
-//                    chat.grantModerator(affiliate.getNick());
-//                }
-//                if (role == MUCRole.participant) {
-//                    chat.revokeModerator(affiliate.getNick());
-//                    chat.grantVoice(affiliate.getNick());
-//                }
-//                else {
-//                    chat.revokeVoice(affiliate.getNick());
-//                }
-//            }
-//            emitter.onComplete();
-//        }).subscribeOn(RX.io());
-//    }
-
     public Completable grantModerator(Thread thread, User user) {
-        return Completable.create(emitter -> {
+        return Completable.defer((Callable<CompletableSource>) () -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
             Affiliate affiliate = getAffiliateForUser(thread, user);
             if (chat != null && affiliate != null) {
                 if (affiliate.getRole() != MUCRole.moderator) {
                     chat.grantModerator(affiliate.getNick());
-                    emitter.onComplete();
+                    return refreshRoomAffiliation(chat);
                 } else {
-                    emitter.onComplete();
+                    return Completable.complete();
                 }
             } else {
-                emitter.onError(ChatSDK.getException(R.string.permission_denied));
+                return Completable.error(ChatSDK.getException(R.string.permission_denied));
             }
         }).subscribeOn(RX.io());
     }
 
     public Completable revokeModerator(Thread thread, User user) {
-        return Completable.create(emitter -> {
+        return Completable.defer((Callable<CompletableSource>) () -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
             Affiliate affiliate = getAffiliateForUser(thread, user);
             if (chat != null && affiliate != null) {
                 if (affiliate.getRole() == MUCRole.moderator) {
                     chat.revokeModerator(affiliate.getNick());
-                    emitter.onComplete();
+                    return refreshRoomAffiliation(chat);
                 } else {
-                    emitter.onComplete();
+                    return Completable.complete();
                 }
             } else {
-                emitter.onError(ChatSDK.getException(R.string.permission_denied));
+                return Completable.error(ChatSDK.getException(R.string.permission_denied));
             }
         }).subscribeOn(RX.io());
     }
 
     public Completable grantVoice(Thread thread, User user) {
-        return Completable.create(emitter -> {
+        return Completable.defer(() -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
             Affiliate affiliate = getAffiliateForUser(thread, user);
             if (chat != null && affiliate != null) {
                 chat.grantVoice(affiliate.getNick());
-                emitter.onComplete();
+                return refreshRoomAffiliation(chat);
             } else {
-                emitter.onError(ChatSDK.getException(R.string.permission_denied));
+                return Completable.error(ChatSDK.getException(R.string.permission_denied));
             }
         }).subscribeOn(RX.io());
     }
 
     public Completable revokeVoice(Thread thread, User user) {
-        return Completable.create(emitter -> {
+        return Completable.defer((Callable<CompletableSource>) () -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
             Affiliate affiliate = getAffiliateForUser(thread, user);
             if (chat != null && affiliate != null) {
                 chat.revokeVoice(affiliate.getNick());
-                emitter.onComplete();
+                return refreshRoomAffiliation(chat);
             } else {
-                emitter.onError(ChatSDK.getException(R.string.permission_denied));
+                return Completable.error(ChatSDK.getException(R.string.permission_denied));
             }
         }).subscribeOn(RX.io());
     }
@@ -541,4 +561,5 @@ public class XMPPMUCManager {
     public void putMessageListener(String threadEntityID, XMPPMUCMessageListener listener) {
         messageListeners.put(threadEntityID, listener);
     }
+
 }

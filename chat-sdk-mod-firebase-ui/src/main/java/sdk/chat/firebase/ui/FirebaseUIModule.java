@@ -98,7 +98,7 @@ public class FirebaseUIModule extends AbstractModule {
 
     }
 
-    protected ArrayList<AuthUI.IdpConfig> getProviders (List<String> providers) {
+    protected ArrayList<AuthUI.IdpConfig> getProviders(List<String> providers) {
         ArrayList<AuthUI.IdpConfig> idps = new ArrayList<>();
 
         for(String provider: providers) {

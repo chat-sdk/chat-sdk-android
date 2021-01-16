@@ -3,6 +3,7 @@ plugins {
     id 'com.jfrog.bintray'
     id 'maven-publish'
     id 'org.greenrobot.greendao'
+//    id 'com.jakewharton.hugo'
 }
 
 android {

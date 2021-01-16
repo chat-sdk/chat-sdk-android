@@ -8,14 +8,15 @@ import org.pmw.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
 
-import sdk.chat.core.dao.Thread;
-import sdk.chat.core.dao.User;
-import sdk.chat.core.session.ChatSDK;
 import app.xmpp.adapter.XMPPMUCManager;
 import app.xmpp.adapter.XMPPManager;
 import app.xmpp.adapter.XMPPMessageParser;
+import app.xmpp.adapter.defines.XMPPDefines;
 import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import io.reactivex.disposables.Disposable;
+import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.session.ChatSDK;
 
 
 /**
@@ -35,21 +36,27 @@ public class XMPPMUCMessageListener implements MessageListener, Disposable {
 
     @Override
     public void processMessage(Message xmppMessage) {
-        String from = parent.get().userJID(chat.get(), xmppMessage.getFrom());
-
-        Logger.debug("Message: " + xmppMessage.getBody());
-
-        Thread thread = parent.get().threadForRoomID(chat.get());
-
-        ChatStateExtension chatState = (ChatStateExtension) xmppMessage.getExtension(ChatStateExtension.NAMESPACE);
-        if(chatState != null) {
-            User user = ChatSDK.db().fetchUserWithEntityID(from);
-            XMPPManager.shared().typingIndicatorManager.handleMessage(xmppMessage, user);
-            Logger.debug("Chat State: " + chatState.getChatState());
+        if (xmppMessage.getFrom().equals(chat.get().getRoom())) {
+            // This is probably the subject
+            Logger.debug("Subject?");
         } else {
-            XMPPMessageParser.addMessageToThread(thread, XMPPMessageWrapper.with(xmppMessage), from);
-        }
+            String from = parent.get().userJID(chat.get(), xmppMessage.getFrom());
 
+            Logger.debug("Message: " + xmppMessage.getBody());
+
+            // is this a read receipt
+            boolean isReadExtension = xmppMessage.getExtension(XMPPDefines.Extras, XMPPDefines.MessageReadNamespace) != null;
+            boolean isChatState = xmppMessage.getExtension(ChatStateExtension.NAMESPACE) != null;
+            if (isReadExtension) {
+                Logger.debug("MUC: isReadExtension");
+            } else if(isChatState) {
+                User user = ChatSDK.db().fetchUserWithEntityID(from);
+                XMPPManager.shared().typingIndicatorManager.handleMessage(xmppMessage, user);
+            } else {
+                Thread thread = parent.get().threadForRoomID(chat.get());
+                XMPPMessageParser.addMessageToThread(thread, XMPPMessageWrapper.with(xmppMessage), from);
+            }
+        }
     }
 
     @Override

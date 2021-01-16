@@ -73,7 +73,9 @@ public class ChatSDKFirebase extends QuickStart {
 
                 // Activate
                 .build()
-                .activate(context);;
+                .activate(context);
+
+
     }
 
 }

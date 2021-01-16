@@ -99,6 +99,8 @@ dependencies {
     implementation project(':chat-sdk-firebase-push')
     implementation project(':chat-sdk-firebase-upload')
 
+    implementation project(':chat-sdk-pro-contact-book')
+
 //    implementation project(':chat-sdk-firestream-adapter')
 //
 //    implementation project(':chat-sdk-mod-ui-extras')
@@ -113,7 +115,7 @@ dependencies {
     implementation project(':chat-sdk-pro-encryption')
 //    implementation project(':chat-sdk-pro-contact-book')
 //
-//    implementation project(':chat-sdk-pro-firebase-nearby-users')
+    implementation project(':chat-sdk-pro-firebase-nearby-users')
 //    implementation project(':chat-sdk-pro-firebase-blocking')
 //    implementation project(':chat-sdk-pro-firebase-last-online')
 //    implementation project(':chat-sdk-pro-firebase-typing-indicator')
@@ -137,6 +139,8 @@ dependencies {
 //    // Add the Firebase Crashlytics SDK.
 //    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
 //    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
+
+    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
 
 }
 

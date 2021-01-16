@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.jakewharton.hugo'
 
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
@@ -92,4 +93,11 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(':chat-sdk-app-xmpp')
     implementation project(':chat-sdk-pro-xmpp-read-receipts')
+
+    api project(':chat-sdk-pro-message-audio')
+    api project(':chat-sdk-pro-message-sticker')
+    api project(':chat-sdk-pro-message-file')
+    api project(':chat-sdk-pro-message-video')
+
+
 }

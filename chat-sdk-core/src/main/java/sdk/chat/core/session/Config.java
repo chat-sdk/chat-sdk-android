@@ -72,7 +72,7 @@ public class Config<T> extends BaseConfig<T> {
 
     public boolean publicChatAutoSubscriptionEnabled = false;
 
-    public String identiconBaseURL = "http://identicon.sdk.chat?value=%s&size=400.png";
+    public String identiconBaseURL = "https://identicon.sdk.chat?value=%s&size=400.png";
 
     public String storageDirectory = "ChatSDK";
 
