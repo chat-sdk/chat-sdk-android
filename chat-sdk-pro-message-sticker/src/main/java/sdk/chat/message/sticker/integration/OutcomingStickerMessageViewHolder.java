@@ -14,7 +14,11 @@ public class OutcomingStickerMessageViewHolder extends BaseOutcomingImageMessage
 
     @Override
     protected Object getPayloadForImageLoader(StickerMessageHolder message) {
-        return new ImageLoaderPayload(StickerMessageModule.config().maxSize, StickerMessageModule.config().maxSize, R.drawable.icn_200_image_message_placeholder, 0);
+        return new ImageLoaderPayload(StickerMessageModule.config().maxSize,
+                StickerMessageModule.config().maxSize,
+                R.drawable.icn_200_image_message_placeholder,
+                0,
+                message.getText().contains(".gif"));
     }
 
 }

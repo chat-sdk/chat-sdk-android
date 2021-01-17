@@ -11,11 +11,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import sdk.chat.message.sticker.Configuration;
 import sdk.chat.message.sticker.R;
-import sdk.chat.message.sticker.Sticker;
 import sdk.chat.message.sticker.StickerPack;
+import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.ui.fragments.BaseFragment;
 
 /**
@@ -33,7 +33,7 @@ public class StickerMessageFragment extends BaseFragment {
     private StickerListAdapter selectPackListAdapter;
     private StickerListAdapter selectStickerListAdapter;
 
-    private ArrayList<StickerPack> stickerPacks = null;
+    private List<StickerPack> stickerPacks = null;
 
     private Result stickerResultListener;
 
@@ -51,7 +51,7 @@ public class StickerMessageFragment extends BaseFragment {
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
         try {
-            stickerPacks = Configuration.getStickerPacks(getContext());
+            stickerPacks = StickerMessageModule.shared().getStickerPacks();
         }
         catch (Exception e) {
             finish();
@@ -75,18 +75,10 @@ public class StickerMessageFragment extends BaseFragment {
 
             selectPackListAdapter.setItems(stickerPackListItems());
             for(StickerPack pack : stickerPacks) {
-                pack.onClickListener = new StickerPack.StickerPackOnClickListener() {
-                    @Override
-                    public void onClick(StickerPack pack) {
-                        selectStickerListAdapter.setItems(pack.getStickerItems());
-                    }
-                };
-                pack.stickerOnClickListener = new StickerPack.StickerOnClickListener() {
-                    @Override
-                    public void onClick(Sticker sticker) {
-                        if(stickerResultListener != null) {
-                            stickerResultListener.result(sticker.imageName);
-                        }
+                pack.onClickListener = pack1 -> selectStickerListAdapter.setItems(pack1.getStickerItems());
+                pack.stickerOnClickListener = sticker -> {
+                    if(stickerResultListener != null) {
+                        stickerResultListener.result(sticker.imageName);
                     }
                 };
             }

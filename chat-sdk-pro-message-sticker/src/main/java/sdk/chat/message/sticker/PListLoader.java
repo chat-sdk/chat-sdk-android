@@ -2,6 +2,8 @@ package sdk.chat.message.sticker;
 
 import android.content.Context;
 
+import androidx.annotation.RawRes;
+
 import com.dd.plist.NSArray;
 import com.dd.plist.NSDictionary;
 import com.dd.plist.NSObject;
@@ -16,32 +18,32 @@ import sdk.chat.core.utils.StringChecker;
  * Created by ben on 10/11/17.
  */
 
-public class Configuration {
+public class PListLoader {
 
     public static String FolderName = "drawable";
 
-    public static ArrayList<StickerPack> getStickerPacks (Context context) throws Exception {
+    public static ArrayList<StickerPack> getStickerPacks(Context context, @RawRes int plist) throws Exception {
         ArrayList<StickerPack> stickerPacks = new ArrayList<>();
 
-        NSObject object = PropertyListParser.parse(context.getResources().openRawResource(R.raw.stickers));
+        NSObject object = PropertyListParser.parse(context.getResources().openRawResource(plist));
         if(object instanceof NSArray) {
             NSArray packs = (NSArray) object;
 
             for(int i = 0; i < packs.count(); i++) {
                 if(packs.objectAtIndex(i) instanceof NSDictionary) {
-                    NSDictionary pack = (NSDictionary) packs.objectAtIndex(i);
+                    NSDictionary data = (NSDictionary) packs.objectAtIndex(i);
 
                     String packImageName = null;
                     ArrayList<String> stickerImageNames = new ArrayList<>();
 
                     // Parse the pack
-                    NSObject iconNSObject = pack.get("icon");
+                    NSObject iconNSObject = data.get("icon");
                     if(iconNSObject instanceof NSString) {
                         NSString iconNSString = (NSString) iconNSObject;
                         packImageName = iconNSString.getContent();
                     }
 
-                    NSObject stickersNSObject = pack.get("stickers");
+                    NSObject stickersNSObject = data.get("stickers");
 
                     if(stickersNSObject instanceof NSArray) {
                         NSArray stickersArray = (NSArray) stickersNSObject;
@@ -61,18 +63,14 @@ public class Configuration {
                     }
 
                     // Create the sticker pack
-                    StickerPack stickerPack = new StickerPack();
-                    stickerPack.imageResourceId = resourceId(context, packImageName);
+                    StickerPack pack = new StickerPack(resourceId(context, packImageName));
 
                     for(String name : stickerImageNames) {
-                        Sticker sticker = new Sticker();
-                        sticker.imageResourceId = resourceId(context, name);
-                        sticker.imageName = name;
-                        stickerPack.addSticker(sticker);
+                        pack.addSticker(resourceId(context, name), name);
                     }
 
-                    if(stickerPack.isValid()) {
-                        stickerPacks.add(stickerPack);
+                    if(pack.isValid()) {
+                        stickerPacks.add(pack);
                     }
                 }
             }
@@ -82,7 +80,8 @@ public class Configuration {
     }
 
     public static String resourceName (Context context, String name) {
-        return context.getPackageName() + ":" + FolderName + "/" + name.replace(".png", "");
+        name = name.replace(".png", "").replace(".gif", "");
+        return context.getPackageName() + ":" + FolderName + "/" + name;
     }
 
     public static int resourceId (Context context, String name) {

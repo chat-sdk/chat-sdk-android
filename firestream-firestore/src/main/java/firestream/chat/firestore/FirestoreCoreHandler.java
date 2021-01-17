@@ -181,7 +181,7 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
         Date date = snapshot.get(Keys.Date, Date.class, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE) ;
         String type = snapshot.get(Keys.Type, String.class);
 
-        Map<String, Object> body = (HashMap<String, Object>) snapshot.get(Keys.Body);
+        Map<String, Object> body = (Map<String, Object>) snapshot.get(Keys.Body);
 
         Map<String, Object> data = new HashMap<String, Object>() {{
             put(Keys.From, from);

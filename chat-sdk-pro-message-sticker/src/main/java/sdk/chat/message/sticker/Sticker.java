@@ -1,5 +1,7 @@
 package sdk.chat.message.sticker;
 
+import androidx.annotation.DrawableRes;
+
 import java.lang.ref.WeakReference;
 
 import sdk.chat.message.sticker.view.StickerListItem;
@@ -10,17 +12,18 @@ import sdk.chat.message.sticker.view.StickerListItem;
 
 public class Sticker implements StickerListItem {
 
-    public int imageResourceId;
+    public @DrawableRes int image;
     public String imageName;
+    public String sound;
     public WeakReference<StickerPack> pack;
 
-    public void setImageName (String imageName) {
+    public void setName(String imageName) {
         this.imageName = imageName;
     }
 
     @Override
-    public int getImageResourceId() {
-        return imageResourceId;
+    public @DrawableRes int getIcon() {
+        return image;
     }
 
     @Override
@@ -28,6 +31,11 @@ public class Sticker implements StickerListItem {
         if(pack.get().stickerOnClickListener != null) {
             pack.get().stickerOnClickListener.onClick(this);
         }
+    }
+
+    @Override
+    public boolean isAnimated() {
+        return imageName.contains(".gif");
     }
 
 }

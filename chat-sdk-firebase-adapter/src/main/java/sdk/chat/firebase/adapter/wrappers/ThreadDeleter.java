@@ -46,7 +46,7 @@ public class ThreadDeleter {
 
             for (Message m : messages) {
                 thread.removeMessage(m, false);
-                m.delete();
+                m.cascadeDelete();
             }
             thread.update();
             emitter.onComplete();

@@ -62,6 +62,7 @@ public class Keys {
     public static final String MessageStickerName = "sticker";
     public static final String MessageMimeType = "mime-type";
     public static final String MessageFileURL = "file-url";
+    public static final String MessageEncryptedPayloadKey = "encrypted-message";
 
     // CoreUser details
     public static final String Location = "location";

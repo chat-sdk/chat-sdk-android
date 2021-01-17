@@ -21,17 +21,16 @@ import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.User;
-import sdk.chat.core.handlers.EncryptionHandler;
+import sdk.chat.core.handlers.IEncryptionHandler;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.guru.common.RX;
 
-public class BaseEncryptionHandler implements EncryptionHandler {
+public class EncryptionHandler implements IEncryptionHandler {
 
     public final VirgilCrypto virgilCrypto = new VirgilCrypto();
-    public static String EncryptedMessageKey = "encrypted-message";
 
     protected PrivateKey privateKey;
     protected PublicKey publicKey;
@@ -40,7 +39,7 @@ public class BaseEncryptionHandler implements EncryptionHandler {
 
     // Here are the hooks, one for a successful authentication and one for a recieved message
 
-    public BaseEncryptionHandler() {
+    public EncryptionHandler() {
 
         Hook decryptionHook = Hook.async(data -> {
             Object messageObject = data.get(HookEvent.Message);
@@ -51,7 +50,7 @@ public class BaseEncryptionHandler implements EncryptionHandler {
             }
             return Completable.complete();
         });
-        ChatSDK.hook().addHook(decryptionHook, HookEvent.MessageReceived);
+        ChatSDK.hook().addHook(decryptionHook, HookEvent.MessageReceived, HookEvent.MessageSent);
 
         Hook encryptHook = Hook.async(data -> {
             Object messageObject = data.get(HookEvent.Message);
@@ -105,8 +104,7 @@ public class BaseEncryptionHandler implements EncryptionHandler {
                 String encryptedMessageString = Base64.encode(encryptedMessage);
 
                 HashMap<String, Object> newMessageMeta = new HashMap<>();
-                newMessageMeta.put(Keys.MessageText, ChatSDK.shared().context().getString(R.string.encrypted_message));
-                newMessageMeta.put(EncryptedMessageKey, encryptedMessageString);
+                newMessageMeta.put(Keys.MessageEncryptedPayloadKey, encryptedMessageString);
 
                 message.setMetaValues(newMessageMeta);
             }
@@ -120,7 +118,7 @@ public class BaseEncryptionHandler implements EncryptionHandler {
         return json.getBytes("UTF-8");
     }
 
-    protected HashMap<String, Object> bytesToMap (byte [] bytes) {
+    protected Map<String, Object> bytesToMap (byte [] bytes) {
         String json = new String(bytes);
         Gson gson = new Gson();
         return gson.fromJson(json, new TypeToken<HashMap<String, Object>>(){}.getType());
@@ -148,7 +146,6 @@ public class BaseEncryptionHandler implements EncryptionHandler {
                 List<User> failedUsers = new ArrayList<>();
 
                 for (User u : users) {
-
                     PublicKey key = PublicKeyStorage.getKey(u.getEntityID());
 
                     if (key != null) {
@@ -184,11 +181,11 @@ public class BaseEncryptionHandler implements EncryptionHandler {
             // Get the private keys
             return privateKeyFor(message).flatMapCompletable(virgilPrivateKey -> {
 
-                String encryptedMessageString = message.stringForKey(EncryptedMessageKey);
+                String encryptedMessageString = message.stringForKey(Keys.MessageEncryptedPayloadKey);
                 if (!encryptedMessageString.isEmpty()) {
                     byte [] encryptedMessageData = Base64.decode(encryptedMessageString);
                     byte [] decryptedMessageData = virgilCrypto.decrypt(encryptedMessageData, virgilPrivateKey);
-                    HashMap<String, Object> metaData = bytesToMap(decryptedMessageData);
+                    Map<String, Object> metaData = bytesToMap(decryptedMessageData);
                     message.setMetaValues(metaData);
                 }
                 return Completable.complete();

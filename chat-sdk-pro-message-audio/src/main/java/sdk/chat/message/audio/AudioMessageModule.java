@@ -16,10 +16,10 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.licensing.Report;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.IMessageHandler;
-import sdk.chat.ui.custom.MessageCustomizer;
+import sdk.chat.ui.custom.CustomMessageHandler;
 import sdk.guru.common.BaseConfig;
 
 //import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
@@ -93,10 +93,16 @@ public class AudioMessageModule extends AbstractModule {
 //            }
 //        });
 
-        MessageCustomizer.shared().addMessageHandler(new IMessageHandler() {
+        ChatSDKUI.shared().getMessageCustomizer().addMessageHandler(new CustomMessageHandler() {
+
             @Override
-            public boolean hasContentFor(MessageHolder message, byte type) {
-                return type == MessageType.Audio && message instanceof AudioMessageHolder;
+            public List<Byte> getTypes() {
+                return types(MessageType.Audio);
+            }
+
+            @Override
+            public boolean hasContentFor(MessageHolder holder) {
+                return holder.getClass().equals(AudioMessageHolder.class);
             }
 
             @Override
@@ -106,7 +112,7 @@ public class AudioMessageModule extends AbstractModule {
                         IncomingAudioMessageViewHolder.class,
                         R.layout.view_holder_incoming_audio_message,
                         OutcomingAudioMessageViewHolder.class,
-                        R.layout.view_holder_outcoming_audio_message, MessageCustomizer.shared());
+                        R.layout.view_holder_outcoming_audio_message, ChatSDKUI.shared().getMessageCustomizer());
             }
 
             @Override

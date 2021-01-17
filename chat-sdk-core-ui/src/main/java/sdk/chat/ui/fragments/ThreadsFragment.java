@@ -25,6 +25,7 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import io.reactivex.Observable;
@@ -57,7 +58,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     protected String filter;
 
     protected DialogsListAdapter<ThreadHolder> dialogsListAdapter;
-    protected HashMap<Thread, ThreadHolder> threadHolderHashMap = new HashMap<>();
+    protected Map<Thread, ThreadHolder> threadHolderHashMap = new HashMap<>();
 
     protected PublishRelay<Thread> onClickPublishRelay = PublishRelay.create();
     protected PublishRelay<Thread> onLongClickPublishRelay = PublishRelay.create();
@@ -361,6 +362,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder1 -> {
                 if (dialogsListAdapter.getItemById(holder1.getId()) == null) {
                     dialogsListAdapter.addItem(holder1);
+                } else {
+                    dialogsListAdapter.updateItemById(holder1);
                 }
                 sortByLastMessageDate();
             }).ignoreElement().subscribe(this);

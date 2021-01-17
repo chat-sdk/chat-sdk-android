@@ -266,7 +266,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.create(emitter -> {
             for (Message m: thread.getMessages()) {
                 thread.removeMessage(m);
-                m.delete();
+                m.cascadeDelete();
             }
             thread.setLoadMessagesFrom(new Date());
             thread.setDeleted(true);

@@ -369,7 +369,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         this.profileActivity = profileActivity;
     }
 
-    public Intent intentForActivity(Context context, Class<? extends Activity> activity, HashMap<String, Object> extras, int flags) {
+    public Intent intentForActivity(Context context, Class<? extends Activity> activity, Map<String, Object> extras, int flags) {
         Intent intent = new Intent(context, activity);
         addExtrasToIntent(intent, extras);
         if (flags != 0) {
@@ -378,7 +378,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         return intent;
     }
 
-    public void addExtrasToIntent (Intent intent, HashMap<String, Object> extras) {
+    public void addExtrasToIntent (Intent intent, Map<String, Object> extras) {
         if (extras != null && intent != null) {
             for (String key : extras.keySet()) {
                 Object value = extras.get(key);
@@ -398,7 +398,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         }
     }
 
-    public void startActivity(Context context, Class<? extends Activity> activity, HashMap<String, Object> extras, int flags) {
+    public void startActivity(Context context, Class<? extends Activity> activity, Map<String, Object> extras, int flags) {
         startActivity(context, intentForActivity(context, activity, extras, flags));
     }
 
@@ -416,7 +416,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public Intent getLoginIntent(Context context, HashMap<String, Object> extras) {
+    public Intent getLoginIntent(Context context, Map<String, Object> extras) {
         if (loginIntent != null) {
             addExtrasToIntent(loginIntent, extras);
             return loginIntent;
@@ -478,7 +478,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
 
-    public void startMainActivity (Context context, HashMap<String, Object> extras) {
+    public void startMainActivity (Context context, Map<String, Object> extras) {
         startActivity(context, getMainActivity(), extras, Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
     }
@@ -637,7 +637,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         this.avatarGenerator = avatarGenerator;
     }
 
-    public void startPostRegistrationActivity(Context context, HashMap<String, Object> extras) {
+    public void startPostRegistrationActivity(Context context, Map<String, Object> extras) {
         startActivity(context, postRegistrationActivity, extras, 0);
     }
 

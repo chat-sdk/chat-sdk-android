@@ -3,7 +3,12 @@ package sdk.chat.message.sticker.module;
 import android.content.Context;
 import android.view.View;
 
+import androidx.annotation.RawRes;
+
 import com.stfalcon.chatkit.messages.MessageHolders;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.handlers.MessageHandler;
@@ -12,16 +17,18 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.licensing.Report;
+import sdk.chat.message.sticker.PListLoader;
 import sdk.chat.message.sticker.R;
+import sdk.chat.message.sticker.StickerPack;
 import sdk.chat.message.sticker.integration.BaseStickerMessageHandler;
 import sdk.chat.message.sticker.integration.IncomingStickerMessageViewHolder;
 import sdk.chat.message.sticker.integration.OutcomingStickerMessageViewHolder;
 import sdk.chat.message.sticker.integration.StickerChatOption;
 import sdk.chat.message.sticker.integration.StickerMessageHolder;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.IMessageHandler;
-import sdk.chat.ui.custom.MessageCustomizer;
+import sdk.chat.ui.custom.CustomMessageHandler;
 import sdk.guru.common.BaseConfig;
 
 /**
@@ -39,6 +46,10 @@ public class StickerMessageModule extends AbstractModule {
         return instance;
     }
 
+    public List<StickerPack> stickerPacks = new ArrayList<>();
+
+
+
     @Override
     public void activate(Context context) {
         Report.shared().add(getName());
@@ -46,10 +57,18 @@ public class StickerMessageModule extends AbstractModule {
         ChatSDK.a().stickerMessage = new BaseStickerMessageHandler();
         ChatSDK.ui().addChatOption(new StickerChatOption(context.getResources().getString(R.string.sticker_message)));
 
-        MessageCustomizer.shared().addMessageHandler(new IMessageHandler() {
+
+
+        ChatSDKUI.shared().getMessageCustomizer().addMessageHandler(new CustomMessageHandler() {
+
             @Override
-            public boolean hasContentFor(MessageHolder message, byte type) {
-                return type == MessageType.Sticker && message instanceof StickerMessageHolder;
+            public List<Byte> getTypes() {
+                return types(MessageType.Sticker);
+            }
+
+            @Override
+            public boolean hasContentFor(MessageHolder holder) {
+                return holder.getClass().equals(StickerMessageHolder.class);
             }
 
             @Override
@@ -60,7 +79,7 @@ public class StickerMessageModule extends AbstractModule {
                         R.layout.view_holder_incoming_image_message,
                         OutcomingStickerMessageViewHolder.class,
                         R.layout.view_holder_outcoming_image_message,
-                        MessageCustomizer.shared());
+                        ChatSDKUI.shared().getMessageCustomizer());
             }
 
             @Override
@@ -81,8 +100,14 @@ public class StickerMessageModule extends AbstractModule {
 
             }
         });
-    }
 
+        if (config.loadStickersFromPlist) {
+            try {
+                stickerPacks = PListLoader.getStickerPacks(context, config.plist);
+            } catch (Exception e) {}
+        }
+
+    }
 
     @Override
     public String getName() {
@@ -109,17 +134,45 @@ public class StickerMessageModule extends AbstractModule {
 
     public static class Config<T> extends BaseConfig<T> {
 
-        public int maxSize = 400;
+        public int maxSize = 200;
+
+        public @RawRes int plist = R.raw.default_stickers;
+
+        public boolean loadStickersFromPlist = true;
 
         public Config(T onBuild) {
             super(onBuild);
         }
 
+        /**
+         * Plist to load stickers from
+         * @param plist
+         * @return
+         */
+        public Config<T> setPlist(int plist) {
+            this.plist = plist;
+            return this;
+        }
+
+        /**
+         * Should we load stickers from a plist file?
+         * @param loadStickersFromPlist
+         * @return
+         */
+        public Config<T> setLoadStickersFromPlist(boolean loadStickersFromPlist) {
+            this.loadStickersFromPlist = loadStickersFromPlist;
+            return this;
+        }
+
+        /**
+         * Max size of sticker in chat view
+         * @param size
+         * @return
+         */
         public Config<T> setMaxSize(int size) {
             this.maxSize = size;
             return this;
         }
-
     }
 
     public Config<StickerMessageModule> config = new Config<>(this);
@@ -133,4 +186,11 @@ public class StickerMessageModule extends AbstractModule {
         config = new Config<>(this);
     }
 
+    public List<StickerPack> getStickerPacks() {
+        return stickerPacks;
+    }
+
+    public void addPack(StickerPack pack) {
+        stickerPacks.add(pack);
+    }
 }

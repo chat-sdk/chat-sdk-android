@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import app.xmpp.adapter.listeners.XMPPChatParticipantListener;
@@ -58,8 +59,8 @@ public class XMPPMUCManager {
     private WeakReference<XMPPManager> manager;
     private MultiUserChatManager chatManager;
 
-    protected HashMap<String, XMPPMUCUserStatusListener> userStatusListeners = new HashMap<>();
-    protected HashMap<String, XMPPMUCMessageListener> messageListeners = new HashMap<>();
+    protected Map<String, XMPPMUCUserStatusListener> userStatusListeners = new HashMap<>();
+    protected Map<String, XMPPMUCMessageListener> messageListeners = new HashMap<>();
 
     private DisposableMap dm = new DisposableMap();
 

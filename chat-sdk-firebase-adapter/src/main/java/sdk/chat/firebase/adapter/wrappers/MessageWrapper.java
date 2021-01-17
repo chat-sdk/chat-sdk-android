@@ -64,6 +64,11 @@ public class MessageWrapper  {
         values.put(Keys.Date, ServerValue.TIMESTAMP);
         values.put(Keys.Type, model.getType());
 
+        // TODO: Check this
+        if (model.valueForKey(Keys.MessageEncryptedPayloadKey) != null) {
+            values.put(Keys.MessageText, ChatSDK.shared().context().getString(R.string.encrypted_message));
+        }
+
         HashMap<String, Map<String, Integer>> map = new HashMap<>();
         for (ReadReceiptUserLink link: getModel().getReadReceiptLinks()) {
             HashMap<String, Integer> status = new HashMap<>();
@@ -206,7 +211,7 @@ public class MessageWrapper  {
                 if (firebaseError == null) {
                     HashMap<String, Object> data = new HashMap<>();
                     data.put(HookEvent.Message, model);
-                    ChatSDK.hook().executeHook(HookEvent.MessageSent, data).subscribe(ChatSDK.events());
+//                    ChatSDK.hook().executeHook(HookEvent.MessageSent, data).subscribe(ChatSDK.events());
                     e.onComplete();
                 } else {
                     e.onError(firebaseError.toException());

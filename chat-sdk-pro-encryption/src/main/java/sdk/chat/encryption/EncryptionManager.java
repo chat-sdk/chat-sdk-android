@@ -57,6 +57,8 @@ public class EncryptionManager {
     public void save(String userId, KeyPair keys) throws Exception {
         ChatSDK.shared().getPreferences().edit().putString(MyPrivateKey + userId, keys.privateKey.getBase64EncodedString()).apply();
         ChatSDK.shared().getPreferences().edit().putString(MyPublicKey + userId, keys.publicKey.getBase64EncodedString()).apply();
+        // Also save to the key store
+        PublicKeyStorage.addKey(userId, keys.privateKey.getId(), keys.publicKey.getBase64EncodedString());
     }
 
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.disposables.Disposable;
 
@@ -33,7 +34,7 @@ public class DisposableMap {
 
     protected static String DefaultKey = "def";
 
-    protected HashMap<Object, DisposableList> map = new HashMap<>();
+    protected Map<Object, DisposableList> map = new HashMap<>();
 
     public void put(Object key, Disposable disposable) {
         get(key).add(disposable);

@@ -3,6 +3,9 @@ package sdk.chat.ui.custom;
 import android.content.Context;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.session.ChatSDK;
@@ -13,7 +16,7 @@ import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.utils.DialogUtils;
 import sdk.chat.ui.view_holders.base.BaseIncomingTextMessageViewHolder;
 
-public abstract class MessageHandler implements IMessageHandler {
+public abstract class CustomMessageHandler implements IMessageHandler {
 
     protected BaseIncomingTextMessageViewHolder.Payload getAvatarClickPayload(Context context) {
         BaseIncomingTextMessageViewHolder.Payload holderPayload = new BaseIncomingTextMessageViewHolder.Payload();
@@ -42,6 +45,14 @@ public abstract class MessageHandler implements IMessageHandler {
     @Override
     public void onLongClick(ChatActivity activity, View rootView, Message message) {
 
+    }
+
+    protected final List<Byte> types(Integer... values) {
+        List<Byte> bytes = new ArrayList<>();
+        for (Integer value: values) {
+            bytes.add(value.byteValue());
+        }
+        return bytes;
     }
 
 }

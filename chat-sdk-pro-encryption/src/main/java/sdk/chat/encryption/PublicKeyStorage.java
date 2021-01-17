@@ -5,12 +5,15 @@ import sdk.chat.core.session.ChatSDK;
 public class PublicKeyStorage {
 
     public static PublicKey getKey(String userId) {
-        String key = ChatSDK.db().getPublicKey(userId).getKey();
-        if (key != null && ! key.isEmpty()) {
-            try {
-                return new PublicKey(key);
-            } catch (Exception e) {
+        sdk.chat.core.dao.PublicKey pk = ChatSDK.db().getPublicKey(userId);
+        if (pk != null) {
+            String key = pk.getKey();
+            if (key != null && ! key.isEmpty()) {
+                try {
+                    return new PublicKey(key);
+                } catch (Exception e) {
 
+                }
             }
         }
         return null;

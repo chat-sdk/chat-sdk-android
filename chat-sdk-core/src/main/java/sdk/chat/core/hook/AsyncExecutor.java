@@ -1,9 +1,9 @@
 package sdk.chat.core.hook;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import io.reactivex.Completable;
 
 public interface AsyncExecutor {
-    Completable executeAsync (HashMap<String, Object> data);
+    Completable executeAsync(Map<String, Object> data);
 }

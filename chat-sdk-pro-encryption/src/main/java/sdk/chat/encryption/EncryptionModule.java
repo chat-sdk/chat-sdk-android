@@ -45,7 +45,7 @@ public class EncryptionModule extends AbstractModule {
 
     @Override
     public void activate(Context context) {
-        ChatSDK.a().encryption = new BaseEncryptionHandler();
+        ChatSDK.a().encryption = new EncryptionHandler();
         Report.shared().add(getName());
     }
 

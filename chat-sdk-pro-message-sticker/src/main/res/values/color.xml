@@ -2,5 +2,5 @@
 <resources>
     <color name="background">#e7e7e7</color>
     <color name="sticker_pack_background">#FFFFFF</color>
-    <color name="sticker_background">#FFFFFF</color>
+    <color name="sticker_background">#FFFFF0</color>
 </resources>

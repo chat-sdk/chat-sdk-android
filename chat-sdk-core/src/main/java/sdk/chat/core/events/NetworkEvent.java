@@ -5,14 +5,15 @@ import android.location.Location;
 import org.pmw.tinylog.Logger;
 
 import java.util.HashMap;
+import java.util.Map;
 
+import io.reactivex.functions.Predicate;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendProgress;
-import io.reactivex.functions.Predicate;
 
 /**
  * Created by benjaminsmiley-andrews on 16/05/2017.
@@ -25,7 +26,7 @@ public class NetworkEvent {
     protected Thread thread;
     protected User user;
     protected String text;
-    protected HashMap<String, Object> data;
+    protected Map<String, Object> data;
 
     public static String MessageSendProgress = "MessageSendProgress";
     public Location location;
@@ -358,7 +359,7 @@ public class NetworkEvent {
         return text;
     }
 
-    public HashMap<String, Object> getData() {
+    public Map<String, Object> getData() {
         return data;
     }
 

@@ -7,7 +7,6 @@ import java.util.List;
 
 import io.reactivex.Completable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Predicate;
 import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.chat.core.dao.Message;
@@ -20,7 +19,7 @@ import sdk.chat.core.handlers.AuthenticationHandler;
 import sdk.chat.core.handlers.BlockingHandler;
 import sdk.chat.core.handlers.ContactHandler;
 import sdk.chat.core.handlers.CoreHandler;
-import sdk.chat.core.handlers.EncryptionHandler;
+import sdk.chat.core.handlers.IEncryptionHandler;
 import sdk.chat.core.handlers.FileMessageHandler;
 import sdk.chat.core.handlers.ImageMessageHandler;
 import sdk.chat.core.handlers.LastOnlineHandler;
@@ -43,7 +42,6 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Config;
 import sdk.chat.core.session.StorageManager;
 import sdk.chat.core.types.AccountDetails;
-import sdk.chat.core.types.ConnectionType;
 import sdk.chat.demo.examples.CustomChatActivity;
 import sdk.chat.demo.examples.activities.AProfileFragment;
 import sdk.chat.ui.fragments.ProfileFragment;
@@ -84,7 +82,7 @@ public class APICheatSheet {
         ReadReceiptHandler readReceipts = networkAdapter.readReceipts;
         StickerMessageHandler stickerMessage = networkAdapter.stickerMessage;
         FileMessageHandler fileMessage = networkAdapter.fileMessage;
-        EncryptionHandler encryption = networkAdapter.encryption;
+        IEncryptionHandler encryption = networkAdapter.encryption;
 
         // Push the user's profile data to the server
         ChatSDK.core().pushUser().subscribe(() -> {

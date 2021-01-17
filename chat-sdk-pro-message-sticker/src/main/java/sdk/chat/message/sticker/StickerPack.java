@@ -1,7 +1,10 @@
 package sdk.chat.message.sticker;
 
+import androidx.annotation.DrawableRes;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 import sdk.chat.message.sticker.view.StickerListItem;
 
@@ -11,28 +14,55 @@ import sdk.chat.message.sticker.view.StickerListItem;
 
 public class StickerPack implements StickerListItem {
 
-    public Integer imageResourceId;
-    private ArrayList<Sticker> stickers = new ArrayList<>();
+    public interface StickerOnClickListener {
+        void onClick (Sticker sticker);
+    }
+
+    public interface StickerPackOnClickListener {
+        void onClick (StickerPack pack);
+    }
+
+    @DrawableRes public int icon;
+    private List<Sticker> stickers = new ArrayList<>();
 
     public StickerOnClickListener stickerOnClickListener;
     public StickerPackOnClickListener onClickListener;
 
-    public boolean isValid () {
-        return imageResourceId != null && stickers.size() > 0;
+    public StickerPack(@DrawableRes int icon) {
+        this.icon = icon;
     }
 
-    public ArrayList<Sticker> getStickers() {
+    public StickerPack(@DrawableRes int icon, List<Sticker> stickers) {
+        this.icon = icon;
+        this.stickers.addAll(stickers);
+    }
+
+    public boolean isValid () {
+        return icon != 0 && stickers.size() > 0;
+    }
+
+    public List<Sticker> getStickers() {
         return stickers;
     }
 
-    public void addSticker(Sticker sticker) {
+    public void addSticker(@DrawableRes int image, String name) {
+        addSticker(image, name, null);
+    }
+
+    public void addSticker(@DrawableRes int image, String name, String sound) {
+        Sticker sticker = new Sticker();
+
+        sticker.imageName = name;
+        sticker.image = image;
+        sticker.sound = sound;
         sticker.pack = new WeakReference<>(this);
+
         stickers.add(sticker);
     }
 
     @Override
-    public int getImageResourceId() {
-        return imageResourceId;
+    public @DrawableRes int getIcon() {
+        return icon;
     }
 
     @Override
@@ -42,21 +72,17 @@ public class StickerPack implements StickerListItem {
         }
     }
 
-    public interface StickerOnClickListener {
-        void onClick (Sticker sticker);
-    }
-
-    public interface StickerPackOnClickListener {
-        void onClick (StickerPack pack);
-    }
-
-    public ArrayList<StickerListItem> getStickerItems () {
-        ArrayList<StickerListItem> items = new ArrayList<>();
-        for(Sticker sticker : getStickers()) {
-            items.add(sticker);
+    public List<StickerListItem> getStickerItems() {
+        List<StickerListItem> items = new ArrayList<>();
+        for (Sticker s: stickers) {
+            items.add(s);
         }
         return items;
     }
 
+    @Override
+    public boolean isAnimated() {
+        return false;
+    }
 
 }

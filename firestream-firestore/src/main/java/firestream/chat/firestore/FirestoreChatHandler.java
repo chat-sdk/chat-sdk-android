@@ -56,7 +56,7 @@ public class FirestoreChatHandler extends FirebaseChatHandler {
 
             Object dataObject = snapshot.get(base + Keys.Data);
             if (dataObject instanceof HashMap) {
-                Map dataMap = (HashMap) dataObject;
+                Map dataMap = (Map) dataObject;
                 for (Object key: dataMap.keySet()) {
                     if (key instanceof String) {
                         data.put((String) key, dataMap.get(key));

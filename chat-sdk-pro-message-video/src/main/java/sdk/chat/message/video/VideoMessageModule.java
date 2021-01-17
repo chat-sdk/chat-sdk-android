@@ -17,12 +17,12 @@ import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.licensing.Report;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.chat.options.MediaChatOption;
 import sdk.chat.ui.chat.options.MediaType;
-import sdk.chat.ui.custom.IMessageHandler;
-import sdk.chat.ui.custom.MessageCustomizer;
+import sdk.chat.ui.custom.CustomMessageHandler;
 
 /**
  * Created by ben on 10/6/17.
@@ -43,10 +43,16 @@ public class VideoMessageModule extends AbstractModule {
         ChatSDK.ui().addChatOption(new MediaChatOption(context.getResources().getString(R.string.take_video), MediaType.takeVideo()));
         ChatSDK.ui().addChatOption(new MediaChatOption(context.getResources().getString(R.string.choose_video), MediaType.chooseVideo()));
 
-        MessageCustomizer.shared().addMessageHandler(new IMessageHandler() {
+        ChatSDKUI.shared().getMessageCustomizer().addMessageHandler(new CustomMessageHandler() {
+
             @Override
-            public boolean hasContentFor(MessageHolder message, byte type) {
-                return type == MessageType.Video && message instanceof VideoMessageHolder;
+            public List<Byte> getTypes() {
+                return types(MessageType.Video);
+            }
+
+            @Override
+            public boolean hasContentFor(MessageHolder holder) {
+                return holder.getClass().equals(VideoMessageHolder.class);
             }
 
             @Override
@@ -57,7 +63,7 @@ public class VideoMessageModule extends AbstractModule {
                         R.layout.view_holder_incoming_video_message,
                         OutcomingVideoMessageViewHolder.class,
                         R.layout.view_holder_outcoming_video_message,
-                        MessageCustomizer.shared());
+                        ChatSDKUI.shared().getMessageCustomizer());
             }
 
             @Override

@@ -11,7 +11,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.pmw.tinylog.Logger;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import io.reactivex.Completable;
 import sdk.chat.core.push.AbstractPushHandler;
@@ -75,7 +75,7 @@ public class FirebasePushHandler extends AbstractPushHandler {
     }
 
     @Override
-    public void sendPushNotification(HashMap<String, Object> data) {
+    public void sendPushNotification(Map<String, Object> data) {
         if (data != null) {
             functions().getHttpsCallable("pushToChannels").call(data).continueWith((Continuation<HttpsCallableResult, String>) task -> {
                 if(task.getException() != null) {

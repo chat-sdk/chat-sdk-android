@@ -1,6 +1,7 @@
 package sdk.chat.core.types;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by benjaminsmiley-andrews on 03/07/2017.
@@ -22,7 +23,7 @@ public class AccountDetails {
     public String username;
     public String password;
     public String token;
-    public HashMap<String, String> meta = new HashMap<>();
+    public Map<String, String> meta = new HashMap<>();
 
     public static AccountDetails username(String username, String password) {
         AccountDetails a = new AccountDetails();

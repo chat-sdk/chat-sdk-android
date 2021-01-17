@@ -12,6 +12,7 @@
     <string name="message_send_failed">Message send failed</string>
     <string name="try_to_resend_the_message">Try to resend the message</string>
     <string name="send">Send</string>
+    <string name="encrypted_message">Encrypted Message</string>
 
 
     <string name="register">Register</string>

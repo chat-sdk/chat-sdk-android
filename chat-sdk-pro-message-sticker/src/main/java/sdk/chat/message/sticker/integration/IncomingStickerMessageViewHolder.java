@@ -17,7 +17,8 @@ public class IncomingStickerMessageViewHolder extends BaseIncomingImageMessageVi
         return new ImageLoaderPayload(StickerMessageModule.config().maxSize,
                 StickerMessageModule.config().maxSize,
                 R.drawable.icn_200_image_message_placeholder,
-                message.getUser().getUser().isMe() ? R.drawable.icn_200_image_message_placeholder: 0);
+                message.getUser().getUser().isMe() ? R.drawable.icn_200_image_message_placeholder: 0
+                , message.getText().contains(".gif"));
     }
 
 }

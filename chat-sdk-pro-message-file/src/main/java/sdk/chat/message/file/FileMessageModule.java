@@ -20,10 +20,10 @@ import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.licensing.Report;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.IMessageHandler;
-import sdk.chat.ui.custom.MessageCustomizer;
+import sdk.chat.ui.custom.CustomMessageHandler;
 
 /**
  * Created by Pepe on 01/05/18.
@@ -45,10 +45,16 @@ public class FileMessageModule extends AbstractModule {
         ChatSDK.ui().addChatOption(new FileChatOption(ChatSDK.shared().context().getString(R.string.file_message)));
         Report.shared().add(getName());
 
-        MessageCustomizer.shared().addMessageHandler(new IMessageHandler() {
+        ChatSDKUI.shared().getMessageCustomizer().addMessageHandler(new CustomMessageHandler() {
+
             @Override
-            public boolean hasContentFor(MessageHolder message, byte type) {
-                return type == MessageType.File && message instanceof FileMessageHolder;
+            public List<Byte> getTypes() {
+                return types(MessageType.File);
+            }
+
+            @Override
+            public boolean hasContentFor(MessageHolder holder) {
+                return holder.getClass().equals(FileMessageHolder.class);
             }
 
             @Override
@@ -59,7 +65,7 @@ public class FileMessageModule extends AbstractModule {
                         R.layout.view_holder_incoming_text_message,
                         OutcomingFileMessageViewHolder.class,
                         R.layout.view_holder_outcoming_text_message,
-                        MessageCustomizer.shared());
+                        ChatSDKUI.shared().getMessageCustomizer());
             }
 
             @Override

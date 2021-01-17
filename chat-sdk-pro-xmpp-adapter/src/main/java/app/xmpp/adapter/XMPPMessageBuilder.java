@@ -7,7 +7,7 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.StandardExtensionElement;
 import org.jxmpp.jid.BareJid;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import app.xmpp.adapter.defines.XMPPDefines;
 import app.xmpp.adapter.utils.PublicKeyExtras;
@@ -23,7 +23,7 @@ public class XMPPMessageBuilder {
 
     StandardExtensionElement.Builder extensionBuilder = StandardExtensionElement.builder(XMPPDefines.Extras, XMPPDefines.MessageNamespace);
 
-    public XMPPMessageBuilder setValues (HashMap<String, Object> values) {
+    public XMPPMessageBuilder setValues (Map<String, Object> values) {
         for(String key : values.keySet()) {
             extensionBuilder.addElement(key, values.get(key).toString());
         }

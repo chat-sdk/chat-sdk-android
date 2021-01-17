@@ -4,7 +4,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import io.reactivex.Completable;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.handlers.PushHandler;
@@ -12,7 +14,6 @@ import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.StringChecker;
-import io.reactivex.Completable;
 
 public abstract class AbstractPushHandler implements PushHandler {
 
@@ -82,7 +83,7 @@ public abstract class AbstractPushHandler implements PushHandler {
     }
 
     @Override
-    public HashMap<String, Object> pushDataForMessage(Message message) {
+    public Map<String, Object> pushDataForMessage(Message message) {
         String body = message.getText();
 
         if (body == null || body.isEmpty() || !ChatSDK.config().clientPushEnabled) {

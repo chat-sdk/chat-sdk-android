@@ -195,7 +195,7 @@ package sdk.chat.encryption;
 //            return json.getBytes("UTF-8");
 //        }
 //
-//        protected HashMap<String, Object> bytesToMap (byte [] bytes) {
+//        protected Map<String, Object> bytesToMap (byte [] bytes) {
 //            String json = new String(bytes);
 //            Gson gson = new Gson();
 //            return gson.fromJson(json, new TypeToken<HashMap<String, Object>>(){}.getType());

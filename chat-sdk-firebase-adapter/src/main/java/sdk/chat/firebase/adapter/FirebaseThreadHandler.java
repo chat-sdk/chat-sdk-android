@@ -7,7 +7,6 @@ import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -251,7 +250,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     protected void pushForMessage(final Message message) {
         if (ChatSDK.push() != null && message.getThread().typeIs(ThreadType.Private)) {
-            HashMap<String, Object> data = ChatSDK.push().pushDataForMessage(message);
+            Map<String, Object> data = ChatSDK.push().pushDataForMessage(message);
             ChatSDK.push().sendPushNotification(data);
         }
     }

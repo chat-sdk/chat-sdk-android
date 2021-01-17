@@ -3,11 +3,14 @@ package sdk.chat.message.sticker.view;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import sdk.chat.message.sticker.R;
 
@@ -21,11 +24,11 @@ public class StickerListAdapter extends RecyclerView.Adapter<StickerListAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public ImageButton imageButton;
+        public ImageView imageView;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            imageButton = itemView.findViewById(R.id.image_button);
+            imageView = itemView.findViewById(R.id.imageView);
         }
     }
 
@@ -40,13 +43,13 @@ public class StickerListAdapter extends RecyclerView.Adapter<StickerListAdapter.
 
         final StickerListItem listItem = items.get(position);
 
-        holder.imageButton.setImageResource(listItem.getImageResourceId());
-        holder.imageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                listItem.click();
-            }
-        });
+        if (listItem.isAnimated()) {
+            Glide.with(holder.imageView).asGif().load(listItem.getIcon()).into(holder.imageView);
+        } else {
+            holder.imageView.setImageResource(listItem.getIcon());
+        }
+
+        holder.imageView.setOnClickListener(view -> listItem.click());
 
     }
 
@@ -55,7 +58,7 @@ public class StickerListAdapter extends RecyclerView.Adapter<StickerListAdapter.
         return items.size();
     }
 
-    public void setItems (ArrayList<StickerListItem> items) {
+    public void setItems(List<StickerListItem> items) {
         this.items.clear();
         this.items.addAll(items);
         notifyDataSetChanged();

@@ -25,7 +25,7 @@ import sdk.chat.core.handlers.BlockingHandler;
 import sdk.chat.core.handlers.ContactHandler;
 import sdk.chat.core.handlers.ContactMessageHandler;
 import sdk.chat.core.handlers.CoreHandler;
-import sdk.chat.core.handlers.EncryptionHandler;
+import sdk.chat.core.handlers.IEncryptionHandler;
 import sdk.chat.core.handlers.EventHandler;
 import sdk.chat.core.handlers.FileMessageHandler;
 import sdk.chat.core.handlers.HookHandler;
@@ -345,7 +345,7 @@ public class ChatSDK {
         return a().blocking;
     }
 
-    public static EncryptionHandler encryption () { return a().encryption; }
+    public static IEncryptionHandler encryption () { return a().encryption; }
 
     public static LastOnlineHandler lastOnline () {
         return a().lastOnline;

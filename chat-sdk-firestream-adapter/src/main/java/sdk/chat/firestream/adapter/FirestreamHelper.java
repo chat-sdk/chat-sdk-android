@@ -3,15 +3,16 @@ package sdk.chat.firestream.adapter;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import firestream.chat.message.Body;
 import firestream.chat.message.Sendable;
 import io.reactivex.Single;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.Thread;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ReadStatus;
-import sdk.chat.core.dao.Thread;
 
 public class FirestreamHelper {
 
@@ -52,7 +53,7 @@ public class FirestreamHelper {
         Object metaObject = body.get(Keys.Meta);
         if (metaObject instanceof HashMap) {
             @SuppressWarnings("unchecked")
-            HashMap<String, Object> meta = new HashMap<>((HashMap) metaObject);
+            HashMap<String, Object> meta = new HashMap<>((Map) metaObject);
             message.setMetaValues(meta);
         }
 

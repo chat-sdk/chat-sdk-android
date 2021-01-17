@@ -7,7 +7,6 @@ import org.jxmpp.jid.impl.JidCreate;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -139,7 +138,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
         return Completable.defer(() -> {
             List<Message> messages = thread.getMessages();
             for (Message m : messages) {
-                DaoCore.deleteEntity(m);
+                m.cascadeDelete();
             }
             if (thread.typeIs(ThreadType.Group)) {
                 return leaveThread(thread).andThen(Completable.create(emitter -> {
@@ -189,14 +188,18 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable sendMessage (final Message message) {
+    public Completable sendMessage(final Message message) {
         return Completable.create(emitter -> {
             XMPPMessageBuilder builder = new XMPPMessageBuilder()
                     .setType(message.getType())
                     .setValues(message.getMetaValuesAsMap())
-                    .setEntityID(message.getEntityID())
-                    .setBody(message.getText());
+                    .setEntityID(message.getEntityID());
 
+            if (message.valueForKey(Keys.MessageEncryptedPayloadKey) != null) {
+                builder.setBody(ChatSDK.shared().context().getString(R.string.encrypted_message));
+            } else {
+                builder.setBody(message.getText());
+            }
             if(message.getMessageType().is(MessageType.Location)) {
                 builder.setLocation(message.getLocation());
             }
@@ -238,7 +241,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
             }
 
             if (ChatSDK.push() != null && message.getThread().typeIs(ThreadType.Private)) {
-                HashMap<String, Object> data = ChatSDK.push().pushDataForMessage(message);
+                Map<String, Object> data = ChatSDK.push().pushDataForMessage(message);
 
                 // Fix a bug with the default implementation
                 // In XMPP 1-to-1 threads have the ID of the other user. So we need to put our

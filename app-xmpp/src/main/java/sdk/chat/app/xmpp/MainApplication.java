@@ -29,6 +29,7 @@ public class MainApplication extends Application {
     public void xmpp() {
         try {
 
+
             ChatSDK.builder()
 
                     // Configure the library
@@ -48,10 +49,11 @@ public class MainApplication extends Application {
                             .setPingInterval(5)
                             .build())
 
-                    .addModule(VideoMessageModule.shared())
                     .addModule(AudioMessageModule.shared())
-                    .addModule(StickerMessageModule.shared())
                     .addModule(LocationMessageModule.shared())
+                    .addModule(VideoMessageModule.shared())
+                    .addModule(StickerMessageModule.builder()
+                            .build())
                     .addModule(UIModule.builder()
                             .setMessageSelectionEnabled(false)
                             .setUsernameHint("JID")
@@ -59,7 +61,6 @@ public class MainApplication extends Application {
                             .build())
 
                     .addModule(XMPPReadReceiptsModule.shared())
-                    .addModule(LocationMessageModule.shared())
                     .addModule(ExtrasModule.builder()
                             .setQrCodesEnabled(true)
                             .setDrawerEnabled(false)

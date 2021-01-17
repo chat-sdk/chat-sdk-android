@@ -51,13 +51,13 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.core.utils.StringChecker;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.appbar.ChatActionBar;
 import sdk.chat.ui.audio.AudioBinder;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.interfaces.TextInputDelegate;
 import sdk.chat.ui.module.UIModule;
@@ -674,12 +674,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     @Override
     public void onClick(Message message) {
-        MessageCustomizer.shared().onClick(this, root, message);
+        ChatSDKUI.shared().getMessageCustomizer().onClick(this, root, message);
     }
 
     @Override
     public void onLongClick(Message message) {
-        MessageCustomizer.shared().onLongClick(this, root, message);
+        ChatSDKUI.shared().getMessageCustomizer().onLongClick(this, root, message);
     }
 
     @Override

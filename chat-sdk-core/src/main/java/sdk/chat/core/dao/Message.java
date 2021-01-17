@@ -176,7 +176,7 @@ public class Message extends AbstractEntity {
         return this.date;
     }
 
-    public HashMap<String, Object> getMetaValuesAsMap() {
+    public Map<String, Object> getMetaValuesAsMap() {
         HashMap<String, Object> values = new HashMap<>();
         for (MessageMetaValue v : getMetaValues()) {
             values.put(v.getKey(), v.getValue());

@@ -16,7 +16,7 @@ import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.utils.StringChecker;
-import sdk.chat.message.sticker.Configuration;
+import sdk.chat.message.sticker.PListLoader;
 import sdk.chat.message.sticker.R;
 
 /**
@@ -59,7 +59,7 @@ public class BaseStickerMessageHandler implements StickerMessageHandler {
             // Do this because otherwise we get a crash because the message
             // holder tries to update before it's ready
             if (!StringChecker.isNullOrEmpty(stickerName)) {
-                int resID = Configuration.resourceId(context, stickerName);
+                int resID = PListLoader.resourceId(context, stickerName);
 
                 Uri uri = new Uri.Builder()
                         .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)

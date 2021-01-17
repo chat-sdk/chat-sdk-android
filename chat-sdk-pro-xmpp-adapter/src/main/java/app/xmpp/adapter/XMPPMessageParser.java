@@ -20,6 +20,7 @@ import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
@@ -70,6 +71,10 @@ public class XMPPMessageParser {
             put(HookEvent.Thread, thread);
             put(HookEvent.IsNew_Boolean, true);
         }}).subscribe(ChatSDK.events());
+
+        if (thread.typeIs(ThreadType.Private1to1)) {
+            thread.setDeleted(false);
+        }
 
         thread.addMessage(message);
         updateReadReceipts(message, xmppMessage);

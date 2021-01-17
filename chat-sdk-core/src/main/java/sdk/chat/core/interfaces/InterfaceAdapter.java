@@ -9,8 +9,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import sdk.chat.core.Tab;
 import sdk.chat.core.avatar.AvatarGenerator;
@@ -83,7 +83,7 @@ public interface InterfaceAdapter {
     void setPublicThreadsFragment(Fragment publicThreadsFragment);
     void setContactsFragment(Fragment contactsFragment);
     void setProfileFragmentProvider(ProfileFragmentProvider profileFragmentProvider);
-    Intent getLoginIntent(Context context, HashMap<String, Object> extras);
+    Intent getLoginIntent(Context context, Map<String, Object> extras);
     void setLoginIntent(Intent intent);
 
     List<Tab> defaultTabs();
@@ -121,10 +121,10 @@ public interface InterfaceAdapter {
     void startEditProfileActivity(Context context, String userEntityID);
 
     void startMainActivity(Context context);
-    void startMainActivity(Context context, HashMap<String, Object> extras);
+    void startMainActivity(Context context, Map<String, Object> extras);
     void startSearchActivity(Context context);
     void startForwardMessageActivityForResult(Activity activity, Thread thread, List<Message> message, int code);
-    void startPostRegistrationActivity(Context context, HashMap<String, Object> extras);
+    void startPostRegistrationActivity(Context context, Map<String, Object> extras);
 
     void startAddUsersToThreadActivity(Context context, String threadEntityID);
     void startCreateThreadActivity(Context context);

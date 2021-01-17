@@ -144,7 +144,7 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
         Map<String, Object> expandedMeta = expandMeta(user.metaMap());
         Object picturesData = expandedMeta.get(KeyPictureURLS);
         if (picturesData instanceof HashMap) {
-            Map<String, String> picturesMap = (HashMap<String, String>) picturesData;
+            Map<String, String> picturesMap = (Map<String, String>) picturesData;
             ArrayList<String> urls = new ArrayList<>(picturesMap.values().size());
             for (String url : picturesMap.values()) {
                 if (url != null && !url.isEmpty()) {
@@ -180,11 +180,11 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
         ChatSDK.ui().startActivity(context, intent);
     }
 
-    protected HashMap<String, Object> expandMeta(Map<String, String> meta) {
-        return HashMapHelper.expand((HashMap<String, String>) meta);
+    protected Map<String, Object> expandMeta(Map<String, String> meta) {
+        return HashMapHelper.expand((Map<String, String>) meta);
     }
 
-    protected HashMap<String, String> flattenMeta(Map<String, Object> meta) {
+    protected Map<String, String> flattenMeta(Map<String, Object> meta) {
         meta = HashMapHelper.flatten(meta);
         HashMap<String, String> flatMeta = new HashMap<>();
         for (Map.Entry<String, Object> entry : meta.entrySet()) {
