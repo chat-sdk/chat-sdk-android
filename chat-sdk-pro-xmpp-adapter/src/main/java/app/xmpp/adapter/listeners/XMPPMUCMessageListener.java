@@ -27,11 +27,12 @@ public class XMPPMUCMessageListener implements MessageListener, Disposable {
 
     private WeakReference<XMPPMUCManager> parent;
     private WeakReference<MultiUserChat> chat;
-    private Disposable disposable;
+    protected boolean disposed = false;
 
     public XMPPMUCMessageListener(XMPPMUCManager parent, MultiUserChat chat) {
         this.chat = new WeakReference<>(chat);
         this.parent = new WeakReference<>(parent);
+        addListeners();
     }
 
     @Override
@@ -61,17 +62,29 @@ public class XMPPMUCMessageListener implements MessageListener, Disposable {
 
     @Override
     public void dispose() {
-        chat.get().removeMessageListener(this);
-        if (disposable != null) {
-            disposable.dispose();
+        if (!disposed) {
+            removeListeners();
+            disposed = true;
+        }
+    }
+
+    public void removeListeners() {
+        MultiUserChat chat = this.chat.get();
+        if (chat != null) {
+            chat.removeMessageListener(this);
+        }
+    }
+
+    public void addListeners() {
+        MultiUserChat chat = this.chat.get();
+        if (chat != null) {
+            removeListeners();
+            chat.addMessageListener(this);
         }
     }
 
     @Override
     public boolean isDisposed() {
-        if (disposable != null) {
-            return disposable.isDisposed();
-        }
-        return true;
+        return disposed;
     }
 }

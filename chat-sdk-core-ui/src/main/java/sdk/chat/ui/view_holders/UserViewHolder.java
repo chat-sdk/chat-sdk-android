@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -22,7 +23,6 @@ import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.chat.ui.binders.AvailabilityHelper;
-import sdk.chat.ui.binders.OnlineStatusBinder;
 import sdk.chat.ui.module.UIModule;
 
 public class UserViewHolder extends RecyclerView.ViewHolder  {
@@ -53,20 +53,11 @@ public class UserViewHolder extends RecyclerView.ViewHolder  {
 
     public void bind(UserListItem item) {
 
-        nameTextView.setText(item.getName());
+        setName(item.getName());
 
-        if (multiSelectEnabled) {
-            checkbox.setVisibility(View.VISIBLE);
-        } else {
-            checkbox.setVisibility(View.INVISIBLE);
-        }
+        showCheckbox(multiSelectEnabled);
 
-        if (StringChecker.isNullOrEmpty(item.getAvailability()) || multiSelectEnabled) {
-            availabilityImageView.setVisibility(View.INVISIBLE);
-        } else {
-            availabilityImageView.setVisibility(View.VISIBLE);
-            availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(item.getAvailability()));
-        }
+        setAvailability(multiSelectEnabled ? null : item.getAvailability());
 
         UIModule.shared().getOnlineStatusBinder().bind(onlineIndicator, item.getIsOnline());
 
@@ -91,6 +82,23 @@ public class UserViewHolder extends RecyclerView.ViewHolder  {
                     .into(avatarImageView);
         } else {
             avatarImageView.setImageResource(UIModule.config().defaultProfilePlaceholder);
+        }
+    }
+
+    public void setName(String name) {
+        nameTextView.setText(name);
+    }
+
+    public void showCheckbox(boolean show) {
+        checkbox.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    public void setAvailability(@Nullable String availability) {
+        if (availability == null) {
+            availabilityImageView.setVisibility(View.INVISIBLE);
+        } else {
+            availabilityImageView.setVisibility(View.VISIBLE);
+            availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(availability));
         }
     }
 

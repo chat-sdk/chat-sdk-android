@@ -39,11 +39,19 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     protected final PublishRelay<UserListItem> onLongClickRelay = PublishRelay.create();
     protected final PublishRelay<List<UserListItem>> onToggleRelay = PublishRelay.create();
 
+
     public interface SubtitleProvider {
         String subtitle(UserListItem user);
     }
 
+    public interface RowBinder {
+        void bind(UserViewHolder holder, UserListItem item);
+    }
+
     protected SubtitleProvider subtitleProvider;
+
+
+    protected RowBinder rowBinder;
 
     public UsersListAdapter() {
         this(null, false, null);
@@ -69,6 +77,10 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return items.size();
     }
 
+    public void setRowBinder(RowBinder rowBinder) {
+        this.rowBinder = rowBinder;
+    }
+
     @Override
     @NonNull
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -82,7 +94,11 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         UserViewHolder viewHolder = (UserViewHolder) holder;
         UserListItem item = items.get(position);
 
-        viewHolder.bind(item);
+        if (rowBinder != null) {
+            rowBinder.bind(viewHolder, item);
+        } else {
+            viewHolder.bind(item);
+        }
 
         if (multiSelectEnabled) {
             if (!selectedUsersPositions.get(position)) {

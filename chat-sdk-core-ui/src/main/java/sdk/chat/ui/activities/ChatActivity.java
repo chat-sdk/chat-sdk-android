@@ -304,6 +304,16 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+                .filter(networkEvent -> thread.containsUser(networkEvent.getUser()))
+                .subscribe(networkEvent -> {
+                    reloadData();
+                    chatActionBar.reload(thread);
+                }));
+
+
+        dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.TypingStateUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> {
@@ -316,9 +326,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadUserRoleUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .filter(NetworkEvent.filterUserEntityID(ChatSDK.currentUserID()))
+                .filter(NetworkEvent.filterRoleUpdated(thread, ChatSDK.currentUser()))
                 .subscribe(networkEvent -> {
                     if (hasVoice(networkEvent.getUser())) {
                         showTextInput();

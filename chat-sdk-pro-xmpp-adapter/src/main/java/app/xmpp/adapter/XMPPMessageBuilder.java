@@ -11,6 +11,8 @@ import java.util.Map;
 
 import app.xmpp.adapter.defines.XMPPDefines;
 import app.xmpp.adapter.utils.PublicKeyExtras;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageType;
 import sdk.chat.core.utils.GoogleUtils;
 
 /**
@@ -19,28 +21,32 @@ import sdk.chat.core.utils.GoogleUtils;
 
 public class XMPPMessageBuilder {
 
+    public static XMPPMessageBuilder create() {
+        return new XMPPMessageBuilder();
+    }
+
     Message message = new Message();
 
     StandardExtensionElement.Builder extensionBuilder = StandardExtensionElement.builder(XMPPDefines.Extras, XMPPDefines.MessageNamespace);
 
-    public XMPPMessageBuilder setValues (Map<String, Object> values) {
+    public XMPPMessageBuilder setValues(Map<String, Object> values) {
         for(String key : values.keySet()) {
             extensionBuilder.addElement(key, values.get(key).toString());
         }
         return this;
     }
 
-    public XMPPMessageBuilder setBody (String body) {
+    public XMPPMessageBuilder setBody(String body) {
         message.setBody(body);
         return this;
     }
 
-    public XMPPMessageBuilder setLocation (Location latLng) {
+    public XMPPMessageBuilder setLocation(Location latLng) {
         message.setBody(GoogleUtils.getMapWebURL(latLng));
         return this;
     }
 
-    public XMPPMessageBuilder setType (Integer type) {
+    public XMPPMessageBuilder setType(Integer type) {
         extensionBuilder.addElement(XMPPDefines.Type, type.toString());
         return this;
     }
@@ -60,7 +66,7 @@ public class XMPPMessageBuilder {
         return this;
     }
 
-    public XMPPMessageBuilder setEntityID (String entityID) {
+    public XMPPMessageBuilder setEntityID(String entityID) {
         message.setStanzaId(entityID);
         return this;
     }
@@ -69,8 +75,26 @@ public class XMPPMessageBuilder {
 //        message.add
 //    }
 
+    public XMPPMessageBuilder setAction(Integer action) {
+        extensionBuilder.addElement(XMPPDefines.Action, action.toString());
+        return this;
+    }
 
-    public Message build () {
+    public XMPPMessageBuilder addNoRetryExtension() {
+        message.addExtension(StandardExtensionElement.builder(XMPPDefines.Extras, XMPPDefines.NoRetryNamespace).build());
+        return this;
+    }
+
+
+    public XMPPMessageBuilder addLeaveGroupExtension() {
+        setBody(String.format(ChatSDK.getString(R.string.__left_the_group), ChatSDK.currentUser().getName()));
+        setType(MessageType.Silent);
+        setAction(MessageType.Action.UserLeftGroup);
+        addNoRetryExtension();
+        return this;
+    }
+
+    public Message build() {
         message.addExtension(extensionBuilder.build());
 
         PublicKeyExtras.addTo(message);

@@ -89,4 +89,10 @@ public class Keys {
     //Admin Thread
     public static final String ReadOnly = "read-only";
 
+    public static final String Affiliation = "affiliation";
+    public static final String Role = "role";
+    public static final String HasLeft = "hasLeft";
+    public static final String Active = "active";
+    public static final String Banned = "banned";
+
 }

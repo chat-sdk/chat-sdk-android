@@ -157,6 +157,11 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
         return Completable.defer(() -> {
             if (thread.typeIs(ThreadType.Group)) {
                 MultiUserChat chat = XMPPManager.shared().mucManager.chatForThreadID(thread.getEntityID());
+                // Send a leave message
+                chat.sendMessage(XMPPMessageBuilder.create().addLeaveGroupExtension().build());
+
+                // TODO: Check if we need to leave too
+
                 if (chat != null) {
                     chat.leave();
                     XMPPManager.shared().bookmarkManager().removeBookmarkedConference(chat.getRoom());
@@ -393,6 +398,16 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
             }
             return Completable.error(ChatSDK.getException(R.string.permission_denied));
         }).subscribeOn(RX.io());
+    }
+
+    @Override
+    public Completable refreshRoles(Thread thread) {
+        return XMPPManager.shared().mucManager.refreshRoomAffiliation(thread);
+    }
+
+    @Override
+    public boolean canRefreshRoles(Thread thread) {
+        return rolesEnabled(thread);
     }
 
 }

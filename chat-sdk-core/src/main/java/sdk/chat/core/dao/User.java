@@ -545,4 +545,10 @@ public class User extends AbstractEntity implements UserListItem {
         return users;
     }
 
+    public void cascadeDelete() {
+        for (UserMetaValue value :getMetaValues()) {
+            value.delete();
+        }
+        delete();
+    }
 }

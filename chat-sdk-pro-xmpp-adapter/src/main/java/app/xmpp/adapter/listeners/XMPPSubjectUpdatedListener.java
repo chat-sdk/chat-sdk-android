@@ -15,10 +15,11 @@ import io.reactivex.disposables.Disposable;
 public class XMPPSubjectUpdatedListener implements SubjectUpdatedListener, Disposable {
 
     private WeakReference<MultiUserChat> chat;
-    boolean isDisposed = false;
+    boolean disposed = false;
 
     public XMPPSubjectUpdatedListener(MultiUserChat chat) {
         this.chat = new WeakReference<>(chat);
+        addListeners();
     }
 
     @Override
@@ -35,11 +36,28 @@ public class XMPPSubjectUpdatedListener implements SubjectUpdatedListener, Dispo
     @Override
     public void dispose() {
         chat.get().removeSubjectUpdatedListener(this);
-        isDisposed = true;
+        disposed = true;
     }
+
+
+    public void removeListeners() {
+        MultiUserChat chat = this.chat.get();
+        if (chat != null) {
+            chat.removeSubjectUpdatedListener(this);
+        }
+    }
+
+    public void addListeners() {
+        MultiUserChat chat = this.chat.get();
+        if (chat != null) {
+            removeListeners();
+            chat.addSubjectUpdatedListener(this);
+        }
+    }
+
 
     @Override
     public boolean isDisposed() {
-        return isDisposed;
+        return disposed;
     }
 }

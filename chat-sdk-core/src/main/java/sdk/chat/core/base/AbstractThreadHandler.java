@@ -356,7 +356,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable grantVoice(Thread thread, User user) {
         return Completable.create(emitter -> {
-            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(thread, user));
             emitter.onComplete();
         });
     }
@@ -364,7 +364,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable revokeVoice(Thread thread, User user) {
         return Completable.create(emitter -> {
-            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(thread, user));
             emitter.onComplete();
         });
     }
@@ -387,7 +387,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable grantModerator(Thread thread, User user) {
         return Completable.create(emitter -> {
-            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(thread, user));
             emitter.onComplete();
         });
     }
@@ -395,7 +395,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable revokeModerator(Thread thread, User user) {
         return Completable.create(emitter -> {
-            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(thread, user));
             emitter.onComplete();
         });
     }
@@ -438,4 +438,13 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.complete();
     }
 
+    @Override
+    public Completable refreshRoles(Thread thread) {
+        return Completable.complete();
+    }
+
+    @Override
+    public boolean canRefreshRoles(Thread thread) {
+        return false;
+    }
 }

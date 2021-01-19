@@ -19,6 +19,8 @@ import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.dao.UserThreadLink;
+import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -76,8 +78,19 @@ public class XMPPMessageParser {
             thread.setDeleted(false);
         }
 
-        thread.addMessage(message);
-        updateReadReceipts(message, xmppMessage);
+        if (xmppMessage.hasAction(MessageType.Action.UserLeftGroup)) {
+            // Get the link
+            UserThreadLink link = thread.getUserThreadLink(message.getSender().getId());
+            if (link.setHasLeft(true)) {
+                ChatSDK.events().source().accept(NetworkEvent.threadUsersUpdated(thread, message.getSender()));
+            }
+        }
+
+        if (xmppMessage.type() != MessageType.Silent) {
+            thread.addMessage(message);
+            updateReadReceipts(message, xmppMessage);
+        }
+
         return message;
     }
 

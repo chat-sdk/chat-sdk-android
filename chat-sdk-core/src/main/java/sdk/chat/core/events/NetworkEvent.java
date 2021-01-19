@@ -2,6 +2,8 @@ package sdk.chat.core.events;
 
 import android.location.Location;
 
+import androidx.annotation.Nullable;
+
 import org.pmw.tinylog.Logger;
 
 import java.util.HashMap;
@@ -108,11 +110,11 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.MessageRemoved, thread, message);
     }
 
-    public static NetworkEvent threadUsersChanged(Thread thread, User user) {
+    public static NetworkEvent threadUsersUpdated(Thread thread, User user) {
         return new NetworkEvent(EventType.ThreadUsersUpdated, thread, null, user);
     }
 
-    public static NetworkEvent threadUsersRoleChanged(Thread thread, User user) {
+    public static NetworkEvent threadUsersRoleUpdated(Thread thread, User user) {
         return new NetworkEvent(EventType.ThreadUserRoleUpdated, thread, null, user);
     }
 
@@ -195,6 +197,28 @@ public class NetworkEvent {
 
     public static Predicate<NetworkEvent> filterType(final EventType type) {
         return networkEvent -> networkEvent.type == type;
+    }
+
+    public static Predicate<NetworkEvent> filterRoleUpdated(final Thread thread) {
+        return filterRoleUpdated(thread, null);
+    }
+
+    public static Predicate<NetworkEvent> filterPresence(final Thread thread) {
+        return networkEvent -> {
+            boolean match = networkEvent.typeIs(EventType.UserPresenceUpdated);
+            return  match && thread.equalsEntity(networkEvent.getThread()) && thread.containsUser(networkEvent.getUser());
+        };
+    }
+
+    public static Predicate<NetworkEvent> filterRoleUpdated(final Thread thread, @Nullable final User user) {
+        return networkEvent -> {
+            boolean match = networkEvent.typeIs(EventType.ThreadUserRoleUpdated);
+            match = match && networkEvent.getThread().equalsEntity(thread) && thread.containsUser(networkEvent.getUser());
+            if (match && user != null) {
+                match = user.equalsEntity(networkEvent.getUser());
+            }
+            return match;
+        };
     }
 
     public static Predicate<NetworkEvent> filterType(final EventType... types) {
@@ -300,7 +324,7 @@ public class NetworkEvent {
         );
     }
 
-    public static Predicate<NetworkEvent> threadUsersUpdated() {
+    public static Predicate<NetworkEvent> filterThreadUsersUpdated() {
         return filterType(
                 EventType.ThreadUsersUpdated,
                 EventType.UserPresenceUpdated

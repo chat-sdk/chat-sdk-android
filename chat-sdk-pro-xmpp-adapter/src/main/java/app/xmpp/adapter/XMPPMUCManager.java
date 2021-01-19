@@ -28,9 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import app.xmpp.adapter.listeners.XMPPChatParticipantListener;
 import app.xmpp.adapter.listeners.XMPPMUCMessageListener;
-import app.xmpp.adapter.listeners.XMPPMUCUserStatusListener;
+import app.xmpp.adapter.listeners.XMPPMUCRoleListener;
 import app.xmpp.adapter.listeners.XMPPSubjectUpdatedListener;
 import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.adapter.utils.JidEntityID;
@@ -59,7 +58,7 @@ public class XMPPMUCManager {
     private WeakReference<XMPPManager> manager;
     private MultiUserChatManager chatManager;
 
-    protected Map<String, XMPPMUCUserStatusListener> userStatusListeners = new HashMap<>();
+    protected Map<String, XMPPMUCRoleListener> userStatusListeners = new HashMap<>();
     protected Map<String, XMPPMUCMessageListener> messageListeners = new HashMap<>();
 
     private DisposableMap dm = new DisposableMap();
@@ -86,8 +85,6 @@ public class XMPPMUCManager {
             final String roomID = generateRoomId(name);
 
             final MultiUserChat chat = chatManager.getMultiUserChat(JidCreate.entityBareFrom(roomID));
-
-//            Resourcepart nickname = Resourcepart.from(name);
 
             chat.create(nickname());
 
@@ -137,18 +134,18 @@ public class XMPPMUCManager {
             chat.sendConfigurationForm(form);
 
             // Add the users
-            ArrayList<Completable> comp = new ArrayList<>();
+            List<Completable> completables = new ArrayList<>();
             for(User user: users) {
-                comp.add(inviteUser(user, chat));
+                completables.add(inviteUser(user, chat));
             }
 
-            return Completable.merge(comp).andThen(joinRoom(roomID));
+            return Completable.merge(completables).andThen(joinRoom(roomID));
 
         }).subscribeOn(RX.io());
     }
 
     public Single<Thread> joinRoom(String roomJID) throws Exception {
-        return joinRoom(getRoom(roomJID), true);
+        return joinRoom(getChat(roomJID), true);
     }
 
     public Single<Thread> joinRoom(MultiUserChat chat, boolean bookmark) {
@@ -179,39 +176,21 @@ public class XMPPMUCManager {
 
                 dm.add(chatMessageListener);
 
-                XMPPChatParticipantListener chatParticipantListener = new XMPPChatParticipantListener(XMPPMUCManager.this, chat);
-                dm.add(chatParticipantListener);
-
                 XMPPSubjectUpdatedListener subjectUpdatedListener = new XMPPSubjectUpdatedListener(chat);
                 dm.add(subjectUpdatedListener);
 
-                chat.removeMessageListener(chatMessageListener);
-                chat.addMessageListener(chatMessageListener);
-
-                chat.removeParticipantListener(chatParticipantListener);
-                chat.addParticipantListener(chatParticipantListener);
-
-                chat.removeSubjectUpdatedListener(subjectUpdatedListener);
-                chat.addSubjectUpdatedListener(subjectUpdatedListener);
-
-                XMPPMUCUserStatusListener userStatusListener = getUserStatusListener(thread.getEntityID());
+                XMPPMUCRoleListener userStatusListener = getUserStatusListener(thread.getEntityID());
                 if (userStatusListener == null) {
-                    userStatusListener = new XMPPMUCUserStatusListener(this, chat, thread);
+                    userStatusListener = new XMPPMUCRoleListener(this, chat, thread);
                     putUserStatusListener(thread.getEntityID(), userStatusListener);
                 }
-
-                chat.removePresenceInterceptor(userStatusListener);
-                chat.addPresenceInterceptor(userStatusListener);
-
-                chat.removeUserStatusListener(userStatusListener);
-                chat.addUserStatusListener(userStatusListener);
 
                 chat.join(config.build());
 
                 RoomInfo info = chatManager.getRoomInfo(chat.getRoom());
                 String name = info.getName();
 
-                thread.setName(name, false);
+                thread.setName(name, true);
 
                 if (bookmark) {
                     manager.get().bookmarkManager().addBookmarkedConference(name, chat.getRoom(), false, chat.getNickname(), null);
@@ -223,22 +202,25 @@ public class XMPPMUCManager {
 
                 thread.addUser(ChatSDK.currentUser());
 
-                return userStatusListener.updateAffiliates().flatMap(affiliates -> {
+                // Get the member list
+                return userStatusListener.updateAffiliates().map(affiliates -> thread);
 
-                    List<Completable> completables = new ArrayList<>();
-
-                    // Make sure we are subscribed to the members
-                    for (Affiliate affiliate: affiliates) {
-                        completables.add(ChatSDK.core().getUserForEntityID(affiliate.getJid().asBareJid().toString()).doOnSuccess(user -> {
-                            if (affiliate.getAffiliation() == MUCAffiliation.owner) {
-                                thread.setCreator(user);
-                            }
-                            thread.addUser(user);
-                        }).ignoreElement());
-                    }
-
-                    return Completable.merge(completables).toSingle(() -> thread);
-                });
+//                return userStatusListener.updateAffiliates().flatMap(affiliates -> {
+//
+//                    List<Completable> completables = new ArrayList<>();
+//
+//                    // Make sure we are subscribed to the members
+//                    for (Affiliate affiliate: affiliates) {
+//                        completables.add(ChatSDK.core().getUserForEntityID(affiliate.getJid().asBareJid().toString()).doOnSuccess(user -> {
+//                            if (affiliate.getAffiliation() == MUCAffiliation.owner) {
+//                                thread.setCreator(user);
+//                            }
+//                            thread.addUser(user);
+//                        }).ignoreElement());
+//                    }
+//
+//                    return Completable.merge(completables).toSingle(() -> thread);
+//                });
             }
             return Single.error(ChatSDK.getException(R.string.could_not_join_muc));
 
@@ -247,7 +229,7 @@ public class XMPPMUCManager {
         }).subscribeOn(RX.io());
     }
 
-    public Single<String> getRoomName (MultiUserChat chat) {
+    public Single<String> getRoomName(MultiUserChat chat) {
         return Single.create((SingleOnSubscribe<String>) emitter -> {
             RoomInfo info = chatManager.getRoomInfo(chat.getRoom());
             String name = info.getName();
@@ -297,7 +279,7 @@ public class XMPPMUCManager {
         }
     }
 
-    public MultiUserChat getRoom(String jid) throws Exception {
+    public MultiUserChat getChat(String jid) throws Exception {
         return chatManager.getMultiUserChat(JidCreate.entityBareFrom(jid));
     }
 
@@ -411,7 +393,7 @@ public class XMPPMUCManager {
     }
 
     protected List<Affiliate> getAffiliates(Thread thread) {
-        XMPPMUCUserStatusListener listener = getUserStatusListener(thread.getEntityID());
+        XMPPMUCRoleListener listener = getUserStatusListener(thread.getEntityID());
         if (listener != null) {
             return listener.getAffiliates();
         }
@@ -446,7 +428,8 @@ public class XMPPMUCManager {
             try {
                 affiliates.addAll(chat.getOutcasts());
             } catch (Exception e) {
-                ChatSDK.events().onError(e);
+                // This will be triggered if we are not admin or owner so ignore it
+//                ChatSDK.events().onError(e);
             }
         }
         return affiliates;
@@ -538,9 +521,16 @@ public class XMPPMUCManager {
         }).subscribeOn(RX.io());
     }
 
+    public Completable refreshRoomAffiliation(Thread thread) {
+        return Completable.defer(() -> {
+            MultiUserChat chat = getChat(thread.getEntityID());
+            return refreshRoomAffiliation(chat);
+        }).subscribeOn(RX.io());
+    }
+
     public Completable refreshRoomAffiliation(MultiUserChat chat) {
         return Completable.defer(() -> {
-            XMPPMUCUserStatusListener listener = getUserStatusListener(chat.getRoom().toString());
+            XMPPMUCRoleListener listener = getUserStatusListener(chat.getRoom().toString());
             if (listener != null) {
                 return listener.updateAffiliates().ignoreElement();
             }
@@ -548,11 +538,11 @@ public class XMPPMUCManager {
         }).subscribeOn(RX.io());
     }
 
-    public XMPPMUCUserStatusListener getUserStatusListener(String threadEntityID) {
+    public XMPPMUCRoleListener getUserStatusListener(String threadEntityID) {
         return userStatusListeners.get(threadEntityID);
     }
 
-    public void putUserStatusListener(String threadEntityID, XMPPMUCUserStatusListener listener) {
+    public void putUserStatusListener(String threadEntityID, XMPPMUCRoleListener listener) {
         userStatusListeners.put(threadEntityID, listener);
     }
 

@@ -232,7 +232,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             // Save the thread to the database.
             return new ThreadWrapper(thread).push()
                     .doOnError(throwable -> {
-                        thread.delete();
+                        thread.cascadeDelete();
                     })
                     .andThen(Completable.defer(() -> {
                         return ChatSDK.thread().addUsersToThread(thread, thread.getUsers());

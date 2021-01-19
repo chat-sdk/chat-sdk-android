@@ -14,8 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
+import android.widget.ImageView;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -24,6 +23,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -31,7 +31,6 @@ import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
-import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
 import sdk.chat.core.utils.StringChecker;
@@ -39,6 +38,8 @@ import sdk.chat.core.utils.Strings;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.fragments.ThreadUsersFragment;
+import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ThreadImageBuilder;
 import sdk.chat.ui.utils.ToastHelper;
 
@@ -53,10 +54,13 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
 
     protected ActionBar actionBar;
     @BindView(R2.id.toolbar) protected Toolbar toolbar;
-    @BindView(R2.id.threadImageView) protected CircleImageView threadImageView;
+    @BindView(R2.id.avatarImageView) protected CircleImageView avatarImageView;
     @BindView(R2.id.threadUsersFrame) protected FrameLayout threadUsersFrame;
-    @BindView(R2.id.nameTextView) protected TextView nameTextView;
-    @BindView(R2.id.root) protected ScrollView root;
+//    @BindView(R2.id.titleTextView) protected TextView titleTextView;
+
+    @BindView(R2.id.addUsersFab) protected FloatingActionButton addUsersFab;
+    @BindView(R2.id.refreshFab) protected FloatingActionButton refreshFab;
+    @BindView(R2.id.headerImageView) protected ImageView headerImageView;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -84,20 +88,47 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         initViews();
 
         // Depending on the thread type, disable / enable options
-        if (thread.typeIs(ThreadType.Private1to1)) {
-            nameTextView.setVisibility(View.INVISIBLE);
+//        if (thread.typeIs(ThreadType.Private1to1)) {
+//            titleTextView.setVisibility(View.INVISIBLE);
+//        } else {
+//            titleTextView.setVisibility(View.VISIBLE);
+//        }
+
+        if (ChatSDK.thread().canAddUsersToThread(thread)) {
+            addUsersFab.setImageDrawable(Icons.get(this, Icons.choose().add, R.color.white));
+            addUsersFab.setOnClickListener(v -> {
+                addUsersFab.setEnabled(false);
+                ChatSDK.ui().startAddUsersToThreadActivity(this, thread.getEntityID());
+            });
         } else {
-            nameTextView.setVisibility(View.VISIBLE);
+            addUsersFab.setVisibility(View.INVISIBLE);
         }
 
+        if (ChatSDK.thread().canRefreshRoles(thread)) {
+            refreshFab.setImageDrawable(Icons.get(this, Icons.choose().refresh, R.color.white));
+            refreshFab.setOnClickListener(v -> {
+                ChatSDK.thread().refreshRoles(thread).subscribe();
+            });
+        } else {
+            refreshFab.setVisibility(View.INVISIBLE);
+        }
+
+        int profileHeader = UIModule.config().profileHeaderImage;
+        headerImageView.setImageResource(profileHeader);
+
+        ChatSDK.thread().refreshRoles(thread).subscribe();
     }
 
     protected void initViews() {
         super.initViews();
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated, EventType.ThreadUserRoleUpdated))
+                .filter(NetworkEvent.filterType(EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+                .subscribe(networkEvent -> reloadData(), this));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterRoleUpdated(thread))
                 .subscribe(networkEvent -> reloadData(), this));
 
         reloadData();
@@ -110,14 +141,15 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             actionBar.setTitle(name);
             actionBar.setHomeButtonEnabled(true);
         }
-        nameTextView.setText(name);
+
+//        titleTextView.setText(name);
 
         if (!StringChecker.isNullOrEmpty(thread.getImageUrl())) {
-            threadImageView.setOnClickListener(v -> zoomImageFromThumbnail(threadImageView, thread.getImageUrl()));
-            Glide.with(this).load(thread.getImageUrl()).dontAnimate().into(threadImageView);
+            avatarImageView.setOnClickListener(v -> zoomImageFromThumbnail(avatarImageView, thread.getImageUrl()));
+            Glide.with(this).load(thread.getImageUrl()).dontAnimate().into(avatarImageView);
         } else {
-            ThreadImageBuilder.load(threadImageView, thread, Dimen.from(this, R.dimen.large_avatar_width));
-            threadImageView.setOnClickListener(null);
+            ThreadImageBuilder.load(avatarImageView, thread, Dimen.from(this, R.dimen.large_avatar_width));
+            avatarImageView.setOnClickListener(null);
         }
 
         // CoreThread users bundle
@@ -132,6 +164,9 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (ChatSDK.thread().canRefreshRoles(thread)) {
+            ChatSDK.thread().refreshRoles(thread).subscribe();
+        }
         reloadData();
     }
 
@@ -192,10 +227,6 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             menu.removeItem(R.id.action_mute);
         }
 
-        if (!ChatSDK.thread().canAddUsersToThread(thread)) {
-            menu.removeItem(R.id.action_add_users);
-        }
-
         if (!ChatSDK.thread().canLeaveThread(thread)) {
             menu.removeItem(R.id.action_leave);
         }
@@ -218,9 +249,6 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
                 ChatSDK.thread().mute(thread).subscribe(this);
             }
             invalidateOptionsMenu();
-        }
-        if (item.getItemId() == R.id.action_add_users) {
-            ChatSDK.ui().startAddUsersToThreadActivity(this, thread.getEntityID());
         }
         if (item.getItemId() == R.id.action_leave) {
             ChatSDK.thread().leaveThread(thread).doOnComplete(this::finish).subscribe(this);

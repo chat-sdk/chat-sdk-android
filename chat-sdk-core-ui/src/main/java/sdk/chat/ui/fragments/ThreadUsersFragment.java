@@ -25,6 +25,8 @@ import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.dao.UserThreadLink;
+import sdk.chat.core.defines.Availability;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
@@ -100,8 +102,13 @@ public class ThreadUsersFragment extends BaseFragment {
                 .subscribe(networkEvent -> loadData(true)));
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated, EventType.ThreadUserRoleUpdated))
+                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
                 .subscribe(networkEvent -> loadData(true)));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterRoleUpdated(thread))
+                .subscribe(networkEvent -> loadData(true)));
+
     }
 
     public void initViews() {
@@ -116,6 +123,19 @@ public class ThreadUsersFragment extends BaseFragment {
                 }
             }
             return user.getStatus();
+        });
+
+        adapter.setRowBinder((holder, item) -> {
+            holder.bind(item);
+            if (item instanceof User) {
+                User user = (User) item;
+                UserThreadLink link = thread.getUserThreadLink(user.getId());
+                if (link.isActive()) {
+                    holder.setAvailability(Availability.Available);
+                } else {
+                    holder.setAvailability(Availability.Unavailable);
+                }
+            }
         });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -180,11 +200,9 @@ public class ThreadUsersFragment extends BaseFragment {
         // If this is not a dialog we will load the contacts of the user.
         if (thread != null) {
             // Remove the current user from the list.
-            List<User> users = thread.getUsers();
+            List<User> users = thread.getMembers();
             for (User u : users) {
-                if (!u.isMe()) {
-                    sourceUsers.add(u);
-                }
+                sourceUsers.add(u);
             }
         }
     }

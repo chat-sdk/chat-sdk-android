@@ -32,7 +32,7 @@ public class XMPPReceiptReceivedListener implements ReceiptReceivedListener {
                         from = ChatSDK.db().fetchUserWithEntityID(fromJid.asBareJid().toString());
                     } else if (thread.typeIs(ThreadType.Group)) {
                         try {
-                            MultiUserChat chat = XMPPManager.shared().mucManager.getRoom(thread.getEntityID());
+                            MultiUserChat chat = XMPPManager.shared().mucManager.getChat(thread.getEntityID());
                             String userEntityID = XMPPManager.shared().mucManager.userJID(chat, fromJid);
                             from = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEntityID);
                         } catch (Exception e) {

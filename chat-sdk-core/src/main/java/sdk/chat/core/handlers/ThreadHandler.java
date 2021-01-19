@@ -140,6 +140,9 @@ public interface ThreadHandler {
     boolean canChangeModerator(Thread thread, User user);
     boolean isModerator(Thread thread, User user);
 
+    boolean canRefreshRoles(Thread thread);
+    Completable refreshRoles(Thread thread);
+
     boolean isBanned(Thread thread, User user);
 
 }
