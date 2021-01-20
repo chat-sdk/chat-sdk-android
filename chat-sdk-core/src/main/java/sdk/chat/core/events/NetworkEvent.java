@@ -71,9 +71,9 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.ThreadRemoved, thread);
     }
 
-    public static NetworkEvent threadDetailsUpdated(Thread thread) {
-        return new NetworkEvent(EventType.ThreadDetailsUpdated, thread);
-    }
+//    public static NetworkEvent threadDetailsUpdated(Thread thread) {
+//        return new NetworkEvent(EventType.ThreadDetailsUpdated, thread);
+//    }
 
 //    public static NetworkEvent threadMarkedRead(Thread thread) {
 //        return new NetworkEvent(EventType.ThreadMarkedRead, thread);
@@ -110,8 +110,16 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.MessageRemoved, thread, message);
     }
 
-    public static NetworkEvent threadUsersUpdated(Thread thread, User user) {
-        return new NetworkEvent(EventType.ThreadUsersUpdated, thread, null, user);
+    public static NetworkEvent threadUserUpdated(Thread thread, User user) {
+        return new NetworkEvent(EventType.ThreadUserUpdated, thread, null, user);
+    }
+
+    public static NetworkEvent threadUserAdded(Thread thread, User user) {
+        return new NetworkEvent(EventType.ThreadUserUpdated, thread, null, user);
+    }
+
+    public static NetworkEvent threadUserRemoved(Thread thread, User user) {
+        return new NetworkEvent(EventType.ThreadUserUpdated, thread, null, user);
     }
 
     public static NetworkEvent threadUsersRoleUpdated(Thread thread, User user) {
@@ -213,7 +221,7 @@ public class NetworkEvent {
     public static Predicate<NetworkEvent> filterRoleUpdated(final Thread thread, @Nullable final User user) {
         return networkEvent -> {
             boolean match = networkEvent.typeIs(EventType.ThreadUserRoleUpdated);
-            match = match && networkEvent.getThread().equalsEntity(thread) && thread.containsUser(networkEvent.getUser());
+            match = match && networkEvent.getThread().equalsEntity(thread);
             if (match && user != null) {
                 match = user.equalsEntity(networkEvent.getUser());
             }
@@ -283,20 +291,23 @@ public class NetworkEvent {
             return true;
         };
     }
-    public static Predicate<NetworkEvent> threadDetailsUpdated() {
-        return filterType(
-                EventType.ThreadDetailsUpdated,
-                EventType.ThreadUsersUpdated,
-                EventType.UserMetaUpdated // Be careful to check that the user is a member of the thread...
-        );
-    }
 
-    public static Predicate<NetworkEvent> threadsUpdated() {
+//    public static Predicate<NetworkEvent> threadMetaUpdated() {
+//        return filterType(
+////                EventType.ThreadDetailsUpdated,
+////                EventType.ThreadUsersUpdated,
+//                EventType.UserMetaUpdated // Be careful to check that the user is a member of the thread...
+//        );
+//    }
+
+    protected static Predicate<NetworkEvent> threadsUpdated() {
         return filterType(
-                EventType.ThreadDetailsUpdated,
+//                EventType.ThreadDetailsUpdated,
                 EventType.ThreadAdded,
                 EventType.ThreadRemoved,
-                EventType.ThreadUsersUpdated,
+                EventType.ThreadUserAdded,
+                EventType.ThreadUserRemoved,
+                EventType.ThreadUserUpdated,
                 EventType.MessageAdded,
                 EventType.MessageRemoved,
                 EventType.MessageReadReceiptUpdated,
@@ -324,12 +335,12 @@ public class NetworkEvent {
         );
     }
 
-    public static Predicate<NetworkEvent> filterThreadUsersUpdated() {
-        return filterType(
-                EventType.ThreadUsersUpdated,
-                EventType.UserPresenceUpdated
-        );
-    }
+//    public static Predicate<NetworkEvent> filterThreadUsersUpdated() {
+//        return filterType(
+//                EventType.ThreadUsersUpdated,
+//                EventType.UserPresenceUpdated
+//        );
+//    }
 
     public MessageSendProgress getMessageSendProgress() {
         if (data != null && data.containsKey(MessageSendProgress)) {

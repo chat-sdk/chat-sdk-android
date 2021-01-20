@@ -177,7 +177,7 @@ public class Thread extends AbstractEntity {
 
     public void addUser(User user, boolean notify) {
         if (DaoCore.connectUserAndThread(user, this) && notify) {
-            ChatSDK.events().source().accept(NetworkEvent.threadUsersUpdated(this, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUserAdded(this, user));
         }
 //        user.update();
 //        update();
@@ -190,7 +190,7 @@ public class Thread extends AbstractEntity {
 
     public void removeUser(User user, boolean notify) {
         if(DaoCore.breakUserAndThread(user, this) && notify) {
-            ChatSDK.events().source().accept(NetworkEvent.threadUsersUpdated(this, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUserRemoved(this, user));
         }
 //        user.update();
 //        update();

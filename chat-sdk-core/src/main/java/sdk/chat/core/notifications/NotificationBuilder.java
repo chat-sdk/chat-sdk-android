@@ -263,7 +263,7 @@ public class NotificationBuilder {
                         builder.setLargeIcon(scaleLargeIcon(bitmap));
                     }
                     return builder;
-                });
+                }).onErrorReturnItem(builder);
             }
             return Single.just(builder);
         }).subscribeOn(RX.quick());

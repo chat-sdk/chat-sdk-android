@@ -82,7 +82,7 @@ public class XMPPMessageParser {
             // Get the link
             UserThreadLink link = thread.getUserThreadLink(message.getSender().getId());
             if (link.setHasLeft(true)) {
-                ChatSDK.events().source().accept(NetworkEvent.threadUsersUpdated(thread, message.getSender()));
+                ChatSDK.events().source().accept(NetworkEvent.threadUserRemoved(thread, message.getSender()));
             }
         }
 

@@ -61,6 +61,7 @@ import sdk.chat.ui.fragments.PrivateThreadsFragment;
 import sdk.chat.ui.fragments.PublicThreadsFragment;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.recycler.ModerationActivity;
 
 public class BaseInterfaceAdapter implements InterfaceAdapter {
 
@@ -80,6 +81,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class<? extends Activity> threadDetailsActivity = ThreadDetailsActivity.class;
     protected Class<? extends Activity> editThreadActivity = EditThreadActivity.class;
     protected Class<? extends Activity> postRegistrationActivity = PostRegistrationActivity.class;
+    protected Class<? extends Activity> moderationActivity = ModerationActivity.class;
 
     protected Class<? extends Activity> searchActivity = SearchActivity.class;
     protected Class<? extends Activity> editProfileActivity = EditProfileActivity.class;
@@ -259,6 +261,11 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
+    public Class<? extends Activity> getModerationActivity() {
+        return moderationActivity;
+    }
+
+    @Override
     public void setMainActivity (Class<? extends Activity> mainActivity) {
         this.mainActivity = mainActivity;
     }
@@ -367,6 +374,11 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public void setProfileActivity (Class<? extends Activity> profileActivity) {
         this.profileActivity = profileActivity;
+    }
+
+    @Override
+    public void setModerationActivity(Class<? extends Activity> moderationActivity) {
+        this.moderationActivity = moderationActivity;
     }
 
     public Intent intentForActivity(Context context, Class<? extends Activity> activity, Map<String, Object> extras, int flags) {
@@ -523,6 +535,18 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         }
 //        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 //        context.startActivity(intent);
+        startActivity(context, intent);
+    }
+
+    @Override
+    public void startModerationActivity(Context context, String threadEntityID, String userEntityID) {
+        Intent intent = new Intent(context, getModerationActivity());
+        if (threadEntityID != null) {
+            intent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
+        }
+        if (userEntityID != null) {
+            intent.putExtra(Keys.IntentKeyUserEntityID, userEntityID);
+        }
         startActivity(context, intent);
     }
 

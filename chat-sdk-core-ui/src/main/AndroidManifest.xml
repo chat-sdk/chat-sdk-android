@@ -44,6 +44,9 @@
         <activity android:name="sdk.chat.ui.activities.SearchActivity"
             android:windowSoftInputMode="stateVisible" />
 
+        <activity android:name="sdk.chat.ui.recycler.ModerationActivity"
+            android:windowSoftInputMode="stateVisible" />
+
         <activity android:name="sdk.chat.ui.activities.ProfileActivity"
             android:windowSoftInputMode="stateHidden"
             android:screenOrientation="portrait" />

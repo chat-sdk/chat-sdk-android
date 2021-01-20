@@ -8,59 +8,101 @@
 package sdk.chat.ui.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.jakewharton.rxrelay2.PublishRelay;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.dao.UserThreadLink;
+import sdk.chat.core.defines.Availability;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.core.utils.Strings;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
-import sdk.chat.ui.fragments.ThreadUsersFragment;
+import sdk.chat.ui.adapters.UsersListAdapter;
+import sdk.chat.ui.fragments.ProfileViewOffsetChangeListener;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ThreadImageBuilder;
 import sdk.chat.ui.utils.ToastHelper;
+import sdk.guru.common.RX;
 
 /**
  * Created by Ben Smiley on 24/11/14.
  */
 public class ThreadDetailsActivity extends ImagePreviewActivity {
 
-    protected Thread thread;
+    public class Option {
 
-    protected ThreadUsersFragment usersFragment;
+        @StringRes
+        public int resId;
+        public Consumer<User> action;
+
+        public Option(int resId, Consumer<User> action) {
+            this.resId = resId;
+            this.action = action;
+        }
+
+        public String getText(@NonNull Activity activity) {
+            return activity.getString(resId);
+        }
+    }
 
     protected ActionBar actionBar;
     @BindView(R2.id.toolbar) protected Toolbar toolbar;
     @BindView(R2.id.avatarImageView) protected CircleImageView avatarImageView;
-    @BindView(R2.id.threadUsersFrame) protected FrameLayout threadUsersFrame;
-//    @BindView(R2.id.titleTextView) protected TextView titleTextView;
 
     @BindView(R2.id.addUsersFab) protected FloatingActionButton addUsersFab;
     @BindView(R2.id.refreshFab) protected FloatingActionButton refreshFab;
     @BindView(R2.id.headerImageView) protected ImageView headerImageView;
+    @BindView(R2.id.recyclerView) protected RecyclerView recyclerView;
+    @BindView(R2.id.appbar) protected AppBarLayout appbar;
+    @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
+
+    protected Thread thread;
+
+    protected UsersListAdapter adapter;
+
+    protected PublishRelay<User> onClickRelay = PublishRelay.create();
+    protected PublishRelay<User> onLongClickRelay = PublishRelay.create();
+
+    protected List<UserListItem> members = new ArrayList<>();
+
+    protected AlertDialog userDialog;
+    protected AlertDialog rolesDialog;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -87,12 +129,106 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
 
         initViews();
 
-        // Depending on the thread type, disable / enable options
-//        if (thread.typeIs(ThreadType.Private1to1)) {
-//            titleTextView.setVisibility(View.INVISIBLE);
-//        } else {
-//            titleTextView.setVisibility(View.VISIBLE);
-//        }
+    }
+
+    protected void initViews() {
+        super.initViews();
+
+        appbar.addOnOffsetChangedListener(new ProfileViewOffsetChangeListener(avatarImageView));
+        appbar.addOnOffsetChangedListener(new ProfileViewOffsetChangeListener(onlineIndicator));
+
+        if (thread.typeIs(ThreadType.Group)) {
+            onlineIndicator.setVisibility(View.INVISIBLE);
+        } else {
+            onlineIndicator.setVisibility(View.VISIBLE);
+        }
+
+        // Create the adapter only if null this is here so we wont
+        // override the adapter given from the extended class with setAdapter.
+        adapter = new UsersListAdapter(null, false, user -> {
+            if (ChatSDK.thread().rolesEnabled(thread) && user instanceof User) {
+                String role = ChatSDK.thread().roleForUser(thread, (User) user);
+                if (role != null) {
+                    return ChatSDK.thread().localizeRole(role);
+                }
+            }
+            return user.getStatus();
+        });
+
+        adapter.setRowBinder((holder, item) -> {
+            holder.bind(item);
+            if (item instanceof User) {
+                User user = (User) item;
+                UserThreadLink link = thread.getUserThreadLink(user.getId());
+                if (link.isActive()) {
+                    holder.setAvailability(Availability.Available);
+                } else {
+                    holder.setAvailability(Availability.Unavailable);
+                }
+            }
+        });
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+
+        dm.add(adapter.onClickObservable().subscribe(o -> {
+            if (o instanceof User) {
+                User user = (User) o;
+                onClickRelay.accept(user);
+
+                List<Option> options = getOptionsForUser(user);
+
+                if (options.size() == 1) {
+                    options.get(0).action.accept(user);
+                } else {
+                    showUserDialog(user);
+                }
+
+            }
+        }));
+
+        dm.add(adapter.onLongClickObservable().subscribe(o -> {
+            if (o instanceof User) {
+                User user = (User) o;
+                onLongClickRelay.accept(user);
+            }
+        }));
+
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.ThreadUserAdded))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+                .subscribe(networkEvent -> {
+                    adapter.addUser(networkEvent.getUser(), -1, true, true);
+                }, this));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.ThreadUserRemoved))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+                .subscribe(networkEvent -> {
+                    adapter.removeUser(networkEvent.getUser());
+                }, this));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated))
+                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+                .subscribe(networkEvent -> {
+                    reloadInterface();
+                }, this));
+
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterRoleUpdated(thread))
+                .subscribe(networkEvent -> adapter.updateUser(networkEvent.getUser()), this));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterPresence(thread))
+                .subscribe(networkEvent -> {
+                    adapter.updateUser(networkEvent.getUser());
+                    if (thread.typeIs(ThreadType.Private1to1)) {
+                        UIModule.shared().getOnlineStatusBinder().bind(onlineIndicator, thread.otherUser().getIsOnline());
+                    }
+                }));
 
         if (ChatSDK.thread().canAddUsersToThread(thread)) {
             addUsersFab.setImageDrawable(Icons.get(this, Icons.choose().add, R.color.white));
@@ -117,32 +253,18 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         headerImageView.setImageResource(profileHeader);
 
         ChatSDK.thread().refreshRoles(thread).subscribe();
+
+        reloadData(true);
+        reloadInterface();
     }
 
-    protected void initViews() {
-        super.initViews();
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .subscribe(networkEvent -> reloadData(), this));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterRoleUpdated(thread))
-                .subscribe(networkEvent -> reloadData(), this));
-
-        reloadData();
-    }
-
-    protected void reloadData() {
+    public void reloadInterface() {
         actionBar = getSupportActionBar();
         String name = Strings.nameForThread(thread);
         if (actionBar != null) {
             actionBar.setTitle(name);
             actionBar.setHomeButtonEnabled(true);
         }
-
-//        titleTextView.setText(name);
 
         if (!StringChecker.isNullOrEmpty(thread.getImageUrl())) {
             avatarImageView.setOnClickListener(v -> zoomImageFromThumbnail(avatarImageView, thread.getImageUrl()));
@@ -151,13 +273,19 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
             ThreadImageBuilder.load(avatarImageView, thread, Dimen.from(this, R.dimen.large_avatar_width));
             avatarImageView.setOnClickListener(null);
         }
+    }
 
-        // CoreThread users bundle
-        if (usersFragment == null) {
-            usersFragment = new ThreadUsersFragment(thread);
-            getSupportFragmentManager().beginTransaction().replace(R.id.threadUsersFrame, usersFragment).commit();
-        } else {
-            usersFragment.loadData(false);
+    public void reloadData(final boolean force) {
+
+        final ArrayList<UserListItem> originalUserList = new ArrayList<>(members);
+
+        members.clear();
+
+        // If this is not a dialog we will load the contacts of the user.
+        members.addAll(thread.getMembers());
+
+        if (!originalUserList.equals(members) || force) {
+            adapter.setUsers(members, true);
         }
     }
 
@@ -167,7 +295,7 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         if (ChatSDK.thread().canRefreshRoles(thread)) {
             ChatSDK.thread().refreshRoles(thread).subscribe();
         }
-        reloadData();
+//        reloadData(false);
     }
 
     @Override
@@ -274,4 +402,124 @@ public class ThreadDetailsActivity extends ImagePreviewActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
+    protected void showRoleListDialog(User user) {
+
+        ChatSDK.ui().startModerationActivity(this, thread.getEntityID(), user.getEntityID());
+
+        return;
+//        if (rolesDialog != null) {
+//            rolesDialog.dismiss();
+//        }
+//
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        builder.setTitle(R.string.change_role);
+//
+//        final List<String> roles = ChatSDK.thread().availableRoles(thread, user);
+//        final List<String> localizedRoles = ChatSDK.thread().localizeRoles(roles);
+//
+//        final String currentRole = ChatSDK.thread().roleForUser(thread, user);
+//        int checked = roles.indexOf(currentRole);
+//
+//        builder.setSingleChoiceItems(localizedRoles.toArray(new String[0]), checked, (dialog, which) -> {
+//            String newRole = roles.get(which);
+//            if (!newRole.equals(currentRole)) {
+//                dm.add(ChatSDK.thread().setRole(newRole, thread, user).observeOn(RX.main()).subscribe(() -> {
+//                    ToastHelper.show(this, R.string.success);
+//                }, this));
+//            }
+//            dialog.dismiss();
+//        });
+//
+//        rolesDialog = builder.show();
+    }
+
+    protected void showUserDialog(User user) {
+
+        ChatSDK.ui().startModerationActivity(this, thread.getEntityID(), user.getEntityID());
+
+
+//
+//        if (userDialog != null) {
+//            userDialog.dismiss();
+//        }
+//
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//
+//        List<Option> options = getOptionsForUser(user);
+//
+//        ArrayList<String> optionStrings = new ArrayList<>();
+//        for (Option o : options) {
+//            optionStrings.add(o.getText(this));
+//        }
+//
+//        builder.setTitle(this.getString(R.string.actions)).setItems(optionStrings.toArray(new String[0]), (dialog, which) -> {
+//            try {
+//                options.get(which).action.accept(user);
+//            } catch (Exception e) {
+//                ToastHelper.show(this, e.getLocalizedMessage());
+//            }
+//        });
+//
+//        userDialog = builder.show();
+    }
+
+    protected List<Option> getOptionsForUser(User user) {
+        ArrayList<Option> options = new ArrayList<>();
+
+        // Add the onClick options
+        options.add(new Option(R.string.profile, this::showProfile));
+
+        // Edit roles
+        if (ChatSDK.thread().canChangeRole(thread, user)) {
+            options.add(new Option(R.string.change_role, this::showRoleListDialog));
+        }
+
+        // Make a user a moderator
+        if (ChatSDK.thread().canChangeModerator(thread, user)) {
+            if (ChatSDK.thread().isModerator(thread, user)) {
+                options.add(new Option(R.string.revoke_moderator, user1 -> {
+                    dm.add(ChatSDK.thread().revokeModerator(thread, user1).observeOn(RX.main()).subscribe(() -> {
+                        ToastHelper.show(this, R.string.success);
+                    }, this));
+                }));
+            } else {
+                options.add(new Option(R.string.grant_moderator, user1 -> {
+                    dm.add(ChatSDK.thread().grantModerator(thread, user1).observeOn(RX.main()).subscribe(() -> {
+                        ToastHelper.show(this, R.string.success);
+                    }, this));
+                }));
+            }
+        }
+
+        if (ChatSDK.thread().canChangeVoice(thread, user)) {
+            if (ChatSDK.thread().hasVoice(thread, user)) {
+                options.add(new Option(R.string.revoke_voice, user1 -> {
+                    dm.add(ChatSDK.thread().revokeVoice(thread, user1).observeOn(RX.main()).subscribe(() -> {
+                        ToastHelper.show(this, R.string.success);
+                    }, this));
+                }));
+            } else {
+                options.add(new Option(R.string.grant_voice, user1 -> {
+                    dm.add(ChatSDK.thread().grantVoice(thread, user1).observeOn(RX.main()).subscribe(() -> {
+                        ToastHelper.show(this, R.string.success);
+                    }, this));
+                }));
+            }
+        }
+
+        // Remove a user from the group
+        if (ChatSDK.thread().canRemoveUsersFromThread(thread, Collections.singletonList(user))) {
+            options.add(new Option(R.string.remove_from_group, u -> {
+                dm.add(ChatSDK.thread().removeUsersFromThread(thread, u).observeOn(RX.main()).subscribe(() -> {
+                    ToastHelper.show(this, R.string.success);
+                }, this));
+            }));
+        }
+
+        return options;
+    }
+
+    protected void showProfile(User user) {
+        ChatSDK.ui().startProfileActivity(this, user.getEntityID());
+    }
 }

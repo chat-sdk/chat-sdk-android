@@ -55,6 +55,7 @@ public interface InterfaceAdapter {
     Class<? extends Activity> getProfileActivity();
     Class<? extends Activity> getSplashScreenActivity();
     Class<? extends Activity> getPostRegistrationActivity();
+    Class<? extends Activity> getModerationActivity();
 
     void setLoginActivity(Class<? extends Activity> loginActivity);
     void setSplashScreenActivity(Class<? extends Activity> splashScreenActivity);
@@ -77,6 +78,7 @@ public interface InterfaceAdapter {
     void setSearchActivity(Class<? extends Activity> searchActivity);
     void setEditProfileActivity(Class<? extends Activity> editProfileActivity);
     void setProfileActivity(Class<? extends Activity> profileActivity);
+    void setModerationActivity(Class<? extends Activity> moderationActivity);
 
     void setPostRegistrationActivity (Class<? extends Activity> postRegistrationActivity);
     void setPrivateThreadsFragment(Fragment privateThreadsFragment);
@@ -116,6 +118,7 @@ public interface InterfaceAdapter {
     void startEditThreadActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs);
 
     void startThreadDetailsActivity(Context context, String threadEntityID);
+    void startModerationActivity(Context context, String threadEntityID, String userEntityID);
 
     void startProfileActivity(Context context, String userEntityID);
     void startEditProfileActivity(Context context, String userEntityID);

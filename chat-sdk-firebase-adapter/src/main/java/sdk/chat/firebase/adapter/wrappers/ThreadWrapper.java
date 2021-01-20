@@ -560,7 +560,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         model.setMetaValues(meta, false);
 
         model.update();
-        ChatSDK.events().source().accept(NetworkEvent.threadDetailsUpdated(model));
+        ChatSDK.events().source().accept(NetworkEvent.threadMetaUpdated(model));
     }
 
     /**

@@ -271,7 +271,15 @@ public class UserThreadLink {
 
     @Keep
     public boolean isBanned() {
-        return Boolean.parseBoolean(valueForKey(Keys.Banned)) || getAffiliation().equals(Affiliation.outcast.name());
+        boolean banned = Boolean.parseBoolean(valueForKey(Keys.Banned));
+        if (banned) {
+            return true;
+        }
+        String affiliation = getAffiliation();
+        if (affiliation != null) {
+            return affiliation.equals(Affiliation.outcast.name());
+        }
+        return false;
     }
 
     @Keep

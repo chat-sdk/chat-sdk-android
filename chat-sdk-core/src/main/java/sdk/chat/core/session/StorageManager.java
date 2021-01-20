@@ -200,7 +200,7 @@ public class StorageManager {
         return Single.defer(() -> Single.just(fetchThreadWithID(threadID)).subscribeOn(RX.db()));
     }
 
-    public Thread fetchThreadWithEntityID (String entityID) {
+    public @Nullable Thread fetchThreadWithEntityID (String entityID) {
         Logger.debug(java.lang.Thread.currentThread().getName());
         if(entityID != null) {
             return fetchEntityWithProperty(Thread.class, ThreadDao.Properties.EntityID, entityID);

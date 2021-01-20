@@ -33,6 +33,7 @@ import org.jxmpp.jid.DomainBareJid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
+import org.pmw.tinylog.Logger;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -416,7 +417,8 @@ public class XMPPManager {
                 mamManager().enableMamForAllMessages();
             }
         } catch (Exception e) {
-            ChatSDK.events().onError(e);
+            Logger.warn("MAM is not supported: " + e.getLocalizedMessage());
+//            ChatSDK.events().onError(e);
         }
 
         try {

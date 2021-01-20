@@ -46,7 +46,6 @@ import sdk.chat.ui.chat.model.TypingThreadHolder;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.interfaces.SearchSupported;
 import sdk.chat.ui.module.UIModule;
-import sdk.chat.ui.update.ThreadUpdateAction;
 import sdk.chat.ui.update.UpdateActionBatcher;
 import sdk.chat.ui.utils.GlideWith;
 import sdk.chat.ui.utils.ThreadImageBuilder;
@@ -56,6 +55,7 @@ import sdk.guru.common.RX;
 public abstract class ThreadsFragment extends BaseFragment implements SearchSupported {
 
     protected String filter;
+    protected boolean reloadDataOnResume = true;
 
     protected DialogsListAdapter<ThreadHolder> dialogsListAdapter;
     protected Map<Thread, ThreadHolder> threadHolderHashMap = new HashMap<>();
@@ -81,6 +81,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @Override
     public void onStart() {
         super.onStart();
+        reloadData();
         addListeners();
     }
 
@@ -88,6 +89,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     public void onStop() {
         super.onStop();
         removeListeners();
+        reloadDataOnResume = true;
     }
 
     @Override
@@ -97,9 +99,11 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         initViews();
 //        addListeners();
 
-        loadData();
+//        loadData();
 
         hideKeyboard();
+
+//        addListeners();
 
         return view;
     }
@@ -108,84 +112,130 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
         removeListeners();
 
-        this.batcher = new UpdateActionBatcher(100);
+//        this.batcher = new UpdateActionBatcher(100);
 
         // We batch updates to the threads fragment because potentially it could be updated from a lot of places
         // Thread meta, user meta, user presence, messages, read receipts
         // So we batch and combine updates to make it more efficient
-        dm.add(batcher.onUpdate().observeOn(RX.main()).subscribe(threadUpdateActions -> {
-            for (ThreadUpdateAction action : threadUpdateActions) {
-                if (action.type == ThreadUpdateAction.Type.Reload) {
-                    reloadData();
-                } else {
-                    if (action.type == ThreadUpdateAction.Type.SoftReload) {
-                        softReloadData();
-                    }
-                    if (action.type == ThreadUpdateAction.Type.Add) {
-                        addOrUpdateThread(action.thread);
-                    } else if (action.type == ThreadUpdateAction.Type.Remove) {
-                        removeThread(action.thread);
-                    } else if (action.type == ThreadUpdateAction.Type.Update) {
-                        dialogsListAdapter.updateItemById(action.holder);
-                    } else if (action.type == ThreadUpdateAction.Type.UpdateMessage) {
-                        updateMessage(action.message);
-                    }
-                }
-            }
-        }, throwable -> {
-            onError(throwable);
-        }));
+//        dm.add(batcher.onUpdate().observeOn(RX.main()).subscribe(threadUpdateActions -> {
+//            for (ThreadUpdateAction action : threadUpdateActions) {
+//                if (action.type == ThreadUpdateAction.Type.Reload) {
+//                    reloadData();
+//                } else {
+//                    if (action.type == ThreadUpdateAction.Type.SoftReload) {
+//                        softReloadData();
+//                    }
+//                    if (action.type == ThreadUpdateAction.Type.Add) {
+//                        addOrUpdateThread(action.thread);
+//                    } else if (action.type == ThreadUpdateAction.Type.Remove) {
+//                        removeThread(action.thread);
+//                    } else if (action.type == ThreadUpdateAction.Type.Update) {
+//                        dialogsListAdapter.updateItemById(action.holder);
+//                    } else if (action.type == ThreadUpdateAction.Type.UpdateMessage) {
+//                        updateMessage(action.message);
+//                    }
+//                }
+//            }
+//        }, throwable -> {
+//            onError(throwable);
+//        }));
 
         dm.add(ChatSDK.events().sourceOnBackground()
                 .filter(mainEventFilter())
+                .observeOn(RX.main())
                 .subscribe(networkEvent -> {
 
                     Logger.debug("Network Event: " + networkEvent.type);
 
                     final Thread thread = networkEvent.getThread();
-                    final boolean inList = inList(thread);
+                    if (thread != null) {
+                        ThreadHolder holder = threadHolderHashMap.get(thread);
+                        final boolean inList = holder != null;
 
-                    // This stops a case where the thread details updated could be called before the thread is added
-                    if (networkEvent.typeIs(EventType.ThreadAdded)) {
-                        if (!inList) {
-                            batcher.addAction(ThreadUpdateAction.add(thread));
-                        }
-                    } else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
-                        if (inList) {
-                            batcher.addAction(ThreadUpdateAction.remove(thread));
-                        }
-                    }
-                    else if (networkEvent.typeIs(EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated, EventType.MessageReadReceiptUpdated)) {
-                        if (inList) {
-                            batcher.addAction(ThreadUpdateAction.add(thread));
-                        }
-                    }
-                    else if (networkEvent.typeIs(EventType.TypingStateUpdated)) {
-                        if (inList) {
-                            if (networkEvent.getText() != null) {
-                                String typingText = networkEvent.getText();
-                                typingText += getString(R.string.typing);
-                                batcher.addAction(ThreadUpdateAction.update(thread, new TypingThreadHolder(thread, typingText)));
-                            } else {
-                                getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder -> {
-                                    batcher.addAction(ThreadUpdateAction.update(thread, holder));
-                                }).subscribe();
+                        if (networkEvent.typeIs(EventType.ThreadAdded)) {
+                            if (!inList) {
+                                addOrUpdateThread(thread);
                             }
                         }
-                    }
-                    else if (networkEvent.typeIs(EventType.UserMetaUpdated, EventType.UserPresenceUpdated)) {
-                        batcher.addSoftReload();
-                    } else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated)) {
-                        final Message message = networkEvent.getMessage();
-                        if (message != null) {
-                            Message lastMessage = thread.lastMessage();
-                            if (lastMessage == null || lastMessage.equals(message)) {
-                                batcher.addAction(ThreadUpdateAction.updateMessage(message));
+                        else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
+                            if (inList) {
+                                removeThread(thread);
+                            }
+                        }
+                        else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated)) {
+                            if (inList) {
+                                dm.add(holder.updateAsync().observeOn(RX.main()).subscribe(() -> {
+                                    dialogsListAdapter.updateItemById(holder);
+                                }));
+                            }
+                        }
+                        else if (networkEvent.typeIs(EventType.TypingStateUpdated)) {
+                            if (inList) {
+                                if (networkEvent.getText() != null) {
+                                    String typingText = networkEvent.getText();
+                                    typingText += getString(R.string.typing);
+                                    dialogsListAdapter.updateItemById(new TypingThreadHolder(thread, typingText));
+                                } else {
+                                    dialogsListAdapter.updateItemById(holder);
+                                }
+                            }
+                        }
+                        else {
+                            if (inList) {
+                                dialogsListAdapter.updateItemById(holder);
                             }
                         }
                     } else {
-                        batcher.addReload();
+                        if (networkEvent.typeIs(EventType.UserPresenceUpdated, EventType.UserMetaUpdated)) {
+                            softReloadData();
+                        }
                     }
+
+//                    final boolean inList = inList(thread);
+
+
+
+//                    // This stops a case where the thread details updated could be called before the thread is added
+//                    if (networkEvent.typeIs(EventType.ThreadAdded)) {
+//                        if (!inList) {
+//                            batcher.addAction(ThreadUpdateAction.add(thread));
+//                        }
+//                    } else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
+//                        if (inList) {
+//                            batcher.addAction(ThreadUpdateAction.remove(thread));
+//                        }
+//                    }
+//                    else if (networkEvent.typeIs(EventType.ThreadMetaUpdated, EventType.ThreadUserAdded, EventType.ThreadUserRemoved, EventType.MessageReadReceiptUpdated)) {
+//                        if (inList) {
+//                            batcher.addAction(ThreadUpdateAction.add(thread));
+//                        }
+//                    }
+//                    else if (networkEvent.typeIs(EventType.TypingStateUpdated)) {
+//                        if (inList) {
+//                            if (networkEvent.getText() != null) {
+//                                String typingText = networkEvent.getText();
+//                                typingText += getString(R.string.typing);
+//                                batcher.addAction(ThreadUpdateAction.update(thread, new TypingThreadHolder(thread, typingText)));
+//                            } else {
+//                                getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder -> {
+//                                    batcher.addAction(ThreadUpdateAction.update(thread, holder));
+//                                }).subscribe();
+//                            }
+//                        }
+//                    }
+//                    else if (networkEvent.typeIs(EventType.UserMetaUpdated, EventType.UserPresenceUpdated)) {
+//                        batcher.addSoftReload();
+//                    } else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated)) {
+//                        final Message message = networkEvent.getMessage();
+//                        if (message != null) {
+//                            Message lastMessage = thread.lastMessage();
+//                            if (lastMessage == null || lastMessage.equals(message)) {
+//                                batcher.addAction(ThreadUpdateAction.updateMessage(message));
+//                            }
+//                        }
+//                    } else {
+//                        batcher.addReload();
+//                    }
                 }));
     }
 
@@ -285,7 +335,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @Override
     public void onResume() {
         super.onResume();
-        reloadData();
+//        reloadData();
     }
 
     @Override
@@ -309,7 +359,10 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     @Override
     public void reloadData() {
-        loadData();
+        if (reloadDataOnResume) {
+            loadData();
+            reloadDataOnResume = false;
+        }
     }
 
     public void softReloadData() {

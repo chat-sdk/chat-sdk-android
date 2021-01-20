@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import io.reactivex.Observable;
+import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.ui.R;
 import sdk.chat.ui.view_holders.UserViewHolder;
@@ -156,20 +157,35 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     public void addUser(UserListItem user, boolean notify) {
-        addUser(user, -1, notify);
+        addUser(user, -1, notify, false);
     }
 
-    public void addUser(UserListItem user, int atIndex, boolean notify) {
+    public void addUser(UserListItem user, int atIndex, boolean notify, boolean sort) {
         if (!items.contains(user)) {
             if (atIndex >= 0) {
                 items.add(atIndex, user);
             } else {
                 items.add(user);
             }
+            if (sort) {
+                sortList(items);
+            }
             if (notify) {
                 notifyDataSetChanged();
             }
         }
+    }
+
+    public void updateUser(User user) {
+        int index = items.indexOf(user);
+        if (index >= 0) {
+            notifyItemChanged(index);
+        }
+    }
+
+    public void removeUser(UserListItem user) {
+        items.remove(user);
+        notifyDataSetChanged();
     }
 
     public List<UserListItem> getSelectedUsers() {

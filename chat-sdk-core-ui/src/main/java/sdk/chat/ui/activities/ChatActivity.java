@@ -288,9 +288,8 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             Debug.startMethodTracing("chat");
         }
 
-
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated))
+                .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated, EventType.ThreadUserAdded, EventType.ThreadUserRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> chatActionBar.reload(thread)));
 
@@ -302,16 +301,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     reloadData();
                     chatActionBar.reload(thread);
                 }));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .filter(networkEvent -> thread.containsUser(networkEvent.getUser()))
-                .subscribe(networkEvent -> {
-                    reloadData();
-                    chatActionBar.reload(thread);
-                }));
-
 
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.TypingStateUpdated))

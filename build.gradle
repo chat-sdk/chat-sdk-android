@@ -83,6 +83,7 @@ ext {
     pdfiumVersion = "1.9.0"
 
     smackVersion = "4.3.4"
+    activity_ktx_version = "1.1.0"
 
 }
 
