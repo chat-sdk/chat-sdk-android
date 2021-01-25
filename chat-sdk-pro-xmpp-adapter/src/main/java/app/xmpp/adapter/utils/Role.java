@@ -1,246 +1,103 @@
 package app.xmpp.adapter.utils;
 
-import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MUCAffiliation;
 import org.jivesoftware.smackx.muc.MUCRole;
 
 import app.xmpp.adapter.R;
 import sdk.chat.core.session.ChatSDK;
 
-
 public class Role {
 
-    public static int None = 0x0;
-
-    public static int Owner = 0x1;
-    public static int Admin = 0x2;
-    public static int Member = 0x4;
-    public static int Outcast = 0x8;
-
-    public static int Moderator = 0x10;
-    public static int Participant = 0x20;
-    public static int Visitor = 0x40;
-
-    public static String toString(int roleInt) {
-        MUCAffiliation affiliation = intToAffiliation(roleInt);
-        MUCRole role = intToRole(roleInt);
-
-        if (affiliation == MUCAffiliation.owner) {
-            return ChatSDK.getString(R.string.owner);
-        }
-        if (affiliation == MUCAffiliation.admin) {
-            return ChatSDK.getString(R.string.admin);
-        }
-        if (role == MUCRole.moderator) {
-            return ChatSDK.getString(R.string.moderator);
-        }
-        if (affiliation == MUCAffiliation.member) {
-            return ChatSDK.getString(R.string.member);
-        }
-        if (role == MUCRole.participant) {
-            return ChatSDK.getString(R.string.participant);
-        }
-        if (role == MUCRole.visitor) {
-            return ChatSDK.getString(R.string.visitor);
-        }
-        if (affiliation == MUCAffiliation.outcast) {
-            return ChatSDK.getString(R.string.outcast);
-        }
-        return ChatSDK.getString(R.string.none);
+    public static Boolean is(String role, MUCAffiliation affiliation) {
+        return role.equals(affiliation.name());
     }
 
-    public static String toString(MUCAffiliation affiliation) {
+    public static Boolean is(String role, MUCRole mucRole) {
+        return role.equals(mucRole.name());
+    }
+
+    public static Boolean isOwner(String role) {
+        return is(role, MUCAffiliation.owner);
+    }
+
+    public static Boolean isAdmin(String role) {
+        return is(role, MUCAffiliation.admin);
+    }
+
+    public static Boolean isOwnerOrAdmin(String role) {
+        return isOwner(role) || isAdmin(role);
+    }
+
+    public static Boolean canRead(String role) {
+        return isOwner(role) || isAdmin(role) || isMember(role);
+    }
+
+    public static Boolean isMember(String role) {
+        return is(role, MUCAffiliation.member);
+    }
+
+    public static Boolean isOutcast(String role) {
+        return is(role, MUCAffiliation.outcast);
+    }
+
+    public static Boolean isNone(String role) {
+        return is(role, MUCAffiliation.none);
+    }
+
+    public static Boolean isMemberOrOutcast(String role) {
+        return isMember(role) || isOutcast(role);
+    }
+
+    public static Integer level(String role) {
+        if (isOwner(role)) {
+            return 4;
+        }
+        if (isAdmin(role)) {
+            return 3;
+        }
+        if (isMember(role)) {
+            return 2;
+        }
+        if (isOutcast(role)) {
+            return 1;
+        }
+        return 0;
+    }
+
+    public static Boolean isModerator(String role) {
+        return is(role, MUCRole.moderator);
+    }
+
+    public static Boolean isVisitor(String role) {
+        return is(role, MUCRole.visitor);
+    }
+
+    public static Boolean isParticipant(String role) {
+        return is(role, MUCRole.participant);
+    }
+
+    public static String toString(String role) {
         String affiliationString;
-        if (affiliation == MUCAffiliation.owner) {
+        if (isOwner(role)) {
             affiliationString = ChatSDK.getString(R.string.owner);
         }
-        else if (affiliation == MUCAffiliation.admin) {
+        else if (isAdmin(role)) {
             affiliationString = ChatSDK.getString(R.string.admin);
         }
-        else if (affiliation == MUCAffiliation.member) {
+        else if (isMember(role)) {
             affiliationString = ChatSDK.getString(R.string.member);
         }
-        else if (affiliation == MUCAffiliation.outcast) {
+        else if (isOutcast(role)) {
             affiliationString = ChatSDK.getString(R.string.outcast);
-        } else {
+        }
+        else if (isNone(role)) {
 //            affiliationString = ChatSDK.getString(R.string.none);
-            affiliationString = null;
+            affiliationString ="";
+        }
+        else {
+            affiliationString = role;
         }
         return affiliationString;
     }
 
-    public static String toString(MUCRole role) {
-        if (role == MUCRole.moderator) {
-            return ChatSDK.getString(R.string.moderator);
-        }
-        if (role == MUCRole.participant) {
-            return ChatSDK.getString(R.string.participant);
-        }
-        if (role == MUCRole.visitor) {
-            return ChatSDK.getString(R.string.visitor);
-        }
-        return ChatSDK.getString(R.string.none);
-    }
-//    public static int fromString(String string) {
-//        if (string != null) {
-//            if (string.equals(ChatSDK.getString(R.string.owner))) {
-//                return Owner;
-//            }
-//            if (string.equals(ChatSDK.getString(R.string.admin))) {
-//                return Admin;
-//            }
-//            if (string.equals(ChatSDK.getString(R.string.moderator))) {
-//                return Moderator;
-//            }
-//            if (string.equals(ChatSDK.getString(R.string.member))) {
-//                return MUCAffiliation.outcast;
-//            }
-//            if (string.equals(ChatSDK.getString(R.string.participant))) {
-//                return MUCAffiliation.outcast;
-//            }
-//            if (string.equals(ChatSDK.getString(R.string.visitor))) {
-//                return MUCAffiliation.outcast;
-//            }
-//            if (string.equals(ChatSDK.getString(R.string.outcast))) {
-//                return MUCAffiliation.outcast;
-//            }
-//            if (string.equals(ChatSDK.getString(R.string.outcast))) {
-//                return MUCAffiliation.outcast;
-//            }
-//        }
-//        return None;
-//    }
-
-
-
-    public static MUCAffiliation affiliationFromString(String string) {
-        if (string != null) {
-            if (string.equals(ChatSDK.getString(R.string.owner))) {
-                return MUCAffiliation.owner;
-            }
-            if (string.equals(ChatSDK.getString(R.string.admin))) {
-                return MUCAffiliation.admin;
-            }
-            if (string.equals(ChatSDK.getString(R.string.member))) {
-                return MUCAffiliation.member;
-            }
-            if (string.equals(ChatSDK.getString(R.string.outcast))) {
-                return MUCAffiliation.outcast;
-            }
-            return MUCAffiliation.none;
-        }
-        return null;
-    }
-
-    public static MUCRole roleFromString(String string) {
-        if (string != null) {
-            if (string.equals(ChatSDK.getString(R.string.moderator))) {
-                return MUCRole.moderator;
-            }
-            if (string.equals(ChatSDK.getString(R.string.participant))) {
-                return MUCRole.participant;
-            }
-            if (string.equals(ChatSDK.getString(R.string.visitor))) {
-                return MUCRole.visitor;
-            }
-            return MUCRole.none;
-        }
-        return null;
-    }
-
-    public static int role(MUCAffiliation affiliation, MUCRole role) {
-        return affiliationToInt(affiliation) | roleToInt(role);
-    }
-
-    public static int affiliationToInt(MUCAffiliation affiliation) {
-        if (affiliation == null) {
-            return None;
-        }
-        switch (affiliation) {
-            case owner:
-                return Owner;
-            case admin:
-                return Admin;
-            case member:
-                return Member;
-            case outcast:
-                return Outcast;
-            case none:
-            default:
-                return None;
-        }
-    }
-
-    public static int roleToInt(MUCRole role) {
-        if (role == null) {
-            return None;
-        }
-        switch (role) {
-            case moderator:
-                return Moderator;
-            case participant:
-                return Participant;
-            case visitor:
-                return Visitor;
-            case none:
-            default:
-                return None;
-        }
-    }
-
-    public static MUCRole intToRole(int role) {
-        if ((role & Moderator) != 0) {
-            return MUCRole.moderator;
-        }
-        if ((role & Participant) != 0) {
-            return MUCRole.participant;
-        }
-        if ((role & Visitor) != 0) {
-            return MUCRole.visitor;
-        }
-        return MUCRole.none;
-    }
-
-    public static MUCAffiliation intToAffiliation(int role) {
-        if ((role & Owner) != 0) {
-            return MUCAffiliation.owner;
-        }
-        if ((role & Admin) != 0) {
-            return MUCAffiliation.admin;
-        }
-        if ((role & Member) != 0) {
-            return MUCAffiliation.member;
-        }
-        if ((role & Outcast) != 0) {
-            return MUCAffiliation.outcast;
-        }
-        return MUCAffiliation.none;
-    }
-
-    public static int fromAffiliate(Affiliate affiliate) {
-        if (affiliate != null) {
-            return affiliationToInt(affiliate.getAffiliation()) | roleToInt(affiliate.getRole());
-        }
-        return None;
-    }
-
-    public static boolean is(int role, int type) {
-        return (role & type) != 0;
-    }
-
-    public static boolean isAnd(int role, Integer... types) {
-        boolean is = true;
-        for (Integer type: types) {
-            is = is && is(role, type);
-        }
-        return is;
-    }
-
-    public static boolean isOr(int role, Integer... types) {
-        boolean is = false;
-        for (Integer type: types) {
-            is = is || is(role, type);
-        }
-        return is;
-    }
 }

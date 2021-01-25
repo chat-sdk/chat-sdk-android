@@ -25,6 +25,10 @@ public class XMPPConfig<T> extends BaseConfig<T> {
 
     public boolean allowServerConfiguration = true;
 
+
+    public boolean sendSystemMessageForRoleChange = true;
+    public boolean sendSystemMessageForAffiliationChange = false;
+
     public Class<? extends BaseNetworkAdapter> networkAdapter = XMPPNetworkAdapter.class;
 
     public XMPPConfig(T onBuild) {
@@ -190,5 +194,26 @@ public class XMPPConfig<T> extends BaseConfig<T> {
         this.networkAdapter = networkAdapter;
         return this;
     }
+
+    /**
+     * Should we send a local message when our role changes
+     * @param sendSystemMessageForRoleChange
+     * @return
+     */
+    public XMPPConfig<T> setSendSystemMessageForRoleChange(boolean sendSystemMessageForRoleChange) {
+        this.sendSystemMessageForRoleChange = sendSystemMessageForRoleChange;
+        return this;
+    }
+
+    /**
+     * Should we send a local message when our affiliation changes
+     * @param sendSystemMessageForAffiliationChange
+     * @return
+     */
+    public XMPPConfig setSendSystemMessageForAffiliationChange(boolean sendSystemMessageForAffiliationChange) {
+        this.sendSystemMessageForAffiliationChange = sendSystemMessageForAffiliationChange;
+        return this;
+    }
+
 
 }

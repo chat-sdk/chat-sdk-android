@@ -32,7 +32,6 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Predicate;
-import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
@@ -391,24 +390,24 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             }).subscribe();
         }
     }
-
-    protected void reloadThread(Thread thread) {
-        getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder -> {
-            dialogsListAdapter.updateItemById(holder);
-        }).subscribe();
-    }
-
-    protected void updateMessage(Message message) {
-        ThreadHolder holder = threadHolderHashMap.get(message.getThread());
-        if (holder != null) {
-            holder.updateAsync().observeOn(RX.main()).doOnComplete(() -> {
-                dialogsListAdapter.updateItemById(holder);
-            }).subscribe(this);
-        } else {
-            addOrUpdateThread(message.getThread());
-        }
-    }
-
+//
+//    protected void reloadThread(Thread thread) {
+//        getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder -> {
+//            dialogsListAdapter.updateItemById(holder);
+//        }).subscribe();
+//    }
+//
+//    protected void updateMessage(Message message) {
+//        ThreadHolder holder = threadHolderHashMap.get(message.getThread());
+//        if (holder != null) {
+//            holder.updateAsync().observeOn(RX.main()).doOnComplete(() -> {
+//                dialogsListAdapter.updateItemById(holder);
+//            }).subscribe(this);
+//        } else {
+//            addOrUpdateThread(message.getThread());
+//        }
+//    }
+//
     public void addOrUpdateThread(Thread thread) {
         ThreadHolder holder = threadHolderHashMap.get(thread);
         if (holder == null) {

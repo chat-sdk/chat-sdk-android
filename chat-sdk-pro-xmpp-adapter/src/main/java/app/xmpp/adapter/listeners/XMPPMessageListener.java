@@ -27,6 +27,10 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
     public void newIncomingMessage(EntityBareJid fromJID, Message message, Chat chat) {
         // Get the thread here before we parse the message. If the thread is null,
         // it will be created when we parse the message
+        XMPPMessageWrapper xmr = new XMPPMessageWrapper(message);
+        if (xmr.isSilent()) {
+            return;
+        }
 
         if(message.getLanguage() == null){
             message.setLanguage("en");
@@ -51,8 +55,13 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
         }
     }
 
+//    @Override
+//    public void newOutgoingMessage(EntityBareJid to, MessageBuilder messageBuilder, Chat chat) {
+//        Logger.debug("Outgoing Message");
+//    }
+
     @Override
     public void newOutgoingMessage(EntityBareJid to, Message message, Chat chat) {
-        Logger.debug("Outgoing Message");
+
     }
 }

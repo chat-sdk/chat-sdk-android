@@ -153,6 +153,7 @@ public class XMPPUserManager {
 
             UserSearchManager userSearchManager = manager.get().userSearchManager();
             Form searchForm = userSearchManager.getSearchForm(jid.asDomainBareJid());
+
             Form answerForm = searchForm.createAnswerForm();
 
             // There are two ways to do search:
@@ -165,8 +166,11 @@ public class XMPPUserManager {
 
             // If the search field is mandatory then we know that it's the OpenFire style
             if(searchForm.hasField("search") && searchForm.getField("search").isRequired()) {
-                FormField username = answerForm.getField("Username");
+                FormField username = searchForm.getField("Username");
                 username.addValue("1");
+
+//                builder.addField(FormField.textSingleBuilder("Username").setValue(1).build());
+//                builder.addField(FormField.textSingleBuilder("search").setValue(searchValue).build());
 
                 // For some reason, 1 does work but true doesn't ^^
                 //                answerForm.setAnswer("Username", true);
@@ -180,6 +184,7 @@ public class XMPPUserManager {
             }
 
             ReportedData data = userSearchManager.getSearchResults(answerForm, jid.asDomainBareJid());
+//            userSearchManager.getSearchResults(answerForm)
 
             List<Jid> jids = new ArrayList<>();
             for(ReportedData.Row row : data.getRows()) {

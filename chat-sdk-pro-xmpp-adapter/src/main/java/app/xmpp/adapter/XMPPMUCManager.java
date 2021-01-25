@@ -1,7 +1,12 @@
 package app.xmpp.adapter;
 
+import org.jivesoftware.smack.chat2.Chat;
+import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
+import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.StandardExtensionElement;
 import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
+import org.jivesoftware.smackx.delay.packet.DelayInformation;
 import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MUCAffiliation;
 import org.jivesoftware.smackx.muc.MUCRole;
@@ -26,24 +31,25 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
+import app.xmpp.adapter.defines.XMPPDefines;
 import app.xmpp.adapter.listeners.XMPPMUCMessageListener;
 import app.xmpp.adapter.listeners.XMPPMUCRoleListener;
 import app.xmpp.adapter.listeners.XMPPSubjectUpdatedListener;
 import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.adapter.utils.JidEntityID;
 import app.xmpp.adapter.utils.PresenceHelper;
-import app.xmpp.adapter.utils.Role;
+import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.MessageType;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
 
@@ -53,7 +59,7 @@ import sdk.guru.common.RX;
  * https://github.com/igniterealtime/Smack/blob/master/documentation/extensions/muc.md
  */
 
-public class XMPPMUCManager {
+public class XMPPMUCManager implements IncomingChatMessageListener {
 
     private WeakReference<XMPPManager> manager;
     private MultiUserChatManager chatManager;
@@ -63,8 +69,10 @@ public class XMPPMUCManager {
 
     private DisposableMap dm = new DisposableMap();
 
-    public XMPPMUCManager (XMPPManager manager_) {
+    public XMPPMUCManager(XMPPManager manager_) {
         manager = new WeakReference<>(manager_);
+        manager.get().chatManager().addIncomingListener(this);
+
         chatManager = MultiUserChatManager.getInstanceFor(manager.get().getConnection());
         chatManager.setAutoJoinOnReconnect(true);
 
@@ -73,8 +81,7 @@ public class XMPPMUCManager {
         });
 
         chatManager.addInvitationListener((conn, room, inviter, reason, password, message, invitation) -> {
-            joinRoom(room, true).doOnSuccess(thread -> {
-            }).ignoreElement().subscribe(ChatSDK.events());
+            joinRoom(room, true).ignoreElement().subscribe();
         });
     }
 
@@ -88,45 +95,52 @@ public class XMPPMUCManager {
 
             chat.create(nickname());
 
+
+
             Form configurationForm = chat.getConfigurationForm();
+//            FillableForm form = configurationForm.getFillableForm();
+
             Form form = configurationForm.createAnswerForm();
 
+//            for(FormField f : form.getDataForm().getFields()) {
             for(FormField f : form.getFields()) {
                 Logger.debug(f.getVariable());
-                if(f.getVariable().equals("muc#roomconfig_persistentroom")) {
-                    form.setAnswer(f.getVariable(), true);
+//                String fieldName = f.getFieldName();
+                String fieldName = f.getVariable();
+                if(fieldName.equals("muc#roomconfig_persistentroom")) {
+                    form.setAnswer(fieldName, true);
                 }
-                if(f.getVariable().equals("muc#roomconfig_publicroom")) {
-                    form.setAnswer(f.getVariable(), false);
+                if(fieldName.equals("muc#roomconfig_publicroom")) {
+                    form.setAnswer(fieldName, false);
                 }
-                if(f.getVariable().equals("muc#roomconfig_maxusers")) {
+                if(fieldName.equals("muc#roomconfig_maxusers")) {
                     List<String> list = new ArrayList<>();
                     list.add("200");
-                    form.setAnswer(f.getVariable(), list);
+                    form.setAnswer(fieldName, list);
                 }
-                if(f.getVariable().equals("muc#roomconfig_whois")) {
+                if(fieldName.equals("muc#roomconfig_whois")) {
                     List<String> list = new ArrayList<>();
                     list.add("anyone");
-                    form.setAnswer(f.getVariable(), list);
+                    form.setAnswer(fieldName, list);
                 }
-                if(f.getVariable().equals("muc#roomconfig_membersonly")) {
-                    form.setAnswer(f.getVariable(), true);
+                if(fieldName.equals("muc#roomconfig_membersonly")) {
+                    form.setAnswer(fieldName, true);
                 }
-                if(f.getVariable().equals("muc#roomconfig_moderatedroom")) {
-                    form.setAnswer(f.getVariable(), true);
+                if(fieldName.equals("muc#roomconfig_moderatedroom")) {
+                    form.setAnswer(fieldName, true);
                 }
-                if(f.getVariable().equals("muc#roomconfig_roomname")) {
-                    form.setAnswer(f.getVariable(), name);
+                if(fieldName.equals("muc#roomconfig_roomname")) {
+                    form.setAnswer(fieldName, name);
                 }
-                if(f.getVariable().equals("muc#roomconfig_roomdesc")) {
-                    form.setAnswer(f.getVariable(), description);
+                if(fieldName.equals("muc#roomconfig_roomdesc")) {
+                    form.setAnswer(fieldName, description);
                 }
-                if(f.getVariable().equals("muc#roomconfig_roomowners")) {
+                if(fieldName.equals("muc#roomconfig_roomowners")) {
                     ArrayList<String> owners = new ArrayList<>();
                     owners.add(ChatSDK.currentUserID());
-                    form.setAnswer(f.getVariable(), owners);                    }
-                if(f.getVariable().equals("muc#roomconfig_allowinvites")) {
-                    form.setAnswer(f.getVariable(), true);
+                    form.setAnswer(fieldName, owners);                    }
+                if(fieldName.equals("muc#roomconfig_allowinvites")) {
+                    form.setAnswer(fieldName, true);
                 }
             }
 
@@ -196,14 +210,27 @@ public class XMPPMUCManager {
                     manager.get().bookmarkManager().addBookmarkedConference(name, chat.getRoom(), false, chat.getNickname(), null);
                 }
 
+                User user = ChatSDK.currentUser();
+
                 // Send presence
-                Presence presence = PresenceHelper.presenceForUser(ChatSDK.currentUser());
+                Presence presence = PresenceHelper.presenceForUser(user);
                 chat.changeAvailabilityStatus(presence.getStatus(), presence.getMode());
 
-                thread.addUser(ChatSDK.currentUser());
+                thread.addUser(user);
+
+                UserThreadLink link = thread.getUserThreadLink(user.getId());
+
+                if(link.setHasLeft(false)) {
+                    ChatSDK.events().source().accept(NetworkEvent.threadUserAdded(thread, user));
+                    ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(thread, user));
+                }
 
                 // Get the member list
-                return userStatusListener.updateAffiliates().map(affiliates -> thread);
+                return userStatusListener.updateAffiliates()
+                        .flatMap(affiliates -> getRoomName(chat)).map(s -> {
+                            thread.setName(s);
+                            return thread;
+                        });
 
 //                return userStatusListener.updateAffiliates().flatMap(affiliates -> {
 //
@@ -269,6 +296,16 @@ public class XMPPMUCManager {
         }
     }
 
+    public Completable destroy(Thread thread) {
+        return Completable.defer(() -> {
+            MultiUserChat chat = getChatOrNull(thread.getEntityID());
+            if (chat != null) {
+                chat.destroy(null, null);
+            }
+            return Completable.complete();
+        }).subscribeOn(RX.io());
+    }
+
     public MultiUserChat getChatOrNull(EntityBareJid jid) {
         try {
             // This will throw an exception if the room doesn't exist
@@ -283,11 +320,29 @@ public class XMPPMUCManager {
         return chatManager.getMultiUserChat(JidCreate.entityBareFrom(jid));
     }
 
+    public MultiUserChat getChatOrNull(String jid) {
+        try {
+            return getChatOrNull(JidCreate.entityBareFrom(jid));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public Completable inviteUser(final User user, MultiUserChat chat) {
         return Completable.create(e -> {
             Jid jid = JidEntityID.fromEntityID(user.getEntityID());
             chat.invite(JidCreate.entityBareFrom(user.getEntityID()), "");
             chat.grantMembership(jid);
+
+            // TODO: Workaround for Android, send the invitation by a message too
+            // On Android, if the user is offline, the invitation is never sent
+            Message message = XMPPMessageBuilder.create()
+                    .setTo(jid.asBareJid())
+                    .addGroupInviteExtension(chat.getRoom().asBareJid())
+                    .build();
+
+            manager.get().sendStanza(message);
+
             e.onComplete();
         }).subscribeOn(RX.io());
     }
@@ -383,22 +438,22 @@ public class XMPPMUCManager {
         dm.dispose();
     }
 
-    public Affiliate getAffiliateForUser(Thread thread, User user) {
-        for (Affiliate affiliate : getAffiliates(thread)) {
-            if (affiliate.getJid().asBareJid().toString().equals(user.getEntityID())) {
-                return affiliate;
-            }
-        }
-        return null;
-    }
+//    public Affiliate getAffiliateForUser(Thread thread, User user) {
+//        for (Affiliate affiliate : getAffiliates(thread)) {
+//            if (affiliate.getJid().asBareJid().toString().equals(user.getEntityID())) {
+//                return affiliate;
+//            }
+//        }
+//        return null;
+//    }
 
-    protected List<Affiliate> getAffiliates(Thread thread) {
-        XMPPMUCRoleListener listener = getUserStatusListener(thread.getEntityID());
-        if (listener != null) {
-            return listener.getAffiliates();
-        }
-        return new ArrayList<>();
-    }
+//    protected List<Affiliate> getAffiliates(Thread thread) {
+//        XMPPMUCRoleListener listener = getUserStatusListener(thread.getEntityID());
+//        if (listener != null) {
+//            return listener.getAffiliates();
+//        }
+//        return new ArrayList<>();
+//    }
 
     public Single<List<Affiliate>> requestAffiliatesFromServer(Thread thread) {
         return Single.create((SingleOnSubscribe<List<Affiliate>>)emitter -> {
@@ -435,18 +490,47 @@ public class XMPPMUCManager {
         return affiliates;
     }
 
-    public int getRoleForUser(Thread thread, User user) {
-        return Role.fromAffiliate(getAffiliateForUser(thread, user));
+//    public int getRoleForUser(Thread thread, User user) {
+//        return Role.fromAffiliate(getAffiliateForUser(thread, user));
+//    }
+
+    public MUCAffiliation getAffiliation(Thread thread, User user) {
+        XMPPMUCRoleListener listener = getUserStatusListener(thread.getEntityID());
+        if (listener != null) {
+            MUCAffiliation affiliation = listener.getAffiliation(user);
+            return affiliation != null ? affiliation : MUCAffiliation.none;
+        }
+        return MUCAffiliation.none;
+    }
+
+    public MUCRole getRole(Thread thread, User user) {
+        XMPPMUCRoleListener listener = getUserStatusListener(thread.getEntityID());
+        if (listener != null) {
+            MUCRole role = listener.getRole(user);
+            return role != null ? role : MUCRole.none;
+        }
+        return MUCRole.none;
+    }
+
+    public Resourcepart getNick(Thread thread, User user) {
+        XMPPMUCRoleListener listener = getUserStatusListener(thread.getEntityID());
+        if (listener != null) {
+            return listener.getNick(user);
+        }
+        return null;
     }
 
     public Completable grantModerator(Thread thread, User user) {
-        return Completable.defer((Callable<CompletableSource>) () -> {
+        return Completable.defer(() -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
-            Affiliate affiliate = getAffiliateForUser(thread, user);
-            if (chat != null && affiliate != null) {
-                if (affiliate.getRole() != MUCRole.moderator) {
-                    chat.grantModerator(affiliate.getNick());
-                    return refreshRoomAffiliation(chat);
+            MUCRole role = getRole(thread, user);
+            Resourcepart nick = getNick(thread, user);
+            if (chat != null && nick != null) {
+                // TODO: HERE we need to have the nickname so we need the affiliate
+                if (role != MUCRole.moderator) {
+                    chat.grantModerator(nick);
+                    return Completable.complete();
+//                    return refreshRoomAffiliation(chat);
                 } else {
                     return Completable.complete();
                 }
@@ -457,13 +541,15 @@ public class XMPPMUCManager {
     }
 
     public Completable revokeModerator(Thread thread, User user) {
-        return Completable.defer((Callable<CompletableSource>) () -> {
+        return Completable.defer(() -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
-            Affiliate affiliate = getAffiliateForUser(thread, user);
-            if (chat != null && affiliate != null) {
-                if (affiliate.getRole() == MUCRole.moderator) {
-                    chat.revokeModerator(affiliate.getNick());
-                    return refreshRoomAffiliation(chat);
+            MUCRole role = getRole(thread, user);
+            Resourcepart nick = getNick(thread, user);
+            if (chat != null && nick != null) {
+                if (role == MUCRole.moderator) {
+                    chat.revokeModerator(nick);
+                    return Completable.complete();
+//                    return refreshRoomAffiliation(chat);
                 } else {
                     return Completable.complete();
                 }
@@ -476,10 +562,11 @@ public class XMPPMUCManager {
     public Completable grantVoice(Thread thread, User user) {
         return Completable.defer(() -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
-            Affiliate affiliate = getAffiliateForUser(thread, user);
-            if (chat != null && affiliate != null) {
-                chat.grantVoice(affiliate.getNick());
-                return refreshRoomAffiliation(chat);
+            Resourcepart nick = getNick(thread, user);
+            if (chat != null && nick != null) {
+                chat.grantVoice(nick);
+                return Completable.complete();
+//                return refreshRoomAffiliation(chat);
             } else {
                 return Completable.error(ChatSDK.getException(R.string.permission_denied));
             }
@@ -487,12 +574,13 @@ public class XMPPMUCManager {
     }
 
     public Completable revokeVoice(Thread thread, User user) {
-        return Completable.defer((Callable<CompletableSource>) () -> {
+        return Completable.defer(() -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
-            Affiliate affiliate = getAffiliateForUser(thread, user);
-            if (chat != null && affiliate != null) {
-                chat.revokeVoice(affiliate.getNick());
-                return refreshRoomAffiliation(chat);
+            Resourcepart nick = getNick(thread, user);
+            if (chat != null && nick != null) {
+                chat.revokeVoice(nick);
+                return Completable.complete();
+//                return refreshRoomAffiliation(chat);
             } else {
                 return Completable.error(ChatSDK.getException(R.string.permission_denied));
             }
@@ -502,22 +590,29 @@ public class XMPPMUCManager {
     public Completable setRole(Thread thread, User user, MUCAffiliation affiliation) {
         return Completable.defer(() -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
-            Affiliate affiliate = getAffiliateForUser(thread, user);
-            if (chat != null && affiliate != null && affiliate.getAffiliation() != affiliation) {
+            MUCAffiliation currentAffiliation = getAffiliation(thread, user);
+            Jid jid = JidCreate.bareFrom(user.getEntityID());
+
+            if (chat != null && currentAffiliation != affiliation) {
                 if (affiliation == MUCAffiliation.owner) {
-                    chat.grantOwnership(affiliate.getJid());
+                    chat.grantOwnership(jid);
                 }
                 else if (affiliation == MUCAffiliation.admin) {
-                    chat.grantAdmin(affiliate.getJid());
+                    chat.grantAdmin(jid);
                 }
                 else if (affiliation == MUCAffiliation.member) {
-                    chat.grantMembership(affiliate.getJid());
+                    chat.grantMembership(jid);
+                }
+                else if (affiliation == MUCAffiliation.outcast) {
+//                    chat.grantMembership(affiliate.getJid());
+                    chat.banUser(jid, "");
                 }
                 else {
-                    chat.revokeMembership(affiliate.getJid());
+                    chat.revokeMembership(jid);
                 }
             }
-            return refreshRoomAffiliation(chat);
+            return Completable.complete();
+//            return refreshRoomAffiliation(chat);
         }).subscribeOn(RX.io());
     }
 
@@ -528,7 +623,7 @@ public class XMPPMUCManager {
         }).subscribeOn(RX.io());
     }
 
-    public Completable refreshRoomAffiliation(MultiUserChat chat) {
+    protected Completable refreshRoomAffiliation(MultiUserChat chat) {
         return Completable.defer(() -> {
             XMPPMUCRoleListener listener = getUserStatusListener(chat.getRoom().toString());
             if (listener != null) {
@@ -554,4 +649,47 @@ public class XMPPMUCManager {
         messageListeners.put(threadEntityID, listener);
     }
 
+    public void deactivateThread(Thread thread) {
+        for (UserThreadLink l: thread.getLinks()) {
+            // If they are banned, they are hidden anyway
+            if (!l.isBanned()) {
+                boolean updated = l.setIsActive(false);
+//                updated = l.setRole(MUCRole.none.name()) || updated;
+//                updated = l.setAffiliation(MUCAffiliation.none.name()) || updated;
+                if (updated) {
+                    ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(thread, l.getUser()));
+                }
+            }
+        }
+    }
+
+    @Override
+    public void newIncomingMessage(EntityBareJid from, Message message, Chat chat) {
+        XMPPMessageWrapper xmr = new XMPPMessageWrapper(message);
+
+        Logger.debug("Ok");
+        if (xmr.isSilent()) {
+            // TODO: Handle invite for MUC if we were not online when the invitation was received
+            if (xmr.hasAction(MessageType.Action.GroupInvite)) {
+                if (xmr.getMessage().hasExtension(DelayInformation.ELEMENT, DelayInformation.NAMESPACE)) {
+                    // This was received when we were offline
+                    // If we are online, we should have received the actual MUC invite
+                    StandardExtensionElement element = xmr.extras().getFirstElement(XMPPDefines.ID);
+                    if (element != null) {
+                        String chatId = element.getText();
+                        if (chatId != null && !chatId.isEmpty()) {
+                            Thread theThread = ChatSDK.db().fetchThreadWithEntityID(chatId);
+                            // Check to see if this room already exists?
+                            if (theThread == null) {
+                                // Join the room
+                                try {
+                                    joinRoom(chatId).subscribe();
+                                } catch (Exception e) {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

@@ -14,7 +14,7 @@ import sdk.chat.ui.activities.PostRegistrationActivity;
 import sdk.chat.ui.activities.ProfileActivity;
 import sdk.chat.ui.activities.SearchActivity;
 import sdk.chat.ui.activities.SplashScreenActivity;
-import sdk.chat.ui.activities.ThreadDetailsActivity;
+import sdk.chat.ui.activities.thread.details.ThreadDetailsActivity;
 import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.fragments.ContactsFragment;
 import sdk.chat.ui.fragments.PrivateThreadsFragment;

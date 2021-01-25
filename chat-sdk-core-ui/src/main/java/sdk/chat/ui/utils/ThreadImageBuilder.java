@@ -60,7 +60,7 @@ public class ThreadImageBuilder {
                 return Single.just(Uri.parse(thread.getImageUrl()));
             }
 
-            List<User> users = thread.getUsers();
+            List<User> users = thread.getMembers();
             users.remove(ChatSDK.currentUser());
 
             FileManager fm = ChatSDK.shared().fileManager();

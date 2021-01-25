@@ -42,10 +42,14 @@ public class XMPPMessageWrapper {
 
 
     public boolean hasAction(Integer action) {
-        if (type() == MessageType.Silent) {
+        if (isSilent()) {
             return action().equals(action);
         }
         return false;
+    }
+
+    public boolean isSilent() {
+        return type() == MessageType.Silent;
     }
 
     public StandardExtensionElement extras() {

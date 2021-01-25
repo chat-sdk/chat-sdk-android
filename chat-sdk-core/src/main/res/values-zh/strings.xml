@@ -77,7 +77,7 @@
     <string name="image_saved">图像已成功保存</string>
     <string name="image_save_failed">图像保存失败</string>
 
-    <string name="action_edit">编辑</string>
+    <string name="edit">编辑</string>
 
     <string name="availability_unavailable">不可用</string>
     <string name="availability_available">可得到</string>

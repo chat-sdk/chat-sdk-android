@@ -312,6 +312,11 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
+    public boolean canJoinThread(Thread thread) {
+        return false;
+    }
+
+    @Override
     public boolean rolesEnabled(Thread thread) {
         return thread.typeIs(ThreadType.Group);
     }
@@ -374,12 +379,8 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public List<String> localizeRoles(List<String> roles) {
-        List<String> localized = new ArrayList<>();
-        for (String role: roles) {
-            localized.add(Permission.toLocalized(role));
-        }
-        return localized;
+    public String localizeRole(String role) {
+        return Permission.toLocalized(role);
     }
 
     // Moderation
@@ -444,6 +445,16 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         message.setEntityID(id);
         message.update();
         return message;
+    }
+
+    @Override
+    public boolean canDestroy(Thread thread) {
+        return false;
+    }
+
+    @Override
+    public Completable destroy(Thread thread) {
+        return Completable.complete();
     }
 
 }

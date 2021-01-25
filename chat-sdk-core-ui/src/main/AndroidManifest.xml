@@ -25,6 +25,9 @@
         <activity android:name="sdk.chat.ui.activities.ThreadDetailsActivity"
             android:windowSoftInputMode="stateHidden" />
 
+        <activity android:name=".activities.thread.details.ThreadDetailsActivity"
+            android:windowSoftInputMode="stateHidden" />
+
         <activity android:name="sdk.chat.ui.activities.CreateThreadActivity"
             android:windowSoftInputMode="stateHidden" />
 

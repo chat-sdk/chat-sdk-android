@@ -1,6 +1,5 @@
 package app.xmpp.adapter.handlers;
 
-import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MUCAffiliation;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jxmpp.jid.impl.JidCreate;
@@ -12,7 +11,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import app.xmpp.adapter.R;
-import app.xmpp.adapter.XMPPMUCManager;
 import app.xmpp.adapter.XMPPManager;
 import app.xmpp.adapter.XMPPMessageBuilder;
 import app.xmpp.adapter.utils.Role;
@@ -20,11 +18,12 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import sdk.chat.core.base.AbstractThreadHandler;
-import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.dao.UserThreadLink;
+import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.push.AbstractPushHandler;
 import sdk.chat.core.session.ChatSDK;
@@ -93,13 +92,18 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean canRemoveUsersFromThread(Thread thread, List<User> users) {
-        // TODO: this isn't currently working properly
+        if (thread.typeIs(ThreadType.Group)) {
+            String myRole = roleForUser(thread, ChatSDK.currentUser());
+            boolean canRemove = Role.isOwnerOrAdmin(myRole);
+            if (canRemove) {
+                for (User user: users) {
+                    String role = roleForUser(thread, user);
+                    canRemove = canRemove && Role.level(myRole) > Role.level(role);
+                }
+            }
+            return canRemove;
+        }
         return false;
-//        if (thread.typeIs(ThreadType.Group)) {
-//            int role = XMPPManager.shared().mucManager.getRoleForUser(thread, ChatSDK.currentUser());
-//            return Role.isOr(role, Role.Owner, Role.Admin, Role.Moderator);
-//        }
-//        return false;
     }
 
     @Override
@@ -107,7 +111,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
         return Completable.defer(() -> {
             List<Completable> completables = new ArrayList<>();
             for (User user: users) {
-                completables.add(XMPPManager.shared().mucManager.removeUser(thread, user));
+                completables.add(XMPPManager.shared().mucManager.setRole(thread, user, MUCAffiliation.outcast));
             }
             return Completable.concat(completables);
         });
@@ -116,8 +120,8 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     @Override
     public boolean canAddUsersToThread(Thread thread) {
         if (thread.typeIs(ThreadType.Group)) {
-            int role = XMPPManager.shared().mucManager.getRoleForUser(thread, ChatSDK.currentUser());
-            return !Role.isOr(role, Role.None, Role.Outcast, Role.Visitor);
+            String myRole = roleForUser(thread, ChatSDK.currentUser());
+            return Role.isOwnerOrAdmin(myRole);
         }
         return false;
     }
@@ -135,21 +139,28 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
     public Completable deleteThread(Thread thread) {
-        return Completable.defer(() -> {
-            List<Message> messages = thread.getMessages();
-            for (Message m : messages) {
-                m.cascadeDelete();
-            }
-            if (thread.typeIs(ThreadType.Group)) {
-                return leaveThread(thread).andThen(Completable.create(emitter -> {
-                    DaoCore.deleteEntity(thread);
-                    emitter.onComplete();
-                }));
-            } else {
-                thread.setDeleted(true);
-                return Completable.complete();
-            }
-        }).subscribeOn(RX.io());
+        return leaveThread(thread).doOnComplete(() -> {
+            ChatSDK.events().source().accept(NetworkEvent.threadRemoved(thread));
+            thread.cascadeDelete();
+        });
+//        return Completable.defer(() -> {
+//
+//            thread.cascadeDelete();
+////            List<Message> messages = thread.getMessages();
+////            for (Message m : messages) {
+////                m.cascadeDelete();
+////            }
+////            if (thread.typeIs(ThreadType.Group)) {
+////                return leaveThread(thread).andThen(Completable.create(emitter -> {
+////                    DaoCore.deleteEntity(thread);
+////                    emitter.onComplete();
+////                }));
+////            } else {
+////                thread.setDeleted(true);
+////                return Completable.complete();
+////            }
+//            return Completable.complete();
+//        }).subscribeOn(RX.io());
     }
 
     @Override
@@ -157,16 +168,24 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
         return Completable.defer(() -> {
             if (thread.typeIs(ThreadType.Group)) {
                 MultiUserChat chat = XMPPManager.shared().mucManager.chatForThreadID(thread.getEntityID());
-                // Send a leave message
-                chat.sendMessage(XMPPMessageBuilder.create().addLeaveGroupExtension().build());
-
-                // TODO: Check if we need to leave too
 
                 if (chat != null) {
+                    // Mark the room as having left
+                    chat.sendMessage(XMPPMessageBuilder.create().addLeaveGroupExtension().build());
+
                     chat.leave();
                     XMPPManager.shared().bookmarkManager().removeBookmarkedConference(chat.getRoom());
-                }
 
+                    User user = ChatSDK.currentUser();
+                    UserThreadLink link = thread.getUserThreadLink(user.getId());
+
+                    XMPPManager.shared().mucManager.deactivateThread(thread);
+
+                    if(link == null || link.setHasLeft(true)) {
+                        ChatSDK.events().source().accept(NetworkEvent.threadUserRemoved(thread, user));
+                        ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(thread, user));
+                    }
+                }
             }
             return Completable.complete();
         }).subscribeOn(RX.io());
@@ -180,6 +199,30 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
             }
             return Completable.complete();
         }).subscribeOn(RX.io());
+    }
+
+    @Override
+    public boolean canJoinThread(Thread thread) {
+        if (thread.typeIs(ThreadType.Group)) {
+            // Get the link
+            UserThreadLink link = thread.getUserThreadLink(ChatSDK.currentUser().getId());
+            if (link != null && link.hasLeft() && !link.isBanned()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canLeaveThread(Thread thread) {
+        if (thread.typeIs(ThreadType.Group)) {
+            // Get the link
+            UserThreadLink link = thread.getUserThreadLink(ChatSDK.currentUser().getId());
+            if (link != null && !link.hasLeft() && !link.isBanned()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -274,100 +317,108 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
         return false;
     }
 
+    @Override
+    public boolean canDestroy(Thread thread) {
+        String myRole = roleForUser(thread, ChatSDK.currentUser());
+        return Role.isOwner(myRole);
+    }
+
+    @Override
+    public Completable destroy(Thread thread) {
+        return XMPPManager.shared().mucManager.destroy(thread);
+    }
+
     // Moderation
     @Override
     public Completable grantVoice(Thread thread, User user) {
-        return XMPPManager.shared().mucManager.grantVoice(thread, user).concatWith(super.grantVoice(thread, user)).subscribeOn(RX.io());
+        if (!hasVoice(thread, user)) {
+            return XMPPManager.shared().mucManager.grantVoice(thread, user).concatWith(super.grantVoice(thread, user)).subscribeOn(RX.io());
+        } else {
+            return Completable.complete();
+        }
     }
 
     @Override
     public Completable revokeVoice(Thread thread, User user) {
-        return XMPPManager.shared().mucManager.revokeVoice(thread, user).concatWith(super.revokeVoice(thread, user)).subscribeOn(RX.io());
+        if (hasVoice(thread, user)) {
+            return XMPPManager.shared().mucManager.revokeVoice(thread, user).concatWith(super.revokeVoice(thread, user)).subscribeOn(RX.io());
+        } else {
+            return Completable.complete();
+        }
     }
 
     @Override
     public boolean hasVoice(Thread thread, User user) {
         if (thread.typeIs(ThreadType.Group)) {
-            int role = XMPPManager.shared().mucManager.getRoleForUser(thread, user);
-            return !Role.isOr(role, Role.Outcast, Role.None, Role.Visitor);
+            String role = XMPPManager.shared().mucManager.getRole(thread, user).name();
+            return ((Role.isModerator(role) || Role.isParticipant(role))) && !thread.getUserThreadLink(user.getId()).hasLeft();
         }
         return true;
     }
 
     public boolean canChangeVoice(Thread thread, User user) {
-        int myRole = XMPPManager.shared().mucManager.getRoleForUser(thread, ChatSDK.currentUser());
-        int theirRole = XMPPManager.shared().mucManager.getRoleForUser(thread, user);
-
-        // We can remove the voice from normal members if we are a super user
-        return Role.isOr(myRole, Role.Owner, Role.Admin, Role.Moderator) && Role.isOr(theirRole, Role.Visitor, Role.Member, Role.Participant);
+        // Are they active?
+        UserThreadLink link = thread.getUserThreadLink(user.getId());
+        if (link != null && link.isActive()) {
+            boolean isModerator = isModerator(thread, user);
+            boolean amModerator = isModerator(thread, ChatSDK.currentUser());
+            return amModerator && !isModerator;
+        }
+        return false;
     }
-
 
     @Override
     public Completable grantModerator(Thread thread, User user) {
-        return XMPPManager.shared().mucManager.grantModerator(thread, user).subscribeOn(RX.io());
+        if (!isModerator(thread, user)) {
+            return XMPPManager.shared().mucManager.grantModerator(thread, user).subscribeOn(RX.io());
+        } else {
+            return Completable.complete();
+        }
     }
 
     @Override
     public Completable revokeModerator(Thread thread, User user) {
-        return XMPPManager.shared().mucManager.revokeModerator(thread, user).subscribeOn(RX.io());
+        if (isModerator(thread, user)) {
+            return XMPPManager.shared().mucManager.revokeModerator(thread, user).subscribeOn(RX.io());
+        } else {
+            return Completable.complete();
+        }
     }
 
     @Override
     public boolean canChangeModerator(Thread thread, User user) {
-        int myRole = XMPPManager.shared().mucManager.getRoleForUser(thread, ChatSDK.currentUser());
-        int theirRole = XMPPManager.shared().mucManager.getRoleForUser(thread, user);
-
-        // We can change the moderation status if we are an admin or an owner and they
-        // are not a member
-        return Role.isOr(myRole, Role.Owner, Role.Admin) && Role.isOr(theirRole, Role.Member, Role.Moderator) && !Role.isOr(theirRole, Role.Owner, Role.Admin);
+        UserThreadLink link = thread.getUserThreadLink(user.getId());
+        if (link != null && link.isActive()) {
+            String myRole = roleForUser(thread, ChatSDK.currentUser());
+            String role = roleForUser(thread, user);
+            return Role.isOwnerOrAdmin(myRole) && !Role.isOwnerOrAdmin(role);
+        }
+        return false;
     }
 
     @Override
     public boolean isModerator(Thread thread, User user) {
-        int role = XMPPManager.shared().mucManager.getRoleForUser(thread, user);
-        return Role.isOr(role, Role.Moderator, Role.Admin, Role.Owner);
-    }
-
-    protected interface Adder {
-        void add(String item);
+        String role = XMPPManager.shared().mucManager.getRole(thread, user).name();
+        return Role.isModerator(role) && !thread.getUserThreadLink(user.getId()).hasLeft();
     }
 
     public List<String> availableRoles(Thread thread, User user) {
         List<String> roles = new ArrayList<>();
 
-        Adder adder = item -> {
-            if (!roles.contains(item)) {
-                roles.add(item);
-            }
-        };
+        String myRole = roleForUser(thread, ChatSDK.currentUser());
 
-        int myRole = XMPPManager.shared().mucManager.getRoleForUser(thread, ChatSDK.currentUser());
-        int theirRole = XMPPManager.shared().mucManager.getRoleForUser(thread, user);
-
-        // If I am the owner and they are an admin, I can promote or demote them
-        if ((Role.is(myRole, Role.Owner)) && Role.is(theirRole, Role.Admin)) {
-            adder.add(Role.toString(MUCAffiliation.owner));
-            adder.add(Role.toString(MUCAffiliation.admin));
-            adder.add(Role.toString(MUCAffiliation.member));
-        } else {
-            // If I am the owner and they are a member, I can set them to any role
-            if (Role.is(myRole, Role.Owner)) {
-                adder.add(Role.toString(MUCAffiliation.owner));
-            }
-            // If I am an admin and they are not an admin or owner, then I can make them an outcast
-            if ((Role.isOr(myRole, Role.Admin, Role.Owner)) && !Role.isOr(theirRole, Role.Admin, Role.Owner)) {
-                adder.add(Role.toString(MUCAffiliation.admin));
-                adder.add(Role.toString(MUCAffiliation.member));
-                adder.add(Role.toString(MUCAffiliation.outcast));
-            }
+        if (Role.isOwner(myRole)) {
+            roles.add(MUCAffiliation.owner.name());
+            roles.add(MUCAffiliation.admin.name());
+            roles.add(MUCAffiliation.member.name());
         }
-
-//        int userRole = XMPPManager.shared().mucManager.getRoleForUser(thread, user);
-//        String affiliation = Role.toString(Role.intToAffiliation(userRole));
-//        roles.remove(affiliation);
-
         return roles;
+
+    }
+
+    @Override
+    public String localizeRole(String role) {
+        return Role.toString(role);
     }
 
     @Override
@@ -377,22 +428,21 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean canChangeRole(Thread thread, User user) {
-        return rolesEnabled(thread) && !availableRoles(thread, user).isEmpty();
+        return rolesEnabled(thread) && availableRoles(thread, user).size() > 1;
     }
 
     public String roleForUser(Thread thread, User user) {
-        XMPPMUCManager manager = XMPPManager.shared().mucManager;
-        Affiliate affiliate = manager.getAffiliateForUser(thread, user);
-        if (affiliate != null) {
-            return Role.toString(affiliate.getAffiliation());
+        UserThreadLink link = thread.getUserThreadLink(user.getId());
+        if (link != null && !link.hasLeft()) {
+            return link.getAffiliation();
         } else {
-            return null;
+            return MUCAffiliation.none.name();
         }
     }
 
     public Completable setRole(String role, Thread thread, User user) {
         return Completable.defer(() -> {
-            MUCAffiliation newAffiliation = Role.affiliationFromString(role);
+            MUCAffiliation newAffiliation = MUCAffiliation.fromString(role);
             if (newAffiliation != null) {
                 return XMPPManager.shared().mucManager.setRole(thread, user, newAffiliation);
             }
@@ -407,7 +457,18 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean canRefreshRoles(Thread thread) {
-        return rolesEnabled(thread);
+        String role = roleForUser(thread, ChatSDK.currentUser());
+        return rolesEnabled(thread) && Role.canRead(role);
     }
+
+    @Override
+    public boolean canEditThreadDetails(Thread thread) {
+        if (thread.typeIs(ThreadType.Group)) {
+            String role = roleForUser(thread, ChatSDK.currentUser());
+            return Role.isOwnerOrAdmin(role);
+        }
+        return false;
+    }
+
 
 }

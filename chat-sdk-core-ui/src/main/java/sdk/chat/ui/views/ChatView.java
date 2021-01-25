@@ -408,10 +408,8 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     // Just rebinds the message
     public void softUpdate(Message message, MessageSendProgress progress) {
         final MessageHolder holder = messageHolderHashMap.get(message);
-        if (progress != null) {
+        if (holder != null && progress != null) {
             holder.setProgress(progress);
-        }
-        if (holder != null) {
             messagesListAdapter.update(holder);
         }
     }

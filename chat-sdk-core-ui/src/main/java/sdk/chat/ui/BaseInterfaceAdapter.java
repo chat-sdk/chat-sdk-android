@@ -50,7 +50,7 @@ import sdk.chat.ui.activities.PostRegistrationActivity;
 import sdk.chat.ui.activities.ProfileActivity;
 import sdk.chat.ui.activities.SearchActivity;
 import sdk.chat.ui.activities.SplashScreenActivity;
-import sdk.chat.ui.activities.ThreadDetailsActivity;
+import sdk.chat.ui.activities.thread.details.ThreadDetailsActivity;
 import sdk.chat.ui.chat.options.DialogChatOptionsHandler;
 import sdk.chat.ui.chat.options.MediaChatOption;
 import sdk.chat.ui.chat.options.MediaType;
@@ -282,7 +282,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public Class<? extends Activity> getThreadDetailsActivity() {
-        return ThreadDetailsActivity.class;
+        return threadDetailsActivity;
     }
 
     @Override
@@ -291,18 +291,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public Class<? extends Activity> getThreadEditDetailsActivity() {
-        return getEditThreadActivity();
-    }
-
-    @Override
     public Class<? extends Activity> getEditThreadActivity() {
         return editThreadActivity;
-    }
-
-    @Override
-    public void setThreadEditDetailsActivity (Class<? extends Activity> threadEditDetailsActivity) {
-        setEditThreadActivity(threadEditDetailsActivity);
     }
 
     @Override
@@ -451,10 +441,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         context.startActivity(intent);
     }
 
-    public void startPublicThreadEditDetailsActivity(Context context, String threadEntityID){
-        startEditThreadActivity(context, threadEntityID);
-    }
-
     public void startEditThreadActivity(Context context, String threadEntityID){
         startEditThreadActivity(context, threadEntityID, null);
     }
@@ -466,7 +452,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     public void startEditThreadActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs){
-        Intent intent = new Intent(context, getThreadEditDetailsActivity());
+        Intent intent = new Intent(context, getEditThreadActivity());
         if (threadEntityID != null) {
             intent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
         }

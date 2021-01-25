@@ -11,6 +11,7 @@
     <color name="red">#CC4B4B</color>
 
     <color name="gray_light">#A5A5A5</color>
+    <color name="gray_very_light_accent">#C6C6C6</color>
     <color name="gray_very_light">#E0E0E0</color>
 
     <color name="green_light">#CFEE88</color>

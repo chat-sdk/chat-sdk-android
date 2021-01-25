@@ -121,11 +121,11 @@ public class Thread extends AbstractEntity {
     }
 
     /**
-     * Return a list of users who haven't left the group and are not outcasts
+     * Return a list of users who haven't left the group and are not banned
      * @return
      */
     public List<User> getMembers() {
-        List<UserThreadLink> links = DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.ThreadId, getId());
+        List<UserThreadLink> links = getLinks();
         if (links == null) {
             return Collections.emptyList();
         }
@@ -134,12 +134,16 @@ public class Thread extends AbstractEntity {
 
         for (UserThreadLink link: links) {
             User user = link.getUser();
-            if (user != null && !link.hasLeft() && !link.isBanned()) {
+            if (user != null && !user.isMe() && !link.hasLeft() && !link.isBanned()) {
                 users.add(user);
             }
         }
 
         return new ArrayList<>(users);
+    }
+
+    public List<UserThreadLink> getLinks() {
+        return DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.ThreadId, getId());
     }
 
     public boolean containsUser (User user) {

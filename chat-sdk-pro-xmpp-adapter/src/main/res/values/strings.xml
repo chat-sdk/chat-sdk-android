@@ -9,7 +9,7 @@
     <string name="owner">Owner</string>
     <string name="admin">Admin</string>
     <string name="member">Member</string>
-    <string name="outcast">Outcast</string>
+    <string name="outcast">Banned</string>
     <string name="none">None</string>
 
 <!--    <string name="owner__" formatted="false">Owner%s</string>-->

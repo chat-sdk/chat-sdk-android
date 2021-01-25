@@ -19,8 +19,6 @@ import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
-import sdk.chat.core.dao.UserThreadLink;
-import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -39,15 +37,15 @@ public class XMPPMessageParser {
         Map<String, List<XMPPMessageWrapper>> threadMessageMap = new HashMap<>();
 
         for (org.jivesoftware.smack.packet.Message message: xmppMessages) {
-            XMPPMessageWrapper xmw = XMPPMessageWrapper.with(message);
+            XMPPMessageWrapper xmr = XMPPMessageWrapper.with(message);
 
-            List<XMPPMessageWrapper> messages = threadMessageMap.get(xmw.getThreadEntityID());
+            List<XMPPMessageWrapper> messages = threadMessageMap.get(xmr.getThreadEntityID());
             if (messages == null) {
                 messages = new ArrayList<>();
-                threadMessageMap.put(xmw.getThreadEntityID(), messages);
+                threadMessageMap.put(xmr.getThreadEntityID(), messages);
             }
 
-            messages.add(xmw);
+            messages.add(xmr);
         }
 
         for (String threadID: threadMessageMap.keySet()) {
@@ -65,8 +63,8 @@ public class XMPPMessageParser {
         }
     }
 
-    public static Message addMessageToThread(Thread thread, final XMPPMessageWrapper xmppMessage, String from) {
-        Message message = buildMessage(xmppMessage, from);
+    public static Message addMessageToThread(Thread thread, final XMPPMessageWrapper xmr, String from) {
+        Message message = buildMessage(xmr, from);
 
         ChatSDK.hook().executeHook(HookEvent.MessageReceived, new HashMap<String, Object>() {{
             put(HookEvent.Message, message);
@@ -78,18 +76,8 @@ public class XMPPMessageParser {
             thread.setDeleted(false);
         }
 
-        if (xmppMessage.hasAction(MessageType.Action.UserLeftGroup)) {
-            // Get the link
-            UserThreadLink link = thread.getUserThreadLink(message.getSender().getId());
-            if (link.setHasLeft(true)) {
-                ChatSDK.events().source().accept(NetworkEvent.threadUserRemoved(thread, message.getSender()));
-            }
-        }
-
-        if (xmppMessage.type() != MessageType.Silent) {
-            thread.addMessage(message);
-            updateReadReceipts(message, xmppMessage);
-        }
+        thread.addMessage(message);
+        updateReadReceipts(message, xmr);
 
         return message;
     }

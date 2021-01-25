@@ -41,6 +41,7 @@ public class MessageType {
 
     public static class Action {
         public static final Integer UserLeftGroup = 1;
+        public static final Integer GroupInvite = 2;
     }
 
     public MessageType (int type) {

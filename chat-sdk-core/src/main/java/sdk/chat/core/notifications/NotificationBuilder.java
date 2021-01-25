@@ -267,6 +267,7 @@ public class NotificationBuilder {
             }
             return Single.just(builder);
         }).subscribeOn(RX.quick());
+
     }
 
     public Bitmap scaleLargeIcon(Bitmap bitmap) {

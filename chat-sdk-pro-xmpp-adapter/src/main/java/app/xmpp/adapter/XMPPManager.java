@@ -318,6 +318,10 @@ public class XMPPManager {
 
             mucManager = new XMPPMUCManager(this);
 
+//            connection.addAsyncStanzaListener(packet -> {
+//                Logger.debug(packet.toXML("").toString());
+//            }, stanza -> true);
+
             try {
                 connection.connect();
                 connection.login();
@@ -633,7 +637,7 @@ public class XMPPManager {
         }
     }
     
-    public void sendPresence (Presence presence) {
+    public void sendPresence(Presence presence) {
         try {
 
             PublicKeyExtras.addTo(presence);

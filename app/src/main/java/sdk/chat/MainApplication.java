@@ -2,8 +2,6 @@ package sdk.chat;
 
 import android.app.Application;
 
-import org.pmw.tinylog.Logger;
-
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.disposables.Disposable;
@@ -12,8 +10,6 @@ import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
-import sdk.chat.core.hook.Hook;
-import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.location.FirebaseNearbyUsersModule;
@@ -110,7 +106,6 @@ public class MainApplication extends Application {
                 // Activate
                 .build()
                 .activate(this);
-
 
 //        ChatSDK.ui().setTab("Debug", null, new DebugFragment(), 99);
 //        ChatSDK.ui().removeTab(0);

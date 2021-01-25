@@ -62,7 +62,7 @@
     <string name="typing">Bezig met schrijven&#8230;</string>
     <string name="image_saved">De afbeelding is opgeslagen</string>
     <string name="image_save_failed">De afbeelding is niet opgeslagen</string>
-    <string name="action_edit">Wijzigen</string>
+    <string name="edit">Wijzigen</string>
     <string name="availability_unavailable">Niet beschikbaar</string>
     <string name="availability_available">Beschikbaar</string>
     <string name="availability_away">Weg</string>

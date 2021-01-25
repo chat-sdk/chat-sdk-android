@@ -60,6 +60,7 @@ public class Icons {
         send = context.getResources().getDrawable(R.drawable.ic_send);
         options = new IconicsDrawable(context, FontAwesome.Icon.faw_ellipsis_h);
         refresh = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_sync);
+        arrowRight = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_keyboard_arrow_right);
 
     }
 
@@ -90,6 +91,7 @@ public class Icons {
     public IconicsDrawable options;
     public Drawable send;
     public IconicsDrawable refresh;
+    public IconicsDrawable arrowRight;
 
     public static Icons choose() {
         return shared();

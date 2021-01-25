@@ -23,6 +23,7 @@
     <string name="logout">Logout</string>
     <string name="search">Search</string>
     <string name="leave_chat">Leave Chat</string>
+    <string name="destroy">Destroy</string>
     <string name="add_users">Add Users</string>
     <string name="tap_here_for_contact_info">Tap here for contact info</string>
     <string name="search_with_name">🔍 Search</string>
@@ -124,7 +125,8 @@
     <string name="image_save_failed">Image save failed</string>
 
 
-    <string name="action_edit">Edit</string>
+    <string name="edit">Edit</string>
+    <string name="join">Join</string>
 
     <string name="availability_unavailable">Unavailable</string>
     <string name="availability_available">Available</string>
@@ -164,11 +166,17 @@
 
     <string name="reply">Reply</string>
     <string name="mark_as_read">Mark as Read</string>
-    <string name="revoke_voice">Silence user</string>
-    <string name="grant_voice">Un-silence user</string>
 
-    <string name="revoke_moderator">Remove Moderator</string>
-    <string name="grant_moderator">Make Moderator</string>
+<!--    <string name="revoke_voice">Silence user</string>-->
+<!--    <string name="grant_voice">Un-silence user</string>-->
+
+<!--    <string name="revoke_moderator">Remove Moderator</string>-->
+<!--    <string name="grant_moderator">Make Moderator</string>-->
+    <string name="moderator">Moderator</string>
+    <string name="silence">Silence</string>
+    <string name="role">Role</string>
+    <string name="moderation">Moderation</string>
+    <string name="view_profile">View Profile</string>
 
     <string name="none">None</string>
     <string name="created">Created</string>
@@ -199,5 +207,8 @@
     <string name="member">Member</string>
     <string name="watcher">Watcher</string>
     <string name="banned">Banned</string>
+
+    <string name="me">Me</string>
+    <string name="participants">Participants</string>
 
 </resources>

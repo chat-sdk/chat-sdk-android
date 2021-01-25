@@ -1,18 +1,21 @@
 package sdk.chat.ui.recycler
 
 import android.os.Bundle
-import androidx.activity.viewModels
+import io.reactivex.functions.Action
+import io.reactivex.functions.Consumer
 import kotlinx.android.synthetic.main.activity_moderation.*
+import org.pmw.tinylog.Logger
 import sdk.chat.core.dao.Keys
 import sdk.chat.core.dao.Thread
 import sdk.chat.core.dao.User
+import sdk.chat.core.events.NetworkEvent
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.ui.R
 import sdk.chat.ui.activities.BaseActivity
 import sdk.chat.ui.utils.ToastHelper
+import sdk.guru.common.RX
 import smartadapter.SmartRecyclerAdapter
 import smartadapter.viewevent.listener.OnClickEventListener
-import smartadapter.viewevent.listener.OnMultiItemCheckListener
 import smartadapter.viewevent.listener.OnSingleItemCheckListener
 import smartadapter.viewevent.model.ViewEvent
 import smartadapter.viewevent.viewmodel.ViewEventViewModel
@@ -23,11 +26,10 @@ open class ModerationActivity: BaseActivity() {
             OnSingleItemCheckListener(viewId = R.id.radioButton)
     )
 
-    protected var user: User? = null
-    protected var thread: Thread? = null
+    open var user: User? = null
+    open var thread: Thread? = null
 
-    protected lateinit var smartRecyclerAdapter: SmartRecyclerAdapter
-    private val singleItemCheckedViewModel: SingleItemCheckedViewModel by viewModels()
+    open lateinit var smartRecyclerAdapter: SmartRecyclerAdapter
 
     override fun getLayout(): Int {
         return R.layout.activity_moderation
@@ -54,25 +56,162 @@ open class ModerationActivity: BaseActivity() {
             return
         }
 
-        val items = (0..100).toMutableList()
+        val items = items()
+        if (items.size <= 2) {
+            showProfile(user)
+        }
 
         smartRecyclerAdapter = SmartRecyclerAdapter
                 .items(items)
-                .map(Integer::class, SimpleSelectableRadioButtonViewHolder::class)
-                .add(singleItemCheckedViewModel.observe(this) {
-                    handleCheckEvent(it)
-                })
+                .map(SectionViewModel::class, SectionViewHolder::class)
+                .map(NavigationViewModel::class, NavigationViewHolder::class)
+                .map(RadioViewModel::class, RadioViewHolder::class)
+                .map(ButtonViewModel::class, ButtonViewHolder::class)
+                .map(DividerViewModel::class, DividerViewHolder::class)
+                .map(ToggleViewModel::class, ToggleViewHolder::class)
                 .add(OnClickEventListener {
-                    showToast("onClick ${it.position}")
+
+                    it.view.clearAnimation()
+
+                    var model = smartRecyclerAdapter.getItem(it.position)
+                    if (model is NavigationViewModel) {
+                        model.click()
+                    }
+                    if (model is ButtonViewModel) {
+                        model.click()
+                    }
+                    if (model is RadioViewModel) {
+                        if (!model.checked) {
+                            for (i in 0 until smartRecyclerAdapter.itemCount) {
+                                var item = smartRecyclerAdapter.getItem(i)
+                                if (item is RadioViewModel) {
+                                    if (item.group == model.group) {
+                                        item.checked = item == model
+                                    }
+                                }
+                                smartRecyclerAdapter.notifyItemChanged(i)
+                            }
+                            model.click()
+                        }
+                    }
+//                    if (model is ToggleViewModel) {
+//                        model.click()
+//                        smartRecyclerAdapter.notifyItemChanged(it.position)
+//                    }
                 })
+
                 .into(recyclerView)
 
+        update()
     }
 
-    private fun handleCheckEvent(it: ViewEvent) {
-        showToast("Item click ${it.position}\n" +
-                "${singleItemCheckedViewModel.viewEventListener.selectedItemsCount} of " +
-                "${smartRecyclerAdapter.itemCount} selected items")
+    override fun onStart() {
+        super.onStart()
+
+        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterRoleUpdated(thread, user)).subscribe(Consumer {
+            update()
+        }, this))
+
     }
 
+    override fun onStop() {
+        super.onStop()
+        dm.dispose()
+    }
+    
+    public fun update() {
+        smartRecyclerAdapter.setItems(items())
+    }
+
+    protected fun items(): MutableList<Any> {
+        var items = arrayListOf<Any>()
+
+        items.add(SectionViewModel(getString(R.string.profile)))
+        items.add(NavigationViewModel(getString(R.string.view_profile), Runnable { showProfile(user) }))
+
+        // Edit roles
+        if (ChatSDK.thread().canChangeRole(thread, user)) {
+
+            val roles = ChatSDK.thread().availableRoles(thread, user)
+
+            val currentRole = ChatSDK.thread().roleForUser(thread, user)
+
+            if (roles.size > 0) {
+                var group = getString(R.string.role)
+                items.add(SectionViewModel(group))
+
+                var roleRunnable = object : RadioRunnable {
+                    override fun run(value: String) {
+                        dm.add(ChatSDK.thread().setRole(value, thread, user).observeOn(RX.main()).subscribe(Action {
+                            Logger.info("Done")
+                        }, this@ModerationActivity))
+                    }
+                }
+
+                for (role in roles) {
+                    val localized = ChatSDK.thread().localizeRole(role)
+                    items.add(RadioViewModel(group,localized, role, role == currentRole, roleRunnable))
+                }
+            }
+        }
+
+        val canChangeModerator = ChatSDK.thread().canChangeModerator(thread, user)
+        val canChangeVoice = ChatSDK.thread().canChangeVoice(thread, user)
+
+        if (canChangeModerator || canChangeVoice) {
+            items.add(SectionViewModel(getString(R.string.moderation)))
+
+            if (canChangeModerator) {
+
+                items.add(ToggleViewModel(getString(R.string.moderator), ChatSDK.thread().isModerator(thread, user), object : ToggleRunnable {
+                    override fun run(value: Boolean) {
+                        if (value) {
+                            dm.add(ChatSDK.thread().grantModerator(thread, user).observeOn(RX.main()).subscribe(Action {
+                                Logger.info("Done")
+                            }, this@ModerationActivity))
+                        } else {
+                            dm.add(ChatSDK.thread().revokeModerator(thread, user).observeOn(RX.main()).subscribe(Action {
+                                Logger.info("Done")
+                            }, this@ModerationActivity))
+                        }
+                    }
+                }))
+            }
+
+            if (canChangeVoice) {
+
+                items.add(ToggleViewModel(getString(R.string.silence), !ChatSDK.thread().hasVoice(thread, user), object : ToggleRunnable {
+                    override fun run(value: Boolean) {
+                        if (value) {
+                            dm.add(ChatSDK.thread().revokeVoice(thread, user).observeOn(RX.main()).subscribe(Action {
+                                Logger.info("Done")
+                            }, this@ModerationActivity))
+                        } else {
+                            dm.add(ChatSDK.thread().grantVoice(thread, user).observeOn(RX.main()).subscribe(Action {
+                                Logger.info("Done")
+                            }, this@ModerationActivity))
+                        }
+                    }
+                }))
+            }
+        }
+
+        // Remove a user from the group
+        if (ChatSDK.thread().canRemoveUsersFromThread(thread, listOf(user))) {
+            items.add(DividerViewModel())
+            items.add(ButtonViewModel("Remove from Group", resources.getColor(R.color.red) , Runnable {
+                dm.add(ChatSDK.thread().removeUsersFromThread(thread, listOf(user)).observeOn(RX.main()).subscribe(Action {
+//                    ToastHelper.show(this@ModerationActivity, R.string.success)
+                    finish()
+                }, this@ModerationActivity))
+            }))
+        }
+
+        return items
+    }
+
+    protected open fun showProfile(user: User?) {
+        finish()
+        ChatSDK.ui().startProfileActivity(this, user?.entityID)
+    }
 }

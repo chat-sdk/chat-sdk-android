@@ -13,6 +13,7 @@ import io.reactivex.functions.Predicate;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendProgress;
@@ -115,11 +116,11 @@ public class NetworkEvent {
     }
 
     public static NetworkEvent threadUserAdded(Thread thread, User user) {
-        return new NetworkEvent(EventType.ThreadUserUpdated, thread, null, user);
+        return new NetworkEvent(EventType.ThreadUserAdded, thread, null, user);
     }
 
     public static NetworkEvent threadUserRemoved(Thread thread, User user) {
-        return new NetworkEvent(EventType.ThreadUserUpdated, thread, null, user);
+        return new NetworkEvent(EventType.ThreadUserRemoved, thread, null, user);
     }
 
     public static NetworkEvent threadUsersRoleUpdated(Thread thread, User user) {
@@ -222,10 +223,13 @@ public class NetworkEvent {
         return networkEvent -> {
             boolean match = networkEvent.typeIs(EventType.ThreadUserRoleUpdated);
             match = match && networkEvent.getThread().equalsEntity(thread);
-            if (match && user != null) {
-                match = user.equalsEntity(networkEvent.getUser());
+            if (match) {
+                if (user == null) {
+                    return true;
+                }
+                return user.equalsEntity(networkEvent.getUser()) || ChatSDK.currentUser().equalsEntity(networkEvent.getUser());
             }
-            return match;
+            return false;
         };
     }
 
@@ -388,6 +392,14 @@ public class NetworkEvent {
 
     public User getUser() {
         return user;
+    }
+
+    @Nullable
+    public UserThreadLink getUserThreadLink() {
+        if (getUser() != null && getThread() != null) {
+            return getThread().getUserThreadLink(getUser().getId());
+        }
+        return null;
     }
 
     public String getText() {

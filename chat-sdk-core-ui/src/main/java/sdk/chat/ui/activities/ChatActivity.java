@@ -317,6 +317,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterRoleUpdated(thread, ChatSDK.currentUser()))
                 .subscribe(networkEvent -> {
+                    invalidateOptionsMenu();
                     if (hasVoice(networkEvent.getUser())) {
                         showTextInput();
                     } else {

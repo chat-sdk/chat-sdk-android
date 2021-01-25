@@ -17,6 +17,7 @@ import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.activities.thread.details.ThreadDetailsActivity;
 
 public class MainApplication extends Application {
 
@@ -73,6 +74,7 @@ public class MainApplication extends Application {
 //            ChatSDK.config().setDebugUsername(Device.honor() ? "a3": "a4");
 //            ChatSDK.config().setDebugPassword("123");
 
+            ChatSDK.ui().setThreadDetailsActivity(ThreadDetailsActivity.class);
 
 
         }

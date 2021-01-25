@@ -23,11 +23,11 @@ ext {
     bintrayVersion = "1.8.4"
     mavenGradleVersion = "2.1"
     androidxAppcompatVersion = "1.1.0"
-    androidxConstraintLayoutVersion = "2.0.0-beta8"
+    androidxConstraintLayoutVersion = "2.1.0-alpha2"
     androidxLifecycleExtensionsVersion = "2.2.0"
     androidxRecyclerViewVersion = "1.1.0"
     androidxMultidexVersion = "2.0.1"
-    materialVersion = "1.1.0"
+    materialVersion = "1.2.1"
     playAuthVersion = "17.0.0"
     playMapsVersion = "17.0.0"
     playLocationVersion = "17.0.0"
@@ -83,6 +83,7 @@ ext {
     pdfiumVersion = "1.9.0"
 
     smackVersion = "4.3.4"
+//    smackVersion = "4.4.0"
     activity_ktx_version = "1.1.0"
 
 }

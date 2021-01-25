@@ -72,6 +72,9 @@
     <item name="incomingTimeTextStyle">italic</item>
     <item name="incomingTextSize">14sp</item>
 
+    <item name="recyclerSectionBackgroundColor">#EAEAEA</item>
+    <item name="recyclerSectionBorderColor">@color/gray_very_light</item>
+
     <item name="outcomingReplyDrawable">@drawable/shape_outcoming_reply</item>
     <item name="outcomingReplyImageDrawable">@drawable/shape_outcoming_reply_image</item>
     <item name="outcomingReplyDividerColor">?replyDividerColor</item>

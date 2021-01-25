@@ -410,10 +410,6 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return false;
     }
 
-    public String localizeRole(String role) {
-        return localizeRoles(Collections.singletonList(role)).get(0);
-    }
-
     @Override
     public List<String> localizeRoles(String... roles) {
         return localizeRoles(Arrays.asList(roles));
@@ -421,7 +417,11 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
     @Override
     public List<String> localizeRoles(List<String> roles) {
-        return roles;
+        List<String> localized = new ArrayList<>();
+        for (String role: roles) {
+            localized.add(localizeRole(role));
+        }
+        return localized;
     }
 
     public boolean canLeaveThread(Thread thread) {

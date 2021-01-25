@@ -235,8 +235,8 @@ public class UserThreadLink {
     }
 
     @Keep
-    public void setAffiliation(String affiliation) {
-        setMetaValue(Keys.Affiliation, affiliation);
+    public boolean setAffiliation(String affiliation) {
+        return setMetaValue(Keys.Affiliation, affiliation);
     }
 
     @Keep

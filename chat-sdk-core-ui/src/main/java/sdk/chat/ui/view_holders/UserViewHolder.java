@@ -2,13 +2,13 @@ package sdk.chat.ui.view_holders;
 
 import android.content.Context;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
@@ -24,10 +24,11 @@ import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.chat.ui.binders.AvailabilityHelper;
 import sdk.chat.ui.module.UIModule;
+import smartadapter.viewholder.SmartViewHolder;
 
-public class UserViewHolder extends RecyclerView.ViewHolder  {
+public class UserViewHolder extends SmartViewHolder<UserListItem> {
 
-    protected boolean multiSelectEnabled;
+    protected boolean multiSelectEnabled = false;
 
     @BindView(R2.id.avatarImageView) protected CircleImageView avatarImageView;
     @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
@@ -38,6 +39,10 @@ public class UserViewHolder extends RecyclerView.ViewHolder  {
     @BindView(R2.id.root) protected RelativeLayout root;
 
     UsersListAdapter.SubtitleProvider provider;
+
+    public UserViewHolder(ViewGroup parentView) {
+        super(parentView, R.layout.view_user_row);
+    }
 
     public UserViewHolder(View view, boolean multiSelectEnabled) {
         this(view, multiSelectEnabled, null);

@@ -80,7 +80,7 @@
     <string name="image_save_failed">O salvamento da imagem falhou</string>
 
 
-    <string name="action_edit">Editar</string>
+    <string name="edit">Editar</string>
 
     <string name="availability_unavailable">Indisponível</string>
     <string name="availability_available">acessível</string>

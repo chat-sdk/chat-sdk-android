@@ -67,6 +67,7 @@ public interface ThreadHandler {
     Completable leaveThread(Thread thread);
 
     Completable joinThread(Thread thread);
+    boolean canJoinThread(Thread thread);
 
     Completable deleteMessage(Message message);
     Completable deleteMessages(Message... messages);
@@ -113,6 +114,9 @@ public interface ThreadHandler {
     Completable unmute(Thread thread);
 
     Message newMessage(int type, Thread thread);
+
+    boolean canDestroy(Thread thread);
+    Completable destroy(Thread thread);
 
     // Roles
     // Generally it works like this:

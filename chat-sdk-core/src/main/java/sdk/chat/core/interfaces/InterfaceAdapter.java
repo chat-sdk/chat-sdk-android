@@ -38,12 +38,6 @@ public interface InterfaceAdapter {
     Class<? extends Activity> getChatActivity();
     Class<? extends Activity> getThreadDetailsActivity();
 
-    /**
-     * Use getEditThreadActivity
-     * @return
-     */
-    @Deprecated
-    Class<? extends Activity> getThreadEditDetailsActivity();
     Class<? extends Activity> getEditThreadActivity();
 
     Class<? extends Activity> getAddUsersToThreadActivity();
@@ -63,12 +57,6 @@ public interface InterfaceAdapter {
     void setChatActivity(Class<? extends Activity> chatActivity);
     void setThreadDetailsActivity(Class<? extends Activity> threadDetailsActivity);
 
-    /**
-     * Use setEditThreadActivity
-     * @param threadEditDetailsActivity
-     */
-    @Deprecated
-    void setThreadEditDetailsActivity(Class<? extends Activity> threadEditDetailsActivity);
     void setEditThreadActivity(Class<? extends Activity> editThreadActivity);
 
     void setForwardMessageActivity(Class<? extends Activity> forwardMessageActivity);
@@ -107,13 +95,6 @@ public interface InterfaceAdapter {
     void startChatActivityForID(Context context, String threadEntityID);
     void startChatActivityForID(Context context, String threadEntityID, @Nullable Integer flags);
 
-    /**
-     * Use {@link #startEditThreadActivity(Context, String)}
-     * @param context
-     * @param threadEntityID
-     */
-    @Deprecated
-    void startPublicThreadEditDetailsActivity(Context context, String threadEntityID);
     void startEditThreadActivity(Context context, String threadEntityID);
     void startEditThreadActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs);
 

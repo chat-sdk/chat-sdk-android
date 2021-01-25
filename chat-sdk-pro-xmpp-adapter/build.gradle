@@ -3,7 +3,8 @@ plugins {
     id 'com.jfrog.bintray'
     id 'maven-publish'
     id 'com.jakewharton.butterknife'
-//    id 'com.jakewharton.hugo'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
 }
 
 android {
@@ -29,6 +30,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 
     lintOptions {
