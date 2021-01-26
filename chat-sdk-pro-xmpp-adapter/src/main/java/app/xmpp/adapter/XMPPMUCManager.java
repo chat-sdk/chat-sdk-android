@@ -69,11 +69,12 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
 
     private DisposableMap dm = new DisposableMap();
 
-    public XMPPMUCManager(XMPPManager manager_) {
-        manager = new WeakReference<>(manager_);
-        manager.get().chatManager().addIncomingListener(this);
+    public XMPPMUCManager(XMPPManager manager) {
+        this.manager = new WeakReference<>(manager);
 
-        chatManager = MultiUserChatManager.getInstanceFor(manager.get().getConnection());
+        manager.chatManager().addIncomingListener(this);
+
+        chatManager = MultiUserChatManager.getInstanceFor(manager.getConnection());
         chatManager.setAutoJoinOnReconnect(true);
 
         chatManager.setAutoJoinFailedCallback((muc, e) -> {
@@ -84,7 +85,6 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
             joinRoom(room, true).ignoreElement().subscribe();
         });
     }
-
 
     public Single<Thread> createRoom (final String name, final String description, final ArrayList<User> users) {
         return Single.defer(() -> {

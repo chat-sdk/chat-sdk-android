@@ -197,7 +197,7 @@ open class ModerationActivity: BaseActivity() {
         }
 
         // Remove a user from the group
-        if (ChatSDK.thread().canRemoveUsersFromThread(thread, listOf(user))) {
+        if (ChatSDK.thread().canRemoveUserFromThread(thread, user)) {
             items.add(DividerViewModel())
             items.add(ButtonViewModel("Remove from Group", resources.getColor(R.color.red) , Runnable {
                 dm.add(ChatSDK.thread().removeUsersFromThread(thread, listOf(user)).observeOn(RX.main()).subscribe(Action {

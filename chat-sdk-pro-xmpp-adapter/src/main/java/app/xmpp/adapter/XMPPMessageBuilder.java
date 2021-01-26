@@ -86,10 +86,17 @@ public class XMPPMessageBuilder {
     }
 
     public XMPPMessageBuilder addLeaveGroupExtension() {
+        return addLeaveGroupExtension(null);
+    }
+
+    public XMPPMessageBuilder addLeaveGroupExtension(String userJID) {
         setBody(String.format(ChatSDK.getString(R.string.__left_the_group), ChatSDK.currentUser().getName()));
         setType(MessageType.Silent);
         setAction(MessageType.Action.UserLeftGroup);
         addNoRetryExtension();
+        if (userJID != null) {
+            extensionBuilder.addElement(XMPPDefines.ID, userJID);
+        }
         return this;
     }
 

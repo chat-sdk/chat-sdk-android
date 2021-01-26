@@ -40,3 +40,5 @@ chat-sdk-read-receipts
 chat-sdk-sticker-message
 chat-sdk-typing-indicator
 chat-sdk-video-message
+
+ajcore.*
