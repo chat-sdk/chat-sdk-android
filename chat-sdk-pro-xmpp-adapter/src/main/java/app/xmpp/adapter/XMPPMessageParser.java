@@ -38,6 +38,9 @@ public class XMPPMessageParser {
 
         for (org.jivesoftware.smack.packet.Message message: xmppMessages) {
             XMPPMessageWrapper xmr = XMPPMessageWrapper.with(message);
+            if (xmr.isSilent()) {
+                continue;
+            }
 
             List<XMPPMessageWrapper> messages = threadMessageMap.get(xmr.getThreadEntityID());
             if (messages == null) {
@@ -64,6 +67,10 @@ public class XMPPMessageParser {
     }
 
     public static Message addMessageToThread(Thread thread, final XMPPMessageWrapper xmr, String from) {
+        if (xmr.isSilent()) {
+            return null;
+        }
+
         Message message = buildMessage(xmr, from);
 
         ChatSDK.hook().executeHook(HookEvent.MessageReceived, new HashMap<String, Object>() {{

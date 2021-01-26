@@ -59,6 +59,8 @@ public class Config<T> extends BaseConfig<T> {
 
     public boolean rolesEnabled = true;
 
+    public boolean threadDestructionEnabled = true;
+
     // Should we open a new thread with a user after the thread has been deleted?
     public boolean reuseDeleted1to1Threads = true;
 
@@ -547,6 +549,14 @@ public class Config<T> extends BaseConfig<T> {
         return this;
     }
 
-
+    /**
+     * Turn off thread destruction (if already supported by the room type and network adapter)
+     * In come cases this flag may do nothing if not supported
+     * @param threadDestructionEnabled
+     */
+    public Config<T> setThreadDestructionEnabled(boolean threadDestructionEnabled) {
+        this.threadDestructionEnabled = threadDestructionEnabled;
+        return this;
+    }
 
 }

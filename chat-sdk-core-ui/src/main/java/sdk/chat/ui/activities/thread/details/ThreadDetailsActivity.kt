@@ -293,7 +293,6 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
             items.add(destroyButton)
         }
 
-
         items.add(SectionViewModel("").hideBorders(bottom = true))
 
         adapter.setItems(items)

@@ -561,7 +561,7 @@ public class Thread extends AbstractEntity {
 
     public String getUserListString () {
         StringBuilder name = new StringBuilder();
-        for(User u : getUsers()) {
+        for(User u : getMembers()) {
             if(!u.isMe() && !StringChecker.isNullOrEmpty(u.getName())) {
                 name.append(u.getName()).append(", ");
             }

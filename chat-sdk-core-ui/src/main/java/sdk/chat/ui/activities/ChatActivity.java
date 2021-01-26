@@ -104,6 +104,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         updateThread(savedInstanceState);
         initViews();
 
+
     }
 
     public void updateThread(Bundle bundle) {
@@ -325,6 +326,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                     }
                 }));
 
+
+        if (chatView != null) {
+            chatView.addListeners();
+//            chatView.onLoadMore(0, 0);
+        }
+
         invalidateOptionsMenu();
     }
 
@@ -408,9 +415,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         // Put it here in the case that they closed the app with this screen open
         thread.markReadAsync().subscribe();
 
-        if (chatView != null) {
-            chatView.addListeners();
-        }
     }
 
     @Override
@@ -424,9 +428,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             thread.setDraft(null);
         }
 
-        if (chatView != null) {
-            chatView.removeListeners();
-        }
 
     }
 
@@ -438,6 +439,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onStop() {
         super.onStop();
         doOnStop();
+
     }
 
     protected void doOnStop() {
@@ -458,6 +460,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onDestroy() {
         if (enableTrace) {
             Debug.stopMethodTracing();
+        }
+        if (chatView != null) {
+            chatView.removeListeners();
         }
         super.onDestroy();
     }

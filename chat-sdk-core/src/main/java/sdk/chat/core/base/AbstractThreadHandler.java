@@ -204,10 +204,19 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     }
 
     @Override
-    public boolean canRemoveUsersFromThread(Thread thread, List<User> users) {
+    public boolean canRemoveUserFromThread(Thread thread, User user) {
         return thread.typeIs(ThreadType.PrivateGroup) && thread.getCreator() != null && thread.getCreator().isMe();
     }
 
+    @Override
+    public boolean canRemoveUsersFromThread(Thread thread, List<User> users) {
+        for (User user: users) {
+            if (!canRemoveUserFromThread(thread, user)) {
+                return false;
+            }
+        }
+        return true;
+    }
     @Override
     public List<Thread> getThreads(int type) {
         return getThreads(type, false);

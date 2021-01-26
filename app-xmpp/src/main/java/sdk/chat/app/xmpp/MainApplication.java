@@ -37,6 +37,7 @@ public class MainApplication extends Application {
                     .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
                     .setAnonymousLoginEnabled(false)
                     .setDebugModeEnabled(false)
+                    .setThreadDestructionEnabled(false)
                     .build()
 
                     // Add modules to handle file uploads, push notifications

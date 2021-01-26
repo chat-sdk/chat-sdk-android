@@ -37,6 +37,11 @@ public class XMPPMUCMessageListener implements MessageListener, Disposable {
 
     @Override
     public void processMessage(Message xmppMessage) {
+        XMPPMessageWrapper xmr = new XMPPMessageWrapper(xmppMessage);
+        if (xmr.isSilent()) {
+            return;
+        }
+
         if (xmppMessage.getFrom().equals(chat.get().getRoom())) {
             // This is probably the subject
             Logger.debug("Subject?");
@@ -55,6 +60,7 @@ public class XMPPMUCMessageListener implements MessageListener, Disposable {
                 XMPPManager.shared().typingIndicatorManager.handleMessage(xmppMessage, user);
             } else {
                 Thread thread = parent.get().threadForRoomID(chat.get());
+                from can be null!
                 XMPPMessageParser.addMessageToThread(thread, XMPPMessageWrapper.with(xmppMessage), from);
             }
         }

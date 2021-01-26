@@ -211,7 +211,6 @@ open class ModerationActivity: BaseActivity() {
     }
 
     protected open fun showProfile(user: User?) {
-        finish()
         ChatSDK.ui().startProfileActivity(this, user?.entityID)
     }
 }

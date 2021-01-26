@@ -153,7 +153,6 @@ public class XMPPUserManager {
 
             UserSearchManager userSearchManager = manager.get().userSearchManager();
             Form searchForm = userSearchManager.getSearchForm(jid.asDomainBareJid());
-
             Form answerForm = searchForm.createAnswerForm();
 
             // There are two ways to do search:
@@ -166,7 +165,7 @@ public class XMPPUserManager {
 
             // If the search field is mandatory then we know that it's the OpenFire style
             if(searchForm.hasField("search") && searchForm.getField("search").isRequired()) {
-                FormField username = searchForm.getField("Username");
+                FormField username = answerForm.getField("Username");
                 username.addValue("1");
 
 //                builder.addField(FormField.textSingleBuilder("Username").setValue(1).build());

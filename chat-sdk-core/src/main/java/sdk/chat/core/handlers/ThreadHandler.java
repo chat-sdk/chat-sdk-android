@@ -37,6 +37,7 @@ public interface ThreadHandler {
      * Remove users from a thread
      */
     boolean canRemoveUsersFromThread(Thread thread, List<User> users);
+    boolean canRemoveUserFromThread(Thread thread, User user);
     Completable removeUsersFromThread(Thread thread, List<User> users);
     Completable removeUsersFromThread(Thread thread, User... users);
     /**

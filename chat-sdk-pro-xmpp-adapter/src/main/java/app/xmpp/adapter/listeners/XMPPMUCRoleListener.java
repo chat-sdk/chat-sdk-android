@@ -220,7 +220,7 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
 
             affiliationChanged = true;
             if (isMe && oldAffiliation != null) {
-                sendLocalMessageForAffiliationChange();
+                sendLocalMessageForAffiliationChange(oldAffiliation);
             }
         }
 
@@ -238,11 +238,11 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
         }
     }
 
-    public void sendLocalMessageForAffiliationChange() {
+    public void sendLocalMessageForAffiliationChange(String oldAffiliation) {
         try {
             String role = ChatSDK.thread().roleForUser(thread.get(), ChatSDK.currentUser());
             // My affiliation has changed
-            if (Role.isOutcast(role) || XMPPModule.config().sendSystemMessageForAffiliationChange) {
+            if (Role.isOutcast(role) || Role.isOutcast(oldAffiliation) || XMPPModule.config().sendSystemMessageForAffiliationChange) {
                 String message = String.format(ChatSDK.getString(R.string.role_changed_to__), role);
                 ChatSDK.thread().sendLocalSystemMessage(message, thread.get());
             }
@@ -286,8 +286,6 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
             Jid jid = item.getJid().asBareJid();
             String entityID = jid.toString();
 
-
-
             MUCAffiliation affiliation = item.getAffiliation();
             MUCRole role = item.getRole();
             Resourcepart nick = item.getNick();
@@ -312,16 +310,19 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
             UserThreadLink link = thread.get().getUserThreadLink(user.getId());
 
             boolean updated = false;
+            boolean joined = false;
 
             if (presence.getType() == Presence.Type.available) {
-                updated = link.setIsActive(true);
+                joined = link.setIsActive(true);
                 updated = link.setHasLeft(false) || updated;
             }
             if (presence.getType() == Presence.Type.unavailable) {
                 updated = link.setIsActive(false) || updated;
             }
 
-            if (updated) {
+            if (joined) {
+                ChatSDK.events().source().accept(NetworkEvent.threadUserAdded(thread.get(), user));
+            } else if (updated) {
                 ChatSDK.events().source().accept(NetworkEvent.userPresenceUpdated(user));
             }
 

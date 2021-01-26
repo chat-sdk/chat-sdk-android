@@ -424,8 +424,12 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 MessageHolder holder = messageHolderHashMap.get(message);
                 if (holder == null) {
                     holder = ChatSDKUI.shared().getMessageCustomizer().onNewMessageHolder(message);
-                    messageHolderHashMap.put(message, holder);
-                    holders.add(holder);
+                    if (holder != null) {
+                        messageHolderHashMap.put(message, holder);
+                        holders.add(holder);
+                    } else {
+                        Logger.debug("Not allowed");
+                    }
                 }
             }
             Debug.messageList(messages);

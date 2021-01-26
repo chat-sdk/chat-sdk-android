@@ -336,12 +336,12 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
 
             // TODO: Workaround for Android, send the invitation by a message too
             // On Android, if the user is offline, the invitation is never sent
-            Message message = XMPPMessageBuilder.create()
-                    .setTo(jid.asBareJid())
-                    .addGroupInviteExtension(chat.getRoom().asBareJid())
-                    .build();
-
-            manager.get().sendStanza(message);
+//            Message message = XMPPMessageBuilder.create()
+//                    .setTo(jid.asBareJid())
+//                    .addGroupInviteExtension(chat.getRoom().asBareJid())
+//                    .build();
+//
+//            manager.get().sendStanza(message);
 
             e.onComplete();
         }).subscribeOn(RX.io());
@@ -605,7 +605,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
                 }
                 else if (affiliation == MUCAffiliation.outcast) {
 //                    chat.grantMembership(affiliate.getJid());
-                    chat.banUser(jid, "");
+                    chat.banUser(jid, " ");
                 }
                 else {
                     chat.revokeMembership(jid);

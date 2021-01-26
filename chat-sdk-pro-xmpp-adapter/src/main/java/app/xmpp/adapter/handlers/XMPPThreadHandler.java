@@ -91,17 +91,11 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean canRemoveUsersFromThread(Thread thread, List<User> users) {
+    public boolean canRemoveUserFromThread(Thread thread, User user) {
         if (thread.typeIs(ThreadType.Group)) {
             String myRole = roleForUser(thread, ChatSDK.currentUser());
-            boolean canRemove = Role.isOwnerOrAdmin(myRole);
-            if (canRemove) {
-                for (User user: users) {
-                    String role = roleForUser(thread, user);
-                    canRemove = canRemove && Role.level(myRole) > Role.level(role);
-                }
-            }
-            return canRemove;
+            String role = roleForUser(thread, user);
+            return Role.isOwnerOrAdmin(myRole) && Role.isMember(role);
         }
         return false;
     }
@@ -319,8 +313,11 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean canDestroy(Thread thread) {
-        String myRole = roleForUser(thread, ChatSDK.currentUser());
-        return Role.isOwner(myRole);
+        if(ChatSDK.config().threadDestructionEnabled && thread.typeIs(ThreadType.Group) && rolesEnabled(thread)) {
+            String myRole = roleForUser(thread, ChatSDK.currentUser());
+            return Role.isOwner(myRole);
+        }
+        return false;
     }
 
     @Override
