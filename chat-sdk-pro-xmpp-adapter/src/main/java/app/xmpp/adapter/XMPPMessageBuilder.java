@@ -5,6 +5,8 @@ import android.location.Location;
 
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.StandardExtensionElement;
+import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
+import org.jivesoftware.smackx.receipts.DeliveryReceiptRequest;
 import org.jxmpp.jid.BareJid;
 
 import java.util.Map;
@@ -53,6 +55,13 @@ public class XMPPMessageBuilder {
 
     public XMPPMessageBuilder setAsChatType() {
         message.setType(Message.Type.chat);
+        return this;
+    }
+
+    public XMPPMessageBuilder addDeliveryReceiptRequest() {
+        if (!DeliveryReceiptManager.hasDeliveryReceiptRequest(message)) {
+            DeliveryReceiptRequest.addTo(message);
+        }
         return this;
     }
 

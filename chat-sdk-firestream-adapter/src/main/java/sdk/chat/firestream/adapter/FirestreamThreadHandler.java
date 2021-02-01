@@ -243,6 +243,11 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         return new ArrayList<>();
     }
 
+    @Override
+    public String localizeRole(String role) {
+        return null;
+    }
+
     public Completable setRole(String role, Thread thread, User user) {
         return Completable.defer(() -> {
             if (rolesEnabled(thread, user)) {
@@ -288,6 +293,16 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
             }
             return Completable.complete();
         }).doOnComplete(() -> thread.setMuted(false));
+    }
+
+    @Override
+    public boolean canDestroy(Thread thread) {
+        return false;
+    }
+
+    @Override
+    public Completable destroy(Thread thread) {
+        return null;
     }
 
     public Completable removeUsersFromThread(final Thread thread, List<User> users) {
@@ -362,7 +377,12 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
 
     @Override
     public Completable joinThread(Thread thread) {
-        return null;
+        return Completable.complete();
+    }
+
+    @Override
+    public boolean canJoinThread(Thread thread) {
+        return false;
     }
 
     @Override

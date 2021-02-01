@@ -410,8 +410,8 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         final MessageHolder holder = messageHolderHashMap.get(message);
         if (holder != null && progress != null) {
             holder.setProgress(progress);
-            messagesListAdapter.update(holder);
         }
+        messagesListAdapter.update(holder);
     }
 
     public void addMessagesToEnd(final List<Message> messages) {

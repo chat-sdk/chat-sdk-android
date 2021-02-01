@@ -8,16 +8,15 @@ import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.receipts.XMPPReadReceiptsModule;
 import io.reactivex.disposables.Disposable;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.encryption.EncryptionModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.location.LocationMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
+import sdk.chat.ui.activities.thread.details.ThreadDetailsActivity;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
-import sdk.chat.ui.activities.thread.details.ThreadDetailsActivity;
 
 public class MainApplication extends Application {
 
@@ -45,7 +44,7 @@ public class MainApplication extends Application {
                     .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
-                            .setXMPP("185.62.137.45", "bear")
+                            .setXMPP("xmpp.app", "xmpp.app")
 //                            .setXMPP("sysnet-ecs.multidemos.com", "sysnet-ecs.multidemos.com")
                             .setAllowServerConfiguration(false)
                             .setPingInterval(5)
@@ -68,7 +67,7 @@ public class MainApplication extends Application {
                             .setDrawerEnabled(false)
                             .build())
 
-                    .addModule(EncryptionModule.shared())
+//                    .addModule(EncryptionModule.shared())
 
                     .build().activate(this, "Ben");
 
@@ -86,10 +85,12 @@ public class MainApplication extends Application {
         }
 
 
+
+
 //        ChatSDK.auth().authenticate(AccountDetails.username()).subscribe()
 
         Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {
-
+            networkEvent.debug();
         });
 
         d = ChatSDK.events().errorSourceOnMain().subscribe(throwable -> {

@@ -16,7 +16,9 @@ public class XMPPDefines {
     public static String Action = "message-action";
     public static String ID = "id";
 
+    public static String Request = "request";
 
     public static String BlockingCommandNamespace = "urn:xmpp:blocking";
+
 
 }

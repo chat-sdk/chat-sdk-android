@@ -274,6 +274,11 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 //                if(chat != null) {
                     builder.setAsGroupChatType();
                     builder.setTo(JidCreate.entityBareFrom(message.getThread().getEntityID()));
+
+                    if (ChatSDK.readReceipts() != null) {
+                        builder.addDeliveryReceiptRequest();
+                    }
+
                     XMPPManager.shared().sendStanza(builder.build());
 //                    chat.sendMessage(builder.build());
 //                }

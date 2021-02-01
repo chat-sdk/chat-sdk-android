@@ -29,8 +29,8 @@ public class ReadReceiptHelper {
 
         ack.addExtension(new DeliveryReceipt(messageId));
 
-        ExtensionElement extension = StandardExtensionElement.builder(XMPPDefines.Extras, XMPPDefines.MessageReadNamespace).build();
-        ack.addExtension(extension);
+//        ExtensionElement extension = StandardExtensionElement.builder(XMPPDefines.Extras, XMPPDefines.MessageReadNamespace).build();
+//        ack.addExtension(extension);
 
         return ack;
     }

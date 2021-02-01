@@ -18,7 +18,7 @@ public class XMPPConfig<T> extends BaseConfig<T> {
     public boolean compressionEnabled = true;
     public String securityMode = "disabled";
     public int mucMessageHistoryDownloadLimit = 20;
-    public int messageHistoryDownloadLimit = 30;
+    public int messageHistoryDownloadLimit = 100;
     public boolean debugEnabled = false;
     public int pingInterval = 15;
     public boolean streamManagementEnabled = true;
@@ -210,7 +210,7 @@ public class XMPPConfig<T> extends BaseConfig<T> {
      * @param sendSystemMessageForAffiliationChange
      * @return
      */
-    public XMPPConfig setSendSystemMessageForAffiliationChange(boolean sendSystemMessageForAffiliationChange) {
+    public XMPPConfig<T> setSendSystemMessageForAffiliationChange(boolean sendSystemMessageForAffiliationChange) {
         this.sendSystemMessageForAffiliationChange = sendSystemMessageForAffiliationChange;
         return this;
     }

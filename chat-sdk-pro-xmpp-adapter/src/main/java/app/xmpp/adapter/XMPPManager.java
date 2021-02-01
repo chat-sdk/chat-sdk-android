@@ -8,6 +8,7 @@ import org.jivesoftware.smack.ReconnectionManager;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.chat2.ChatManager;
+import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.provider.ProviderManager;
@@ -43,7 +44,6 @@ import java.util.List;
 import java.util.UUID;
 
 import app.xmpp.adapter.enums.ConnectionStatus;
-import app.xmpp.adapter.listeners.XMPPCarbonCopyReceivedListener;
 import app.xmpp.adapter.listeners.XMPPChatStateListener;
 import app.xmpp.adapter.listeners.XMPPConnectionListener;
 import app.xmpp.adapter.listeners.XMPPMessageListener;
@@ -55,6 +55,7 @@ import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.adapter.utils.PresenceHelper;
 import app.xmpp.adapter.utils.PublicKeyExtras;
 import app.xmpp.adapter.utils.ServerKeyStorage;
+import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import app.xmpp.adapter.utils.XMPPServer;
 import io.reactivex.Completable;
 import io.reactivex.Observer;
@@ -63,7 +64,6 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import sdk.chat.core.hook.HookEvent;
-import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.StringChecker;
 import sdk.guru.common.DisposableMap;
@@ -85,9 +85,8 @@ public class XMPPManager {
     protected XMPPRosterListener rosterListener;
     protected XMPPMessageListener messageListener;
     protected XMPPChatStateListener chatStateListener;
-    protected XMPPReceiptReceivedListener receiptReceivedListener;
+    public XMPPReceiptReceivedListener receiptReceivedListener;
     protected XMPPReconnectionListener reconnectionListener;
-    protected XMPPCarbonCopyReceivedListener carbonCopyReceivedListener;
     protected XMPPPingListener pingListener;
 //    protected OutgoingStanzaQueue outgoingStanzaQueue = new OutgoingStanzaQueue();
 
@@ -124,7 +123,6 @@ public class XMPPManager {
         reconnectionListener = new XMPPReconnectionListener();
 
         receiptReceivedListener = new XMPPReceiptReceivedListener();
-        carbonCopyReceivedListener = new XMPPCarbonCopyReceivedListener();
 
         // Managers
         userManager = new XMPPUserManager(this);
@@ -359,8 +357,8 @@ public class XMPPManager {
         roster().removeRosterListener(rosterListener);
         roster().addRosterListener(rosterListener);
 
-        carbonManager().removeCarbonCopyReceivedListener(carbonCopyReceivedListener);
-        carbonManager().addCarbonCopyReceivedListener(carbonCopyReceivedListener);
+        carbonManager().removeCarbonCopyReceivedListener(messageListener);
+        carbonManager().addCarbonCopyReceivedListener(messageListener);
 
         pingManager().unregisterPingFailedListener(pingListener);
         pingManager().registerPingFailedListener(pingListener);
@@ -441,13 +439,20 @@ public class XMPPManager {
             put(HookEvent.User, ChatSDK.currentUser());
         }}).subscribe(ChatSDK.events());
 
-        if (ChatSDK.thread().getThreads(ThreadType.Private1to1).isEmpty()) {
+//        if (ChatSDK.thread().getThreads(ThreadType.Private1to1).isEmpty()) {
             dm.add(mamManager.getMessageArchive(ChatSDK.currentUserID(), XMPPModule.config().messageHistoryDownloadLimit).subscribe((messages, throwable) -> {
                 if (throwable == null) {
-                    XMPPMessageParser.parse(messages);
+                    List<XMPPMessageWrapper> wrappers = new ArrayList<>();
+                    for(Message message: messages) {
+                        // Check if message already exists
+                        if (message.getType() != Message.Type.groupchat) {
+                            wrappers.add(new XMPPMessageWrapper(message));
+                        }
+                    }
+                    messageListener.parse(wrappers);
                 }
             }));
-        }
+//        }
     }
 
     private XMPPTCPConnectionConfiguration configureRegistrationConnection(XMPPServer server) throws Exception {

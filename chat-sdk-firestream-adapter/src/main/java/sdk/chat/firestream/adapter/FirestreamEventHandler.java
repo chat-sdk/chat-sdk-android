@@ -69,12 +69,12 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                 // TODO: manage name image change
                 cdm.add(chat.getNameChangeEvents().subscribe(s -> {
                     finalThread.setName(s);
-                    eventSource.accept(NetworkEvent.threadDetailsUpdated(finalThread));
+                    eventSource.accept(NetworkEvent.threadMetaUpdated(finalThread));
                 }, this));
 
                 cdm.add(chat.getImageURLChangeEvents().subscribe(s -> {
                     finalThread.setImageUrl(s);
-                    eventSource.accept(NetworkEvent.threadDetailsUpdated(finalThread));
+                    eventSource.accept(NetworkEvent.threadMetaUpdated(finalThread));
                 }, this));
 
                 cdm.add(chat.getUserEvents().subscribe(userEvent -> {

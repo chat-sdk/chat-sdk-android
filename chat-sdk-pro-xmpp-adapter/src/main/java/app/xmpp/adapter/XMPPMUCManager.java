@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 
 import app.xmpp.adapter.defines.XMPPDefines;
-import app.xmpp.adapter.listeners.XMPPMUCMessageListener;
 import app.xmpp.adapter.listeners.XMPPMUCRoleListener;
 import app.xmpp.adapter.listeners.XMPPSubjectUpdatedListener;
 import app.xmpp.adapter.module.XMPPModule;
@@ -65,7 +64,6 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
     private MultiUserChatManager chatManager;
 
     protected Map<String, XMPPMUCRoleListener> userStatusListeners = new HashMap<>();
-    protected Map<String, XMPPMUCMessageListener> messageListeners = new HashMap<>();
 
     private DisposableMap dm = new DisposableMap();
 
@@ -182,13 +180,9 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
                     config.requestMaxStanzasHistory(XMPPModule.config().mucMessageHistoryDownloadLimit);
                 }
 
-                XMPPMUCMessageListener chatMessageListener = getMessageListener(thread.getEntityID());
-                if (chatMessageListener == null) {
-                    chatMessageListener = new XMPPMUCMessageListener(XMPPMUCManager.this, chat);
-                    putMessageListener(thread.getEntityID(), chatMessageListener);
-                }
-
-                dm.add(chatMessageListener);
+                // Add the message listener
+                chat.removeMessageListener(manager.get().messageListener);
+                chat.addMessageListener(manager.get().messageListener);
 
                 XMPPSubjectUpdatedListener subjectUpdatedListener = new XMPPSubjectUpdatedListener(chat);
                 dm.add(subjectUpdatedListener);
@@ -430,30 +424,26 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
             return room.getOccupant(JidCreate.entityFullFrom(userRoomID.toString())).getJid().asBareJid().toString();
         } catch (Exception e) {
             ChatSDK.events().onError(e);
-            return null;
         }
+        return null;
+    }
+
+    /**
+     *
+     * @param from
+     * @return
+     */
+    public String userJID(Jid from) {
+        MultiUserChat chat = chatManager.getMultiUserChat(from.asEntityBareJidIfPossible());
+        if (chat != null) {
+            return chat.getOccupant(from.asEntityFullJidIfPossible()).getJid().asBareJid().toString();
+        }
+        return null;
     }
 
     public void dispose () {
         dm.dispose();
     }
-
-//    public Affiliate getAffiliateForUser(Thread thread, User user) {
-//        for (Affiliate affiliate : getAffiliates(thread)) {
-//            if (affiliate.getJid().asBareJid().toString().equals(user.getEntityID())) {
-//                return affiliate;
-//            }
-//        }
-//        return null;
-//    }
-
-//    protected List<Affiliate> getAffiliates(Thread thread) {
-//        XMPPMUCRoleListener listener = getUserStatusListener(thread.getEntityID());
-//        if (listener != null) {
-//            return listener.getAffiliates();
-//        }
-//        return new ArrayList<>();
-//    }
 
     public Single<List<Affiliate>> requestAffiliatesFromServer(Thread thread) {
         return Single.create((SingleOnSubscribe<List<Affiliate>>)emitter -> {
@@ -639,14 +629,6 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
 
     public void putUserStatusListener(String threadEntityID, XMPPMUCRoleListener listener) {
         userStatusListeners.put(threadEntityID, listener);
-    }
-
-    public XMPPMUCMessageListener getMessageListener(String threadEntityID) {
-        return messageListeners.get(threadEntityID);
-    }
-
-    public void putMessageListener(String threadEntityID, XMPPMUCMessageListener listener) {
-        messageListeners.put(threadEntityID, listener);
     }
 
     public void deactivateThread(Thread thread) {
