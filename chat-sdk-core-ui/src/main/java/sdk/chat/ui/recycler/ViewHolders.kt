@@ -50,16 +50,20 @@ class RadioViewModel(val group: String, val title: String, val value: String, va
 }
 
 class NavigationViewModel(val title: String, val onClick: Runnable) {
-    var delay: Long = 500
+    var delay: Long = 0
+    var clicked = false
     open fun setDelay(delay: Long): NavigationViewModel {
         this.delay = delay
         return this
     }
 
     fun click() {
-        Handler(Looper.getMainLooper()).postDelayed({
-            onClick.run()
-        }, delay)
+        if (!clicked) {
+            clicked = true
+            Handler(Looper.getMainLooper()).postDelayed({
+                onClick.run()
+            }, delay)
+        }
     }
 }
 class DividerViewModel()

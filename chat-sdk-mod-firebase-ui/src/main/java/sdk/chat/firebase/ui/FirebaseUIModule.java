@@ -139,4 +139,8 @@ public class FirebaseUIModule extends AbstractModule {
         config = new Config<>(this);
     }
 
+    public boolean isPremium() {
+        return false;
+    }
+
 }

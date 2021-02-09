@@ -118,6 +118,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
             return Role.isOwnerOrAdmin(myRole);
         }
         return false;
+
     }
 
     @Override
@@ -135,6 +136,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     public Completable deleteThread(Thread thread) {
         return leaveThread(thread).doOnComplete(() -> {
             ChatSDK.events().source().accept(NetworkEvent.threadRemoved(thread));
+        }).doFinally(() -> {
             thread.cascadeDelete();
         });
 //        return Completable.defer(() -> {
@@ -164,11 +166,15 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                 MultiUserChat chat = XMPPManager.shared().mucManager.chatForThreadID(thread.getEntityID());
 
                 if (chat != null) {
+                    XMPPManager.shared().bookmarkManager().removeBookmarkedConference(chat.getRoom());
+
                     // Mark the room as having left
                     chat.sendMessage(XMPPMessageBuilder.create().addLeaveGroupExtension().build());
-
-                    chat.leave();
-                    XMPPManager.shared().bookmarkManager().removeBookmarkedConference(chat.getRoom());
+                    try {
+                        chat.leave();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
                     User user = ChatSDK.currentUser();
                     UserThreadLink link = thread.getUserThreadLink(user.getId());
@@ -232,6 +238,11 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     @Override
     public Completable sendMessage(final Message message) {
         return Completable.create(emitter -> {
+
+            if (ChatSDK.readReceipts() != null) {
+                message.setupInitialReadReceipts();
+            }
+
             XMPPMessageBuilder builder = new XMPPMessageBuilder()
                     .setType(message.getType())
                     .setValues(message.getMetaValuesAsMap())

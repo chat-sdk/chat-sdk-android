@@ -50,7 +50,7 @@ public class XMPPRosterListener implements RosterListener {
                 try {
                     manager.get().roster().preApprove(bare);
                 } catch (Exception e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
                 }
             }
 

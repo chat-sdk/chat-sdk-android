@@ -19,6 +19,7 @@ public interface Module {
     MessageHandler getMessageHandler();
 
     List<String> requiredPermissions();
+    boolean isPremium();
 
     void stop();
 }

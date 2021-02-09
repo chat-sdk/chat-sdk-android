@@ -186,7 +186,7 @@ public class APICheatSheet {
         User user = ChatSDK.db().createEntity(User.class);
 
         // Fetch an entity with a given ID
-        Thread thread = ChatSDK.db().fetchEntityWithEntityID("threadEntityID", Thread.class);
+        Thread thread = ChatSDK.db().fetchThreadWithEntityID("threadEntityID");
 
         // Fetch or create an entity with a given ID
         User otherUser = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, "userEntityID'");

@@ -87,6 +87,10 @@ public class StorageManager {
         return Single.defer(() -> Single.just(new Optional<>(readReceipt(messageId, userId)))).subscribeOn(RX.db());
     }
 
+    public Message fetchOrCreateMessageWithEntityID(String entityId){
+        return fetchOrCreateEntityWithEntityID(Message.class, entityId);
+    }
+
     public <T extends CoreEntity> T fetchOrCreateEntityWithEntityID(Class<T> c, String entityId){
         Logger.debug(java.lang.Thread.currentThread().getName());
 
@@ -109,6 +113,9 @@ public class StorageManager {
         Logger.debug(java.lang.Thread.currentThread().getName());
         T entity = DaoCore.getEntityForClass(c);
         DaoCore.createEntity(entity);
+        if (entity instanceof Thread) {
+            ((Thread) entity).setUserAccountID(ChatSDK.currentUserID());
+        }
         return entity;
     }
 
@@ -125,11 +132,14 @@ public class StorageManager {
         return Single.defer(() -> Single.just(insertOrReplaceEntity(entity)).subscribeOn(RX.db()));
     }
 
-    public <T extends CoreEntity> T fetchEntityWithEntityID(Object entityID, Class<T> c) {
+    public <T extends CoreEntity> T fetchEntityWithEntityID(String entityID, Class<T> c) {
+        if (c == Thread.class) {
+            return (T) fetchThreadWithEntityID(entityID);
+        }
         return DaoCore.fetchEntityWithEntityID(c, entityID);
     }
 
-    public <T extends CoreEntity> Single<T> fetchEntityWithEntityIDAsync(Object entityID, Class<T> c) {
+    public <T extends CoreEntity> Single<T> fetchEntityWithEntityIDAsync(String entityID, Class<T> c) {
         return Single.defer(() -> Single.just(fetchEntityWithEntityID(entityID, c)).subscribeOn(RX.db()));
     }
 
@@ -142,8 +152,37 @@ public class StorageManager {
     }
 
     public List<Thread> fetchThreadsWithType (int type) {
-        return DaoCore.fetchEntitiesWithProperty(Thread.class, ThreadDao.Properties.Type, type);
+        QueryBuilder<Thread> qb = DaoCore.daoSession.queryBuilder(Thread.class);
+        qb.where(ThreadDao.Properties.Type.eq(type));
+        qb.where(ThreadDao.Properties.UserAccountID.eq(ChatSDK.currentUserID()));
+        return qb.list();
     }
+
+    public Thread fetchOrCreateThreadWithEntityID(String entityId){
+        Logger.debug(java.lang.Thread.currentThread().getName());
+
+        Thread thread = fetchThreadWithEntityID(entityId);
+//
+        if (thread == null) {
+            thread = createEntity(Thread.class);
+            thread.setEntityID(entityId);
+        }
+
+        return thread;
+    }
+
+    public Thread fetchThreadWithEntityID(String entityID) {
+        QueryBuilder<Thread> qb = DaoCore.daoSession.queryBuilder(Thread.class);
+        qb.where(ThreadDao.Properties.EntityID.eq(entityID));
+        qb.where(ThreadDao.Properties.UserAccountID.eq(ChatSDK.currentUserID()));
+        List<Thread> threads = qb.list();
+        if (!threads.isEmpty()) {
+            return threads.get(0);
+        }
+        return null;
+    }
+
+
 
     public Single<List<Thread>> fetchThreadsWithTypeAsync(int type) {
         return Single.defer(() -> Single.just(fetchThreadsWithType(type)).subscribeOn(RX.db()));
@@ -200,13 +239,13 @@ public class StorageManager {
         return Single.defer(() -> Single.just(fetchThreadWithID(threadID)).subscribeOn(RX.db()));
     }
 
-    public @Nullable Thread fetchThreadWithEntityID (String entityID) {
-        Logger.debug(java.lang.Thread.currentThread().getName());
-        if(entityID != null) {
-            return fetchEntityWithProperty(Thread.class, ThreadDao.Properties.EntityID, entityID);
-        }
-        return null;
-    }
+//    public @Nullable Thread fetchThreadWithEntityID (String entityID) {
+//        Logger.debug(java.lang.Thread.currentThread().getName());
+//        if(entityID != null) {
+//            return fetchEntityWithProperty(Thread.class, ThreadDao.Properties.EntityID, entityID);
+//        }
+//        return null;
+//    }
 
     public Single<Thread> fetchThreadWithEntityIDAsync (String entityID) {
         return Single.defer(() -> Single.just(fetchThreadWithEntityID(entityID)).subscribeOn(RX.db()));

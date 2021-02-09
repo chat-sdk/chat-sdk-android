@@ -41,7 +41,7 @@ public class XMPPCoreHandler extends AbstractCoreHandler {
 
     @Override
     public void goOnline() {
-        XMPPManager.shared().sendOnlinePresence();
+        XMPPManager.shared().sendAvailablePresence();
     }
 
     @Override

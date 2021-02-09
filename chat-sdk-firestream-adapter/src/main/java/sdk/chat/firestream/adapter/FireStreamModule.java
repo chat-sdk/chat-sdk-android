@@ -101,4 +101,8 @@ public class FireStreamModule extends AbstractModule implements NetworkAdapterPr
         config = new Config<>(this);
     }
 
+    public boolean isPremium() {
+        return false;
+    }
+
 }

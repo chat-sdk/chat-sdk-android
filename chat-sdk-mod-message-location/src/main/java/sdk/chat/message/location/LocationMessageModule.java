@@ -51,5 +51,9 @@ public class LocationMessageModule extends AbstractModule {
         }};
     }
 
+    public boolean isPremium() {
+        return false;
+    }
+
 }
 

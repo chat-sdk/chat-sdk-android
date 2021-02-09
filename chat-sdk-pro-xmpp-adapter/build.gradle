@@ -53,6 +53,7 @@ dependencies {
 //    implementation "com.google.android.gms:play-services-maps:$playMapsVersion"
 
     implementation "org.igniterealtime.smack:smack-android:$smackVersion"
+    implementation "org.igniterealtime.smack:smack-android-extensions:$smackVersion"
 
     // Optional for XMPPTCPConnection
     implementation "org.igniterealtime.smack:smack-tcp:$smackVersion"

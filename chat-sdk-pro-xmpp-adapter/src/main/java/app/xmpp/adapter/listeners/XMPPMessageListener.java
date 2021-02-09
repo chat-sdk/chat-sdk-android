@@ -83,6 +83,7 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
 
         if (xmr.isDeliveryReceipt()) {
             Logger.debug("MUC: isReadExtension");
+            XMPPManager.shared().receiptReceivedListener.onReceiptReceived(message.getFrom(), message.getTo(), xmr.deliveryReceipt().getId(), message);
         } else if (xmr.isChatState()) {
             XMPPManager.shared().typingIndicatorManager.handleMessage(message, xmr.user());
         } else {
@@ -138,6 +139,9 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
         }
 
         final Thread finalThread = thread != null ? thread : xmr.getThread();
+        if (finalThread == null) {
+            return null;
+        }
 
         sdk.chat.core.dao.Message message = buildMessage(xmr);
 
@@ -159,11 +163,7 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
 
     public sdk.chat.core.dao.Message buildMessage(final XMPPMessageWrapper xmr) {
 
-        sdk.chat.core.dao.Message message = ChatSDK.db().fetchEntityWithEntityID(xmr.getMessage().getStanzaId(), sdk.chat.core.dao.Message.class);
-        if (message == null) {
-            message = ChatSDK.db().createEntity(sdk.chat.core.dao.Message.class);
-            message.setEntityID(xmr.getMessage().getStanzaId());
-        }
+        sdk.chat.core.dao.Message message = ChatSDK.db().fetchOrCreateMessageWithEntityID(xmr.getMessage().getStanzaId());
 
         String body = xmr.body();
 

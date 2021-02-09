@@ -50,6 +50,7 @@ public class Thread extends AbstractEntity {
     private Boolean deleted;
     private String draft;
     private Date canDeleteMessagesFrom;
+    private String userAccountID;
 
     @ToOne(joinProperty = "creatorId")
     private User creator;
@@ -84,8 +85,9 @@ public class Thread extends AbstractEntity {
         this.id = id;
     }
 
-    @Generated(hash = 2012841452)
-    public Thread(Long id, String entityID, Date creationDate, Integer type, Long creatorId, Date loadMessagesFrom, Boolean deleted, String draft, Date canDeleteMessagesFrom) {
+    @Generated(hash = 1332492523)
+    public Thread(Long id, String entityID, Date creationDate, Integer type, Long creatorId, Date loadMessagesFrom, Boolean deleted, String draft, Date canDeleteMessagesFrom,
+            String userAccountID) {
         this.id = id;
         this.entityID = entityID;
         this.creationDate = creationDate;
@@ -95,6 +97,7 @@ public class Thread extends AbstractEntity {
         this.deleted = deleted;
         this.draft = draft;
         this.canDeleteMessagesFrom = canDeleteMessagesFrom;
+        this.userAccountID = userAccountID;
     }
 
     public void setMessages(List<Message> messages) {
@@ -904,13 +907,21 @@ public class Thread extends AbstractEntity {
         for (Message message: getMessages()) {
             message.cascadeDelete();
         }
-        for (UserThreadLink link :getUserThreadLinks()) {
+        for (UserThreadLink link: getLinks()) {
             link.cascadeDelete();
         }
         for (ThreadMetaValue value :getMetaValues()) {
             value.delete();
         }
         delete();
+    }
+
+    public String getUserAccountID() {
+        return this.userAccountID;
+    }
+
+    public void setUserAccountID(String userAccountID) {
+        this.userAccountID = userAccountID;
     }
 
 }

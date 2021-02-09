@@ -10,7 +10,8 @@ import org.jivesoftware.smackx.address.packet.MultipleAddresses
 import org.jivesoftware.smackx.chatstates.packet.ChatStateExtension
 import org.jivesoftware.smackx.delay.packet.DelayInformation
 import org.jivesoftware.smackx.receipts.DeliveryReceipt
-import sdk.chat.core.dao.DaoCore
+import org.jxmpp.jid.impl.JidCreate
+import org.pmw.tinylog.Logger
 import sdk.chat.core.dao.Thread
 import sdk.chat.core.dao.User
 import sdk.chat.core.interfaces.ThreadType
@@ -24,19 +25,22 @@ open class XMPPMessageWrapper(val message: Stanza) {
         return if (isGroupChat()) {
             from()
         } else {
-            if (from() == ChatSDK.currentUserID()) {
+            var from = message.extFrom() ?: from()
+            if (from == ChatSDK.currentUserID()) {
                 return to()
             }
-            return from()
+            return from
         }
     }
 
     open fun userEntityID(): String? {
-        return if(isGroupChat()) {
-            delayInformation()?.from ?: XMPPManager.shared().mucManager.userJID(message.from)
-        } else {
-            from()
-        }
+        return message.extFrom()
+//        return if(isGroupChat()) {
+//            val from = delayInformation()?.from ?: XMPPManager.shared().mucManager.userJID(message.from)
+//            return JidCreate.bareFrom(from).toString()
+//        } else {
+//            from()
+//        }
     }
 
     open fun hasAction(action: Int): Boolean {
@@ -111,8 +115,7 @@ open class XMPPMessageWrapper(val message: Stanza) {
             // Set the thread
             var thread = ChatSDK.db().fetchThreadWithEntityID(threadID)
             if (thread == null) {
-                thread = DaoCore.getEntityForClass(Thread::class.java)
-                DaoCore.createEntity<Thread?>(thread)
+                thread = ChatSDK.db().createEntity(Thread::class.java)
                 thread.entityID = threadID
                 thread.type = ThreadType.Private1to1
                 thread.creationDate = Date()
@@ -190,13 +193,35 @@ open class XMPPMessageWrapper(val message: Stanza) {
         return null
     }
 
-    open fun fromIds(): List<String> {
-        return message.fromJIDS()
+    open fun debug() {
+        Logger.debug(prettyXML())
     }
+
+    open fun prettyXML(): String {
+        return XML.prettyFormatXml(message.toXML(""))
+    }
+
+//    open fun fromIds(): List<String> {
+//        return message.fromJIDS()
+//    }
 
 }
 
-fun Stanza.fromJIDS(): List<String> {
+//fun Stanza.fromJIDS(): List<String> {
+//    var ids = mutableListOf<String>()
+//    val addressesElement = getExtension<MultipleAddresses>(MultipleAddresses.ELEMENT, MultipleAddresses.NAMESPACE)
+//    if (addressesElement != null) {
+//        val addresses = addressesElement.getAddressesOfType(MultipleAddresses.Type.ofrom)
+//        for (address in addresses) {
+//            ids.add(address.jid.asBareJid().toString())
+//        }
+//    } else {
+//        ids.add(from.asBareJid().toString())
+//    }
+//    return ids
+//}
+
+fun Stanza.addressJIDs(): List<String> {
     var ids = mutableListOf<String>()
     val addressesElement = getExtension<MultipleAddresses>(MultipleAddresses.ELEMENT, MultipleAddresses.NAMESPACE)
     if (addressesElement != null) {
@@ -204,8 +229,57 @@ fun Stanza.fromJIDS(): List<String> {
         for (address in addresses) {
             ids.add(address.jid.asBareJid().toString())
         }
-    } else {
-        ids.add(from.asBareJid().toString())
     }
     return ids
 }
+
+fun Stanza.extIsOneToOneMessage(): Boolean {
+    if (getType() == Message.Type.groupchat || hasExtension(XMPPDefines.MUCUserNamespace)) {
+        return false
+    }
+    return true
+}
+
+fun Stanza.getType(): Message.Type {
+    if (this is Message) {
+        return this.type
+    }
+    return Message.Type.normal
+}
+
+
+fun Stanza.extFrom(): String? {
+    var fromJID: String?
+    if (extIsOneToOneMessage()) {
+        fromJID = from.asBareJid().toString()
+    } else {
+        fromJID = delayInformation()?.from
+        if (fromJID == null) {
+            val jids = addressJIDs()
+            if (jids.size >= 1) {
+                fromJID = jids[0]
+            }
+            if (jids.size > 1) {
+                Logger.debug("Something went wrong")
+            }
+        }
+        if (fromJID == null) {
+            fromJID = XMPPManager.shared().mucManager.userJID(from)
+        }
+    }
+    fromJID = JidCreate.bareFrom(fromJID).toString()
+    return fromJID;
+}
+
+fun Stanza.delayInformation(): DelayInformation? {
+    val element = getExtension<ExtensionElement>(DelayInformation.ELEMENT, DelayInformation.NAMESPACE)
+    if (element is DelayInformation) {
+        return element
+    } else return null
+}
+
+fun Stanza.date(): Date {
+    val delay = delayInformation()?.stamp ?: Date()
+    return XMPPManager.shared().serverToClientTime(delay);
+}
+

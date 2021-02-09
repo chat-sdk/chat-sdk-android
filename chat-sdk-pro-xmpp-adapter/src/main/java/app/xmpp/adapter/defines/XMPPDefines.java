@@ -20,5 +20,6 @@ public class XMPPDefines {
 
     public static String BlockingCommandNamespace = "urn:xmpp:blocking";
 
+    public static String MUCUserNamespace = "http://jabber.org/protocol/muc#user";
 
 }

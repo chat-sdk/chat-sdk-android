@@ -20,7 +20,8 @@ public class XMPPReceiptReceivedListener implements ReceiptReceivedListener {
             Message message = ChatSDK.db().fetchEntityWithEntityID(receiptId, Message.class);
             if (message != null) {
                 XMPPMessageWrapper xmr = new XMPPMessageWrapper(receipt);
-                for (String jid: xmr.fromIds()) {
+                String jid = xmr.userEntityID();
+                if (jid != null) {
                     User user = ChatSDK.db().fetchUserWithEntityID(jid);
                     if (user != null) {
                         if (receipt.hasExtension(XMPPDefines.MessageReadNamespace)) {

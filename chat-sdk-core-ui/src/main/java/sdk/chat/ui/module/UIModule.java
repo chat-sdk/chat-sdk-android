@@ -147,5 +147,9 @@ public class UIModule extends AbstractModule implements InterfaceAdapterProvider
         this.replyViewBinder = replyViewBinder;
     }
 
+    public boolean isPremium() {
+        return false;
+    }
+
 
 }

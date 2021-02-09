@@ -11,6 +11,7 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.audio.AudioMessageModule;
+import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.location.LocationMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
@@ -29,7 +30,6 @@ public class MainApplication extends Application {
     public void xmpp() {
         try {
 
-
             ChatSDK.builder()
 
                     // Configure the library
@@ -44,8 +44,8 @@ public class MainApplication extends Application {
                     .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
-                            .setXMPP("xmpp.app", "xmpp.app")
-//                            .setXMPP("sysnet-ecs.multidemos.com", "sysnet-ecs.multidemos.com")
+//                            .setXMPP("xmpp.app", "xmpp.app")
+                            .setXMPP("sysnet-ecs.multidemos.com", "sysnet-ecs.multidemos.com")
                             .setAllowServerConfiguration(false)
                             .setPingInterval(5)
                             .build())
@@ -53,6 +53,9 @@ public class MainApplication extends Application {
                     .addModule(AudioMessageModule.shared())
                     .addModule(LocationMessageModule.shared())
                     .addModule(VideoMessageModule.shared())
+                    .addModule(FileMessageModule.shared())
+                    .addModule(StickerMessageModule.builder()
+                            .build())
                     .addModule(StickerMessageModule.builder()
                             .build())
                     .addModule(UIModule.builder()
@@ -69,7 +72,8 @@ public class MainApplication extends Application {
 
 //                    .addModule(EncryptionModule.shared())
 
-                    .build().activate(this, "Ben");
+                    .build().activateWithEmail(this, "ben@sdk.chat");
+
 
 //            ChatSDK.config().setDebugUsername(Device.honor() ? "a3": "a4");
 //            ChatSDK.config().setDebugPassword("123");
@@ -80,12 +84,11 @@ public class MainApplication extends Application {
         }
         catch (Exception e) {
             e.printStackTrace();
-            Logger.debug("Error");
+            Logger.error(e.getLocalizedMessage());
             assert(false);
         }
 
-
-
+//        SmackConfiguration.DEBUG = true;
 
 //        ChatSDK.auth().authenticate(AccountDetails.username()).subscribe()
 

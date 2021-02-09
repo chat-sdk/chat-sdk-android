@@ -75,12 +75,17 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         chatManager = MultiUserChatManager.getInstanceFor(manager.getConnection());
         chatManager.setAutoJoinOnReconnect(true);
 
+        // Can use this maybe?
+//        GroupChatInvitation invite = (GroupChatInvitation)result.getExtension("x","jabber:x:conference");
+
         chatManager.setAutoJoinFailedCallback((muc, e) -> {
             ChatSDK.events().onError(e);
+            joinRoom(muc, true).subscribe();
         });
 
         chatManager.addInvitationListener((conn, room, inviter, reason, password, message, invitation) -> {
-            joinRoom(room, true).ignoreElement().subscribe();
+            Logger.debug("Before");
+            joinRoom(room, true).subscribe();
         });
     }
 
@@ -92,8 +97,6 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
             final MultiUserChat chat = chatManager.getMultiUserChat(JidCreate.entityBareFrom(roomID));
 
             chat.create(nickname());
-
-
 
             Form configurationForm = chat.getConfigurationForm();
 //            FillableForm form = configurationForm.getFillableForm();
@@ -138,7 +141,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
                     owners.add(ChatSDK.currentUserID());
                     form.setAnswer(fieldName, owners);                    }
                 if(fieldName.equals("muc#roomconfig_allowinvites")) {
-                    form.setAnswer(fieldName, true);
+                    form.setAnswer(fieldName, false);
                 }
             }
 

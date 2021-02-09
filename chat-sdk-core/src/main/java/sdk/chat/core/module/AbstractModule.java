@@ -21,4 +21,8 @@ public abstract class AbstractModule implements Module {
 
     }
 
+    public boolean isPremium() {
+        return true;
+    }
+
 }

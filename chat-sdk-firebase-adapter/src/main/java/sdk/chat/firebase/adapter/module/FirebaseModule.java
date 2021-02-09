@@ -56,5 +56,8 @@ public class FirebaseModule extends AbstractModule implements NetworkAdapterProv
         return shared().config;
     }
 
+    public boolean isPremium() {
+        return false;
+    }
 
 }

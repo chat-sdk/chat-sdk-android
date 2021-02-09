@@ -395,8 +395,9 @@ public class Message extends AbstractEntity {
         int userCount = 0;
         int deliveredCount = 0;
         int readCount = 0;
+
         for(ReadReceiptUserLink link : getReadReceiptLinks()) {
-            if (link.getStatus() != ReadStatus.Hide) {
+            if (link.getStatus() != ReadStatus.Hide && !link.getUser().isMe()) {
                 if (link.getStatus() == ReadStatus.Delivered) {
                     deliveredCount++;
                 }
@@ -415,6 +416,22 @@ public class Message extends AbstractEntity {
         }
         else {
             return ReadStatus.none();
+        }
+    }
+
+    public void setupInitialReadReceipts() {
+        for (User user: thread.getMembers()) {
+            if (user.isMe()) {
+                setUserReadStatus(user, ReadStatus.read(), new Date(), false);
+            } else {
+                setUserReadStatus(user, ReadStatus.none(), new Date(), false);
+            }
+        }
+    }
+
+    public void setReadReceiptsTo(ReadStatus status) {
+        for(ReadReceiptUserLink link : getReadReceiptLinks()) {
+            link.setStatus(status.getValue());
         }
     }
 

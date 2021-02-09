@@ -36,7 +36,7 @@ public class Report {
 
     protected void report() {
         String id = ChatSDK.ctx().getPackageName();
-        String email = ChatSDK.shared().getLicenseEmail();
+        String identifier = ChatSDK.shared().getLicenseIdentifier();
 
         Gson gson = new Gson();
         String json = gson.toJson(modules);
@@ -48,8 +48,17 @@ public class Report {
                 .addFormDataPart("id", id)
                 .addFormDataPart("modules", json);
 
-        if (email != null && !email.isEmpty()) {
-                builder.addFormDataPart("email", email);
+        if (identifier != null && !identifier.isEmpty()) {
+                builder.addFormDataPart("email", identifier);
+                if (identifier.contains("Patreon:")) {
+                    builder.addFormDataPart("patreon", identifier.replace("Patreon:", ""));
+                }
+                if (identifier.contains("Email:")) {
+                    builder.addFormDataPart("email", identifier.replace("Email:", ""));
+                }
+                if (identifier.contains("Github:")) {
+                    builder.addFormDataPart("github", identifier.replace("Github:", ""));
+                }
         }
 
         RequestBody body = builder.build();

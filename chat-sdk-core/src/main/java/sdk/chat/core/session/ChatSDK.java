@@ -82,7 +82,7 @@ public class ChatSDK {
 
     protected ConfigBuilder<ChatSDK> builder;
     protected boolean isActive = false;
-    protected String licenseEmail;
+    protected String licenseIdentifier;
     protected IKeyStorage keyStorage;
 
     protected List<Runnable> onActivateListeners = new ArrayList<>();
@@ -121,7 +121,19 @@ public class ChatSDK {
         activate(context, null);
     }
 
-    public void activate(Context context, @Nullable String email) throws Exception {
+    public void activateWithPatreon(Context context, @Nullable String patreonId) throws Exception {
+        activate(context, "Patreon:" + patreonId);
+    }
+
+    public void activateWithEmail(Context context, @Nullable String email) throws Exception {
+        activate(context, "Email:" + email);
+    }
+
+    public void activateWithGithubSponsors(Context context, @Nullable String githubSponsorsId) throws Exception {
+        activate(context, "Github:" + githubSponsorsId);
+    }
+
+    protected void activate(Context context, @Nullable String identifier) throws Exception {
 
         if (isActive) {
             throw new Exception("Chat SDK is already active. It is not recommended to call activate twice. If you must do this, make sure to call stop() first.");
@@ -165,6 +177,21 @@ public class ChatSDK {
                 if (!requiredPermissions.contains(permission)) {
                     requiredPermissions.add(permission);
                 }
+            }
+            if (module.isPremium() && (identifier == null || identifier.isEmpty())) {
+                System.out.println("<<");
+                System.out.println(">>");
+                System.out.println("<<");
+                System.out.println(">>");
+                System.out.println("To use premium modules you must include either your email, Patreon ID or Github Sponsors ID");
+                System.out.println("ChatSDK.builder()....build().activateWith...");
+                System.out.println("<<");
+                System.out.println(">>");
+                System.out.println("<<");
+                System.out.println(">>");
+
+
+                throw new Exception("To use premium modules you must include either your email, Patreon ID or Github Sponsors ID");
             }
         }
 
@@ -225,8 +252,9 @@ public class ChatSDK {
             r.run();
         }
 
-        licenseEmail = email;
+        licenseIdentifier = identifier;
         isActive = true;
+
     }
 
     public void stop() {
@@ -461,8 +489,8 @@ public class ChatSDK {
         onActivateListeners.add(runnable);
     }
 
-    public String getLicenseEmail() {
-        return licenseEmail;
+    public String getLicenseIdentifier() {
+        return licenseIdentifier;
     }
 
     public IKeyStorage getKeyStorage() {

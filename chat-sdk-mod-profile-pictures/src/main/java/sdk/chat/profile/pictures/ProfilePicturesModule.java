@@ -33,4 +33,8 @@ public class ProfilePicturesModule extends AbstractModule {
 
     }
 
+    public boolean isPremium() {
+        return false;
+    }
+
 }
