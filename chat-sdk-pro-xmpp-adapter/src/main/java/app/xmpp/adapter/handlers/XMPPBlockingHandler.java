@@ -36,6 +36,8 @@ public class XMPPBlockingHandler implements BlockingHandler {
                 toBlock.add(jid);
                 blockingCommandManager().blockContacts(toBlock);
 
+
+
                 User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEntityID);
 
                 // Set the user as offline

@@ -89,7 +89,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         });
     }
 
-    public Single<Thread> createRoom (final String name, final String description, final ArrayList<User> users) {
+    public Single<Thread> createRoom(final String name, final String description, final ArrayList<User> users) {
         return Single.defer(() -> {
             // Create a new group chat
             final String roomID = generateRoomId(name);
@@ -182,6 +182,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
                 else {
                     config.requestMaxStanzasHistory(XMPPModule.config().mucMessageHistoryDownloadLimit);
                 }
+
 
                 // Add the message listener
                 chat.removeMessageListener(manager.get().messageListener);

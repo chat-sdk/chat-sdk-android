@@ -44,8 +44,8 @@ public class MainApplication extends Application {
                     .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
-//                            .setXMPP("xmpp.app", "xmpp.app")
-                            .setXMPP("sysnet-ecs.multidemos.com", "sysnet-ecs.multidemos.com")
+                            .setXMPP("xmpp.app", "xmpp.app")
+//                            .setXMPP("sysnet-ecs.multidemos.com", "sysnet-ecs.multidemos.com")
                             .setAllowServerConfiguration(false)
                             .setPingInterval(5)
                             .build())
@@ -87,10 +87,6 @@ public class MainApplication extends Application {
             Logger.error(e.getLocalizedMessage());
             assert(false);
         }
-
-//        SmackConfiguration.DEBUG = true;
-
-//        ChatSDK.auth().authenticate(AccountDetails.username()).subscribe()
 
         Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {
             networkEvent.debug();

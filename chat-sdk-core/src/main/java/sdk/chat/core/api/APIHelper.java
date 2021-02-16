@@ -19,7 +19,7 @@ public class APIHelper {
      * @return
      */
     public static Single<Thread> createPrivateChatWithUser (String userEntityID) {
-        return ChatSDK.thread().createThread("", ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEntityID));
+        return ChatSDK.thread().createThread("", ChatSDK.core().getUserNowForEntityID(userEntityID));
     }
 
     /**
@@ -38,7 +38,7 @@ public class APIHelper {
 
     public static Single<User> fetchRemoteUser(String userEntityID) {
         return Single.create((SingleOnSubscribe<User>) emitter -> {
-            User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEntityID);
+            User user = ChatSDK.core().getUserNowForEntityID(userEntityID);
             emitter.onSuccess(user);
         }).subscribeOn(RX.db())
                 .flatMap(user -> ChatSDK.core().userOn(user).toSingle(() -> user));

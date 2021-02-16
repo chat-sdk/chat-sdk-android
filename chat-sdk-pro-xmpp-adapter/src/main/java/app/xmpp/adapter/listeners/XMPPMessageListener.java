@@ -12,11 +12,9 @@ import org.jivesoftware.smackx.chatstates.packet.ChatStateExtension;
 import org.jxmpp.jid.EntityBareJid;
 import org.pmw.tinylog.Logger;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import app.xmpp.adapter.XMPPManager;
 import app.xmpp.adapter.defines.XMPPDefines;
@@ -25,6 +23,7 @@ import app.xmpp.adapter.utils.PublicKeyExtras;
 import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -44,17 +43,17 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
             return;
         }
 
-        if(message.getLanguage() == null){
+        if (message.getLanguage() == null) {
             message.setLanguage("en");
         }
 
-        if(xmr.isOneToOne()) {
+        if (xmr.isOneToOne()) {
             Thread thread = xmr.getThread();
-            addMessageToThread(thread, xmr);
+            addMessageToThread(thread, xmr, true);
         }
 
         ChatStateExtension chatState = xmr.chatStateExtension();
-        if(chatState != null) {
+        if (chatState != null) {
             // TODO: Check if group messages ever come through here
             User user = xmr.user();
             XMPPManager.shared().typingIndicatorManager.handleMessage(message, user);
@@ -88,15 +87,15 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
             XMPPManager.shared().typingIndicatorManager.handleMessage(message, xmr.user());
         } else {
             Thread thread = xmr.getThread();
-            addMessageToThread(thread, xmr);
+            addMessageToThread(thread, xmr, true);
         }
     }
 
     public void parse(final List<XMPPMessageWrapper> messageWrappers) {
 
-        Map<String, List<XMPPMessageWrapper>> threadMessageMap = new HashMap<>();
+//        Map<String, List<XMPPMessageWrapper>> threadMessageMap = new HashMap<>();
 
-        for (XMPPMessageWrapper xmr: messageWrappers) {
+        for (XMPPMessageWrapper xmr : messageWrappers) {
             if (xmr.isSilent()) {
                 continue;
             }
@@ -105,35 +104,44 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
                 continue;
             }
 
-            List<XMPPMessageWrapper> messages = threadMessageMap.get(xmr.threadEntityID());
-            if (messages == null) {
-                messages = new ArrayList<>();
-                threadMessageMap.put(xmr.threadEntityID(), messages);
-            }
+//            List<XMPPMessageWrapper> messages = threadMessageMap.get(xmr.threadEntityID());
+//            if (messages == null) {
+//                messages = new ArrayList<>();
+//                threadMessageMap.put(xmr.threadEntityID(), messages);
+//            }
+//
+//            messages.add(xmr);
 
-            messages.add(xmr);
+            addMessageToThread(xmr, false);
         }
 
-        for (String threadID: threadMessageMap.keySet()) {
-            // First message
-            List<XMPPMessageWrapper> messages = threadMessageMap.get(threadID);
-            if (messages != null) {
-                Thread thread = messages.get(0).getThread();
-                for (XMPPMessageWrapper message: messages) {
-                    String from = message.from();
-                    if (from != null) {
-                        addMessageToThread(thread, message);
-                    }
-                }
-            }
-        }
+        ChatSDK.events().source().accept(NetworkEvent.threadsUpdated());
+
+//    }
+
+
+//        for (String threadID: threadMessageMap.keySet()) {
+//            // First message
+//            List<XMPPMessageWrapper> messages = threadMessageMap.get(threadID);
+//            if (messages != null) {
+//                Thread thread = messages.get(0).getThread();
+//                for (XMPPMessageWrapper message: messages) {
+//                    String from = message.from();
+//                    if (from != null) {
+//                        addMessageToThread(thread, message, false);
+//                    }
+//                }
+//            }
+//        }
+
+
     }
 
-    public sdk.chat.core.dao.Message addMessageToThread(final XMPPMessageWrapper xmr) {
-        return addMessageToThread(null, xmr);
+    public sdk.chat.core.dao.Message addMessageToThread(final XMPPMessageWrapper xmr, boolean notify) {
+        return addMessageToThread(null, xmr, notify);
     }
 
-    public sdk.chat.core.dao.Message addMessageToThread(Thread thread, final XMPPMessageWrapper xmr) {
+    public sdk.chat.core.dao.Message addMessageToThread(Thread thread, final XMPPMessageWrapper xmr, boolean notify) {
         if (xmr.isSilent()) {
             return null;
         }
@@ -155,7 +163,7 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
             finalThread.setDeleted(false);
         }
 
-        finalThread.addMessage(message);
+        finalThread.addMessage(message, notify);
         updateReadReceipts(message, xmr);
 
         return message;
@@ -233,7 +241,7 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
         if (xmr.deliveryReceipt() != null) {
             XMPPManager.shared().receiptReceivedListener.onReceiptReceived(carbonCopy.getFrom(), carbonCopy.getTo(), xmr.deliveryReceipt().getId(), carbonCopy);
         } else {
-            addMessageToThread(xmr);
+            addMessageToThread(xmr, true);
         }
         Logger.debug("Carbon received");
     }

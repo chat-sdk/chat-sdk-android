@@ -68,6 +68,10 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.MessageSendStatusUpdated, progress.message.getThread(), progress.message, progress.message.getSender(), data);
     }
 
+    public static NetworkEvent threadsUpdated() {
+        return new NetworkEvent(EventType.ThreadsUpdated);
+    }
+
     public static NetworkEvent threadRemoved(Thread thread) {
         return new NetworkEvent(EventType.ThreadRemoved, thread);
     }
@@ -304,9 +308,10 @@ public class NetworkEvent {
 //        );
 //    }
 
-    protected static Predicate<NetworkEvent> threadsUpdated() {
+    protected static Predicate<NetworkEvent> filterThreadsUpdated() {
         return filterType(
 //                EventType.ThreadDetailsUpdated,
+                EventType.ThreadsUpdated,
                 EventType.ThreadAdded,
                 EventType.ThreadRemoved,
                 EventType.ThreadUserAdded,
@@ -323,11 +328,11 @@ public class NetworkEvent {
 
 
     public static Predicate<NetworkEvent> filterPrivateThreadsUpdated() {
-        return networkEvent -> threadsUpdated().test(networkEvent) && filterThreadTypeOrNull(ThreadType.Private).test(networkEvent);
+        return networkEvent -> filterThreadsUpdated().test(networkEvent) && filterThreadTypeOrNull(ThreadType.Private).test(networkEvent);
      }
 
     public static Predicate<NetworkEvent> filterPublicThreadsUpdated() {
-        return networkEvent -> threadsUpdated().test(networkEvent) && filterThreadTypeOrNull(ThreadType.Public).test(networkEvent);
+        return networkEvent -> filterThreadsUpdated().test(networkEvent) && filterThreadTypeOrNull(ThreadType.Public).test(networkEvent);
     }
 
     public static Predicate<NetworkEvent> filterContactsChanged() {

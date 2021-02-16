@@ -8,7 +8,9 @@ import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -36,6 +38,9 @@ import static sdk.chat.core.dao.DaoCore.fetchEntityWithProperty;
  */
 
 public class StorageManager {
+
+    protected Map<String, CoreEntity> entityCache = new HashMap<>();
+    protected boolean entityCacheEnabled = true;
 
     public List<Thread> fetchThreadsForCurrentUser() {
         Logger.debug(java.lang.Thread.currentThread().getName());
@@ -87,12 +92,16 @@ public class StorageManager {
         return Single.defer(() -> Single.just(new Optional<>(readReceipt(messageId, userId)))).subscribeOn(RX.db());
     }
 
-    public Message fetchOrCreateMessageWithEntityID(String entityId){
+    public Message fetchOrCreateMessageWithEntityID(String entityId) {
         return fetchOrCreateEntityWithEntityID(Message.class, entityId);
     }
 
     public <T extends CoreEntity> T fetchOrCreateEntityWithEntityID(Class<T> c, String entityId){
         Logger.debug(java.lang.Thread.currentThread().getName());
+
+        if (entityCacheEnabled && entityCache.containsKey(c.toString() + entityId)) {
+            return (T) entityCache.get(c.toString() + entityId);
+        }
 
         T entity = DaoCore.fetchEntityWithEntityID(c, entityId);
 //
@@ -100,6 +109,10 @@ public class StorageManager {
             entity = DaoCore.getEntityForClass(c);
             entity.setEntityID(entityId);
             entity = DaoCore.createEntity(entity);
+
+            if (entityCacheEnabled) {
+                entityCache.put(c.toString() + entityId, entity);
+            }
         }
 
         return entity;
@@ -133,6 +146,9 @@ public class StorageManager {
     }
 
     public <T extends CoreEntity> T fetchEntityWithEntityID(String entityID, Class<T> c) {
+        if (entityCacheEnabled && entityCache.containsKey(c.toString() + entityID)) {
+            return (T) entityCache.get(c.toString() + entityID);
+        }
         if (c == Thread.class) {
             return (T) fetchThreadWithEntityID(entityID);
         }

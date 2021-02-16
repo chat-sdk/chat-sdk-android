@@ -32,6 +32,7 @@ import org.jivesoftware.smackx.search.UserSearchManager;
 import org.jivesoftware.smackx.time.EntityTimeManager;
 import org.jivesoftware.smackx.vcardtemp.VCardManager;
 import org.jxmpp.jid.DomainBareJid;
+import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
@@ -80,7 +81,8 @@ public class XMPPManager {
     public static String RESOURCE = "co.chatsdk.resource";
 
     // The main XMPP connection
-    private AbstractXMPPConnection connection = null;
+    protected AbstractXMPPConnection connection = null;
+    protected Long serverDelay;
 
     // Listeners
     public XMPPConnectionListener connectionListener;
@@ -326,10 +328,12 @@ public class XMPPManager {
                 e.onSuccess(connection);
             }
             catch (Exception exception){
-                if (connection.isConnected()) {
-                    connection.disconnect();
-                }
                 e.onError(exception);
+                if (connection.isConnected()) {
+                    try {
+                        connection.disconnect();
+                    } catch (Exception ex) {}
+                }
             }
         }).subscribeOn(RX.io());
     }
@@ -368,10 +372,20 @@ public class XMPPManager {
                 e.onSuccess(connection);
             }
             catch (Exception exception) {
-                if (connection.isConnected()) {
-                    connection.disconnect();
+                String message = exception.getMessage();
+                if (message.contains("java.net.SocketTimeoutException")) {
+                    e.onError(ChatSDK.getException(R.string.login_failed_timeout));
+                } else if (message.contains("not-authorized")) {
+                    e.onError(ChatSDK.getException(R.string.username_or_password_incorrect));
                 }
-                e.onError(ChatSDK.getException(R.string.username_or_password_incorrect));
+                else {
+                    e.onError(ChatSDK.getException(R.string.login_failed));
+                }
+                if (connection.isConnected()) {
+                    try {
+                        connection.disconnect();
+                    } catch (Exception ex) {}
+                }
             }
         }).subscribeOn(RX.io());
     }
@@ -425,12 +439,17 @@ public class XMPPManager {
     }
 
     public long getServerDelay() throws Exception {
-        // If there is a difference between the server and local time...
-        Date remoteTime = XMPPManager.shared().entityTimeManager().getTime(getConnection().getXMPPServiceDomain()).getTime();
-        Date localTime = new Date();
-
-        // Difference
-        return localTime.getTime() - remoteTime.getTime();
+        if (serverDelay == null) {
+            Jid jid = getConnection().getXMPPServiceDomain();
+            if(entityTimeManager().isTimeSupported(jid)) {
+                Date remoteTime = entityTimeManager().getTime(jid).getTime();
+                Date localTime = new Date();
+                serverDelay = localTime.getTime() - remoteTime.getTime();
+            } else {
+                serverDelay = 0L;
+            }
+        }
+        return serverDelay;
     }
 
     public void performPostAuthenticationSetup() {
@@ -605,7 +624,7 @@ public class XMPPManager {
         return builder.build();
     }
 
-    public Completable login (final String userJID, final String password){
+    public Completable login(final String userJID, final String password){
         return Completable.defer(() -> {
             XMPPServer server = getCurrentServer(ChatSDK.ctx());
             if (server == null) {
@@ -621,7 +640,6 @@ public class XMPPManager {
                 }
             });
         }).subscribeOn(RX.io());
-
     }
 
     private boolean debugModeEnabled() {
@@ -638,7 +656,7 @@ public class XMPPManager {
 
                 AccountManager accountManager = accountManager();
                 if (!accountManager.supportsAccountCreation()) {
-                    getConnection().disconnect();
+//                    getConnection().disconnect();
                     return Completable.error(ChatSDK.getException(R.string.registration_not_supported));
                 }
                 try {
@@ -656,7 +674,8 @@ public class XMPPManager {
                 }
                 catch (Exception exception) {
                     getConnection().disconnect();
-                    return Completable.error(exception);
+//                    return Completable.error(exception);
+                    return Completable.error(ChatSDK.getException(R.string.registration_failed));
                 }
             });
         }).subscribeOn(RX.io());

@@ -415,6 +415,9 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     }
 
     public void addMessagesToEnd(final List<Message> messages) {
+        if (messages.isEmpty()) {
+            return;
+        }
 
         // Check to see if the holders already exist
         final List<MessageHolder> holders = new ArrayList<>();

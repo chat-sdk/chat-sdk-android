@@ -43,14 +43,14 @@ import sdk.guru.common.RX;
 public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener, Disposable, MessageListener {
 
     protected WeakReference<XMPPMUCManager> manager;
-    protected WeakReference<MultiUserChat> chat;
-    protected WeakReference<Thread> thread;
+    protected MultiUserChat chat;
+    protected Thread thread;
     protected DisposableMap dm = new DisposableMap();
     protected boolean disposed = false;
 
     public XMPPMUCRoleListener(XMPPMUCManager manager, MultiUserChat chat, Thread thread) {
-        this.chat = new WeakReference<>(chat);
-        this.thread = new WeakReference<>(thread);
+        this.chat = chat;
+        this.thread = thread;
         this.manager = new WeakReference<>(manager);
 
         addListeners();
@@ -145,9 +145,9 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
      * This can take some time so cache the results and only update when necessary
      */
     public Single<List<Affiliate>> updateAffiliates() {
-        return manager.get().requestAffiliatesFromServer(thread.get()).doOnSuccess(affiliates -> {
+        return manager.get().requestAffiliatesFromServer(thread).doOnSuccess(affiliates -> {
             updateMembershipMap(affiliates);
-//            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread.get(), ChatSDK.currentUser()));
+//            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread, ChatSDK.currentUser()));
         }).subscribeOn(RX.io());
     }
 
@@ -201,9 +201,9 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
         nickMap.put(jid, nick);
 
         User user = ChatSDK.core().getUserNowForEntityID(jid.toString());
-        thread.get().addUser(user);
+        thread.addUser(user);
 
-        UserThreadLink link = thread.get().getUserThreadLink(user.getId());
+        UserThreadLink link = thread.getUserThreadLink(user.getId());
 
         String oldAffiliation = link.getAffiliation();
         String oldRole = link.getRole();
@@ -214,8 +214,8 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
         if (affiliation != null && !affiliation.name().equals(oldAffiliation)) {
             link.setAffiliation(affiliation.name());
 
-            if (affiliation == MUCAffiliation.owner && thread.get().getCreator() == null) {
-                thread.get().setCreator(user);
+            if (affiliation == MUCAffiliation.owner && thread.getCreator() == null) {
+                thread.setCreator(user);
             }
 
             affiliationChanged = true;
@@ -234,17 +234,17 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
             }
         }
         if (affiliationChanged || roleChanged) {
-            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(thread.get(), user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(thread, user));
         }
     }
 
     public void sendLocalMessageForAffiliationChange(String oldAffiliation) {
         try {
-            String role = ChatSDK.thread().roleForUser(thread.get(), ChatSDK.currentUser());
+            String role = ChatSDK.thread().roleForUser(thread, ChatSDK.currentUser());
             // My affiliation has changed
             if (Role.isOutcast(role) || Role.isOutcast(oldAffiliation) || XMPPModule.config().sendSystemMessageForAffiliationChange) {
                 String message = String.format(ChatSDK.getString(R.string.role_changed_to__), role);
-                ChatSDK.thread().sendLocalSystemMessage(message, thread.get());
+                ChatSDK.thread().sendLocalSystemMessage(message, thread);
             }
         } catch (Exception e) {
             ChatSDK.events().onError(e);
@@ -268,7 +268,7 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
             }
             if (message != null) {
                 if (newRole != MUCRole.none && XMPPModule.config().sendSystemMessageForRoleChange) {
-                    ChatSDK.thread().sendLocalSystemMessage(message, thread.get());
+                    ChatSDK.thread().sendLocalSystemMessage(message, thread);
                 }
             }
         } catch (Exception e) {
@@ -291,7 +291,7 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
             Resourcepart nick = item.getNick();
 
             // Full JID
-            Occupant occupant = chat.get().getOccupant(presence.getFrom().asEntityFullJidIfPossible());
+            Occupant occupant = chat.getOccupant(presence.getFrom().asEntityFullJidIfPossible());
             if (occupant != null) {
                 if (nick == null) {
                     nick = occupant.getNick();
@@ -307,7 +307,7 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
             updateMembershipMap(jid, nick, affiliation, role);
 
             User user = ChatSDK.core().getUserNowForEntityID(entityID);
-            UserThreadLink link = thread.get().getUserThreadLink(user.getId());
+            UserThreadLink link = thread.getUserThreadLink(user.getId());
 
             boolean updated = false;
             boolean joined = false;
@@ -321,13 +321,13 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
             }
 
             if (joined) {
-                ChatSDK.events().source().accept(NetworkEvent.threadUserAdded(thread.get(), user));
+                ChatSDK.events().source().accept(NetworkEvent.threadUserAdded(thread, user));
             } else if (updated) {
                 ChatSDK.events().source().accept(NetworkEvent.userPresenceUpdated(user));
             }
 
             if(entityID.equals(ChatSDK.currentUserID()) && affiliation == MUCAffiliation.outcast || presence.getType() == Presence.Type.unavailable) {
-                manager.get().deactivateThread(thread.get());
+                manager.get().deactivateThread(thread);
             }
 
         }
@@ -344,7 +344,6 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
     }
 
     public void removeListeners() {
-        MultiUserChat chat = this.chat.get();
         if (chat != null) {
             chat.removePresenceInterceptor(this);
             chat.removeUserStatusListener(this);
@@ -354,7 +353,6 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
     }
 
     public void addListeners() {
-        MultiUserChat chat = this.chat.get();
         if (chat != null) {
             removeListeners();
             chat.addPresenceInterceptor(this);
@@ -374,13 +372,13 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
         XMPPMessageWrapper xm = new XMPPMessageWrapper(message);
         if (xm.hasAction(MessageType.Action.UserLeftGroup)) {
 
-            String from = manager.get().userJID(chat.get(), message.getFrom());
+            String from = manager.get().userJID(chat, message.getFrom());
             User user = ChatSDK.core().getUserNowForEntityID(from);
 
             if (!user.isMe()) {
-                UserThreadLink link = thread.get().getUserThreadLink(user.getId());
+                UserThreadLink link = thread.getUserThreadLink(user.getId());
                 if (link.setHasLeft(true)) {
-                    ChatSDK.events().source().accept(NetworkEvent.threadUserRemoved(thread.get(), user));
+                    ChatSDK.events().source().accept(NetworkEvent.threadUserRemoved(thread, user));
                 }
             }
         }

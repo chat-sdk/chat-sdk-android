@@ -57,7 +57,7 @@ public class UserExamples extends BaseExample {
     }
 
     public User fetchUserWithEntityID(String entityID) {
-        User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, entityID);
+        User user = ChatSDK.core().getUserNowForEntityID(entityID);
         ChatSDK.core().userOn(user).subscribe(ChatSDK.events());
         return user;
     }

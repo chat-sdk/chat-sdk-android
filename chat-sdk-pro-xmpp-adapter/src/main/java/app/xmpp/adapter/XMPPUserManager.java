@@ -70,7 +70,7 @@ public class XMPPUserManager {
 
     protected Map<String, VCard> vCardCache = new HashMap<>();
 
-    private Observable<RosterEntry> getRosterEntries () {
+    private Observable<RosterEntry> getRosterEntries() {
         return Observable.create((ObservableOnSubscribe<RosterEntry>) e -> {
             Roster roster = manager.get().roster();
             for(RosterEntry entry : roster.getEntries()) {
@@ -84,7 +84,7 @@ public class XMPPUserManager {
 //        return getRosterEntries().flatMap(rosterEntry -> updateUserFromVCard(rosterEntry.getJid()).toObservable());
 //    }
 
-    public Completable addUserToRoster (final User user) {
+    public Completable addUserToRoster(final User user) {
         return Completable.defer(() -> {
             Roster roster = manager.get().roster();
             String [] groups = {ContactGroupName};
@@ -196,11 +196,11 @@ public class XMPPUserManager {
         }).subscribeOn(RX.io());
     }
 
-    public Single<User> updateUserFromVCard (final Jid jid) {
+    public Single<User> updateUserFromVCard(final Jid jid) {
         return Single.defer(() -> {
             boolean blocked = ChatSDK.blocking().isBlocked(jid.asBareJid().toString());
-            User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, jid.asBareJid().toString());
 
+            User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, jid.asBareJid().toString());
             if(blocked) {
                 Localpart local = jid.getLocalpartOrNull();
                 String username = local != null ? local.toString() : "";

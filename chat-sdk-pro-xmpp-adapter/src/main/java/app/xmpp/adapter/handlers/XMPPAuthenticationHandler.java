@@ -49,7 +49,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                 }
             }
             return authenticating;
-        }).doOnComplete(this::setAuthStateToIdle);
+        });
     }
 
     @Override
@@ -69,18 +69,18 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                         case Username:
                             return XMPPManager.shared().login(details.username, details.password).andThen(Completable.defer(() -> {
                                 return loginSuccessful(details);
-                            }));
+                            })).doOnError(throwable -> setAuthStateToIdle());
                         case Register:
                             return XMPPManager.shared().register(details.username, details.password).andThen(Completable.defer(() -> {
                                 return loginSuccessful(details);
-                            }));
+                            })).doOnError(throwable -> setAuthStateToIdle());
                         default:
                             return Completable.error(ChatSDK.getException(R.string.login_method_doesnt_exist));
                     }
                 });
             }
             return authenticating;
-        }).doOnComplete(this::setAuthStateToIdle);
+        });
     }
 
     protected Completable loginSuccessful(AccountDetails details) {
@@ -100,7 +100,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
         });
     }
 
-    private void userAuthenticationCompletedWithJID (Jid jid) {
+    private void userAuthenticationCompletedWithJID(Jid jid) {
 
         setCurrentUserEntityID(jid.asBareJid().toString());
 

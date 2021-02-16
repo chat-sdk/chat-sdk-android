@@ -34,6 +34,7 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Predicate;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.events.EventBatcher;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
@@ -139,59 +140,78 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 //            onError(throwable);
 //        }));
 
+        EventBatcher b = new EventBatcher(500, new EventBatcher.Listener() {
+            @Override
+            public void onNext(NetworkEvent networkEvent) {
+                if (networkEvent.typeIs(EventType.ThreadsUpdated)) {
+                    loadData();
+                }
+
+                final Thread thread = networkEvent.getThread();
+                if (thread != null) {
+                    ThreadHolder holder = threadHolderHashMap.get(thread);
+                    final boolean inList = holder != null;
+
+                    if (networkEvent.typeIs(EventType.ThreadAdded)) {
+                        if (!inList) {
+                            addOrUpdateThread(thread);
+                        }
+                    }
+                    else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
+                        if (inList) {
+                            removeThread(thread);
+                        }
+                    }
+                    else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.ThreadMetaUpdated)) {
+                        if (inList) {
+                            dm.add(holder.updateAsync().observeOn(RX.main()).subscribe(() -> {
+                                dialogsListAdapter.updateItemById(holder);
+                                if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved)) {
+                                    sortByLastMessageDate();
+                                }
+                            }));
+                        }
+                    }
+                    else if (networkEvent.typeIs(EventType.TypingStateUpdated)) {
+                        if (inList) {
+                            if (networkEvent.getText() != null) {
+                                String typingText = networkEvent.getText();
+                                typingText += getString(R.string.typing);
+                                dialogsListAdapter.updateItemById(new TypingThreadHolder(thread, typingText));
+                            } else {
+                                dialogsListAdapter.updateItemById(holder);
+                            }
+                        }
+                    }
+                    else {
+                        if (inList) {
+                            dialogsListAdapter.updateItemById(holder);
+                        }
+                    }
+                } else {
+                    if (networkEvent.typeIs(EventType.UserPresenceUpdated, EventType.UserMetaUpdated)) {
+                        softReloadData();
+                    }
+                }
+            }
+
+            @Override
+            public void batchFinished() {
+                loadData();
+                Logger.warn("Load Load Load");
+            }
+        });
+
         dm.add(ChatSDK.events().sourceOnBackground()
                 .filter(mainEventFilter())
                 .observeOn(RX.main())
                 .subscribe(networkEvent -> {
 
+                    b.add(networkEvent);
+
                     Logger.debug("Network Event: " + networkEvent.type);
 
-                    final Thread thread = networkEvent.getThread();
-                    if (thread != null) {
-                        ThreadHolder holder = threadHolderHashMap.get(thread);
-                        final boolean inList = holder != null;
 
-                        if (networkEvent.typeIs(EventType.ThreadAdded)) {
-                            if (!inList) {
-                                addOrUpdateThread(thread);
-                            }
-                        }
-                        else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
-                            if (inList) {
-                                removeThread(thread);
-                            }
-                        }
-                        else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.ThreadMetaUpdated)) {
-                            if (inList) {
-                                dm.add(holder.updateAsync().observeOn(RX.main()).subscribe(() -> {
-                                    dialogsListAdapter.updateItemById(holder);
-                                    if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved)) {
-                                        sortByLastMessageDate();
-                                    }
-                                }));
-                            }
-                        }
-                        else if (networkEvent.typeIs(EventType.TypingStateUpdated)) {
-                            if (inList) {
-                                if (networkEvent.getText() != null) {
-                                    String typingText = networkEvent.getText();
-                                    typingText += getString(R.string.typing);
-                                    dialogsListAdapter.updateItemById(new TypingThreadHolder(thread, typingText));
-                                } else {
-                                    dialogsListAdapter.updateItemById(holder);
-                                }
-                            }
-                        }
-                        else {
-                            if (inList) {
-                                dialogsListAdapter.updateItemById(holder);
-                            }
-                        }
-                    } else {
-                        if (networkEvent.typeIs(EventType.UserPresenceUpdated, EventType.UserMetaUpdated)) {
-                            softReloadData();
-                        }
-                    }
 
 //                    final boolean inList = inList(thread);
 

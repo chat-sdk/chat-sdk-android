@@ -16,6 +16,7 @@ public enum EventType {
 
 //    ThreadUsersUpdated,
 
+    ThreadsUpdated,
     ThreadUserAdded,
     ThreadUserRemoved,
     ThreadUserUpdated,
