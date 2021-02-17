@@ -161,11 +161,12 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 7. [Handling Events](https://chat-sdk.gitbook.io/android/api/events)
 8. [Custom Push Handling](https://chat-sdk.gitbook.io/android/api/overriding-the-push-notification-handler)
 8. [Synchronize user profiles with your app](https://chat-sdk.gitbook.io/android/api/integrating-chat-sdk-user-profiles-with-your-app)
-9. [Enable token authentication](https://chat-sdk.gitbook.io/android/api/custom-token-authentication)
+9. [Custom File Upload Handler](https://chat-sdk.gitbook.io/chat-sdk/guides/custom-file-upload-handler)
+10. [Enable token authentication](https://chat-sdk.gitbook.io/chat-sdk/custom-token-authentication)
 
 #### Extras
 
-1. [Example Firebase Schema](https://chat-sdk.gitbook.io/android/api/firebase-schema)
+1. [Example Firebase Schema](https://chat-sdk.gitbook.io/chat-sdk/guides/firebase-schema)
 
 #### Migrating from v4
 
