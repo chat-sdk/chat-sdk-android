@@ -40,11 +40,6 @@ public class ContactBookModule extends AbstractModule {
         ChatSDK.ui().addSearchActivity(ContactBookSearchActivity.class, context.getString(R.string.contact_book));
     }
 
-    @Override
-    public String getName() {
-        return "ContactBookModule";
-    }
-
     public static class Config<T> extends BaseConfig<T> {
 
         // Contact Book

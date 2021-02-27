@@ -107,11 +107,6 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
         return new GeoItem(ChatSDK.currentUser().getEntityID(), GeoItem.USER);
     }
 
-    @Override
-    public String getName() {
-        return "FirebaseNearbyUsersModule";
-    }
-
     public static class Config<T> extends BaseConfig<T> {
 
         /**

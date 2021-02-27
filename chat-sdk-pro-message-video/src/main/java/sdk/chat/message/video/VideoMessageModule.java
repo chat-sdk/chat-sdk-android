@@ -90,11 +90,7 @@ public class VideoMessageModule extends AbstractModule {
             public void onLongClick(ChatActivity activity, View rootView, Message message) {
 
             }
-        });    }
-
-    @Override
-    public String getName() {
-        return "VideoMessagesModule";
+        });
     }
 
     @Override

@@ -135,11 +135,6 @@ public class AudioMessageModule extends AbstractModule {
     }
 
     @Override
-    public String getName() {
-        return "AudioMessageModule";
-    }
-
-    @Override
     public MessageHandler getMessageHandler() {
         return ChatSDK.audioMessage();
     }

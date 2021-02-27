@@ -31,11 +31,6 @@ public class LocationMessageModule extends AbstractModule {
         }
     }
 
-    @Override
-    public String getName() {
-        return "LocationMessageModule";
-    }
-
     public LocationProvider getLocationProvider() {
         return locationProvider;
     }

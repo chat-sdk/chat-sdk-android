@@ -50,11 +50,6 @@ public class EncryptionModule extends AbstractModule {
     }
 
     @Override
-    public String getName() {
-        return "EncryptionModule";
-    }
-
-    @Override
     public void stop() {
 
     }

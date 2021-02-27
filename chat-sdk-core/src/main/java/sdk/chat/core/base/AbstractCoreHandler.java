@@ -37,10 +37,4 @@ public abstract class AbstractCoreHandler implements CoreHandler {
         return cachedUser;
     }
 
-    @Override
-    public void goOnline() {
-        if (ChatSDK.lastOnline() != null) {
-            ChatSDK.lastOnline().setLastOnline(currentUser());
-        }
-    }
 }

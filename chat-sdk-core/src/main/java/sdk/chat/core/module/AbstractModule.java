@@ -21,6 +21,11 @@ public abstract class AbstractModule implements Module {
 
     }
 
+    @Override
+    public String getName() {
+        return getClass().getSimpleName();
+    }
+
     public boolean isPremium() {
         return true;
     }

@@ -110,11 +110,6 @@ public class StickerMessageModule extends AbstractModule {
     }
 
     @Override
-    public String getName() {
-        return "StickerMessagesModule";
-    }
-
-    @Override
     public MessageHandler getMessageHandler() {
         return ChatSDK.stickerMessage();
     }

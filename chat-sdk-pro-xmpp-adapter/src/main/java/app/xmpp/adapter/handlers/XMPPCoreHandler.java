@@ -2,12 +2,12 @@ package app.xmpp.adapter.handlers;
 
 import org.jxmpp.jid.impl.JidCreate;
 
-import sdk.chat.core.base.AbstractCoreHandler;
-import sdk.chat.core.dao.User;
-import sdk.chat.core.session.ChatSDK;
 import app.xmpp.adapter.XMPPManager;
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import sdk.chat.core.base.AbstractCoreHandler;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.session.ChatSDK;
 import sdk.guru.common.RX;
 
 /**
@@ -25,23 +25,19 @@ public class XMPPCoreHandler extends AbstractCoreHandler {
     }
 
     @Override
-    public Completable setUserOnline() {
-        return Completable.complete();
+    public Completable sendAvailablePresence() {
+        return Completable.create(emitter -> {
+            XMPPManager.shared().sendOnlinePresence();
+            emitter.onComplete();
+        });
     }
 
     @Override
-    public Completable setUserOffline() {
-        return Completable.complete();
-    }
-
-    @Override
-    public void goOffline() {
-        XMPPManager.shared().sendOfflinePresence();
-    }
-
-    @Override
-    public void goOnline() {
-        XMPPManager.shared().sendAvailablePresence();
+    public Completable sendUnavailablePresence() {
+        return Completable.create(emitter -> {
+            XMPPManager.shared().sendOfflinePresence();
+            emitter.onComplete();
+        });
     }
 
     @Override

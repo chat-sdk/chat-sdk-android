@@ -6,12 +6,12 @@ import org.jxmpp.jid.impl.JidCreate;
 import java.util.Calendar;
 import java.util.Date;
 
-import sdk.chat.core.dao.User;
-import sdk.chat.core.handlers.LastOnlineHandler;
 import app.xmpp.adapter.XMPPManager;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.handlers.LastOnlineHandler;
 import sdk.guru.common.Optional;
 import sdk.guru.common.RX;
 
@@ -31,7 +31,7 @@ public class XMPPLastOnlineHandler implements LastOnlineHandler {
     }
 
     @Override
-    public Completable setLastOnline(User user) {
+    public Completable updateLastOnline() {
         return null;
     }
 }

@@ -20,11 +20,6 @@ public class FirebaseLastOnlineModule extends AbstractModule {
     }
 
     @Override
-    public String getName() {
-        return null;
-    }
-
-    @Override
     public void stop() {
 
     }

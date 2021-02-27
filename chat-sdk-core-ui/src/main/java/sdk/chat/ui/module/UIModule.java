@@ -61,11 +61,6 @@ public class UIModule extends AbstractModule implements InterfaceAdapterProvider
     }
 
     @Override
-    public String getName() {
-        return "ChatSDKUIModule";
-    }
-
-    @Override
     public Class<? extends InterfaceAdapter> getInterfaceAdapter() {
         return config.interfaceAdapter;
     }

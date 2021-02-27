@@ -75,11 +75,6 @@ public class FirebaseReadReceiptsModule extends AbstractModule {
         Report.shared().add(getName());
     }
 
-    @Override
-    public String getName() {
-        return "FirebaseReadReceiptsModule";
-    }
-
     public static Config config() {
         return shared().config;
     }

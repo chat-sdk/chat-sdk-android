@@ -130,11 +130,6 @@ public class FirebaseUIModule extends AbstractModule {
     }
 
     @Override
-    public String getName() {
-        return "FirebaseUIModule";
-    }
-
-    @Override
     public void stop() {
         config = new Config<>(this);
     }

@@ -102,11 +102,6 @@ public class FileMessageModule extends AbstractModule {
     }
 
     @Override
-    public String getName() {
-        return "FileMessageModule";
-    }
-
-    @Override
     public MessageHandler getMessageHandler() {
         return ChatSDK.fileMessage();
     }

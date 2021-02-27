@@ -63,11 +63,6 @@ public class FirebaseUploadModule extends AbstractModule {
         FirebaseApp.initializeApp(context);
     }
 
-    @Override
-    public String getName() {
-        return "FirebaseFileStorageModule";
-    }
-
     public static Config config() {
         return shared().config;
     }

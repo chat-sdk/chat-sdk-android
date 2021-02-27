@@ -87,11 +87,6 @@ public class FireStreamModule extends AbstractModule implements NetworkAdapterPr
     }
 
     @Override
-    public String getName() {
-        return "FirestreamModule";
-    }
-
-    @Override
     public Class<? extends BaseNetworkAdapter> getNetworkAdapter() {
         return config.networkAdapter;
     }

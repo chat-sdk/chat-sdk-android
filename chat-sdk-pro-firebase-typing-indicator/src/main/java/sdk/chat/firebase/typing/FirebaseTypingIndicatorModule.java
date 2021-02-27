@@ -62,11 +62,6 @@ public class FirebaseTypingIndicatorModule extends AbstractModule {
         Report.shared().add(getName());
     }
 
-    @Override
-    public String getName() {
-        return "FirebaseTypingIndicatorModule";
-    }
-
     public static Config config() {
         return instance.config;
     }

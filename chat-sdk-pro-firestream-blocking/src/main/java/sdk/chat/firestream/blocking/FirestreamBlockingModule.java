@@ -22,8 +22,4 @@ public class FirestreamBlockingModule extends AbstractModule {
         Report.shared().add(getName());
     }
 
-    @Override
-    public String getName() {
-        return "FirestreamBlockingModule";
-    }
 }

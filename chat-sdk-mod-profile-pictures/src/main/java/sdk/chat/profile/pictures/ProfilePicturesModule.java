@@ -24,11 +24,6 @@ public class ProfilePicturesModule extends AbstractModule {
     }
 
     @Override
-    public String getName() {
-        return "ProfilePicturesModule";
-    }
-
-    @Override
     public void stop() {
 
     }

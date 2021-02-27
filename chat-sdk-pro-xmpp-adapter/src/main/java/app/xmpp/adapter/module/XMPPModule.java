@@ -53,11 +53,6 @@ public class XMPPModule extends AbstractModule implements NetworkAdapterProvider
     }
 
     @Override
-    public String getName() {
-        return "XMPPModule";
-    }
-
-    @Override
     public Class<? extends InterfaceAdapter> getInterfaceAdapter() {
         return XMPPInterfaceAdapter.class;
     }

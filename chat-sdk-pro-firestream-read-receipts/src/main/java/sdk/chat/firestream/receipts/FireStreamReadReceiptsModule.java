@@ -22,9 +22,4 @@ public class FireStreamReadReceiptsModule extends AbstractModule {
         Report.shared().add(getName());
     }
 
-    @Override
-    public String getName() {
-        return "FireStreamReadReceiptsModule";
-    }
-
 }

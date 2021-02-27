@@ -25,18 +25,9 @@ public class UserExamples extends BaseExample {
 
         }));
 
-        // Go online or offline
-        ChatSDK.core().goOffline();
-        ChatSDK.core().goOnline();
-
         // Set the user's presence
-        dm.add(ChatSDK.core().setUserOnline().subscribe(() -> {
-            // Completion
-        }, this));
-
-        dm.add(ChatSDK.core().setUserOnline().subscribe(() -> {
-            // Completion
-        }, this));
+        ChatSDK.core().sendUnavailablePresence().subscribe();
+        ChatSDK.core().sendAvailablePresence().subscribe();
 
         // If you need a user for a given ID
         dm.add(ChatSDK.core().getUserForEntityID("user-entity-id").subscribe(user -> {
