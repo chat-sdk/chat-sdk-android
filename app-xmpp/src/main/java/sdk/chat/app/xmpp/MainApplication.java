@@ -15,7 +15,6 @@ import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.location.LocationMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
-import sdk.chat.ui.activities.thread.details.ThreadDetailsActivity;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
 
@@ -29,6 +28,7 @@ public class MainApplication extends Application {
 
     public void xmpp() {
         try {
+
 
             ChatSDK.builder()
 
@@ -47,6 +47,7 @@ public class MainApplication extends Application {
                             .setXMPP("xmpp.app", "xmpp.app")
 //                            .setXMPP("sysnet-ecs.multidemos.com", "sysnet-ecs.multidemos.com")
                             .setAllowServerConfiguration(false)
+//                            .setSecurityMode("ifpossible")
                             .setPingInterval(5)
                             .build())
 
@@ -59,9 +60,11 @@ public class MainApplication extends Application {
                     .addModule(StickerMessageModule.builder()
                             .build())
                     .addModule(UIModule.builder()
-                            .setMessageSelectionEnabled(false)
+                            .setMessageSelectionEnabled(true)
                             .setUsernameHint("JID")
                             .setResetPasswordEnabled(false)
+                            .setPublicRoomCreationEnabled(true)
+                            .setPublicRoomsEnabled(false)
                             .build())
 
                     .addModule(XMPPReadReceiptsModule.shared())
@@ -70,15 +73,18 @@ public class MainApplication extends Application {
                             .setDrawerEnabled(false)
                             .build())
 
+
+
 //                    .addModule(EncryptionModule.shared())
 
                     .build().activateWithEmail(this, "ben@sdk.chat");
 
 
+
 //            ChatSDK.config().setDebugUsername(Device.honor() ? "a3": "a4");
 //            ChatSDK.config().setDebugPassword("123");
 
-            ChatSDK.ui().setThreadDetailsActivity(ThreadDetailsActivity.class);
+//            ChatSDK.ui().setThreadDetailsActivity(ThreadDetailsActivity.class);
 
 
         }

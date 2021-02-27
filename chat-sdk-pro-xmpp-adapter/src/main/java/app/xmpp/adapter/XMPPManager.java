@@ -322,18 +322,17 @@ public class XMPPManager {
             connection = new XMPPTCPConnection(config);
 
             addListeners();
+            mucManager = new XMPPMUCManager(this);
 
             try {
                 connection.connect();
                 e.onSuccess(connection);
             }
             catch (Exception exception){
-                e.onError(exception);
                 if (connection.isConnected()) {
-                    try {
-                        connection.disconnect();
-                    } catch (Exception ex) {}
+                    connection.instantShutdown();
                 }
+                e.onError(exception);
             }
         }).subscribeOn(RX.io());
     }
@@ -372,6 +371,11 @@ public class XMPPManager {
                 e.onSuccess(connection);
             }
             catch (Exception exception) {
+
+                if (connection.isConnected()) {
+                    connection.instantShutdown();
+                }
+
                 String message = exception.getMessage();
                 if (message.contains("java.net.SocketTimeoutException")) {
                     e.onError(ChatSDK.getException(R.string.login_failed_timeout));
@@ -380,11 +384,6 @@ public class XMPPManager {
                 }
                 else {
                     e.onError(ChatSDK.getException(R.string.login_failed));
-                }
-                if (connection.isConnected()) {
-                    try {
-                        connection.disconnect();
-                    } catch (Exception ex) {}
                 }
             }
         }).subscribeOn(RX.io());
@@ -673,7 +672,9 @@ public class XMPPManager {
                     }
                 }
                 catch (Exception exception) {
-                    getConnection().disconnect();
+                    if (connection.isConnected()) {
+                        connection.instantShutdown();
+                    }
 //                    return Completable.error(exception);
                     return Completable.error(ChatSDK.getException(R.string.registration_failed));
                 }

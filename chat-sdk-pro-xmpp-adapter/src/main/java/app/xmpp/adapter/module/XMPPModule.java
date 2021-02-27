@@ -48,6 +48,8 @@ public class XMPPModule extends AbstractModule implements NetworkAdapterProvider
             UIModule.config().usernameHint = context.getString(R.string.user_jid);
         }
         UIModule.config().customizeGroupImageEnabled = false;
+        UIModule.config().messageReplyEnabled = false;
+        UIModule.config().messageForwardingEnabled = false;
     }
 
     @Override

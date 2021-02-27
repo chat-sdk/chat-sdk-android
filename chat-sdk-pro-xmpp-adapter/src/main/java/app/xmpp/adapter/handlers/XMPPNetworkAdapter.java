@@ -20,6 +20,7 @@ public class XMPPNetworkAdapter extends BaseNetworkAdapter {
         this.blocking = new XMPPBlockingHandler();
         this.typingIndicator = new XMPPTypingIndicatorHandler();
         this.lastOnline = new XMPPLastOnlineHandler();
+        this.publicThread = new XMPPPublicThreadHandler();
     }
 
 }

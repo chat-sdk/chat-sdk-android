@@ -96,7 +96,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     public Completable updateLastOnline() {
         return Completable.defer(() -> {
             if (ChatSDK.lastOnline() != null) {
-                return ChatSDK.lastOnline().setLastOnline(currentUser());
+                return ChatSDK.lastOnline().updateLastOnline();
             }
             return Completable.complete();
         });

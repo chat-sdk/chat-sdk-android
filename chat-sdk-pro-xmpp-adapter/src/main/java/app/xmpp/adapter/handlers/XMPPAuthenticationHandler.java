@@ -69,11 +69,11 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                         case Username:
                             return XMPPManager.shared().login(details.username, details.password).andThen(Completable.defer(() -> {
                                 return loginSuccessful(details);
-                            })).doOnError(throwable -> setAuthStateToIdle());
+                            })).doOnError(throwable -> setAuthStateToIdle()).doFinally(this::setAuthStateToIdle);
                         case Register:
                             return XMPPManager.shared().register(details.username, details.password).andThen(Completable.defer(() -> {
                                 return loginSuccessful(details);
-                            })).doOnError(throwable -> setAuthStateToIdle());
+                            })).doOnError(throwable -> setAuthStateToIdle()).doFinally(this::setAuthStateToIdle);
                         default:
                             return Completable.error(ChatSDK.getException(R.string.login_method_doesnt_exist));
                     }

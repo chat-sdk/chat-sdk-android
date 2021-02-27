@@ -18,6 +18,22 @@ import sdk.chat.ui.module.UIModule;
 
 public class ChatSDKXMPP extends QuickStart {
 
+    public static void quickStartWithPatreon(Context context, String hostAddress, String domain, int port, String googleMapsKey, boolean drawerEnabled, String patreonId, Module... modules) throws Exception {
+        quickStart(context, hostAddress, domain, port, googleMapsKey, drawerEnabled, patreon(patreonId), modules);
+    }
+
+    public static void quickStartWithEmail(Context context, String hostAddress, String domain, int port, String googleMapsKey, boolean drawerEnabled, String email, Module... modules) throws Exception {
+        quickStart(context, hostAddress, domain, port, googleMapsKey, drawerEnabled, email(email), modules);
+    }
+
+    public static void quickStartWithGithubSponsors(Context context, String hostAddress, String domain, int port, String googleMapsKey, boolean drawerEnabled, String githubId, Module... modules) throws Exception {
+        quickStart(context, hostAddress, domain, port, googleMapsKey, drawerEnabled, github(githubId), modules);
+    }
+
+    public static void quickStart(Context context, String hostAddress, String domain, int port, String googleMapsKey, boolean drawerEnabled, Module... modules) throws Exception {
+        quickStart(context, hostAddress, domain, port, googleMapsKey, drawerEnabled, null, modules);
+    }
+
     /**
      * @param context
      * @param hostAddress XMPP host address
@@ -28,7 +44,7 @@ public class ChatSDKXMPP extends QuickStart {
      * @param modules Optional modules
      * @throws Exception
      */
-    public static void quickStart(Context context, String hostAddress, String domain, int port, String googleMapsKey, boolean drawerEnabled, Module... modules) throws Exception {
+    public static void quickStart(Context context, String hostAddress, String domain, int port, String googleMapsKey, boolean drawerEnabled, String identifier, Module... modules) throws Exception {
 
         List<Module> newModules = Arrays.asList(
 
@@ -66,7 +82,7 @@ public class ChatSDKXMPP extends QuickStart {
 
                 // Activate
                 .build()
-                .activate(context);;
+                .activate(context, identifier);
     }
 
 

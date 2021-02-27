@@ -22,6 +22,10 @@ public abstract class AbstractCoreHandler implements CoreHandler {
     public User currentUser() {
         String entityID = ChatSDK.auth().getCurrentUserEntityID();
 
+        if (entityID == null) {
+            cachedUser = null;
+        }
+
         if(cachedUser == null || !cachedUser.equalsEntityID(entityID)) {
             if (entityID != null && !entityID.isEmpty()) {
                 cachedUser = DaoCore.fetchEntityWithEntityID(User.class, entityID);

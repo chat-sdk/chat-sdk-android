@@ -5,16 +5,33 @@ import com.google.firebase.database.ServerValue;
 
 import java.util.Date;
 
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.handlers.LastOnlineHandler;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.AppBackgroundMonitor;
+import sdk.chat.firebase.adapter.FirebasePaths;
 import sdk.guru.common.Optional;
 import sdk.guru.realtime.RealtimeEventListener;
-import sdk.chat.firebase.adapter.FirebasePaths;
-import io.reactivex.Completable;
-import io.reactivex.Single;
 
 public class FirebaseLastOnlineHandler implements LastOnlineHandler {
+
+    public FirebaseLastOnlineHandler() {
+        AppBackgroundMonitor.shared().addListener(new AppBackgroundMonitor.Listener() {
+            @Override
+            public void didStart() {
+
+            }
+
+            @Override
+            public void didStop() {
+                updateLastOnline();
+            }
+        });
+    }
+
     @Override
     public Single<Optional<Date>> getLastOnline(User user) {
         return Single.create(emitter -> ref(user).addListenerForSingleValueEvent(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
@@ -28,9 +45,10 @@ public class FirebaseLastOnlineHandler implements LastOnlineHandler {
     }
 
     @Override
-    public Completable setLastOnline(User user) {
+    public Completable updateLastOnline() {
         return Completable.create(emitter -> {
-            if (user != null) {
+            User user = ChatSDK.currentUser();
+            if (user != null && ChatSDK.auth() != null && ChatSDK.auth().isAuthenticatedThisSession()) {
                 ref(user).setValue(ServerValue.TIMESTAMP, (databaseError, databaseReference) -> {
                     if (databaseError == null) {
                         emitter.onComplete();

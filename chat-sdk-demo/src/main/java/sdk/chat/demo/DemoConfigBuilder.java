@@ -10,14 +10,10 @@ import com.jakewharton.rxrelay2.PublishRelay;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Completable;
 import sdk.chat.contact.ContactBookModule;
-import sdk.chat.core.dao.Message;
 import sdk.chat.core.module.Module;
-import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
-import sdk.chat.core.types.MessageType;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
@@ -282,7 +278,7 @@ public class DemoConfigBuilder {
 
                 // Activate
                 .build()
-                .activate(context, "team@sdk.chat");
+                .activateWithEmail(context, "team@sdk.chat");
 
 
     }

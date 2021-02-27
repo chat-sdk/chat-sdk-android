@@ -45,6 +45,9 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean showAvatarInChatView = true;
     public String messageTimeFormat = null;
 
+    public boolean messageForwardingEnabled = true;
+    public boolean messageReplyEnabled = true;
+
     public String dateFormat = "HH:mm";
 
     public String usernameHint = null;
@@ -292,4 +295,25 @@ public class UIConfig<T> extends BaseConfig<T> {
         this.messageTimeFormat = format;
         return this;
     }
+
+    /**
+     * Enable message forwarding. This must also be supported by the network adapter
+     * @param messageForwardingEnabled
+     * @return
+     */
+    public UIConfig<T> setMessageForwardingEnabled(boolean messageForwardingEnabled) {
+        this.messageForwardingEnabled = messageForwardingEnabled;
+        return this;
+    }
+
+    /**
+     * Enable message replies. This must also be supported by the network adapter
+     * @param messageReplyEnabled
+     * @return
+     */
+    public UIConfig<T> setMessageReplyEnabled(boolean messageReplyEnabled) {
+        this.messageReplyEnabled = messageReplyEnabled;
+        return this;
+    }
+
 }

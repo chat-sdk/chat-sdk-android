@@ -89,7 +89,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         });
     }
 
-    public Single<Thread> createRoom(final String name, final String description, final ArrayList<User> users) {
+    public Single<Thread> createRoom(final String name, final String description, final ArrayList<User> users, boolean isPublic) {
         return Single.defer(() -> {
             // Create a new group chat
             final String roomID = generateRoomId(name);
@@ -112,7 +112,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
                     form.setAnswer(fieldName, true);
                 }
                 if(fieldName.equals("muc#roomconfig_publicroom")) {
-                    form.setAnswer(fieldName, false);
+                    form.setAnswer(fieldName, isPublic);
                 }
                 if(fieldName.equals("muc#roomconfig_maxusers")) {
                     List<String> list = new ArrayList<>();
@@ -125,7 +125,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
                     form.setAnswer(fieldName, list);
                 }
                 if(fieldName.equals("muc#roomconfig_membersonly")) {
-                    form.setAnswer(fieldName, true);
+                    form.setAnswer(fieldName, !isPublic);
                 }
                 if(fieldName.equals("muc#roomconfig_moderatedroom")) {
                     form.setAnswer(fieldName, true);
@@ -141,7 +141,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
                     owners.add(ChatSDK.currentUserID());
                     form.setAnswer(fieldName, owners);                    }
                 if(fieldName.equals("muc#roomconfig_allowinvites")) {
-                    form.setAnswer(fieldName, false);
+                    form.setAnswer(fieldName, isPublic);
                 }
             }
 
@@ -165,6 +165,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
 
     public Single<Thread> joinRoom(MultiUserChat chat, boolean bookmark) {
         return Single.defer(() -> {
+
             Thread thread = threadForRoomID(chat.getRoom().toString());
 
             Resourcepart nickname = nickname();
@@ -182,7 +183,6 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
                 else {
                     config.requestMaxStanzasHistory(XMPPModule.config().mucMessageHistoryDownloadLimit);
                 }
-
 
                 // Add the message listener
                 chat.removeMessageListener(manager.get().messageListener);
@@ -204,6 +204,12 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
 
                 thread.setName(name, true);
 
+                if(info.isMembersOnly()) {
+                    thread.setType(ThreadType.PrivateGroup);
+                } else {
+                    thread.setType(ThreadType.PublicGroup);
+                }
+
                 if (bookmark) {
                     manager.get().bookmarkManager().addBookmarkedConference(name, chat.getRoom(), false, chat.getNickname(), null);
                 }
@@ -215,6 +221,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
                 chat.changeAvailabilityStatus(presence.getStatus(), presence.getMode());
 
                 thread.addUser(user);
+
 
                 UserThreadLink link = thread.getUserThreadLink(user.getId());
 
@@ -392,11 +399,11 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         }
     }
 
-    public Thread threadForRoomID (MultiUserChat chat) {
+    public Thread threadForRoomID(MultiUserChat chat) {
         return threadForRoomID(chat.getRoom().toString());
     }
 
-    public Thread threadForRoomID (String roomJID) {
+    public Thread threadForRoomID(String roomJID) {
         Logger.debug("Thread For Room " + roomJID);
         Thread thread = ChatSDK.db().fetchThreadWithEntityID(roomJID);
         if(thread == null) {

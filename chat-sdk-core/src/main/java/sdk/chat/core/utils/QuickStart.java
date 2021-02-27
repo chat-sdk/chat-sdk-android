@@ -8,6 +8,7 @@ import sdk.chat.core.module.Module;
 
 public abstract class QuickStart {
 
+
     protected static boolean containsModule(Module module, Module... modules) {
         for (Module mod : modules) {
             if (mod.getName().equals(module.getName())) {
@@ -16,6 +17,18 @@ public abstract class QuickStart {
         }
         return false;
     }
+
+    public static String patreon(String patreonId) {
+        return "Patreon:" + patreonId;
+    }
+
+    public static String github(String patreonId) {
+        return "Github:" + patreonId;
+    }
+    public static String email(String patreonId) {
+        return "Email:" + patreonId;
+    }
+
 
     protected static List<Module> deduplicate(List<Module> lowPriority, Module... highPriority) {
 

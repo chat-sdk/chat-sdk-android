@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.functions.Action
@@ -27,7 +26,6 @@ import sdk.chat.core.events.NetworkEvent
 import sdk.chat.core.interfaces.ThreadType
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.core.utils.Dimen
-import sdk.chat.core.utils.StringChecker
 import sdk.chat.core.utils.Strings
 import sdk.chat.ui.R
 import sdk.chat.ui.activities.ImagePreviewActivity
@@ -225,13 +223,8 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
         supportActionBar?.title = name
         supportActionBar?.setHomeButtonEnabled(true)
 
-        if (!StringChecker.isNullOrEmpty(thread.imageUrl)) {
-            avatarImageView.setOnClickListener { v: View? -> zoomImageFromThumbnail(avatarImageView, thread.imageUrl) }
-            Glide.with(this).load(thread.imageUrl).dontAnimate().into(avatarImageView)
-        } else {
-            ThreadImageBuilder.load(avatarImageView, thread, Dimen.from(this, R.dimen.large_avatar_width))
-            avatarImageView.setOnClickListener(null)
-        }
+        avatarImageView.setOnClickListener { v: View? -> zoomImageFromThumbnail(avatarImageView, thread.imageUrl) }
+        ThreadImageBuilder.load(avatarImageView, thread, Dimen.from(this, R.dimen.large_avatar_width))
     }
 
     open fun reloadButtons() {

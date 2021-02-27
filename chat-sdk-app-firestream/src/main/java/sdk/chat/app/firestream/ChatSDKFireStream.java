@@ -23,6 +23,22 @@ import sdk.chat.ui.module.UIModule;
 
 public class ChatSDKFireStream extends QuickStart {
 
+    public static void quickStartWithPatreon(Context context, String rootPath, String googleMapsKey, FirebaseServiceType type, boolean drawerEnabled, String patreonId, Module... modules) throws Exception {
+        quickStart(context, rootPath, googleMapsKey, type, drawerEnabled, patreon(patreonId), modules);
+    }
+
+    public static void quickStartWithEmail(Context context, String rootPath, String googleMapsKey, FirebaseServiceType type, boolean drawerEnabled, String email, Module... modules) throws Exception {
+        quickStart(context, rootPath, googleMapsKey, type, drawerEnabled, email(email), modules);
+    }
+
+    public static void quickStartWithGithubSponsors(Context context, String rootPath, String googleMapsKey, FirebaseServiceType type, boolean drawerEnabled, String githubId, Module... modules) throws Exception {
+        quickStart(context, rootPath, googleMapsKey, type, drawerEnabled, github(githubId), modules);
+    }
+
+    public static void quickStart(Context context, String rootPath, String googleMapsKey, FirebaseServiceType type, boolean drawerEnabled, Module... modules) throws Exception {
+        quickStart(context, rootPath, googleMapsKey, type, drawerEnabled, null, modules);
+    }
+
     /**
      * @param context
      * @param rootPath Firebase base path (can be any string, cannot contain special characters)
@@ -32,7 +48,7 @@ public class ChatSDKFireStream extends QuickStart {
      * @param modules Optional modules
      * @throws Exception
      */
-    public static void quickStart(Context context, String rootPath, String googleMapsKey, FirebaseServiceType type, boolean drawerEnabled, Module... modules) throws Exception {
+    public static void quickStart(Context context, String rootPath, String googleMapsKey, FirebaseServiceType type, boolean drawerEnabled, String identifier, Module... modules) throws Exception {
 
         List<Module> newModules = Arrays.asList(
                 FireStreamModule.builder(type)
@@ -72,7 +88,7 @@ public class ChatSDKFireStream extends QuickStart {
 
                 // Activate
                 .build()
-                .activate(context);;
+                .activate(context, identifier);
     }
 
 

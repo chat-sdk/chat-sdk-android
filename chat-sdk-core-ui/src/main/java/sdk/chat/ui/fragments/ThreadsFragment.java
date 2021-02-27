@@ -1,6 +1,5 @@
 package sdk.chat.ui.fragments;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -280,19 +279,11 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 int size = Dimen.from(getContext(), R.dimen.action_bar_avatar_size);
 
                 if (payload instanceof ThreadHolder) {
-                    if (url == null) {
-                        ThreadHolder threadHolder = (ThreadHolder) payload;
-                        dm.add(ThreadImageBuilder.load(imageView, threadHolder.getThread(), size));
-                    } else {
-                        Drawable placeholder = ThreadImageBuilder.defaultDrawable(null);
-                        // Check if the file exists
-                        GlideWith.load(this, url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
-//                        Glide.with(this).load(url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
-                    }
+                    ThreadHolder threadHolder = (ThreadHolder) payload;
+                    ThreadImageBuilder.load(imageView, threadHolder.getThread());
                 } else {
                     int placeholder = UIModule.config().defaultProfilePlaceholder;
                     GlideWith.load(this, url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
-//                    Glide.with(this).load(url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
                 }
             }
         });

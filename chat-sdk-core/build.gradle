@@ -60,6 +60,7 @@ dependencies {
     api project(':sdk-guru-common')
 
 
+
     implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     implementation "androidx.lifecycle:lifecycle-extensions:$androidxLifecycleExtensionsVersion"
 

@@ -133,7 +133,7 @@ public class ChatSDK {
         activate(context, "Github:" + githubSponsorsId);
     }
 
-    protected void activate(Context context, @Nullable String identifier) throws Exception {
+    public void activate(Context context, @Nullable String identifier) throws Exception {
 
         if (isActive) {
             throw new Exception("Chat SDK is already active. It is not recommended to call activate twice. If you must do this, make sure to call stop() first.");

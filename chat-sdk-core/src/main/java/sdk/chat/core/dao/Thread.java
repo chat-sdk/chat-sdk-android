@@ -1,5 +1,7 @@
 package sdk.chat.core.dao;
 
+import androidx.annotation.Nullable;
+
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.annotation.Entity;
@@ -796,6 +798,7 @@ public class Thread extends AbstractEntity {
         this.creatorId = creatorId;
     }
 
+    @Nullable
     public UserThreadLink getUserThreadLink(Long userId) {
         return DaoCore.fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, getId(), userId);
     }

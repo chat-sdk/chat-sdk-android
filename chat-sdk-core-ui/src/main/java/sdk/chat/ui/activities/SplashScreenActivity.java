@@ -13,8 +13,8 @@ import butterknife.BindView;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.R;
-import sdk.guru.common.RX;
 import sdk.chat.ui.R2;
+import sdk.guru.common.RX;
 
 public class SplashScreenActivity extends BaseActivity {
 

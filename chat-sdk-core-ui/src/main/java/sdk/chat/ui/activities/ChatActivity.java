@@ -124,6 +124,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if (thread == null) {
             finish();
         }
+
     }
 
     public void updateOptionsButton() {
@@ -495,6 +496,14 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 menu.findItem(R.id.action_delete).setIcon(Icons.get(this, Icons.choose().delete, Icons.shared().actionBarIconColor));
                 menu.findItem(R.id.action_forward).setIcon(Icons.get(this, Icons.choose().forward, Icons.shared().actionBarIconColor));
                 menu.findItem(R.id.action_reply).setIcon(Icons.get(this, Icons.choose().reply, Icons.shared().actionBarIconColor));
+
+                if (!UIModule.config().messageForwardingEnabled) {
+                    menu.removeItem(R.id.action_forward);
+                }
+
+                if (!UIModule.config().messageReplyEnabled) {
+                    menu.removeItem(R.id.action_reply);
+                }
 
                 if (chatView.getSelectedMessages().size() != 1) {
                     menu.removeItem(R.id.action_reply);

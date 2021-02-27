@@ -78,10 +78,12 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                 thread.setType(ThreadType.Private1to1);
                 thread.addUsers(users);
                 thread.update();
+
+
                 return Single.just(thread);
-            } else if (users.size() > 2 && (type == ThreadType.None || type == ThreadType.PrivateGroup)) {
+            } else if (users.size() > 2 && (type == ThreadType.None || ThreadType.isGroup(type))) {
                 users.remove(currentUser);
-                return XMPPManager.shared().mucManager.createRoom(name, "", users);
+                return XMPPManager.shared().mucManager.createRoom(name, "", users, ThreadType.isPublic(type));
             } else {
                 return Single.error(ChatSDK.getException(R.string.unable_to_create_thread));
             }
@@ -227,12 +229,16 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
     public Completable deleteMessage(Message message) {
-        return Completable.error(new Throwable("Message deletion is not supported"));
+        return Completable.create(emitter -> {
+            message.getThread().removeMessage(message);
+        });
+//
+//        return Completable.error(new Throwable("Message deletion is not supported"));
     }
 
     @Override
     public boolean canDeleteMessage(Message message) {
-        return false;
+        return true;
     }
 
     @Override

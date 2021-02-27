@@ -16,7 +16,6 @@ import android.view.MenuItem;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -160,13 +159,9 @@ public class EditThreadActivity extends BaseActivity {
             String name = thread.getName();
             nameTextInput.setText(name);
         }
-        if (threadImageURL != null) {
-            Glide.with(this).load(threadImageURL).dontAnimate().into(threadImageView);
-        } else if (thread != null) {
-            ThreadImageBuilder.load(threadImageView, thread);
-        } else {
-            threadImageView.setImageDrawable(Icons.getLarge(Icons.choose().publicChat, R.color.thread_default_icon_color));
-        }
+
+        ThreadImageBuilder.load(threadImageView, thread);
+
         updateSaveButtonState();
     }
 
@@ -189,6 +184,7 @@ public class EditThreadActivity extends BaseActivity {
 //                    finish();
                 } else {
                     showToast(throwable.getLocalizedMessage());
+                    fab.setEnabled(true);
                 }
             };
 

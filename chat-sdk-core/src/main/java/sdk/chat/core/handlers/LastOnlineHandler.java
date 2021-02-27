@@ -13,7 +13,7 @@ import sdk.guru.common.Optional;
 
 public interface LastOnlineHandler {
 
-    Single<Optional<Date>> getLastOnline (User user);
-    Completable setLastOnline (User user);
+    Single<Optional<Date>> getLastOnline(User user);
+    Completable updateLastOnline();
 
 }

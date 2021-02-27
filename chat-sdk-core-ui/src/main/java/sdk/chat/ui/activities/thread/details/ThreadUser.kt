@@ -7,7 +7,7 @@ import sdk.chat.core.interfaces.ThreadType
 open class ThreadUser(public val thread: Thread, val user: User) {
     fun isActive(): Boolean {
        if (thread.typeIs(ThreadType.Group)) {
-           return thread.getUserThreadLink(user.id).isActive
+           return thread.getUserThreadLink(user.id)?.isActive ?: false
        } else {
            return user.isOnline
        }

@@ -40,7 +40,7 @@ import static sdk.chat.core.dao.DaoCore.fetchEntityWithProperty;
 public class StorageManager {
 
     protected Map<String, CoreEntity> entityCache = new HashMap<>();
-    protected boolean entityCacheEnabled = true;
+    protected boolean entityCacheEnabled = false;
 
     public List<Thread> fetchThreadsForCurrentUser() {
         Logger.debug(java.lang.Thread.currentThread().getName());
