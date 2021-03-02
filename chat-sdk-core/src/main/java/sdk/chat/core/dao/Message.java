@@ -92,6 +92,8 @@ public class Message extends AbstractEntity {
         this.threadId = threadId;
         this.nextMessageId = nextMessageId;
         this.previousMessageId = previousMessageId;
+
+
     }
 
     @Generated(hash = 637306882)
@@ -177,7 +179,7 @@ public class Message extends AbstractEntity {
     }
 
     public Map<String, Object> getMetaValuesAsMap() {
-        HashMap<String, Object> values = new HashMap<>();
+        Map<String, Object> values = new HashMap<>();
         for (MessageMetaValue v : getMetaValues()) {
             values.put(v.getKey(), v.getValue());
         }

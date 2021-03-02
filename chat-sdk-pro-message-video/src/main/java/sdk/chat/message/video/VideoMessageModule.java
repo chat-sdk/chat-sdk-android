@@ -75,7 +75,7 @@ public class VideoMessageModule extends AbstractModule {
             }
 
             @Override
-            public void onClick(ChatActivity activity, View rootView, Message message) {
+            public boolean onClick(ChatActivity activity, View rootView, Message message) {
                 if (message.getMessageType().is(MessageType.Video)) {
                     String videoURL = (String) message.valueForKey(Keys.MessageVideoURL);
                     if(videoURL != null) {
@@ -83,12 +83,14 @@ public class VideoMessageModule extends AbstractModule {
                         intent.putExtra(Keys.IntentKeyFilePath, videoURL);
                         activity.startActivity(intent);
                     }
+                    return true;
                 }
+                return false;
             }
 
             @Override
-            public void onLongClick(ChatActivity activity, View rootView, Message message) {
-
+            public boolean onLongClick(ChatActivity activity, View rootView, Message message) {
+                return false;
             }
         });
     }

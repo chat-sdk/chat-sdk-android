@@ -104,7 +104,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         updateThread(savedInstanceState);
         initViews();
 
-
     }
 
     public void updateThread(Bundle bundle) {
@@ -320,11 +319,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 .filter(NetworkEvent.filterRoleUpdated(thread, ChatSDK.currentUser()))
                 .subscribe(networkEvent -> {
                     invalidateOptionsMenu();
-                    if (hasVoice(networkEvent.getUser())) {
-                        showTextInput();
-                    } else {
-                        hideTextInput();
-                    }
+                    showOrHideTextInputView();
                 }));
 
 
@@ -345,6 +340,13 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         super.onStart();
     }
 
+    public void showOrHideTextInputView() {
+        if (hasVoice(ChatSDK.currentUser())) {
+            showTextInput();
+        } else {
+            hideTextInput();
+        }
+    }
     /**
      * Send text text
      *
@@ -415,6 +417,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         // Put it here in the case that they closed the app with this screen open
         thread.markReadAsync().subscribe();
+        showOrHideTextInputView();
 
     }
 

@@ -415,11 +415,11 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                     ArrayList<Message> mergedMessages = new ArrayList<>(localMessages);
                     mergedMessages.addAll(messages);
 
-                    if (ChatSDK.encryption() != null) {
-                        for (Message m : mergedMessages) {
-                            ChatSDK.encryption().decrypt(m);
-                        }
-                    }
+//                    if (ChatSDK.encryption() != null) {
+//                        for (Message m : mergedMessages) {
+//                            ChatSDK.encryption().decrypt(m);
+//                        }
+//                    }
 
                     return mergedMessages;
                 });

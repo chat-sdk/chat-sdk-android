@@ -27,7 +27,7 @@ public class PublicKeyStorage {
         ChatSDK.db().deleteAllPublicKeys();
     }
 
-    public static void addKey(String userId, String identifier, String key) throws Exception {
+    public static void addKey(String userId, String identifier, String key) {
         ChatSDK.db().addPublicKey(userId, identifier, key);
     }
 

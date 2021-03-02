@@ -50,6 +50,7 @@ public interface InterfaceAdapter {
     Class<? extends Activity> getSplashScreenActivity();
     Class<? extends Activity> getPostRegistrationActivity();
     Class<? extends Activity> getModerationActivity();
+    Class<? extends Activity> getSettingsActivity();
 
     void setLoginActivity(Class<? extends Activity> loginActivity);
     void setSplashScreenActivity(Class<? extends Activity> splashScreenActivity);
@@ -67,6 +68,7 @@ public interface InterfaceAdapter {
     void setEditProfileActivity(Class<? extends Activity> editProfileActivity);
     void setProfileActivity(Class<? extends Activity> profileActivity);
     void setModerationActivity(Class<? extends Activity> moderationActivity);
+    void setSettingsActivity(Class<? extends Activity> settingsActivity);
 
     void setPostRegistrationActivity (Class<? extends Activity> postRegistrationActivity);
     void setPrivateThreadsFragment(Fragment privateThreadsFragment);
@@ -140,7 +142,7 @@ public interface InterfaceAdapter {
 
     void addProfileOption(ProfileOption option);
     void removeProfileOption(ProfileOption option);
-    List<ProfileOption> getProfileOptions();
+    List<ProfileOption> getProfileOptions(User user);
 
     void stop();
 }

@@ -15,12 +15,15 @@ import org.pmw.tinylog.Logger;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import app.xmpp.adapter.ConnectionManager;
 import app.xmpp.adapter.XMPPManager;
 import app.xmpp.adapter.defines.XMPPDefines;
 import app.xmpp.adapter.message.queue.OutgoingStanza;
 import app.xmpp.adapter.utils.PublicKeyExtras;
 import app.xmpp.adapter.utils.XMPPMessageWrapper;
+import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
@@ -151,6 +154,19 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
             return null;
         }
 
+        // Here we can update the last online time
+        String bare = ChatSDK.currentUserID();
+        if (bare != null) {
+            Date date = new Date(xmr.rawDate().getTime() + 1000);
+
+            ConnectionManager manager = XMPPManager.shared().connectionManager();
+            if (finalThread.typeIs(ThreadType.Group)) {
+                manager.updateLastOnline(bare, thread.getEntityID(), date);
+            } else if(XMPPManager.shared().xmppMamManager().isLoaded()) {
+                manager.updateLastOnline(bare, date);
+            }
+        }
+
         sdk.chat.core.dao.Message message = buildMessage(xmr);
 
         ChatSDK.hook().executeHook(HookEvent.MessageReceived, new HashMap<String, Object>() {{
@@ -171,14 +187,11 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
 
     public sdk.chat.core.dao.Message buildMessage(final XMPPMessageWrapper xmr) {
 
-        sdk.chat.core.dao.Message message = ChatSDK.db().fetchOrCreateMessageWithEntityID(xmr.getMessage().getStanzaId());
-
-        String body = xmr.body();
-
-        if (body != null) {
-            message.setText(body);
-        } else {
-            Logger.debug("No Body");
+        // Check to see if the message exists already...
+        sdk.chat.core.dao.Message message = ChatSDK.db().fetchMessageWithEntityID(xmr.getMessage().getStanzaId());
+        boolean exists = message != null;
+        if (!exists) {
+            message = ChatSDK.db().fetchOrCreateMessageWithEntityID(xmr.getMessage().getStanzaId());
         }
 
         // If there is a difference between the server and local time...
@@ -204,9 +217,36 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
             String type = extras.getFirstElement(XMPPDefines.Type).getText();
             message.setType(Integer.parseInt(type));
 
+            // Handle Meta
+            Map<String, Object> meta = new HashMap<>();
+
             for(StandardExtensionElement element : extras.getElements()) {
-                message.setValueForKey(element.getText(), element.getElementName());
+                meta.put(element.getElementName(), element.getText());
+//                message.setValueForKey(element.getText(), element.getElementName());
             }
+
+            if (!exists) {
+                if (ChatSDK.encryption() != null && meta.containsKey(Keys.MessageEncryptedPayloadKey)) {
+                    Object dataObject = meta.get(Keys.MessageEncryptedPayloadKey);
+                    if (dataObject instanceof String) {
+                        String data = (String) dataObject;
+                        Map<String, Object> encryptedMeta = ChatSDK.encryption().decrypt(data);
+                        if (encryptedMeta != null) {
+                            meta = encryptedMeta;
+                        }
+                    }
+                }
+                message.setMetaValues(meta);
+
+//                String body = xmr.body();
+//
+//                if (body != null) {
+//                    message.setText(body);
+//                } else {
+//                    Logger.debug("No Body");
+//                }
+            }
+
         } else {
             message.setMessageType(new MessageType(MessageType.Text));
         }

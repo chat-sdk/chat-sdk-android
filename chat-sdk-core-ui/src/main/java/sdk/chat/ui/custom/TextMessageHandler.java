@@ -1,6 +1,7 @@
 package sdk.chat.ui.custom;
 
 import android.content.Context;
+import android.view.View;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
@@ -9,6 +10,7 @@ import java.util.List;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.ui.R;
+import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.view_holders.IncomingTextMessageViewHolder;
 import sdk.chat.ui.view_holders.OutcomingTextMessageViewHolder;
@@ -39,5 +41,12 @@ public class TextMessageHandler extends CustomMessageHandler {
         return true;
     }
 
+    @Override
+    public boolean onClick(ChatActivity activity, View rootView, Message message) {
+        if (!super.onClick(activity, rootView, message)) {
+            return false;
+        }
+        return true;
+    }
 
 }

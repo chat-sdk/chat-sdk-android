@@ -61,8 +61,9 @@ public class NearbyUsersFragment extends BaseFragment {
 
     public void start() {
         FirebaseNearbyUsersModule.shared().getLocationHandler().start();
-        textView.setVisibility(View.GONE);
-        recyclerView.setVisibility(View.VISIBLE);
+        reloadData();
+//        textView.setVisibility(View.GONE);
+//        recyclerView.setVisibility(View.VISIBLE);
     }
 
     public void permissionError(Throwable t) {
@@ -132,6 +133,7 @@ public class NearbyUsersFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         updatePermissions();
+        reloadData();
     }
 
     public void updatePermissions() {
@@ -144,33 +146,43 @@ public class NearbyUsersFragment extends BaseFragment {
 
     @Override
     public void reloadData() {
-        if (adapter != null) {
 
-            // Build a list of location Users
-            ArrayList<LocationUser> users = new ArrayList<>();
+        if (!FirebaseNearbyUsersModule.shared().config.enabled) {
+            textView.setVisibility(View.VISIBLE);
+            textView.setText(R.string.nearby_users_disabled);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            textView.setVisibility(View.INVISIBLE);
+            recyclerView.setVisibility(View.VISIBLE);
 
-            for (LocationUser lu : FirebaseNearbyUsersModule.shared().getGeoFireManager().getLocationUsers()) {
-                if (lu.distanceToMe() < FirebaseNearbyUsersModule.config().maxDistance && lu.getIsOnline()) {
-                    users.add(lu);
-                }
-            }
+            if (adapter != null) {
 
-            Collections.sort(users, (o1, o2) -> (int) Math.round(o1.distanceToMe() - o2.distanceToMe()));
+                // Build a list of location Users
+                ArrayList<LocationUser> users = new ArrayList<>();
 
-            ArrayList<UserListItem> items = new ArrayList<>(users);
-
-            RX.main().scheduleDirect(() -> {
-                adapter.setUsers(items);
-                if(listOnClickListenerDisposable != null) {
-                    listOnClickListenerDisposable.dispose();
-                }
-                listOnClickListenerDisposable = adapter.onClickObservable().subscribe(o -> {
-                    if(o instanceof LocationUser) {
-                        final User clickedUser = ((LocationUser) o).user;
-                        ChatSDK.ui().startProfileActivity(getContext(), clickedUser.getEntityID());
+                for (LocationUser lu : FirebaseNearbyUsersModule.shared().getGeoFireManager().getLocationUsers()) {
+                    if (lu.distanceToMe() < FirebaseNearbyUsersModule.config().maxDistance && lu.getIsOnline()) {
+                        users.add(lu);
                     }
+                }
+
+                Collections.sort(users, (o1, o2) -> (int) Math.round(o1.distanceToMe() - o2.distanceToMe()));
+
+                ArrayList<UserListItem> items = new ArrayList<>(users);
+
+                RX.main().scheduleDirect(() -> {
+                    adapter.setUsers(items);
+                    if(listOnClickListenerDisposable != null) {
+                        listOnClickListenerDisposable.dispose();
+                    }
+                    listOnClickListenerDisposable = adapter.onClickObservable().subscribe(o -> {
+                        if(o instanceof LocationUser) {
+                            final User clickedUser = ((LocationUser) o).user;
+                            ChatSDK.ui().startProfileActivity(getContext(), clickedUser.getEntityID());
+                        }
+                    });
                 });
-            });
+            }
         }
     }
 

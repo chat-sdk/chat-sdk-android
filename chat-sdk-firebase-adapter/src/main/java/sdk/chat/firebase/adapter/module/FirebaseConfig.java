@@ -20,8 +20,6 @@ public class FirebaseConfig<T> extends BaseConfig<T> {
     public boolean developmentModeEnabled = false;
     public boolean disablePublicThreads = false;
 
-    public boolean enableCompatibilityWithV4 = true;
-
     public boolean enableWebCompatibility = false;
 
     final public List<String> searchIndexes = new ArrayList<>();
@@ -147,16 +145,6 @@ public class FirebaseConfig<T> extends BaseConfig<T> {
      */
     public FirebaseConfig<T> setDisablePublicThreads(boolean disablePublicThreads) {
         this.disablePublicThreads = disablePublicThreads;
-        return this;
-    }
-
-    /**
-     * If you have users who are using Chat SDK v4 this should be set to true
-     * @param enabled
-     * @return
-     */
-    public FirebaseConfig<T> setEnableCompatibilityWithV4(boolean enabled) {
-        this.enableCompatibilityWithV4 = enabled;
         return this;
     }
 

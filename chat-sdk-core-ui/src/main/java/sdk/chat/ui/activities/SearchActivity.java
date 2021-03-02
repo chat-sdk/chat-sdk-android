@@ -253,6 +253,8 @@ public class SearchActivity extends BaseActivity {
                             if (!searchText.isEmpty()) {
                                 showAddUserButton();
                             }
+                        } else {
+                            hideAddUserButton();
                         }
                         progressBar.setVisibility(View.INVISIBLE);
                     }
@@ -262,6 +264,12 @@ public class SearchActivity extends BaseActivity {
     public void showAddUserButton() {
         if (ChatSDK.search().canAddUserById()) {
             addUserButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void hideAddUserButton() {
+        if (ChatSDK.search().canAddUserById()) {
+            addUserButton.setVisibility(View.INVISIBLE);
         }
     }
 

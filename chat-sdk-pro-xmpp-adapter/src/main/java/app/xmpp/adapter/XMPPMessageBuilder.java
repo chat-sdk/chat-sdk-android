@@ -32,6 +32,7 @@ public class XMPPMessageBuilder {
     StandardExtensionElement.Builder extensionBuilder = StandardExtensionElement.builder(XMPPDefines.Extras, XMPPDefines.MessageNamespace);
 
     public XMPPMessageBuilder setValues(Map<String, Object> values) {
+        // If this is an encrypted message, encrypt it
         for(String key : values.keySet()) {
             extensionBuilder.addElement(key, values.get(key).toString());
         }

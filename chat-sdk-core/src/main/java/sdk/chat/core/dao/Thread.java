@@ -812,7 +812,8 @@ public class Thread extends AbstractEntity {
         if (user != null) {
             UserThreadLink link = getUserThreadLink(user.getId());
             if (link != null) {
-                if(link.setMetaValue(Keys.Permission, permission) && notify) {
+                if (link.setAffiliation(permission) && notify) {
+                    Logger.info("Set Affiliation " + userEntityID + " " + permission);
                     ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(this, user));
                     if (sendSystemMessage && user.isMe()) {
                         String message = String.format(ChatSDK.getString(R.string.role_changed_to__), ChatSDK.thread().localizeRole(permission));
@@ -823,19 +824,47 @@ public class Thread extends AbstractEntity {
         }
     }
 
+//    public void setPermission(String userEntityID, String permission, boolean notify, boolean sendSystemMessage) {
+//        User user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
+//        if (user != null) {
+//            UserThreadLink link = getUserThreadLink(user.getId());
+//            if (link != null) {
+//                if(link.setMetaValue(Keys.Permission, permission) && notify) {
+//                    ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(this, user));
+//                    if (sendSystemMessage && user.isMe()) {
+//                        String message = String.format(ChatSDK.getString(R.string.role_changed_to__), ChatSDK.thread().localizeRole(permission));
+//                        ChatSDK.thread().sendLocalSystemMessage(message, this);
+//                    }
+//                }
+//            }
+//        }
+//    }
+
     public String getPermission(String userEntityID) {
         User user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
         if (user != null) {
             UserThreadLink link = getUserThreadLink(user.getId());
             if (link != null) {
-                UserThreadLinkMetaValue permission = link.metaValueForKey(Keys.Permission);
-                if (permission != null) {
-                    return permission.getValue();
-                }
+                return link.getAffiliation();
             }
         }
         return null;
     }
+
+//    public String getPermission(String userEntityID) {
+//        User user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
+//        if (user != null) {
+//            UserThreadLink link = getUserThreadLink(user.getId());
+//            if (link != null) {
+//                UserThreadLinkMetaValue permission = link.metaValueForKey(Keys.Permission);
+//                if (permission != null) {
+//                    return permission.getValue();
+//                }
+//            }
+//        }
+//        return null;
+//    }
+
 
     public Date getLoadMessagesFrom() {
         return this.loadMessagesFrom;

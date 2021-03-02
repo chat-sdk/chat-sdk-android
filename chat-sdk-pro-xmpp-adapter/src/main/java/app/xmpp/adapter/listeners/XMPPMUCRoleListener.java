@@ -372,13 +372,15 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
         XMPPMessageWrapper xm = new XMPPMessageWrapper(message);
         if (xm.hasAction(MessageType.Action.UserLeftGroup)) {
 
-            String from = manager.get().userJID(chat, message.getFrom());
-            User user = ChatSDK.core().getUserNowForEntityID(from);
+            String from = xm.userEntityID();
+            if (from != null) {
+                User user = ChatSDK.core().getUserNowForEntityID(from);
 
-            if (!user.isMe()) {
-                UserThreadLink link = thread.getUserThreadLink(user.getId());
-                if (link.setHasLeft(true)) {
-                    ChatSDK.events().source().accept(NetworkEvent.threadUserRemoved(thread, user));
+                if (!user.isMe()) {
+                    UserThreadLink link = thread.getUserThreadLink(user.getId());
+                    if (link.setHasLeft(true)) {
+                        ChatSDK.events().source().accept(NetworkEvent.threadUserRemoved(thread, user));
+                    }
                 }
             }
         }

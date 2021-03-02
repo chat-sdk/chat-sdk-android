@@ -24,7 +24,7 @@ class ThreadUserViewHolder(parentView: ViewGroup) :
 
             nameTextView.text = user.name
             if (thread.typeIs(ThreadType.Group)) {
-                if (thread.getUserThreadLink(user.id)?.isActive ?: false) {
+                if (ChatSDK.thread().isActive(thread, user)) {
                     setAvailability(Availability.Available)
                 } else {
                     setAvailability(Availability.Unavailable)

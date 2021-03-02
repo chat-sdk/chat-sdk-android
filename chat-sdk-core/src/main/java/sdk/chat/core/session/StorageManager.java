@@ -96,6 +96,10 @@ public class StorageManager {
         return fetchOrCreateEntityWithEntityID(Message.class, entityId);
     }
 
+    public Message fetchMessageWithEntityID(String entityId) {
+        return fetchEntityWithEntityID(entityId, Message.class);
+    }
+
     public <T extends CoreEntity> T fetchOrCreateEntityWithEntityID(Class<T> c, String entityId){
         Logger.debug(java.lang.Thread.currentThread().getName());
 
@@ -128,15 +132,16 @@ public class StorageManager {
         DaoCore.createEntity(entity);
         if (entity instanceof Thread) {
             ((Thread) entity).setUserAccountID(ChatSDK.currentUserID());
+            ((Thread) entity).update();
         }
         return entity;
     }
 
-    public <T> Single<T> createEntityAsync (Class<T> c) {
+    public <T> Single<T> createEntityAsync(Class<T> c) {
         return Single.defer(() -> Single.just(createEntity(c)).subscribeOn(RX.db()));
     }
 
-    public <T extends CoreEntity> T insertOrReplaceEntity (T entity) {
+    public <T extends CoreEntity> T insertOrReplaceEntity(T entity) {
         DaoCore.createEntity(entity);
         return entity;
     }
@@ -178,10 +183,11 @@ public class StorageManager {
         Logger.debug(java.lang.Thread.currentThread().getName());
 
         Thread thread = fetchThreadWithEntityID(entityId);
-//
+
         if (thread == null) {
             thread = createEntity(Thread.class);
             thread.setEntityID(entityId);
+            thread.update();
         }
 
         return thread;

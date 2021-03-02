@@ -456,4 +456,9 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     public boolean canRefreshRoles(Thread thread) {
         return false;
     }
+
+    @Override
+    public boolean isActive(Thread thread, User user) {
+        return user.getIsOnline();
+    }
 }

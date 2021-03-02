@@ -47,7 +47,6 @@ import java.util.UUID;
 
 import app.xmpp.adapter.enums.ConnectionStatus;
 import app.xmpp.adapter.listeners.XMPPChatStateListener;
-import app.xmpp.adapter.listeners.XMPPConnectionListener;
 import app.xmpp.adapter.listeners.XMPPMessageListener;
 import app.xmpp.adapter.listeners.XMPPPingListener;
 import app.xmpp.adapter.listeners.XMPPReceiptReceivedListener;
@@ -60,11 +59,9 @@ import app.xmpp.adapter.utils.ServerKeyStorage;
 import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import app.xmpp.adapter.utils.XMPPServer;
 import io.reactivex.Completable;
-import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.annotations.Nullable;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.AppBackgroundMonitor;
@@ -76,16 +73,15 @@ import sdk.guru.common.RX;
  * Created by benjaminsmiley-andrews on 03/07/2017.
  */
 
-public class XMPPManager {
+public class XMPPManager implements AppBackgroundMonitor.Listener {
 
-    public static String RESOURCE = "co.chatsdk.resource";
+    protected ConnectionManager connectionManager = new ConnectionManager(this);
 
     // The main XMPP connection
     protected AbstractXMPPConnection connection = null;
     protected Long serverDelay;
 
     // Listeners
-    public XMPPConnectionListener connectionListener;
     protected XMPPRosterListener rosterListener;
     protected XMPPMessageListener messageListener;
     protected XMPPChatStateListener chatStateListener;
@@ -113,40 +109,15 @@ public class XMPPManager {
 
     protected XMPPServer server;
 
+//    protected Jid jid;
+//    protected String password;
+
     public String getDomain() {
         return server.domain;
     }
 
     protected XMPPManager() {
 
-        AppBackgroundMonitor.shared().addListener(new AppBackgroundMonitor.Listener() {
-            @Override
-            public void didStart() {
-                if (getConnection() != null && !getConnection().isConnected()) {
-                    try {
-                        getConnection().connect();
-                        getConnection().login();
-                        sendOnlinePresence();
-                        loadArchiveMessagesSinceLastOnline();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            @Override
-            public void didStop() {
-                if (getConnection() != null && getConnection().isConnected()) {
-                    getConnection().disconnect();
-                }
-//                sendOfflinePresence();
-//                getConnection().disconnect();
-//                connection.disconnect();
-                ChatSDK.shared().getKeyStorage().put("last-online-" + ChatSDK.currentUserID(), new Date().getTime());
-            }
-        });
-
-        connectionListener = new XMPPConnectionListener(this);
         rosterListener = new XMPPRosterListener(this);
 
         messageListener = new XMPPMessageListener();
@@ -180,32 +151,16 @@ public class XMPPManager {
 
         // Be careful using this because there can be a race condition
         // between this and the login method
-        connectionListener.connectionStatusSource.subscribe(new Observer<ConnectionStatus>() {
-            @Override
-            public void onSubscribe(@NonNull Disposable d) {
-                dm.add(d);
-            }
-
-            @Override
-            public void onNext(@NonNull ConnectionStatus connectionStatus) {
-                if (ChatSDK.currentUser() != null) {
-                    if (connectionStatus == ConnectionStatus.Authenticated) {
-                        ChatSDK.currentUser().setIsOnline(true);
-                    }
-                    if (connectionStatus == ConnectionStatus.Disconnected) {
-                        ChatSDK.currentUser().setIsOnline(false);
-                    }
+        dm.add(connectionManager.connectionStatus().subscribe(connectionStatus -> {
+            if (ChatSDK.currentUser() != null) {
+                if (connectionStatus == ConnectionStatus.Authenticated) {
+                    ChatSDK.currentUser().setIsOnline(true);
+                }
+                if (connectionStatus == ConnectionStatus.Disconnected) {
+                    ChatSDK.currentUser().setIsOnline(false);
                 }
             }
-
-            @Override
-            public void onError(@NonNull Throwable e) {
-                ChatSDK.events().onError(e);
-            }
-
-            @Override
-            public void onComplete() {}
-        });
+        }, throwable -> ChatSDK.events().onError(throwable)));
 
         getRosterListener().getPresenceEvents().flatMapSingle(presence -> {
             return userManager.updateUserFromVCard(presence.getFrom()).doOnSuccess(user -> PresenceHelper.updateUserFromPresence(user, presence));
@@ -233,6 +188,10 @@ public class XMPPManager {
 
     public MamManager mamManager() {
         return MamManager.getInstanceFor(getConnection());
+    }
+
+    public XMPPMamManager xmppMamManager() {
+        return mamManager;
     }
 
     public ServiceDiscoveryManager serviceDiscoveryManager() {
@@ -283,6 +242,10 @@ public class XMPPManager {
         return ReconnectionManager.getInstanceFor(getConnection());
     }
 
+    public ConnectionManager connectionManager() {
+        return connectionManager;
+    }
+
     public AccountManager accountManager() {
         return AccountManager.getInstance(getConnection());
     }
@@ -307,66 +270,60 @@ public class XMPPManager {
         return connection;
     }
 
+    @Override
+    public void didStart() {
+        if (getConnection() != null && !getConnection().isConnected()) {
+            try {
+                if (!getConnection().isConnected()) {
+                    getConnection().connect();
+                }
+                if (!getConnection().isAuthenticated()) {
+                    getConnection().login();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void didStop() {
+        if (getConnection() != null && getConnection().isConnected()) {
+            try {
+                getConnection().disconnect(new Presence(Presence.Type.unavailable));
+            } catch (Exception e) {
+
+            }
+        }
+    }
+
     public boolean isConnectedAndAuthenticated() {
         return isConnected() && connection.isAuthenticated();
     }
 
-    public Single<XMPPConnection> openRegistrationConnection(XMPPServer server) {
-        return Single.create((SingleOnSubscribe<XMPPConnection>) e -> {
-
-            if(isConnected()) {
-                connection.disconnect();
-            }
-
-            XMPPTCPConnectionConfiguration config = configureRegistrationConnection(server);
-            connection = new XMPPTCPConnection(config);
-
-            addListeners();
-            mucManager = new XMPPMUCManager(this);
-
-            try {
-                connection.connect();
-                e.onSuccess(connection);
-            }
-            catch (Exception exception){
-                if (connection.isConnected()) {
-                    connection.instantShutdown();
-                }
-                e.onError(exception);
-            }
-        }).subscribeOn(RX.io());
+    public Single<XMPPConnection> openConnection(final XMPPServer server) {
+        return openConnection(server, null, null);
     }
 
-    public Single<XMPPConnection> openConnection(final XMPPServer server, final String jid, final String password){
+    public Single<XMPPConnection> openConnection(final XMPPServer server, @Nullable final String jid, @Nullable final String password){
         return Single.create((SingleOnSubscribe<XMPPConnection>) e -> {
 
             if(isConnected()) {
                 connection.disconnect();
             }
 
-            XMPPTCPConnectionConfiguration config = configureConnection(server, jid, password);
-
+            XMPPTCPConnectionConfiguration config = configureConnection(server, null, null);
             connection = new XMPPTCPConnection(config);
-//            connection.addAsyncStanzaListener(packet -> {
-//                if (packet.toXML("").toString().contains("conference")) {
-//                    Logger.debug("");
-//                }
-//            }, (PacketFilter) stanza -> true);
-
-//            connection.removeConnectionListener(outgoingStanzaQueue);
-//            connection.addConnectionListener(outgoingStanzaQueue);
 
             addListeners();
-
             mucManager = new XMPPMUCManager(this);
-
-//            connection.addAsyncStanzaListener(packet -> {
-//                Logger.debug(packet.toXML("").toString());
-//            }, stanza -> true);
 
             try {
                 connection.connect();
-                connection.login();
+
+                if (jid != null && password != null) {
+                    connection.login(jid, password);
+                }
 
                 e.onSuccess(connection);
             }
@@ -389,34 +346,34 @@ public class XMPPManager {
         }).subscribeOn(RX.io());
     }
 
-    private void addListeners() {
+    protected void removeListeners() {
+        if (getConnection() != null) {
+            getConnection().removeConnectionListener(connectionManager);
+            chatManager().removeIncomingListener(messageListener);
+            chatManager().removeOutgoingListener(messageListener);
+            chatStateManager().removeChatStateListener(chatStateListener);
+            reconnectionManager().removeReconnectionListener(reconnectionListener);
+            deliveryReceiptManager().removeReceiptReceivedListener(receiptReceivedListener);
+            roster().removeRosterListener(rosterListener);
+            carbonManager().removeCarbonCopyReceivedListener(messageListener);
+            pingManager().unregisterPingFailedListener(pingListener);
+        }
+        AppBackgroundMonitor.shared().removeListener(this);
+    }
 
-        connection.removeConnectionListener(connectionListener);
-        connection.addConnectionListener(connectionListener);
+    protected void addListeners() {
+        removeListeners();
 
-        chatManager().removeIncomingListener(messageListener);
+        getConnection().addConnectionListener(connectionManager);
         chatManager().addIncomingListener(messageListener);
-
-        chatManager().removeOutgoingListener(messageListener);
         chatManager().addOutgoingListener(messageListener);
-
-        chatStateManager().removeChatStateListener(chatStateListener);
         chatStateManager().addChatStateListener(chatStateListener);
-
-        reconnectionManager().removeReconnectionListener(reconnectionListener);
         reconnectionManager().addReconnectionListener(reconnectionListener);
-
-        deliveryReceiptManager().removeReceiptReceivedListener(receiptReceivedListener);
         deliveryReceiptManager().addReceiptReceivedListener(receiptReceivedListener);
-
-        roster().removeRosterListener(rosterListener);
         roster().addRosterListener(rosterListener);
-
-        carbonManager().removeCarbonCopyReceivedListener(messageListener);
         carbonManager().addCarbonCopyReceivedListener(messageListener);
-
-        pingManager().unregisterPingFailedListener(pingListener);
         pingManager().registerPingFailedListener(pingListener);
+        AppBackgroundMonitor.shared().addListener(this);
     }
 
     public Date clientToServerTime(Date date) {
@@ -453,7 +410,7 @@ public class XMPPManager {
 
     public void performPostAuthenticationSetup() {
 
-        sendOnlinePresence();
+        sendAvailablePresence();
 
         userManager.loadContactsFromRoster().subscribe(ChatSDK.events());
 
@@ -472,29 +429,27 @@ public class XMPPManager {
             if (carbonManager().isSupportedByServer()) {
                 carbonManager().enableCarbonsAsync(exception -> ChatSDK.events().onError(exception));
             }
+        } catch (Exception e) {
+                Logger.warn(e.getLocalizedMessage());
+                ChatSDK.events().onError(e);
         }
-        catch (Exception e) {
-            ChatSDK.events().onError(e);
-        }
-
         try {
             if (mamManager().isSupported()) {
                 mamManager().enableMamForAllMessages();
             }
         } catch (Exception e) {
-            Logger.warn("MAM is not supported: " + e.getLocalizedMessage());
-//            ChatSDK.events().onError(e);
+            ChatSDK.events().onError(e);
         }
-
         try {
             if (bookmarkManager().isSupported()) {
                 List<BookmarkedConference> conferences = new ArrayList<>(bookmarkManager().getBookmarkedConferences());
-
                 for (BookmarkedConference conference: conferences) {
                     mucManager.joinChatFromBookmark(conference);
                 }
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
+            Logger.warn(e.getLocalizedMessage());
             ChatSDK.events().onError(e);
         }
 
@@ -503,17 +458,13 @@ public class XMPPManager {
         }}).subscribe(ChatSDK.events());
 
         loadArchiveMessagesSinceLastOnline();
-//        if (ChatSDK.thread().getThreads(ThreadType.Private1to1).isEmpty()) {
-
-
-//        }
     }
 
     public void loadArchiveMessagesSinceLastOnline() {
+        // Load since the last time we were online
         Date date = null;
-        long dateLong = ChatSDK.shared().getKeyStorage().getLong("last-online-" + ChatSDK.currentUserID());
-        if (dateLong > 0) {
-            date = new Date(dateLong);
+        if (ChatSDK.currentUserID() != null) {
+            date = connectionManager.getLastOnline(ChatSDK.currentUserID());
         }
         loadArchiveMessages(date);
     }
@@ -536,16 +487,8 @@ public class XMPPManager {
         }));
     }
 
-    private XMPPTCPConnectionConfiguration configureRegistrationConnection(XMPPServer server) throws Exception {
-        return configureConnection(server, null, null);
-    }
-
     private XMPPTCPConnectionConfiguration configureConnection(XMPPServer server, String userAlias, String password) throws Exception {
 
-//        boolean sslEnabled = XMPPModule.config().xmppSslEnabled;
-//        boolean acceptAllCertificates = XMPPModule.shared().config.xmppAcceptAllCertificates;
-//        boolean allowClientSideAuthentication = XMPPModule.shared().config.xmppAllowClientSideAuthentication;
-//        boolean disableHostNameVerification = XMPPModule.shared().config.xmppDisableHostNameVerification;
         boolean compressionEnabled = XMPPModule.shared().config.compressionEnabled;
         String securityModeString = XMPPModule.shared().config.securityMode;
 
@@ -563,68 +506,24 @@ public class XMPPManager {
                 .setXmppDomain(domain)
                 .setSecurityMode(securityMode)
                 .setHostAddress(hostAddress)
-                //.setHost(domainString)
                 .setPort(server.port)
                 .setResource(resource)
                 .setSendPresence(true)
                 .setCompressionEnabled(compressionEnabled);
 
-//        builder.setHostnameVerifier(new HostnameVerifier() {
-//            @Override
-//            public boolean verify(String s, SSLSession sslSession) {
-//                return false;
-//            }
-//        });
-
         if(StringChecker.isNullOrEmpty(userAlias) && StringChecker.isNullOrEmpty(password)) {
             builder.allowEmptyOrNullUsernames();
         }
-
-//        if(securityMode != ConnectionConfiguration.SecurityMode.disabled && acceptAllCertificates) {
-//            TLSUtils.acceptAllCertificates(builder);
-//        }
-//        if(securityMode != ConnectionConfiguration.SecurityMode.disabled && disableHostNameVerification) {
-//            TLSUtils.disableHostnameVerificationForTlsCertificates(builder);
-//        }
-//        if(securityMode != ConnectionConfiguration.SecurityMode.disabled && sslEnabled) {
-//            builder.setPort( 5223 );
-//            builder.setSocketFactory(new DummySSLSocketFactory());
-//        }
-//        if(securityMode != ConnectionConfiguration.SecurityMode.disabled && !sslEnabled) {
-//
-//            //builder.setEnabledSSLProtocols(new String[]{"TSLv1"});
-//
-//            SSLContext sc = SSLContext.getInstance("TLS");
-//            MemorizingTrustManager mtm = new MemorizingTrustManager(ChatSDK.shared().context());
-//            sc.init(null, new X509TrustManager[] { mtm }, new java.security.SecureRandom());
-//            builder.setCustomSSLContext(sc);
-//            builder.setHostnameVerifier(mtm.wrapHostnameVerifier(new org.apache.http.conn.ssl.StrictHostnameVerifier()));
-//
-////            SSLContext context = SSLContext.getInstance("TLS");
-////            sc.init(null, MemorizingTrustManager.getInstanceList(context), new SecureRandom());
-////
-////            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-////
-//////            FileInputStream fis = new FileInputStream("ChatSDKXMPP");
-////            ks.load(null, password.toCharArray());
-////
-////            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-////            kmf.init(ks, password.toCharArray());
-////
-////            TrustManagerFactory tfm = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-////            tfm.init(ks);
-////
-////            context.init(kmf.getKeyManagers(), tfm.getTrustManagers(), new SecureRandom());
-////
-////            builder.setCustomSSLContext(context);
-////            builder.setCustomX509TrustManager(new ChatSDKTrustManager());
-//        }
 
         return builder.build();
     }
 
     public Completable login(final String userJID, final String password){
         return Completable.defer(() -> {
+
+//            this.jid = JidCreate.from(userJID);
+//            this.password = password;
+
             XMPPServer server = getCurrentServer(ChatSDK.ctx());
             if (server == null) {
                 return Completable.error(ChatSDK.getException(R.string.xmpp_server_must_be_specified));
@@ -651,7 +550,7 @@ public class XMPPManager {
             if (server == null) {
                 return Completable.error(ChatSDK.getException(R.string.xmpp_server_must_be_specified));
             }
-            return openRegistrationConnection(server).flatMapCompletable(xmppConnection -> {
+            return openConnection(server).flatMapCompletable(xmppConnection -> {
 
                 AccountManager accountManager = accountManager();
                 if (!accountManager.supportsAccountCreation()) {
@@ -683,16 +582,7 @@ public class XMPPManager {
     }
 
     public void logout() {
-        if (roster() != null) {
-            roster().removeRosterListener(rosterListener);
-        }
-        if (chatManager() != null) {
-            chatManager().removeIncomingListener(messageListener);
-            chatManager().removeOutgoingListener(messageListener);
-        }
-        if (chatStateManager() != null) {
-            chatStateManager().removeChatStateListener(chatStateListener);
-        }
+        removeListeners();
 
         dm.dispose();
 
@@ -703,13 +593,11 @@ public class XMPPManager {
             userManager.dispose();
         }
         if (getConnection() != null) {
-            getConnection().removeConnectionListener(connectionListener);
             getConnection().disconnect();
         }
-
     }
 
-    public void sendOfflinePresence() {
+    public void sendUnavailablePresence() {
         if (isConnected()) {
             Presence presence = new Presence(Presence.Type.unavailable);
 //            Presence presence = new Presence(Presence.Type.unavailable, null, 1, Presence.Mode.dnd);
@@ -718,7 +606,7 @@ public class XMPPManager {
         }
     }
 
-    public void sendOnlinePresence() {
+    public void sendAvailablePresence() {
         if (isConnected()) {
             ChatSDK.currentUser().setIsOnline(true);
             Presence presence = PresenceHelper.presenceForUser(ChatSDK.currentUser());
@@ -727,35 +615,16 @@ public class XMPPManager {
         }
     }
 
-    public void sendAvailablePresence() {
-        if (isConnected()) {
-            ChatSDK.currentUser().setIsOnline(true);
-            Presence presence = new Presence(Presence.Type.available);
-            sendPresence(presence);
-        }
-    }
     public void sendPresence(Presence presence) {
-        try {
-
-            PublicKeyExtras.addTo(presence);
-
-            sendStanza(presence);
-        }
-        catch (Exception e) {
-            ChatSDK.events().onError(e);
-        }
+        PublicKeyExtras.addTo(presence);
+        sendStanza(presence);
     }
 
     public void sendStanza(Stanza stanza) {
         try {
-//            if (isConnectedAndAuthenticated()) {
-                getConnection().sendStanza(stanza);
-//            } else {
-//                outgoingStanzaQueue.add(stanza);
-//            }
+            getConnection().sendStanza(stanza);
         } catch (Exception e) {
             e.printStackTrace();
-//            outgoingStanzaQueue.add(stanza);
         }
     }
 

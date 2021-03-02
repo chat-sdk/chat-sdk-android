@@ -7,9 +7,14 @@ import sdk.chat.core.dao.Message;
 
 public interface IEncryptionHandler {
 
-    Completable encrypt (Message message);
-    Completable decrypt (Message message);
-    Map<String, Object> decrypt (String message) throws Exception;
+//    Single<String> encrypt(List<User> users, Map<String, Object> data);
+//    Single<Map<String, Object>> decrypt(String encryptedString);
+
+    Map<String, Object> encrypt(Message message);
+
+//    Completable encrypt(Message message);
+//    Completable decrypt (String message);
+    Map<String, Object> decrypt(String message);
 
     String publicKey();
     String privateKeyId();

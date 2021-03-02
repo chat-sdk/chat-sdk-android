@@ -217,7 +217,6 @@ public class DemoConfigBuilder {
         if (backend == Backend.Firebase) {
             modules.add(FirebaseModule.builder()
                     .setFirebaseRootPath("firebase")
-                    .setEnableCompatibilityWithV4(false)
                     .build());
 
             modules.add(FirebaseBlockingModule.shared());

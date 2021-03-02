@@ -77,7 +77,7 @@ public class FileMessageModule extends AbstractModule {
             }
 
             @Override
-            public void onClick(ChatActivity activity, View rootView, Message message) {
+            public boolean onClick(ChatActivity activity, View rootView, Message message) {
                 if (message.getMessageType().is(MessageType.File)) {
                     String url = message.stringForKey(Keys.MessageFileURL);
                     Uri uri = Uri.parse(url);
@@ -87,16 +87,18 @@ public class FileMessageModule extends AbstractModule {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         intent.setDataAndType(Uri.parse(uri.toString()), mimeType);
                         activity.startActivity(intent);
+                        return true;
                     } catch (ActivityNotFoundException e) {
                         Logger.debug(e);
                         activity.startActivity(Intent.createChooser(new Intent(Intent.ACTION_VIEW, uri), activity.getText(R.string.open_with)));
                     }
                 }
+                return false;
             }
 
             @Override
-            public void onLongClick(ChatActivity activity, View rootView, Message message) {
-
+            public boolean onLongClick(ChatActivity activity, View rootView, Message message) {
+                return false;
             }
         });
     }

@@ -150,5 +150,6 @@ public interface ThreadHandler {
 
     boolean isBanned(Thread thread, User user);
 
+    boolean isActive(Thread thread, User user);
 }
 

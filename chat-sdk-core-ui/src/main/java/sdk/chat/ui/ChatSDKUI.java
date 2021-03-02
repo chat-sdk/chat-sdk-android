@@ -1,7 +1,14 @@
 package sdk.chat.ui;
 
+import android.content.Intent;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.ui.ProfileFragmentProvider;
+import sdk.chat.core.utils.ProfileOption;
 import sdk.chat.ui.activities.AddUsersToThreadActivity;
 import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.activities.CreateThreadActivity;
@@ -19,6 +26,8 @@ import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.fragments.ContactsFragment;
 import sdk.chat.ui.fragments.PrivateThreadsFragment;
 import sdk.chat.ui.fragments.PublicThreadsFragment;
+import sdk.chat.ui.recycler.SmartViewModel;
+import sdk.chat.ui.settings.SettingsActivity;
 import sdk.chat.ui.utils.FragmentLifecycleManager;
 
 public class ChatSDKUI {
@@ -27,6 +36,9 @@ public class ChatSDKUI {
 
     protected MessageCustomizer messageCustomizer = new MessageCustomizer();
     protected FragmentLifecycleManager fragmentLifecycleManager = new FragmentLifecycleManager();
+
+    protected List<SmartViewModel> settingsItems = new ArrayList<>();
+    protected ProfileOption settingsProfileOption;
 
     public static ChatSDKUI shared() {
         return instance;
@@ -100,6 +112,10 @@ public class ChatSDKUI {
         ChatSDK.ui().setProfileFragmentProvider(profileFragmentProvider);
     }
 
+    public static void setSettingsActivity(Class<? extends SettingsActivity> settingsActivity) {
+        ChatSDK.ui().setSettingsActivity(settingsActivity);
+    }
+
     public MessageCustomizer getMessageCustomizer() {
         return messageCustomizer;
     }
@@ -112,4 +128,30 @@ public class ChatSDKUI {
         messageCustomizer.stop();
     }
 
+    /**
+     * This populates the settings view. The smart view model items are automatically rendered
+     * by the recycler view. For details, check out ViewHolders.kt
+     * @param item
+     */
+    public void addSettingsItem(SmartViewModel item) {
+        settingsItems.add(item);
+        if (settingsProfileOption == null) {
+            settingsProfileOption = new ProfileOption(ChatSDK.getString(R.string.settings), (activity, userEntityID) -> {
+                Intent intent = new Intent(activity, ChatSDK.ui().getSettingsActivity());
+                activity.startActivity(intent);
+            }, User::isMe);
+            ChatSDK.ui().addProfileOption(settingsProfileOption);
+        }
+    }
+
+    public void removeSettingsItem(SmartViewModel item) {
+        settingsItems.remove(item);
+        if (settingsItems.isEmpty()) {
+            ChatSDK.ui().removeProfileOption(settingsProfileOption);
+        }
+    }
+
+    public List<SmartViewModel> getSettingsItems() {
+        return settingsItems;
+    }
 }

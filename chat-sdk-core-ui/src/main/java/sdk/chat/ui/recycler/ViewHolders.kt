@@ -15,7 +15,11 @@ import sdk.chat.ui.icons.Icons
 import smartadapter.viewholder.SmartViewHolder
 import java.util.*
 
-open class SectionViewModel(val title: String, val paddingTop: Int? = null) {
+open class SmartViewModel() {
+
+}
+
+open class SectionViewModel(val title: String, val paddingTop: Int? = null): SmartViewModel() {
     var hideTopBorder = false
     var hideBottomBorder = false
 
@@ -35,8 +39,9 @@ interface RadioRunnable {
     fun run(value: String)
 }
 
-class RadioViewModel(val group: String, val title: String, val value: String, var checked: Boolean, val onClick: RadioRunnable) {
+class RadioViewModel(val group: String, val title: String, val value: String, var starting: StartingValue, val onClick: RadioRunnable): SmartViewModel() {
     var delay: Long = 200
+    var checked: Boolean = starting.get()
     open fun setDelay(delay: Long): RadioViewModel {
         this.delay = delay
         return this
@@ -49,7 +54,7 @@ class RadioViewModel(val group: String, val title: String, val value: String, va
     }
 }
 
-class NavigationViewModel(val title: String, val onClick: Runnable) {
+class NavigationViewModel(val title: String, val onClick: Runnable): SmartViewModel() {
     var delay: Long = 0
     var clicked = false
     open fun setDelay(delay: Long): NavigationViewModel {
@@ -66,8 +71,8 @@ class NavigationViewModel(val title: String, val onClick: Runnable) {
         }
     }
 }
-class DividerViewModel()
-class ButtonViewModel(val title: String, val color: Int, val onClick: Runnable) {
+class DividerViewModel(): SmartViewModel()
+class ButtonViewModel(val title: String, val color: Int, val onClick: Runnable): SmartViewModel() {
     var delay: Long = 500
     open fun setDelay(delay: Long): ButtonViewModel {
         this.delay = delay
@@ -84,7 +89,12 @@ class ButtonViewModel(val title: String, val color: Int, val onClick: Runnable) 
 interface ToggleRunnable {
     fun run(value: Boolean)
 }
-class ToggleViewModel(val title: String, var enabled: Boolean, val onChange: ToggleRunnable) {
+
+interface StartingValue {
+    fun get(): Boolean
+}
+
+class ToggleViewModel(val title: String, var enabled: StartingValue, val onChange: ToggleRunnable): SmartViewModel() {
     var delay: Long = 500
     open fun setDelay(delay: Long): ToggleViewModel {
         this.delay = delay
@@ -104,7 +114,7 @@ open class RadioViewHolder(parentView: ViewGroup) :
     override fun bind(item: RadioViewModel) {
         with(itemView) {
             textView.text = item.title
-            radioButton.isChecked = item.checked
+            radioButton.isChecked = item.starting.get()
         }
     }
 }
@@ -196,7 +206,7 @@ open class ToggleViewHolder(parentView: ViewGroup) :
         with(itemView) {
             model = item
             textView.text = item.title
-            switchMaterial.isChecked = item.enabled
+            switchMaterial.isChecked = item.enabled.get()
         }
     }
 

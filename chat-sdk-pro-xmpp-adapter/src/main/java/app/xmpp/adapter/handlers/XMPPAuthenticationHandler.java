@@ -106,7 +106,6 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
 
         AbstractXMPPConnection conn = XMPPManager.shared().getConnection();
         if(conn.isAuthenticated() && conn.isConnected()) {
-
             User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, jid.asBareJid().toString());
             if(user.getName() == null || user.getName().isEmpty()) {
                 Localpart name = jid.getLocalpartOrNull();
@@ -115,7 +114,9 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                 }
             }
 
+            // Do it here so user is available
             XMPPManager.shared().performPostAuthenticationSetup();
+
         }
     }
 

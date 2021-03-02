@@ -158,7 +158,7 @@ open class XMPPMessageWrapper(val message: Stanza) {
     }
 
     open fun deliveryReceipt(): DeliveryReceipt? {
-        val element: ExtensionElement = message.getExtension(DeliveryReceipt.NAMESPACE)
+        val element = message.getExtension(DeliveryReceipt.NAMESPACE)
         if (element is DeliveryReceipt) {
             return element
         }
@@ -175,6 +175,10 @@ open class XMPPMessageWrapper(val message: Stanza) {
     open fun date(): Date {
         val delay = delayInformation()?.stamp ?: Date()
         return XMPPManager.shared().serverToClientTime(delay);
+    }
+
+    open fun rawDate(): Date {
+        return delayInformation()?.stamp ?: XMPPManager.shared().clientToServerTime(Date())
     }
 
     open fun delayExtra(): StandardExtensionElement? {

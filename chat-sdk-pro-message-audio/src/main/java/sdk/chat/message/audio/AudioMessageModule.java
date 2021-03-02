@@ -124,12 +124,13 @@ public class AudioMessageModule extends AbstractModule {
             }
 
             @Override
-            public void onClick(ChatActivity activity, View rootView, Message message) {
+            public boolean onClick(ChatActivity activity, View rootView, Message message) {
+                return false;
             }
 
             @Override
-            public void onLongClick(ChatActivity activity, View rootView, Message message) {
-
+            public boolean onLongClick(ChatActivity activity, View rootView, Message message) {
+                return false;
             }
         });
     }

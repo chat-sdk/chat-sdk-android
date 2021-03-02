@@ -19,7 +19,7 @@ public class XMPPCoreHandler extends AbstractCoreHandler {
     @Override
     public Completable pushUser() {
         return Completable.defer(() -> {
-            XMPPManager.shared().sendOnlinePresence();
+            XMPPManager.shared().sendAvailablePresence();
             return XMPPManager.shared().userManager.updateMyvCardWithUser(ChatSDK.currentUser());
         }).subscribeOn(RX.io());
     }
@@ -27,7 +27,7 @@ public class XMPPCoreHandler extends AbstractCoreHandler {
     @Override
     public Completable sendAvailablePresence() {
         return Completable.create(emitter -> {
-            XMPPManager.shared().sendOnlinePresence();
+            XMPPManager.shared().sendAvailablePresence();
             emitter.onComplete();
         });
     }
@@ -35,7 +35,7 @@ public class XMPPCoreHandler extends AbstractCoreHandler {
     @Override
     public Completable sendUnavailablePresence() {
         return Completable.create(emitter -> {
-            XMPPManager.shared().sendOfflinePresence();
+            XMPPManager.shared().sendUnavailablePresence();
             emitter.onComplete();
         });
     }

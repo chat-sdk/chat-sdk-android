@@ -75,7 +75,6 @@ public class AddFirebaseModules extends Activity {
                                 .setDisableClientProfileUpdate(false)
                                 .setDevelopmentModeEnabled(true)
                                 .setDisablePublicThreads(false)
-                                .setEnableCompatibilityWithV4(true)
                                 .setEnableWebCompatibility(false)
                                 .build()
                 )

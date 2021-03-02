@@ -217,7 +217,7 @@ public class ProfileFragment extends BaseFragment {
         setHasOptionsMenu(isCurrentUser);
 
         // Allow custom options to be added
-        if (ChatSDK.ui().getProfileOptions().isEmpty()) {
+        if (ChatSDK.ui().getProfileOptions(user).isEmpty()) {
             optionsFab.setVisibility(View.INVISIBLE);
         } else {
             optionsFab.setVisibility(View.VISIBLE);
@@ -228,12 +228,12 @@ public class ProfileFragment extends BaseFragment {
                 builder.setTitle(R.string.options);
 
                 List<String> options = new ArrayList<>();
-                for (ProfileOption option: ChatSDK.ui().getProfileOptions()) {
+                for (ProfileOption option: ChatSDK.ui().getProfileOptions(user)) {
                     options.add(option.getName());
                 }
 
                 builder.setItems(options.toArray(new String[0]), (dialog, which) -> {
-                    ChatSDK.ui().getProfileOptions().get(which).execute(getActivity(), user.getEntityID());
+                    ChatSDK.ui().getProfileOptions(user).get(which).execute(getActivity(), user.getEntityID());
                     dialog.dismiss();
                 });
 

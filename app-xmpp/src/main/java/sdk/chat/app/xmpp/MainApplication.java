@@ -8,6 +8,7 @@ import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.receipts.XMPPReadReceiptsModule;
 import io.reactivex.disposables.Disposable;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.encryption.xmpp.XMPPEncryptionModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.audio.AudioMessageModule;
@@ -73,13 +74,9 @@ public class MainApplication extends Application {
                             .setDrawerEnabled(false)
                             .build())
 
-
-
-//                    .addModule(EncryptionModule.shared())
+                    .addModule(XMPPEncryptionModule.shared())
 
                     .build().activateWithEmail(this, "ben@sdk.chat");
-
-
 
 //            ChatSDK.config().setDebugUsername(Device.honor() ? "a3": "a4");
 //            ChatSDK.config().setDebugPassword("123");
@@ -104,4 +101,5 @@ public class MainApplication extends Application {
         });
 
     }
+
 }

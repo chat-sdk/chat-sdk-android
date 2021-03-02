@@ -2,6 +2,7 @@ package sdk.chat.ui.view_holders.base;
 
 import android.content.Context;
 import android.os.Build;
+import android.text.util.Linkify;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -71,6 +72,10 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
         UIModule.shared().getNameBinder().bind(userName, message);
 
         UIModule.shared().getIconBinder().bind(messageIcon, message, imageLoader);
+
+        if(text != null) {
+            text.setAutoLinkMask(Linkify.ALL);
+        }
 
         // Hide the time if it's the same as the next message
         if (!message.showDate()) {

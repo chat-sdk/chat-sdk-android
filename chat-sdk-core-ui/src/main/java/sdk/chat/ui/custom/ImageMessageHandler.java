@@ -11,7 +11,6 @@ import java.util.List;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
@@ -49,22 +48,26 @@ public class ImageMessageHandler extends CustomMessageHandler {
     }
 
     @Override
-    public void onClick(ChatActivity activity, View rootView, Message message) {
-        if (message.getSender().isMe() && message.getMessageStatus() == MessageSendStatus.Failed) {
-            super.onClick(activity, rootView, message);
-        } else if (message.typeIs(MessageType.Image)) {
-            ImageMessageOnClickHandler.onClick(activity, rootView, message.stringForKey(Keys.ImageUrl));
-        }
-        else if (message.typeIs(MessageType.Location)) {
-            double longitude = message.doubleForKey(Keys.MessageLongitude);
-            double latitude = message.doubleForKey(Keys.MessageLatitude);
+    public boolean onClick(ChatActivity activity, View rootView, Message message) {
+        if (!super.onClick(activity, rootView, message)) {
+            if (message.typeIs(MessageType.Image)) {
+                ImageMessageOnClickHandler.onClick(activity, rootView, message.stringForKey(Keys.ImageUrl));
+                return true;
+            }
+            else if (message.typeIs(MessageType.Location)) {
+                double longitude = message.doubleForKey(Keys.MessageLongitude);
+                double latitude = message.doubleForKey(Keys.MessageLatitude);
 
-            Location location = new Location(ChatSDK.getString(R.string.app_name));
-            location.setLatitude(latitude);
-            location.setLongitude(longitude);
+                Location location = new Location(ChatSDK.getString(R.string.app_name));
+                location.setLatitude(latitude);
+                location.setLongitude(longitude);
 
-            LocationMessageOnClickHandler.onClick(activity, location);
+                LocationMessageOnClickHandler.onClick(activity, location);
+                return true;
+            }
+            return false;
         }
+        return true;
     }
 
     @Override

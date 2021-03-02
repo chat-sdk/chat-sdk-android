@@ -61,6 +61,8 @@ public class Icons {
         options = new IconicsDrawable(context, FontAwesome.Icon.faw_ellipsis_h);
         refresh = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_sync);
         arrowRight = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_keyboard_arrow_right);
+        user_100 = context.getResources().getDrawable(R.drawable.icn_100_user);
+        group_100 = context.getResources().getDrawable(R.drawable.icn_100_group);
 
     }
 
@@ -92,6 +94,8 @@ public class Icons {
     public Drawable send;
     public IconicsDrawable refresh;
     public IconicsDrawable arrowRight;
+    public Drawable group_100;
+    public Drawable user_100;
 
     public static Icons choose() {
         return shared();
@@ -110,7 +114,9 @@ public class Icons {
     }
 
     public static Drawable get(Context context, Drawable icon, @ColorRes int colorRes) {
-        icon.setColorFilter(ContextCompat.getColor(context, colorRes), PorterDuff.Mode.MULTIPLY);
+        if (colorRes != 0) {
+            icon.setColorFilter(ContextCompat.getColor(context, colorRes), PorterDuff.Mode.MULTIPLY);
+        }
         return icon;
     }
 
@@ -123,8 +129,11 @@ public class Icons {
     }
 
     public static Drawable get(Context context, IconicsDrawable drawable, int colorRes, int width, int height) {
-        int color = ContextCompat.getColor(context, colorRes);
-        drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_OVER));
+
+        if (colorRes != 0) {
+            int color = ContextCompat.getColor(context, colorRes);
+            drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_OVER));
+        }
 
         if (width > 0) {
             drawable.setSizeXPx(width);

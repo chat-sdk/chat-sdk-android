@@ -2,6 +2,7 @@ package sdk.chat.ui.view_holders.base;
 
 import android.content.Context;
 import android.os.Build;
+import android.text.util.Linkify;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -45,6 +46,10 @@ public class BaseOutcomingTextMessageViewHolder<T extends MessageHolder>
         UIModule.shared().getMessageBinder().onBindSendStatus(time, message);
         UIModule.shared().getIconBinder().bind(messageIcon, message, imageLoader);
         UIModule.shared().getTimeBinder().bind(time, message);
+
+        if(text != null) {
+            text.setAutoLinkMask(Linkify.ALL);
+        }
 
         // Color state lists don't work for old versions of Android
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {

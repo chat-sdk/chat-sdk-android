@@ -34,17 +34,19 @@ public abstract class CustomMessageHandler implements IMessageHandler {
     }
 
     @Override
-    public void onClick(ChatActivity activity, View rootView, Message message) {
+    public boolean onClick(ChatActivity activity, View rootView, Message message) {
         if (message.getSender().isMe() && message.getMessageStatus() == MessageSendStatus.Failed) {
             DialogUtils.showToastDialog(activity, R.string.message_send_failed, R.string.try_to_resend_the_message, R.string.send, R.string.cancel, () -> {
                 MessageSendRig.create(message).run().subscribe(ChatSDK.events());
             }, null);
+            return true;
         }
+        return false;
     }
 
     @Override
-    public void onLongClick(ChatActivity activity, View rootView, Message message) {
-
+    public boolean onLongClick(ChatActivity activity, View rootView, Message message) {
+        return false;
     }
 
     protected final List<Byte> types(Integer... values) {

@@ -7,15 +7,18 @@ import java.util.concurrent.TimeUnit;
 import io.reactivex.disposables.Disposable;
 import sdk.chat.android.live.R;
 import sdk.chat.contact.ContactBookModule;
-import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.encryption.firebase.FirebaseEncryptionModule;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.location.FirebaseNearbyUsersModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.recycler.SectionViewModel;
+import sdk.chat.ui.recycler.ToggleViewModel;
 
 /**
  * Created by Ben Smiley on 6/8/2014.
@@ -57,7 +60,6 @@ public class MainApplication extends Application {
                         FirebaseModule.builder()
                                 .setFirebaseRootPath(rootPath)
                                 .setDisableClientProfileUpdate(false)
-                                .setEnableCompatibilityWithV4(true)
                                 .setDevelopmentModeEnabled(true)
                                 .build()
                 )
@@ -76,7 +78,7 @@ public class MainApplication extends Application {
         // Add modules to handle file uploads, push notifications
                 .addModule(FirebaseUploadModule.shared())
                 .addModule(FirebasePushModule.shared())
-//                .addModule(EncryptionModule.shared())
+                .addModule(FirebaseEncryptionModule.shared())
 //                .addModule(ProfilePicturesModule.shared())
 //
                 .addModule(ContactBookModule.shared())
@@ -105,7 +107,7 @@ public class MainApplication extends Application {
 
                 // Activate
                 .build()
-                .activate(this);
+                .activateWithEmail(this, "team@sdk.chat");
 
 //        ChatSDK.ui().setTab("Debug", null, new DebugFragment(), 99);
 //        ChatSDK.ui().removeTab(0);
@@ -119,29 +121,26 @@ public class MainApplication extends Application {
             t.printStackTrace();
         });
 
-
-        ChatSDK.ui().startProfileActivity(this, "UserID");
-
-        ChatSDK.db().fetchEntityWithEntityID("UserID", User.class);
-
-        Thread thread = ChatSDK.db().createEntity(Thread.class);
-
-
-        //
-
-        ChatSDK.core().currentUser();
-
-        ChatSDK.auth().isAuthenticated();
-
-//        ChatSDK.thread().createThread(null, ).subscribe();
-
         Disposable di = ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageAdded)).subscribe(networkEvent -> {
 
         });
 
+        String nearbyUsersDisabled = "nearby-users-disabled";
+        boolean disabled = ChatSDK.shared().getKeyStorage().getBoolean(nearbyUsersDisabled);
+        FirebaseNearbyUsersModule.shared().config.setEnabled(!disabled);
 
-
-
+        ChatSDKUI.shared().addSettingsItem(new SectionViewModel("Settings", 10));
+        ChatSDKUI.shared().addSettingsItem(new ToggleViewModel("Nearby Users Disabled", () -> {
+            return ChatSDK.shared().getKeyStorage().getBoolean(nearbyUsersDisabled);
+        }, value -> {
+            ChatSDK.shared().getKeyStorage().put(nearbyUsersDisabled, value);
+            FirebaseNearbyUsersModule.shared().config.setEnabled(!value);
+            if (value) {
+                FirebaseNearbyUsersModule.shared().stopService();
+            } else {
+                FirebaseNearbyUsersModule.shared().startService();
+            }
+        }));
 
 //        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true);
 //        FirebaseCrashlytics.getInstance().log("Start");

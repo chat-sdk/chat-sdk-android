@@ -27,7 +27,7 @@ public class FirebaseLastOnlineHandler implements LastOnlineHandler {
 
             @Override
             public void didStop() {
-                updateLastOnline();
+                updateLastOnline().subscribe();
             }
         });
     }

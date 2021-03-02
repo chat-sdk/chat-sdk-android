@@ -143,10 +143,10 @@ public class ThreadImageBuilder {
 
     public static Drawable defaultDrawable(Thread thread) {
         if (thread == null || thread.typeIs(ThreadType.Private1to1)) {
-            return Icons.get(Icons.choose().user, R.color.thread_default_icon_color);
+            return Icons.get(Icons.choose().user_100, 0);
         }
         else {
-            return Icons.get(Icons.choose().publicChat, R.color.thread_default_icon_color);
+            return Icons.get(Icons.choose().group_100, 0);
         }
     }
 

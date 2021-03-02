@@ -5,6 +5,7 @@ import android.app.Application;
 import org.pmw.tinylog.Logger;
 
 import sdk.chat.app.firebase.ChatSDKFirebase;
+import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
@@ -24,7 +25,8 @@ public class MainApp extends Application {
                     AudioMessageModule.shared(),
                     FirebaseBlockingModule.shared(),
                     FirebaseReadReceiptsModule.shared(),
-                    FirebaseLastOnlineModule.shared()
+                    FirebaseLastOnlineModule.shared(),
+                    ContactBookModule.shared()
             );
 
             ChatSDK.events().sourceOnMain().subscribe(event -> {

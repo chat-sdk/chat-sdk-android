@@ -32,6 +32,8 @@
     <string name="new_chat">New Chat</string>
     <string name="add_user_by_id">Add User by ID</string>
 
+    <string name="settings">⚙️ Settings</string>
+
     <string name="you_were_removed_from_the_thread">You were removed</string>
     <string name="you_were_added_to_the_thread">You were added</string>
 

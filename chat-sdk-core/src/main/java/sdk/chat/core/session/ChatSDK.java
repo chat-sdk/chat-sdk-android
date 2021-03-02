@@ -210,7 +210,7 @@ public class ChatSDK {
             throw new Exception("The interface adapter cannot be null. An interface adapter must be defined using ChatSDK.configure(...) or by a module");
         }
 
-        DaoCore.init(ctx());
+        DaoCore.init(context);
 
         storageManager = new StorageManager();
 
@@ -238,7 +238,7 @@ public class ChatSDK {
                         if (thread.typeIs(ThreadType.Private) || ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled) {
                             if (!message.isDelivered()) {
                                 boolean inBackground = AppBackgroundMonitor.shared().inBackground();
-                                boolean connectedToAuto = NotificationDisplayHandler.connectedToAuto(ChatSDK.ctx());
+                                boolean connectedToAuto = NotificationDisplayHandler.connectedToAuto(context);
                                 if (inBackground || connectedToAuto || (ChatSDK.ui().showLocalNotifications(thread))) {
                                     RX.onMain(() -> ChatSDK.ui().notificationDisplayHandler().createMessageNotification(message));
                                 }

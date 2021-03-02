@@ -175,7 +175,13 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
 
                 // Work out how much history to request
                 // TODO: For iOS we use the last online date - which is better?
-                Date lastMessageDate = thread.lastMessageAddedDate();
+
+                Date lastMessageDate = XMPPManager.shared().connectionManager().getLastOnline(ChatSDK.currentUserID(), thread.getEntityID());
+//                if (lastMessageDate == null) {
+//                    lastMessageDate = thread.lastMessageAddedDate();
+//                    lastMessageDate = manager.get().clientToServerTime(lastMessageDate);
+//                }
+
                 if (lastMessageDate != null) {
                     lastMessageDate = manager.get().clientToServerTime(lastMessageDate);
                     config.requestHistorySince(lastMessageDate);

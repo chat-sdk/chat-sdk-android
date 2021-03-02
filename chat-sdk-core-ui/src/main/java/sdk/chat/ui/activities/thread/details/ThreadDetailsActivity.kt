@@ -302,7 +302,10 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
     }
 
     open fun remove(user: User) {
-        adapter.removeItem(items.indexOf(getThreadUser(user)), true)
+        val index = items.indexOf(getThreadUser(user))
+        if (index >= 0) {
+            adapter.removeItem(index, true)
+        }
     }
 
     override fun onResume() {

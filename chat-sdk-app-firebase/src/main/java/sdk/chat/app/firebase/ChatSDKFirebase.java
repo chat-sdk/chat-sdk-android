@@ -52,7 +52,6 @@ public class ChatSDKFirebase extends QuickStart {
                 FirebaseModule.builder()
                         .setFirebaseRootPath(rootPath)
                         .setDisableClientProfileUpdate(false)
-                        .setEnableCompatibilityWithV4(true)
                         .setDevelopmentModeEnabled(true)
                         .build(),
 

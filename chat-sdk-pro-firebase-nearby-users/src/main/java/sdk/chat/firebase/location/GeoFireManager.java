@@ -215,6 +215,7 @@ public class GeoFireManager {
     public void stop() {
         locationUsers.clear();
         itemMap.clear();
+        locationUsersPublishRelay.accept(locationUsers);
     }
 
     Map<String, GeoItem> getItemMap() {

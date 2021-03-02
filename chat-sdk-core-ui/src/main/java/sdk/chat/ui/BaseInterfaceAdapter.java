@@ -62,6 +62,7 @@ import sdk.chat.ui.fragments.PublicThreadsFragment;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.recycler.ModerationActivity;
+import sdk.chat.ui.settings.SettingsActivity;
 
 public class BaseInterfaceAdapter implements InterfaceAdapter {
 
@@ -82,6 +83,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class<? extends Activity> editThreadActivity = EditThreadActivity.class;
     protected Class<? extends Activity> postRegistrationActivity = PostRegistrationActivity.class;
     protected Class<? extends Activity> moderationActivity = ModerationActivity.class;
+    protected Class<? extends Activity> settingsActivity = SettingsActivity.class;
 
     protected Class<? extends Activity> searchActivity = SearchActivity.class;
     protected Class<? extends Activity> editProfileActivity = EditProfileActivity.class;
@@ -266,6 +268,11 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
+    public Class<? extends Activity> getSettingsActivity() {
+        return settingsActivity;
+    }
+
+    @Override
     public void setMainActivity (Class<? extends Activity> mainActivity) {
         this.mainActivity = mainActivity;
     }
@@ -369,6 +376,11 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public void setModerationActivity(Class<? extends Activity> moderationActivity) {
         this.moderationActivity = moderationActivity;
+    }
+
+    @Override
+    public void setSettingsActivity(Class<? extends Activity> settingsActivity) {
+        this.settingsActivity = settingsActivity;
     }
 
     public Intent intentForActivity(Context context, Class<? extends Activity> activity, Map<String, Object> extras, int flags) {
@@ -659,8 +671,14 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         profileOptions.remove(option);
     }
 
-    public List<ProfileOption> getProfileOptions() {
-        return profileOptions;
+    public List<ProfileOption> getProfileOptions(User user) {
+        List<ProfileOption> options = new ArrayList<>();
+        for (ProfileOption option: profileOptions) {
+            if (option.showForUser(user)) {
+                options.add(option);
+            }
+        }
+        return options;
     }
 
     public void stop() {

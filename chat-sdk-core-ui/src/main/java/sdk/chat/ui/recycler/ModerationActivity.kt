@@ -3,7 +3,7 @@ package sdk.chat.ui.recycler
 import android.os.Bundle
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
-import kotlinx.android.synthetic.main.activity_moderation.*
+import kotlinx.android.synthetic.main.activity_smart_recycler.*
 import org.pmw.tinylog.Logger
 import sdk.chat.core.dao.Keys
 import sdk.chat.core.dao.Thread
@@ -16,15 +16,12 @@ import sdk.chat.ui.utils.ToastHelper
 import sdk.guru.common.RX
 import smartadapter.SmartRecyclerAdapter
 import smartadapter.viewevent.listener.OnClickEventListener
-import smartadapter.viewevent.listener.OnSingleItemCheckListener
-import smartadapter.viewevent.model.ViewEvent
-import smartadapter.viewevent.viewmodel.ViewEventViewModel
 
 open class ModerationActivity: BaseActivity() {
 
-    class SingleItemCheckedViewModel : ViewEventViewModel<ViewEvent, OnSingleItemCheckListener>(
-            OnSingleItemCheckListener(viewId = R.id.radioButton)
-    )
+//    class SingleItemCheckedViewModel : ViewEventViewModel<ViewEvent, OnSingleItemCheckListener>(
+//            OnSingleItemCheckListener(viewId = R.id.radioButton)
+//    )
 
     open var user: User? = null
     open var thread: Thread? = null
@@ -32,7 +29,7 @@ open class ModerationActivity: BaseActivity() {
     open lateinit var smartRecyclerAdapter: SmartRecyclerAdapter
 
     override fun getLayout(): Int {
-        return R.layout.activity_moderation
+        return R.layout.activity_smart_recycler
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +55,7 @@ open class ModerationActivity: BaseActivity() {
 
         val items = items()
         if (items.size <= 2) {
+            finish()
             showProfile(user)
         }
 
@@ -81,7 +79,7 @@ open class ModerationActivity: BaseActivity() {
                         model.click()
                     }
                     if (model is RadioViewModel) {
-                        if (!model.checked) {
+                        if (!model.starting.get()) {
                             for (i in 0 until smartRecyclerAdapter.itemCount) {
                                 var item = smartRecyclerAdapter.getItem(i)
                                 if (item is RadioViewModel) {
@@ -150,7 +148,14 @@ open class ModerationActivity: BaseActivity() {
 
                 for (role in roles) {
                     val localized = ChatSDK.thread().localizeRole(role)
-                    items.add(RadioViewModel(group,localized, role, role == currentRole, roleRunnable))
+
+                    val startingValue = object : StartingValue {
+                        override fun get(): Boolean {
+                            return role == currentRole
+                        }
+                    }
+
+                    items.add(RadioViewModel(group,localized, role, startingValue, roleRunnable))
                 }
             }
         }
@@ -163,7 +168,13 @@ open class ModerationActivity: BaseActivity() {
 
             if (canChangeModerator) {
 
-                items.add(ToggleViewModel(getString(R.string.moderator), ChatSDK.thread().isModerator(thread, user), object : ToggleRunnable {
+                val startingValue = object : StartingValue {
+                    override fun get(): Boolean {
+                        return ChatSDK.thread().isModerator(thread, user)
+                    }
+                }
+
+                items.add(ToggleViewModel(getString(R.string.moderator), startingValue, object : ToggleRunnable {
                     override fun run(value: Boolean) {
                         if (value) {
                             dm.add(ChatSDK.thread().grantModerator(thread, user).observeOn(RX.main()).subscribe(Action {
@@ -180,7 +191,13 @@ open class ModerationActivity: BaseActivity() {
 
             if (canChangeVoice) {
 
-                items.add(ToggleViewModel(getString(R.string.silence), !ChatSDK.thread().hasVoice(thread, user), object : ToggleRunnable {
+                val startingValue = object : StartingValue {
+                    override fun get(): Boolean {
+                        return !ChatSDK.thread().hasVoice(thread, user)
+                    }
+                }
+
+                items.add(ToggleViewModel(getString(R.string.silence), startingValue, object : ToggleRunnable {
                     override fun run(value: Boolean) {
                         if (value) {
                             dm.add(ChatSDK.thread().revokeVoice(thread, user).observeOn(RX.main()).subscribe(Action {

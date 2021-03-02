@@ -22,7 +22,7 @@ public interface IMessageHandler {
 
     void onBindMessageHolders(Context context, MessageHolders holders);
     MessageHolder onNewMessageHolder(Message message);
-    void onClick(ChatActivity activity, View rootView, Message message);
-    void onLongClick(ChatActivity activity, View rootView, Message message);
+    boolean onClick(ChatActivity activity, View rootView, Message message);
+    boolean onLongClick(ChatActivity activity, View rootView, Message message);
 
 }

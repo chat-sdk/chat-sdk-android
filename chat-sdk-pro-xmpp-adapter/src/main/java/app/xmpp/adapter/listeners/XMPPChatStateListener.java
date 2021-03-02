@@ -12,7 +12,9 @@ import app.xmpp.adapter.XMPPManager;
 public class XMPPChatStateListener implements ChatStateListener {
     @Override
     public void stateChanged(Chat chat, ChatState state, Message message) {
-        User user = ChatSDK.db().fetchUserWithEntityID(message.getFrom().asBareJid().toString());
-        XMPPManager.shared().typingIndicatorManager.handleMessage(state, message, user);
+        if (ChatSDK.auth().isAuthenticatedThisSession()) {
+            User user = ChatSDK.db().fetchUserWithEntityID(message.getFrom().asBareJid().toString());
+            XMPPManager.shared().typingIndicatorManager.handleMessage(state, message, user);
+        }
     }
 }

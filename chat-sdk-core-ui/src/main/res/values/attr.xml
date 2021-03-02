@@ -35,6 +35,7 @@
     <attr name="incomingReplyBackgroundColor" format="reference|color" />
     <attr name="incomingReplyTextColor" format="reference|color" />
     <attr name="incomingReplyTextSize" format="reference|dimension" />
+    <attr name="incomingTextLinkColor" format="reference|color" />
 
     <attr name="incomingUserNameTextColor" format="reference|color" />
     <attr name="incomingUserNameTextFont" format="reference|string" />
@@ -47,6 +48,7 @@
     <attr name="outcomingReplyBackgroundColor" format="reference|color" />
     <attr name="outcomingReplyTextColor" format="reference|color" />
     <attr name="outcomingReplyTextSize" format="reference|dimension" />
+    <attr name="outcomingTextLinkColor" format="reference|color" />
 
     <attr name="outcomingIconDrawable" format="reference" />
 

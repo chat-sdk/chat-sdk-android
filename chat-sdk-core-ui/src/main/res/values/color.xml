@@ -27,7 +27,7 @@
     <color name="login_button_color">#1c93db</color>
     <color name="register_button_color">#78b737</color>
     <color name="anonymous_button_color">#aaaaaa</color>
-    <color name="reset_password_button_color">#00000000</color>
+    <color name="reset_password_button_color">@color/gray_very_light</color>
     <color name="logout_button_color">#ae2020</color>
     <color name="message_time">#A5A5A5</color>
 

@@ -42,6 +42,7 @@ public class ContactBookModule extends AbstractModule {
 
     public static class Config<T> extends BaseConfig<T> {
 
+
         // Contact Book
         public String contactBookInviteContactEmailSubject;
         public String contactBookInviteContactEmailBody;

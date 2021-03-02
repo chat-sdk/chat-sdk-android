@@ -251,19 +251,33 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
             XMPPMessageBuilder builder = new XMPPMessageBuilder()
                     .setType(message.getType())
+
                     .setValues(message.getMetaValuesAsMap())
                     .setEntityID(message.getEntityID());
 
-            if (message.valueForKey(Keys.MessageEncryptedPayloadKey) != null) {
-                builder.setBody(ChatSDK.shared().context().getString(R.string.encrypted_message));
+            Map<String, Object> meta = null;
+            if (ChatSDK.encryption() != null) {
+                meta = ChatSDK.encryption().encrypt(message);
+            }
+            if (meta == null) {
+                meta = message.getMetaValuesAsMap();
+            }
+            builder.setValues(meta);
+
+            if (meta.containsKey(Keys.MessageEncryptedPayloadKey)) {
+                Object body = meta.get(Keys.MessageText);
+                if (body instanceof String) {
+                    builder.setBody((String) body);
+                }
             } else {
-                builder.setBody(message.getText());
-            }
-            if(message.getMessageType().is(MessageType.Location)) {
-                builder.setLocation(message.getLocation());
-            }
-            if(message.getMessageType().is(MessageType.Image)) {
-                builder.setBody((String) message.valueForKey(Keys.MessageImageURL));
+                if(message.getMessageType().is(MessageType.Location)) {
+                    builder.setLocation(message.getLocation());
+                }
+                else if(message.getMessageType().is(MessageType.Image)) {
+                    builder.setBody((String) message.valueForKey(Keys.MessageImageURL));
+                } else {
+                    builder.setBody(message.getText());
+                }
             }
 
 
@@ -489,5 +503,12 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
         return false;
     }
 
+    @Override
+    public boolean isActive(Thread thread, User user) {
+        if (thread != null && user != null && thread.getUserThreadLink(user.getId()) != null) {
+            return thread.getUserThreadLink(user.getId()).isActive();
+        }
+        return false;
+    }
 
 }

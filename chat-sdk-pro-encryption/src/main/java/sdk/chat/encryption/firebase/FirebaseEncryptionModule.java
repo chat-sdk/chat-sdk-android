@@ -1,35 +1,31 @@
-package sdk.chat.encryption;
+package sdk.chat.encryption.firebase;
 
 import android.content.Context;
 
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
+import sdk.chat.encryption.xmpp.XMPPEncryptionHandler;
 import sdk.chat.licensing.Report;
 import sdk.guru.common.BaseConfig;
 
+public class FirebaseEncryptionModule extends AbstractModule {
 
-/*
-Created by Conrad on 15.11.2018
- */
+    public static final FirebaseEncryptionModule instance = new FirebaseEncryptionModule();
 
-public class EncryptionModule extends AbstractModule {
-
-    public static final EncryptionModule instance = new EncryptionModule();
-
-    public static EncryptionModule shared() {
+    public static FirebaseEncryptionModule shared() {
         return instance;
     }
 
     /**
-     * @see Config
+     * @see FirebaseEncryptionModule.Config
      * @return configuration object
      */
-    public static Config<EncryptionModule> builder() {
+    public static Config<FirebaseEncryptionModule> builder() {
         return instance.config;
     }
 
-    public static EncryptionModule builder(Configure<Config> config) throws Exception {
+    public static FirebaseEncryptionModule builder(Configure<Config> config) throws Exception {
         config.with(instance.config);
         return instance;
     }
@@ -41,11 +37,11 @@ public class EncryptionModule extends AbstractModule {
         }
     }
 
-    public Config<EncryptionModule> config = new Config<>(this);
+    public FirebaseEncryptionModule.Config<FirebaseEncryptionModule> config = new Config<>(this);
 
     @Override
     public void activate(Context context) {
-        ChatSDK.a().encryption = new EncryptionHandler();
+        ChatSDK.a().encryption = new XMPPEncryptionHandler();
         Report.shared().add(getName());
     }
 
@@ -58,6 +54,5 @@ public class EncryptionModule extends AbstractModule {
         return shared().config;
     }
 
+
 }
-
-

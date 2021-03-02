@@ -9,6 +9,8 @@ package sdk.chat.core.dao;
 
 public class Keys {
 
+    public static final String PublicKey = "public-key";
+
     /* Metadata */
     public static final String Email = "email";
     public static final String Phone = "phone";
