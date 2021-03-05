@@ -12,7 +12,7 @@ import io.reactivex.Completable;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
-import sdk.chat.ui.custom.MessageCustomizer;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.guru.common.RX;
 
 public class ThreadHolder implements IDialog<MessageHolder> {
@@ -40,7 +40,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
     public void update() {
         Message message = thread.lastMessage();
         if (message != null) {
-            lastMessage = MessageCustomizer.shared().onNewMessageHolder(message);
+            lastMessage = ChatSDKUI.shared().getMessageCustomizer().onNewMessageHolder(message);
         } else {
             lastMessage = null;
         }
@@ -71,6 +71,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                 url = getUsers().get(0).getAvatar();
             }
         }
+
         return url;
     }
 

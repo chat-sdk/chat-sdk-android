@@ -105,11 +105,6 @@ public class ExtrasModule extends AbstractModule {
         }
     }
 
-    @Override
-    public String getName() {
-        return "ExtrasModule";
-    }
-
     public static Config config() {
         return shared().config;
     }
@@ -126,6 +121,10 @@ public class ExtrasModule extends AbstractModule {
     @Override
     public void stop() {
         config = new Config<>(this);
+    }
+
+    public boolean isPremium() {
+        return false;
     }
 
 }

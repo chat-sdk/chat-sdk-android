@@ -17,7 +17,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
-            minifyEnabled project.hasProperty('minifyRelease')
+            minifyEnabled project.hasProperty('minifyCore')
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -44,6 +44,8 @@ dependencies {
         api project(':chat-sdk-firebase-adapter')
         api project(':chat-sdk-firebase-push')
         api project(':chat-sdk-firebase-upload')
+
+        api project(':chat-sdk-firestream-adapter')
 
         api project(':chat-sdk-mod-ui-extras')
         api project(':chat-sdk-mod-firebase-ui')

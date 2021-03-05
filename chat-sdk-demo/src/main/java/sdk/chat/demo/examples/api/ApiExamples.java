@@ -225,7 +225,7 @@ public class ApiExamples {
      * @param entityID
      */
     public void getUserWithEntityID(String entityID) {
-        User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, entityID);
+        User user = ChatSDK.core().getUserNowForEntityID(entityID);
         Disposable d = ChatSDK.core().userOn(user).subscribe(() -> {
             // User object has now been populated and type ready to use
 

@@ -8,17 +8,14 @@ import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.JoinEntity;
 import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import sdk.chat.core.base.AbstractEntity;
-import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.Affiliation;
 
 @Entity
 public class UserThreadLink {
@@ -232,4 +229,76 @@ public class UserThreadLink {
         return false;
     }
 
+    @Keep
+    public String getAffiliation() {
+        return valueForKey(Keys.Affiliation);
+    }
+
+    @Keep
+    public boolean setAffiliation(String affiliation) {
+        return setMetaValue(Keys.Affiliation, affiliation);
+    }
+
+    @Keep
+    public String getRole() {
+        return valueForKey(Keys.Role);
+    }
+
+    @Keep
+    public boolean setRole(String role) {
+        return setMetaValue(Keys.Role, role);
+    }
+
+    @Keep
+    public boolean hasLeft() {
+        return Boolean.parseBoolean(valueForKey(Keys.HasLeft));
+    }
+
+    @Keep
+    public boolean setHasLeft(boolean hasLeft) {
+        return setMetaValue(Keys.HasLeft, String.valueOf(hasLeft));
+    }
+
+    @Keep
+    public boolean isActive() {
+        return Boolean.parseBoolean(valueForKey(Keys.Active));
+    }
+
+    @Keep
+    public boolean setIsActive(boolean active) {
+        return setMetaValue(Keys.Active, String.valueOf(active));
+    }
+
+    @Keep
+    public boolean isBanned() {
+        boolean banned = Boolean.parseBoolean(valueForKey(Keys.Banned));
+        if (banned) {
+            return true;
+        }
+        String affiliation = getAffiliation();
+        if (affiliation != null) {
+            return affiliation.equals(Affiliation.outcast.name());
+        }
+        return false;
+    }
+
+    @Keep
+    public boolean setIsBanned(boolean banned) {
+        return setMetaValue(Keys.Banned, String.valueOf(banned));
+    }
+
+    public String valueForKey(String key) {
+        UserThreadLinkMetaValue value = metaValueForKey(key);
+        if (value != null) {
+            return value.getValue();
+        }
+        return null;
+    }
+
+    public void cascadeDelete() {
+        for (UserThreadLinkMetaValue value : getMetaValues()) {
+            value.delete();
+        }
+        delete();
+    }
 }

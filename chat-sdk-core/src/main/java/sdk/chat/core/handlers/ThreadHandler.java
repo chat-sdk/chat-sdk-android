@@ -37,6 +37,7 @@ public interface ThreadHandler {
      * Remove users from a thread
      */
     boolean canRemoveUsersFromThread(Thread thread, List<User> users);
+    boolean canRemoveUserFromThread(Thread thread, User user);
     Completable removeUsersFromThread(Thread thread, List<User> users);
     Completable removeUsersFromThread(Thread thread, User... users);
     /**
@@ -67,6 +68,7 @@ public interface ThreadHandler {
     Completable leaveThread(Thread thread);
 
     Completable joinThread(Thread thread);
+    boolean canJoinThread(Thread thread);
 
     Completable deleteMessage(Message message);
     Completable deleteMessages(Message... messages);
@@ -114,6 +116,9 @@ public interface ThreadHandler {
 
     Message newMessage(int type, Thread thread);
 
+    boolean canDestroy(Thread thread);
+    Completable destroy(Thread thread);
+
     // Roles
     // Generally it works like this:
     // Owner can grant ownership, set admins
@@ -140,7 +145,11 @@ public interface ThreadHandler {
     boolean canChangeModerator(Thread thread, User user);
     boolean isModerator(Thread thread, User user);
 
+    boolean canRefreshRoles(Thread thread);
+    Completable refreshRoles(Thread thread);
+
     boolean isBanned(Thread thread, User user);
 
+    boolean isActive(Thread thread, User user);
 }
 

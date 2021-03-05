@@ -22,6 +22,10 @@ public abstract class AbstractCoreHandler implements CoreHandler {
     public User currentUser() {
         String entityID = ChatSDK.auth().getCurrentUserEntityID();
 
+        if (entityID == null) {
+            cachedUser = null;
+        }
+
         if(cachedUser == null || !cachedUser.equalsEntityID(entityID)) {
             if (entityID != null && !entityID.isEmpty()) {
                 cachedUser = DaoCore.fetchEntityWithEntityID(User.class, entityID);
@@ -33,10 +37,4 @@ public abstract class AbstractCoreHandler implements CoreHandler {
         return cachedUser;
     }
 
-    @Override
-    public void goOnline() {
-        if (ChatSDK.lastOnline() != null) {
-            ChatSDK.lastOnline().setLastOnline(currentUser());
-        }
-    }
 }

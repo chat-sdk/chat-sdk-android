@@ -368,25 +368,27 @@ public class User extends AbstractEntity implements UserListItem {
     @Keep
     public boolean setMetaValue(String key, String value, boolean notify) {
         if (value != null) {
-            UserMetaValue metaValue = metaValueForKey(key);
+            synchronized (this) {
+                UserMetaValue metaValue = metaValueForKey(key);
 
-            if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {
-                if (metaValue == null) {
-                    metaValue = ChatSDK.db().createEntity(UserMetaValue.class);
-                    metaValue.setUserId(this.getId());
-                    getMetaValues().add(metaValue);
+                if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {
+                    if (metaValue == null) {
+                        metaValue = ChatSDK.db().createEntity(UserMetaValue.class);
+                        metaValue.setUserId(this.getId());
+                        getMetaValues().add(metaValue);
+                    }
+
+                    metaValue.setValue(value);
+                    metaValue.setKey(key);
+
+                    metaValue.update();
+                    update();
+
+                    if (notify) {
+                        ChatSDK.events().source().accept(NetworkEvent.userMetaUpdated(this));
+                    }
+                    return true;
                 }
-
-                metaValue.setValue(value);
-                metaValue.setKey(key);
-
-                metaValue.update();
-                update();
-
-                if (notify) {
-                    ChatSDK.events().source().accept(NetworkEvent.userMetaUpdated(this));
-                }
-                return true;
             }
         }
         return false;
@@ -543,4 +545,10 @@ public class User extends AbstractEntity implements UserListItem {
         return users;
     }
 
+    public void cascadeDelete() {
+        for (UserMetaValue value :getMetaValues()) {
+            value.delete();
+        }
+        delete();
+    }
 }

@@ -26,6 +26,7 @@ import com.jaredrummler.materialspinner.MaterialSpinner;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -77,7 +78,7 @@ public class EditProfileActivity extends BaseActivity {
     @BindView(R2.id.root) protected CoordinatorLayout root;
 
     protected User currentUser;
-    protected HashMap<String, Object> userMeta;
+    protected Map<String, Object> userMeta;
     protected String avatarImageURL = null;
     protected String headerImageURL = null;
 

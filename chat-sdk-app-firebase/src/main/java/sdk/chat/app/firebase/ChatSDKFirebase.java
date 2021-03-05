@@ -22,6 +22,22 @@ import sdk.chat.ui.module.UIModule;
 
 public class ChatSDKFirebase extends QuickStart {
 
+    public static void quickStartWithPatreon(Context context, String rootPath, String googleMapsKey, boolean drawerEnabled, String patreonId, Module... modules) throws Exception {
+        quickStart(context, rootPath, googleMapsKey, drawerEnabled, patreon(patreonId), modules);
+    }
+
+    public static void quickStartWithEmail(Context context, String rootPath, String googleMapsKey, boolean drawerEnabled, String email, Module... modules) throws Exception {
+        quickStart(context, rootPath, googleMapsKey, drawerEnabled, email(email), modules);
+    }
+
+    public static void quickStartWithGithubSponsors(Context context, String rootPath, String googleMapsKey, boolean drawerEnabled, String githubId, Module... modules) throws Exception {
+        quickStart(context, rootPath, googleMapsKey, drawerEnabled, github(githubId), modules);
+    }
+
+    public static void quickStart(Context context, String rootPath, String googleMapsKey, boolean drawerEnabled, Module... modules) throws Exception {
+        quickStart(context, rootPath, googleMapsKey, drawerEnabled, null, modules);
+    }
+
     /**
      * @param context
      * @param rootPath Firebase base path (can be any string, cannot contain special characters)
@@ -30,13 +46,12 @@ public class ChatSDKFirebase extends QuickStart {
      * @param modules Optional modules
      * @throws Exception
      */
-    public static void quickStart(Context context, String rootPath, String googleMapsKey, boolean drawerEnabled, Module... modules) throws Exception {
+    public static void quickStart(Context context, String rootPath, String googleMapsKey, boolean drawerEnabled, String identifier, Module... modules) throws Exception {
 
         List<Module> newModules = Arrays.asList(
                 FirebaseModule.builder()
                         .setFirebaseRootPath(rootPath)
                         .setDisableClientProfileUpdate(false)
-                        .setEnableCompatibilityWithV4(true)
                         .setDevelopmentModeEnabled(true)
                         .build(),
 
@@ -73,7 +88,8 @@ public class ChatSDKFirebase extends QuickStart {
 
                 // Activate
                 .build()
-                .activate(context);;
+                .activate(context, identifier);
+
     }
 
 }

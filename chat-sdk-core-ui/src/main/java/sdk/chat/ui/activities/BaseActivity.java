@@ -10,7 +10,6 @@ package sdk.chat.ui.activities;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -42,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.ButterKnife;
 import io.reactivex.CompletableObserver;
@@ -58,7 +58,7 @@ import sdk.guru.common.DisposableMap;
 public abstract class BaseActivity extends AppCompatActivity implements Consumer<Throwable>, CompletableObserver {
 
     // This is a list of extras that are passed to the login view
-    protected HashMap<String, Object> extras = new HashMap<>();
+    protected Map<String, Object> extras = new HashMap<>();
     protected DisposableMap dm = new DisposableMap();
 
     protected AlertUtils alert;

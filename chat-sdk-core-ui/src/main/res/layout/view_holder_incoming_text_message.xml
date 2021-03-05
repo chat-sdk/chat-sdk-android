@@ -125,9 +125,10 @@
                     android:id="@id/messageText"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
-                    android:autoLink="all"
                     android:layout_weight="1"
+                    android:autoLink="all"
                     android:linksClickable="true"
+                    android:textColorLink="?incomingTextLinkColor"
                     />
 
             </LinearLayout>

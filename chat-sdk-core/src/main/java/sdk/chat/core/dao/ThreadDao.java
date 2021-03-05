@@ -34,6 +34,7 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
         public final static Property Deleted = new Property(6, Boolean.class, "deleted", false, "DELETED");
         public final static Property Draft = new Property(7, String.class, "draft", false, "DRAFT");
         public final static Property CanDeleteMessagesFrom = new Property(8, java.util.Date.class, "canDeleteMessagesFrom", false, "CAN_DELETE_MESSAGES_FROM");
+        public final static Property UserAccountID = new Property(9, String.class, "userAccountID", false, "USER_ACCOUNT_ID");
     }
 
     private DaoSession daoSession;
@@ -60,7 +61,8 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
                 "\"LOAD_MESSAGES_FROM\" INTEGER," + // 5: loadMessagesFrom
                 "\"DELETED\" INTEGER," + // 6: deleted
                 "\"DRAFT\" TEXT," + // 7: draft
-                "\"CAN_DELETE_MESSAGES_FROM\" INTEGER);"); // 8: canDeleteMessagesFrom
+                "\"CAN_DELETE_MESSAGES_FROM\" INTEGER," + // 8: canDeleteMessagesFrom
+                "\"USER_ACCOUNT_ID\" TEXT);"); // 9: userAccountID
     }
 
     /** Drops the underlying database table. */
@@ -117,6 +119,11 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
         if (canDeleteMessagesFrom != null) {
             stmt.bindLong(9, canDeleteMessagesFrom.getTime());
         }
+ 
+        String userAccountID = entity.getUserAccountID();
+        if (userAccountID != null) {
+            stmt.bindString(10, userAccountID);
+        }
     }
 
     @Override
@@ -167,6 +174,11 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
         if (canDeleteMessagesFrom != null) {
             stmt.bindLong(9, canDeleteMessagesFrom.getTime());
         }
+ 
+        String userAccountID = entity.getUserAccountID();
+        if (userAccountID != null) {
+            stmt.bindString(10, userAccountID);
+        }
     }
 
     @Override
@@ -191,7 +203,8 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
             cursor.isNull(offset + 5) ? null : new java.util.Date(cursor.getLong(offset + 5)), // loadMessagesFrom
             cursor.isNull(offset + 6) ? null : cursor.getShort(offset + 6) != 0, // deleted
             cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // draft
-            cursor.isNull(offset + 8) ? null : new java.util.Date(cursor.getLong(offset + 8)) // canDeleteMessagesFrom
+            cursor.isNull(offset + 8) ? null : new java.util.Date(cursor.getLong(offset + 8)), // canDeleteMessagesFrom
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9) // userAccountID
         );
         return entity;
     }
@@ -207,6 +220,7 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
         entity.setDeleted(cursor.isNull(offset + 6) ? null : cursor.getShort(offset + 6) != 0);
         entity.setDraft(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
         entity.setCanDeleteMessagesFrom(cursor.isNull(offset + 8) ? null : new java.util.Date(cursor.getLong(offset + 8)));
+        entity.setUserAccountID(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
      }
     
     @Override

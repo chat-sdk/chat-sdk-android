@@ -37,6 +37,20 @@ public class KeyStorage implements IKeyStorage {
         editor.apply();
     }
 
+    @Override
+    public void put(String key, boolean value) {
+        SharedPreferences.Editor editor = edit();
+        editor.putBoolean(key, value);
+        editor.apply();
+    }
+
+    @Override
+    public void put(String key, long value) {
+        SharedPreferences.Editor editor = edit();
+        editor.putLong(key, value);
+        editor.apply();
+    }
+
     public void save(String username, String password) {
         SharedPreferences.Editor editor = edit();
         editor.putString(UsernameKey, username);
@@ -50,6 +64,16 @@ public class KeyStorage implements IKeyStorage {
 
     public int getInt(String key) {
         return pref().getInt(key, 0);
+    }
+
+    @Override
+    public boolean getBoolean(String key) {
+        return pref().getBoolean(key, false);
+    }
+
+    @Override
+    public long getLong(String key) {
+        return pref().getLong(key, -1);
     }
 
     public void remove(String key) {

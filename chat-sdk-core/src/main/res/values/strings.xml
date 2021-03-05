@@ -12,6 +12,7 @@
     <string name="message_send_failed">Message send failed</string>
     <string name="try_to_resend_the_message">Try to resend the message</string>
     <string name="send">Send</string>
+    <string name="encrypted_message">Encrypted Message</string>
 
 
     <string name="register">Register</string>
@@ -22,6 +23,7 @@
     <string name="logout">Logout</string>
     <string name="search">Search</string>
     <string name="leave_chat">Leave Chat</string>
+    <string name="destroy">Destroy</string>
     <string name="add_users">Add Users</string>
     <string name="tap_here_for_contact_info">Tap here for contact info</string>
     <string name="search_with_name">🔍 Search</string>
@@ -29,6 +31,8 @@
 
     <string name="new_chat">New Chat</string>
     <string name="add_user_by_id">Add User by ID</string>
+
+    <string name="settings">⚙️ Settings</string>
 
     <string name="you_were_removed_from_the_thread">You were removed</string>
     <string name="you_were_added_to_the_thread">You were added</string>
@@ -43,8 +47,8 @@
     <!-- Login Activity-->
     <string name="login_activity_no_mail_toast">Please enter your email</string>
     <string name="login_activity_no_password_toast">Please enter password</string>
-    <string name="login_activity_failed_to_login_toast">Failed to connect</string>
-    <string name="login_activity_failed_to_register_toast">Failed to register</string>
+    <string name="login_activity_failed_to_login_toast">Login Failed</string>
+    <string name="login_activity_failed_to_register_toast">Registration Failed</string>
 
     <!--SelectContactActivity-->
     <string name="select_at_least_one_user">Please select at least one user</string>
@@ -123,7 +127,8 @@
     <string name="image_save_failed">Image save failed</string>
 
 
-    <string name="action_edit">Edit</string>
+    <string name="edit">Edit</string>
+    <string name="join">Join</string>
 
     <string name="availability_unavailable">Unavailable</string>
     <string name="availability_available">Available</string>
@@ -163,11 +168,17 @@
 
     <string name="reply">Reply</string>
     <string name="mark_as_read">Mark as Read</string>
-    <string name="revoke_voice">Silence user</string>
-    <string name="grant_voice">Un-silence user</string>
 
-    <string name="revoke_moderator">Remove Moderator</string>
-    <string name="grant_moderator">Make Moderator</string>
+<!--    <string name="revoke_voice">Silence user</string>-->
+<!--    <string name="grant_voice">Un-silence user</string>-->
+
+<!--    <string name="revoke_moderator">Remove Moderator</string>-->
+<!--    <string name="grant_moderator">Make Moderator</string>-->
+    <string name="moderator">Moderator</string>
+    <string name="silence">Silence</string>
+    <string name="role">Role</string>
+    <string name="moderation">Moderation</string>
+    <string name="view_profile">View Profile</string>
 
     <string name="none">None</string>
     <string name="created">Created</string>
@@ -198,5 +209,8 @@
     <string name="member">Member</string>
     <string name="watcher">Watcher</string>
     <string name="banned">Banned</string>
+
+    <string name="me">Me</string>
+    <string name="participants">Participants</string>
 
 </resources>

@@ -31,11 +31,6 @@ public class LocationMessageModule extends AbstractModule {
         }
     }
 
-    @Override
-    public String getName() {
-        return "LocationMessageModule";
-    }
-
     public LocationProvider getLocationProvider() {
         return locationProvider;
     }
@@ -49,6 +44,10 @@ public class LocationMessageModule extends AbstractModule {
             add(Manifest.permission.ACCESS_COARSE_LOCATION);
             add(Manifest.permission.ACCESS_FINE_LOCATION);
         }};
+    }
+
+    public boolean isPremium() {
+        return false;
     }
 
 }

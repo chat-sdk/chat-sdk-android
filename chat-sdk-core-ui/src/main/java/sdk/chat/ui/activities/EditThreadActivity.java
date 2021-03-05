@@ -16,15 +16,12 @@ import android.view.MenuItem;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -162,13 +159,9 @@ public class EditThreadActivity extends BaseActivity {
             String name = thread.getName();
             nameTextInput.setText(name);
         }
-        if (threadImageURL != null) {
-            Glide.with(this).load(threadImageURL).dontAnimate().into(threadImageView);
-        } else if (thread != null) {
-            ThreadImageBuilder.load(threadImageView, thread);
-        } else {
-            threadImageView.setImageDrawable(Icons.getLarge(Icons.choose().publicChat, R.color.thread_default_icon_color));
-        }
+
+        ThreadImageBuilder.load(threadImageView, thread);
+
         updateSaveButtonState();
     }
 
@@ -191,6 +184,7 @@ public class EditThreadActivity extends BaseActivity {
 //                    finish();
                 } else {
                     showToast(throwable.getLocalizedMessage());
+                    fab.setEnabled(true);
                 }
             };
 
@@ -201,10 +195,7 @@ public class EditThreadActivity extends BaseActivity {
                         .subscribe(consumer));
             } else {
 
-                Map<String, Object> testMap = new HashMap<>();
-                testMap.put("test", 123);
-
-                dm.add(ChatSDK.thread().createThread(threadName, users, ThreadType.PrivateGroup, null, threadImageURL, testMap)
+                dm.add(ChatSDK.thread().createThread(threadName, users, ThreadType.PrivateGroup, null, threadImageURL)
                         .observeOn(RX.main())
                         .subscribe(consumer));
             }

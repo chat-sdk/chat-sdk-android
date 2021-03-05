@@ -196,7 +196,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 })
                 .subscribe(this::afterLogin, e -> {
                     dismissProgressDialog();
-                    toastErrorMessage(e, false);
+                    toastErrorMessage(e, details.type != AccountDetails.Type.Register);
                     ChatSDK.events().onError(e);
                 }));
     }
@@ -247,7 +247,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     public void toastErrorMessage(Throwable error, boolean login) {
         String errorMessage = "";
 
-        if (!error.getMessage().replace(" ", "").isEmpty()) {
+        if (error.getMessage() != null && !error.getMessage().replace(" ", "").isEmpty()) {
             errorMessage = error.getMessage();
         } else if (login) {
             errorMessage = getString(R.string.login_activity_failed_to_login_toast);

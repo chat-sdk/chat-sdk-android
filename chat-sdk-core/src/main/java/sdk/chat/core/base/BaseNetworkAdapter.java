@@ -8,7 +8,7 @@ import sdk.chat.core.handlers.BlockingHandler;
 import sdk.chat.core.handlers.ContactHandler;
 import sdk.chat.core.handlers.ContactMessageHandler;
 import sdk.chat.core.handlers.CoreHandler;
-import sdk.chat.core.handlers.EncryptionHandler;
+import sdk.chat.core.handlers.IEncryptionHandler;
 import sdk.chat.core.handlers.EventHandler;
 import sdk.chat.core.handlers.FileMessageHandler;
 import sdk.chat.core.handlers.HookHandler;
@@ -57,7 +57,7 @@ public class BaseNetworkAdapter {
     public FileMessageHandler fileMessage;
     public EventHandler events;
     public HookHandler hook = new BaseHookHandler();
-    public EncryptionHandler encryption;
+    public IEncryptionHandler encryption;
     public ContactMessageHandler contactMessage;
 
     private HashMap<String, Object> handlers = new HashMap<>();
@@ -77,6 +77,10 @@ public class BaseNetworkAdapter {
         if (events != null) {
             events.stop();
         }
+
+
+
+
     }
 
 }

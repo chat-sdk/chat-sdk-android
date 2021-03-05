@@ -51,15 +51,16 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.core.utils.StringChecker;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.appbar.ChatActionBar;
 import sdk.chat.ui.audio.AudioBinder;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.interfaces.TextInputDelegate;
+import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.views.ChatView;
 import sdk.chat.ui.views.ReplyView;
 import sdk.guru.common.RX;
@@ -122,6 +123,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if (thread == null) {
             finish();
         }
+
     }
 
     public void updateOptionsButton() {
@@ -237,10 +239,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         chatView.initViews();
 
-        chatView.enableSelectionMode(count -> {
-            invalidateOptionsMenu();
-            updateOptionsButton();
-        });
+        if (UIModule.config().messageSelectionEnabled) {
+            chatView.enableSelectionMode(count -> {
+                invalidateOptionsMenu();
+                updateOptionsButton();
+            });
+        }
 
         if (!hasVoice(ChatSDK.currentUser())) {
             hideTextInput();
@@ -286,7 +290,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         }
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadDetailsUpdated, EventType.ThreadUsersUpdated))
+                .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated, EventType.ThreadUserAdded, EventType.ThreadUserRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> chatActionBar.reload(thread)));
 
@@ -312,16 +316,17 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadUserRoleUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .filter(NetworkEvent.filterUserEntityID(ChatSDK.currentUserID()))
+                .filter(NetworkEvent.filterRoleUpdated(thread, ChatSDK.currentUser()))
                 .subscribe(networkEvent -> {
-                    if (hasVoice(networkEvent.getUser())) {
-                        showTextInput();
-                    } else {
-                        hideTextInput();
-                    }
+                    invalidateOptionsMenu();
+                    showOrHideTextInputView();
                 }));
+
+
+        if (chatView != null) {
+            chatView.addListeners();
+//            chatView.onLoadMore(0, 0);
+        }
 
         invalidateOptionsMenu();
     }
@@ -335,6 +340,13 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         super.onStart();
     }
 
+    public void showOrHideTextInputView() {
+        if (hasVoice(ChatSDK.currentUser())) {
+            showTextInput();
+        } else {
+            hideTextInput();
+        }
+    }
     /**
      * Send text text
      *
@@ -405,12 +417,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         // Put it here in the case that they closed the app with this screen open
         thread.markReadAsync().subscribe();
-
-        if (chatView != null) {
-            chatView.addListeners();
-        }
-
-
+        showOrHideTextInputView();
 
     }
 
@@ -425,9 +432,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
             thread.setDraft(null);
         }
 
-        if (chatView != null) {
-            chatView.removeListeners();
-        }
 
     }
 
@@ -439,6 +443,7 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onStop() {
         super.onStop();
         doOnStop();
+
     }
 
     protected void doOnStop() {
@@ -459,6 +464,9 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void onDestroy() {
         if (enableTrace) {
             Debug.stopMethodTracing();
+        }
+        if (chatView != null) {
+            chatView.removeListeners();
         }
         super.onDestroy();
     }
@@ -491,6 +499,14 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 menu.findItem(R.id.action_delete).setIcon(Icons.get(this, Icons.choose().delete, Icons.shared().actionBarIconColor));
                 menu.findItem(R.id.action_forward).setIcon(Icons.get(this, Icons.choose().forward, Icons.shared().actionBarIconColor));
                 menu.findItem(R.id.action_reply).setIcon(Icons.get(this, Icons.choose().reply, Icons.shared().actionBarIconColor));
+
+                if (!UIModule.config().messageForwardingEnabled) {
+                    menu.removeItem(R.id.action_forward);
+                }
+
+                if (!UIModule.config().messageReplyEnabled) {
+                    menu.removeItem(R.id.action_reply);
+                }
 
                 if (chatView.getSelectedMessages().size() != 1) {
                     menu.removeItem(R.id.action_reply);
@@ -673,12 +689,12 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     @Override
     public void onClick(Message message) {
-        MessageCustomizer.shared().onClick(this, root, message);
+        ChatSDKUI.shared().getMessageCustomizer().onClick(this, root, message);
     }
 
     @Override
     public void onLongClick(Message message) {
-        MessageCustomizer.shared().onLongClick(this, root, message);
+        ChatSDKUI.shared().getMessageCustomizer().onLongClick(this, root, message);
     }
 
     @Override

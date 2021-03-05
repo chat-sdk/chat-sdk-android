@@ -9,8 +9,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import sdk.chat.core.Tab;
 import sdk.chat.core.avatar.AvatarGenerator;
@@ -38,12 +38,6 @@ public interface InterfaceAdapter {
     Class<? extends Activity> getChatActivity();
     Class<? extends Activity> getThreadDetailsActivity();
 
-    /**
-     * Use getEditThreadActivity
-     * @return
-     */
-    @Deprecated
-    Class<? extends Activity> getThreadEditDetailsActivity();
     Class<? extends Activity> getEditThreadActivity();
 
     Class<? extends Activity> getAddUsersToThreadActivity();
@@ -55,6 +49,8 @@ public interface InterfaceAdapter {
     Class<? extends Activity> getProfileActivity();
     Class<? extends Activity> getSplashScreenActivity();
     Class<? extends Activity> getPostRegistrationActivity();
+    Class<? extends Activity> getModerationActivity();
+    Class<? extends Activity> getSettingsActivity();
 
     void setLoginActivity(Class<? extends Activity> loginActivity);
     void setSplashScreenActivity(Class<? extends Activity> splashScreenActivity);
@@ -62,12 +58,6 @@ public interface InterfaceAdapter {
     void setChatActivity(Class<? extends Activity> chatActivity);
     void setThreadDetailsActivity(Class<? extends Activity> threadDetailsActivity);
 
-    /**
-     * Use setEditThreadActivity
-     * @param threadEditDetailsActivity
-     */
-    @Deprecated
-    void setThreadEditDetailsActivity(Class<? extends Activity> threadEditDetailsActivity);
     void setEditThreadActivity(Class<? extends Activity> editThreadActivity);
 
     void setForwardMessageActivity(Class<? extends Activity> forwardMessageActivity);
@@ -77,13 +67,15 @@ public interface InterfaceAdapter {
     void setSearchActivity(Class<? extends Activity> searchActivity);
     void setEditProfileActivity(Class<? extends Activity> editProfileActivity);
     void setProfileActivity(Class<? extends Activity> profileActivity);
+    void setModerationActivity(Class<? extends Activity> moderationActivity);
+    void setSettingsActivity(Class<? extends Activity> settingsActivity);
 
     void setPostRegistrationActivity (Class<? extends Activity> postRegistrationActivity);
     void setPrivateThreadsFragment(Fragment privateThreadsFragment);
     void setPublicThreadsFragment(Fragment publicThreadsFragment);
     void setContactsFragment(Fragment contactsFragment);
     void setProfileFragmentProvider(ProfileFragmentProvider profileFragmentProvider);
-    Intent getLoginIntent(Context context, HashMap<String, Object> extras);
+    Intent getLoginIntent(Context context, Map<String, Object> extras);
     void setLoginIntent(Intent intent);
 
     List<Tab> defaultTabs();
@@ -105,26 +97,20 @@ public interface InterfaceAdapter {
     void startChatActivityForID(Context context, String threadEntityID);
     void startChatActivityForID(Context context, String threadEntityID, @Nullable Integer flags);
 
-    /**
-     * Use {@link #startEditThreadActivity(Context, String)}
-     * @param context
-     * @param threadEntityID
-     */
-    @Deprecated
-    void startPublicThreadEditDetailsActivity(Context context, String threadEntityID);
     void startEditThreadActivity(Context context, String threadEntityID);
     void startEditThreadActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs);
 
     void startThreadDetailsActivity(Context context, String threadEntityID);
+    void startModerationActivity(Context context, String threadEntityID, String userEntityID);
 
     void startProfileActivity(Context context, String userEntityID);
     void startEditProfileActivity(Context context, String userEntityID);
 
     void startMainActivity(Context context);
-    void startMainActivity(Context context, HashMap<String, Object> extras);
+    void startMainActivity(Context context, Map<String, Object> extras);
     void startSearchActivity(Context context);
     void startForwardMessageActivityForResult(Activity activity, Thread thread, List<Message> message, int code);
-    void startPostRegistrationActivity(Context context, HashMap<String, Object> extras);
+    void startPostRegistrationActivity(Context context, Map<String, Object> extras);
 
     void startAddUsersToThreadActivity(Context context, String threadEntityID);
     void startCreateThreadActivity(Context context);
@@ -156,7 +142,7 @@ public interface InterfaceAdapter {
 
     void addProfileOption(ProfileOption option);
     void removeProfileOption(ProfileOption option);
-    List<ProfileOption> getProfileOptions();
+    List<ProfileOption> getProfileOptions(User user);
 
     void stop();
 }

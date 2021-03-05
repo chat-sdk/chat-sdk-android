@@ -7,7 +7,6 @@ import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +19,7 @@ import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
@@ -49,11 +49,11 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 ArrayList<Message> mergedMessages = new ArrayList<>(localMessages);
                 mergedMessages.addAll(remoteMessages);
 
-                if (ChatSDK.encryption() != null) {
-                    for (Message m : mergedMessages) {
-                        ChatSDK.encryption().decrypt(m);
-                    }
-                }
+//                if (ChatSDK.encryption() != null) {
+//                    for (Message m : mergedMessages) {
+//                        ChatSDK.encryption().decrypt(m);
+//                    }
+//                }
 
                 Debug.messageList(mergedMessages);
 
@@ -77,11 +77,11 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                     ArrayList<Message> mergedMessages = new ArrayList<>(localMessages);
                     mergedMessages.addAll(remoteMessages);
 
-                    if (ChatSDK.encryption() != null) {
-                        for (Message m : mergedMessages) {
-                            ChatSDK.encryption().decrypt(m);
-                        }
-                    }
+//                    if (ChatSDK.encryption() != null) {
+//                        for (Message m : mergedMessages) {
+//                            ChatSDK.encryption().decrypt(m);
+//                        }
+//                    }
 
                     Debug.messageList(mergedMessages);
 
@@ -100,6 +100,15 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      **/
     public Completable addUsersToThread(final Thread thread, final List<User> users) {
         return new ThreadWrapper(thread).addUsers(users);
+    }
+
+    @Override
+    public boolean canAddUsersToThread(Thread thread) {
+        if (thread.typeIs(ThreadType.Group)) {
+            String role = roleForUser(thread, ChatSDK.currentUser());
+            return Permission.isOr(role, Permission.Owner, Permission.Admin);
+        }
+        return false;
     }
 
     public Completable mute(Thread thread) {
@@ -233,7 +242,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             // Save the thread to the database.
             return new ThreadWrapper(thread).push()
                     .doOnError(throwable -> {
-                        thread.delete();
+                        thread.cascadeDelete();
                     })
                     .andThen(Completable.defer(() -> {
                         return ChatSDK.thread().addUsersToThread(thread, thread.getUsers());
@@ -251,7 +260,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     protected void pushForMessage(final Message message) {
         if (ChatSDK.push() != null && message.getThread().typeIs(ThreadType.Private)) {
-            HashMap<String, Object> data = ChatSDK.push().pushDataForMessage(message);
+            Map<String, Object> data = ChatSDK.push().pushDataForMessage(message);
             ChatSDK.push().sendPushNotification(data);
         }
     }
@@ -281,6 +290,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         if (rolesEnabled(thread)) {
             String role = roleForUser(thread, currentUser);
             int level = Permission.level(role);
+
             if (level > Permission.level(Permission.Member)) {
                 return true;
             }
@@ -308,8 +318,23 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return Completable.defer(() -> new ThreadWrapper(thread).leave());
     }
 
+    @Override
+    public boolean canLeaveThread(Thread thread) {
+        if (thread.typeIs(ThreadType.Group)) {
+            // Get the link
+            String role = roleForUser(thread, ChatSDK.currentUser());
+            return Permission.isOr(role, Permission.Owner, Permission.Admin, Permission.Member, Permission.Watcher);
+        }
+        return false;
+    }
+
     public Completable joinThread(Thread thread) {
         return null;
+    }
+
+    @Override
+    public boolean canJoinThread(Thread thread) {
+        return false;
     }
 
     @Override
@@ -335,6 +360,10 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     @Override
     public String roleForUser(Thread thread, @NonNull User user) {
+        UserThreadLink link = thread.getUserThreadLink(user.getId());
+        if (link != null && link.hasLeft()) {
+            return Permission.None;
+        }
         if (user.equalsEntity(thread.getCreator())) {
             return Permission.Owner;
         }
@@ -375,12 +404,8 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public List<String> localizeRoles(List<String> roles) {
-        List<String> localized = new ArrayList<>();
-        for (String role: roles) {
-            localized.add(Permission.toLocalized(role));
-        }
-        return localized;
+    public String localizeRole(String role) {
+        return Permission.toLocalized(role);
     }
 
     // Moderation
@@ -447,4 +472,32 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return message;
     }
 
+    @Override
+    public boolean canDestroy(Thread thread) {
+        return false;
+    }
+
+    @Override
+    public Completable destroy(Thread thread) {
+        return Completable.complete();
+    }
+
+    @Override
+    public boolean canEditThreadDetails(Thread thread) {
+        if (thread.typeIs(ThreadType.Group)) {
+            String role = roleForUser(thread, ChatSDK.currentUser());
+            return Permission.isOr(role, Permission.Owner, Permission.Admin);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canRemoveUserFromThread(Thread thread, User user) {
+        if (thread.typeIs(ThreadType.Group)) {
+            String myRole = roleForUser(thread, ChatSDK.currentUser());
+            String role = roleForUser(thread, user);
+            return Permission.isOr(myRole, Permission.Owner, Permission.Admin) && Permission.isOr(role, Permission.Member, Permission.Watcher, Permission.Banned);
+        }
+        return false;
+    }
 }

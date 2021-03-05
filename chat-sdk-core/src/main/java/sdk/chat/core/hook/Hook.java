@@ -1,6 +1,6 @@
 package sdk.chat.core.hook;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import io.reactivex.Completable;
 
@@ -32,7 +32,7 @@ public class Hook implements AsyncExecutor {
         this.removeOnFire = removeOnFire;
     }
 
-    public Completable executeAsync (HashMap<String, Object> data) {
+    public Completable executeAsync(Map<String, Object> data) {
         return Completable.defer(() -> {
             if (asyncExecutor != null) {
                 return asyncExecutor.executeAsync(data);

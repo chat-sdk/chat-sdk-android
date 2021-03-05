@@ -1,17 +1,72 @@
 package sdk.chat.core.events;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
-import sdk.chat.core.session.ChatSDK;
 import sdk.guru.common.DisposableMap;
-import sdk.guru.common.RX;
 
 public class EventBatcher {
+
+    public interface Listener {
+        void onNext(NetworkEvent event);
+        void batchFinished();
+    }
+
+    List<Date> points = new ArrayList<>();
+    public double maxPoints = 2;
+    public double threshold;
+    public double average = 0;
+    public double lastAverage = 0;
+    public Listener listener;
+    public DisposableMap dm = new DisposableMap();
+
+
+    public EventBatcher(double thresholdMillis, Listener listener) {
+        this.threshold = thresholdMillis;
+        this.listener = listener;
+
+    }
+
+    public void add(final NetworkEvent event) {
+        points.add(new Date());
+        if (points.size() > maxPoints) {
+            points.remove(0);
+        }
+        calculateAverage();
+
+        dm.dispose();
+
+        if ((lastAverage < threshold && average > threshold)) {
+            listener.batchFinished();
+        } else if (average > threshold) {
+            listener.onNext(event);
+        } else {
+            dm.add(Observable.interval((long) threshold, TimeUnit.MILLISECONDS).subscribe(aLong -> {
+                batchFinished();
+            }));
+        }
+    }
+
+    public void batchFinished() {
+        dm.dispose();
+        average = threshold;
+        listener.batchFinished();
+    }
+
+    public void calculateAverage() {
+        lastAverage = average;
+        if (points.size() > 1) {
+            average = (points.get(points.size() - 1).getTime() - points.get(0).getTime())/maxPoints;
+        } else {
+            average = threshold;
+        }
+    }
+
+
+
 //
 //    public Map<EventType, List<NetworkEvent>> eventMap = new HashMap<>();
 //    protected DisposableMap dm = new DisposableMap();

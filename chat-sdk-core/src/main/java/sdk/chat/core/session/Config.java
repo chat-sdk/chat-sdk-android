@@ -59,6 +59,8 @@ public class Config<T> extends BaseConfig<T> {
 
     public boolean rolesEnabled = true;
 
+    public boolean threadDestructionEnabled = true;
+
     // Should we open a new thread with a user after the thread has been deleted?
     public boolean reuseDeleted1to1Threads = true;
 
@@ -72,7 +74,7 @@ public class Config<T> extends BaseConfig<T> {
 
     public boolean publicChatAutoSubscriptionEnabled = false;
 
-    public String identiconBaseURL = "http://identicon.sdk.chat?value=%s&size=400.png";
+    public String identiconBaseURL = "https://identicon.sdk.chat?value=%s&size=400.png";
 
     public String storageDirectory = "ChatSDK";
 
@@ -95,7 +97,7 @@ public class Config<T> extends BaseConfig<T> {
 
     public int logoDrawableResourceID = R.drawable.ic_launcher_big;
 
-    public HashMap<String, Object> customProperties = new HashMap<>();
+    public Map<String, Object> customProperties = new HashMap<>();
 
     public boolean disablePresence = false;
 
@@ -547,6 +549,14 @@ public class Config<T> extends BaseConfig<T> {
         return this;
     }
 
-
+    /**
+     * Turn off thread destruction (if already supported by the room type and network adapter)
+     * In come cases this flag may do nothing if not supported
+     * @param threadDestructionEnabled
+     */
+    public Config<T> setThreadDestructionEnabled(boolean threadDestructionEnabled) {
+        this.threadDestructionEnabled = threadDestructionEnabled;
+        return this;
+    }
 
 }

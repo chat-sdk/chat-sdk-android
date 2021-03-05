@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import io.reactivex.Observable;
+import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.ui.R;
 import sdk.chat.ui.view_holders.UserViewHolder;
@@ -39,11 +40,19 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     protected final PublishRelay<UserListItem> onLongClickRelay = PublishRelay.create();
     protected final PublishRelay<List<UserListItem>> onToggleRelay = PublishRelay.create();
 
+
     public interface SubtitleProvider {
         String subtitle(UserListItem user);
     }
 
+    public interface RowBinder {
+        void bind(UserViewHolder holder, UserListItem item);
+    }
+
     protected SubtitleProvider subtitleProvider;
+
+
+    protected RowBinder rowBinder;
 
     public UsersListAdapter() {
         this(null, false, null);
@@ -69,6 +78,10 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return items.size();
     }
 
+    public void setRowBinder(RowBinder rowBinder) {
+        this.rowBinder = rowBinder;
+    }
+
     @Override
     @NonNull
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -82,7 +95,11 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         UserViewHolder viewHolder = (UserViewHolder) holder;
         UserListItem item = items.get(position);
 
-        viewHolder.bind(item);
+        if (rowBinder != null) {
+            rowBinder.bind(viewHolder, item);
+        } else {
+            viewHolder.bind(item);
+        }
 
         if (multiSelectEnabled) {
             if (!selectedUsersPositions.get(position)) {
@@ -140,20 +157,35 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     public void addUser(UserListItem user, boolean notify) {
-        addUser(user, -1, notify);
+        addUser(user, -1, notify, false);
     }
 
-    public void addUser(UserListItem user, int atIndex, boolean notify) {
+    public void addUser(UserListItem user, int atIndex, boolean notify, boolean sort) {
         if (!items.contains(user)) {
             if (atIndex >= 0) {
                 items.add(atIndex, user);
             } else {
                 items.add(user);
             }
+            if (sort) {
+                sortList(items);
+            }
             if (notify) {
                 notifyDataSetChanged();
             }
         }
+    }
+
+    public void updateUser(User user) {
+        int index = items.indexOf(user);
+        if (index >= 0) {
+            notifyItemChanged(index);
+        }
+    }
+
+    public void removeUser(UserListItem user) {
+        items.remove(user);
+        notifyDataSetChanged();
     }
 
     public List<UserListItem> getSelectedUsers() {

@@ -19,7 +19,7 @@ public class MainApp extends Application {
         try {
 
             // Setup Chat SDK
-            ChatSDKFirebase.quickStart(this, "test_1", "AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE", true,
+            ChatSDKFirebase.quickStartWithEmail(this, "pre_2", "AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE", true, "ben@sdk.chat",
                     AudioMessageModule.shared(),
                     FirebaseBlockingModule.shared(),
                     FirebaseReadReceiptsModule.shared()
@@ -72,6 +72,7 @@ public class MainApp extends Application {
 
 
         } catch (Exception e) {
+            assert false;
             e.printStackTrace();
         }
     }

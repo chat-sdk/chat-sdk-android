@@ -81,7 +81,9 @@ public class ChatActionBar extends AppBarLayout {
         String displayName = Strings.nameForThread(thread);
 //        setTitle(displayName);
         titleTextView.setText(displayName);
+
         ThreadImageBuilder.load(imageView, thread);
+
     }
 
     public void setOnClickListener(OnClickListener onClickListener) {

@@ -3,6 +3,7 @@ plugins {
     id 'com.jfrog.bintray'
     id 'maven-publish'
     id 'org.greenrobot.greendao'
+//    id 'com.jakewharton.hugo'
 }
 
 android {
@@ -20,7 +21,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
-            minifyEnabled project.hasProperty('minifyRelease')
+            minifyEnabled project.hasProperty('minifyCore')
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -38,7 +39,7 @@ android {
 }
 
 greendao {
-    schemaVersion 15
+    schemaVersion 17
     targetGenDir "src/main/java"
     daoPackage "sdk.chat.core.dao"
 }
@@ -57,7 +58,7 @@ dependencies {
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(':sdk-guru-common')
-
+    api project(':chat-sdk-vendor')
 
     implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     implementation "androidx.lifecycle:lifecycle-extensions:$androidxLifecycleExtensionsVersion"

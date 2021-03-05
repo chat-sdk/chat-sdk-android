@@ -7,13 +7,20 @@ package sdk.chat.core.events;
 public enum EventType {
     ThreadAdded,
     ThreadRemoved,
-    ThreadDetailsUpdated,
+//    ThreadDetailsUpdated,
     ThreadMetaUpdated,
     MessageAdded,
     MessageUpdated,
     MessageRemoved,
     MessageSendStatusUpdated,
-    ThreadUsersUpdated,
+
+//    ThreadUsersUpdated,
+
+    ThreadsUpdated,
+    ThreadUserAdded,
+    ThreadUserRemoved,
+    ThreadUserUpdated,
+
     ThreadUserRoleUpdated,
     UserMetaUpdated,
     UserPresenceUpdated,

@@ -34,6 +34,7 @@ public class UIConfig<T> extends BaseConfig<T> {
     // Chat options
     public boolean groupsEnabled = true;
     public boolean customizeGroupImageEnabled = true;
+    public boolean messageSelectionEnabled = true;
 
     public boolean threadDetailsEnabled = true;
     public boolean publicRoomCreationEnabled = false;
@@ -43,6 +44,9 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean showNamesInGroupChatView = true;
     public boolean showAvatarInChatView = true;
     public String messageTimeFormat = null;
+
+    public boolean messageForwardingEnabled = true;
+    public boolean messageReplyEnabled = true;
 
     public String dateFormat = "HH:mm";
 
@@ -263,6 +267,16 @@ public class UIConfig<T> extends BaseConfig<T> {
     }
 
     /**
+     * Allow messages to be selected
+     * @param enabled
+     * @return
+     */
+    public UIConfig<T> setMessageSelectionEnabled(boolean enabled) {
+        this.messageSelectionEnabled = enabled;
+        return this;
+    }
+
+    /**
      * Show user avatar in chat view
      * @param request
      * @return
@@ -281,4 +295,25 @@ public class UIConfig<T> extends BaseConfig<T> {
         this.messageTimeFormat = format;
         return this;
     }
+
+    /**
+     * Enable message forwarding. This must also be supported by the network adapter
+     * @param messageForwardingEnabled
+     * @return
+     */
+    public UIConfig<T> setMessageForwardingEnabled(boolean messageForwardingEnabled) {
+        this.messageForwardingEnabled = messageForwardingEnabled;
+        return this;
+    }
+
+    /**
+     * Enable message replies. This must also be supported by the network adapter
+     * @param messageReplyEnabled
+     * @return
+     */
+    public UIConfig<T> setMessageReplyEnabled(boolean messageReplyEnabled) {
+        this.messageReplyEnabled = messageReplyEnabled;
+        return this;
+    }
+
 }

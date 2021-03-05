@@ -42,7 +42,9 @@ public class AddUsersToThreadActivity extends SelectContactActivity {
             // Removing the users that is already inside the thread.
             if (!threadEntityID.isEmpty()) {
                 thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
-                List<User> threadUser = thread.getUsers();
+                List<User> threadUser = thread.getMembers();
+
+                list.remove(ChatSDK.currentUser());
                 list.removeAll(threadUser);
             }
         }

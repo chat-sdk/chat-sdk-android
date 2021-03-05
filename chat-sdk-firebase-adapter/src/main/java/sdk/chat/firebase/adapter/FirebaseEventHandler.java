@@ -82,6 +82,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
                     }
 
                     thread.getModel().addUser(user, false);
+                    thread.getModel().getUserThreadLink(ChatSDK.currentUser().getId()).setHasLeft(false);
 
                     thread.on().subscribe(this);
 
@@ -95,6 +96,8 @@ public class FirebaseEventHandler extends AbstractEventHandler {
                     ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(R.string.you_were_removed_from_the_thread), thread.getModel());
                 }
                 thread.getModel().setPermission(user.getEntityID(), Permission.None, true, false);
+                thread.getModel().getUserThreadLink(ChatSDK.currentUser().getId()).setHasLeft(true);
+
                 thread.off();
             }
             return Completable.complete();

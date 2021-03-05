@@ -15,46 +15,52 @@
     <application
         android:hardwareAccelerated="true">
 
-        <activity android:name="sdk.chat.ui.activities.LoginActivity"
+        <activity android:name=".activities.LoginActivity"
             android:screenOrientation="portrait">
         </activity>
 
-        <activity android:name="sdk.chat.ui.activities.SplashScreenActivity"
+        <activity android:name=".activities.SplashScreenActivity"
             android:screenOrientation="portrait"/>
 
-        <activity android:name="sdk.chat.ui.activities.ThreadDetailsActivity"
+        <activity android:name=".settings.SettingsActivity"
             android:windowSoftInputMode="stateHidden" />
 
-        <activity android:name="sdk.chat.ui.activities.CreateThreadActivity"
+        <activity android:name=".activities.thread.details.ThreadDetailsActivity"
             android:windowSoftInputMode="stateHidden" />
 
-        <activity android:name="sdk.chat.ui.activities.EditThreadActivity"
+        <activity android:name=".activities.CreateThreadActivity"
+            android:windowSoftInputMode="stateHidden" />
+
+        <activity android:name=".activities.EditThreadActivity"
             android:windowSoftInputMode="adjustResize" />
 
-        <activity android:name="sdk.chat.ui.activities.ChatActivity"
+        <activity android:name=".activities.ChatActivity"
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
-        <activity android:name="sdk.chat.ui.activities.EditProfileActivity"
+        <activity android:name=".activities.EditProfileActivity"
             android:windowSoftInputMode="stateHidden|adjustPan" />
 
-        <activity android:name="sdk.chat.ui.activities.PostRegistrationActivity"
+        <activity android:name=".activities.PostRegistrationActivity"
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait" />
 
-        <activity android:name="sdk.chat.ui.activities.SearchActivity"
+        <activity android:name=".activities.SearchActivity"
             android:windowSoftInputMode="stateVisible" />
 
-        <activity android:name="sdk.chat.ui.activities.ProfileActivity"
+        <activity android:name=".recycler.ModerationActivity"
+            android:windowSoftInputMode="stateVisible" />
+
+        <activity android:name=".activities.ProfileActivity"
             android:windowSoftInputMode="stateHidden"
             android:screenOrientation="portrait" />
 
-        <activity android:name="sdk.chat.ui.activities.MainAppBarActivity"
+        <activity android:name=".activities.MainAppBarActivity"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
-        <activity android:name="sdk.chat.ui.activities.AddUsersToThreadActivity"
+        <activity android:name=".activities.AddUsersToThreadActivity"
             android:windowSoftInputMode="stateHidden" />
 
-        <activity android:name="sdk.chat.ui.activities.ForwardMessageActivity"
+        <activity android:name=".activities.ForwardMessageActivity"
             android:windowSoftInputMode="stateHidden" />
 
         <!--Crop image-->

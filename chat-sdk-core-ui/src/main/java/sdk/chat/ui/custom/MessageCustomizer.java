@@ -5,15 +5,16 @@ import android.view.View;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import sdk.chat.core.dao.Message;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
 
-public class MessageCustomizer implements IMessageHandler {
+public class MessageCustomizer implements MessageHolders.ContentChecker<MessageHolder> {
 
     /**
      * @deprecated use {@link ChatSDKUI#shared().getMessageCustomizer() }
@@ -23,11 +24,18 @@ public class MessageCustomizer implements IMessageHandler {
         return ChatSDKUI.shared().getMessageCustomizer();
     }
 
-    protected List<IMessageHandler> messageHandlers = new ArrayList<>();
+//    protected List<IMessageHandler> messageHandlers = new ArrayList<>();
 
     protected IMessageHandler textMessageHandler = new TextMessageHandler();
     protected IMessageHandler imageMessageHandler = new ImageMessageHandler();
     protected IMessageHandler systemMessageHandler = new SystemMessageHandler();
+
+    Map<Byte, IMessageHandler> messageHandlers = new HashMap<>();
+    {
+        addMessageHandler(textMessageHandler);
+        addMessageHandler(imageMessageHandler);
+        addMessageHandler(systemMessageHandler);
+    }
 
     public void setTextMessageHandler(TextMessageHandler handler) {
         this.textMessageHandler = handler;
@@ -41,16 +49,16 @@ public class MessageCustomizer implements IMessageHandler {
         this.systemMessageHandler = handler;
     }
 
-    public List<IMessageHandler> getMessageHandlers() {
-        List<IMessageHandler> handlers = new ArrayList<>();
-        handlers.add(textMessageHandler);
-        handlers.add(imageMessageHandler);
-        handlers.add(systemMessageHandler);
-        handlers.addAll(messageHandlers);
-        return handlers;
+    public Collection<IMessageHandler> getMessageHandlers() {
+//        List<IMessageHandler> handlers = new ArrayList<>();
+//        handlers.add(textMessageHandler);
+//        handlers.add(imageMessageHandler);
+//        handlers.add(systemMessageHandler);
+//        handlers.addAll(messageHandlers);
+//        return handlers;
+        return messageHandlers.values();
     }
 
-    @Override
     public void onBindMessageHolders(Context context, MessageHolders holders) {
         for (IMessageHandler handler: getMessageHandlers()) {
             handler.onBindMessageHolders(context, holders);
@@ -58,13 +66,14 @@ public class MessageCustomizer implements IMessageHandler {
     }
 
     public void addMessageHandler(IMessageHandler handler) {
-        messageHandlers.add(0, handler);
+        for (Byte type: handler.getTypes()) {
+            messageHandlers.put(type, handler);
+        }
     }
 
     /**
      * Return message holder, the last non-null holder registered will be returned
      */
-    @Override
     public MessageHolder onNewMessageHolder(Message message) {
         MessageHolder holder;
         for (IMessageHandler handler: getMessageHandlers()) {
@@ -76,14 +85,12 @@ public class MessageCustomizer implements IMessageHandler {
         return null;
     }
 
-    @Override
     public void onClick(ChatActivity activity, View rootView, Message message) {
         for (IMessageHandler handler: getMessageHandlers()) {
             handler.onClick(activity, rootView, message);
         }
     }
 
-    @Override
     public void onLongClick(ChatActivity activity, View rootView, Message message) {
         for (IMessageHandler handler: getMessageHandlers()) {
             handler.onLongClick(activity, rootView, message);
@@ -92,11 +99,16 @@ public class MessageCustomizer implements IMessageHandler {
 
     @Override
     public boolean hasContentFor(MessageHolder message, byte type) {
-        for (IMessageHandler handler: getMessageHandlers()) {
-            if (handler.hasContentFor(message, type)) {
-                return true;
-            }
+        IMessageHandler handler = messageHandlers.get(type);
+        if (handler != null) {
+            return handler.hasContentFor(message);
         }
+//
+//        for (IMessageHandler handler: getMessageHandlers()) {
+//            if (handler.hasContentFor(message, type)) {
+//                return true;
+//            }
+//        }
         return false;
     }
 

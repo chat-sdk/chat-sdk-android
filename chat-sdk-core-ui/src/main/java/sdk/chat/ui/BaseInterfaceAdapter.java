@@ -5,9 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.GlideBuilder;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -46,7 +50,7 @@ import sdk.chat.ui.activities.PostRegistrationActivity;
 import sdk.chat.ui.activities.ProfileActivity;
 import sdk.chat.ui.activities.SearchActivity;
 import sdk.chat.ui.activities.SplashScreenActivity;
-import sdk.chat.ui.activities.ThreadDetailsActivity;
+import sdk.chat.ui.activities.thread.details.ThreadDetailsActivity;
 import sdk.chat.ui.chat.options.DialogChatOptionsHandler;
 import sdk.chat.ui.chat.options.MediaChatOption;
 import sdk.chat.ui.chat.options.MediaType;
@@ -57,6 +61,8 @@ import sdk.chat.ui.fragments.PrivateThreadsFragment;
 import sdk.chat.ui.fragments.PublicThreadsFragment;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.recycler.ModerationActivity;
+import sdk.chat.ui.settings.SettingsActivity;
 
 public class BaseInterfaceAdapter implements InterfaceAdapter {
 
@@ -76,6 +82,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class<? extends Activity> threadDetailsActivity = ThreadDetailsActivity.class;
     protected Class<? extends Activity> editThreadActivity = EditThreadActivity.class;
     protected Class<? extends Activity> postRegistrationActivity = PostRegistrationActivity.class;
+    protected Class<? extends Activity> moderationActivity = ModerationActivity.class;
+    protected Class<? extends Activity> settingsActivity = SettingsActivity.class;
 
     protected Class<? extends Activity> searchActivity = SearchActivity.class;
     protected Class<? extends Activity> editProfileActivity = EditProfileActivity.class;
@@ -108,6 +116,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         Icons.shared().initialize(context);
 
         searchActivities.add(new SearchActivityType(searchActivity, context.getString(R.string.search_with_name)));
+
+        Glide.init(context, new GlideBuilder().setLogLevel(Log.ERROR));
 
     }
 
@@ -253,6 +263,16 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
+    public Class<? extends Activity> getModerationActivity() {
+        return moderationActivity;
+    }
+
+    @Override
+    public Class<? extends Activity> getSettingsActivity() {
+        return settingsActivity;
+    }
+
+    @Override
     public void setMainActivity (Class<? extends Activity> mainActivity) {
         this.mainActivity = mainActivity;
     }
@@ -269,7 +289,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public Class<? extends Activity> getThreadDetailsActivity() {
-        return ThreadDetailsActivity.class;
+        return threadDetailsActivity;
     }
 
     @Override
@@ -278,18 +298,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public Class<? extends Activity> getThreadEditDetailsActivity() {
-        return getEditThreadActivity();
-    }
-
-    @Override
     public Class<? extends Activity> getEditThreadActivity() {
         return editThreadActivity;
-    }
-
-    @Override
-    public void setThreadEditDetailsActivity (Class<? extends Activity> threadEditDetailsActivity) {
-        setEditThreadActivity(threadEditDetailsActivity);
     }
 
     @Override
@@ -363,7 +373,17 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         this.profileActivity = profileActivity;
     }
 
-    public Intent intentForActivity(Context context, Class<? extends Activity> activity, HashMap<String, Object> extras, int flags) {
+    @Override
+    public void setModerationActivity(Class<? extends Activity> moderationActivity) {
+        this.moderationActivity = moderationActivity;
+    }
+
+    @Override
+    public void setSettingsActivity(Class<? extends Activity> settingsActivity) {
+        this.settingsActivity = settingsActivity;
+    }
+
+    public Intent intentForActivity(Context context, Class<? extends Activity> activity, Map<String, Object> extras, int flags) {
         Intent intent = new Intent(context, activity);
         addExtrasToIntent(intent, extras);
         if (flags != 0) {
@@ -372,7 +392,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         return intent;
     }
 
-    public void addExtrasToIntent (Intent intent, HashMap<String, Object> extras) {
+    public void addExtrasToIntent (Intent intent, Map<String, Object> extras) {
         if (extras != null && intent != null) {
             for (String key : extras.keySet()) {
                 Object value = extras.get(key);
@@ -392,7 +412,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         }
     }
 
-    public void startActivity(Context context, Class<? extends Activity> activity, HashMap<String, Object> extras, int flags) {
+    public void startActivity(Context context, Class<? extends Activity> activity, Map<String, Object> extras, int flags) {
         startActivity(context, intentForActivity(context, activity, extras, flags));
     }
 
@@ -410,7 +430,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public Intent getLoginIntent(Context context, HashMap<String, Object> extras) {
+    public Intent getLoginIntent(Context context, Map<String, Object> extras) {
         if (loginIntent != null) {
             addExtrasToIntent(loginIntent, extras);
             return loginIntent;
@@ -433,10 +453,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         context.startActivity(intent);
     }
 
-    public void startPublicThreadEditDetailsActivity(Context context, String threadEntityID){
-        startEditThreadActivity(context, threadEntityID);
-    }
-
     public void startEditThreadActivity(Context context, String threadEntityID){
         startEditThreadActivity(context, threadEntityID, null);
     }
@@ -448,7 +464,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     public void startEditThreadActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs){
-        Intent intent = new Intent(context, getThreadEditDetailsActivity());
+        Intent intent = new Intent(context, getEditThreadActivity());
         if (threadEntityID != null) {
             intent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
         }
@@ -472,7 +488,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
 
-    public void startMainActivity (Context context, HashMap<String, Object> extras) {
+    public void startMainActivity (Context context, Map<String, Object> extras) {
         startActivity(context, getMainActivity(), extras, Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
     }
@@ -517,6 +533,18 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         }
 //        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 //        context.startActivity(intent);
+        startActivity(context, intent);
+    }
+
+    @Override
+    public void startModerationActivity(Context context, String threadEntityID, String userEntityID) {
+        Intent intent = new Intent(context, getModerationActivity());
+        if (threadEntityID != null) {
+            intent.putExtra(Keys.IntentKeyThreadEntityID, threadEntityID);
+        }
+        if (userEntityID != null) {
+            intent.putExtra(Keys.IntentKeyUserEntityID, userEntityID);
+        }
         startActivity(context, intent);
     }
 
@@ -631,7 +659,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         this.avatarGenerator = avatarGenerator;
     }
 
-    public void startPostRegistrationActivity(Context context, HashMap<String, Object> extras) {
+    public void startPostRegistrationActivity(Context context, Map<String, Object> extras) {
         startActivity(context, postRegistrationActivity, extras, 0);
     }
 
@@ -643,8 +671,14 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         profileOptions.remove(option);
     }
 
-    public List<ProfileOption> getProfileOptions() {
-        return profileOptions;
+    public List<ProfileOption> getProfileOptions(User user) {
+        List<ProfileOption> options = new ArrayList<>();
+        for (ProfileOption option: profileOptions) {
+            if (option.showForUser(user)) {
+                options.add(option);
+            }
+        }
+        return options;
     }
 
     public void stop() {

@@ -9,6 +9,8 @@ package sdk.chat.core.dao;
 
 public class Keys {
 
+    public static final String PublicKey = "public-key";
+
     /* Metadata */
     public static final String Email = "email";
     public static final String Phone = "phone";
@@ -62,6 +64,7 @@ public class Keys {
     public static final String MessageStickerName = "sticker";
     public static final String MessageMimeType = "mime-type";
     public static final String MessageFileURL = "file-url";
+    public static final String MessageEncryptedPayloadKey = "encrypted-message";
 
     // CoreUser details
     public static final String Location = "location";
@@ -87,5 +90,11 @@ public class Keys {
 
     //Admin Thread
     public static final String ReadOnly = "read-only";
+
+    public static final String Affiliation = "affiliation";
+    public static final String Role = "role";
+    public static final String HasLeft = "hasLeft";
+    public static final String Active = "active";
+    public static final String Banned = "banned";
 
 }

@@ -25,7 +25,7 @@ import sdk.chat.core.handlers.BlockingHandler;
 import sdk.chat.core.handlers.ContactHandler;
 import sdk.chat.core.handlers.ContactMessageHandler;
 import sdk.chat.core.handlers.CoreHandler;
-import sdk.chat.core.handlers.EncryptionHandler;
+import sdk.chat.core.handlers.IEncryptionHandler;
 import sdk.chat.core.handlers.EventHandler;
 import sdk.chat.core.handlers.FileMessageHandler;
 import sdk.chat.core.handlers.HookHandler;
@@ -82,7 +82,7 @@ public class ChatSDK {
 
     protected ConfigBuilder<ChatSDK> builder;
     protected boolean isActive = false;
-    protected String licenseEmail;
+    protected String licenseIdentifier;
     protected IKeyStorage keyStorage;
 
     protected List<Runnable> onActivateListeners = new ArrayList<>();
@@ -121,7 +121,19 @@ public class ChatSDK {
         activate(context, null);
     }
 
-    public void activate(Context context, @Nullable String email) throws Exception {
+    public void activateWithPatreon(Context context, @Nullable String patreonId) throws Exception {
+        activate(context, "Patreon:" + patreonId);
+    }
+
+    public void activateWithEmail(Context context, @Nullable String email) throws Exception {
+        activate(context, "Email:" + email);
+    }
+
+    public void activateWithGithubSponsors(Context context, @Nullable String githubSponsorsId) throws Exception {
+        activate(context, "Github:" + githubSponsorsId);
+    }
+
+    public void activate(Context context, @Nullable String identifier) throws Exception {
 
         if (isActive) {
             throw new Exception("Chat SDK is already active. It is not recommended to call activate twice. If you must do this, make sure to call stop() first.");
@@ -166,6 +178,21 @@ public class ChatSDK {
                     requiredPermissions.add(permission);
                 }
             }
+            if (module.isPremium() && (identifier == null || identifier.isEmpty())) {
+                System.out.println("<<");
+                System.out.println(">>");
+                System.out.println("<<");
+                System.out.println(">>");
+                System.out.println("To use premium modules you must include either your email, Patreon ID or Github Sponsors ID");
+                System.out.println("ChatSDK.builder()....build().activateWith...");
+                System.out.println("<<");
+                System.out.println(">>");
+                System.out.println("<<");
+                System.out.println(">>");
+
+
+                throw new Exception("To use premium modules you must include either your email, Patreon ID or Github Sponsors ID");
+            }
         }
 
         if (networkAdapter != null) {
@@ -183,7 +210,7 @@ public class ChatSDK {
             throw new Exception("The interface adapter cannot be null. An interface adapter must be defined using ChatSDK.configure(...) or by a module");
         }
 
-        DaoCore.init(ctx());
+        DaoCore.init(context);
 
         storageManager = new StorageManager();
 
@@ -211,7 +238,7 @@ public class ChatSDK {
                         if (thread.typeIs(ThreadType.Private) || ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled) {
                             if (!message.isDelivered()) {
                                 boolean inBackground = AppBackgroundMonitor.shared().inBackground();
-                                boolean connectedToAuto = NotificationDisplayHandler.connectedToAuto(ChatSDK.ctx());
+                                boolean connectedToAuto = NotificationDisplayHandler.connectedToAuto(context);
                                 if (inBackground || connectedToAuto || (ChatSDK.ui().showLocalNotifications(thread))) {
                                     RX.onMain(() -> ChatSDK.ui().notificationDisplayHandler().createMessageNotification(message));
                                 }
@@ -225,8 +252,9 @@ public class ChatSDK {
             r.run();
         }
 
-        licenseEmail = email;
+        licenseIdentifier = identifier;
         isActive = true;
+
     }
 
     public void stop() {
@@ -345,7 +373,7 @@ public class ChatSDK {
         return a().blocking;
     }
 
-    public static EncryptionHandler encryption () { return a().encryption; }
+    public static IEncryptionHandler encryption () { return a().encryption; }
 
     public static LastOnlineHandler lastOnline () {
         return a().lastOnline;
@@ -461,8 +489,8 @@ public class ChatSDK {
         onActivateListeners.add(runnable);
     }
 
-    public String getLicenseEmail() {
-        return licenseEmail;
+    public String getLicenseIdentifier() {
+        return licenseIdentifier;
     }
 
     public IKeyStorage getKeyStorage() {

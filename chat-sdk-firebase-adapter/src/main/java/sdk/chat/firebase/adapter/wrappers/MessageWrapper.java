@@ -35,7 +35,6 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ReadStatus;
 import sdk.chat.firebase.adapter.FirebasePaths;
 import sdk.chat.firebase.adapter.R;
-import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.adapter.utils.Generic;
 import sdk.guru.common.RX;
 import sdk.guru.realtime.RXRealtime;
@@ -60,7 +59,17 @@ public class MessageWrapper  {
     Map<String, Object> serialize() {
         Map<String, Object> values = new HashMap<>();
 
-        values.put(Keys.Meta, model.getMetaValuesAsMap());
+        Map<String, Object> meta = null;
+
+        // We are going to encrypt the message here
+        if (ChatSDK.encryption() != null) {
+            meta = ChatSDK.encryption().encrypt(model);
+        }
+        if (meta == null) {
+            meta = model.getMetaValuesAsMap();
+        }
+
+        values.put(Keys.Meta, meta);
         values.put(Keys.Date, ServerValue.TIMESTAMP);
         values.put(Keys.Type, model.getType());
 
@@ -79,10 +88,6 @@ public class MessageWrapper  {
 
         values.put(Keys.From, model.getSender().getEntityID());
 
-        if (FirebaseModule.config().enableCompatibilityWithV4) {
-            values.put("user-firebase-id", model.getSender().getEntityID());
-        }
-
         return values;
     }
 
@@ -96,15 +101,8 @@ public class MessageWrapper  {
         return users;
     }
 
-    private boolean contains (Map<String, Object> value, String key) {
+    private boolean contains(Map<String, Object> value, String key) {
         return value.containsKey(key) && !value.get(key).equals("");
-    }
-
-    private String string (Map<String, Object> value, String key) {
-        if(contains(value, key)) {
-            return (String) value.get(key);
-        }
-        return null;
     }
 
     private void deserialize(DataSnapshot snapshot) {
@@ -114,7 +112,19 @@ public class MessageWrapper  {
         }
 
         if (snapshot.hasChild(Keys.Meta)) {
-            model.setMetaValues(snapshot.child(Keys.Meta).getValue(Generic.mapStringObject()));
+            // If this has an encrypted payload decrypt it
+            Map<String, Object> meta = null;
+            if (ChatSDK.encryption() != null) {
+                String data = snapshot.child(Keys.Meta).child(Keys.MessageEncryptedPayloadKey).getValue(String.class);
+                if (data != null) {
+                    meta = ChatSDK.encryption().decrypt(data);
+                }
+            }
+            if (meta == null) {
+                meta = snapshot.child(Keys.Meta).getValue(Generic.mapStringObject());
+            }
+
+            model.setMetaValues(meta);
         } else {
             Logger.debug("");
 //            model.setText("");
@@ -206,7 +216,7 @@ public class MessageWrapper  {
                 if (firebaseError == null) {
                     HashMap<String, Object> data = new HashMap<>();
                     data.put(HookEvent.Message, model);
-                    ChatSDK.hook().executeHook(HookEvent.MessageSent, data).subscribe(ChatSDK.events());
+//                    ChatSDK.hook().executeHook(HookEvent.MessageSent, data).subscribe(ChatSDK.events());
                     e.onComplete();
                 } else {
                     e.onError(firebaseError.toException());

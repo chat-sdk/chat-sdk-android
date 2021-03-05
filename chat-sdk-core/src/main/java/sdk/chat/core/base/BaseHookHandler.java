@@ -2,10 +2,11 @@ package sdk.chat.core.base;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
+import io.reactivex.Completable;
 import sdk.chat.core.handlers.HookHandler;
 import sdk.chat.core.hook.Hook;
-import io.reactivex.Completable;
 
 /**
  * Created by ben on 9/13/17.
@@ -13,7 +14,7 @@ import io.reactivex.Completable;
 
 public class BaseHookHandler implements HookHandler {
 
-    protected HashMap<String, ArrayList<Hook>> hooks = new HashMap<>();
+    protected Map<String, ArrayList<Hook>> hooks = new HashMap<>();
 
     @Override
     public void addHook(Hook hook, String name) {
@@ -25,6 +26,13 @@ public class BaseHookHandler implements HookHandler {
             existingHooks.add(hook);
         }
         hooks.put(name, existingHooks);
+    }
+
+    @Override
+    public void addHook(Hook hook, String... names) {
+        for (String name: names) {
+            addHook(hook, name);
+        }
     }
 
     @Override

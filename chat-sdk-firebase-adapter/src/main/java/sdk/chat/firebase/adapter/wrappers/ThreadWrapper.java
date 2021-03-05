@@ -61,7 +61,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
     }
     
     public ThreadWrapper(String entityId){
-        this(ChatSDK.db().fetchOrCreateEntityWithEntityID(Thread.class, entityId));
+        this(ChatSDK.db().fetchOrCreateThreadWithEntityID(entityId));
     }
 
     public Thread getModel(){
@@ -109,11 +109,13 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             if (ChatSDK.typingIndicator() != null) {
                 ChatSDK.typingIndicator().typingOff(model);
             }
+            model.getUserThreadLink(ChatSDK.currentUser().getId()).setIsBanned(true);
         } else {
             messagesOn();
             if (ChatSDK.typingIndicator() != null) {
                 ChatSDK.typingIndicator().typingOn(model);
             }
+            model.getUserThreadLink(ChatSDK.currentUser().getId()).setIsBanned(false);
         }
     }
 
@@ -503,10 +505,6 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             put(Keys.CreationDate, ServerValue.TIMESTAMP);
             put(Keys.Type, model.getType());
             put(Keys.Creator, model.getCreator().getEntityID());
-            if (FirebaseModule.config().enableCompatibilityWithV4) {
-                put("creator-entity-id", model.getCreator().getEntityID());
-                put("type_v4", model.getType());
-            }
         }};
         return items;
     }
@@ -532,11 +530,6 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         if (snapshot.hasChild(Keys.Creator)) {
             creatorEntityID = snapshot.child(Keys.Creator).getValue(String.class);
         }
-        if (creatorEntityID == null && FirebaseModule.config().enableCompatibilityWithV4) {
-            if (snapshot.hasChild("creator-entity-id")) {
-                creatorEntityID = snapshot.child("creator-entity-id").getValue(String.class);
-            }
-        }
         if (creatorEntityID != null) {
             model.setCreator(ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, creatorEntityID));
         }
@@ -560,7 +553,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         model.setMetaValues(meta, false);
 
         model.update();
-        ChatSDK.events().source().accept(NetworkEvent.threadDetailsUpdated(model));
+        ChatSDK.events().source().accept(NetworkEvent.threadMetaUpdated(model));
     }
 
     /**
@@ -595,11 +588,6 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                     }
                 });
 
-            }).doOnComplete(() -> {
-                if (FirebaseModule.config().enableCompatibilityWithV4) {
-                    DatabaseReference ref = FirebasePaths.threadRef(model.getEntityID()).child("details");
-                    ref.updateChildren(data);
-                }
             });
         }).subscribeOn(RX.io());
     }
@@ -646,10 +634,10 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             RXRealtime realtime = new RXRealtime(this);
             return realtime.get(ref).flatMapCompletable(change -> {
                 if (!change.isEmpty()) {
-                    model.setPermission(currentEntityID, change.get().getValue(String.class), false, false);
+                    model.setPermission(currentEntityID, change.get().getValue(String.class), true, false);
                 } else {
                     // If no permission is set, we set it to member
-                    model.setPermission(currentEntityID, model.getCreator().isMe() ? Permission.Owner : Permission.Member, false, false);
+                    model.setPermission(currentEntityID, model.getCreator().isMe() ? Permission.Owner : Permission.Member, true, false);
                 }
                 return Completable.complete();
             });

@@ -5,9 +5,8 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
-import java.util.ArrayList;
-
-import sdk.chat.core.session.ChatSDK;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by ben on 9/27/17.
@@ -20,10 +19,17 @@ public class AppBackgroundMonitor implements LifecycleObserver {
     private boolean enabled = false;
     private boolean inBackground = true;
 
-    protected ArrayList<Listener> listeners = new ArrayList<>();
+    protected Set<StartListener> startListeners = new HashSet<>();
+    protected Set<StopListener> stopListeners = new HashSet<>();
 
-    public interface Listener {
+    public interface Listener extends StartListener, StopListener {
+    }
+
+    public interface StartListener {
         void didStart();
+    }
+
+    public interface StopListener {
         void didStop();
     }
 
@@ -47,10 +53,7 @@ public class AppBackgroundMonitor implements LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onAppForeground() {
         inBackground = false;
-        if(ChatSDK.shared().isValid() && ChatSDK.auth().isAuthenticated()) {
-            ChatSDK.core().goOnline();
-        }
-        for (Listener l : listeners) {
+        for (StartListener l : startListeners) {
             l.didStart();
         }
     }
@@ -58,24 +61,35 @@ public class AppBackgroundMonitor implements LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onAppBackground() {
         inBackground = true;
-        if (ChatSDK.shared().isValid()) {
-            ChatSDK.core().setUserOffline();
-        }
-        for (Listener l : listeners) {
+        for (StopListener l : stopListeners) {
             l.didStop();
         }
     }
 
+    public void addListener (StartListener listener) {
+        startListeners.add(listener);
+    }
+
+    public void addListener (StopListener listener) {
+        stopListeners.add(listener);
+    }
+
     public void addListener (Listener listener) {
-        if (!listeners.contains(listener)) {
-            listeners.add(listener);
-        }
+        startListeners.add(listener);
+        stopListeners.add(listener);
     }
 
     public void removeListener (Listener listener) {
-        if (listeners.contains(listener)) {
-            listeners.remove(listener);
-        }
+        startListeners.remove(listener);
+        stopListeners.remove(listener);
+    }
+
+    public void removeListener (StartListener listener) {
+        startListeners.remove(listener);
+    }
+
+    public void removeListener (StopListener listener) {
+        stopListeners.remove(listener);
     }
 
     public boolean inBackground () {
@@ -83,6 +97,7 @@ public class AppBackgroundMonitor implements LifecycleObserver {
     }
 
     public void stop() {
-        listeners.clear();
+        startListeners.clear();
+        stopListeners.clear();
     }
 }

@@ -173,7 +173,8 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, data).subscribe(ChatSDK.events());
         }
 
-        ChatSDK.core().setUserOnline().subscribe(ChatSDK.events());
+
+        ChatSDK.core().sendAvailablePresence().subscribe();
 
         Logger.info("Authentication complete! name = " +user.getName()+ ", id = " + user.getEntityID());
 
@@ -213,7 +214,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 return Completable.complete();
             }
             loggingOut = ChatSDK.hook().executeHook(HookEvent.WillLogout)
-                    .concatWith(ChatSDK.core().setUserOffline())
+                    .concatWith(ChatSDK.core().sendUnavailablePresence())
                     .concatWith(Completable.defer(() -> {
 
                         final User user = ChatSDK.currentUser();

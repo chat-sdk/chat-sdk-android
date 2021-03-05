@@ -1,7 +1,7 @@
 package sdk.chat.core.hook;
 
-import java.util.HashMap;
+import java.util.Map;
 
 public interface Executor {
-    void execute(HashMap<String, Object> data);
+    void execute(Map<String, Object> data);
 }

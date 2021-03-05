@@ -4,6 +4,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Query;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
@@ -54,7 +55,7 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
                 if (hasValue) {
                     Object valueObject = snapshot.getValue();
                     if (valueObject instanceof HashMap) {
-                        for (Object key : ((HashMap) valueObject).keySet()) {
+                        for (Object key : ((Map) valueObject).keySet()) {
                             if (key instanceof String) {
                                 DataSnapshot userSnapshot = snapshot.child((String) key);
 

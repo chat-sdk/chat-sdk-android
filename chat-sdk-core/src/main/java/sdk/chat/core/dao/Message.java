@@ -92,6 +92,8 @@ public class Message extends AbstractEntity {
         this.threadId = threadId;
         this.nextMessageId = nextMessageId;
         this.previousMessageId = previousMessageId;
+
+
     }
 
     @Generated(hash = 637306882)
@@ -176,8 +178,8 @@ public class Message extends AbstractEntity {
         return this.date;
     }
 
-    public HashMap<String, Object> getMetaValuesAsMap() {
-        HashMap<String, Object> values = new HashMap<>();
+    public Map<String, Object> getMetaValuesAsMap() {
+        Map<String, Object> values = new HashMap<>();
         for (MessageMetaValue v : getMetaValues()) {
             values.put(v.getKey(), v.getValue());
         }
@@ -395,8 +397,9 @@ public class Message extends AbstractEntity {
         int userCount = 0;
         int deliveredCount = 0;
         int readCount = 0;
+
         for(ReadReceiptUserLink link : getReadReceiptLinks()) {
-            if (link.getStatus() != ReadStatus.Hide) {
+            if (link.getStatus() != ReadStatus.Hide && !link.getUser().isMe()) {
                 if (link.getStatus() == ReadStatus.Delivered) {
                     deliveredCount++;
                 }
@@ -415,6 +418,22 @@ public class Message extends AbstractEntity {
         }
         else {
             return ReadStatus.none();
+        }
+    }
+
+    public void setupInitialReadReceipts() {
+        for (User user: thread.getMembers()) {
+            if (user.isMe()) {
+                setUserReadStatus(user, ReadStatus.read(), new Date(), false);
+            } else {
+                setUserReadStatus(user, ReadStatus.none(), new Date(), false);
+            }
+        }
+    }
+
+    public void setReadReceiptsTo(ReadStatus status) {
+        for(ReadReceiptUserLink link : getReadReceiptLinks()) {
+            link.setStatus(status.getValue());
         }
     }
 

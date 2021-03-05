@@ -31,6 +31,10 @@ public class ThreadType {
         return is(type, Private);
     }
 
+    public static boolean isGroup (int type) {
+        return is(type, Group);
+    }
+
     public static boolean is (int type1, int type2) {
         return (type1 & type2) > 0;
     }

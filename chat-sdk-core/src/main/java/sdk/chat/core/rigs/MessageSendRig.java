@@ -137,9 +137,11 @@ public class MessageSendRig {
                     return ChatSDK.thread().sendMessage(message);
                 }
             }));
-        }).subscribeOn(RX.quick())
-                .doOnComplete(() -> message.setMessageStatus(MessageSendStatus.Sent))
-                .doOnError(throwable -> message.setMessageStatus(MessageSendStatus.Failed));
+        }).subscribeOn(RX.quick()).andThen(ChatSDK.hook().executeHook(HookEvent.MessageSent, new HashMap<String, Object>() {{
+            put(HookEvent.Message, message);
+        }})).doOnComplete(() -> {
+            message.setMessageStatus(MessageSendStatus.Sent);
+        }).doOnError(throwable -> message.setMessageStatus(MessageSendStatus.Failed));
     }
 
     protected Completable uploadFiles() {

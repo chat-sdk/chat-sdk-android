@@ -66,11 +66,6 @@ public class FirebasePushModule extends AbstractModule {
 //        }
     }
 
-    @Override
-    public String getName() {
-        return "FirebasePushModule";
-    }
-
     public static Config config() {
         return shared().config;
     }
@@ -78,6 +73,10 @@ public class FirebasePushModule extends AbstractModule {
     @Override
     public void stop() {
         config = new Config<>(this);
+    }
+
+    public boolean isPremium() {
+        return false;
     }
 
 }

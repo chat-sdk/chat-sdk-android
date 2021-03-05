@@ -6,9 +6,9 @@ import java.util.Map;
 
 public class HashMapHelper {
 
-    public static HashMap<String, Object> expand (HashMap<String, String> flatMap) {
+    public static Map<String, Object> expand(Map<String, String> flatMap) {
 
-        HashMap<String, Object> expandedMap = new HashMap<>();
+        Map<String, Object> expandedMap = new HashMap<>();
 
         for (String key : flatMap.keySet()) {
             String [] splitKey = key.split("/");
@@ -28,7 +28,7 @@ public class HashMapHelper {
 
                 // It may be that we already have a sub map, mapped to this key,
                 // in that case get it
-                HashMap<String, Object> existingMap = expandedMap.get(parentKey) instanceof HashMap ? (HashMap) expandedMap.get(parentKey) : new HashMap<>();
+                Map<String, Object> existingMap = expandedMap.get(parentKey) instanceof Map ? (Map) expandedMap.get(parentKey) : new HashMap<>();
 
                 // Expand the child map recursively and merge it with the existing map
                 existingMap.putAll(expand(childMap));
@@ -43,12 +43,12 @@ public class HashMapHelper {
         return expandedMap;
     }
 
-    public static HashMap<String, Object> flatten (Map<String, Object> map) {
+    public static Map<String, Object> flatten (Map<String, Object> map) {
         return flatten(map, null);
         //This function loops on itself. This is the initial part of it. The other flatten function with an extra variable is needed when the function begins looping on itself.
     }
 
-    public static HashMap<String, Object> flatten(Map<String, Object> map, String previousKey) {
+    public static Map<String, Object> flatten(Map<String, Object> map, String previousKey) {
         HashMap<String, Object> outputMap = new HashMap<>();
 
         //Here we loop over the keyset, and retrieve each value for that.
@@ -71,7 +71,7 @@ public class HashMapHelper {
                 value = tempMap;
             }
             if (value instanceof HashMap) {
-                outputMap.putAll(flatten((HashMap) value, newKey));
+                outputMap.putAll(flatten((Map) value, newKey));
             }
             else if (value instanceof String) {
                 outputMap.put(newKey, (String) value);

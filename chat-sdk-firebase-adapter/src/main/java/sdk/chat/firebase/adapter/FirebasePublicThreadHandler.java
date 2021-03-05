@@ -53,7 +53,7 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
 
             return new ThreadWrapper(thread).push()
                     .doOnError(throwable -> {
-                        thread.delete();
+                        thread.cascadeDelete();
                     })
                     .andThen((SingleSource<Thread>) observer -> {
                         thread.update();
@@ -68,7 +68,7 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
                             if (databaseError == null) {
                                 observer.onSuccess(thread);
                             } else {
-                                thread.delete();
+                                thread.cascadeDelete();
                                 observer.onError(databaseError.toException());
                             }
                         });

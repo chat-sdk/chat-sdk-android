@@ -14,4 +14,5 @@ include 'app',
         'sdk-guru-common',
         'sdk-guru-realtime',
         'sdk-guru-firestore',
-        'app-demo'
+        'app-demo',
+        'chat-sdk-vendor'

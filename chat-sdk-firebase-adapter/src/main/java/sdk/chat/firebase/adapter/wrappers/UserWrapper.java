@@ -197,6 +197,13 @@ public class UserWrapper {
                 }
             }
 
+            // If encryption is enabled, save the public key
+            Object publicKeyObject = value.get(Keys.PublicKey);
+            if (publicKeyObject instanceof String && ChatSDK.encryption() != null) {
+                String key = (String) publicKeyObject;
+                ChatSDK.encryption().addPublicKey(getModel().getEntityID(), null, key);
+            }
+
             model.setMetaMap(oldData);
 
         }
@@ -236,6 +243,7 @@ public class UserWrapper {
     public Single<Map<String, Object>> dataOnce() {
         return Single.create((SingleOnSubscribe<Map<String, Object>>) emitter -> {
             final DatabaseReference ref = metaRef();
+            ref.keepSynced(true);
 
             ref.addListenerForSingleValueEvent(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
                 if(hasValue) {
@@ -305,6 +313,7 @@ public class UserWrapper {
             if (!mapOptional.isEmpty()) {
                 boolean needsUpdate = !new HashSet<>(mapOptional.get().values()).equals(new HashSet<>(model.metaMap().values()));
                 if (needsUpdate && !FirebaseModule.config().disableClientProfileUpdate) {
+                    deserializeMeta(mapOptional.get());
                     return completable;
                 } else {
                     deserializeMeta(mapOptional.get());

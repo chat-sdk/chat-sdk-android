@@ -204,10 +204,19 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     }
 
     @Override
-    public boolean canRemoveUsersFromThread(Thread thread, List<User> users) {
+    public boolean canRemoveUserFromThread(Thread thread, User user) {
         return thread.typeIs(ThreadType.PrivateGroup) && thread.getCreator() != null && thread.getCreator().isMe();
     }
 
+    @Override
+    public boolean canRemoveUsersFromThread(Thread thread, List<User> users) {
+        for (User user: users) {
+            if (!canRemoveUserFromThread(thread, user)) {
+                return false;
+            }
+        }
+        return true;
+    }
     @Override
     public List<Thread> getThreads(int type) {
         return getThreads(type, false);
@@ -266,7 +275,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.create(emitter -> {
             for (Message m: thread.getMessages()) {
                 thread.removeMessage(m);
-                m.delete();
+                m.cascadeDelete();
             }
             thread.setLoadMessagesFrom(new Date());
             thread.setDeleted(true);
@@ -356,7 +365,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable grantVoice(Thread thread, User user) {
         return Completable.create(emitter -> {
-            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(thread, user));
             emitter.onComplete();
         });
     }
@@ -364,7 +373,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable revokeVoice(Thread thread, User user) {
         return Completable.create(emitter -> {
-            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(thread, user));
             emitter.onComplete();
         });
     }
@@ -387,7 +396,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable grantModerator(Thread thread, User user) {
         return Completable.create(emitter -> {
-            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(thread, user));
             emitter.onComplete();
         });
     }
@@ -395,7 +404,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable revokeModerator(Thread thread, User user) {
         return Completable.create(emitter -> {
-            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread, user));
+            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(thread, user));
             emitter.onComplete();
         });
     }
@@ -410,10 +419,6 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return false;
     }
 
-    public String localizeRole(String role) {
-        return localizeRoles(Collections.singletonList(role)).get(0);
-    }
-
     @Override
     public List<String> localizeRoles(String... roles) {
         return localizeRoles(Arrays.asList(roles));
@@ -421,7 +426,11 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
     @Override
     public List<String> localizeRoles(List<String> roles) {
-        return roles;
+        List<String> localized = new ArrayList<>();
+        for (String role: roles) {
+            localized.add(localizeRole(role));
+        }
+        return localized;
     }
 
     public boolean canLeaveThread(Thread thread) {
@@ -438,4 +447,18 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return Completable.complete();
     }
 
+    @Override
+    public Completable refreshRoles(Thread thread) {
+        return Completable.complete();
+    }
+
+    @Override
+    public boolean canRefreshRoles(Thread thread) {
+        return false;
+    }
+
+    @Override
+    public boolean isActive(Thread thread, User user) {
+        return user.getIsOnline();
+    }
 }

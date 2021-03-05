@@ -6,6 +6,7 @@ public class ImageLoaderPayload {
     public int height = 0;
     public int placeholder = 0;
     public int error = 0;
+    public boolean isAnimated = false;
 
     public ImageLoaderPayload() {
     }
@@ -15,9 +16,14 @@ public class ImageLoaderPayload {
     }
 
     public ImageLoaderPayload(int width, int height, int placeholder, int error) {
+        this(width, height, placeholder, error, false);
+    }
+
+    public ImageLoaderPayload(int width, int height, int placeholder, int error, boolean isAnimated) {
         this.width = width;
         this.height = height;
         this.placeholder = placeholder;
         this.error = error;
+        this.isAnimated = isAnimated;
     }
 }

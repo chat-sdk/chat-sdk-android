@@ -55,8 +55,9 @@ public class DaoCore {
         dbName = DB_NAME;
         context = ctx;
 
-        if(helper == null)
+        if(helper == null) {
             openDB();
+        }
     }
 
     public static void init(Context ctx, String databaseName){

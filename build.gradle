@@ -7,14 +7,15 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.1'
-        classpath "com.google.gms:google-services:4.3.4"
+        classpath 'com.android.tools.build:gradle:4.1.2'
+        classpath "com.google.gms:google-services:4.3.5"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.72"
         classpath 'com.jakewharton:butterknife-gradle-plugin:10.2.1'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.4.1'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.5.0'
         classpath 'com.google.firebase:perf-plugin:1.3.4'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
         classpath "org.greenrobot:greendao-gradle-plugin:3.3.0"
+        classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
     }
 }
 
@@ -22,24 +23,23 @@ ext {
     bintrayVersion = "1.8.4"
     mavenGradleVersion = "2.1"
     androidxAppcompatVersion = "1.1.0"
-    androidxConstraintLayoutVersion = "2.0.0-beta8"
+    androidxConstraintLayoutVersion = "2.1.0-alpha2"
     androidxLifecycleExtensionsVersion = "2.2.0"
     androidxRecyclerViewVersion = "1.1.0"
     androidxMultidexVersion = "2.0.1"
-    materialVersion = "1.1.0"
+    materialVersion = "1.2.1"
     playAuthVersion = "17.0.0"
     playMapsVersion = "17.0.0"
     playLocationVersion = "17.0.0"
     firebaseUiVersion = "7.1.1"
     firebaseCoreVersion = "17.4.1"
-    firebaseDatabaseVersion = "19.5.1"
-    firebaseFirestoreVersion = "21.5.0"
+    firebaseDatabaseVersion = "19.6.0"
+    firebaseFirestoreVersion = "22.0.1"
     firebaseAuthVersion = "20.0.1"
-    firebaseStorageVersion = "19.2.0"
-    firebaseMessagingVersion = "21.0.0"
-    firebaseFunctionsVersion = "19.1.0"
-    firebaseIIDVersion = "18.0.0"
-    firebasePerformanceVersion = "19.0.10"
+    firebaseStorageVersion = "19.2.1"
+    firebaseMessagingVersion = "21.0.1"
+    firebaseFunctionsVersion = "19.2.0"
+    firebasePerformanceVersion = "19.0.11"
     firebaseCrashlyticsVersion = "17.3.0"
     firebaseAnalyticsVersion = "18.0.0"
     greenDaoVersion = "3.3.0"
@@ -83,6 +83,10 @@ ext {
     pdfiumVersion = "1.9.0"
 
     smackVersion = "4.3.4"
+//    smackVersion = "4.4.0"
+    activity_ktx_version = "1.2.0"
+
+    kotlin_version = "1.3.72"
 
 }
 

@@ -23,22 +23,25 @@ import io.reactivex.Single;
 
     User currentUser();
 
+
+    Completable sendAvailablePresence();
+    Completable sendUnavailablePresence();
     /**
     * Mark the user as online
     */
-    Completable setUserOnline();
-
-    Completable setUserOffline();
+//    Completable setUserOnline();
+//
+//    Completable setUserOffline();
 
     /**
     * Connect to the server
     */
-    void goOffline();
+//    void goOffline();
 
     /**
     * Disconnect from the server
     */
-    void goOnline();
+//    void goOnline();
 
     Completable userOn (User user);
     void userOff (User user);

@@ -80,7 +80,7 @@
 
     <string name="image_saved">Imagen guardada exitosamente</string>
     <string name="image_save_failed">Error al guardar la imagen</string>
-    <string name="action_edit">Editar</string>
+    <string name="edit">Editar</string>
 
     <string name="availability_unavailable">Indisponible</string>
     <string name="availability_available">Disponible</string>

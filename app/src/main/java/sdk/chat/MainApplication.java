@@ -36,7 +36,7 @@ public class MainApplication extends Application {
     }
 
     public void firebase() throws Exception {
-        String rootPath = "firebase";
+        String rootPath = "pre_2";
 
         ChatSDK.builder()
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
@@ -54,7 +54,6 @@ public class MainApplication extends Application {
                         FirebaseModule.builder()
                                 .setFirebaseRootPath(rootPath)
                                 .setDisableClientProfileUpdate(false)
-                                .setEnableCompatibilityWithV4(true)
                                 .setDevelopmentModeEnabled(true)
                                 .build()
                 )
@@ -77,8 +76,6 @@ public class MainApplication extends Application {
                         config.setDrawerEnabled(false);
                     }
                 }))
-
-
 
                 .addModule(FirebaseUIModule.builder()
                         .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)

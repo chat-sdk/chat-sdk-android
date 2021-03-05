@@ -38,11 +38,6 @@ public class FirebaseModule extends AbstractModule implements NetworkAdapterProv
     }
 
     @Override
-    public String getName() {
-        return "FirebaseModule";
-    }
-
-    @Override
     public void stop() {
         config = new FirebaseConfig<>(this);
     }
@@ -56,5 +51,8 @@ public class FirebaseModule extends AbstractModule implements NetworkAdapterProv
         return shared().config;
     }
 
+    public boolean isPremium() {
+        return false;
+    }
 
 }

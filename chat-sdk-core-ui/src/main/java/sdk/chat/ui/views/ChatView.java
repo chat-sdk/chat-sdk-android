@@ -10,6 +10,8 @@ import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
+import com.bumptech.glide.RequestManager;
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
@@ -37,10 +39,10 @@ import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.core.utils.Debug;
 import sdk.chat.core.utils.Dimen;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.MessageCustomizer;
 import sdk.chat.ui.utils.ImageLoaderPayload;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
@@ -89,11 +91,11 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         ButterKnife.bind(this);
 
         final MessageHolders holders = new MessageHolders();
-        MessageCustomizer.shared().onBindMessageHolders(getContext(), holders);
+        ChatSDKUI.shared().getMessageCustomizer().onBindMessageHolders(getContext(), holders);
 
         messagesListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, (imageView, url, payload) -> {
 
-            ImageLoaderPayload ilp = null;
+            ImageLoaderPayload ilp;
             if (payload instanceof ImageLoaderPayload) {
                 ilp = (ImageLoaderPayload) payload;
             } else {
@@ -118,32 +120,73 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 return;
             }
 
-            Uri uri = Uri.parse(url);
-            if (uri != null && uri.getScheme() != null && uri.getScheme().equals("android.resource")) {
-                Glide.with(this).load(uri).override(ilp.width, ilp.height).dontAnimate().into(imageView);
+            RequestManager request = Glide.with(this);
+            RequestBuilder<?> builder;
+            if (ilp.isAnimated) {
+                builder = request.asGif();
             } else {
-                if (payload == null) {
-                    // User avatar
-                    Glide.with(this)
-                            .load(url)
-                            .dontAnimate()
-                            .placeholder(R.drawable.icn_100_profile)
-                            .override(Dimen.from(getContext(), R.dimen.small_avatar_width), Dimen.from(getContext(), R.dimen.small_avatar_height))
-                            .into(imageView);
-                } else {
-
-                    // Image message
-                    Glide.with(this)
-                            .load(url)
-                            .override(ilp.width, ilp.height)
-                            .placeholder(ilp.placeholder)
-                            .error(ilp.error)
-                            .dontAnimate()
-                            .override(maxImageWidth(), maxImageWidth())
-                            .centerCrop()
-                            .into(imageView);
-                }
+                builder = request.asDrawable().dontAnimate();
             }
+//
+//            if (payload == null) {
+//                // User avatar
+//                request.load(url)
+//                        .dontAnimate()
+//                        .placeholder(R.drawable.icn_100_profile)
+//                        .override(Dimen.from(getContext(), R.dimen.small_avatar_width), Dimen.from(getContext(), R.dimen.small_avatar_height))
+//                        .into(imageView);
+//            } else {
+//
+//                // Image message
+//                request.load(url)
+//                        .override(ilp.width, ilp.height)
+//                        .placeholder(ilp.placeholder)
+//                        .error(ilp.error)
+//                        .dontAnimate()
+//                        .override(maxImageWidth(), maxImageWidth())
+//                        .centerCrop()
+//                        .into(imageView);
+//            }
+
+//            Uri uri = Uri.parse(url);
+//            if (uri != null && uri.getScheme() != null && uri.getScheme().equals("android.resource")) {
+//                builder.load(uri).override(ilp.width, ilp.height).dontAnimate().into(imageView);
+//            } else {
+//            }
+
+            if (payload == null) {
+                // User avatar
+                builder.load(url)
+                        .placeholder(R.drawable.icn_100_profile)
+                        .override(Dimen.from(getContext(), R.dimen.small_avatar_width), Dimen.from(getContext(), R.dimen.small_avatar_height))
+                        .into(imageView);
+            } else {
+
+                // If this is a local image
+                Uri uri = Uri.parse(url);
+                if (uri != null && uri.getScheme() != null && uri.getScheme().equals("android.resource")) {
+                    builder = builder.load(uri);
+                } else {
+                    builder = builder.load(url);
+                }
+
+                builder.override(ilp.width, ilp.height)
+                        .placeholder(ilp.placeholder)
+                        .error(ilp.error)
+                        .override(maxImageWidth(), maxImageWidth())
+                        .centerCrop()
+                        .into(imageView);
+            }
+            // If this is a local image
+//            Uri uri = Uri.parse(url);
+//            if (uri != null && uri.getScheme() != null && uri.getScheme().equals("android.resource")) {
+//                builder.load(uri)
+//                        .override(ilp.width, ilp.height)
+//                        .dontAnimate()
+//                        .into(imageView);
+//            } else {
+//
+//            }
         });
 
         messagesListAdapter.setLoadMoreListener(this);
@@ -323,7 +366,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
         if (holder == null) {
 
-            final MessageHolder finalHolder = MessageCustomizer.shared().onNewMessageHolder(message);
+            final MessageHolder finalHolder = ChatSDKUI.shared().getMessageCustomizer().onNewMessageHolder(message);
 
             messageHolders.add(0, finalHolder);
             messageHolderHashMap.put(finalHolder.getMessage(), finalHolder);
@@ -365,15 +408,18 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     // Just rebinds the message
     public void softUpdate(Message message, MessageSendProgress progress) {
         final MessageHolder holder = messageHolderHashMap.get(message);
-        if (progress != null) {
-            holder.setProgress(progress);
-        }
         if (holder != null) {
+            if (progress != null) {
+                holder.setProgress(progress);
+            }
             messagesListAdapter.update(holder);
         }
     }
 
     public void addMessagesToEnd(final List<Message> messages) {
+        if (messages.isEmpty()) {
+            return;
+        }
 
         // Check to see if the holders already exist
         final List<MessageHolder> holders = new ArrayList<>();
@@ -382,9 +428,13 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
             for (Message message : messages) {
                 MessageHolder holder = messageHolderHashMap.get(message);
                 if (holder == null) {
-                    holder = MessageCustomizer.shared().onNewMessageHolder(message);
-                    messageHolderHashMap.put(message, holder);
-                    holders.add(holder);
+                    holder = ChatSDKUI.shared().getMessageCustomizer().onNewMessageHolder(message);
+                    if (holder != null) {
+                        messageHolderHashMap.put(message, holder);
+                        holders.add(holder);
+                    } else {
+                        Logger.debug("Not allowed");
+                    }
                 }
             }
             Debug.messageList(messages);

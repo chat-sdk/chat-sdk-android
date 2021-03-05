@@ -10,6 +10,7 @@ import sdk.chat.core.base.AbstractCoreHandler;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.adapter.wrappers.UserWrapper;
 import sdk.guru.common.RX;
@@ -25,10 +26,48 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
 
     public FirebaseCoreHandler() {
         database();
+
+        AppBackgroundMonitor.shared().addListener(new AppBackgroundMonitor.Listener() {
+            @Override
+            public void didStart() {
+                sendAvailablePresence().subscribe();
+            }
+
+            @Override
+            public void didStop() {
+                sendUnavailablePresence().subscribe();
+                ChatSDK.core().save();
+                ChatSDK.hook().executeHook(HookEvent.UserWillDisconnect, null);
+            }
+        });
     }
 
     public Completable pushUser() {
         return Completable.defer(() -> new UserWrapper(ChatSDK.currentUser()).push());
+    }
+
+    @Override
+    public Completable sendAvailablePresence() {
+        return Completable.defer(() -> {
+            if (!ChatSDK.config().disablePresence) {
+                if (ChatSDK.auth() != null && ChatSDK.auth().isAuthenticatedThisSession()) {
+                    return UserWrapper.initWithModel(currentUser()).goOnline();
+                }
+            }
+            return Completable.complete();
+        });
+    }
+
+    @Override
+    public Completable sendUnavailablePresence() {
+        return Completable.defer(() -> {
+            if (!ChatSDK.config().disablePresence) {
+                if (ChatSDK.auth() != null && ChatSDK.auth().isAuthenticatedThisSession()) {
+                    return UserWrapper.initWithModel(currentUser()).goOffline();
+                }
+            }
+            return Completable.complete();
+        });
     }
 
     public Completable setUserOnline() {
@@ -47,56 +86,41 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         }).subscribeOn(RX.db());
     }
 
-    public Completable setUserOffline() {
-        return Completable.defer(() -> {
-            if (!ChatSDK.config().disablePresence && ChatSDK.auth().isAuthenticated()) {
-
-                final User current = ChatSDK.currentUser();
-
-                if (current != null && !current.getEntityID().isEmpty()) {
-                    // Update the last online figure then go offline
-                    return updateLastOnline().concatWith(UserWrapper.initWithModel(current).goOffline());
-                }
-            }
-            return Completable.complete();
-        });
-    }
-
-    public void goOffline() {
-        ChatSDK.core().save();
-
-        Completable hookExecute;
-        if (ChatSDK.hook() != null) {
-            hookExecute = ChatSDK.hook().executeHook(HookEvent.UserWillDisconnect, null);
-        } else {
-            hookExecute = Completable.complete();
-        }
-
-        hookExecute.concatWith(setUserOffline()).doOnComplete(() -> {
-            FirebaseCoreHandler.database().goOffline();
-        }).subscribe(ChatSDK.events());
-
-    }
-
-    public void goOnline() {
-        super.goOnline();
-        FirebaseCoreHandler.database().goOnline();
-        setUserOnline().subscribe(ChatSDK.events());
-
-//        FirebasePaths.firebaseRawRef().child(".info/connected").addListenerForSingleValueEvent(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
-//            if (hasValue) {
-//                Logger.debug("Already online!");
-//            } else {
-////                DatabaseReference.goOnline();
-//                setUserOnline().subscribe(ChatSDK.events());
+//    public Completable setUserOffline() {
+//        return Completable.defer(() -> {
+//            if (!ChatSDK.config().disablePresence && ChatSDK.auth().isAuthenticated()) {
+//
+//                final User current = ChatSDK.currentUser();
+//
+//                if (current != null && !current.getEntityID().isEmpty()) {
+//                    // Update the last online figure then go offline
+//                    return updateLastOnline().concatWith(UserWrapper.initWithModel(current).goOffline());
+//                }
 //            }
-//        }));
-    }
+//            return Completable.complete();
+//        });
+//    }
+
+//    public void goOffline() {
+//        ChatSDK.core().save();
+//
+//        Completable hookExecute;
+//        if (ChatSDK.hook() != null) {
+//            hookExecute = ChatSDK.hook().executeHook(HookEvent.UserWillDisconnect, null);
+//        } else {
+//            hookExecute = Completable.complete();
+//        }
+//
+//        hookExecute.concatWith(setUserOffline()).doOnComplete(() -> {
+//            FirebaseCoreHandler.database().goOffline();
+//        }).subscribe(ChatSDK.events());
+//
+//    }
 
     public Completable updateLastOnline() {
         return Completable.defer(() -> {
             if (ChatSDK.lastOnline() != null) {
-                return ChatSDK.lastOnline().setLastOnline(currentUser());
+                return ChatSDK.lastOnline().updateLastOnline();
             }
             return Completable.complete();
         });

@@ -3,6 +3,8 @@ plugins {
     id 'com.jfrog.bintray'
     id 'maven-publish'
     id 'com.jakewharton.butterknife'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
 }
 
 android {
@@ -20,7 +22,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
-            minifyEnabled project.hasProperty('minifyRelease')
+            minifyEnabled project.hasProperty('minifyCore')
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -28,6 +30,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 
     lintOptions {
@@ -42,7 +48,11 @@ rootProject.allprojects {
         maven { url "https://jitpack.io" }
         maven { url "http://dl.bintray.com/chat-sdk/chatkit" }
         maven { url "http://dl.bintray.com/chat-sdk/matisse"}
+        maven { url "https://dl.bintray.com/manneohlund/maven" }
     }
+//    configurations {
+//        all*.exclude group: 'io.github.manneohlund'
+//    }
 }
 
 dependencies {
@@ -90,7 +100,25 @@ dependencies {
     api "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
+//    api 'io.github.manneohlund:smart-recycler-adapter:5.0.0-rc01'
+    // ViewEvent click listeners, multi select, swipe dismiss and drag & drop
+
+//    implementation 'io.github.manneohlund:smart-recycler-adapter:5.0.0-rc01'
+//
+//    implementation 'io.github.manneohlund:smart-recycler-adapter-viewevent:1.0.0-beta03'
+
+//    implementation 'io.github.manneohlund:smart-recycler-adapter-viewevent:1.0.0-beta03' {
+//        exclude group: 'io.github.manneohlund', module: 'smart-recycler-adapter'
+//    }
+
+    // DiffUtil extension library
+//    implementation 'io.github.manneohlund:smart-recycler-adapter-diffutil:1.0.0-beta01'
+    // Nested adapter extension library
+//    implementation 'io.github.manneohlund:smart-recycler-adapter-nestedadapter:1.0.0-beta01'
+
+    implementation "androidx.activity:activity-ktx:$activity_ktx_version"
 }
+
 
 ext {
     libraryName = 'CoreUI'
