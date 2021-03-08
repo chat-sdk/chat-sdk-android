@@ -1,0 +1,56 @@
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.bintray'
+    id 'maven-publish'
+}
+
+android {
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+
+    defaultConfig {
+        minSdkVersion Integer.parseInt(project.MIN_SDK)
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled project.hasProperty('minifyDebug')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled project.hasProperty('minifyCore')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api project(':sdk-guru-common')
+//    api project(':sdk-guru-realtime')
+
+//    implementation "com.google.firebase:firebase-firestore:$firebaseFirestoreVersion"
+    implementation "com.google.firebase:firebase-auth:$firebaseAuthVersion"
+//    implementation "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
+    implementation "com.victorrendina:rxqueue2:$rxQueueVersion"
+
+}
+
+ext {
+    libraryName = 'FireStream'
+    artifact = 'firestream'
+    libraryDescription = 'FireStream: Messaging Framework for Firebase and Firestore'
+}
+
+apply from: '../bintray.gradle'

@@ -15,4 +15,10 @@ include 'app',
         'sdk-guru-realtime',
         'sdk-guru-firestore',
         'app-demo',
-        'chat-sdk-vendor'
+        'chat-sdk-vendor',
+        'app-firestream',
+        'chat-sdk-firestream-adapter',
+        'firestream',
+        'firestream-firestore',
+        'firestream-realtime',
+        'chat-sdk-app-firestream'

@@ -37,12 +37,12 @@ import sdk.guru.common.RX;
 public class ChatActionBar extends AppBarLayout {
 
     protected OnClickListener onClickListener;
-    @BindView(R2.id.titleTextView) protected TextView titleTextView;
-    @BindView(R2.id.imageView) protected CircleImageView imageView;
-    @BindView(R2.id.subtitleTextView) protected TextView subtitleTextView;
-    @BindView(R2.id.searchImageView) protected ImageView searchImageView;
-    @BindView(R2.id.toolbar) protected Toolbar toolbar;
-    @BindView(R2.id.appBarLayout) protected AppBarLayout appBarLayout;
+    @BindView(R2.id.titleTextView) public TextView titleTextView;
+    @BindView(R2.id.imageView) public CircleImageView imageView;
+    @BindView(R2.id.subtitleTextView) public TextView subtitleTextView;
+    @BindView(R2.id.searchImageView) public ImageView searchImageView;
+    @BindView(R2.id.toolbar) public Toolbar toolbar;
+    @BindView(R2.id.appBarLayout) public AppBarLayout appBarLayout;
 
     final PrettyTime pt = new PrettyTime(CurrentLocale.get());
 

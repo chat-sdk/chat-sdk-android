@@ -73,7 +73,7 @@ public class UserWrapper {
     
     public UserWrapper(DataSnapshot snapshot){
         this(snapshot.getKey());
-        deserializeMeta(snapshot.child(Keys.Meta).getValue(Generic.mapStringObject()));
+        deserializeMeta(snapshot.child(Keys.Meta).getValue(Generic.mapStringObject()), false);
     }
 
     public UserWrapper(String entityID) {
@@ -165,7 +165,7 @@ public class UserWrapper {
             } else {
                 ValueEventListener listener = userMetaRef.addValueEventListener(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
                     if (hasValue && snapshot.getValue() instanceof Map) {
-                        deserializeMeta(snapshot.getValue(Generic.mapStringObject()));
+                        deserializeMeta(snapshot.getValue(Generic.mapStringObject()), false);
                         emitter.onComplete();
                     } else {
                         emitter.onError(new Throwable("User doesn't exist"));
@@ -183,7 +183,7 @@ public class UserWrapper {
         RealtimeReferenceManager.shared().removeListeners(userMetaRef);
     }
 
-    public void deserializeMeta(Map<String, Object> value){
+    public void deserializeMeta(Map<String, Object> value, boolean replaceLocal){
         if (value != null) {
             Map<String, String> oldData = model.metaMap();
 
@@ -192,8 +192,10 @@ public class UserWrapper {
 
             // Updating the old bundle
             for (String key : newData.keySet()) {
-                if (oldData.get(key) == null || !oldData.get(key).equals(newData.get(key))) {
-                    oldData.put(key, newData.get(key).toString());
+                String oldValue = oldData.get(key);
+                Object newValue = newData.get(key);
+                if ((oldValue == null || oldValue.isEmpty()) && (newValue != null && replaceLocal)) {
+                    oldData.put(key, newData.toString());
                 }
             }
 
@@ -313,10 +315,10 @@ public class UserWrapper {
             if (!mapOptional.isEmpty()) {
                 boolean needsUpdate = !new HashSet<>(mapOptional.get().values()).equals(new HashSet<>(model.metaMap().values()));
                 if (needsUpdate && !FirebaseModule.config().disableClientProfileUpdate) {
-                    deserializeMeta(mapOptional.get());
+                    deserializeMeta(mapOptional.get(), false);
                     return completable;
                 } else {
-                    deserializeMeta(mapOptional.get());
+                    deserializeMeta(mapOptional.get(), false);
                 }
                 return Completable.complete();
             } else {

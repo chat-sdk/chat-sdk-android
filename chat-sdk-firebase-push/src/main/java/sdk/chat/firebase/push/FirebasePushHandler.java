@@ -100,10 +100,6 @@ public class FirebasePushHandler extends AbstractPushHandler {
         return FirebaseMessaging.getInstance();
     }
 
-    public String hashChannel(String channel) throws Exception {
-        return md5(channel);
-    }
-
     public boolean enabled() {
         return enabled;
     }

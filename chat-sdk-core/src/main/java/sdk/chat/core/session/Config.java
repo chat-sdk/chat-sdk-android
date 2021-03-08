@@ -95,7 +95,7 @@ public class Config<T> extends BaseConfig<T> {
     // is in the killed state. This is useful to help us debug that process.
     public boolean backgroundPushTestModeEnabled = false;
 
-    public int logoDrawableResourceID = R.drawable.ic_launcher_big;
+    public int logoDrawableResourceID = R.drawable.ic_logo_big;
 
     public Map<String, Object> customProperties = new HashMap<>();
 
