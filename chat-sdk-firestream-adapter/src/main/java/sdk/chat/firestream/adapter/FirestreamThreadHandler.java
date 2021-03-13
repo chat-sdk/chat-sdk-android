@@ -219,22 +219,23 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                 || message.getMessageType().is(MessageType.System));
     }
 
-    public boolean rolesEnabled(Thread thread, User user) {
-        return ChatSDK.config().rolesEnabled || (thread.typeIs(ThreadType.Group) && !availableRoles(thread, user).isEmpty());
+    @Override
+    public boolean rolesEnabled(Thread thread) {
+        return ChatSDK.config().rolesEnabled && thread.typeIs(ThreadType.Group);
     }
 
     public String roleForUser(Thread thread, User user) {
-        if (rolesEnabled(thread, user)) {
+        if (rolesEnabled(thread)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
-                return chat.getRoleType(new FireStreamUser(user.getEntityID())).stringValue();
+                return chat.getRoleType(new FireStreamUser(user.getEntityID())).get();
             }
         }
         return null;
     }
 
     public List<String> availableRoles(Thread thread, User user) {
-        if (rolesEnabled(thread, user)) {
+        if (rolesEnabled(thread)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
                 return RoleType.rolesToStringValues(chat.getAvailableRoles(new FireStreamUser(user.getEntityID())));
@@ -245,12 +246,12 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
 
     @Override
     public String localizeRole(String role) {
-        return null;
+        return new RoleType(role).localized();
     }
 
     public Completable setRole(String role, Thread thread, User user) {
         return Completable.defer(() -> {
-            if (rolesEnabled(thread, user)) {
+            if (rolesEnabled(thread)) {
                 IChat chat = Fire.stream().getChat(thread.getEntityID());
                 if (chat != null) {
                     return chat.setRole(new FireStreamUser(user.getEntityID()), RoleType.reverseMap().get(role));
@@ -498,6 +499,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         }
         return false;
     }
+
 
     @Override
     public boolean hasVoice(Thread thread, User user) {

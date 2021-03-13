@@ -94,7 +94,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                     // Capture role change events
                     if (userEvent.isModified()) {
                         RoleType role = chat.getRoleType(userEvent.get());
-                        finalThread.setPermission(userEvent.get().getId(), ChatSDK.thread().localizeRole(role.stringValue()));
+                        finalThread.setPermission(userEvent.get().getId(), ChatSDK.thread().localizeRole(role.get()));
                     }
                 }, this));
 
@@ -173,8 +173,8 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
     }
 
     @Override
-    protected void contactsOn (User chatSDKUser) {
-        dm.add(Fire.stream().getContactEvents().subscribe(userEvent -> {
+    protected void contactsOn(User chatSDKUser) {
+        dm.add(Fire.stream().getContactEvents().pastAndNewEvents().subscribe(userEvent -> {
             User contact = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, userEvent.get().getId());
             if (userEvent.isAdded()) {
                 ChatSDK.contact().addContactLocal(contact, ConnectionType.Contact).subscribe(this);

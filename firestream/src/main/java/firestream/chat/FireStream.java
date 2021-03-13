@@ -402,6 +402,12 @@ public class FireStream extends AbstractChat implements IFireStream {
         return blocked.contains(user);
     }
 
+    public Predicate<Event<? extends Sendable>> blockedUserFilter() {
+        return event -> {
+            return !blocked.contains(new User(event.get().getFrom()));
+        };
+    }
+
     //
     // Contacts
     //

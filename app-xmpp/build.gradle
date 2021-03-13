@@ -39,7 +39,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled project.hasProperty('minifyRelease')
+            minifyEnabled project.hasProperty('minifyCore')
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }

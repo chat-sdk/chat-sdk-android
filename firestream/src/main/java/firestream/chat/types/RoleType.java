@@ -96,7 +96,7 @@ public class RoleType extends BaseType {
         return 5;
     }
 
-    public String stringValue() {
+    public String localized() {
         int resId = -1;
 
         if (equals(RoleType.owner())) {
@@ -151,7 +151,7 @@ public class RoleType extends BaseType {
         List<String> stringValues = new ArrayList<>();
 
         for (RoleType rt: roleTypes) {
-            stringValues.add(rt.stringValue());
+            stringValues.add(rt.get());
         }
 
         return stringValues;
@@ -160,7 +160,7 @@ public class RoleType extends BaseType {
     public static Map<String, RoleType> reverseMap() {
         Map<String, RoleType> map = new HashMap<>();
         for (RoleType rt: all()) {
-            map.put(rt.stringValue(), rt);
+            map.put(rt.get(), rt);
         }
         return map;
     }

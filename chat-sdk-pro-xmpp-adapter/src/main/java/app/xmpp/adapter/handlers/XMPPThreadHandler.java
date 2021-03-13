@@ -383,8 +383,18 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     @Override
     public boolean hasVoice(Thread thread, User user) {
         if (thread.typeIs(ThreadType.Group)) {
+            UserThreadLink link = thread.getUserThreadLink(user.getId());
+            if (link != null && link.hasLeft()) {
+                return false;
+            }
             String role = XMPPManager.shared().mucManager.getRole(thread, user).name();
-            return ((Role.isModerator(role) || Role.isParticipant(role))) && !thread.getUserThreadLink(user.getId()).hasLeft();
+
+            if (Role.isNone(role)) {
+                String affiliation = XMPPManager.shared().mucManager.getAffiliation(thread, user).name();
+                return !Role.isOutcastOrNone(affiliation);
+            } else {
+                return Role.isModeratorOrParticipant(role);
+            }
         }
         return true;
     }
@@ -431,8 +441,16 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean isModerator(Thread thread, User user) {
+        UserThreadLink link = thread.getUserThreadLink(user.getId());
+        if (link != null && link.hasLeft()) {
+            return false;
+        }
         String role = XMPPManager.shared().mucManager.getRole(thread, user).name();
-        return Role.isModerator(role) && !thread.getUserThreadLink(user.getId()).hasLeft();
+        if (Role.isNone(role)) {
+            String affiliation = XMPPManager.shared().mucManager.getAffiliation(thread, user).name();
+            return Role.isOwnerOrAdmin(affiliation);
+        }
+        return Role.isModerator(role);
     }
 
     public List<String> availableRoles(Thread thread, User user) {

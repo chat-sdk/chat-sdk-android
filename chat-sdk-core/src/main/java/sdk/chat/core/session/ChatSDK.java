@@ -350,15 +350,11 @@ public class ChatSDK {
     }
 
     public static User currentUser () {
-        return ChatSDK.core().currentUser();
+        return auth().currentUser();
     }
 
     public static String currentUserID() {
-        if (ChatSDK.core().currentUser() != null) {
-            return ChatSDK.core().currentUser().getEntityID();
-        } else {
-            return null;
-        }
+        return auth().getCurrentUserEntityID();
     }
 
     public static SearchHandler search () {
@@ -434,10 +430,10 @@ public class ChatSDK {
     public static String getMessageImageURL(Message message) {
         String imageURL = message.getImageURL();
         if(StringChecker.isNullOrEmpty(imageURL)) {
-            imageURL = ChatSDK.imageMessage().getImageURL(message);
+            imageURL = imageMessage().getImageURL(message);
         }
         if(StringChecker.isNullOrEmpty(imageURL)) {
-            imageURL = ChatSDK.locationMessage().getImageURL(message);
+            imageURL = locationMessage().getImageURL(message);
         }
         if(StringChecker.isNullOrEmpty(imageURL)) {
            for (Module module: shared().builder.modules) {
@@ -455,10 +451,10 @@ public class ChatSDK {
     public static String getMessageText(Message message) {
         String text = message.isReply() ? message.getReply() : message.getText();
         if(StringChecker.isNullOrEmpty(text)) {
-            text = ChatSDK.imageMessage().toString(message);
+            text = imageMessage().toString(message);
         }
         if(StringChecker.isNullOrEmpty(text)) {
-            text = ChatSDK.locationMessage().toString(message);
+            text = locationMessage().toString(message);
         }
         if(StringChecker.isNullOrEmpty(text)) {
             for (Module module: shared().builder.modules) {

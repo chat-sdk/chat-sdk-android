@@ -1,6 +1,5 @@
 package sdk.chat.core.base;
 
-import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.handlers.CoreHandler;
 import sdk.chat.core.session.ChatSDK;
@@ -11,8 +10,6 @@ import sdk.chat.core.session.ChatSDK;
 
 public abstract class AbstractCoreHandler implements CoreHandler {
 
-    private User cachedUser = null;
-
     @Deprecated
     public User currentUserModel(){
         return currentUser();
@@ -20,21 +17,7 @@ public abstract class AbstractCoreHandler implements CoreHandler {
 
     @Override
     public User currentUser() {
-        String entityID = ChatSDK.auth().getCurrentUserEntityID();
-
-        if (entityID == null) {
-            cachedUser = null;
-        }
-
-        if(cachedUser == null || !cachedUser.equalsEntityID(entityID)) {
-            if (entityID != null && !entityID.isEmpty()) {
-                cachedUser = DaoCore.fetchEntityWithEntityID(User.class, entityID);
-            }
-            else {
-                cachedUser = null;
-            }
-        }
-        return cachedUser;
+        return ChatSDK.auth().currentUser();
     }
 
 }

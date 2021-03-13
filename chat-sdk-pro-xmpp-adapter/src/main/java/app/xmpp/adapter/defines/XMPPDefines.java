@@ -15,6 +15,7 @@ public class XMPPDefines {
     public static String Type = "message-type";
     public static String Action = "message-action";
     public static String ID = "id";
+    public static String X = "x";
 
     public static String Request = "request";
 

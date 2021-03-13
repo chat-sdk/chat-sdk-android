@@ -13,7 +13,7 @@ public class FirebaseEncryptionHandler extends EncryptionHandler {
         // Add the key to our meta data
         User user = ChatSDK.currentUser();
         String publicKey = publicKey();
-        if (user != null && publicKey != null) {
+        if (user != null) {
             user.setMetaValue(Keys.PublicKey, publicKey);
             return ChatSDK.core().pushUser();
         }

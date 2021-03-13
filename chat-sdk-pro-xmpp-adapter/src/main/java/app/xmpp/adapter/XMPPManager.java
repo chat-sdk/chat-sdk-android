@@ -338,9 +338,10 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
                     e.onError(ChatSDK.getException(R.string.login_failed_timeout));
                 } else if (message.contains("not-authorized")) {
                     e.onError(ChatSDK.getException(R.string.username_or_password_incorrect));
-                }
-                else {
-                    e.onError(ChatSDK.getException(R.string.login_failed));
+                } else if (message.contains("SSL/TLS")) {
+                    e.onError(exception);
+                } else {
+                    e.onError(ChatSDK.getException(password != null ? R.string.login_failed : R.string.registration_failed));
                 }
             }
         }).subscribeOn(RX.io());

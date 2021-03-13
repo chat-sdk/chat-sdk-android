@@ -143,16 +143,6 @@ public abstract class AbstractPushHandler implements PushHandler {
         });
     }
 
-    public String hashChannel(String channel) throws Exception {
-        channel = channel.replace(".", "1");
-        channel = channel.replace("%2E", "1");
-        channel = channel.replace("@", "2");
-        channel = channel.replace("%40", "2");
-        channel = channel.replace(":", "3");
-        channel = channel.replace("%3A", "3");
-        return channel;
-    }
-
     public String md5(String channel) throws NoSuchAlgorithmException {
         java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
         byte[] array = md.digest(channel.getBytes());
@@ -161,6 +151,10 @@ public abstract class AbstractPushHandler implements PushHandler {
             sb.append(Integer.toHexString((b & 0xFF) | 0x100).substring(1, 3));
         }
         return sb.toString();
+    }
+
+    public String hashChannel(String channel) throws Exception {
+        return md5(channel);
     }
 
     public boolean enabled() {

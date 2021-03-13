@@ -16,6 +16,7 @@ import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -84,7 +85,9 @@ public class FirebaseEventHandler extends AbstractEventHandler {
                     thread.getModel().addUser(user, false);
                     thread.getModel().getUserThreadLink(ChatSDK.currentUser().getId()).setHasLeft(false);
 
-                    thread.on().subscribe(this);
+                    thread.on().doOnComplete(() -> {
+                        ChatSDK.events().source().accept(NetworkEvent.threadAdded(thread.getModel()));
+                    }).subscribe();
 
                 }
 
@@ -97,6 +100,8 @@ public class FirebaseEventHandler extends AbstractEventHandler {
                 }
                 thread.getModel().setPermission(user.getEntityID(), Permission.None, true, false);
                 thread.getModel().getUserThreadLink(ChatSDK.currentUser().getId()).setHasLeft(true);
+
+//                ChatSDK.events().source().accept(NetworkEvent.threadRemoved(thread.getModel()));
 
                 thread.off();
             }
@@ -119,10 +124,13 @@ public class FirebaseEventHandler extends AbstractEventHandler {
             ChildEventListener publicThreadsListener = query.addChildEventListener(new RealtimeEventListener().onChildAdded((snapshot, s, hasValue) -> {
                 final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
 
-                thread.on().subscribe(this);
+                thread.on().doOnComplete(() -> {
+                    ChatSDK.events().source().accept(NetworkEvent.threadAdded(thread.getModel()));
+                }).subscribe();
 
             }).onChildRemoved((snapshot, hasValue) -> {
                 ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
+//                ChatSDK.events().source().accept(NetworkEvent.threadRemoved(thread.getModel()));
                 thread.off();
             }));
             RealtimeReferenceManager.shared().addRef(publicThreadsRef, publicThreadsListener);
@@ -182,7 +190,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         dm.disposeAll();
     }
 
-    protected void threadsOff (User user) {
+    protected void threadsOff(User user) {
         String entityID = user.getEntityID();
         RealtimeReferenceManager.shared().removeListeners(FirebasePaths.userThreadsRef(entityID));
         for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Private)) {
@@ -191,7 +199,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         }
     }
 
-    protected void publicThreadsOff (User user) {
+    protected void publicThreadsOff(User user) {
         if (!FirebaseModule.config().disablePublicThreads) {
             RealtimeReferenceManager.shared().removeListeners(FirebasePaths.publicThreadsRef());
             for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
@@ -201,7 +209,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         }
     }
 
-    protected void contactsOff (User user) {
+    protected void contactsOff(User user) {
         for (User contact : ChatSDK.contact().contacts()) {
             UserWrapper.initWithModel(contact).metaOff();
         }

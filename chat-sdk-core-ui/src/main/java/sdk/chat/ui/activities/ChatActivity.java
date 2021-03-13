@@ -296,11 +296,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .filter(networkEvent -> thread.containsUser(networkEvent.getUser()))
                 .subscribe(networkEvent -> {
                     reloadData();
                     chatActionBar.reload(thread);
+                    chatActionBar.setSubtitleText(thread, null);
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()

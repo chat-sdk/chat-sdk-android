@@ -160,7 +160,11 @@ public class EditThreadActivity extends BaseActivity {
             nameTextInput.setText(name);
         }
 
-        ThreadImageBuilder.load(threadImageView, thread);
+        if (threadImageURL != null) {
+            ThreadImageBuilder.load(threadImageView, threadImageURL);
+        } else {
+            ThreadImageBuilder.load(threadImageView, thread);
+        }
 
         updateSaveButtonState();
     }

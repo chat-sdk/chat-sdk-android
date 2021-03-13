@@ -65,14 +65,16 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     @Override
     public String getDialogPhoto() {
-        String url = thread.getImageUrl();
-        if (url == null) {
-            if (getUsers().size() == 1) {
-                url = getUsers().get(0).getAvatar();
-            }
-        }
-
-        return url;
+        return null;
+//
+//        String url = thread.getImageUrl();
+//        if (url == null) {
+//            if (getUsers().size() == 1) {
+//                url = getUsers().get(0).getAvatar();
+//            }
+//        }
+//
+//        return url;
     }
 
     @Override

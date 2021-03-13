@@ -8,7 +8,6 @@ import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.receipts.XMPPReadReceiptsModule;
 import io.reactivex.disposables.Disposable;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.encryption.xmpp.XMPPEncryptionModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.audio.AudioMessageModule;
@@ -45,9 +44,11 @@ public class MainApplication extends Application {
                     .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
-                            .setXMPP("xmpp.app", "xmpp.app")
+                            .setXMPP("develop.aku-pintar.co.id", "develop.aku-pintar.co.id")
+//                            .setXMPP("xmpp.app", "xmpp.app")
 //                            .setXMPP("sysnet-ecs.multidemos.com", "sysnet-ecs.multidemos.com")
                             .setAllowServerConfiguration(false)
+                            .setSecurityMode("ifpossible")
 //                            .setSecurityMode("ifpossible")
                             .setPingInterval(5)
                             .build())
@@ -74,7 +75,7 @@ public class MainApplication extends Application {
                             .setDrawerEnabled(false)
                             .build())
 
-                    .addModule(XMPPEncryptionModule.shared())
+//                    .addModule(XMPPEncryptionModule.shared())
 
                     .build().activateWithEmail(this, "ben@sdk.chat");
 
@@ -83,6 +84,7 @@ public class MainApplication extends Application {
 
 //            ChatSDK.ui().setThreadDetailsActivity(ThreadDetailsActivity.class);
 
+//            chatsdkAuth(Device.honor() ? "xxx1" : "xxx2", "123", "test@conference.xmpp.app");
 
         }
         catch (Exception e) {
@@ -102,4 +104,41 @@ public class MainApplication extends Application {
 
     }
 
+//    private void chatsdkAuth(String username, String password, String threadId) {
+//        if (ChatSDK.auth().isAuthenticatedThisSession()) {
+//            chatsdkGroup(threadId);
+//        } else {
+//            ChatSDK.auth().authenticate(AccountDetails.username(username, password)).subscribe(() -> {
+//                chatsdkGroup(threadId);
+//            }, throwable -> {
+//                ChatSDK.auth().authenticate(AccountDetails.signUp(username, password)).subscribe(() -> {
+//                    chatsdkGroup(threadId);
+//                }, throwable1 -> {
+////                    view.displayFailure("Gagal register group");
+//                });
+//            });
+//        }
+//    }
+//
+//    private void chatsdkGroup(String threadId){
+//        Thread thread = getThread(threadId);
+//        if(thread != null) {
+////            if(ChatSDK.thread().hasVoice(thread, ChatSDK.currentUser())){
+//                ChatSDK.thread().joinThread(thread).observeOn(RX.main()).subscribe(() -> {
+//                    startChatActivity(thread);
+//                }, throwable -> {
+////                    view.displayFailure("Gagal join group");
+//                });
+//        }
+//    }
+//
+//    private Thread getThread(String threadId){
+//        Thread thread =  ChatSDK.db().fetchOrCreateThreadWithEntityID(threadId);
+//        thread.setType(ThreadType.PrivateGroup);
+//        return thread;
+//    }
+//
+//    private void startChatActivity(Thread thread){
+//        ChatSDK.ui().startChatActivityForID(this, thread.getEntityID(), Intent.FLAG_ACTIVITY_NEW_TASK);
+//    }
 }

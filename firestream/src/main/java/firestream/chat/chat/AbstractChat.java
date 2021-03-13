@@ -318,6 +318,10 @@ public abstract class AbstractChat implements IAbstractChat {
     protected void passMessageResultToStream(Event<Sendable> event) {
         Sendable sendable = event.get();
 
+//        if (Fire.stream().isBlocked(new User(sendable.getFrom()))) {
+//            return;
+//        }
+
         debug("Sendable: " + sendable.getType() + " " + sendable.getId() + ", date: " + sendable.getDate().getTime());
 
         // In general, we are mostly interested when messages are added

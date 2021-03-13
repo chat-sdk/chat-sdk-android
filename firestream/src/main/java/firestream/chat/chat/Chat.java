@@ -304,7 +304,7 @@ public class Chat extends AbstractChat implements IChat {
         if (!user.isMe() && hasPermission(RoleType.admin())) {
             // The owner can set users to any role apart from owner
             if (hasPermission(RoleType.owner())) {
-                return RoleType.allExcluding(RoleType.owner());
+                return RoleType.all();
             }
             // Admins can set the role type of non-admin users. They can't create or
             // destroy admins, only the owner can do that

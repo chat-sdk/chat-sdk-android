@@ -22,10 +22,15 @@ public class ThreadImageBuilder {
         load(imageView, thread, size);
     }
 
-    public static void load (final ImageView imageView, final Thread thread, int size) {
+    public static void load(final ImageView imageView, final String imageURL) {
+        int size = Dimen.from(imageView.getContext(), R.dimen.action_bar_avatar_size);
+        Glide.with(imageView).load(imageURL).placeholder(defaultDrawable(null)).dontAnimate().override(size).into(imageView);
+    }
+
+    public static void load(final ImageView imageView, final Thread thread, int size) {
         if (thread != null) {
             String url = thread.getImageUrl();
-            if (url == null && thread.typeIs(ThreadType.Private1to1)) {
+            if (url == null && thread.typeIs(ThreadType.Private1to1) && thread.otherUser() != null) {
                 url = thread.otherUser().getAvatarURL();
             }
             Glide.with(imageView).load(url).placeholder(defaultDrawable(thread)).dontAnimate().override(size).into(imageView);

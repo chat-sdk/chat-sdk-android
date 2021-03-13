@@ -40,7 +40,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled project.hasProperty('minifyRelease')
+minifyEnabled project.hasProperty('minifyCore')
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
@@ -107,19 +107,19 @@ dependencies {
 //    implementation project(':chat-sdk-mod-firebase-ui')
 //    implementation project(':chat-sdk-mod-profile-pictures')
 //
-//    implementation project(':chat-sdk-pro-message-audio')
-//    implementation project(':chat-sdk-pro-message-sticker')
-//    implementation project(':chat-sdk-pro-message-file')
-//    implementation project(':chat-sdk-pro-message-video')
+    implementation project(':chat-sdk-pro-message-audio')
+    implementation project(':chat-sdk-pro-message-sticker')
+    implementation project(':chat-sdk-pro-message-file')
+    implementation project(':chat-sdk-pro-message-video')
 //
     implementation project(':chat-sdk-pro-encryption')
-//    implementation project(':chat-sdk-pro-contact-book')
+    implementation project(':chat-sdk-pro-contact-book')
 //
     implementation project(':chat-sdk-pro-firebase-nearby-users')
-//    implementation project(':chat-sdk-pro-firebase-blocking')
-//    implementation project(':chat-sdk-pro-firebase-last-online')
-//    implementation project(':chat-sdk-pro-firebase-typing-indicator')
-//    implementation project(':chat-sdk-pro-firebase-read-receipts')
+    implementation project(':chat-sdk-pro-firebase-blocking')
+    implementation project(':chat-sdk-pro-firebase-last-online')
+    implementation project(':chat-sdk-pro-firebase-typing-indicator')
+    implementation project(':chat-sdk-pro-firebase-read-receipts')
 //
 //    implementation project(':chat-sdk-pro-firestream-typing-indicator')
 //    implementation project(':chat-sdk-pro-firestream-read-receipts')

@@ -11,10 +11,18 @@ import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.encryption.firebase.FirebaseEncryptionModule;
+import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.blocking.FirebaseBlockingModule;
 import sdk.chat.firebase.location.FirebaseNearbyUsersModule;
 import sdk.chat.firebase.push.FirebasePushModule;
+import sdk.chat.firebase.receipts.FirebaseReadReceiptsModule;
+import sdk.chat.firebase.typing.FirebaseTypingIndicatorModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
+import sdk.chat.message.audio.AudioMessageModule;
+import sdk.chat.message.file.FileMessageModule;
+import sdk.chat.message.sticker.module.StickerMessageModule;
+import sdk.chat.message.video.VideoMessageModule;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.recycler.SectionViewModel;
@@ -73,8 +81,6 @@ public class MainApplication extends Application {
                 )
 
 
-
-
         // Add modules to handle file uploads, push notifications
                 .addModule(FirebaseUploadModule.shared())
                 .addModule(FirebasePushModule.shared())
@@ -82,16 +88,16 @@ public class MainApplication extends Application {
 //                .addModule(ProfilePicturesModule.shared())
 //
                 .addModule(ContactBookModule.shared())
-//                            .addModule(EncryptionModule.shared())
-//                .addModule(FileMessageModule.shared())
-//                .addModule(AudioMessageModule.shared())
-//                .addModule(StickerMessageModule.shared())
-//                .addModule(VideoMessageModule.shared())
-//                .addModule(FirebaseBlockingModule.shared())
-//                .addModule(FirebaseLastOnlineModule.shared())
+
+                .addModule(FileMessageModule.shared())
+                .addModule(AudioMessageModule.shared())
+                .addModule(StickerMessageModule.shared())
+                .addModule(VideoMessageModule.shared())
+                .addModule(FirebaseBlockingModule.shared())
+                .addModule(FirebaseLastOnlineModule.shared())
                 .addModule(FirebaseNearbyUsersModule.builder().build())
-//                .addModule(FirebaseReadReceiptsModule.shared())
-//                .addModule(FirebaseTypingIndicatorModule.shared())
+                .addModule(FirebaseReadReceiptsModule.shared())
+                .addModule(FirebaseTypingIndicatorModule.shared())
 
 //                .addModule(ExtrasModule.builder(config -> {
 //                    if (Device.honor(this)) {

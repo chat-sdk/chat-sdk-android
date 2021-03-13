@@ -96,11 +96,11 @@ public class StorageManager {
         return fetchOrCreateEntityWithEntityID(Message.class, entityId);
     }
 
-    public Message fetchMessageWithEntityID(String entityId) {
+    public synchronized Message fetchMessageWithEntityID(String entityId) {
         return fetchEntityWithEntityID(entityId, Message.class);
     }
 
-    public <T extends CoreEntity> T fetchOrCreateEntityWithEntityID(Class<T> c, String entityId){
+    public synchronized <T extends CoreEntity> T fetchOrCreateEntityWithEntityID(Class<T> c, String entityId){
         Logger.debug(java.lang.Thread.currentThread().getName());
 
         if (entityCacheEnabled && entityCache.containsKey(c.toString() + entityId)) {
@@ -126,7 +126,7 @@ public class StorageManager {
         return Single.defer(() -> Single.just(fetchOrCreateEntityWithEntityID(c, entityId))).subscribeOn(RX.db());
     }
 
-    public <T> T createEntity (Class<T> c) {
+    public synchronized <T> T createEntity (Class<T> c) {
         Logger.debug(java.lang.Thread.currentThread().getName());
         T entity = DaoCore.getEntityForClass(c);
         DaoCore.createEntity(entity);
@@ -150,7 +150,7 @@ public class StorageManager {
         return Single.defer(() -> Single.just(insertOrReplaceEntity(entity)).subscribeOn(RX.db()));
     }
 
-    public <T extends CoreEntity> T fetchEntityWithEntityID(String entityID, Class<T> c) {
+    public synchronized <T extends CoreEntity> T fetchEntityWithEntityID(String entityID, Class<T> c) {
         if (entityCacheEnabled && entityCache.containsKey(c.toString() + entityID)) {
             return (T) entityCache.get(c.toString() + entityID);
         }
@@ -164,7 +164,7 @@ public class StorageManager {
         return Single.defer(() -> Single.just(fetchEntityWithEntityID(entityID, c)).subscribeOn(RX.db()));
     }
 
-    public User fetchUserWithEntityID (String entityID) {
+    public synchronized User fetchUserWithEntityID(String entityID) {
         return DaoCore.fetchEntityWithEntityID(User.class, entityID);
     }
 
@@ -172,14 +172,14 @@ public class StorageManager {
         return Single.defer(() -> Single.just(fetchUserWithEntityID(entityID)).subscribeOn(RX.db()));
     }
 
-    public List<Thread> fetchThreadsWithType (int type) {
+    public List<Thread> fetchThreadsWithType(int type) {
         QueryBuilder<Thread> qb = DaoCore.daoSession.queryBuilder(Thread.class);
         qb.where(ThreadDao.Properties.Type.eq(type));
         qb.where(ThreadDao.Properties.UserAccountID.eq(ChatSDK.currentUserID()));
         return qb.list();
     }
 
-    public Thread fetchOrCreateThreadWithEntityID(String entityId){
+    public synchronized Thread fetchOrCreateThreadWithEntityID(String entityId){
         Logger.debug(java.lang.Thread.currentThread().getName());
 
         Thread thread = fetchThreadWithEntityID(entityId);
@@ -193,7 +193,7 @@ public class StorageManager {
         return thread;
     }
 
-    public Thread fetchThreadWithEntityID(String entityID) {
+    public synchronized Thread fetchThreadWithEntityID(String entityID) {
         QueryBuilder<Thread> qb = DaoCore.daoSession.queryBuilder(Thread.class);
         qb.where(ThreadDao.Properties.EntityID.eq(entityID));
         qb.where(ThreadDao.Properties.UserAccountID.eq(ChatSDK.currentUserID()));

@@ -16,11 +16,12 @@
     <application
         android:allowBackup="false"
         android:icon="@drawable/icn_100_profile"
+        android:logo="@drawable/icn_100_profile"
         android:label="@string/app_name"
         android:theme="@style/GGTheme"
         android:name="sdk.chat.MainApplication"
         android:hardwareAccelerated="true"
-        tools:replace="allowBackup">
+        tools:replace="allowBackup, icon">
 
 
 <!--                <activity android:name="sdk.chat.custom.EmptyActivity">-->

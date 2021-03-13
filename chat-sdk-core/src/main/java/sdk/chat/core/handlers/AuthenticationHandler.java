@@ -1,7 +1,8 @@
 package sdk.chat.core.handlers;
 
-import sdk.chat.core.types.AccountDetails;
 import io.reactivex.Completable;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.types.AccountDetails;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
@@ -45,6 +46,7 @@ public interface AuthenticationHandler {
     * Get the current user's authentication id
     */
     String getCurrentUserEntityID();
+    User currentUser();
 
     Completable changePassword(String email, String oldPassword, final String newPassword);
     Completable sendPasswordResetMail(String email);

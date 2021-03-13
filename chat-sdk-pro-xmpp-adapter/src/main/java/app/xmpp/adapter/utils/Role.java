@@ -48,6 +48,10 @@ public class Role {
         return isMember(role) || isOutcast(role);
     }
 
+    public static Boolean isOutcastOrNone(String role) {
+        return isNone(role) || isOutcast(role);
+    }
+
     public static Integer level(String role) {
         if (isOwner(role)) {
             return 4;
@@ -62,6 +66,10 @@ public class Role {
             return 1;
         }
         return 0;
+    }
+
+    public static Boolean isModeratorOrParticipant(String role) {
+        return isParticipant(role) || isModerator(role);
     }
 
     public static Boolean isModerator(String role) {

@@ -102,8 +102,12 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
             if (xmr.isSilent()) {
                 continue;
             }
-            // The message already exists
-            if (ChatSDK.db().fetchEntityWithEntityID(xmr.getMessage().getStanzaId(), sdk.chat.core.dao.Message.class) != null) {
+            // This could be an invite. In that case it shouldn't be necessary to handle it because
+            // if we joined before, the room should be bookmarked
+            String messageId = xmr.getMessage().getStanzaId();
+
+            // The message already exists or there is no mesasge id
+            if (messageId == null || ChatSDK.db().fetchEntityWithEntityID(messageId, sdk.chat.core.dao.Message.class) != null) {
                 continue;
             }
 

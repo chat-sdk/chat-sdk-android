@@ -41,10 +41,9 @@ import sdk.chat.core.utils.StringChecker;
 @Entity
 public class Thread extends AbstractEntity {
 
-    @Id
-    private Long id;
-    @Unique
-    private String entityID;
+    @Id private Long id;
+    @Unique private String entityID;
+
     private Date creationDate;
     private Integer type;
     private Long creatorId;

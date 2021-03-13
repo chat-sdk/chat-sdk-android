@@ -37,8 +37,10 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
         }), HookEvent.DidAuthenticate);
 
         ChatSDK.hook().addHook(Hook.sync(data -> {
-            Message message = (Message) data.get(HookEvent.Message);
-            updateReadReceipts(message);
+            Object message = data.get(HookEvent.Message);
+            if (message instanceof Message) {
+                updateReadReceipts((Message) message);
+            }
         }), HookEvent.MessageReceived);
 
         dm.add(ChatSDK.events().source().filter(NetworkEvent.filterType(EventType.ThreadUserRoleUpdated)).subscribe(event -> {

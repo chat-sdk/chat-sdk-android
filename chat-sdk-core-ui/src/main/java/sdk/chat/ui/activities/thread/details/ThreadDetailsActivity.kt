@@ -248,19 +248,22 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
 
         val isGroup = thread.typeIs(ThreadType.Group);
 
-        if (isGroup) {
-            items.add(SectionViewModel(getString(R.string.me)).hideBorders(true))
-            items.add(getThreadUser(ChatSDK.currentUser()))
-            items.add(SectionViewModel(getString(R.string.participants)))
-        } else {
-            items.add(SectionViewModel(""))
-        }
-
         // If this is not a dialog we will load the contacts of the user.
         var threadUsers = mutableListOf<ThreadUser>()
         for (user in thread.members) {
             threadUsers.add(getThreadUser(user))
         }
+
+        if (isGroup) {
+            items.add(SectionViewModel(getString(R.string.me)).hideBorders(true))
+            items.add(getThreadUser(ChatSDK.currentUser()))
+            if (!threadUsers.isEmpty()) {
+            items.add(SectionViewModel(getString(R.string.participants)))
+            }
+        } else {
+            items.add(SectionViewModel(""))
+        }
+
         UserSorter.sortThreadUsers(threadUsers)
 
         items.addAll(threadUsers)

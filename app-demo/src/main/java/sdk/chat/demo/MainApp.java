@@ -7,6 +7,7 @@ import org.pmw.tinylog.Logger;
 import sdk.chat.app.firebase.ChatSDKFirebase;
 import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.Device;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
 import sdk.chat.firebase.receipts.FirebaseReadReceiptsModule;
@@ -21,7 +22,7 @@ public class MainApp extends Application {
         try {
 
             // Setup Chat SDK
-            ChatSDKFirebase.quickStartWithEmail(this, "pre_1", "AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE", true, "team@sdk.chat",
+            ChatSDKFirebase.quickStartWithEmail(this, "pre_1", "AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE", !Device.honor(this), "team@sdk.chat",
                     AudioMessageModule.shared(),
                     FirebaseBlockingModule.shared(),
                     FirebaseReadReceiptsModule.shared(),

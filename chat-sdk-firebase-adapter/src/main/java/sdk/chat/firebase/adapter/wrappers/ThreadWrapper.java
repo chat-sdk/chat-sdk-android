@@ -60,7 +60,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         this.model = thread;
     }
     
-    public ThreadWrapper(String entityId){
+    public ThreadWrapper(String entityId) {
         this(ChatSDK.db().fetchOrCreateThreadWithEntityID(entityId));
     }
 

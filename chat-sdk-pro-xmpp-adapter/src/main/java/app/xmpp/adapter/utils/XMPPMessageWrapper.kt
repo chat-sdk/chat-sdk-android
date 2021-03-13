@@ -9,6 +9,7 @@ import org.jivesoftware.smack.packet.Stanza
 import org.jivesoftware.smackx.address.packet.MultipleAddresses
 import org.jivesoftware.smackx.chatstates.packet.ChatStateExtension
 import org.jivesoftware.smackx.delay.packet.DelayInformation
+import org.jivesoftware.smackx.muc.packet.MUCItem
 import org.jivesoftware.smackx.receipts.DeliveryReceipt
 import org.jxmpp.jid.impl.JidCreate
 import org.pmw.tinylog.Logger

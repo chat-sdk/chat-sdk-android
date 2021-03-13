@@ -20,9 +20,8 @@ import io.reactivex.Single;
     */
     @Deprecated
     User currentUserModel();
-
+    @Deprecated
     User currentUser();
-
 
     Completable sendAvailablePresence();
     Completable sendUnavailablePresence();
