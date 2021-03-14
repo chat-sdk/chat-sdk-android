@@ -73,6 +73,8 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
      **/
     public Completable on() {
 
+        Logger.warn("ThreadWrapper on: " + model.getEntityID());
+
         Completable completable = metaOn();
         usersOn();
         permissionsOn();
@@ -234,7 +236,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                 if (deletedTimestamp > 0 && messageAddedDate == null) {
                     model.setDeleted(true);
                 } else {
-                    model.setDeleted(false);
+                    model.setDeleted(false, model.getDeleted() != null);
                 }
 
                 if (messageAddedDate == null && finalStartTimestamp != null) {
@@ -338,13 +340,19 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
      **/
     public void usersOn() {
 
+        Logger.warn("ThreadWrapper usersOn - start: " + model.getEntityID());
+
         final DatabaseReference ref = FirebasePaths.threadUsersRef(model.getEntityID());
 
         if(!RealtimeReferenceManager.shared().isOn(ref)) {
             RXRealtime realtime = new RXRealtime(this);
 
+            Logger.warn("ThreadWrapper usersOn - go: " + model.getEntityID());
+
             realtime.childOn(ref).map(change -> {
                 final UserWrapper user = new UserWrapper(change.getSnapshot().getKey());
+
+                Logger.warn("ThreadWrapper usersOn - add: " + model.getEntityID() + ", " + user.getModel().getName());
 
                 if (change.getType() == EventType.Added) {
                     model.addUser(user.getModel());
@@ -361,6 +369,10 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                             model.removeUser(user.getModel());
                         } else {
                             model.setPermission(user.getModel().getEntityID(), Permission.None, true, false);
+                        }
+                    } else {
+                        if(model.getUserThreadLink(user.getModel().getId()).setHasLeft(true)) {
+                            ChatSDK.events().source().accept(NetworkEvent.threadUserRemoved(model, user.getModel()));
                         }
                     }
 //                    updateListenersForPermissions();
@@ -435,6 +447,8 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
      * We mark the thread as deleted and mark the user in the thread users ref as deleted.
      **/
     public Completable deleteThread() {
+
+
         return new ThreadDeleter(model).execute();
     }
 

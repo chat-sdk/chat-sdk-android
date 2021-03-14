@@ -300,7 +300,6 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
                 .subscribe(networkEvent -> {
                     reloadData();
                     chatActionBar.reload(thread);
-                    chatActionBar.setSubtitleText(thread, null);
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()

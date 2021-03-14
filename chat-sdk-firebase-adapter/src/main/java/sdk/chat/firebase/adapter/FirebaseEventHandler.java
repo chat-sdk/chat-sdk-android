@@ -83,7 +83,6 @@ public class FirebaseEventHandler extends AbstractEventHandler {
                     }
 
                     thread.getModel().addUser(user, false);
-                    thread.getModel().getUserThreadLink(ChatSDK.currentUser().getId()).setHasLeft(false);
 
                     thread.on().doOnComplete(() -> {
                         ChatSDK.events().source().accept(NetworkEvent.threadAdded(thread.getModel()));

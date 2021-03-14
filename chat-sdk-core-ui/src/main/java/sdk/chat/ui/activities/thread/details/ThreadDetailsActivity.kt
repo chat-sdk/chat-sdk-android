@@ -165,11 +165,11 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
                 .filter(NetworkEvent.filterType(EventType.ThreadUserRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(thread.entityID))
                 .subscribe(Consumer { networkEvent: NetworkEvent ->
-                    if (networkEvent.user.isMe) {
+//                    if (networkEvent.user.isMe) {
                         reloadData()
-                    } else {
-                        remove(networkEvent.user)
-                    }
+//                    } else {
+//                        remove(networkEvent.user)
+//                    }
                 }, this))
 
         dm.add(ChatSDK.events().sourceOnMain()
@@ -257,8 +257,8 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
         if (isGroup) {
             items.add(SectionViewModel(getString(R.string.me)).hideBorders(true))
             items.add(getThreadUser(ChatSDK.currentUser()))
-            if (!threadUsers.isEmpty()) {
-            items.add(SectionViewModel(getString(R.string.participants)))
+            if (threadUsers.isNotEmpty()) {
+                items.add(SectionViewModel(getString(R.string.participants)))
             }
         } else {
             items.add(SectionViewModel(""))

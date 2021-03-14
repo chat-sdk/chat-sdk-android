@@ -2,6 +2,8 @@ package sdk.chat;
 
 import android.app.Application;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.disposables.Disposable;
@@ -23,10 +25,7 @@ import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
-import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.module.UIModule;
-import sdk.chat.ui.recycler.SectionViewModel;
-import sdk.chat.ui.recycler.ToggleViewModel;
 
 /**
  * Created by Ben Smiley on 6/8/2014.
@@ -54,12 +53,14 @@ public class MainApplication extends Application {
         ChatSDK.builder()
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
                 .setAnonymousLoginEnabled(false)
+                .setReuseDeleted1to1Threads(false)
 
 //                .setDebugModeEnabled(true)
                 .setRemoteConfigEnabled(false)
                 .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                 .setSendSystemMessageWhenRoleChanges(true)
                 .setRemoteConfigEnabled(true)
+//                .setPublicChatAutoSubscriptionEnabled(false)
 
                 .build()
 
@@ -127,26 +128,26 @@ public class MainApplication extends Application {
             t.printStackTrace();
         });
 
-        Disposable di = ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageAdded)).subscribe(networkEvent -> {
-
+        Disposable di = ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.ThreadAdded)).subscribe(networkEvent -> {
+            Logger.warn("ThreadAdded" + networkEvent.getThread().getEntityID());
         });
 
-        String nearbyUsersDisabled = "nearby-users-disabled";
-        boolean disabled = ChatSDK.shared().getKeyStorage().getBoolean(nearbyUsersDisabled);
-        FirebaseNearbyUsersModule.shared().config.setEnabled(!disabled);
-
-        ChatSDKUI.shared().addSettingsItem(new SectionViewModel("Settings", 10));
-        ChatSDKUI.shared().addSettingsItem(new ToggleViewModel("Nearby Users Disabled", () -> {
-            return ChatSDK.shared().getKeyStorage().getBoolean(nearbyUsersDisabled);
-        }, value -> {
-            ChatSDK.shared().getKeyStorage().put(nearbyUsersDisabled, value);
-            FirebaseNearbyUsersModule.shared().config.setEnabled(!value);
-            if (value) {
-                FirebaseNearbyUsersModule.shared().stopService();
-            } else {
-                FirebaseNearbyUsersModule.shared().startService();
-            }
-        }));
+//        String nearbyUsersDisabled = "nearby-users-disabled";
+//        boolean disabled = ChatSDK.shared().getKeyStorage().getBoolean(nearbyUsersDisabled);
+//        FirebaseNearbyUsersModule.shared().config.setEnabled(!disabled);
+//
+//        ChatSDKUI.shared().addSettingsItem(new SectionViewModel("Settings", 10));
+//        ChatSDKUI.shared().addSettingsItem(new ToggleViewModel("Nearby Users Disabled", () -> {
+//            return ChatSDK.shared().getKeyStorage().getBoolean(nearbyUsersDisabled);
+//        }, value -> {
+//            ChatSDK.shared().getKeyStorage().put(nearbyUsersDisabled, value);
+//            FirebaseNearbyUsersModule.shared().config.setEnabled(!value);
+//            if (value) {
+//                FirebaseNearbyUsersModule.shared().stopService();
+//            } else {
+//                FirebaseNearbyUsersModule.shared().startService();
+//            }
+//        }));
 
 //        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true);
 //        FirebaseCrashlytics.getInstance().log("Start");

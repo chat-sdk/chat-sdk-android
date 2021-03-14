@@ -179,17 +179,16 @@ public class Thread extends AbstractEntity {
     }
 
 
-    public void addUser(User user) {
-        addUser(user, true);
+    public boolean addUser(User user) {
+        return addUser(user, true);
     }
 
-    public void addUser(User user, boolean notify) {
-        if (DaoCore.connectUserAndThread(user, this) && notify) {
+    public boolean addUser(User user, boolean notify) {
+        boolean didUpdate = DaoCore.connectUserAndThread(user, this) || getUserThreadLink(user.getId()).setHasLeft(false);
+        if (notify && didUpdate) {
             ChatSDK.events().source().accept(NetworkEvent.threadUserAdded(this, user));
         }
-//        user.update();
-//        update();
-        Logger.debug("Check this");
+        return didUpdate;
     }
 
     public void removeUser(User user) {

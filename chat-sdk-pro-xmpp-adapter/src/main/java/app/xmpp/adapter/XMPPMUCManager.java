@@ -226,12 +226,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
                 Presence presence = PresenceHelper.presenceForUser(user);
                 chat.changeAvailabilityStatus(presence.getStatus(), presence.getMode());
 
-                thread.addUser(user);
-
-
-                UserThreadLink link = thread.getUserThreadLink(user.getId());
-
-                if(link.setHasLeft(false)) {
+                if (thread.addUser(user, false)) {
                     ChatSDK.events().source().accept(NetworkEvent.threadUserAdded(thread, user));
                     ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(thread, user));
                 }
