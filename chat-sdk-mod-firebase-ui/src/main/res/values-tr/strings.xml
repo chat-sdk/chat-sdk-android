@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chat SDK Firebase UI</string>
+    <string name="sign_in_cancelled">Giriş iptal edildi</string>
+    <string name="no_internet_connection">İnternet bağlantısı yok</string>
+    <string name="unknown_error">Bilinmeyen hata</string>
+    <string name="unknown_sign_in_response">Bilinmeyen giriş hatası</string>
+    <string name="back_not_available">Geriye izin verilmiyor</string>
+</resources>

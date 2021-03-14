@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chat SDK Profile Pictures</string>
+    <string name="action_add_picture">Resim ekle</string>
+    <string name="action_delete_picture">Resim sil</string>
+    <string name="set_as_default">Varsayılan olarak ayarla</string>
+    <string name="uploading_picture">Resmi yükle</string>
+    <string name="updating_pictures">Resim yükleniyor</string>
+    <string name="deleting_picture">Resim siliniyor</string>
+</resources>
