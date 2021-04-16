@@ -136,7 +136,8 @@ public class FirestoreCoreHandler extends FirebaseCoreHandler {
                         DocumentSnapshot snapshot = c.getDocument();
                         // Add the message
                         if (snapshot.exists() && c.getType() == DocumentChange.Type.ADDED) {
-                            Sendable sendable = snapshot.toObject(Sendable.class);
+                            Sendable sendable = sendableFromDocumentSnapshot(snapshot);
+//                            Sendable sendable = snapshot.toObject(Sendable.class);
                             sendable.setId(snapshot.getId());
                             sendables.add(sendable);
                         }

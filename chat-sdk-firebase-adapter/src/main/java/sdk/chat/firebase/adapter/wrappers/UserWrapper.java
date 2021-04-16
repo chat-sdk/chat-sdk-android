@@ -73,7 +73,7 @@ public class UserWrapper {
     
     public UserWrapper(DataSnapshot snapshot){
         this(snapshot.getKey());
-        deserializeMeta(snapshot.child(Keys.Meta).getValue(Generic.mapStringObject()), false);
+        deserializeMeta(snapshot.child(Keys.Meta).getValue(Generic.mapStringObject()), true);
     }
 
     public UserWrapper(String entityID) {
@@ -165,7 +165,7 @@ public class UserWrapper {
             } else {
                 ValueEventListener listener = userMetaRef.addValueEventListener(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
                     if (hasValue && snapshot.getValue() instanceof Map) {
-                        deserializeMeta(snapshot.getValue(Generic.mapStringObject()), false);
+                        deserializeMeta(snapshot.getValue(Generic.mapStringObject()), true);
                         emitter.onComplete();
                     } else {
                         emitter.onError(new Throwable("User doesn't exist"));
@@ -194,8 +194,8 @@ public class UserWrapper {
             for (String key : newData.keySet()) {
                 String oldValue = oldData.get(key);
                 Object newValue = newData.get(key);
-                if ((oldValue == null || oldValue.isEmpty()) && (newValue != null && replaceLocal)) {
-                    oldData.put(key, newData.toString());
+                if (oldValue == null || oldValue.isEmpty() || replaceLocal) {
+                    oldData.put(key, newValue.toString());
                 }
             }
 

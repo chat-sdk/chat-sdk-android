@@ -103,20 +103,28 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
             }
         })
 
-        leaveButton = ButtonViewModel(getString(R.string.leave_chat), resources.getColor(R.color.red), Runnable {
-            ChatSDK.thread().leaveThread(thread).doOnComplete {  }.subscribe(this@ThreadDetailsActivity)
+        leaveButton = ButtonViewModel(getString(R.string.leave_chat), resources.getColor(R.color.red), object : ButtonRunnable {
+            override fun run(value: Activity) {
+                ChatSDK.thread().leaveThread(thread).doOnComplete { }.subscribe(this@ThreadDetailsActivity)
+            }
         })
 
-        destroyButton = ButtonViewModel(getString(R.string.destroy), resources.getColor(R.color.red), Runnable {
-            ChatSDK.thread().destroy(thread).subscribe()
+        destroyButton = ButtonViewModel(getString(R.string.destroy), resources.getColor(R.color.red), object : ButtonRunnable {
+            override fun run(value: Activity) {
+                ChatSDK.thread().destroy(thread).subscribe()
+            }
         })
 
-        editButton = ButtonViewModel(getString(R.string.edit), resources.getColor(R.color.blue), Runnable {
-            ChatSDK.ui().startEditThreadActivity(this@ThreadDetailsActivity, thread.entityID)
+        editButton = ButtonViewModel(getString(R.string.edit), resources.getColor(R.color.blue), object : ButtonRunnable {
+            override fun run(value: Activity) {
+                ChatSDK.ui().startEditThreadActivity(this@ThreadDetailsActivity, thread.entityID)
+            }
         })
 
-        joinButton = ButtonViewModel(getString(R.string.join), resources.getColor(R.color.blue), Runnable {
-            ChatSDK.thread().joinThread(thread).doOnError(this).subscribe()
+        joinButton = ButtonViewModel(getString(R.string.join), resources.getColor(R.color.blue), object : ButtonRunnable {
+            override fun run(value: Activity) {
+                ChatSDK.thread().joinThread(thread).doOnError(this@ThreadDetailsActivity).subscribe()
+            }
         })
 
         if (thread.typeIs(ThreadType.Group)) {
@@ -141,7 +149,7 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
                         }).subscribe()
                     }
                     if (item is ButtonViewModel) {
-                        item.click()
+                        item.click(this)
                     }
                 })
                 .add(OnLongClickEventListener {
@@ -165,11 +173,11 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
                 .filter(NetworkEvent.filterType(EventType.ThreadUserRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(thread.entityID))
                 .subscribe(Consumer { networkEvent: NetworkEvent ->
-                    if (networkEvent.user.isMe) {
+//                    if (networkEvent.user.isMe) {
                         reloadData()
-                    } else {
-                        remove(networkEvent.user)
-                    }
+//                    } else {
+//                        remove(networkEvent.user)
+//                    }
                 }, this))
 
         dm.add(ChatSDK.events().sourceOnMain()
@@ -248,19 +256,22 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
 
         val isGroup = thread.typeIs(ThreadType.Group);
 
-        if (isGroup) {
-            items.add(SectionViewModel(getString(R.string.me)).hideBorders(true))
-            items.add(getThreadUser(ChatSDK.currentUser()))
-            items.add(SectionViewModel(getString(R.string.participants)))
-        } else {
-            items.add(SectionViewModel(""))
-        }
-
         // If this is not a dialog we will load the contacts of the user.
         var threadUsers = mutableListOf<ThreadUser>()
         for (user in thread.members) {
             threadUsers.add(getThreadUser(user))
         }
+
+        if (isGroup) {
+            items.add(SectionViewModel(getString(R.string.me)).hideBorders(true))
+            items.add(getThreadUser(ChatSDK.currentUser()))
+            if (threadUsers.isNotEmpty()) {
+                items.add(SectionViewModel(getString(R.string.participants)))
+            }
+        } else {
+            items.add(SectionViewModel(""))
+        }
+
         UserSorter.sortThreadUsers(threadUsers)
 
         items.addAll(threadUsers)

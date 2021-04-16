@@ -37,7 +37,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         return Completable.defer(() -> {
 
             Body body = new Body();
-            body.setTypeFromString(String.valueOf(message.getType()));
+            body.setType(String.valueOf(message.getType()));
             body.put(Keys.Meta, message.getMetaValuesAsMap());
 
             if (message.getThread().getType() == ThreadType.Private1to1) {

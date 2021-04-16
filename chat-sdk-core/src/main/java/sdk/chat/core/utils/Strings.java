@@ -47,7 +47,7 @@ public class Strings {
 
         if (thread.typeIs(ThreadType.Private)) {
 
-            for (User user : thread.getUsers()){
+            for (User user : thread.getMembers()){
                 if (!user.getId().equals(currentUser.getId())) {
                     String n = user.getName();
 

@@ -45,7 +45,6 @@ import sdk.chat.ui.chat.model.TypingThreadHolder;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.interfaces.SearchSupported;
 import sdk.chat.ui.module.UIModule;
-import sdk.chat.ui.update.UpdateActionBatcher;
 import sdk.chat.ui.utils.GlideWith;
 import sdk.chat.ui.utils.ThreadImageBuilder;
 import sdk.chat.ui.view_holders.ThreadViewHolder;
@@ -54,7 +53,8 @@ import sdk.guru.common.RX;
 public abstract class ThreadsFragment extends BaseFragment implements SearchSupported {
 
     protected String filter;
-    protected boolean reloadDataOnResume = true;
+    protected EventBatcher batcher;
+//    protected boolean reloadDataOnResume = true;
 
     protected DialogsListAdapter<ThreadHolder> dialogsListAdapter;
     protected Map<Thread, ThreadHolder> threadHolderHashMap = new HashMap<>();
@@ -65,7 +65,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @BindView(R2.id.dialogsList) protected DialogsList dialogsList;
     @BindView(R2.id.root) protected RelativeLayout root;
 
-    protected UpdateActionBatcher batcher = new UpdateActionBatcher(100);
+//    protected UpdateActionBatcher batcher = new UpdateActionBatcher(100);
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -88,7 +88,6 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     public void onStop() {
         super.onStop();
         removeListeners();
-        reloadDataOnResume = true;
     }
 
     @Override
@@ -96,13 +95,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
         initViews();
-//        addListeners();
-
-//        loadData();
-
         hideKeyboard();
-
-//        addListeners();
 
         return view;
     }
@@ -139,7 +132,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 //            onError(throwable);
 //        }));
 
-        EventBatcher b = new EventBatcher(500, new EventBatcher.Listener() {
+        batcher = new EventBatcher(250, new EventBatcher.Listener() {
             @Override
             public void onNext(NetworkEvent networkEvent) {
                 if (networkEvent.typeIs(EventType.ThreadsUpdated)) {
@@ -196,8 +189,10 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
             @Override
             public void batchFinished() {
-                loadData();
-                Logger.warn("Load Load Load");
+                RX.main().scheduleDirect(() -> {
+                    loadData();
+                    Logger.warn("Load Load Load");
+                });
             }
         });
 
@@ -206,11 +201,9 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 .observeOn(RX.main())
                 .subscribe(networkEvent -> {
 
-                    b.add(networkEvent);
+                    batcher.add(networkEvent, networkEvent.typeIs(EventType.TypingStateUpdated));
 
                     Logger.debug("Network Event: " + networkEvent.type);
-
-
 
 //                    final boolean inList = inList(thread);
 
@@ -263,6 +256,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     public void removeListeners() {
         if(batcher != null) {
             batcher.dispose();
+//            batcher.dispose();
         }
         dm.dispose();
     }
@@ -348,7 +342,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @Override
     public void onResume() {
         super.onResume();
-//        reloadData();
+//        loadData();
     }
 
     @Override
@@ -372,10 +366,10 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     @Override
     public void reloadData() {
-        if (reloadDataOnResume) {
+//        if (reloadDataOnResume) {
             loadData();
-            reloadDataOnResume = false;
-        }
+//            reloadDataOnResume = false;
+//        }
     }
 
     public void softReloadData() {
@@ -396,32 +390,17 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 }
                 return threadHolders;
             }).observeOn(RX.main()).doOnSuccess(threadHolders -> {
-                dialogsListAdapter.clear();
-                dialogsListAdapter.setItems(threadHolders);
+                if(dialogsListAdapter.getItemCount() != threadHolders.size()) {
+                    dialogsListAdapter.clear();
+                    dialogsListAdapter.setItems(threadHolders);
+                }
                 if (threadHolders.size() > 1) {
                     sortByLastMessageDate();
                 }
             }).subscribe();
         }
     }
-//
-//    protected void reloadThread(Thread thread) {
-//        getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder -> {
-//            dialogsListAdapter.updateItemById(holder);
-//        }).subscribe();
-//    }
-//
-//    protected void updateMessage(Message message) {
-//        ThreadHolder holder = threadHolderHashMap.get(message.getThread());
-//        if (holder != null) {
-//            holder.updateAsync().observeOn(RX.main()).doOnComplete(() -> {
-//                dialogsListAdapter.updateItemById(holder);
-//            }).subscribe(this);
-//        } else {
-//            addOrUpdateThread(message.getThread());
-//        }
-//    }
-//
+
     public void addOrUpdateThread(Thread thread) {
         ThreadHolder holder = threadHolderHashMap.get(thread);
         if (holder == null) {

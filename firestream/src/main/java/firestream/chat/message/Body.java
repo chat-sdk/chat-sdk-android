@@ -19,7 +19,7 @@ public class Body {
     public Body(Map<String, Object> data) {
         Object type = data.get(Keys.Type);
         if (type instanceof String) {
-            setTypeFromString((String) type);
+            setType((String) type);
         }
         data.remove(Keys.Type);
         values = data;
@@ -33,7 +33,7 @@ public class Body {
         this.type = type;
     }
 
-    public void setTypeFromString(String type) {
+    public void setType(String type) {
         this.type = new BaseType(type);
     }
 

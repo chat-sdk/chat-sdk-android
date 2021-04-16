@@ -112,7 +112,8 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 ilp.placeholder = R.drawable.icn_200_image_message_placeholder;
             }
             if (ilp.error == 0) {
-                ilp.error = R.drawable.icn_200_image_message_loading;
+                ilp.error = R.drawable.icn_200_image_message_placeholder;
+//                ilp.error = R.drawable.icn_200_image_message_loading;
             }
 
             if (url == null) {

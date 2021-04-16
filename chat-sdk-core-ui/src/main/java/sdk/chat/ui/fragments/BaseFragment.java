@@ -72,6 +72,7 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
     @Override
     public void onResume() {
         super.onResume();
+
     }
 
     public void setupTouchUIToDismissKeyboard(View view, final Integer... exceptIDs) {

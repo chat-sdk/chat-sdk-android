@@ -12,7 +12,6 @@ import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.OrderBy;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
-import org.greenrobot.greendao.annotation.Unique;
 import org.greenrobot.greendao.query.Query;
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.pmw.tinylog.Logger;
@@ -41,10 +40,10 @@ import sdk.chat.core.utils.StringChecker;
 @Entity
 public class Thread extends AbstractEntity {
 
-    @Id
-    private Long id;
-    @Unique
+    @Id private Long id;
     private String entityID;
+    private String userAccountID;
+
     private Date creationDate;
     private Integer type;
     private Long creatorId;
@@ -52,7 +51,6 @@ public class Thread extends AbstractEntity {
     private Boolean deleted;
     private String draft;
     private Date canDeleteMessagesFrom;
-    private String userAccountID;
 
     @ToOne(joinProperty = "creatorId")
     private User creator;
@@ -87,11 +85,12 @@ public class Thread extends AbstractEntity {
         this.id = id;
     }
 
-    @Generated(hash = 1332492523)
-    public Thread(Long id, String entityID, Date creationDate, Integer type, Long creatorId, Date loadMessagesFrom, Boolean deleted, String draft, Date canDeleteMessagesFrom,
-            String userAccountID) {
+    @Generated(hash = 1731842954)
+    public Thread(Long id, String entityID, String userAccountID, Date creationDate, Integer type, Long creatorId, Date loadMessagesFrom, Boolean deleted, String draft,
+            Date canDeleteMessagesFrom) {
         this.id = id;
         this.entityID = entityID;
+        this.userAccountID = userAccountID;
         this.creationDate = creationDate;
         this.type = type;
         this.creatorId = creatorId;
@@ -99,7 +98,6 @@ public class Thread extends AbstractEntity {
         this.deleted = deleted;
         this.draft = draft;
         this.canDeleteMessagesFrom = canDeleteMessagesFrom;
-        this.userAccountID = userAccountID;
     }
 
     public void setMessages(List<Message> messages) {
@@ -180,17 +178,16 @@ public class Thread extends AbstractEntity {
     }
 
 
-    public void addUser(User user) {
-        addUser(user, true);
+    public boolean addUser(User user) {
+        return addUser(user, true);
     }
 
-    public void addUser(User user, boolean notify) {
-        if (DaoCore.connectUserAndThread(user, this) && notify) {
+    public boolean addUser(User user, boolean notify) {
+        boolean didUpdate = DaoCore.connectUserAndThread(user, this) || getUserThreadLink(user.getId()).setHasLeft(false);
+        if (notify && didUpdate) {
             ChatSDK.events().source().accept(NetworkEvent.threadUserAdded(this, user));
         }
-//        user.update();
-//        update();
-        Logger.debug("Check this");
+        return didUpdate;
     }
 
     public void removeUser(User user) {

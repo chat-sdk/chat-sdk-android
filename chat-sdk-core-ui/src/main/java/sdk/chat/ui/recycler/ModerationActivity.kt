@@ -1,5 +1,6 @@
 package sdk.chat.ui.recycler
 
+import android.app.Activity
 import android.os.Bundle
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
@@ -76,7 +77,7 @@ open class ModerationActivity: BaseActivity() {
                         model.click()
                     }
                     if (model is ButtonViewModel) {
-                        model.click()
+                        model.click(this)
                     }
                     if (model is RadioViewModel) {
                         if (!model.starting.get()) {
@@ -216,11 +217,13 @@ open class ModerationActivity: BaseActivity() {
         // Remove a user from the group
         if (ChatSDK.thread().canRemoveUserFromThread(thread, user)) {
             items.add(DividerViewModel())
-            items.add(ButtonViewModel("Remove from Group", resources.getColor(R.color.red) , Runnable {
-                dm.add(ChatSDK.thread().removeUsersFromThread(thread, listOf(user)).observeOn(RX.main()).subscribe(Action {
+            items.add(ButtonViewModel("Remove from Group", resources.getColor(R.color.red) , object : ButtonRunnable {
+                override fun run(value: Activity) {
+                    dm.add(ChatSDK.thread().removeUsersFromThread(thread, listOf(user)).observeOn(RX.main()).subscribe(Action {
 //                    ToastHelper.show(this@ModerationActivity, R.string.success)
-                    finish()
-                }, this@ModerationActivity))
+                        finish()
+                    }, this@ModerationActivity))
+                }
             }))
         }
 

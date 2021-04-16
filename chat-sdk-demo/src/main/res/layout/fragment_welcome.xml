@@ -13,7 +13,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_launcher_big" />
+        app:srcCompat="@drawable/ic_logo_big" />
 
     <Button
         android:id="@+id/button"

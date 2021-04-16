@@ -17,7 +17,7 @@ public abstract class AbstractEntity implements CoreEntity {
 
     @Override
     public boolean equalsEntityID(String entityID) {
-        return getEntityID().equals(entityID);
+        return getEntityID() != null && getEntityID().equals(entityID);
     }
 
     public static List<String> toEntityIDs(List<? extends CoreEntity> entities) {

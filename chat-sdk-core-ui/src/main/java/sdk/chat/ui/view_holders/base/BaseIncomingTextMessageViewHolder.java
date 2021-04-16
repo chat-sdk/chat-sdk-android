@@ -64,7 +64,7 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
         //We can set onClick listener on view from payload
         final Payload payload = (Payload) this.payload;
         userAvatar.setOnClickListener(view -> {
-            if (payload != null && payload.avatarClickListener != null) {
+            if (payload != null && payload.avatarClickListener != null && UIModule.config().startProfileActivityOnChatViewIconClick) {
                 payload.avatarClickListener.onAvatarClick(message.getMessage().getSender());
             }
         });

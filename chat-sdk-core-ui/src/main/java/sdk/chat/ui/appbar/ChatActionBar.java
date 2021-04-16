@@ -83,6 +83,7 @@ public class ChatActionBar extends AppBarLayout {
         titleTextView.setText(displayName);
 
         ThreadImageBuilder.load(imageView, thread);
+        setSubtitleText(thread, null);
 
     }
 

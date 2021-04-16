@@ -104,7 +104,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean canAddUsersToThread(Thread thread) {
-        if (thread.typeIs(ThreadType.Group)) {
+        if (thread.typeIs(ThreadType.PrivateGroup)) {
             String role = roleForUser(thread, ChatSDK.currentUser());
             return Permission.isOr(role, Permission.Owner, Permission.Admin);
         }
@@ -320,7 +320,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean canLeaveThread(Thread thread) {
-        if (thread.typeIs(ThreadType.Group)) {
+        if (thread.typeIs(ThreadType.PrivateGroup)) {
             // Get the link
             String role = roleForUser(thread, ChatSDK.currentUser());
             return Permission.isOr(role, Permission.Owner, Permission.Admin, Permission.Member, Permission.Watcher);
@@ -493,7 +493,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean canRemoveUserFromThread(Thread thread, User user) {
-        if (thread.typeIs(ThreadType.Group)) {
+        if (thread.typeIs(ThreadType.PrivateGroup)) {
             String myRole = roleForUser(thread, ChatSDK.currentUser());
             String role = roleForUser(thread, user);
             return Permission.isOr(myRole, Permission.Owner, Permission.Admin) && Permission.isOr(role, Permission.Member, Permission.Watcher, Permission.Banned);

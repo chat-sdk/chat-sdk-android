@@ -72,8 +72,9 @@ public class RXRealtime implements Action, Consumer<Throwable> {
     }
 
     public Observable<DocumentChange> childOn(Query ref) {
+        this.ref = ref;
         return Observable.create((ObservableOnSubscribe<DocumentChange>) emitter -> {
-            RXRealtime.this.ref = ref;
+            ref.keepSynced(true);
             childListener = ref.addChildEventListener(new RealtimeEventListener().onChildAdded((snapshot, s, hasValue) -> {
                 if (hasValue) {
                     emitter.onNext(new DocumentChange(snapshot, EventType.Added));
@@ -87,7 +88,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
                     emitter.onNext(new DocumentChange(snapshot, EventType.Modified));
                 }
             }).onCancelled(error -> {
-                Logger.debug(ref.toString());
+                Logger.info(ref.toString());
                 emitter.onError(error.toException());
                 if (errorListener != null) {
                     errorListener.onError(ref, error);

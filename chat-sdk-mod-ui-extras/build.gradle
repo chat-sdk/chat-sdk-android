@@ -45,7 +45,7 @@ dependencies {
 
     //required support lib modules
     implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
-    implementation "androidx.annotation:annotation:1.1.0"
+    implementation "androidx.annotation:annotation:$androidxAnnotation"
 
     // Add for NavController support
     api "com.mikepenz:materialdrawer-nav:$materialDrawerVersion"
@@ -58,8 +58,8 @@ dependencies {
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
-    implementation 'androidmads.library.qrgenearator:QRGenearator:1.0.4'
-    implementation 'me.dm7.barcodescanner:zxing:1.9.13'
+    implementation "androidmads.library.qrgenearator:QRGenearator:$qrGenerator"
+    implementation "me.dm7.barcodescanner:zxing:$zxing"
 }
 
 ext {

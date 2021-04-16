@@ -219,7 +219,7 @@ public class NetworkEvent {
     public static Predicate<NetworkEvent> filterPresence(final Thread thread) {
         return networkEvent -> {
             boolean match = networkEvent.typeIs(EventType.UserPresenceUpdated);
-            return  match && thread.equalsEntity(networkEvent.getThread()) && thread.containsUser(networkEvent.getUser());
+            return  match && thread.containsUser(networkEvent.getUser());
         };
     }
 

@@ -14,7 +14,7 @@ public interface IEncryptionHandler {
 
 //    Completable encrypt(Message message);
 //    Completable decrypt (String message);
-    Map<String, Object> decrypt(String message);
+    Map<String, Object> decrypt(String message) throws Exception;
 
     String publicKey();
     String privateKeyId();

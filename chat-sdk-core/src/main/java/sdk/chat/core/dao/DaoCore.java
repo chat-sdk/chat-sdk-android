@@ -172,39 +172,6 @@ public class DaoCore {
         return qb.list();
     }
 
-//    public static <T extends CoreEntity> List<T>  fetchEntitiesWithPropertiesAndOrderAndLimit(Class<T> c, int limit, Property whereOrder, int order, Property properties[], Object... values){
-//
-//        if (values == null || properties == null)
-//            throw new NullPointerException("You must have at least one value and one property");
-//
-//        if (values.length != properties.length)
-//            throw new IllegalArgumentException("Values size should match properties size");
-//
-//        QueryBuilder<T> qb = daoSession.queryBuilder(c);
-//        qb.where(properties[0].eq(values[0]));
-//
-//        if (values.length > 1)
-//            for (int i = 0 ; i < values.length ; i++)
-//                qb.where(properties[i].eq(values[i]));
-//
-//        if (whereOrder != null && order != -1)
-//            switch (order)
-//            {
-//                case ORDER_ASC:
-//                    qb.orderAsc(whereOrder);
-//                    break;
-//
-//                case ORDER_DESC:
-//                    qb.orderDesc(whereOrder);
-//                    break;
-//            }
-//
-//        if (limit != -1)
-//            qb.limit(limit);
-//
-//        return qb.listLazy();
-//    }
-
     /* Update, Create and Delete*/
     public static  <T> T createEntity(T entity){
         if (entity == null) {

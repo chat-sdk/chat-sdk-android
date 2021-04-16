@@ -7,8 +7,6 @@ import androidx.annotation.NonNull;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
-import io.reactivex.disposables.Disposable;
-import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
 import sdk.chat.core.utils.GoogleUtils;
 import sdk.chat.ui.R;
@@ -23,7 +21,6 @@ public class LocationSelector {
 
     protected Activity activity;
     protected SingleEmitter<Result> emitter;
-    protected Disposable disposable;
 
     public class Result {
         public Location latLng;
