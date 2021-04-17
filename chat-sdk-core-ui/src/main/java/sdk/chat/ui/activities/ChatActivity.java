@@ -160,21 +160,20 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     }
 
-
     public void updateChatViewMargins() {
+        input.post(() -> {
+            int bottomMargin = 0;
+            if (replyView.isVisible()) {
+                bottomMargin += replyView.getHeight();
+            }
+            if (input.getVisibility() != View.GONE) {
+                bottomMargin += input.getHeight() + divider.getHeight();
+            }
 
-        int bottomMargin = 0;
-        if (replyView.isVisible()) {
-            bottomMargin += replyView.getHeight();
-        }
-        if (input.getVisibility() != View.GONE) {
-            bottomMargin += input.getHeight() + divider.getHeight();
-        }
-
-        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) chatView.getLayoutParams();
-        params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, bottomMargin);
-        chatView.setLayoutParams(params);
-
+            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) chatView.getLayoutParams();
+            params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, bottomMargin);
+            chatView.setLayoutParams(params);
+        });
     }
 
     public void showReplyView(String title, String imageURL, String text) {
@@ -292,7 +291,14 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated, EventType.ThreadUserAdded, EventType.ThreadUserRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .subscribe(networkEvent -> chatActionBar.reload(thread)));
+                .subscribe(networkEvent -> {
+                    chatActionBar.reload(thread);
+                    // If we are added, we will get voice...
+                    User user = networkEvent.getUser();
+                    if (user != null && user.isMe()) {
+                        showOrHideTextInputView();
+                    }
+                }));
 
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated, EventType.UserPresenceUpdated))

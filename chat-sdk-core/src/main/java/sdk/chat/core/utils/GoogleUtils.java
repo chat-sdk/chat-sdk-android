@@ -10,7 +10,7 @@ import sdk.chat.core.session.ChatSDK;
 
 public class GoogleUtils {
 
-    public static String getMapImageURL (Location location, int width, int height) {
+    public static String getMapImageURL(Location location, int width, int height) {
 
         String googleMapsAPIKey = ChatSDK.config().googleMapsApiKey;
 
@@ -22,7 +22,7 @@ public class GoogleUtils {
         return api + "?" + markers + "&" + size + "&" + key;
     }
 
-    public static String getMapWebURL (Location location) {
+    public static String getMapWebURL(Location location) {
         return "http://maps.google.com/maps?z=12&t=m&q=loc:" + location.getLatitude() + "+" + location.getLongitude();
     }
 

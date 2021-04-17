@@ -8,7 +8,7 @@ android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
 
     defaultConfig {
-        minSdkVersion Integer.parseInt(project.MIN_SDK)
+        minSdkVersion Integer.parseInt("19")
         targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
     }
 
@@ -38,12 +38,19 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':chat-sdk-core')
+    implementation project(':chat-sdk-core-ui')
     implementation project(":sdk-guru-licensing")
 
     implementation "com.google.code.gson:gson:$gsonVersion"
 
     implementation 'com.virgilsecurity.sdk:crypto-android:5.0.2@aar'
     implementation 'com.virgilsecurity.sdk:sdk:5.0.9'
+
+    implementation "androidmads.library.qrgenearator:QRGenearator:$qrGenerator"
+    implementation "me.dm7.barcodescanner:zxing:$zxing"
+
+    implementation 'com.budiyev.android:code-scanner:2.1.0'
+
     // Stay on the old version because it supports API level 16
 //    implementation "com.virgilsecurity.sdk:sdk-android:7.1.0"
 }

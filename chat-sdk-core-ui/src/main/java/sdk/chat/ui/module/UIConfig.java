@@ -53,6 +53,7 @@ public class UIConfig<T> extends BaseConfig<T> {
     public String usernameHint = null;
 
     public boolean imageCroppingEnabled = true;
+    public boolean startProfileActivityOnChatViewIconClick = true;
 
     public boolean allowBackPressFromMainActivity = false;
 
@@ -283,6 +284,16 @@ public class UIConfig<T> extends BaseConfig<T> {
      */
     public UIConfig<T> setShowAvatarInChatView(boolean request) {
         this.showAvatarInChatView = request;
+        return this;
+    }
+
+    /**
+     * Should the profile activity be lauched when you click the user icon in the chat view
+     * @param start
+     * @return
+     */
+    public UIConfig<T> setStartProfileActivityOnChatViewIconClick(boolean start) {
+        this.startProfileActivityOnChatViewIconClick = start;
         return this;
     }
 

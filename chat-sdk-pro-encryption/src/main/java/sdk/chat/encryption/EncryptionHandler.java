@@ -1,5 +1,8 @@
 package sdk.chat.encryption;
 
+import android.content.Context;
+import android.content.Intent;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
@@ -23,6 +26,9 @@ import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.ui.ChatSDKUI;
+import sdk.chat.ui.recycler.ButtonViewModel;
+import sdk.chat.ui.recycler.SectionViewModel;
 import sdk.guru.common.RX;
 
 public abstract class EncryptionHandler implements IEncryptionHandler {
@@ -126,16 +132,12 @@ public abstract class EncryptionHandler implements IEncryptionHandler {
     }
 
     @Override
-    public Map<String, Object> decrypt(String message) {
+    public Map<String, Object> decrypt(String message) throws Exception {
         if (!message.isEmpty() && ChatSDK.auth().isAuthenticatedThisSession()) {
             VirgilPrivateKey key = getPrivateKey().key;
             byte [] encryptedMessageData = Base64.decode(message);
-            try {
-                byte [] decryptedMessageData = virgilCrypto.decrypt(encryptedMessageData, key);
-                return bytesToMap(decryptedMessageData);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            byte [] decryptedMessageData = virgilCrypto.decrypt(encryptedMessageData, key);
+            return bytesToMap(decryptedMessageData);
         }
         return null;
     }
@@ -171,6 +173,50 @@ public abstract class EncryptionHandler implements IEncryptionHandler {
     }
 
     public void stop() {
+
+    }
+
+    public static String exportKeyPair() throws Exception {
+        KeyPair pair = EncryptionManager.shared().getKeyPair(ChatSDK.currentUserID());
+        return pair.privateKey.getBase64EncodedString() + " " + pair.publicKey.getBase64EncodedString();
+    }
+
+    public static void importKeyPair(String keys) throws Exception {
+        String[] keysArray = keys.split(" ");
+        if (keysArray.length == 2) {
+            String privateKeyString = keysArray[0];
+            String publicKeyString = keysArray[1];
+
+            KeyPair pair = new KeyPair(privateKeyString, publicKeyString);
+            EncryptionManager.shared().save(ChatSDK.currentUserID(), pair);
+
+            // Try to decript any failed messages
+            for (Message m: ChatSDK.db().fetchMessagesWithFailedDecryption()) {
+                try {
+                    Map<String, Object> meta = ChatSDK.encryption().decrypt(m.getEncryptedText());
+                    m.setMetaValues(meta);
+                    m.setEncryptedText(null);
+                    m.update();
+                } catch (Exception e) {
+
+                }
+            }
+            ChatSDK.encryption().publishKey().subscribe();
+        }
+    }
+
+    public static void activate(Context context) {
+
+        Integer color = context.getResources().getColor(R.color.black);
+        ChatSDKUI.shared().addSettingsItem(new SectionViewModel("Encryption", 10));
+        ChatSDKUI.shared().addSettingsItem(new ButtonViewModel("Export Keys", color, (activity) -> {
+            Intent intent = new Intent(activity, ExportKeyQRActivity.class);
+            activity.startActivity(intent);
+        }));
+        ChatSDKUI.shared().addSettingsItem(new ButtonViewModel("Import  Keys", color, (activity) -> {
+            Intent intent = new Intent(activity, ImportKeyQRActivity.class);
+            activity.startActivity(intent);
+        }));
 
     }
 }

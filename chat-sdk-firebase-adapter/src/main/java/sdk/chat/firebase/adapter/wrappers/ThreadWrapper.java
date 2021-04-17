@@ -7,6 +7,7 @@
 
 package sdk.chat.firebase.adapter.wrappers;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.firebase.database.DataSnapshot;
@@ -14,6 +15,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 
 import org.pmw.tinylog.Logger;
 
@@ -72,24 +74,22 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
      * Start listening to thread details changes.
      **/
     public Completable on() {
+        return Completable.defer(() -> {
+            Completable metaOnCompletable = metaOn().doOnComplete(() -> {
+                usersOn();
+                permissionsOn();
+                messagesOn();
+                if (ChatSDK.typingIndicator() != null) {
+                    ChatSDK.typingIndicator().typingOn(model);
+                }
+            });
 
-        Logger.warn("ThreadWrapper on: " + model.getEntityID());
-
-        Completable completable = metaOn();
-        usersOn();
-        permissionsOn();
-
-        messagesOn();
-        if (ChatSDK.typingIndicator() != null) {
-            ChatSDK.typingIndicator().typingOn(model);
-        }
-
-        // Update our permission level
-        if (model.typeIs(ThreadType.Group)) {
-            completable = myPermission().andThen(completable);
-        }
-
-        return completable;
+            // Update our permission level
+            if (model.typeIs(ThreadType.Group)) {
+                return myPermission().andThen(metaOnCompletable);
+            }
+            return metaOnCompletable;
+        });
     }
 
     /**
@@ -340,19 +340,33 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
      **/
     public void usersOn() {
 
-        Logger.warn("ThreadWrapper usersOn - start: " + model.getEntityID());
-
         final DatabaseReference ref = FirebasePaths.threadUsersRef(model.getEntityID());
 
         if(!RealtimeReferenceManager.shared().isOn(ref)) {
             RXRealtime realtime = new RXRealtime(this);
 
-            Logger.warn("ThreadWrapper usersOn - go: " + model.getEntityID());
+            ref.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.getValue() != null) {
+                        Map<String, Object> map = snapshot.getValue(Generic.mapStringObject());
+                        for (String key: map.keySet()) {
+                            final UserWrapper user = new UserWrapper(key);
+                            user.on().subscribe();
+                            model.addUser(user.getModel());
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
 
             realtime.childOn(ref).map(change -> {
                 final UserWrapper user = new UserWrapper(change.getSnapshot().getKey());
-
-                Logger.warn("ThreadWrapper usersOn - add: " + model.getEntityID() + ", " + user.getModel().getName());
+                user.on().subscribe();
 
                 if (change.getType() == EventType.Added) {
                     model.addUser(user.getModel());
@@ -395,12 +409,14 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
                 return new Event<>(user.getModel(), change.getType());
 
-            }).flatMapCompletable(userEvent -> {
-                if (userEvent.isAdded()) {
-                    return ChatSDK.core().userOn(userEvent.get());
-                }
-                return Completable.complete();
-            }).subscribe(ChatSDK.events());
+            }).subscribe();
+
+//                    .flatMapCompletable(userEvent -> {
+//                if (userEvent.isAdded()) {
+//                    return ChatSDK.core().userOn(userEvent.get());
+//                }
+//                return Completable.complete();
+//            }).subscribe(ChatSDK.events());
 
             realtime.addToReferenceManager();
         }
@@ -409,7 +425,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
     /**
      * Stop listening to users added to this thread.
      **/
-    public void usersOff(){
+    public void usersOff() {
         DatabaseReference ref = FirebasePaths.threadUsersRef(model.getEntityID());
         RealtimeReferenceManager.shared().removeListeners(ref);
     }
@@ -491,8 +507,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                     Map<String, Object> hashData = snapshot.getValue(Generic.mapStringObject());
 
                     MessageWrapper message;
-                    for (String key : hashData.keySet())
-                    {
+                    for (String key : hashData.keySet()) {
                         message = new MessageWrapper(snapshot.child(key));
                         model.addMessage(message.getModel(), false);
                         messages.add(message.getModel());

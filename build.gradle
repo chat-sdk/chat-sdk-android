@@ -22,11 +22,12 @@ buildscript {
 ext {
     bintrayVersion = "1.8.4"
     mavenGradleVersion = "2.1"
-    androidxAppcompatVersion = "1.1.0"
+    androidxAppcompatVersion = "1.2.0"
     androidxConstraintLayoutVersion = "2.1.0-alpha2"
     androidxLifecycleExtensionsVersion = "2.2.0"
-    androidxRecyclerViewVersion = "1.1.0"
+    androidxRecyclerViewVersion = "1.2.0"
     androidxMultidexVersion = "2.0.1"
+    androidxAnnotation = "1.2.0"
     materialVersion = "1.2.1"
     playAuthVersion = "17.0.0"
     playMapsVersion = "17.0.0"
@@ -77,6 +78,9 @@ ext {
     exoplayerVersion = "2.11.3"
     androidAudioConverterVersion = "0.0.8"
     gsonVersion = "2.8.6"
+
+    qrGenerator = "1.0.4"
+    zxing = "1.9.13"
 
     // Used by file messages
     androidNetworkingVersion = "1.0.2"

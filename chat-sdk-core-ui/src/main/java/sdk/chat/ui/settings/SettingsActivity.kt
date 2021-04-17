@@ -41,7 +41,7 @@ open class SettingsActivity: BaseActivity() {
                         model.click()
                     }
                     if (model is ButtonViewModel) {
-                        model.click()
+                        model.click(this)
                     }
                     if (model is RadioViewModel) {
                         if (!model.checked) {

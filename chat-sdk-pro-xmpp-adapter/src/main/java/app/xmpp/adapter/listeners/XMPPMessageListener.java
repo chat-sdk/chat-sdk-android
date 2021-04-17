@@ -234,9 +234,14 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
                     Object dataObject = meta.get(Keys.MessageEncryptedPayloadKey);
                     if (dataObject instanceof String) {
                         String data = (String) dataObject;
-                        Map<String, Object> encryptedMeta = ChatSDK.encryption().decrypt(data);
-                        if (encryptedMeta != null) {
-                            meta = encryptedMeta;
+
+                        try {
+                            Map<String, Object> encryptedMeta = ChatSDK.encryption().decrypt(data);
+                            if (encryptedMeta != null) {
+                                meta = encryptedMeta;
+                            }
+                        } catch (Exception e) {
+                            message.setEncryptedText(data);
                         }
                     }
                 }
@@ -253,6 +258,10 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
 
         } else {
             message.setMessageType(new MessageType(MessageType.Text));
+        }
+
+        if (message.getText().isEmpty() && message.typeIs(MessageType.Text) && xmr.body() != null) {
+            message.setText(xmr.body());
         }
 
         User user = xmr.user();

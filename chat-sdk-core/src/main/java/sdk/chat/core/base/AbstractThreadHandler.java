@@ -318,6 +318,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 newMessage.setMetaValues(message.getMetaValuesAsMap());
                 newMessage.setValueForKey(message.getType(), Keys.Type);
                 newMessage.setValueForKey(message.getEntityID(), Keys.Id);
+                newMessage.setValueForKey(message.getSender().getEntityID(), Keys.From);
             }
             newMessage.setValueForKey(reply, Keys.Reply);
             return new MessageSendRig(newMessage, thread).run();

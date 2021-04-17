@@ -251,8 +251,6 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
             XMPPMessageBuilder builder = new XMPPMessageBuilder()
                     .setType(message.getType())
-
-                    .setValues(message.getMetaValuesAsMap())
                     .setEntityID(message.getEntityID());
 
             Map<String, Object> meta = null;

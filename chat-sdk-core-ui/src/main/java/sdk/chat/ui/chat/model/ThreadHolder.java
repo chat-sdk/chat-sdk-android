@@ -79,6 +79,9 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     @Override
     public String getDialogName() {
+        if (displayName == null || displayName.isEmpty()) {
+            update();
+        }
         return displayName;
     }
 

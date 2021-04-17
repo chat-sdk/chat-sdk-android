@@ -7,7 +7,11 @@ import org.pmw.tinylog.Logger;
 import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.receipts.XMPPReadReceiptsModule;
 import io.reactivex.disposables.Disposable;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.encryption.xmpp.XMPPEncryptionModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.audio.AudioMessageModule;
@@ -44,13 +48,14 @@ public class MainApplication extends Application {
                     .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
-                            .setXMPP("develop.aku-pintar.co.id", "develop.aku-pintar.co.id")
-//                            .setXMPP("xmpp.app", "xmpp.app")
+//                            .setXMPP("develop.aku-pintar.co.id", "develop.aku-pintar.co.id")
+                            .setXMPP("xmpp.app", "xmpp.app")
 //                            .setXMPP("sysnet-ecs.multidemos.com", "sysnet-ecs.multidemos.com")
                             .setAllowServerConfiguration(false)
-                            .setSecurityMode("ifpossible")
+//                            .setSecurityMode("ifpossible")
 //                            .setSecurityMode("ifpossible")
                             .setPingInterval(5)
+                            .setDebugEnabled(true)
                             .build())
 
                     .addModule(AudioMessageModule.shared())
@@ -75,7 +80,7 @@ public class MainApplication extends Application {
                             .setDrawerEnabled(false)
                             .build())
 
-//                    .addModule(XMPPEncryptionModule.shared())
+                    .addModule(XMPPEncryptionModule.shared())
 
                     .build().activateWithEmail(this, "ben@sdk.chat");
 
@@ -102,7 +107,15 @@ public class MainApplication extends Application {
             throwable.printStackTrace();
         });
 
+        ChatSDK.hook().addHook(Hook.sync(data -> {
+            Object message = data.get(HookEvent.Message);
+            if (message instanceof Message) {
+                Logger.info(message);
+            }
+        }), HookEvent.MessageReceived);
+
     }
+
 
 //    private void chatsdkAuth(String username, String password, String threadId) {
 //        if (ChatSDK.auth().isAuthenticatedThisSession()) {

@@ -8,6 +8,7 @@ import org.jivesoftware.smack.ReconnectionManager;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.chat2.ChatManager;
+import org.jivesoftware.smack.filter.StanzaFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Stanza;
@@ -314,6 +315,16 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
 
             XMPPTCPConnectionConfiguration config = configureConnection(server, null, null);
             connection = new XMPPTCPConnection(config);
+
+            connection.addAsyncStanzaListener(packet -> {
+                ////
+                Logger.info(packet);
+            }, new StanzaFilter() {
+                @Override
+                public boolean accept(Stanza stanza) {
+                    return true;
+                }
+            });
 
             addListeners();
             mucManager = new XMPPMUCManager(this);

@@ -24,38 +24,14 @@ public class MessageCustomizer implements MessageHolders.ContentChecker<MessageH
         return ChatSDKUI.shared().getMessageCustomizer();
     }
 
-//    protected List<IMessageHandler> messageHandlers = new ArrayList<>();
-
-    protected IMessageHandler textMessageHandler = new TextMessageHandler();
-    protected IMessageHandler imageMessageHandler = new ImageMessageHandler();
-    protected IMessageHandler systemMessageHandler = new SystemMessageHandler();
-
     Map<Byte, IMessageHandler> messageHandlers = new HashMap<>();
     {
-        addMessageHandler(textMessageHandler);
-        addMessageHandler(imageMessageHandler);
-        addMessageHandler(systemMessageHandler);
-    }
-
-    public void setTextMessageHandler(TextMessageHandler handler) {
-        this.textMessageHandler = handler;
-    }
-
-    public void setTextMessageHandler(ImageMessageHandler handler) {
-        this.imageMessageHandler = handler;
-    }
-
-    public void setTextMessageHandler(SystemMessageHandler handler) {
-        this.systemMessageHandler = handler;
+        addMessageHandler(new TextMessageHandler());
+        addMessageHandler(new ImageMessageHandler());
+        addMessageHandler(new SystemMessageHandler());
     }
 
     public Collection<IMessageHandler> getMessageHandlers() {
-//        List<IMessageHandler> handlers = new ArrayList<>();
-//        handlers.add(textMessageHandler);
-//        handlers.add(imageMessageHandler);
-//        handlers.add(systemMessageHandler);
-//        handlers.addAll(messageHandlers);
-//        return handlers;
         return messageHandlers.values();
     }
 
@@ -75,24 +51,27 @@ public class MessageCustomizer implements MessageHolders.ContentChecker<MessageH
      * Return message holder, the last non-null holder registered will be returned
      */
     public MessageHolder onNewMessageHolder(Message message) {
-        MessageHolder holder;
-        for (IMessageHandler handler: getMessageHandlers()) {
-            holder = handler.onNewMessageHolder(message);
-            if (holder != null) {
-                return holder;
-            }
+        IMessageHandler handler = handlerForMessage(message);
+        if (handler != null) {
+            return handler.onNewMessageHolder(message);
         }
         return null;
     }
 
     public void onClick(ChatActivity activity, View rootView, Message message) {
-        for (IMessageHandler handler: getMessageHandlers()) {
+        IMessageHandler handler = handlerForMessage(message);
+        if (handler != null) {
             handler.onClick(activity, rootView, message);
         }
     }
 
+    public IMessageHandler handlerForMessage(Message message) {
+        return messageHandlers.get(message.getType().byteValue());
+    }
+
     public void onLongClick(ChatActivity activity, View rootView, Message message) {
-        for (IMessageHandler handler: getMessageHandlers()) {
+        IMessageHandler handler = handlerForMessage(message);
+        if (handler != null) {
             handler.onLongClick(activity, rootView, message);
         }
     }
@@ -103,12 +82,6 @@ public class MessageCustomizer implements MessageHolders.ContentChecker<MessageH
         if (handler != null) {
             return handler.hasContentFor(message);
         }
-//
-//        for (IMessageHandler handler: getMessageHandlers()) {
-//            if (handler.hasContentFor(message, type)) {
-//                return true;
-//            }
-//        }
         return false;
     }
 

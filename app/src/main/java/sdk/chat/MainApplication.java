@@ -25,7 +25,10 @@ import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.recycler.SectionViewModel;
+import sdk.chat.ui.recycler.ToggleViewModel;
 
 /**
  * Created by Ben Smiley on 6/8/2014.
@@ -38,6 +41,7 @@ public class MainApplication extends Application {
         super.onCreate();
         try {
             firebase();
+
 //            firestream();
 //            xmpp();
         } catch (Exception e) {
@@ -116,6 +120,9 @@ public class MainApplication extends Application {
                 .build()
                 .activateWithEmail(this, "team@sdk.chat");
 
+//        if (!Device.honor()) {
+//            ChatSDK.ui().setMainActivity(TestActivity.class);
+//        }
 //        ChatSDK.ui().setTab("Debug", null, new DebugFragment(), 99);
 //        ChatSDK.ui().removeTab(0);
 
@@ -131,6 +138,24 @@ public class MainApplication extends Application {
         Disposable di = ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.ThreadAdded)).subscribe(networkEvent -> {
             Logger.warn("ThreadAdded" + networkEvent.getThread().getEntityID());
         });
+
+        String nearbyUsersDisabled = "nearby-users-disabled";
+        boolean disabled = ChatSDK.shared().getKeyStorage().getBoolean(nearbyUsersDisabled);
+        FirebaseNearbyUsersModule.shared().config.setEnabled(!disabled);
+
+        ChatSDKUI.shared().addSettingsItem(new SectionViewModel("Settings", 10));
+        ChatSDKUI.shared().addSettingsItem(new ToggleViewModel("Nearby Users Disabled", () -> {
+            return ChatSDK.shared().getKeyStorage().getBoolean(nearbyUsersDisabled);
+        }, value -> {
+            ChatSDK.shared().getKeyStorage().put(nearbyUsersDisabled, value);
+            FirebaseNearbyUsersModule.shared().config.setEnabled(!value);
+            if (value) {
+                FirebaseNearbyUsersModule.shared().stopService();
+            } else {
+                FirebaseNearbyUsersModule.shared().startService();
+            }
+        }));
+
 
 //        String nearbyUsersDisabled = "nearby-users-disabled";
 //        boolean disabled = ChatSDK.shared().getKeyStorage().getBoolean(nearbyUsersDisabled);

@@ -210,7 +210,7 @@ public class StorageManager {
         return Single.defer(() -> Single.just(fetchThreadsWithType(type)).subscribeOn(RX.db()));
     }
 
-    public List<Message> fetchUnreadMessagesForThread (Long threadId) {
+    public List<Message> fetchUnreadMessagesForThread(Long threadId) {
         Logger.debug(java.lang.Thread.currentThread().getName());
 
         Long currentUserId = ChatSDK.currentUser().getId();
@@ -338,6 +338,33 @@ public class StorageManager {
         List<Message> list = qb.list();
 
         return  list;
+    }
+
+    public List<Message> fetchMessagesWithFailedDecryption() {
+        Logger.debug(java.lang.Thread.currentThread().getName());
+
+//        QueryBuilder<Thread> qb = daoSession.queryBuilder(Thread.class);
+//        qb.where(ThreadDao.Properties.UserAccountID.eq(ChatSDK.currentUserID()))
+//                .join(Message.class, MessageDao.Properties.ThreadId).where(MessageDao.Properties.DecryptionFailed.eq(true));
+
+
+//        return qb.list();
+
+        QueryBuilder<Message> qb = daoSession.queryBuilder(Message.class);
+        qb.where(MessageDao.Properties.EncryptedText.isNotNull())
+                .join(MessageDao.Properties.ThreadId, Thread.class)
+                .where(ThreadDao.Properties.UserAccountID.eq(ChatSDK.currentUserID()));
+        return qb.list();
+
+//        qb.where(MessageDao.Properties.ThreadId.eq(threadID));
+//        qb.where(MessageDao.Properties.DecryptionFailed.eq(true));
+//
+//        QueryBuilder<Message> qb = daoSession.queryBuilder(Message.class);
+//
+//        Join<Message, Thread> join = qb.where(qb.and(MessageDao.Properties.ThreadId.eq(threadId), MessageDao.Properties.SenderId.notEq(currentUserId)))
+//                .join(ReadReceiptUserLink.class, ReadReceiptUserLinkDao.Properties.MessageId);
+//
+//        return qb.list();
     }
 
     public PublicKey getPublicKey(String userId) {

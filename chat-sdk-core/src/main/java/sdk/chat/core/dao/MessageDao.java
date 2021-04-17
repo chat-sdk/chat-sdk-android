@@ -36,6 +36,7 @@ public class MessageDao extends AbstractDao<Message, Long> {
         public final static Property ThreadId = new Property(6, Long.class, "threadId", false, "THREAD_ID");
         public final static Property NextMessageId = new Property(7, Long.class, "nextMessageId", false, "NEXT_MESSAGE_ID");
         public final static Property PreviousMessageId = new Property(8, Long.class, "previousMessageId", false, "PREVIOUS_MESSAGE_ID");
+        public final static Property EncryptedText = new Property(9, String.class, "encryptedText", false, "ENCRYPTED_TEXT");
     }
 
     private DaoSession daoSession;
@@ -63,7 +64,8 @@ public class MessageDao extends AbstractDao<Message, Long> {
                 "\"SENDER_ID\" INTEGER," + // 5: senderId
                 "\"THREAD_ID\" INTEGER," + // 6: threadId
                 "\"NEXT_MESSAGE_ID\" INTEGER," + // 7: nextMessageId
-                "\"PREVIOUS_MESSAGE_ID\" INTEGER);"); // 8: previousMessageId
+                "\"PREVIOUS_MESSAGE_ID\" INTEGER," + // 8: previousMessageId
+                "\"ENCRYPTED_TEXT\" TEXT);"); // 9: encryptedText
     }
 
     /** Drops the underlying database table. */
@@ -120,6 +122,11 @@ public class MessageDao extends AbstractDao<Message, Long> {
         if (previousMessageId != null) {
             stmt.bindLong(9, previousMessageId);
         }
+ 
+        String encryptedText = entity.getEncryptedText();
+        if (encryptedText != null) {
+            stmt.bindString(10, encryptedText);
+        }
     }
 
     @Override
@@ -170,6 +177,11 @@ public class MessageDao extends AbstractDao<Message, Long> {
         if (previousMessageId != null) {
             stmt.bindLong(9, previousMessageId);
         }
+ 
+        String encryptedText = entity.getEncryptedText();
+        if (encryptedText != null) {
+            stmt.bindString(10, encryptedText);
+        }
     }
 
     @Override
@@ -194,7 +206,8 @@ public class MessageDao extends AbstractDao<Message, Long> {
             cursor.isNull(offset + 5) ? null : cursor.getLong(offset + 5), // senderId
             cursor.isNull(offset + 6) ? null : cursor.getLong(offset + 6), // threadId
             cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7), // nextMessageId
-            cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8) // previousMessageId
+            cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8), // previousMessageId
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9) // encryptedText
         );
         return entity;
     }
@@ -210,6 +223,7 @@ public class MessageDao extends AbstractDao<Message, Long> {
         entity.setThreadId(cursor.isNull(offset + 6) ? null : cursor.getLong(offset + 6));
         entity.setNextMessageId(cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7));
         entity.setPreviousMessageId(cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8));
+        entity.setEncryptedText(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
      }
     
     @Override

@@ -7,11 +7,10 @@ import android.widget.TextView;
 
 import com.stfalcon.chatkit.commons.ImageLoader;
 
-import io.reactivex.functions.Consumer;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
-import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.utils.ImageLoaderPayload;
@@ -45,9 +44,32 @@ public class ReplyViewBinder {
                 replyImageView.setVisibility(View.GONE);
             }
 
+            User fromUser = null;
+
+            // Get the user the message is from
+            String replyUserId = holder.getMessage().stringForKey("from");
+            if (replyUserId != null && !replyUserId.isEmpty()) {
+                fromUser = ChatSDK.core().getUserNowForEntityID(replyUserId);
+            }
+            if (fromUser == null) {
+                String replyMessageId = holder.getMessage().stringForKey("id");
+
+                if (replyMessageId != null && !replyMessageId.isEmpty()) {
+                    // Get the message
+                    Message message = ChatSDK.db().fetchMessageWithEntityID(replyMessageId);
+                    if (message != null) {
+                        fromUser = message.getSender();
+                    }
+                }
+            }
+
+            if (fromUser != null) {
+                replyTextView.setText(Html.fromHtml("<b>" + fromUser.getName() + "</b><br/>" + holder.getQuotedText()));
+            } else {
+                replyTextView.setText(Html.fromHtml(holder.getQuotedText()));
+            }
 
             // Build the string for the textView
-            replyTextView.setText(Html.fromHtml("<b>" + holder.getUser().getName() + "</b><br/>" + holder.getQuotedText()));
 
         } else {
             replyView.setVisibility(View.GONE);

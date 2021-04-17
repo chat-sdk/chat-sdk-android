@@ -20,7 +20,6 @@ public class LocationMessageModule extends AbstractModule {
         return instance;
     }
 
-
     protected LocationProvider locationProvider;
 
     @Override

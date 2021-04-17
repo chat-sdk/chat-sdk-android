@@ -103,20 +103,28 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
             }
         })
 
-        leaveButton = ButtonViewModel(getString(R.string.leave_chat), resources.getColor(R.color.red), Runnable {
-            ChatSDK.thread().leaveThread(thread).doOnComplete {  }.subscribe(this@ThreadDetailsActivity)
+        leaveButton = ButtonViewModel(getString(R.string.leave_chat), resources.getColor(R.color.red), object : ButtonRunnable {
+            override fun run(value: Activity) {
+                ChatSDK.thread().leaveThread(thread).doOnComplete { }.subscribe(this@ThreadDetailsActivity)
+            }
         })
 
-        destroyButton = ButtonViewModel(getString(R.string.destroy), resources.getColor(R.color.red), Runnable {
-            ChatSDK.thread().destroy(thread).subscribe()
+        destroyButton = ButtonViewModel(getString(R.string.destroy), resources.getColor(R.color.red), object : ButtonRunnable {
+            override fun run(value: Activity) {
+                ChatSDK.thread().destroy(thread).subscribe()
+            }
         })
 
-        editButton = ButtonViewModel(getString(R.string.edit), resources.getColor(R.color.blue), Runnable {
-            ChatSDK.ui().startEditThreadActivity(this@ThreadDetailsActivity, thread.entityID)
+        editButton = ButtonViewModel(getString(R.string.edit), resources.getColor(R.color.blue), object : ButtonRunnable {
+            override fun run(value: Activity) {
+                ChatSDK.ui().startEditThreadActivity(this@ThreadDetailsActivity, thread.entityID)
+            }
         })
 
-        joinButton = ButtonViewModel(getString(R.string.join), resources.getColor(R.color.blue), Runnable {
-            ChatSDK.thread().joinThread(thread).doOnError(this).subscribe()
+        joinButton = ButtonViewModel(getString(R.string.join), resources.getColor(R.color.blue), object : ButtonRunnable {
+            override fun run(value: Activity) {
+                ChatSDK.thread().joinThread(thread).doOnError(this@ThreadDetailsActivity).subscribe()
+            }
         })
 
         if (thread.typeIs(ThreadType.Group)) {
@@ -141,7 +149,7 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
                         }).subscribe()
                     }
                     if (item is ButtonViewModel) {
-                        item.click()
+                        item.click(this)
                     }
                 })
                 .add(OnLongClickEventListener {

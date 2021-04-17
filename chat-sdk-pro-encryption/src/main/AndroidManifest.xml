@@ -1,1 +1,13 @@
-<manifest package="sdk.chat.encryption" />
+<manifest package="sdk.chat.encryption"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:hardwareAccelerated="true">
+        <activity
+            android:name=".ImportKeyQRActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name=".ExportKeyQRActivity"
+            android:screenOrientation="portrait">
+        </activity>
+    </application>
+</manifest>

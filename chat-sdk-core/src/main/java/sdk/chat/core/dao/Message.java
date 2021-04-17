@@ -53,6 +53,7 @@ public class Message extends AbstractEntity {
     private Long threadId;
     private Long nextMessageId;
     private Long previousMessageId;
+    private String encryptedText;
 
     @ToMany(referencedJoinProperty = "messageId")
     private List<ReadReceiptUserLink> readReceiptLinks;
@@ -80,9 +81,9 @@ public class Message extends AbstractEntity {
     @Generated(hash = 859287859)
     private transient MessageDao myDao;
 
-    @Generated(hash = 362877408)
+    @Generated(hash = 1026695031)
     public Message(Long id, String entityID, Date date, Integer type, Integer status, Long senderId, Long threadId,
-            Long nextMessageId, Long previousMessageId) {
+            Long nextMessageId, Long previousMessageId, String encryptedText) {
         this.id = id;
         this.entityID = entityID;
         this.date = date;
@@ -92,8 +93,7 @@ public class Message extends AbstractEntity {
         this.threadId = threadId;
         this.nextMessageId = nextMessageId;
         this.previousMessageId = previousMessageId;
-
-
+        this.encryptedText = encryptedText;
     }
 
     @Generated(hash = 637306882)
@@ -207,7 +207,7 @@ public class Message extends AbstractEntity {
 //        this.update();
     }
 
-    protected MetaValue<String> metaValue (String key) {
+    protected MetaValue<String> metaValue(String key) {
         return MetaValueHelper.metaValueForKey(key, getMetaValues());
     }
 
@@ -717,6 +717,15 @@ public class Message extends AbstractEntity {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+
+    public String getEncryptedText() {
+        return this.encryptedText;
+    }
+
+    public void setEncryptedText(String encryptedText) {
+        this.encryptedText = encryptedText;
     }
 
 }

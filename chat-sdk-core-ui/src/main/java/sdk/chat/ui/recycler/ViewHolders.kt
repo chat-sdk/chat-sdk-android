@@ -1,5 +1,6 @@
 package sdk.chat.ui.recycler
 
+import android.app.Activity
 import android.os.Handler
 import android.os.Looper
 import android.view.View
@@ -72,16 +73,21 @@ class NavigationViewModel(val title: String, val onClick: Runnable): SmartViewMo
     }
 }
 class DividerViewModel(): SmartViewModel()
-class ButtonViewModel(val title: String, val color: Int, val onClick: Runnable): SmartViewModel() {
+
+interface ButtonRunnable {
+    fun run(value: Activity)
+}
+
+class ButtonViewModel(val title: String, val color: Int, val onClick: ButtonRunnable): SmartViewModel() {
     var delay: Long = 500
     open fun setDelay(delay: Long): ButtonViewModel {
         this.delay = delay
         return this
     }
 
-    fun click() {
+    fun click(activity: Activity) {
         Handler(Looper.getMainLooper()).postDelayed({
-            onClick.run()
+            onClick.run(activity)
         }, delay)
     }
 }

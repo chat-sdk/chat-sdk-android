@@ -23,7 +23,6 @@ import java.util.concurrent.Callable;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
-import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.ReadReceiptUserLink;
@@ -117,7 +116,11 @@ public class MessageWrapper  {
             if (ChatSDK.encryption() != null) {
                 String data = snapshot.child(Keys.Meta).child(Keys.MessageEncryptedPayloadKey).getValue(String.class);
                 if (data != null) {
-                    meta = ChatSDK.encryption().decrypt(data);
+                    try {
+                        meta = ChatSDK.encryption().decrypt(data);
+                    } catch (Exception e) {
+                        model.setEncryptedText(data);
+                    }
                 }
             }
             if (meta == null) {
@@ -143,12 +146,10 @@ public class MessageWrapper  {
 
         if (snapshot.hasChild(Keys.From)) {
             String senderID = snapshot.child(Keys.From).getValue(String.class);
-            User user = DaoCore.fetchEntityWithEntityID(User.class, senderID);
-            if (user == null) {
-                user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, senderID);
+            User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, senderID);
+            if (user.getName() == null || user.getName().isEmpty()) {
                 ChatSDK.core().userOn(user).subscribe(ChatSDK.events());
             }
-
             model.setSender(user);
         }
 
