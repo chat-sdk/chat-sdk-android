@@ -36,16 +36,16 @@ import sdk.guru.common.RX;
 
 public class PostRegistrationActivity extends BaseActivity {
 
-    @BindView(R2.id.avatarImageView) CircleImageView avatarImageView;
-    @BindView(R2.id.nameEditView) IconEditView nameEditView;
-    @BindView(R2.id.locationEditView) IconEditView locationEditView;
-    @BindView(R2.id.phoneEditView) IconEditView phoneEditView;
-    @BindView(R2.id.emailEditView) IconEditView emailEditView;
-    @BindView(R2.id.iconLinearLayout) LinearLayout iconLinearLayout;
-    @BindView(R2.id.doneFab) FloatingActionButton doneFab;
-    @BindView(R2.id.root) RelativeLayout root;
+    @BindView(R2.id.avatarImageView) protected CircleImageView avatarImageView;
+    @BindView(R2.id.nameEditView) protected IconEditView nameEditView;
+    @BindView(R2.id.locationEditView) protected IconEditView locationEditView;
+    @BindView(R2.id.phoneEditView) protected IconEditView phoneEditView;
+    @BindView(R2.id.emailEditView) protected IconEditView emailEditView;
+    @BindView(R2.id.iconLinearLayout) protected LinearLayout iconLinearLayout;
+    @BindView(R2.id.doneFab) protected FloatingActionButton doneFab;
+    @BindView(R2.id.root) protected RelativeLayout root;
 
-    String avatarImageURL = null;
+    protected String avatarImageURL = null;
 
     @Override
     protected int getLayout() {

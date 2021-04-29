@@ -7,12 +7,10 @@ import org.pmw.tinylog.Logger;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.disposables.Disposable;
-import sdk.chat.android.live.R;
 import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.encryption.firebase.FirebaseEncryptionModule;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
@@ -51,7 +49,7 @@ public class MainApplication extends Application {
     }
 
     public void firebase() throws Exception {
-        String rootPath = "pre_1";
+        String rootPath = "pre_2";
 
 
         ChatSDK.builder()
@@ -81,7 +79,7 @@ public class MainApplication extends Application {
                 .addModule(UIModule.builder()
                         .setPublicRoomCreationEnabled(true)
                         .setPublicRoomsEnabled(true)
-                        .setTheme(R.style.GGTheme)
+//                        .setTheme(R.style.GGTheme)
                         .build()
                 )
 
@@ -89,7 +87,7 @@ public class MainApplication extends Application {
         // Add modules to handle file uploads, push notifications
                 .addModule(FirebaseUploadModule.shared())
                 .addModule(FirebasePushModule.shared())
-                .addModule(FirebaseEncryptionModule.shared())
+//                .addModule(FirebaseEncryptionModule.shared())
 //                .addModule(ProfilePicturesModule.shared())
 //
                 .addModule(ContactBookModule.shared())
@@ -155,7 +153,6 @@ public class MainApplication extends Application {
                 FirebaseNearbyUsersModule.shared().startService();
             }
         }));
-
 
 //        String nearbyUsersDisabled = "nearby-users-disabled";
 //        boolean disabled = ChatSDK.shared().getKeyStorage().getBoolean(nearbyUsersDisabled);

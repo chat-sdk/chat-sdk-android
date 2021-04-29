@@ -523,6 +523,10 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
                 .setSendPresence(true)
                 .setCompressionEnabled(compressionEnabled);
 
+        if (XMPPModule.config().connectionConfigProvider != null) {
+            XMPPModule.config().connectionConfigProvider.config(builder);
+        }
+
         if(StringChecker.isNullOrEmpty(userAlias) && StringChecker.isNullOrEmpty(password)) {
             builder.allowEmptyOrNullUsernames();
         }

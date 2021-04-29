@@ -1,11 +1,17 @@
 package app.xmpp.adapter.module;
 
+import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+
 import app.xmpp.adapter.handlers.XMPPNetworkAdapter;
 import app.xmpp.adapter.utils.XMPPServer;
 import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.guru.common.BaseConfig;
 
 public class XMPPConfig<T> extends BaseConfig<T> {
+
+    public interface ConnectionConfigProvider {
+        void config(XMPPTCPConnectionConfiguration.Builder builder);
+    }
 
     public String domain;
     public String hostAddress;
@@ -22,6 +28,7 @@ public class XMPPConfig<T> extends BaseConfig<T> {
     public boolean debugEnabled = false;
     public int pingInterval = 15;
     public boolean streamManagementEnabled = true;
+    public ConnectionConfigProvider connectionConfigProvider;
 
     public boolean allowServerConfiguration = true;
 
@@ -212,6 +219,15 @@ public class XMPPConfig<T> extends BaseConfig<T> {
      */
     public XMPPConfig<T> setSendSystemMessageForAffiliationChange(boolean sendSystemMessageForAffiliationChange) {
         this.sendSystemMessageForAffiliationChange = sendSystemMessageForAffiliationChange;
+        return this;
+    }
+
+    /**
+     * Customize the XMPP connection
+     * @return
+     */
+    public XMPPConfig<T> setConnectionConfigProvider(ConnectionConfigProvider provider) {
+        this.connectionConfigProvider = provider;
         return this;
     }
 

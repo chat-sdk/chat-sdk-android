@@ -52,14 +52,14 @@ dependencies {
     implementation "id.zelory:compressor:$compressorVersion"
 //    implementation "com.google.android.gms:play-services-maps:$playMapsVersion"
 
-    implementation "org.igniterealtime.smack:smack-android:$smackVersion"
-    implementation "org.igniterealtime.smack:smack-android-extensions:$smackVersion"
+    api "org.igniterealtime.smack:smack-android:$smackVersion"
+    api "org.igniterealtime.smack:smack-android-extensions:$smackVersion"
 
     // Optional for XMPPTCPConnection
-    implementation "org.igniterealtime.smack:smack-tcp:$smackVersion"
+    api "org.igniterealtime.smack:smack-tcp:$smackVersion"
 
     // Optional for XMPP-IM (RFC 6121) support (Roster, Threaded Chats, …)
-    implementation "org.igniterealtime.smack:smack-im:$smackVersion"
+    api "org.igniterealtime.smack:smack-im:$smackVersion"
 
     // Optional for XMPP extensions support
     api "org.igniterealtime.smack:smack-extensions:$smackVersion"

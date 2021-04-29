@@ -99,9 +99,8 @@ allprojects {
     }
     repositories {
         google()
-//        maven { url "https://jitpack.io" }
         maven { url "http://dl.bintray.com/chat-sdk/chat-sdk-android" }
-
+        maven { url 'https://jitpack.io' }
         jcenter()
     }
 }

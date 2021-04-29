@@ -7,6 +7,7 @@ import org.pmw.tinylog.Logger;
 import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.receipts.XMPPReadReceiptsModule;
 import io.reactivex.disposables.Disposable;
+import sdk.chat.app.xmpp.ssl.DummyTrustManager;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
@@ -48,10 +49,12 @@ public class MainApplication extends Application {
                     .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
-//                            .setXMPP("develop.aku-pintar.co.id", "develop.aku-pintar.co.id")
-                            .setXMPP("xmpp.app", "xmpp.app")
+                            .setXMPP("172.81.180.106", "blackchat.net",  0, "iPhone")
+//                            .setXMPP("xmpp.app", "xmpp.app")
+//                            .setXMPP("sysnet-ecs.multidemos.com", "sysnet-ecs.multidemos.com")
 //                            .setXMPP("sysnet-ecs.multidemos.com", "sysnet-ecs.multidemos.com")
                             .setAllowServerConfiguration(false)
+                            .setSecurityMode("required")
 //                            .setSecurityMode("ifpossible")
 //                            .setSecurityMode("ifpossible")
                             .setPingInterval(5)
@@ -97,6 +100,18 @@ public class MainApplication extends Application {
             Logger.error(e.getLocalizedMessage());
             assert(false);
         }
+
+        XMPPModule.config().setConnectionConfigProvider(builder -> {
+            try {
+//                builder.setCustomSSLContext(SSLContext.getDefault());
+                builder.setCustomX509TrustManager(new DummyTrustManager());
+//                builder.setSocketFactory(new DummySSLSocketFactory());
+                builder.setCompressionEnabled(false);
+            } catch(Exception e) {
+                Logger.debug(e.getLocalizedMessage());
+            }
+
+        });
 
         Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {
             networkEvent.debug();
