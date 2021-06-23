@@ -28,8 +28,8 @@ import sdk.chat.core.session.ChatSDK;
  */
 public class DaoCore {
 
-    private static final String DB_NAME = "andorid-chatsdk-database";
-    private static String dbName;
+    private static final String DB_NAME = "android-chatsdk-database";
+//    private static String dbName;
 
     public static final int ORDER_ASC = 0;
     public static final int ORDER_DESC = 1;
@@ -52,31 +52,35 @@ public class DaoCore {
     public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
 
     public static void init(Context ctx) {
-        dbName = DB_NAME;
+//        dbName = DB_NAME;
         context = ctx;
 
         if(helper == null) {
-            openDB();
+            openDB(DB_NAME);
         }
     }
 
-    public static void init(Context ctx, String databaseName){
-        context = ctx;
-        dbName = databaseName;
+//    public static void init(Context ctx, String databaseName){
+//        context = ctx;
+////        dbName = databaseName;
+//
+//        if(helper == null)
+//            openDB(databaseName);
+//    }
 
-        if(helper == null)
-            openDB();
-    }
-
-    private static void openDB(){
+    public static void openDB(String name) {
         if (context == null)
             throw new NullPointerException("Context is null, Did you initialized DaoCore?");
 
         if (ChatSDK.config().debug) {
-            helper = new DaoMaster.DevOpenHelper(context, dbName, null);
+            helper = new DaoMaster.DevOpenHelper(context, name, null);
         }
         else {
-            helper = new DatabaseUpgradeHelper(context, dbName);
+            helper = new DatabaseUpgradeHelper(context, name);
+        }
+
+        if (db != null) {
+            db.close();
         }
 
         db = helper.getWritableDatabase();

@@ -463,4 +463,8 @@ public class StorageManager {
             return Completable.complete();
         }).subscribeOn(RX.db());
     }
+
+    public void openDatabase(String name) {
+        DaoCore.openDB(name);
+    }
 }

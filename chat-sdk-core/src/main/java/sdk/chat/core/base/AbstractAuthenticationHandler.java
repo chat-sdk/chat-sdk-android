@@ -38,6 +38,9 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
      */
     public void setCurrentUserEntityID(String currentUserID) {
         this.currentUserID = currentUserID;
+
+        ChatSDK.db().openDatabase(currentUserID);
+
         isAuthenticatedThisSession = true;
         ChatSDK.shared().getKeyStorage().put(Keys.CurrentUserID, currentUserID);
     }
