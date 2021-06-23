@@ -1,6 +1,6 @@
 plugins {
     id 'com.android.library'
-    id 'com.jfrog.bintray'
+    id 'com.jfrog.artifactory'
     id 'maven-publish'
     id 'com.jakewharton.butterknife'
 }
@@ -48,6 +48,8 @@ dependencies {
 
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
+
+    implementation "com.karumi:dexter:$dexterVersion"
 
 //    implementation "com.mikepenz:iconics-views:$iconicsVersion"
 }

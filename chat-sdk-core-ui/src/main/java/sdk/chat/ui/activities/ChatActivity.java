@@ -200,6 +200,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void initViews() {
         super.initViews();
 
+        if (getThread() == null) {
+            finish();
+            return;
+        }
 
         chatView.setDelegate(this);
 

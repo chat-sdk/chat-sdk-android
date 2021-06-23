@@ -177,13 +177,13 @@ public class GeoFireManager {
         RX.io().scheduleDirect(() -> {
             GeoLocation location = new GeoLocation(latitude, longitude);
             geoFireRef().setLocation(item.getID(), location, (key, error) -> {
-                Logger.debug("Location updated");
+                Logger.info("NEARBY USERS: Location updated");
 
                 // Remove the location data when we disconnect
                 if (removeOnDisconnect) {
                     ref().child(item.getID()).onDisconnect().removeValue((databaseError, databaseReference) -> {
                         // Success
-                        Logger.debug("Did add listener");
+                        Logger.debug("NEARBY USERS: Did add listener");
                     });
                 }
             });

@@ -15,9 +15,9 @@ import java.util.List;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import sdk.guru.common.RX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
+import sdk.guru.common.RX;
 
 /**
  * Created by ben on 10/9/17.
@@ -63,6 +63,7 @@ public class ContactBookManager {
             emitter.onSuccess(users);
 
         }).subscribeOn(RX.computation());
+
     }
 
     private static void addNamesToUser (ContentResolver resolver, String id, ContactBookUser user) {

@@ -10,4 +10,7 @@ public interface CoreEntity extends Entity {
     boolean equalsEntity(CoreEntity entity);
     boolean equalsEntityID(String entityID);
 
+    String getUserAccountID();
+    void setUserAccountID(String userAccountID);
+    void update();
 }

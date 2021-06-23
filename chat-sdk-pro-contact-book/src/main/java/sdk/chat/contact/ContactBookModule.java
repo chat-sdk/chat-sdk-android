@@ -38,6 +38,7 @@ public class ContactBookModule extends AbstractModule {
     public void activate(Context context) {
         Report.shared().add(getName());
         ChatSDK.ui().addSearchActivity(ContactBookSearchActivity.class, context.getString(R.string.contact_book));
+
     }
 
     public static class Config<T> extends BaseConfig<T> {

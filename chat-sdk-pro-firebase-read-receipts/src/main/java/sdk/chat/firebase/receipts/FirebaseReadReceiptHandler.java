@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import sdk.chat.firebase.adapter.moderation.Permission;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.EventType;
@@ -17,13 +16,14 @@ import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ReadStatus;
+import sdk.chat.firebase.adapter.FirebasePaths;
+import sdk.chat.firebase.adapter.moderation.Permission;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.adapter.utils.Generic;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
 import sdk.guru.realtime.RXRealtime;
-import sdk.chat.firebase.adapter.FirebasePaths;
 import sdk.guru.realtime.RealtimeReferenceManager;
-import sdk.chat.firebase.adapter.utils.Generic;
-import sdk.chat.firebase.adapter.wrappers.MessageWrapper;
 
 public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
 
@@ -93,7 +93,7 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
     public void markRead(Message message) {
         RX.computation().scheduleDirect(() -> {
             if(shouldMarkReadReceipt(message)) {
-                new MessageWrapper(message).setReadStatus(ReadStatus.read()).subscribe(ChatSDK.events());
+                FirebaseModule.config().provider.messageWrapper(message).setReadStatus(ReadStatus.read()).subscribe(ChatSDK.events());
             }
         });
     }
@@ -143,7 +143,7 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
 
                     Map<String, Map<String, Long>> map = change.getSnapshot().getValue(Generic.readReceiptHashMap());
                     if (map != null) {
-                        new MessageWrapper(message).updateReadReceipts(map).doOnSuccess(aBoolean -> {
+                        FirebaseModule.config().provider.messageWrapper(message).updateReadReceipts(map).doOnSuccess(aBoolean -> {
                             if (aBoolean) {
                                 ChatSDK.events().source().accept(NetworkEvent.messageReadReceiptUpdated(message));
                             }

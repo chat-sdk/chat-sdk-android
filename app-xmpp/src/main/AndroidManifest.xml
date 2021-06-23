@@ -5,13 +5,13 @@
     <application
         android:name="sdk.chat.app.xmpp.MainApplication"
         android:allowBackup="false"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/xmpp"
+        android:roundIcon="@drawable/xmpp"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:hardwareAccelerated="true"
-        tools:replace="allowBackup"
-        >
+        tools:replace="allowBackup">
 
         <activity android:name="sdk.chat.ui.activities.SplashScreenActivity">
             <intent-filter>

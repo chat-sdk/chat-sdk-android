@@ -1,6 +1,6 @@
 plugins {
     id 'com.android.library'
-    id 'com.jfrog.bintray'
+    id 'com.jfrog.artifactory'
     id 'maven-publish'
     id 'com.jakewharton.butterknife'
     id 'kotlin-android'
@@ -45,14 +45,14 @@ android {
 
 rootProject.allprojects {
     repositories {
+        mavenCentral()
+        jcenter()
         maven { url "https://jitpack.io" }
-        maven { url "http://dl.bintray.com/chat-sdk/chatkit" }
-        maven { url "http://dl.bintray.com/chat-sdk/matisse"}
-        maven { url "https://dl.bintray.com/manneohlund/maven" }
+//        maven { url "https://dl.bintray.com/manneohlund/maven" }
+
+        maven { url "https://chatsdk.jfrog.io/artifactory/release/chatkit" }
+        maven { url "https://chatsdk.jfrog.io/artifactory/release/matisse" }
     }
-//    configurations {
-//        all*.exclude group: 'io.github.manneohlund'
-//    }
 }
 
 dependencies {
@@ -73,7 +73,7 @@ dependencies {
     api "com.google.android.material:material:$materialVersion"
 
     api "com.github.siyamed:android-shape-imageview:$shapeImageViewVersion"
-    api "co.chatsdk.chatsdk:chatkit:$chatKitVersion"
+    api "sdk.chat:chat-kit:$chatKitVersion"
 
     api "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
     api "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
@@ -83,7 +83,7 @@ dependencies {
 
     api "de.hdodenhof:circleimageview:$circleImageViewVersion"
 
-    implementation "co.chatsdk:matisse:$matisseVersion"
+    implementation "sdk.chat:matisse:$matisseVersion"
 
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
@@ -97,7 +97,7 @@ dependencies {
     // Audio
     implementation "com.github.adrielcafe:AndroidAudioRecorder:$androidAudioRecorderVersion"
 
-    api "com.github.bumptech.glide:glide:$glideVersion"
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
 //    api 'io.github.manneohlund:smart-recycler-adapter:5.0.0-rc01'

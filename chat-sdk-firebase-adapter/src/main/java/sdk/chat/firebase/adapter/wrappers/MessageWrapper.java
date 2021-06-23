@@ -40,7 +40,7 @@ import sdk.guru.realtime.RXRealtime;
 
 public class MessageWrapper  {
 
-    private Message model;
+    protected Message model;
 
     public MessageWrapper(Message model) {
         this.model = model;
@@ -55,7 +55,7 @@ public class MessageWrapper  {
         this.model = ChatSDK.db().fetchOrCreateEntityWithEntityID(Message.class, entityID);
     }
 
-    Map<String, Object> serialize() {
+    protected Map<String, Object> serialize() {
         Map<String, Object> values = new HashMap<>();
 
         Map<String, Object> meta = null;
@@ -100,11 +100,11 @@ public class MessageWrapper  {
         return users;
     }
 
-    private boolean contains(Map<String, Object> value, String key) {
+    protected boolean contains(Map<String, Object> value, String key) {
         return value.containsKey(key) && !value.get(key).equals("");
     }
 
-    private void deserialize(DataSnapshot snapshot) {
+    protected void deserialize(DataSnapshot snapshot) {
 
         if (snapshot.getValue() == null) {
             return;
@@ -250,7 +250,7 @@ public class MessageWrapper  {
         }).subscribeOn(RX.io());
     }
     
-    private DatabaseReference ref() {
+    protected DatabaseReference ref() {
         if (model.getEntityID() != null && !model.getEntityID().isEmpty()) {
             return FirebasePaths.threadMessagesRef(model.getThread().getEntityID()).child(model.getEntityID());
         }

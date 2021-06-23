@@ -15,6 +15,9 @@ import io.reactivex.ObservableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.annotations.Nullable;
+import io.reactivex.functions.Consumer;
+import sdk.chat.core.dao.User;
+import sdk.chat.core.session.ChatSDK;
 import sdk.guru.common.RX;
 
 public class EmptyActivity extends Activity {

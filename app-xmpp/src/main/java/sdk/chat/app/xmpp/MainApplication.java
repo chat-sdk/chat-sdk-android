@@ -7,13 +7,11 @@ import org.pmw.tinylog.Logger;
 import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.receipts.XMPPReadReceiptsModule;
 import io.reactivex.disposables.Disposable;
-import sdk.chat.app.xmpp.ssl.DummyTrustManager;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.encryption.xmpp.XMPPEncryptionModule;
-import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
@@ -42,19 +40,22 @@ public class MainApplication extends Application {
                     .setAnonymousLoginEnabled(false)
                     .setDebugModeEnabled(false)
                     .setThreadDestructionEnabled(false)
+                    .setClientPushEnabled(true)
+//                    .setDebugPassword("P@ssw0rd")
+//                    .setDebugUsername("639059060576")
                     .build()
 
                     // Add modules to handle file uploads, push notifications
                     .addModule(FirebaseUploadModule.shared())
-                    .addModule(FirebasePushModule.shared())
+//                    .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
-                            .setXMPP("172.81.180.106", "blackchat.net",  0, "iPhone")
-//                            .setXMPP("xmpp.app", "xmpp.app")
-//                            .setXMPP("sysnet-ecs.multidemos.com", "sysnet-ecs.multidemos.com")
+//                            .setXMPP("172.81.180.106", "blackchat.net",  0, "iPhone")
+                            .setXMPP("xmpp.app", "xmpp.app")
+//                            .setXMPP("freebee-sms.pldtglobal.com", "freebee-sms.pldtglobal.com")
 //                            .setXMPP("sysnet-ecs.multidemos.com", "sysnet-ecs.multidemos.com")
                             .setAllowServerConfiguration(false)
-                            .setSecurityMode("required")
+//                            .setSecurityMode("required")
 //                            .setSecurityMode("ifpossible")
 //                            .setSecurityMode("ifpossible")
                             .setPingInterval(5)
@@ -67,9 +68,8 @@ public class MainApplication extends Application {
                     .addModule(FileMessageModule.shared())
                     .addModule(StickerMessageModule.builder()
                             .build())
-                    .addModule(StickerMessageModule.builder()
-                            .build())
                     .addModule(UIModule.builder()
+                            .setRequestPermissionsOnStartup(false)
                             .setMessageSelectionEnabled(true)
                             .setUsernameHint("JID")
                             .setResetPasswordEnabled(false)
@@ -83,7 +83,7 @@ public class MainApplication extends Application {
                             .setDrawerEnabled(false)
                             .build())
 
-                    .addModule(XMPPEncryptionModule.shared())
+//                    .addModule(XMPPEncryptionModule.shared())
 
                     .build().activateWithEmail(this, "ben@sdk.chat");
 
@@ -101,17 +101,16 @@ public class MainApplication extends Application {
             assert(false);
         }
 
-        XMPPModule.config().setConnectionConfigProvider(builder -> {
-            try {
-//                builder.setCustomSSLContext(SSLContext.getDefault());
-                builder.setCustomX509TrustManager(new DummyTrustManager());
-//                builder.setSocketFactory(new DummySSLSocketFactory());
-                builder.setCompressionEnabled(false);
-            } catch(Exception e) {
-                Logger.debug(e.getLocalizedMessage());
-            }
 
-        });
+
+//        XMPPModule.config().setConnectionConfigProvider(builder -> {
+//            try {
+//                builder.setCustomX509TrustManager(new TLSUtils.AcceptAllTrustManager());
+//                builder.setCompressionEnabled(false);
+//            } catch(Exception e) {
+//                Logger.debug(e.getLocalizedMessage());
+//            }
+//        });
 
         Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {
             networkEvent.debug();

@@ -17,6 +17,7 @@ public class FirebaseModule extends AbstractModule implements NetworkAdapterProv
         return instance;
     }
 
+
     /**
      * @see FirebaseConfig
      * @return configuration object

@@ -144,10 +144,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                     ThreadHolder holder = threadHolderHashMap.get(thread);
                     final boolean inList = holder != null;
 
-                    if (networkEvent.typeIs(EventType.ThreadAdded)) {
-                        if (!inList) {
-                            addOrUpdateThread(thread);
-                        }
+                    if (networkEvent.typeIs(EventType.ThreadAdded, EventType.MessageAdded) && !inList) {
+                        addOrUpdateThread(thread);
                     }
                     else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
                         if (inList) {

@@ -19,7 +19,7 @@ public interface AuthenticationHandler {
     * Authenticate with Firebase
     */
     Completable authenticate (AccountDetails details);
-
+    void setCurrentUserEntityID(String currentUserID);
     /**
      * Checks whether the user is authenticated
      */

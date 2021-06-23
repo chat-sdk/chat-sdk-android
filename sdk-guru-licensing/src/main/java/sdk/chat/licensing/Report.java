@@ -64,7 +64,7 @@ public class Report {
         RequestBody body = builder.build();
 
         Request request = new Request.Builder()
-                .url("http://api.sdk.guru/log.php")
+                .url("https://api.sdk.guru/log.php")
                 .post(body)
                 .build();
         try {

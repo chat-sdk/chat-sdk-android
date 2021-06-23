@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.adapter.utils.PresenceHelper;
 import id.zelory.compressor.Compressor;
 import io.reactivex.Completable;
@@ -200,32 +201,40 @@ public class XMPPUserManager {
         return Single.defer(() -> {
             boolean blocked = ChatSDK.blocking().isBlocked(jid.asBareJid().toString());
 
-            User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, jid.asBareJid().toString());
             if(blocked) {
+                User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, jid.asBareJid().toString());
                 Localpart local = jid.getLocalpartOrNull();
                 String username = local != null ? local.toString() : "";
                 user.setName(username);
+                return Single.just(user);
             }
             else {
                 try {
-                    VCard vCard = vCardForUser(user.getEntityID());
-                    user = vCardToUser(vCard, jid);
-                    updateUserFromRoster(user).subscribe(ChatSDK.events());
+                    VCard vCard = vCardForUser(jid.asBareJid().toString());
+                    User user = vCardToUser(vCard, jid);
+                    return updateUserFromRoster(user).toSingle(() -> user);
                 }
                 catch (Exception e) {
                     return Single.error(e);
                 }
             }
-            return Single.just(user);
         }).subscribeOn(RX.io());
+    }
+
+    protected Single<User> updateCurrentUserFromVCard(final Jid jid) {
+        return Single.create(emitter -> {
+            VCardManager vCardManager = manager.get().vCardManager();
+            VCard vCard = vCardManager.loadVCard();
+            emitter.onSuccess(vCardToUser(vCard, jid));
+        });
     }
 
     protected VCard vCardForUser(String userEntityID) throws Exception {
         VCard vCard = vCardCache.get(userEntityID);
         if (vCard == null) {
-            EntityBareJid jid = JidCreate.entityBareFrom(userEntityID);
             VCardManager vCardManager = manager.get().vCardManager();
-            vCard = vCardManager.loadVCard(jid.asEntityBareJidIfPossible());
+            EntityBareJid jid = JidCreate.entityBareFrom(userEntityID);
+            vCard = vCardManager.loadVCard(jid);
             vCardCache.put(userEntityID, vCard);
         }
         return vCard;
@@ -278,22 +287,38 @@ public class XMPPUserManager {
 
         Map<String, Object> oldMeta = new HashMap<>(user.metaMap());
 
-        String name = vCard.getNickName();
-//        name = vCard.getFirstName() + vCard.getLastName();
+        String name = user.getName();
 
-        if(StringChecker.isNullOrEmpty(name)) {
-            if(!StringChecker.isNullOrEmpty(vCard.getFirstName()) && !StringChecker.isNullOrEmpty(vCard.getLastName())) {
-                name = vCard.getFirstName() + " " + vCard.getLastName();
-            }
-            if(!StringChecker.isNullOrEmpty(vCard.getFirstName())) {
-                name = vCard.getFirstName();
+        if(StringChecker.isNullOrEmpty(name) || name.equals(jid.asBareJid().toString())) {
+
+            String fn = vCard.getFirstName();
+            String mn = vCard.getMiddleName();
+            String ln = vCard.getLastName();
+
+            boolean fnEmpty = StringChecker.isNullOrEmpty(fn);
+            boolean mnEmpty = StringChecker.isNullOrEmpty(mn);
+            boolean lnEmpty = StringChecker.isNullOrEmpty(ln);
+
+            if (!fnEmpty) {
+                name = fn;
+                if(!lnEmpty) {
+                    name = fn + " " + ln;
+                    if(!mnEmpty) {
+                        name = fn + " " + mn + " " + ln;
+                    }
+                }
             }
         }
-        if (StringChecker.isNullOrEmpty(name)) {
+
+        if (StringChecker.isNullOrEmpty(name) || name.equals(jid.asBareJid().toString())) {
+            name = vCard.getNickName();
+        }
+
+        if (StringChecker.isNullOrEmpty(name) || name.equals(jid.asBareJid().toString())) {
             name = vCard.getField(Name);
         }
 
-        if(StringChecker.isNullOrEmpty(name)) {
+        if (StringChecker.isNullOrEmpty(name) || name.equals(jid.asBareJid().toString())) {
             name = jid.getLocalpartOrNull() != null ? jid.getLocalpartOrNull().toString() : "";
         }
 
@@ -348,8 +373,24 @@ public class XMPPUserManager {
             VCard vCard = vCardManager.loadVCard();
 
             String name = user.getName();
-            if (name != null && !name.isEmpty()) {
-                vCard.setField(Name, name);
+
+            String[] split = name.split(" ");
+            if (split.length == 3) {
+                vCard.setFirstName(split[0]);
+                vCard.setMiddleName(split[1]);
+                vCard.setLastName(split[2]);
+            }
+            if (split.length == 2) {
+                vCard.setFirstName(split[0]);
+                vCard.setLastName(split[1]);
+            }
+            if (split.length == 1) {
+                vCard.setFirstName(split[0]);
+            }
+
+            vCard.setField(Name, name);
+
+            if (name != null && !name.isEmpty() && XMPPModule.config().saveNameToVCardNickname) {
                 vCard.setNickName(name);
             }
 
@@ -371,6 +412,7 @@ public class XMPPUserManager {
             final Runnable updateVCard = () -> {
                 try {
                     vCardManager.saveVCard(vCard);
+                    vCardCache.put(user.getEntityID(), vCard);
                     ChatSDK.events().source().accept(NetworkEvent.userMetaUpdated(ChatSDK.currentUser()));
                     e.onComplete();
                 }
@@ -468,6 +510,7 @@ public class XMPPUserManager {
             Presence presence = roster.getPresence(jid.asBareJid());
             PresenceHelper.updateUserFromPresence(user, presence);
 
+            e.onComplete();
         }).subscribeOn(RX.io());
     }
 

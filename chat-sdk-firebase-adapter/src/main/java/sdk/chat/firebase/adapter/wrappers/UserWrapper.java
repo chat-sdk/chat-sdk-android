@@ -50,21 +50,19 @@ import sdk.guru.common.RX;
 
 public class UserWrapper {
 
-    private User model;
+    protected User model;
 
-    public static UserWrapper initWithAuthData(FirebaseUser authData){
-        return new UserWrapper(authData);
-    }
+//    public static UserWrapper initWithAuthData(FirebaseUser authData){
+//        return FirebaseModule.config().provider.userWrapper(authData);
+//    }
+//
+//    public static UserWrapper initWithModel(User user){
+//        return FirebaseModule.config().provider.userWrapper(user);
+//    }
 
-    public static UserWrapper initWithModel(User user){
-        return new UserWrapper(user);
-    }
-
-    private UserWrapper(FirebaseUser authData){
+    public UserWrapper(FirebaseUser authData){
         model = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, authData.getUid());
         updateUserFromAuthData(authData);
-
-
     }
 
     public UserWrapper(User model) {
@@ -269,7 +267,7 @@ public class UserWrapper {
         RealtimeReferenceManager.shared().removeListeners(ref);
     }
 
-    Map<String, Object> serialize() {
+    protected Map<String, Object> serialize() {
         Map<String, Object> values = new HashMap<>();
 
         // Don't push availability to Firebase

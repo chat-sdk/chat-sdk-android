@@ -22,6 +22,7 @@ import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.chat.firebase.adapter.FirebaseCoreHandler;
+import sdk.chat.ui.module.UIModule;
 import sdk.guru.common.BaseConfig;
 
 /**
@@ -78,13 +79,18 @@ public class FirebaseUIModule extends AbstractModule {
 
         ArrayList<AuthUI.IdpConfig> idps = getProviders(config.providers);
 
-        Intent authUILoginIntent = authUI()
+        AuthUI.SignInIntentBuilder builder = authUI()
                 .createSignInIntentBuilder()
                 .setLogo(ChatSDK.config().logoDrawableResourceID)
-                .setTheme(R.style.ChatSDKTheme)
+                .setTheme(UIModule.config().theme)
                 .setIsSmartLockEnabled(false)
-                .setAvailableProviders(idps)
-                .build();
+                .setAvailableProviders(idps);
+
+        if (UIModule.config().theme != 0) {
+            builder.setTheme(UIModule.config().theme);
+        }
+
+        Intent authUILoginIntent = builder.build();
 
         ChatSDK.ui().setLoginIntent(authUILoginIntent);
 

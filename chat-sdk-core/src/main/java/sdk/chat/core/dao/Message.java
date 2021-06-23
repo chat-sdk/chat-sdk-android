@@ -39,6 +39,7 @@ public class Message extends AbstractEntity {
 
     @Id
     private Long id;
+    private String userAccountID;
 
     @Unique
     private String entityID;
@@ -81,10 +82,11 @@ public class Message extends AbstractEntity {
     @Generated(hash = 859287859)
     private transient MessageDao myDao;
 
-    @Generated(hash = 1026695031)
-    public Message(Long id, String entityID, Date date, Integer type, Integer status, Long senderId, Long threadId,
-            Long nextMessageId, Long previousMessageId, String encryptedText) {
+    @Generated(hash = 947700636)
+    public Message(Long id, String userAccountID, String entityID, Date date, Integer type, Integer status, Long senderId,
+            Long threadId, Long nextMessageId, Long previousMessageId, String encryptedText) {
         this.id = id;
+        this.userAccountID = userAccountID;
         this.entityID = entityID;
         this.date = date;
         this.type = type;
@@ -197,7 +199,7 @@ public class Message extends AbstractEntity {
     protected void setMetaValue(String key, Object value) {
         MessageMetaValue metaValue = (MessageMetaValue) metaValue(key);
         if (metaValue == null) {
-            metaValue = ChatSDK.db().createEntity(MessageMetaValue.class);
+            metaValue = ChatSDK.db().create(MessageMetaValue.class);
             metaValue.setMessageId(this.getId());
             getMetaValues().add(metaValue);
         }
@@ -270,7 +272,7 @@ public class Message extends AbstractEntity {
             if(link == null) {
                 Logger.debug("CREATE LINK - uid: " + user.getId() + " mid: " + this.getId());
 
-                link = ChatSDK.db().createEntity(ReadReceiptUserLink.class);
+                link = ChatSDK.db().create(ReadReceiptUserLink.class);
                 link.setMessageId(this.getId());
                 link.setUser(user);
                 link.setUserId(user.getId());
@@ -726,6 +728,14 @@ public class Message extends AbstractEntity {
 
     public void setEncryptedText(String encryptedText) {
         this.encryptedText = encryptedText;
+    }
+
+    public String getUserAccountID() {
+        return this.userAccountID;
+    }
+
+    public void setUserAccountID(String userAccountID) {
+        this.userAccountID = userAccountID;
     }
 
 }

@@ -11,6 +11,7 @@ import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.Device;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
@@ -24,6 +25,7 @@ import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
 import sdk.chat.ui.ChatSDKUI;
+import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.recycler.SectionViewModel;
 import sdk.chat.ui.recycler.ToggleViewModel;
@@ -46,10 +48,12 @@ public class MainApplication extends Application {
             e.printStackTrace();
         }
 
+
     }
 
     public void firebase() throws Exception {
-        String rootPath = "pre_2";
+        String rootPath = "pre_5";
+
 
 
         ChatSDK.builder()
@@ -72,6 +76,7 @@ public class MainApplication extends Application {
                                 .setFirebaseRootPath(rootPath)
                                 .setDisableClientProfileUpdate(false)
                                 .setDevelopmentModeEnabled(true)
+                                .setFirebaseDatabaseURL("https://chat-sdk-v4-5109a.asia-southeast1.firebasedatabase.app/")
                                 .build()
                 )
 
@@ -102,11 +107,11 @@ public class MainApplication extends Application {
                 .addModule(FirebaseReadReceiptsModule.shared())
                 .addModule(FirebaseTypingIndicatorModule.shared())
 
-//                .addModule(ExtrasModule.builder(config -> {
+                .addModule(ExtrasModule.builder(config -> {
 //                    if (Device.honor(this)) {
-//                        config.setDrawerEnabled(false);
+//                        config.setDrawerEnabled(true);
 //                    }
-//                }))
+                }))
 
 //
 //                .addModule(FirebaseUIModule.builder()

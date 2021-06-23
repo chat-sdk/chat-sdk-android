@@ -23,10 +23,14 @@ public class XMPPLastOnlineHandler implements LastOnlineHandler {
     @Override
     public Single<Optional<Date>> getLastOnline(final User user) {
         return Single.create((SingleOnSubscribe<Optional<Date>>) e -> {
-            LastActivity activity = XMPPManager.shared().lastActivityManager().getLastActivity(JidCreate.bareFrom(user.getEntityID()));
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.SECOND, - (int) activity.getIdleTime());
-            e.onSuccess(Optional.with(calendar.getTime()));
+            if (XMPPManager.shared().isConnectedAndAuthenticated()) {
+                LastActivity activity = XMPPManager.shared().lastActivityManager().getLastActivity(JidCreate.bareFrom(user.getEntityID()));
+                Calendar calendar = Calendar.getInstance();
+                calendar.add(Calendar.SECOND, - (int) activity.getIdleTime());
+                e.onSuccess(Optional.with(calendar.getTime()));
+            } else {
+                e.onSuccess(Optional.empty());
+            }
         }).subscribeOn(RX.io());
     }
 

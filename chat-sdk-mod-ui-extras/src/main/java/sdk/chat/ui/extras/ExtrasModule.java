@@ -91,7 +91,7 @@ public class ExtrasModule extends AbstractModule {
     @Override
     public void activate(@Nullable Context context) {
         if (config.drawerEnabled) {
-            ChatSDK.ui().setMainActivity(MainDrawActivity.class);
+            ChatSDK.ui().setMainActivity(MainDrawerActivity.class);
         }
         if (config.qrCodesEnabled) {
             ChatSDK.ui().addSearchActivity(ScanQRCodeActivity.class, ChatSDK.getString(sdk.chat.ui.extras.R.string.qr_code));

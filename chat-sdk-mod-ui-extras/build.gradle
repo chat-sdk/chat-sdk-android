@@ -1,6 +1,6 @@
 plugins {
     id 'com.android.library'
-    id 'com.jfrog.bintray'
+    id 'com.jfrog.artifactory'
     id 'maven-publish'
     id 'kotlin-android'
     id 'kotlin-android-extensions'
@@ -56,7 +56,7 @@ dependencies {
     api "com.miguelcatalan:materialsearchview:$materialSearchVersion"
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
-    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
+//    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
     implementation "androidmads.library.qrgenearator:QRGenearator:$qrGenerator"
     implementation "me.dm7.barcodescanner:zxing:$zxing"

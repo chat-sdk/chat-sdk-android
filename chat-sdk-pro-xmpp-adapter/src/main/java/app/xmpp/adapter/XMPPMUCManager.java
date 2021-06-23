@@ -210,6 +210,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
 
                 thread.setName(name, true);
 
+
                 if(info.isMembersOnly()) {
                     thread.setType(ThreadType.PrivateGroup);
                 } else {

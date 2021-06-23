@@ -26,8 +26,7 @@ import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.utils.Debug;
 import sdk.chat.firebase.adapter.moderation.Permission;
-import sdk.chat.firebase.adapter.wrappers.MessageWrapper;
-import sdk.chat.firebase.adapter.wrappers.ThreadWrapper;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.guru.common.RX;
 import sdk.guru.realtime.RXRealtime;
 
@@ -44,7 +43,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             // If we did load some messages locally, update the from date to the last of those messages
             Date finalAfterDate = localMessages.size() > 0 ? localMessages.get(0).getDate() : after;
 
-            return new ThreadWrapper(thread).loadMoreMessagesAfter(finalAfterDate, 0).map((Function<List<Message>, List<Message>>) remoteMessages -> {
+            return FirebaseModule.config().provider.threadWrapper(thread).loadMoreMessagesAfter(finalAfterDate, 0).map((Function<List<Message>, List<Message>>) remoteMessages -> {
 
                 ArrayList<Message> mergedMessages = new ArrayList<>(localMessages);
                 mergedMessages.addAll(remoteMessages);
@@ -72,7 +71,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 // If we did load some messages locally, update the from date to the last of those messages
                 Date finalFromDate = localMessageSize > 0 ? localMessages.get(localMessageSize-1).getDate() : fromDate;
 
-                return new ThreadWrapper(thread).loadMoreMessagesBefore(finalFromDate, messageToLoad).map((Function<List<Message>, List<Message>>) remoteMessages -> {
+                return FirebaseModule.config().provider.threadWrapper(thread).loadMoreMessagesBefore(finalFromDate, messageToLoad).map((Function<List<Message>, List<Message>>) remoteMessages -> {
 
                     ArrayList<Message> mergedMessages = new ArrayList<>(localMessages);
                     mergedMessages.addAll(remoteMessages);
@@ -99,7 +98,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * When all users are added the system will call the "onDone" method.
      **/
     public Completable addUsersToThread(final Thread thread, final List<User> users) {
-        return new ThreadWrapper(thread).addUsers(users);
+        return FirebaseModule.config().provider.threadWrapper(thread).addUsers(users);
     }
 
     @Override
@@ -128,15 +127,15 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     public Completable removeUsersFromThread(final Thread thread, List<User> users) {
-        return new ThreadWrapper(thread).removeUsers(users);
+        return FirebaseModule.config().provider.threadWrapper(thread).removeUsers(users);
     }
 
     public Completable pushThread(Thread thread) {
-        return new ThreadWrapper(thread).push();
+        return FirebaseModule.config().provider.threadWrapper(thread).push();
     }
 
     public Completable pushThreadMeta(Thread thread) {
-        return new ThreadWrapper(thread).pushMeta();
+        return FirebaseModule.config().provider.threadWrapper(thread).pushMeta();
     }
 
     @Override
@@ -151,7 +150,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * The uploading to the server part can bee seen her {@see FirebaseCoreAdapter#PushMessageWithComplition}.
      */
     public Completable sendMessage(final Message message) {
-        return new MessageWrapper(message).send().andThen(new Completable() {
+        return FirebaseModule.config().provider.messageWrapper(message).send().andThen(new Completable() {
             @Override
             protected void subscribeActual(CompletableObserver observer) {
                 pushForMessage(message);
@@ -240,7 +239,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             thread.update();
 
             // Save the thread to the database.
-            return new ThreadWrapper(thread).push()
+            return FirebaseModule.config().provider.threadWrapper(thread).push()
                     .doOnError(throwable -> {
                         thread.cascadeDelete();
                     })
@@ -254,7 +253,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     public Completable deleteThread(Thread thread) {
         return Completable.defer(() -> {
-            return new ThreadWrapper(thread).deleteThread();
+            return FirebaseModule.config().provider.threadWrapper(thread).deleteThread();
         });
     }
 
@@ -268,7 +267,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     public Completable deleteMessage(Message message) {
         return Completable.defer(() -> {
             if (message.getSender().isMe() && message.getMessageStatus().equals(MessageSendStatus.Sent) && !message.getMessageType().is(MessageType.System)) {
-                return new MessageWrapper(message).delete();
+                return FirebaseModule.config().provider.messageWrapper(message).delete();
             }
             message.getThread().removeMessage(message);
             return Completable.complete();
@@ -287,7 +286,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         User currentUser = ChatSDK.currentUser();
         Thread thread = message.getThread();
 
-        if (rolesEnabled(thread)) {
+        if (rolesEnabled(thread) && !thread.typeIs(ThreadType.Public)) {
             String role = roleForUser(thread, currentUser);
             int level = Permission.level(role);
 
@@ -315,7 +314,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     public Completable leaveThread(Thread thread) {
-        return Completable.defer(() -> new ThreadWrapper(thread).leave());
+        return Completable.defer(() -> FirebaseModule.config().provider.threadWrapper(thread).leave());
     }
 
     @Override
@@ -378,7 +377,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     public Completable setRole(final String role, Thread thread, User user) {
         return Completable.defer(() -> {
 //            role = Permission.fromLocalized(role);
-            return new ThreadWrapper(thread).setPermission(user.getEntityID(), role);
+            return FirebaseModule.config().provider.threadWrapper(thread).setPermission(user.getEntityID(), role);
         });
     }
 

@@ -9,7 +9,6 @@ import org.jivesoftware.smack.packet.Stanza
 import org.jivesoftware.smackx.address.packet.MultipleAddresses
 import org.jivesoftware.smackx.chatstates.packet.ChatStateExtension
 import org.jivesoftware.smackx.delay.packet.DelayInformation
-import org.jivesoftware.smackx.muc.packet.MUCItem
 import org.jivesoftware.smackx.receipts.DeliveryReceipt
 import org.jxmpp.jid.impl.JidCreate
 import org.pmw.tinylog.Logger
@@ -42,6 +41,10 @@ open class XMPPMessageWrapper(val message: Stanza) {
 //        } else {
 //            from()
 //        }
+    }
+
+    open fun messageType(): Int? {
+        return extras()?.getFirstElement(XMPPDefines.Type)?.text?.toInt()
     }
 
     open fun hasAction(action: Int): Boolean {
@@ -261,7 +264,7 @@ fun Stanza.extFrom(): String? {
         fromJID = delayInformation()?.from
         if (fromJID == null) {
             val jids = addressJIDs()
-            if (jids.size >= 1) {
+            if (jids.isNotEmpty()) {
                 fromJID = jids[0]
             }
             if (jids.size > 1) {

@@ -56,6 +56,7 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         migrations.add(new MigrationV17());
         migrations.add(new MigrationV18());
         migrations.add(new MigrationV19());
+        migrations.add(new MigrationV20());
 
         // Sorting just to be safe, in case other people add migrations in the wrong order.
         Comparator<Migration> migrationComparator = (m1, m2) -> m1.getVersion().compareTo(m2.getVersion());
@@ -304,6 +305,20 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         @Override
         public void runMigration(Database db) {
             db.execSQL("ALTER TABLE " + MessageDao.TABLENAME + " ADD COLUMN " + MessageDao.Properties.EncryptedText.columnName + " TEXT");
+        }
+    }
+
+    private static class MigrationV20 implements Migration {
+        @Override
+        public Integer getVersion() {
+            return 20;
+        }
+
+        @Override
+        public void runMigration(Database db) {
+            db.execSQL("ALTER TABLE " + MessageDao.TABLENAME + " ADD COLUMN " + MessageDao.Properties.UserAccountID.columnName + " TEXT");
+            db.execSQL("ALTER TABLE " + UserDao.TABLENAME + " ADD COLUMN " + UserDao.Properties.UserAccountID.columnName + " TEXT");
+            db.execSQL("ALTER TABLE " + PublicKeyDao.TABLENAME + " ADD COLUMN " + PublicKeyDao.Properties.UserAccountID.columnName + " TEXT");
         }
     }
 

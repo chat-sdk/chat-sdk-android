@@ -41,7 +41,7 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
     public void newIncomingMessage(EntityBareJid fromJID, Message message, Chat chat) {
         // Get the thread here before we parse the message. If the thread is null,
         // it will be created when we parse the message
-        XMPPMessageWrapper xmr = new XMPPMessageWrapper(message);
+         XMPPMessageWrapper xmr = new XMPPMessageWrapper(message);
         if (xmr.isSilent()) {
             return;
         }
@@ -76,7 +76,11 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
             return;
         }
 
-        // This is a message directly from the MUC
+//        if (xmr.messageType() == null) {
+//            return;
+//        }
+
+            // This is a message directly from the MUC
         if (message.getFrom().hasNoResource()) {
             Logger.debug("Subject?");
             String subject = message.getSubject();
@@ -158,9 +162,15 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
             return null;
         }
 
+        // If the thread has been deleted then just continue
+        if (finalThread.isDeleted() && finalThread.getLoadMessagesFrom() != null && finalThread.getLoadMessagesFrom().after(xmr.date())) {
+            return null;
+        }
+
         // Here we can update the last online time
         String bare = ChatSDK.currentUserID();
         if (bare != null) {
+            // Why do we add 1000?
             Date date = new Date(xmr.rawDate().getTime() + 1000);
 
             ConnectionManager manager = XMPPManager.shared().connectionManager();
@@ -218,8 +228,13 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
 
         StandardExtensionElement extras = xmr.extras();
         if (extras != null) {
-            String type = extras.getFirstElement(XMPPDefines.Type).getText();
-            message.setType(Integer.parseInt(type));
+
+            if (extras.getFirstElement(XMPPDefines.Type) != null) {
+                String type = extras.getFirstElement(XMPPDefines.Type).getText();
+                message.setType(Integer.parseInt(type));
+            } else {
+                message.setType(MessageType.Text);
+            }
 
             // Handle Meta
             Map<String, Object> meta = new HashMap<>();

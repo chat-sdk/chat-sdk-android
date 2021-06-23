@@ -86,6 +86,7 @@ public class ChatSDK {
     protected IKeyStorage keyStorage;
 
     protected List<Runnable> onActivateListeners = new ArrayList<>();
+    protected List<Runnable> onPermissionsRequestedListeners = new ArrayList<>();
 
     protected ChatSDK () {
     }
@@ -234,7 +235,7 @@ public class ChatSDK {
                 Message message = (Message) messageObject;
                 Thread thread = (Thread) threadObject;
 
-                if (!thread.isMuted()) {
+                if (!thread.isMuted() && !thread.isDeleted()) {
                         if (thread.typeIs(ThreadType.Private) || ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled) {
                             if (!message.isDelivered()) {
                                 boolean inBackground = AppBackgroundMonitor.shared().inBackground();
@@ -483,6 +484,16 @@ public class ChatSDK {
 
     public void addOnActivateListener(Runnable runnable) {
         onActivateListeners.add(runnable);
+    }
+
+    public void addOnPermissionRequestedListener(Runnable runnable) {
+        onPermissionsRequestedListeners.add(runnable);
+    }
+
+    public void permissionsRequested() {
+        for (Runnable r: onPermissionsRequestedListeners) {
+            r.run();
+        }
     }
 
     public String getLicenseIdentifier() {

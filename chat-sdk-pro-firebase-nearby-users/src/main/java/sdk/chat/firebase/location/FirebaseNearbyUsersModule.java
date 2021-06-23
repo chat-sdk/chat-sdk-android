@@ -1,6 +1,7 @@
 package sdk.chat.firebase.location;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 
 import androidx.fragment.app.Fragment;
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Completable;
 import sdk.chat.core.Tab;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
@@ -15,6 +17,7 @@ import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.utils.AppBackgroundMonitor;
+import sdk.chat.core.utils.PermissionRequestHandler;
 import sdk.chat.licensing.Report;
 import sdk.chat.ui.icons.Icons;
 import sdk.guru.common.BaseConfig;
@@ -30,6 +33,8 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
     protected GeoFireManager geoFireManager = null;
     protected GeoItemManager geoItemManager = null;
     protected LocationHandler locationHandler = null;
+
+    protected boolean running = false;
 
     public static FirebaseNearbyUsersModule shared() {
         return instance;
@@ -64,7 +69,10 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
 
         ChatSDK.hook().addHook(Hook.sync(data -> {
             if (config.enabled) {
-                startService();
+                // If we have permission
+                if (locationPermissionGranted()) {
+                    startService();
+                }
             }
         }), HookEvent.DidAuthenticate);
 
@@ -92,26 +100,43 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
             }
         });
 
+        ChatSDK.shared().addOnPermissionRequestedListener(() -> {
+            startService();
+        });
     }
 
     public void stopService() {
-        getGeoFireManager().stopListeningForItems();
-        getGeoItemManager().removeFromGeoFire(currentUser());
-        getGeoFireManager().stop();
+        if (running) {
+            running = false;
+            getGeoFireManager().stopListeningForItems();
+            getGeoItemManager().removeFromGeoFire(currentUser());
+            getGeoFireManager().stop();
+            getLocationHandler().stop();
+        }
     }
 
     public void startService() {
-        // When we get the first location update, then start listening for new users
-        ChatSDK.events().disposeOnLogout(getLocationHandler().once().subscribe(location -> {
-            getGeoFireManager().startListeningForItems(location.getLatitude(), location.getLongitude(), config().maxDistance);
-        }));
+        if (!running) {
+            running = true;
 
-        // Add the current user
-        getGeoItemManager().addTrackedItem(currentUser(), false);
+            getLocationHandler().start();
+
+            // When we get the first location update, then start listening for new users
+            ChatSDK.events().disposeOnLogout(getLocationHandler().once().subscribe(location -> {
+                getGeoFireManager().startListeningForItems(location.getLatitude(), location.getLongitude(), config().maxDistance);
+            }));
+
+
+            // Add the current user
+            getGeoItemManager().addTrackedItem(currentUser(), true);
+        }
     }
 
     protected GeoItem currentUser() {
-        return new GeoItem(ChatSDK.currentUser().getEntityID(), GeoItem.USER);
+        if (ChatSDK.currentUser() != null) {
+            return new GeoItem(ChatSDK.currentUser().getEntityID(), GeoItem.USER);
+        }
+        return null;
     }
 
     public static class Config<T> extends BaseConfig<T> {
@@ -232,13 +257,23 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
         return shared().config;
     }
 
-    public List<String> requiredPermissions() {
+    public List<String> privateRequiredPermissions() {
         List<String> permissions = new ArrayList<>();
 
         permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
 
         return permissions;
+    }
+
+    public Completable requestPermissions(Activity activity) {
+        return PermissionRequestHandler.requestPermissions(activity, privateRequiredPermissions()).doOnComplete(() -> {
+            startService();
+        });
+    }
+
+    public boolean locationPermissionGranted() {
+        return PermissionRequestHandler.permissionGranted(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION);
     }
 
     @Override

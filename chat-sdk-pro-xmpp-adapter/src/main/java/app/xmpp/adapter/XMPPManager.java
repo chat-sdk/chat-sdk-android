@@ -8,6 +8,12 @@ import org.jivesoftware.smack.ReconnectionManager;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.chat2.ChatManager;
+import org.jivesoftware.smack.filter.AndFilter;
+import org.jivesoftware.smack.filter.FromTypeFilter;
+import org.jivesoftware.smack.filter.MessageTypeFilter;
+import org.jivesoftware.smack.filter.MessageWithBodiesFilter;
+import org.jivesoftware.smack.filter.OrFilter;
+import org.jivesoftware.smack.filter.StanzaExtensionFilter;
 import org.jivesoftware.smack.filter.StanzaFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
@@ -32,7 +38,9 @@ import org.jivesoftware.smackx.receipts.DeliveryReceiptRequest;
 import org.jivesoftware.smackx.search.UserSearchManager;
 import org.jivesoftware.smackx.time.EntityTimeManager;
 import org.jivesoftware.smackx.vcardtemp.VCardManager;
+import org.jivesoftware.smackx.xhtmlim.packet.XHTMLExtension;
 import org.jxmpp.jid.DomainBareJid;
+import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
@@ -326,6 +334,11 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
                 }
             });
 
+            connection.setParsingExceptionCallback(stanzaData -> {
+                //
+                System.out.println("Error");
+            });
+
             addListeners();
             mucManager = new XMPPMUCManager(this);
 
@@ -334,7 +347,10 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
 
                 if (jid != null && password != null) {
                     connection.login(jid, password);
+                    ChatSDK.auth().setCurrentUserEntityID(connection.getUser().asEntityBareJidString());
                 }
+
+                // Set the current user
 
                 e.onSuccess(connection);
             }
@@ -377,7 +393,33 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         removeListeners();
 
         getConnection().addConnectionListener(connectionManager);
+
         chatManager().addIncomingListener(messageListener);
+
+        // This filter will pick up messges from entity bare JIDs
+        // Note we aren't making any special allowance for HTML messages
+        // We do this because by default, only messages with a resource are picked up.
+        connection.addAsyncStanzaListener(stanza -> {
+            final Message message = (Message) stanza;
+
+            if (message.getBodies().isEmpty()) {
+                return;
+            }
+
+            final Jid from = message.getFrom();
+            final EntityBareJid bareFrom = from.asEntityBareJidOrThrow();
+
+            messageListener.newIncomingMessage(bareFrom, message, null);
+
+        }, stanza -> {
+            return new AndFilter(
+                    MessageTypeFilter.NORMAL_OR_CHAT,
+                    new OrFilter(MessageWithBodiesFilter.INSTANCE, new StanzaExtensionFilter(XHTMLExtension.ELEMENT, XHTMLExtension.NAMESPACE)),
+                    FromTypeFilter.ENTITY_BARE_JID
+            ).accept(stanza);
+        });
+
+
         chatManager().addOutgoingListener(messageListener);
         chatStateManager().addChatStateListener(chatStateListener);
         reconnectionManager().addReconnectionListener(reconnectionListener);
@@ -492,6 +534,7 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
                     }
                     XMPPMessageWrapper xmr = new XMPPMessageWrapper(message);
                     xmr.debug();
+
                     wrappers.add(xmr);
                 }
                 messageListener.parse(wrappers);
@@ -545,9 +588,8 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
                 return Completable.error(ChatSDK.getException(R.string.xmpp_server_must_be_specified));
             }
             return openConnection(server, userJID, password).flatMapCompletable(xmppConnection -> {
-
                 if(xmppConnection.isConnected()) {
-                    return userManager.updateUserFromVCard(xmppConnection.getUser().asBareJid()).ignoreElement();
+                    return userManager.updateCurrentUserFromVCard(xmppConnection.getUser().asBareJid()).ignoreElement();
                 }
                 else {
                     return Completable.error(ChatSDK.getException(R.string.cannot_connect));
@@ -579,8 +621,10 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
 
                     connection.login(username, password);
 
+                    ChatSDK.auth().setCurrentUserEntityID(connection.getUser().asEntityBareJidString());
+
                     if(xmppConnection.isConnected()) {
-                        return userManager.updateUserFromVCard(xmppConnection.getUser().asBareJid()).ignoreElement();
+                        return userManager.updateCurrentUserFromVCard(xmppConnection.getUser().asBareJid()).ignoreElement();
                     }
                     else {
                         return Completable.error(ChatSDK.getException(R.string.cannot_connect));

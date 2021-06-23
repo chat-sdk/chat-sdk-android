@@ -68,7 +68,7 @@ public class PermissionRequestHandler {
     }
 
     public static Completable requestVideoAccess(Activity activity) {
-        return requestPermissions(activity, Manifest.permission.CAPTURE_VIDEO_OUTPUT);
+        return requestPermissions(activity, Manifest.permission.CAMERA);
     }
 
     public static Completable requestReadContact(Activity activity) {

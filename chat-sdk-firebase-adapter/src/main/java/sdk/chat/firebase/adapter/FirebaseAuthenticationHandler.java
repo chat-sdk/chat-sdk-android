@@ -154,7 +154,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             }
 
             // Do a once() on the user to push its details to firebase.
-            UserWrapper userWrapper = UserWrapper.initWithAuthData(user);
+            UserWrapper userWrapper = FirebaseModule.config().provider.userWrapper(user);
             return userWrapper.push().doOnComplete(() -> {
                 completeAuthentication(userWrapper.getModel());
             });

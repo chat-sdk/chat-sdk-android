@@ -327,7 +327,7 @@ public class Thread extends AbstractEntity {
 
         if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {
             if (metaValue == null) {
-                metaValue = ChatSDK.db().createEntity(ThreadMetaValue.class);
+                metaValue = ChatSDK.db().create(ThreadMetaValue.class);
                 metaValue.setThreadId(this.getId());
                 getMetaValues().add(metaValue);
             }
@@ -821,22 +821,6 @@ public class Thread extends AbstractEntity {
         }
     }
 
-//    public void setPermission(String userEntityID, String permission, boolean notify, boolean sendSystemMessage) {
-//        User user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
-//        if (user != null) {
-//            UserThreadLink link = getUserThreadLink(user.getId());
-//            if (link != null) {
-//                if(link.setMetaValue(Keys.Permission, permission) && notify) {
-//                    ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(this, user));
-//                    if (sendSystemMessage && user.isMe()) {
-//                        String message = String.format(ChatSDK.getString(R.string.role_changed_to__), ChatSDK.thread().localizeRole(permission));
-//                        ChatSDK.thread().sendLocalSystemMessage(message, this);
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     public String getPermission(String userEntityID) {
         User user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
         if (user != null) {
@@ -847,21 +831,6 @@ public class Thread extends AbstractEntity {
         }
         return null;
     }
-
-//    public String getPermission(String userEntityID) {
-//        User user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
-//        if (user != null) {
-//            UserThreadLink link = getUserThreadLink(user.getId());
-//            if (link != null) {
-//                UserThreadLinkMetaValue permission = link.metaValueForKey(Keys.Permission);
-//                if (permission != null) {
-//                    return permission.getValue();
-//                }
-//            }
-//        }
-//        return null;
-//    }
-
 
     public Date getLoadMessagesFrom() {
         return this.loadMessagesFrom;
@@ -933,16 +902,27 @@ public class Thread extends AbstractEntity {
     }
 
     public void cascadeDelete() {
-        for (Message message: getMessages()) {
-            message.cascadeDelete();
-        }
-        for (UserThreadLink link: getLinks()) {
+        removeMessagesAndMarkDeleted();
+        List<UserThreadLink> links = new ArrayList<>(getLinks());
+        for (UserThreadLink link: links) {
             link.cascadeDelete();
         }
-        for (ThreadMetaValue value :getMetaValues()) {
+        List<ThreadMetaValue> values = new ArrayList<>(getMetaValues());
+        for (ThreadMetaValue value: values) {
             value.delete();
         }
         delete();
+    }
+
+    public void removeMessagesAndMarkDeleted() {
+        List<Message> messages = new ArrayList<>(getMessages());
+        for (Message message: messages) {
+            removeMessage(message);
+            message.cascadeDelete();
+        }
+        setDeleted(true);
+        setLoadMessagesFrom(new Date());
+        update();
     }
 
     public String getUserAccountID() {

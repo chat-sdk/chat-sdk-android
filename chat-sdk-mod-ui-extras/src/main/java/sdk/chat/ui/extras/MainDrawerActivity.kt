@@ -22,6 +22,7 @@ import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader
 import com.mikepenz.materialdrawer.util.DrawerImageLoader
 import com.mikepenz.materialdrawer.util.updateName
 import com.mikepenz.materialdrawer.widget.AccountHeaderView
+
 import io.reactivex.Single
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
@@ -40,20 +41,20 @@ import sdk.chat.ui.interfaces.SearchSupported
 import sdk.chat.ui.module.UIModule
 import sdk.guru.common.RX
 
-class MainDrawActivity : MainActivity() {
+open class MainDrawerActivity : MainActivity() {
 
     override fun getLayout(): Int {
         return R.layout.activity_main_drawer
     }
 
-    private lateinit var headerView: AccountHeaderView
-    private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
+    public lateinit var headerView: AccountHeaderView
+    public lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
 
-    private lateinit var profile: IProfile
-    private var currentFragment: Fragment? = null
+    public lateinit var profile: IProfile
+    public var currentFragment: Fragment? = null
 
-    private lateinit var privateThreadItem: PrimaryDrawerItem
-    private lateinit var publicThreadItem: PrimaryDrawerItem
+    public lateinit var privateThreadItem: PrimaryDrawerItem
+    public lateinit var publicThreadItem: PrimaryDrawerItem
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,7 +88,7 @@ class MainDrawActivity : MainActivity() {
 
         DrawerImageLoader.init(object : AbstractDrawerImageLoader() {
             override fun set(imageView: ImageView, uri: Uri, placeholder: Drawable, tag: String?) {
-                Glide.with(this@MainDrawActivity)
+                Glide.with(this@MainDrawerActivity)
                         .load(uri)
                         .dontAnimate()
                         .placeholder(placeholder)
@@ -95,7 +96,7 @@ class MainDrawActivity : MainActivity() {
             }
 
             override fun cancel(imageView: ImageView) {
-                Glide.with(this@MainDrawActivity).clear(imageView)
+                Glide.with(this@MainDrawerActivity).clear(imageView)
             }
         })
 
@@ -109,6 +110,7 @@ class MainDrawActivity : MainActivity() {
         buildHeader(false, savedInstanceState)
 
         val logoutItem = PrimaryDrawerItem().withName(R.string.logout).withIcon(Icons.get(this, Icons.choose().logout, R.color.logout_button_color))
+        logoutItem.name = StringHolder(R.string.logout)
         logoutItem.isSelectable = false
 
         val profileItem = PrimaryDrawerItem().withName(R.string.profile).withIcon(Icons.get(this, Icons.choose().user, R.color.profile_icon_color))
@@ -135,7 +137,7 @@ class MainDrawActivity : MainActivity() {
             onDrawerItemClickListener = { v, drawerItem, position ->
                 // Logout item
                 if(drawerItem  === logoutItem) {
-                    ChatSDK.auth().logout().observeOn(RX.main()).doOnComplete(Action { ChatSDK.ui().startSplashScreenActivity(this@MainDrawActivity) }).subscribe(this@MainDrawActivity)
+                    logoutClicked()
                 } else if(drawerItem  === profileItem) {
                     ChatSDK.ui().startProfileActivity(context, ChatSDK.currentUserID())
                 } else {
@@ -149,11 +151,15 @@ class MainDrawActivity : MainActivity() {
         setFragmentForPosition(0);
     }
 
-    protected fun privateTabName(): Single<StringHolder> {
+    open fun privateTabName(): Single<StringHolder> {
         return KotlinHelper.privateTabName().observeOn(RX.main())
     }
 
-    protected fun updateProfile() {
+    open fun logoutClicked() {
+        ChatSDK.auth().logout().observeOn(RX.main()).doOnComplete(Action { ChatSDK.ui().startSplashScreenActivity(this@MainDrawerActivity) }).subscribe(this@MainDrawerActivity)
+    }
+
+    open fun updateProfile() {
         val user = ChatSDK.currentUser()
 
         profile = ProfileDrawerItem().apply {
@@ -169,7 +175,7 @@ class MainDrawActivity : MainActivity() {
         // Create the AccountHeader
     }
 
-    protected fun setFragmentForPosition(position: Int) {
+    open fun setFragmentForPosition(position: Int) {
         val tabs = ChatSDK.ui().tabs()
         val tab = tabs.get(position)
         supportFragmentManager.beginTransaction().replace(R.id.fragment_container, tab.fragment).commit()
@@ -195,7 +201,7 @@ class MainDrawActivity : MainActivity() {
      * @param compact
      * @param savedInstanceState
      */
-    private fun buildHeader(compact: Boolean, savedInstanceState: Bundle?) {
+    open fun buildHeader(compact: Boolean, savedInstanceState: Bundle?) {
 
         updateProfile()
 
@@ -231,7 +237,7 @@ class MainDrawActivity : MainActivity() {
         updateHeaderBackground()
     }
 
-    fun updateHeaderBackground() {
+    open fun updateHeaderBackground() {
         val user = ChatSDK.currentUser()
         if(user.headerURL != null) {
 //            headerView.headerBackground = ImageHolder(user.headerURL)

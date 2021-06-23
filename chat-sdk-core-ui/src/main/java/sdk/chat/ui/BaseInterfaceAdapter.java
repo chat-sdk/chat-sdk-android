@@ -17,7 +17,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -563,11 +562,14 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public void removeSearchActivity(Class<? extends Activity> className) {
-        Iterator<SearchActivityType> iterator = searchActivities.iterator();
-        while (iterator.hasNext()) {
-            if(iterator.next().className.equals(className)) {
-                searchActivities.remove(iterator.next());
+        List<SearchActivityType> toRemove = new ArrayList<>();
+        for (SearchActivityType type: searchActivities) {
+            if (type.className.equals(className)) {
+                toRemove.add(type);
             }
+        }
+        for (SearchActivityType type: toRemove) {
+            searchActivities.remove(type);
         }
     }
 

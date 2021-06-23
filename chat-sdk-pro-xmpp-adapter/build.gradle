@@ -1,6 +1,6 @@
 plugins {
     id 'com.android.library'
-    id 'com.jfrog.bintray'
+    id 'com.jfrog.artifactory'
     id 'maven-publish'
     id 'com.jakewharton.butterknife'
     id 'kotlin-android'

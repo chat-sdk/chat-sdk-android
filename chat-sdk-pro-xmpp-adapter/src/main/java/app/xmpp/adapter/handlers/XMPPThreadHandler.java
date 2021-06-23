@@ -139,7 +139,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
         return leaveThread(thread).doOnComplete(() -> {
             ChatSDK.events().source().accept(NetworkEvent.threadRemoved(thread));
         }).doFinally(() -> {
-            thread.cascadeDelete();
+            thread.removeMessagesAndMarkDeleted();
         });
 //        return Completable.defer(() -> {
 //
@@ -316,17 +316,18 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 //                }
             }
 
-            if (ChatSDK.push() != null && message.getThread().typeIs(ThreadType.Private)) {
+            if (ChatSDK.push() != null && ChatSDK.config().clientPushEnabled && message.getThread().typeIs(ThreadType.Private)) {
                 Map<String, Object> data = ChatSDK.push().pushDataForMessage(message);
-
-                // Fix a bug with the default implementation
-                // In XMPP 1-to-1 threads have the ID of the other user. So we need to put our
-                // ID as the thread ID
-                if (message.getThread().typeIs(ThreadType.Private1to1) && data != null) {
-                    data.put(AbstractPushHandler.ThreadId, AbstractPushHandler.SenderId);
+                if (data != null) {
+                    // Fix a bug with the default implementation
+                    // In XMPP 1-to-1 threads have the ID of the other user. So we need to put our
+                    // ID as the thread ID
+                    Object senderId = data.get(AbstractPushHandler.SenderId);
+                    if (message.getThread().typeIs(ThreadType.Private1to1) && senderId != null) {
+                        data.put(AbstractPushHandler.ThreadId, senderId);
+                    }
+                    ChatSDK.push().sendPushNotification(data);
                 }
-
-                ChatSDK.push().sendPushNotification(data);
             }
 
             message.setMessageStatus(MessageSendStatus.Sent);

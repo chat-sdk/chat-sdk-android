@@ -25,7 +25,6 @@ import sdk.chat.firebase.adapter.moderation.Permission;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.adapter.utils.Generic;
 import sdk.chat.firebase.adapter.wrappers.ThreadWrapper;
-import sdk.chat.firebase.adapter.wrappers.UserWrapper;
 import sdk.guru.common.EventType;
 import sdk.guru.realtime.RXRealtime;
 import sdk.guru.realtime.RealtimeEventListener;
@@ -67,7 +66,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         final DatabaseReference threadsRef = FirebasePaths.userThreadsRef(entityID);
 
         new RXRealtime().childOn(threadsRef).flatMapCompletable(change -> {
-            final ThreadWrapper thread = new ThreadWrapper(change.getSnapshot().getKey());
+            final ThreadWrapper thread = FirebaseModule.config().provider.threadWrapper(change.getSnapshot().getKey());
             if (change.getType() == EventType.Added && !thread.getModel().typeIs(ThreadType.Public)) {
 
                 long now = new Date().getTime();
@@ -121,14 +120,14 @@ public class FirebaseEventHandler extends AbstractEventHandler {
             }
 
             ChildEventListener publicThreadsListener = query.addChildEventListener(new RealtimeEventListener().onChildAdded((snapshot, s, hasValue) -> {
-                final ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
+                final ThreadWrapper thread = FirebaseModule.config().provider.threadWrapper(snapshot.getKey());
 
                 thread.on().doOnComplete(() -> {
                     ChatSDK.events().source().accept(NetworkEvent.threadAdded(thread.getModel()));
                 }).subscribe();
 
             }).onChildRemoved((snapshot, hasValue) -> {
-                ThreadWrapper thread = new ThreadWrapper(snapshot.getKey());
+                ThreadWrapper thread = FirebaseModule.config().provider.threadWrapper(snapshot.getKey());
 //                ChatSDK.events().source().accept(NetworkEvent.threadRemoved(thread.getModel()));
                 thread.off();
             }));
@@ -193,7 +192,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         String entityID = user.getEntityID();
         RealtimeReferenceManager.shared().removeListeners(FirebasePaths.userThreadsRef(entityID));
         for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Private)) {
-            ThreadWrapper wrapper = new ThreadWrapper(thread);
+            ThreadWrapper wrapper = FirebaseModule.config().provider.threadWrapper(thread);
             wrapper.off();
         }
     }
@@ -202,7 +201,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         if (!FirebaseModule.config().disablePublicThreads) {
             RealtimeReferenceManager.shared().removeListeners(FirebasePaths.publicThreadsRef());
             for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
-                ThreadWrapper wrapper = new ThreadWrapper(thread);
+                ThreadWrapper wrapper = FirebaseModule.config().provider.threadWrapper(thread);
                 wrapper.off();
             }
         }
@@ -210,7 +209,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
 
     protected void contactsOff(User user) {
         for (User contact : ChatSDK.contact().contacts()) {
-            UserWrapper.initWithModel(contact).metaOff();
+            FirebaseModule.config().provider.userWrapper(contact).metaOff();
         }
     }
 

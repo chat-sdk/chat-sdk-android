@@ -7,6 +7,7 @@ import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.util.HashMap;
 
+import app.xmpp.adapter.module.XMPPModule;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.defines.Availability;
 import sdk.chat.core.events.NetworkEvent;
@@ -36,7 +37,10 @@ public class PresenceHelper {
 
             boolean wasOnline = user.getIsOnline();
 
-            user.setIsOnline(presence.getType() != Presence.Type.unavailable, false);
+            boolean online = presence.getType() != Presence.Type.unavailable;
+            online = online && XMPPModule.config().onlinePresenceModes.contains(presence.getMode());
+
+            user.setIsOnline(online, false);
 
             RosterEntry entry = XMPPManager.shared().roster().getEntry(JidCreate.bareFrom(user.getEntityID()));
             if(entry != null) {

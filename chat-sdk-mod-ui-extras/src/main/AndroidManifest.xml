@@ -7,7 +7,7 @@
         android:supportsRtl="true"
         android:hardwareAccelerated="true">
 
-        <activity android:name=".MainDrawActivity"
+        <activity android:name=".MainDrawerActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden">
         </activity>

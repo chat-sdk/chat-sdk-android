@@ -37,7 +37,7 @@ public abstract class AbstractDemoActivity extends BaseActivity {
             }
         }
 
-        overridePendingTransition(R.anim.fragment_fade_enter, R.anim.fragment_fade_exit);
+//        overridePendingTransition(R.anim.fragment_fade_enter, R.anim.fragment_fade_exit);
 
     }
 

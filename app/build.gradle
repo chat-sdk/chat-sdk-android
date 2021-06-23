@@ -1,9 +1,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.jakewharton.butterknife'
+apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'com.google.firebase.firebase-perf'
 
 //apply plugin: 'com.google.firebase.crashlytics'
-//apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
@@ -105,7 +106,7 @@ dependencies {
 
 //    implementation project(':chat-sdk-firestream-adapter')
 //
-//    implementation project(':chat-sdk-mod-ui-extras')
+    implementation project(':chat-sdk-mod-ui-extras')
 //    implementation project(':chat-sdk-mod-firebase-ui')
 //    implementation project(':chat-sdk-mod-profile-pictures')
 //

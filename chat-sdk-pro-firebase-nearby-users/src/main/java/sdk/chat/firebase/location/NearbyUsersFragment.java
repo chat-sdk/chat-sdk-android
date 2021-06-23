@@ -39,6 +39,8 @@ public class NearbyUsersFragment extends BaseFragment {
     @BindView(R2.id.textView)
     protected TextView textView;
 
+    protected boolean didStart = false;
+
     protected Disposable listOnClickListenerDisposable;
 
     public static NearbyUsersFragment newInstance() {
@@ -60,7 +62,7 @@ public class NearbyUsersFragment extends BaseFragment {
     }
 
     public void start() {
-        FirebaseNearbyUsersModule.shared().getLocationHandler().start();
+//        FirebaseNearbyUsersModule.shared().getLocationHandler().start();
         reloadData();
 //        textView.setVisibility(View.GONE);
 //        recyclerView.setVisibility(View.VISIBLE);
@@ -83,6 +85,7 @@ public class NearbyUsersFragment extends BaseFragment {
 
         reloadData();
 
+        didStart = true;
 
         return view;
     }
@@ -90,6 +93,11 @@ public class NearbyUsersFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
+
+        if (!FirebaseNearbyUsersModule.shared().locationPermissionGranted()) {
+            FirebaseNearbyUsersModule.shared().requestPermissions(getActivity()).onErrorComplete()
+                    .subscribe(this);
+        }
 
         dm.add(FirebaseNearbyUsersModule.shared().getGeoFireManager().locationUsersEvents().observeOn(RX.db()).subscribe(locationUsers -> {
             reloadData();
@@ -146,6 +154,9 @@ public class NearbyUsersFragment extends BaseFragment {
 
     @Override
     public void reloadData() {
+        if (!didStart) {
+            return;
+        }
 
         if (!FirebaseNearbyUsersModule.shared().config.enabled) {
             textView.setVisibility(View.VISIBLE);

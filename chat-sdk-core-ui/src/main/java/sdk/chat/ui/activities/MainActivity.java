@@ -107,6 +107,9 @@ public abstract class MainActivity extends BaseActivity {
         if (UIModule.config().requestPermissionsOnStartup) {
             PermissionRequestHandler.requestPermissions(this, ChatSDK.shared()
                     .getRequiredPermissions())
+                    .doFinally(() -> {
+                        ChatSDK.shared().permissionsRequested();
+                    })
                     .onErrorComplete()
                     .subscribe(this);
         }

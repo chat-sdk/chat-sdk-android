@@ -55,8 +55,15 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
     @Override
     public Completable authenticate(final AccountDetails details) {
         return Completable.defer(() -> {
+
+            // Get the username
+//            String username = details.username + "@" + XMPPManager.getCurrentServer(ChatSDK.ctx()).domain;
+//
+//            setCurrentUserEntityID(username);
+
             if (isAuthenticatedThisSession() || isAuthenticated()) {
-                return Completable.error(ChatSDK.getException(R.string.already_authenticated));
+//                return Completable.error(ChatSDK.getException(R.string.already_authenticated));
+                return loginSuccessful(details);
             }
             else if (!isAuthenticating()) {
                 authenticating = Completable.defer(() -> {
@@ -69,11 +76,17 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                         case Username:
                             return XMPPManager.shared().login(details.username, details.password).andThen(Completable.defer(() -> {
                                 return loginSuccessful(details);
-                            })).doOnError(throwable -> setAuthStateToIdle()).doFinally(this::setAuthStateToIdle);
+                            })).doOnError(throwable -> {
+//                                setAuthStateToIdle();
+                                clearCurrentUserEntityID();
+                            }).doFinally(this::setAuthStateToIdle);
                         case Register:
                             return XMPPManager.shared().register(details.username, details.password).andThen(Completable.defer(() -> {
                                 return loginSuccessful(details);
-                            })).doOnError(throwable -> setAuthStateToIdle()).doFinally(this::setAuthStateToIdle);
+                            })).doOnError(throwable -> {
+//                                setAuthStateToIdle();
+                                clearCurrentUserEntityID();
+                            }).doFinally(this::setAuthStateToIdle);
                         default:
                             return Completable.error(ChatSDK.getException(R.string.login_method_doesnt_exist));
                     }
@@ -101,8 +114,6 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
     }
 
     private void userAuthenticationCompletedWithJID(Jid jid) {
-
-        setCurrentUserEntityID(jid.asBareJid().toString());
 
         AbstractXMPPConnection conn = XMPPManager.shared().getConnection();
         if(conn.isAuthenticated() && conn.isConnected()) {

@@ -1,6 +1,10 @@
 package app.xmpp.adapter.module;
 
+import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import app.xmpp.adapter.handlers.XMPPNetworkAdapter;
 import app.xmpp.adapter.utils.XMPPServer;
@@ -29,6 +33,14 @@ public class XMPPConfig<T> extends BaseConfig<T> {
     public int pingInterval = 15;
     public boolean streamManagementEnabled = true;
     public ConnectionConfigProvider connectionConfigProvider;
+
+    public boolean saveNameToVCardNickname = true;
+
+    public List<Presence.Mode> onlinePresenceModes = new ArrayList<Presence.Mode>() {{
+        add(Presence.Mode.chat);
+        add(Presence.Mode.available);
+        add(Presence.Mode.dnd);
+    }};
 
     public boolean allowServerConfiguration = true;
 
@@ -193,6 +205,16 @@ public class XMPPConfig<T> extends BaseConfig<T> {
     }
 
     /**
+     * Should the user's name be saved to the nickname field in the vCard
+     * @param value
+     * @return
+     */
+    public XMPPConfig<T> setSaveNameToVCardNickname(boolean value) {
+        this.saveNameToVCardNickname = value;
+        return this;
+    }
+
+    /**
      * Override the Firebase network adapter class
      * @param networkAdapter
      * @return
@@ -231,5 +253,9 @@ public class XMPPConfig<T> extends BaseConfig<T> {
         return this;
     }
 
+    public XMPPConfig<T> setOnlinePresenceModes(List<Presence.Mode> modes) {
+        this.onlinePresenceModes = modes;
+        return this;
+    }
 
 }

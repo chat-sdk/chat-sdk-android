@@ -31,6 +31,8 @@ public class User extends AbstractEntity implements UserListItem {
     @Id
     private Long id;
     private String entityID;
+    private String userAccountID;
+
     private Date lastOnline;
     private Boolean isOnline;
 
@@ -45,10 +47,11 @@ public class User extends AbstractEntity implements UserListItem {
     private transient UserDao myDao;
 
 
-    @Generated(hash = 1471069357)
-    public User(Long id, String entityID, Date lastOnline, Boolean isOnline) {
+    @Generated(hash = 1990634567)
+    public User(Long id, String entityID, String userAccountID, Date lastOnline, Boolean isOnline) {
         this.id = id;
         this.entityID = entityID;
+        this.userAccountID = userAccountID;
         this.lastOnline = lastOnline;
         this.isOnline = isOnline;
     }
@@ -373,7 +376,7 @@ public class User extends AbstractEntity implements UserListItem {
 
                 if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {
                     if (metaValue == null) {
-                        metaValue = ChatSDK.db().createEntity(UserMetaValue.class);
+                        metaValue = ChatSDK.db().create(UserMetaValue.class);
                         metaValue.setUserId(this.getId());
                         getMetaValues().add(metaValue);
                     }
@@ -550,5 +553,13 @@ public class User extends AbstractEntity implements UserListItem {
             value.delete();
         }
         delete();
+    }
+
+    public String getUserAccountID() {
+        return this.userAccountID;
+    }
+
+    public void setUserAccountID(String userAccountID) {
+        this.userAccountID = userAccountID;
     }
 }

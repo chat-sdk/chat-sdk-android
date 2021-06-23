@@ -7,6 +7,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 
+import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
@@ -86,8 +87,12 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         this.delegate = delegate;
     }
 
+    public @LayoutRes int getLayout() {
+        return R.layout.view_chat;
+    }
+
     public void initViews() {
-        LayoutInflater.from(getContext()).inflate(R.layout.view_chat, this);
+        LayoutInflater.from(getContext()).inflate(getLayout(), this);
         ButterKnife.bind(this);
 
         final MessageHolders holders = new MessageHolders();
