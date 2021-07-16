@@ -16,23 +16,23 @@ import java.util.Map;
 
 public class RealtimeReferenceManager {
 
-    private class Value {
+    protected class Value {
 
-        private ChildEventListener cel;
-        private ValueEventListener vel;
-        private Query ref;
+        protected ChildEventListener cel;
+        protected ValueEventListener vel;
+        protected Query ref;
 
-        private Value (Query ref, ChildEventListener listener) {
+        protected Value(Query ref, ChildEventListener listener) {
             this.cel = listener;
             this.ref = ref;
         }
 
-        private Value (Query ref, ValueEventListener listener) {
+        protected Value(Query ref, ValueEventListener listener) {
             this.vel = listener;
             this.ref = ref;
         }
 
-        private void removeListener () {
+        protected void removeListener() {
             if(cel != null) {
                 ref.removeEventListener(cel);
             }
@@ -40,11 +40,10 @@ public class RealtimeReferenceManager {
                 ref.removeEventListener(vel);
             }
         }
-
     }
 
-    private static RealtimeReferenceManager instance;
-    private Map<String, List<Value>> references = new HashMap<>();
+    protected static RealtimeReferenceManager instance;
+    protected Map<String, List<Value>> references = new HashMap<>();
 
     public static RealtimeReferenceManager shared() {
         if (instance == null) {
@@ -53,11 +52,11 @@ public class RealtimeReferenceManager {
         return instance;
     }
 
-    public void addRef (Query ref, ChildEventListener l) {
+    public void addRef(Query ref, ChildEventListener l) {
         listForRef(ref).add(new Value(ref, l));
     }
 
-    public void addRef (Query ref, ValueEventListener l) {
+    public void addRef(Query ref, ValueEventListener l) {
         listForRef(ref).add(new Value(ref, l));
     }
 
@@ -70,7 +69,7 @@ public class RealtimeReferenceManager {
         return list;
     }
 
-    public boolean isOn (Query ref) {
+    public boolean isOn(Query ref) {
         return references.containsKey(ref.getRef().toString());
     }
 
@@ -90,6 +89,10 @@ public class RealtimeReferenceManager {
                 v.removeListener();
             }
         }
+    }
+
+    public void clear() {
+        references.clear();
     }
 
 }

@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Completable;
 import sdk.chat.core.base.AbstractEventHandler;
-import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -45,7 +44,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         }
         isOn = true;
 
-        final User user = DaoCore.fetchEntityWithEntityID(User.class, entityID);
+        final User user = ChatSDK.db().fetchEntityWithEntityID(entityID, User.class);
 
         if (user != null) {
             if(ChatSDK.hook() != null) {
@@ -177,7 +176,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
     public void impl_currentUserOff(final String entityID){
         isOn = false;
 
-        final User user = DaoCore.fetchEntityWithEntityID(User.class, entityID);
+        final User user = ChatSDK.db().fetchEntityWithEntityID(entityID, User.class);
 
         if (user != null) {
             threadsOff(user);

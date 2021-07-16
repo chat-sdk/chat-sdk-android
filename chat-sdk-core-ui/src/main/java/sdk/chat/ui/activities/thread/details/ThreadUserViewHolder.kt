@@ -51,7 +51,7 @@ class ThreadUserViewHolder(parentView: ViewGroup) :
             val width = Dimen.from(context, R.dimen.small_avatar_width)
             val height = Dimen.from(context, R.dimen.small_avatar_height)
 
-            val avatarURL: String = user.avatarURL
+            val avatarURL: String? = user.avatarURL
             if (!StringChecker.isNullOrEmpty(avatarURL)) {
                 Glide.with(root)
                         .load(avatarURL)

@@ -322,6 +322,7 @@ public class NetworkEvent {
                 EventType.MessageReadReceiptUpdated,
                 EventType.UserPresenceUpdated,
                 EventType.TypingStateUpdated,
+                EventType.Logout,
                 EventType.UserMetaUpdated // Be careful to check that the user is a member of the thread...
         );
     }

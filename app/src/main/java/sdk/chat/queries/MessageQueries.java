@@ -8,8 +8,7 @@ import java.util.List;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.MessageDao;
 import sdk.chat.core.dao.Thread;
-
-import static sdk.chat.core.dao.DaoCore.daoSession;
+import sdk.chat.core.session.ChatSDK;
 
 public class MessageQueries {
 
@@ -23,7 +22,7 @@ public class MessageQueries {
      * @return List of messageHolders for thread
      */
     public List<Message> fetchMessages (Thread thread, Date from, Date to, int limit, boolean orderDesc) {
-        QueryBuilder<Message> qb = daoSession.queryBuilder(Message.class);
+        QueryBuilder<Message> qb = ChatSDK.db().getDaoCore().getDaoSession().queryBuilder(Message.class);
         qb.where(MessageDao.Properties.ThreadId.eq(thread.getId()));
 
         qb.where(MessageDao.Properties.Date.isNotNull());

@@ -1,5 +1,7 @@
 package sdk.chat.core.dao;
 
+import androidx.annotation.Nullable;
+
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.annotation.Entity;
@@ -7,6 +9,7 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.ToMany;
+import org.greenrobot.greendao.annotation.Unique;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,8 +33,9 @@ public class User extends AbstractEntity implements UserListItem {
 
     @Id
     private Long id;
+
+    @Unique
     private String entityID;
-    private String userAccountID;
 
     private Date lastOnline;
     private Boolean isOnline;
@@ -47,11 +51,10 @@ public class User extends AbstractEntity implements UserListItem {
     private transient UserDao myDao;
 
 
-    @Generated(hash = 1990634567)
-    public User(Long id, String entityID, String userAccountID, Date lastOnline, Boolean isOnline) {
+    @Generated(hash = 1471069357)
+    public User(Long id, String entityID, Date lastOnline, Boolean isOnline) {
         this.id = id;
         this.entityID = entityID;
-        this.userAccountID = userAccountID;
         this.lastOnline = lastOnline;
         this.isOnline = isOnline;
     }
@@ -68,7 +71,7 @@ public class User extends AbstractEntity implements UserListItem {
         List<User> contactList = new ArrayList<>();
 
         // For some reason the default ContactLinks do not persist, have to find in DB
-        List<ContactLink> contactLinks = DaoCore.fetchEntitiesWithProperty(ContactLink.class,
+        List<ContactLink> contactLinks = ChatSDK.db().getDaoCore().fetchEntitiesWithProperty(ContactLink.class,
                 ContactLinkDao.Properties.LinkOwnerUserDaoId, this.getId());
 
         for (ContactLink contactLink : contactLinks){
@@ -129,7 +132,7 @@ public class User extends AbstractEntity implements UserListItem {
                         ContactLinkDao.Properties.Type
                 };
 
-                List<ContactLink> contactLinks = DaoCore.fetchEntitiesWithProperties(ContactLink.class,
+                List<ContactLink> contactLinks = ChatSDK.db().getDaoCore().fetchEntitiesWithProperties(ContactLink.class,
                         properties, this.getId(), user.getId(), type.ordinal());
 
                 for(ContactLink link : contactLinks) {
@@ -188,6 +191,7 @@ public class User extends AbstractEntity implements UserListItem {
         return metaStringForKey(Keys.PresenceSubscription);
     }
 
+    @Nullable
     public String getAvatarURL() {
         String url = metaStringForKey(Keys.AvatarURL);
         if (StringChecker.isNullOrEmpty(url)) {
@@ -403,7 +407,7 @@ public class User extends AbstractEntity implements UserListItem {
     }
 
     public boolean hasThread(Thread thread){
-        UserThreadLink data = DaoCore.fetchEntityWithProperties(
+        UserThreadLink data = ChatSDK.db().getDaoCore().fetchEntityWithProperties(
                 UserThreadLink.class,
                 new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId},
                 thread.getId(),
@@ -555,11 +559,4 @@ public class User extends AbstractEntity implements UserListItem {
         delete();
     }
 
-    public String getUserAccountID() {
-        return this.userAccountID;
-    }
-
-    public void setUserAccountID(String userAccountID) {
-        this.userAccountID = userAccountID;
-    }
 }

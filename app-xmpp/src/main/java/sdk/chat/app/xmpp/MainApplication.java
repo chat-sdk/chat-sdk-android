@@ -11,7 +11,6 @@ import sdk.chat.core.dao.Message;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.encryption.xmpp.XMPPEncryptionModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
@@ -68,10 +67,13 @@ public class MainApplication extends Application {
                     .addModule(FileMessageModule.shared())
                     .addModule(StickerMessageModule.builder()
                             .build())
+
                     .addModule(UIModule.builder()
                             .setRequestPermissionsOnStartup(false)
                             .setMessageSelectionEnabled(true)
                             .setUsernameHint("JID")
+                            .setMessageForwardingEnabled(true)
+                            .setMessageReplyEnabled(true)
                             .setResetPasswordEnabled(false)
                             .setPublicRoomCreationEnabled(true)
                             .setPublicRoomsEnabled(false)

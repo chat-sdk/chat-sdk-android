@@ -1,6 +1,7 @@
 package app.xmpp.adapter;
 
 import android.content.Context;
+import android.os.StrictMode;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -126,6 +127,9 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
     }
 
     protected XMPPManager() {
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
         rosterListener = new XMPPRosterListener(this);
 

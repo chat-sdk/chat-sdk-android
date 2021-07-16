@@ -58,7 +58,7 @@ public class FirebaseLastOnlineHandler implements LastOnlineHandler {
                 });
             }
             else {
-                emitter.onError(new Throwable());
+                emitter.onComplete();
             }
         });
     }

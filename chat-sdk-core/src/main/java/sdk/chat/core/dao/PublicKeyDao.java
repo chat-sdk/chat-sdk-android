@@ -23,10 +23,9 @@ public class PublicKeyDao extends AbstractDao<PublicKey, Long> {
      */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property UserAccountID = new Property(1, String.class, "userAccountID", false, "USER_ACCOUNT_ID");
-        public final static Property EntityID = new Property(2, String.class, "entityID", false, "ENTITY_ID");
-        public final static Property Key = new Property(3, String.class, "key", false, "KEY");
-        public final static Property Identifier = new Property(4, String.class, "identifier", false, "IDENTIFIER");
+        public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
+        public final static Property Key = new Property(2, String.class, "key", false, "KEY");
+        public final static Property Identifier = new Property(3, String.class, "identifier", false, "IDENTIFIER");
     }
 
     private DaoSession daoSession;
@@ -46,10 +45,9 @@ public class PublicKeyDao extends AbstractDao<PublicKey, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"PUBLIC_KEY\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
-                "\"USER_ACCOUNT_ID\" TEXT," + // 1: userAccountID
-                "\"ENTITY_ID\" TEXT UNIQUE ," + // 2: entityID
-                "\"KEY\" TEXT," + // 3: key
-                "\"IDENTIFIER\" TEXT);"); // 4: identifier
+                "\"ENTITY_ID\" TEXT UNIQUE ," + // 1: entityID
+                "\"KEY\" TEXT," + // 2: key
+                "\"IDENTIFIER\" TEXT);"); // 3: identifier
     }
 
     /** Drops the underlying database table. */
@@ -67,24 +65,19 @@ public class PublicKeyDao extends AbstractDao<PublicKey, Long> {
             stmt.bindLong(1, id);
         }
  
-        String userAccountID = entity.getUserAccountID();
-        if (userAccountID != null) {
-            stmt.bindString(2, userAccountID);
-        }
- 
         String entityID = entity.getEntityID();
         if (entityID != null) {
-            stmt.bindString(3, entityID);
+            stmt.bindString(2, entityID);
         }
  
         String key = entity.getKey();
         if (key != null) {
-            stmt.bindString(4, key);
+            stmt.bindString(3, key);
         }
  
         String identifier = entity.getIdentifier();
         if (identifier != null) {
-            stmt.bindString(5, identifier);
+            stmt.bindString(4, identifier);
         }
     }
 
@@ -97,24 +90,19 @@ public class PublicKeyDao extends AbstractDao<PublicKey, Long> {
             stmt.bindLong(1, id);
         }
  
-        String userAccountID = entity.getUserAccountID();
-        if (userAccountID != null) {
-            stmt.bindString(2, userAccountID);
-        }
- 
         String entityID = entity.getEntityID();
         if (entityID != null) {
-            stmt.bindString(3, entityID);
+            stmt.bindString(2, entityID);
         }
  
         String key = entity.getKey();
         if (key != null) {
-            stmt.bindString(4, key);
+            stmt.bindString(3, key);
         }
  
         String identifier = entity.getIdentifier();
         if (identifier != null) {
-            stmt.bindString(5, identifier);
+            stmt.bindString(4, identifier);
         }
     }
 
@@ -133,10 +121,9 @@ public class PublicKeyDao extends AbstractDao<PublicKey, Long> {
     public PublicKey readEntity(Cursor cursor, int offset) {
         PublicKey entity = new PublicKey( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // userAccountID
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // entityID
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // key
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4) // identifier
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // entityID
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // key
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3) // identifier
         );
         return entity;
     }
@@ -144,10 +131,9 @@ public class PublicKeyDao extends AbstractDao<PublicKey, Long> {
     @Override
     public void readEntity(Cursor cursor, PublicKey entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setUserAccountID(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setEntityID(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setKey(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setIdentifier(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setEntityID(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setKey(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setIdentifier(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
      }
     
     @Override

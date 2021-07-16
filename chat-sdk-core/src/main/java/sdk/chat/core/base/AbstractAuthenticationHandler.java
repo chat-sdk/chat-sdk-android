@@ -16,9 +16,9 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
     protected boolean isAuthenticatedThisSession = false;
 
     protected Completable authenticating;
-
     protected Completable loggingOut;
-    private User cachedUser = null;
+
+    protected User cachedUser = null;
 
     public Boolean isAuthenticating () {
         return authenticating != null;
@@ -38,8 +38,6 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
      */
     public void setCurrentUserEntityID(String currentUserID) {
         this.currentUserID = currentUserID;
-
-        ChatSDK.db().openDatabase(currentUserID);
 
         isAuthenticatedThisSession = true;
         ChatSDK.shared().getKeyStorage().put(Keys.CurrentUserID, currentUserID);

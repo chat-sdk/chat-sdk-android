@@ -15,7 +15,6 @@ import java.util.List;
 
 import io.reactivex.plugins.RxJavaPlugins;
 import sdk.chat.core.base.BaseNetworkAdapter;
-import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -211,9 +210,7 @@ public class ChatSDK {
             throw new Exception("The interface adapter cannot be null. An interface adapter must be defined using ChatSDK.configure(...) or by a module");
         }
 
-        DaoCore.init(context);
-
-        storageManager = new StorageManager();
+        storageManager = new StorageManager(context);
 
         // Monitor the app so if it goes into the background we know
         AppBackgroundMonitor.shared().setEnabled(true);

@@ -42,8 +42,8 @@ import io.reactivex.Single;
     */
 //    void goOnline();
 
-    Completable userOn (User user);
-    void userOff (User user);
+    Completable userOn(User user);
+    void userOff(User user);
 
     void save();
 

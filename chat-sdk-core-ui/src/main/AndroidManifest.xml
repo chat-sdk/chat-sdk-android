@@ -48,7 +48,7 @@
             android:windowSoftInputMode="stateVisible" />
 
         <activity android:name=".recycler.ModerationActivity"
-            android:windowSoftInputMode="stateVisible" />
+            android:windowSoftInputMode="stateAlwaysHidden" />
 
         <activity android:name=".activities.ProfileActivity"
             android:windowSoftInputMode="stateHidden"

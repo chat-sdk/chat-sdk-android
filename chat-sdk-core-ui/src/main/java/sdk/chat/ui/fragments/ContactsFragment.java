@@ -135,6 +135,10 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
                 .subscribe(networkEvent -> loadData(true)));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
+                .subscribe(networkEvent -> loadData(true)));
     }
 
     public void startProfileActivity(String userEntityID) {

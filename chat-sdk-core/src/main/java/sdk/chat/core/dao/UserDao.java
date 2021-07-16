@@ -24,9 +24,8 @@ public class UserDao extends AbstractDao<User, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
-        public final static Property UserAccountID = new Property(2, String.class, "userAccountID", false, "USER_ACCOUNT_ID");
-        public final static Property LastOnline = new Property(3, java.util.Date.class, "lastOnline", false, "LAST_ONLINE");
-        public final static Property IsOnline = new Property(4, Boolean.class, "isOnline", false, "IS_ONLINE");
+        public final static Property LastOnline = new Property(2, java.util.Date.class, "lastOnline", false, "LAST_ONLINE");
+        public final static Property IsOnline = new Property(3, Boolean.class, "isOnline", false, "IS_ONLINE");
     }
 
     private DaoSession daoSession;
@@ -46,10 +45,9 @@ public class UserDao extends AbstractDao<User, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"USER\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
-                "\"ENTITY_ID\" TEXT," + // 1: entityID
-                "\"USER_ACCOUNT_ID\" TEXT," + // 2: userAccountID
-                "\"LAST_ONLINE\" INTEGER," + // 3: lastOnline
-                "\"IS_ONLINE\" INTEGER);"); // 4: isOnline
+                "\"ENTITY_ID\" TEXT UNIQUE ," + // 1: entityID
+                "\"LAST_ONLINE\" INTEGER," + // 2: lastOnline
+                "\"IS_ONLINE\" INTEGER);"); // 3: isOnline
     }
 
     /** Drops the underlying database table. */
@@ -72,19 +70,14 @@ public class UserDao extends AbstractDao<User, Long> {
             stmt.bindString(2, entityID);
         }
  
-        String userAccountID = entity.getUserAccountID();
-        if (userAccountID != null) {
-            stmt.bindString(3, userAccountID);
-        }
- 
         java.util.Date lastOnline = entity.getLastOnline();
         if (lastOnline != null) {
-            stmt.bindLong(4, lastOnline.getTime());
+            stmt.bindLong(3, lastOnline.getTime());
         }
  
         Boolean isOnline = entity.getIsOnline();
         if (isOnline != null) {
-            stmt.bindLong(5, isOnline ? 1L: 0L);
+            stmt.bindLong(4, isOnline ? 1L: 0L);
         }
     }
 
@@ -102,19 +95,14 @@ public class UserDao extends AbstractDao<User, Long> {
             stmt.bindString(2, entityID);
         }
  
-        String userAccountID = entity.getUserAccountID();
-        if (userAccountID != null) {
-            stmt.bindString(3, userAccountID);
-        }
- 
         java.util.Date lastOnline = entity.getLastOnline();
         if (lastOnline != null) {
-            stmt.bindLong(4, lastOnline.getTime());
+            stmt.bindLong(3, lastOnline.getTime());
         }
  
         Boolean isOnline = entity.getIsOnline();
         if (isOnline != null) {
-            stmt.bindLong(5, isOnline ? 1L: 0L);
+            stmt.bindLong(4, isOnline ? 1L: 0L);
         }
     }
 
@@ -134,9 +122,8 @@ public class UserDao extends AbstractDao<User, Long> {
         User entity = new User( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // entityID
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // userAccountID
-            cursor.isNull(offset + 3) ? null : new java.util.Date(cursor.getLong(offset + 3)), // lastOnline
-            cursor.isNull(offset + 4) ? null : cursor.getShort(offset + 4) != 0 // isOnline
+            cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)), // lastOnline
+            cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0 // isOnline
         );
         return entity;
     }
@@ -145,9 +132,8 @@ public class UserDao extends AbstractDao<User, Long> {
     public void readEntity(Cursor cursor, User entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setEntityID(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setUserAccountID(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setLastOnline(cursor.isNull(offset + 3) ? null : new java.util.Date(cursor.getLong(offset + 3)));
-        entity.setIsOnline(cursor.isNull(offset + 4) ? null : cursor.getShort(offset + 4) != 0);
+        entity.setLastOnline(cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)));
+        entity.setIsOnline(cursor.isNull(offset + 3) ? null : cursor.getShort(offset + 3) != 0);
      }
     
     @Override

@@ -167,7 +167,7 @@ open class MainDrawerActivity : MainActivity() {
             name = StringHolder(user.name)
             description = StringHolder(user.status)
             if(user.avatarURL != null) {
-                icon = ImageHolder(user.avatarURL)
+                icon = ImageHolder(user.avatarURL!!)
             } else {
                 icon = ImageHolder(UIModule.config().defaultProfilePlaceholder)
             }

@@ -56,10 +56,8 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
     public Completable authenticate(final AccountDetails details) {
         return Completable.defer(() -> {
 
-            // Get the username
-//            String username = details.username + "@" + XMPPManager.getCurrentServer(ChatSDK.ctx()).domain;
-//
-//            setCurrentUserEntityID(username);
+            String database = details.username + XMPPManager.getCurrentServer(ChatSDK.ctx()).domain;
+            ChatSDK.db().openDatabase(database);
 
             if (isAuthenticatedThisSession() || isAuthenticated()) {
 //                return Completable.error(ChatSDK.getException(R.string.already_authenticated));
@@ -90,7 +88,7 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
                         default:
                             return Completable.error(ChatSDK.getException(R.string.login_method_doesnt_exist));
                     }
-                });
+                }).cache();
             }
             return authenticating;
         });
@@ -102,6 +100,8 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
             if(!details.username.contains("@")) {
                 details.username = details.username + "@" + XMPPManager.shared().getDomain();
             }
+
+            setCurrentUserEntityID(details.username);
 
             try {
                 userAuthenticationCompletedWithJID(JidCreate.bareFrom(details.username));
@@ -154,6 +154,8 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
             ChatSDK.shared().getKeyStorage().clear();
 
             ChatSDK.events().source().accept(NetworkEvent.logout());
+
+            ChatSDK.db().closeDatabase();
 
             emitter.onComplete();
         }).subscribeOn(RX.computation());

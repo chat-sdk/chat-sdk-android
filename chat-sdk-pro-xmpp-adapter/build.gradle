@@ -65,6 +65,7 @@ dependencies {
     api "org.igniterealtime.smack:smack-extensions:$smackVersion"
     api "org.igniterealtime.smack:smack-experimental:$smackVersion"
     api "org.igniterealtime.smack:smack-sasl-provided:$smackVersion"
+//    api "org.igniterealtime.smack:smack-omemo:$smackVersion"
 
     implementation "com.miguelcatalan:materialsearchview:$materialSearchVersion"
 

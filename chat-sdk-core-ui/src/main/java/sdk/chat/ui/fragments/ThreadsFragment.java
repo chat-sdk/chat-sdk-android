@@ -199,7 +199,12 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 .observeOn(RX.main())
                 .subscribe(networkEvent -> {
 
-                    batcher.add(networkEvent, networkEvent.typeIs(EventType.TypingStateUpdated));
+                    if (networkEvent.typeIs(EventType.Logout)) {
+                        threadHolderHashMap.clear();
+                        dialogsListAdapter.clear();
+                    } else {
+                        batcher.add(networkEvent, networkEvent.typeIs(EventType.TypingStateUpdated));
+                    }
 
                     Logger.debug("Network Event: " + networkEvent.type);
 
@@ -353,6 +358,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         if (dialogsListAdapter != null) {
             dialogsListAdapter.clear();
         }
+        threadHolderHashMap.clear();
     }
 
     public void setTabVisibility(boolean isVisible) {

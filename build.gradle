@@ -102,7 +102,7 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
-        maven { url "https://chatsdk.jfrog.io/artifactory/chat-sdk-android" }
+        maven { url "https://chatsdk.jfrog.io/artifactory/release/chat-sdk-android" }
         maven { url 'https://jitpack.io' }
     }
 }

@@ -1,37 +1,35 @@
 package sdk.chat.core.dao;
 
-import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Unique;
 
 import sdk.chat.core.base.AbstractEntity;
+import org.greenrobot.greendao.DaoException;
 
 @Entity(active = true)
 public class PublicKey extends AbstractEntity {
 
     @Id
     private Long id;
-    private String userAccountID;
 
     @Unique
     private String entityID;
 
     private String key;
     private String identifier;
+
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
+
     /** Used for active entity operations. */
     @Generated(hash = 788782911)
     private transient PublicKeyDao myDao;
-
-    @Generated(hash = 949545707)
-    public PublicKey(Long id, String userAccountID, String entityID, String key,
-            String identifier) {
+    @Generated(hash = 981958860)
+    public PublicKey(Long id, String entityID, String key, String identifier) {
         this.id = id;
-        this.userAccountID = userAccountID;
         this.entityID = entityID;
         this.key = key;
         this.identifier = identifier;
@@ -73,14 +71,6 @@ public class PublicKey extends AbstractEntity {
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
-    }
-
-    public String getUserAccountID() {
-        return this.userAccountID;
-    }
-
-    public void setUserAccountID(String userAccountID) {
-        this.userAccountID = userAccountID;
     }
 
     /**

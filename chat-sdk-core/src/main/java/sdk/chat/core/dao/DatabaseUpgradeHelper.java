@@ -277,7 +277,7 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
 
         @Override
         public void runMigration(Database db) {
-            db.execSQL("ALTER TABLE " + ThreadDao.TABLENAME + " ADD COLUMN " + ThreadDao.Properties.UserAccountID.columnName + " TEXT");
+            db.execSQL("ALTER TABLE " + ThreadDao.TABLENAME + " ADD COLUMN " + "USER_ACCOUNT_ID" + " TEXT");
         }
     }
 
@@ -316,9 +316,10 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
 
         @Override
         public void runMigration(Database db) {
-            db.execSQL("ALTER TABLE " + MessageDao.TABLENAME + " ADD COLUMN " + MessageDao.Properties.UserAccountID.columnName + " TEXT");
-            db.execSQL("ALTER TABLE " + UserDao.TABLENAME + " ADD COLUMN " + UserDao.Properties.UserAccountID.columnName + " TEXT");
-            db.execSQL("ALTER TABLE " + PublicKeyDao.TABLENAME + " ADD COLUMN " + PublicKeyDao.Properties.UserAccountID.columnName + " TEXT");
+            db.execSQL("ALTER TABLE " + ThreadDao.TABLENAME + " RENAME TO old_table");
+            ThreadDao.createTable(db, true);
+            db.execSQL("INSERT INTO " + ThreadDao.TABLENAME + " SELECT * FROM old_table");
+            db.execSQL("DROP TABLE old_table");
         }
     }
 

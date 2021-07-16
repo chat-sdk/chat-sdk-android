@@ -1,8 +1,6 @@
 package sdk.chat.ui.recycler
 
 import android.app.Activity
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
@@ -41,34 +39,20 @@ interface RadioRunnable {
 }
 
 class RadioViewModel(val group: String, val title: String, val value: String, var starting: StartingValue, val onClick: RadioRunnable): SmartViewModel() {
-    var delay: Long = 200
     var checked: Boolean = starting.get()
-    open fun setDelay(delay: Long): RadioViewModel {
-        this.delay = delay
-        return this
-    }
 
     fun click() {
-        Handler(Looper.getMainLooper()).postDelayed({
-            onClick.run(value)
-        }, delay)
+        onClick.run(value)
     }
 }
 
 class NavigationViewModel(val title: String, val onClick: Runnable): SmartViewModel() {
-    var delay: Long = 0
     var clicked = false
-    open fun setDelay(delay: Long): NavigationViewModel {
-        this.delay = delay
-        return this
-    }
 
     fun click() {
         if (!clicked) {
             clicked = true
-            Handler(Looper.getMainLooper()).postDelayed({
-                onClick.run()
-            }, delay)
+            onClick.run()
         }
     }
 }
@@ -79,16 +63,9 @@ interface ButtonRunnable {
 }
 
 class ButtonViewModel(val title: String, val color: Int, val onClick: ButtonRunnable): SmartViewModel() {
-    var delay: Long = 500
-    open fun setDelay(delay: Long): ButtonViewModel {
-        this.delay = delay
-        return this
-    }
 
     fun click(activity: Activity) {
-        Handler(Looper.getMainLooper()).postDelayed({
-            onClick.run(activity)
-        }, delay)
+        onClick.run(activity)
     }
 }
 
@@ -101,16 +78,9 @@ interface StartingValue {
 }
 
 class ToggleViewModel(val title: String, var enabled: StartingValue, val onChange: ToggleRunnable): SmartViewModel() {
-    var delay: Long = 500
-    open fun setDelay(delay: Long): ToggleViewModel {
-        this.delay = delay
-        return this
-    }
 
     fun change(value: Boolean) {
-        Handler(Looper.getMainLooper()).postDelayed({
-            onChange.run(value)
-        }, delay)
+        onChange.run(value)
     }
 }
 

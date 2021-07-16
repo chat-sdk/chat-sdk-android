@@ -39,7 +39,6 @@ public class Message extends AbstractEntity {
 
     @Id
     private Long id;
-    private String userAccountID;
 
     @Unique
     private String entityID;
@@ -82,11 +81,10 @@ public class Message extends AbstractEntity {
     @Generated(hash = 859287859)
     private transient MessageDao myDao;
 
-    @Generated(hash = 947700636)
-    public Message(Long id, String userAccountID, String entityID, Date date, Integer type, Integer status, Long senderId,
-            Long threadId, Long nextMessageId, Long previousMessageId, String encryptedText) {
+    @Generated(hash = 1026695031)
+    public Message(Long id, String entityID, Date date, Integer type, Integer status, Long senderId, Long threadId,
+            Long nextMessageId, Long previousMessageId, String encryptedText) {
         this.id = id;
-        this.userAccountID = userAccountID;
         this.entityID = entityID;
         this.date = date;
         this.type = type;
@@ -730,12 +728,5 @@ public class Message extends AbstractEntity {
         this.encryptedText = encryptedText;
     }
 
-    public String getUserAccountID() {
-        return this.userAccountID;
-    }
-
-    public void setUserAccountID(String userAccountID) {
-        this.userAccountID = userAccountID;
-    }
 
 }
