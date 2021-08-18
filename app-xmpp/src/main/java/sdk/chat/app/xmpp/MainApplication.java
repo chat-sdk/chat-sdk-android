@@ -2,6 +2,7 @@ package sdk.chat.app.xmpp;
 
 import android.app.Application;
 
+import org.jivesoftware.smack.util.TLSUtils;
 import org.pmw.tinylog.Logger;
 
 import app.xmpp.adapter.module.XMPPModule;
@@ -31,7 +32,6 @@ public class MainApplication extends Application {
     public void xmpp() {
         try {
 
-
             ChatSDK.builder()
 
                     // Configure the library
@@ -40,8 +40,10 @@ public class MainApplication extends Application {
                     .setDebugModeEnabled(false)
                     .setThreadDestructionEnabled(false)
                     .setClientPushEnabled(true)
-//                    .setDebugPassword("P@ssw0rd")
-//                    .setDebugUsername("639059060576")
+
+//                    .setDebugUsername("user2")
+//                    .setDebugPassword("testpw00")
+
                     .build()
 
                     // Add modules to handle file uploads, push notifications
@@ -49,16 +51,15 @@ public class MainApplication extends Application {
 //                    .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
-//                            .setXMPP("172.81.180.106", "blackchat.net",  0, "iPhone")
+//                            .setXMPP("we-connect-dev.com", "we-connect-dev.com")
                             .setXMPP("xmpp.app", "xmpp.app")
-//                            .setXMPP("freebee-sms.pldtglobal.com", "freebee-sms.pldtglobal.com")
-//                            .setXMPP("sysnet-ecs.multidemos.com", "sysnet-ecs.multidemos.com")
                             .setAllowServerConfiguration(false)
 //                            .setSecurityMode("required")
 //                            .setSecurityMode("ifpossible")
 //                            .setSecurityMode("ifpossible")
                             .setPingInterval(5)
                             .setDebugEnabled(true)
+                            .setSecurityMode("ifpossible")
                             .build())
 
                     .addModule(AudioMessageModule.shared())
@@ -103,16 +104,14 @@ public class MainApplication extends Application {
             assert(false);
         }
 
-
-
-//        XMPPModule.config().setConnectionConfigProvider(builder -> {
-//            try {
-//                builder.setCustomX509TrustManager(new TLSUtils.AcceptAllTrustManager());
-//                builder.setCompressionEnabled(false);
-//            } catch(Exception e) {
-//                Logger.debug(e.getLocalizedMessage());
-//            }
-//        });
+        XMPPModule.config().setConnectionConfigProvider(builder -> {
+            try {
+                builder.setCustomX509TrustManager(new TLSUtils.AcceptAllTrustManager());
+                builder.setCompressionEnabled(false);
+            } catch(Exception e) {
+                Logger.debug(e.getLocalizedMessage());
+            }
+        });
 
         Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {
             networkEvent.debug();
@@ -129,6 +128,7 @@ public class MainApplication extends Application {
                 Logger.info(message);
             }
         }), HookEvent.MessageReceived);
+
 
     }
 

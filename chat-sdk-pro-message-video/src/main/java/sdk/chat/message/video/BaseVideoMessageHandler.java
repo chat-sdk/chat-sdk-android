@@ -8,18 +8,18 @@ import android.provider.MediaStore;
 import java.io.File;
 import java.util.ArrayList;
 
+import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.handlers.VideoMessageHandler;
-import sdk.chat.core.rigs.BitmapUploadable;
+import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.rigs.FileUploadable;
+import sdk.chat.core.rigs.JPEGUploadable;
 import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.rigs.Uploadable;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
-
-import io.reactivex.Completable;
 
 /**
  * Created by ben on 10/6/17.
@@ -43,9 +43,11 @@ public class BaseVideoMessageHandler implements VideoMessageHandler {
         }
         final Bitmap thumb = preview;
 
+        final File thumbFile =ImageUtils.saveBitmapToFile(thumb);
+
         ArrayList<Uploadable> uploadables = new ArrayList<>();
         uploadables.add(new FileUploadable(videoFile, videoName, videoMimeType));
-        uploadables.add(new BitmapUploadable(preview, imageName, imageMimeType));
+        uploadables.add(new JPEGUploadable(thumbFile, imageName));
 
         return new MessageSendRig(new MessageType(MessageType.Video), thread, message -> {
             message.setValueForKey(thumb.getWidth(), Keys.MessageImageWidth);

@@ -69,6 +69,7 @@ public class Config<T> extends BaseConfig<T> {
     public int imageMaxWidth = 1920;
     public int imageMaxHeight = 2560;
     public int imageMaxThumbnailDimension = 400;
+    public int replyThumbnailSize = 60 * 3;
 
     public boolean remoteConfigEnabled = false;
 

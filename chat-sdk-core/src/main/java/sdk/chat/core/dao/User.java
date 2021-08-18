@@ -300,12 +300,6 @@ public class User extends AbstractEntity implements UserListItem {
         if (!getIsOnline()) {
             return null;
         }
-//        String availability = metaStringForKey(Keys.Availability);
-//        if (availability != null) {
-//            return availability;
-//        } else {
-//            return Availability.Available;
-//        }
         return metaStringForKey(Keys.Availability);
     }
 
@@ -322,7 +316,14 @@ public class User extends AbstractEntity implements UserListItem {
     }
 
     public String metaStringForKey(String key) {
-        return metaMap().get(key);
+        List<UserMetaValue> values = getMetaValues();
+        for (UserMetaValue value: values) {
+            if (value.getKey().equals(key)) {
+                return value.getValue();
+            }
+        }
+        return null;
+//        return metaMap().get(key);
     }
 
     public Boolean metaBooleanForKey(String key) {

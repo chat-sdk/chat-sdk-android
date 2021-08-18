@@ -65,7 +65,12 @@ dependencies {
     api "org.igniterealtime.smack:smack-extensions:$smackVersion"
     api "org.igniterealtime.smack:smack-experimental:$smackVersion"
     api "org.igniterealtime.smack:smack-sasl-provided:$smackVersion"
-//    api "org.igniterealtime.smack:smack-omemo:$smackVersion"
+    api "org.igniterealtime.smack:smack-omemo:$smackVersion"
+    implementation "org.igniterealtime.smack:smack-omemo-signal:$smackVersion"
+
+//    implementation("org.igniterealtime.smack:smack-omemo-signal:$smackVersion") {
+//        exclude group: "com.google.protobuf", module: "protobuf-java"
+//    }
 
     implementation "com.miguelcatalan:materialsearchview:$materialSearchVersion"
 

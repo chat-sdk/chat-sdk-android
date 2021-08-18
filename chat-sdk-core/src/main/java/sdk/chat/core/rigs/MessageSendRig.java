@@ -92,6 +92,10 @@ public class MessageSendRig {
     }
 
     public Completable run() {
+        return ChatSDK.messageSender().run(this);
+    }
+
+    public Completable doRun() {
         return Completable.defer(() -> {
             if (message == null) {
                 createMessage();
@@ -173,6 +177,10 @@ public class MessageSendRig {
         }).subscribeOn(RX.quick()).flatMapCompletable(Completable::merge).doOnComplete(() -> {
             message.setMessageStatus(MessageSendStatus.DidUpload);
         });
+    }
+
+    public void finalize() {
+        System.out.println("Finalize");
     }
 
 }

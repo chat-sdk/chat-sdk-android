@@ -54,7 +54,7 @@ public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> e
      * @param message Message with image
      */
     protected Object getPayloadForImageLoader(T message) {
-        return new ImageLoaderPayload(R.drawable.icn_200_image_message_placeholder);
+        return new ImageLoaderPayload(message.placeholder());
     }
 
 }

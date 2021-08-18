@@ -271,7 +271,7 @@ public class UserWrapper {
         Map<String, Object> values = new HashMap<>();
 
         // Don't push availability to Firebase
-        HashMap<String, String> metaMap = new HashMap<>(model.metaMap());
+        HashMap<String, Object> metaMap = new HashMap<>(model.metaMap());
         metaMap.put(Keys.NameLowercase, model.getName() != null ? model.getName().toLowerCase() : "");
 
         // Expand

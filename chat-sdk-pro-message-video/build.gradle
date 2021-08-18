@@ -46,7 +46,12 @@ dependencies {
     implementation project(":sdk-guru-licensing")
 
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
+
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
+
+    implementation "com.google.android.exoplayer:exoplayer:$exoplayerVersion"
+    implementation "com.google.android.exoplayer:exoplayer-ui:$exoplayerVersion"
+    implementation "com.google.android.exoplayer:exoplayer-dash:$exoplayerVersion"
 
 //    implementation "com.mikepenz:iconics-views:$iconicsVersion"
 

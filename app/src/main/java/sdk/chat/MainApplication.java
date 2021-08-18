@@ -11,7 +11,6 @@ import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.utils.Device;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
@@ -141,6 +140,7 @@ public class MainApplication extends Application {
         Disposable di = ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.ThreadAdded)).subscribe(networkEvent -> {
             Logger.warn("ThreadAdded" + networkEvent.getThread().getEntityID());
         });
+
 
         String nearbyUsersDisabled = "nearby-users-disabled";
         boolean disabled = ChatSDK.shared().getKeyStorage().getBoolean(nearbyUsersDisabled);

@@ -16,6 +16,10 @@
             android:launchMode="singleTask"
             android:theme="@style/Theme.AppCompat.NoActionBar"/>
 
+        <activity
+            android:name="sdk.chat.message.video.ExoVideoActivity"
+            android:launchMode="singleTask" />
+
     </application>
 
 </manifest>

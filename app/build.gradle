@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.jakewharton.butterknife'
 apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'com.google.firebase.firebase-perf'
+//apply plugin: 'com.google.firebase.firebase-perf'
 
 //apply plugin: 'com.google.firebase.crashlytics'
 
@@ -143,7 +143,7 @@ dependencies {
 //    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
 //    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
 
-    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
+//    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
 
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"

@@ -341,6 +341,11 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
         return Completable.complete();
     }
 
+//    @Override
+//    public Completable pushThreadMeta(Thread thread) {
+//        return XMPPManager.shared().mucManager.updateName(thread, thread.getName());
+//    }
+
     @Override
     public boolean muteEnabled(Thread thread) {
         return false;
@@ -381,6 +386,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean hasVoice(Thread thread, User user) {
+
         if (thread.typeIs(ThreadType.Group)) {
             UserThreadLink link = thread.getUserThreadLink(user.getId());
             if (link != null && link.hasLeft()) {
@@ -513,10 +519,10 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean canEditThreadDetails(Thread thread) {
-        if (thread.typeIs(ThreadType.Group)) {
-            String role = roleForUser(thread, ChatSDK.currentUser());
-            return Role.isOwnerOrAdmin(role);
-        }
+//        if (thread.typeIs(ThreadType.Group)) {
+//            String role = roleForUser(thread, ChatSDK.currentUser());
+//            return Role.isOwnerOrAdmin(role);
+//        }
         return false;
     }
 

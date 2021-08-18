@@ -52,13 +52,26 @@ public class PlayVideoActivity extends BaseActivity implements MediaPlayer.OnCom
 /**/
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        setIntent(intent);
-        String fileRes = "";
+//        setIntent(intent);
+
+        String videoPath = "";
         Bundle e = getIntent().getExtras();
         if (e != null) {
-            fileRes = e.getString("fileRes");
+            videoPath = e.getString(Keys.IntentKeyFilePath);
         }
-        playFile(fileRes);
+
+        if (playFile(videoPath)) {
+            videoView.start();
+        } else {
+            finish();
+        }
+//
+//        String fileRes = "";
+//        Bundle e = getIntent().getExtras();
+//        if (e != null) {
+//            fileRes = e.getString("fileRes");
+//        }
+//        playFile(fileRes);
     }
 
     private boolean playFile(String fileRes) {

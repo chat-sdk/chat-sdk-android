@@ -8,6 +8,7 @@ import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.ui.R;
 
 public class ImageMessageHolder extends MessageHolder implements MessageContentType {
 
@@ -25,7 +26,6 @@ public class ImageMessageHolder extends MessageHolder implements MessageContentT
         }
         return super.getText();
     }
-
 
     @Nullable
     public String getImageUrl() {
@@ -49,6 +49,13 @@ public class ImageMessageHolder extends MessageHolder implements MessageContentT
             return (Integer) height;
         }
         return null;
+    }
+
+    public int placeholder() {
+        if (message.typeIs(MessageType.Location)) {
+            return R.drawable.icn_200_location_message_placeholder;
+        }
+        return R.drawable.icn_200_image_message_placeholder;
     }
 
 }

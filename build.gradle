@@ -75,7 +75,7 @@ ext {
     keyboardVisibilityEventVersion = "3.0.0-RC2"
     androidAudioRecorderVersion = "0.3.0"
     glideVersion = "4.11.0"
-    exoplayerVersion = "2.14.0"
+    exoplayerVersion = "2.15.0"
     androidAudioConverterVersion = "0.0.8"
     gsonVersion = "2.8.6"
 
@@ -86,7 +86,7 @@ ext {
     androidNetworkingVersion = "1.0.2"
     pdfiumVersion = "1.9.0"
 
-    smackVersion = "4.3.4"
+    smackVersion = "4.4.3"
 //    smackVersion = "4.4.0"
     activity_ktx_version = "1.2.3"
 

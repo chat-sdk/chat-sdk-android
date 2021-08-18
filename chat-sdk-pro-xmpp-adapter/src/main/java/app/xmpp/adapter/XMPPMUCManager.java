@@ -14,19 +14,20 @@ import org.jivesoftware.smackx.muc.MucEnterConfiguration;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
 import org.jivesoftware.smackx.muc.RoomInfo;
-import org.jivesoftware.smackx.xdata.Form;
-import org.jivesoftware.smackx.xdata.FormField;
+import org.jivesoftware.smackx.xdata.form.FillableForm;
 import org.jxmpp.jid.DomainBareJid;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
+import org.jxmpp.jid.util.JidUtil;
 import org.jxmpp.stringprep.XmppStringprepException;
 import org.pmw.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -96,54 +97,67 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
 
             final MultiUserChat chat = chatManager.getMultiUserChat(JidCreate.entityBareFrom(roomID));
 
+            Jid currentJid = JidCreate.bareFrom(ChatSDK.currentUserID());
+
             chat.create(nickname());
+//                    .getConfigFormManager()
+//                    .setMembersOnly(!isPublic)
+//                    .setRoomOwners(Collections.singleton(currentJid));
 
-            Form configurationForm = chat.getConfigurationForm();
-//            FillableForm form = configurationForm.getFillableForm();
+            FillableForm form = chat.getConfigurationForm().getFillableForm();
 
-            Form form = configurationForm.createAnswerForm();
+            form.setAnswer("muc#roomconfig_persistentroom", true);
+            form.setAnswer("muc#roomconfig_publicroom", isPublic);
+            form.setAnswer("muc#roomconfig_maxusers", 200);
+            form.setAnswer("muc#roomconfig_whois", "anyone");
+            form.setAnswer("muc#roomconfig_membersonly", !isPublic);
+            form.setAnswer("muc#roomconfig_moderatedroom", true);
+
+            form.setAnswer("muc#roomconfig_roomname", name);
+            form.setAnswer("muc#roomconfig_roomdesc", description);
+            form.setAnswer("muc#roomconfig_allowinvites", isPublic);
+            form.setAnswer("muc#roomconfig_roomowners", JidUtil.toStringList(Collections.singleton(currentJid)));
+
+            chat.sendConfigurationForm(form);
 
 //            for(FormField f : form.getDataForm().getFields()) {
-            for(FormField f : form.getFields()) {
-                Logger.debug(f.getVariable());
 //                String fieldName = f.getFieldName();
-                String fieldName = f.getVariable();
-                if(fieldName.equals("muc#roomconfig_persistentroom")) {
-                    form.setAnswer(fieldName, true);
-                }
-                if(fieldName.equals("muc#roomconfig_publicroom")) {
-                    form.setAnswer(fieldName, isPublic);
-                }
-                if(fieldName.equals("muc#roomconfig_maxusers")) {
-                    List<String> list = new ArrayList<>();
-                    list.add("200");
-                    form.setAnswer(fieldName, list);
-                }
-                if(fieldName.equals("muc#roomconfig_whois")) {
-                    List<String> list = new ArrayList<>();
-                    list.add("anyone");
-                    form.setAnswer(fieldName, list);
-                }
-                if(fieldName.equals("muc#roomconfig_membersonly")) {
-                    form.setAnswer(fieldName, !isPublic);
-                }
-                if(fieldName.equals("muc#roomconfig_moderatedroom")) {
-                    form.setAnswer(fieldName, true);
-                }
-                if(fieldName.equals("muc#roomconfig_roomname")) {
-                    form.setAnswer(fieldName, name);
-                }
-                if(fieldName.equals("muc#roomconfig_roomdesc")) {
-                    form.setAnswer(fieldName, description);
-                }
-                if(fieldName.equals("muc#roomconfig_roomowners")) {
-                    ArrayList<String> owners = new ArrayList<>();
-                    owners.add(ChatSDK.currentUserID());
-                    form.setAnswer(fieldName, owners);                    }
-                if(fieldName.equals("muc#roomconfig_allowinvites")) {
-                    form.setAnswer(fieldName, isPublic);
-                }
-            }
+//                if(fieldName.equals("muc#roomconfig_persistentroom")) {
+//                    form.setAnswer(fieldName, true);
+//                }
+//                if(fieldName.equals("muc#roomconfig_publicroom")) {
+//                    form.setAnswer(fieldName, isPublic);
+//                }
+//                if(fieldName.equals("muc#roomconfig_maxusers")) {
+//                    List<String> list = new ArrayList<>();
+//                    list.add("200");
+//                    form.setAnswer(fieldName, list);
+//                }
+//                if(fieldName.equals("muc#roomconfig_whois")) {
+//                    List<String> list = new ArrayList<>();
+//                    list.add("anyone");
+//                    form.setAnswer(fieldName, list);
+//                }
+//                if(fieldName.equals("muc#roomconfig_membersonly")) {
+//                    form.setAnswer(fieldName, !isPublic);
+//                }
+//                if(fieldName.equals("muc#roomconfig_moderatedroom")) {
+//                    form.setAnswer(fieldName, true);
+//                }
+//                if(fieldName.equals("muc#roomconfig_roomname")) {
+//                    form.setAnswer(fieldName, name);
+//                }
+//                if(fieldName.equals("muc#roomconfig_roomdesc")) {
+//                    form.setAnswer(fieldName, description);
+//                }
+//                if(fieldName.equals("muc#roomconfig_roomowners")) {
+//                    ArrayList<String> owners = new ArrayList<>();
+//                    owners.add(ChatSDK.currentUserID());
+//                    form.setAnswer(fieldName, owners);                    }
+//                if(fieldName.equals("muc#roomconfig_allowinvites")) {
+//                    form.setAnswer(fieldName, isPublic);
+//                }
+//            }
 
             // If this fails, we will jit the error block immediately...
             chat.sendConfigurationForm(form);
@@ -209,7 +223,6 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
                 String name = info.getName();
 
                 thread.setName(name, true);
-
 
                 if(info.isMembersOnly()) {
                     thread.setType(ThreadType.PrivateGroup);
@@ -308,6 +321,16 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
             MultiUserChat chat = getChatOrNull(thread.getEntityID());
             if (chat != null) {
                 chat.destroy(null, null);
+            }
+            return Completable.complete();
+        }).subscribeOn(RX.io());
+    }
+
+    public Completable updateName(Thread thread, String name) {
+        return Completable.defer(() -> {
+            MultiUserChat chat = getChatOrNull(thread.getEntityID());
+            if (chat != null) {
+                chat.changeSubject(name);
             }
             return Completable.complete();
         }).subscribeOn(RX.io());

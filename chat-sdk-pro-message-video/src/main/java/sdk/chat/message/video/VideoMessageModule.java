@@ -1,6 +1,7 @@
 package sdk.chat.message.video;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
@@ -15,6 +16,7 @@ import sdk.chat.core.dao.Message;
 import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.session.Configure;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.licensing.Report;
 import sdk.chat.ui.ChatSDKUI;
@@ -23,6 +25,7 @@ import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.chat.options.MediaChatOption;
 import sdk.chat.ui.chat.options.MediaType;
 import sdk.chat.ui.custom.CustomMessageHandler;
+import sdk.guru.common.BaseConfig;
 
 /**
  * Created by ben on 10/6/17.
@@ -35,6 +38,8 @@ public class VideoMessageModule extends AbstractModule {
     public static VideoMessageModule shared() {
         return instance;
     }
+
+    public Config<VideoMessageModule> config = new Config<>(this);
 
     @Override
     public void activate(Context context) {
@@ -79,7 +84,7 @@ public class VideoMessageModule extends AbstractModule {
                 if (message.getMessageType().is(MessageType.Video)) {
                     String videoURL = (String) message.valueForKey(Keys.MessageVideoURL);
                     if(videoURL != null) {
-                        Intent intent = new Intent(activity, PlayVideoActivity.class);
+                        Intent intent = new Intent(activity, config.getVideoPlayerActivity());
                         intent.putExtra(Keys.IntentKeyFilePath, videoURL);
                         activity.startActivity(intent);
                     }
@@ -94,6 +99,46 @@ public class VideoMessageModule extends AbstractModule {
             }
         });
     }
+
+    public static class Config<T> extends BaseConfig<T> {
+
+        public Class<? extends Activity> videoPlayerActivity = ExoVideoActivity.class;
+
+        public long cacheSizeMB = 100;
+
+        public Config(T onBuild) {
+            super(onBuild);
+        }
+
+        public Class<? extends Activity> getVideoPlayerActivity() {
+            return videoPlayerActivity;
+        }
+
+        public Config<T> setVideoPlayerActivity(Class<? extends Activity> videoPlayerActivity) {
+            this.videoPlayerActivity = videoPlayerActivity;
+            return this;
+        }
+
+        public long getCacheSizeMB() {
+            return cacheSizeMB;
+        }
+
+        public Config<T> setCacheSizeMB(long cacheSizeMB) {
+            this.cacheSizeMB = cacheSizeMB;
+            return this;
+        }
+
+    }
+
+    public static Config<VideoMessageModule> builder() {
+        return instance.config;
+    }
+
+    public static VideoMessageModule builder(Configure<Config> config) throws Exception {
+        config.with(instance.config);
+        return instance;
+    }
+
 
     @Override
     public MessageHandler getMessageHandler() {

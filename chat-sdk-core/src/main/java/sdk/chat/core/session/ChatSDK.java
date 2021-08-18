@@ -48,6 +48,8 @@ import sdk.chat.core.interfaces.InterfaceAdapter;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.notifications.NotificationDisplayHandler;
+import sdk.chat.core.rigs.DownloadManager;
+import sdk.chat.core.rigs.MessageSender;
 import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.chat.core.utils.KeyStorage;
@@ -83,6 +85,8 @@ public class ChatSDK {
     protected boolean isActive = false;
     protected String licenseIdentifier;
     protected IKeyStorage keyStorage;
+    protected DownloadManager downloadManager;
+    protected MessageSender messageSender;
 
     protected List<Runnable> onActivateListeners = new ArrayList<>();
     protected List<Runnable> onPermissionsRequestedListeners = new ArrayList<>();
@@ -140,9 +144,12 @@ public class ChatSDK {
         }
 
         setContext(context);
-         keyStorage = new KeyStorage(context);
+        keyStorage = new KeyStorage(context);
 
         config = builder.config();
+
+        downloadManager = new DownloadManager(context);
+        messageSender = new MessageSender(context);
 
         Class<? extends BaseNetworkAdapter> networkAdapter = builder.networkAdapter;
         if (builder.networkAdapter != null) {
@@ -499,6 +506,14 @@ public class ChatSDK {
 
     public IKeyStorage getKeyStorage() {
         return keyStorage;
+    }
+
+    public static DownloadManager downloadManager() {
+        return shared().downloadManager;
+    }
+
+    public static MessageSender messageSender() {
+        return shared().messageSender;
     }
 
 }

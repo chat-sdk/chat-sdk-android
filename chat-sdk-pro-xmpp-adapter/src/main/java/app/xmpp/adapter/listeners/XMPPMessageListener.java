@@ -5,6 +5,7 @@ import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.chat2.OutgoingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.MessageBuilder;
 import org.jivesoftware.smack.packet.StandardExtensionElement;
 import org.jivesoftware.smackx.carbons.CarbonCopyReceivedListener;
 import org.jivesoftware.smackx.carbons.packet.CarbonExtension;
@@ -62,11 +63,6 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
             XMPPManager.shared().typingIndicatorManager.handleMessage(message, user);
             Logger.debug("Chat State: " + chatState.getChatState());
         }
-    }
-
-    @Override
-    public void newOutgoingMessage(EntityBareJid to, Message message, Chat chat) {
-        Logger.debug("");
     }
 
     @Override
@@ -312,5 +308,10 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
             addMessageToThread(xmr, true);
         }
         Logger.debug("Carbon received");
+    }
+
+    @Override
+    public void newOutgoingMessage(EntityBareJid to, MessageBuilder messageBuilder, Chat chat) {
+
     }
 }

@@ -14,8 +14,8 @@ import org.jivesoftware.smackx.search.ReportedData;
 import org.jivesoftware.smackx.search.UserSearchManager;
 import org.jivesoftware.smackx.vcardtemp.VCardManager;
 import org.jivesoftware.smackx.vcardtemp.packet.VCard;
-import org.jivesoftware.smackx.xdata.Form;
 import org.jivesoftware.smackx.xdata.FormField;
+import org.jivesoftware.smackx.xdata.packet.DataForm;
 import org.jxmpp.jid.DomainBareJid;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.Jid;
@@ -48,6 +48,8 @@ import sdk.chat.core.types.KeyValue;
 import sdk.chat.core.utils.StringChecker;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
+
+//import org.jivesoftware.smackx.xdata.Form;
 
 
 /**
@@ -113,7 +115,7 @@ public class XMPPUserManager {
 
     public Single<List<KeyValue>> getAvailableSearchFields () {
         return getSearchService().map(jid -> {
-            Form searchForm = manager.get().userSearchManager().getSearchForm(jid.asDomainBareJid());
+            DataForm searchForm = manager.get().userSearchManager().getSearchForm(jid.asDomainBareJid());
             List<FormField> fields = searchForm.getFields();
             List<KeyValue> stringFields = new ArrayList<>();
             for(FormField f : fields) {
@@ -153,8 +155,11 @@ public class XMPPUserManager {
         return getSearchService().flattenAsObservable(jid -> {
 
             UserSearchManager userSearchManager = manager.get().userSearchManager();
-            Form searchForm = userSearchManager.getSearchForm(jid.asDomainBareJid());
-            Form answerForm = searchForm.createAnswerForm();
+
+            DataForm searchForm = userSearchManager.getSearchForm(jid.asDomainBareJid());
+
+            DataForm.Builder answerFormBuilder = searchForm.asBuilder();
+
 
             // There are two ways to do search:
             // OpenFire
@@ -166,24 +171,26 @@ public class XMPPUserManager {
 
             // If the search field is mandatory then we know that it's the OpenFire style
             if(searchForm.hasField("search") && searchForm.getField("search").isRequired()) {
-                FormField username = answerForm.getField("Username");
-                username.addValue("1");
 
-//                builder.addField(FormField.textSingleBuilder("Username").setValue(1).build());
-//                builder.addField(FormField.textSingleBuilder("search").setValue(searchValue).build());
+//                answerForm.setAnswer("search", searchValue);
 
-                // For some reason, 1 does work but true doesn't ^^
-                //                answerForm.setAnswer("Username", true);
+                answerFormBuilder.removeField("search")
+                        .addField(FormField.textSingleBuilder("search")
+                                .setValue(searchValue)
+                                .build());
 
-//                answerForm.setAnswer("Name", true);
-//                answerForm.setAnswer("Email", true);
-                answerForm.setAnswer("search", searchValue);
             }
             else {
-                answerForm.setAnswer(searchIndex, searchValue);
+                // This isn't tested...
+                answerFormBuilder.removeField(searchIndex)
+                        .addField(FormField.textSingleBuilder(searchIndex)
+                                .setValue(searchValue)
+                                .build());
+
+//                answerForm.setAnswer(searchIndex, searchValue);
             }
 
-            ReportedData data = userSearchManager.getSearchResults(answerForm, jid.asDomainBareJid());
+            ReportedData data = userSearchManager.getSearchResults(answerFormBuilder.build(), jid.asDomainBareJid());
 //            userSearchManager.getSearchResults(answerForm)
 
             List<Jid> jids = new ArrayList<>();
@@ -252,7 +259,7 @@ public class XMPPUserManager {
     public Completable subscribeToUser (final User user) {
         return Completable.create(e -> {
             Presence request = new Presence(Presence.Type.subscribe);
-            request.setTo(user.getEntityID());
+            request.setTo(JidCreate.entityBareFrom(user.getEntityID()));
             manager.get().sendStanza(request);
             e.onComplete();
         }).subscribeOn(RX.io());
@@ -261,7 +268,7 @@ public class XMPPUserManager {
     public Completable unsubscribeFromUser (final User user) {
         return Completable.create(e -> {
             Presence request = new Presence(Presence.Type.unsubscribe);
-            request.setTo(user.getEntityID());
+            request.setTo(JidCreate.entityBareFrom(user.getEntityID()));
             manager.get().sendStanza(request);
             e.onComplete();
         }).subscribeOn(RX.io());

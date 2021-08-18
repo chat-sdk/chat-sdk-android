@@ -27,6 +27,7 @@ import java.util.Map;
 import app.xmpp.adapter.R;
 import app.xmpp.adapter.XMPPMUCManager;
 import app.xmpp.adapter.module.XMPPModule;
+import app.xmpp.adapter.utils.ActionMessageCache;
 import app.xmpp.adapter.utils.Role;
 import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import io.reactivex.Single;
@@ -205,6 +206,11 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
 
         UserThreadLink link = thread.getUserThreadLink(user.getId());
 
+        boolean didJoin = false;
+        if (role != MUCRole.none) {
+            didJoin = link.setHasLeft(false);
+        }
+
         String oldAffiliation = link.getAffiliation();
         String oldRole = link.getRole();
 
@@ -233,7 +239,7 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
                 sendLocalMessageForRoleChange(role, roleMap.get(jid));
             }
         }
-        if (affiliationChanged || roleChanged) {
+        if (affiliationChanged || roleChanged || didJoin) {
             ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(thread, user));
         }
     }
@@ -370,7 +376,9 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
     @Override
     public void processMessage(Message message) {
         XMPPMessageWrapper xm = new XMPPMessageWrapper(message);
-        if (xm.hasAction(MessageType.Action.UserLeftGroup)) {
+        if (xm.hasAction(MessageType.Action.UserLeftGroup) && !ActionMessageCache.shouldIgnore(message.getStanzaId())) {
+
+            ActionMessageCache.addMessageToIgnore(message.getStanzaId());
 
             String from = xm.userEntityID();
             if (from != null) {

@@ -50,6 +50,16 @@ public class XMPPModule extends AbstractModule implements NetworkAdapterProvider
         UIModule.config().customizeGroupImageEnabled = false;
 //        UIModule.config().messageReplyEnabled = false;
 //        UIModule.config().messageForwardingEnabled = false;
+
+//        ChatSDK.hook().addHook(Hook.sync(data -> {
+//            OMEMOModule.shared().start();
+//        }), HookEvent.DidAuthenticate);
+
+    }
+
+    public void setupOmemo() {
+
+
     }
 
     @Override

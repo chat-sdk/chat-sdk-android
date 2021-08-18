@@ -40,6 +40,8 @@ public class XMPPConfig<T> extends BaseConfig<T> {
         add(Presence.Mode.chat);
         add(Presence.Mode.available);
         add(Presence.Mode.dnd);
+        add(Presence.Mode.away);
+        add(Presence.Mode.xa);
     }};
 
     public boolean allowServerConfiguration = true;

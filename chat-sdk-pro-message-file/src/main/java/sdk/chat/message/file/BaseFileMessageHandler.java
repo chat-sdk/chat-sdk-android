@@ -67,7 +67,6 @@ public class BaseFileMessageHandler implements FileMessageHandler {
                 message.setValueForKey(result.url, Keys.MessageFileURL);
             }
         });
-
         return rig.run();
     }
 
