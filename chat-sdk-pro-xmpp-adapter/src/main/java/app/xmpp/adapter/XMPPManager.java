@@ -292,6 +292,7 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
                 }
                 if (!getConnection().isAuthenticated()) {
                     getConnection().login();
+                    joinExistingGroupChats();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -488,8 +489,8 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
                 carbonManager().enableCarbonsAsync(exception -> ChatSDK.events().onError(exception));
             }
         } catch (Exception e) {
-                Logger.warn(e.getLocalizedMessage());
-                ChatSDK.events().onError(e);
+            Logger.warn(e.getLocalizedMessage());
+            ChatSDK.events().onError(e);
         }
         try {
             if (mamManager().isSupported()) {
@@ -498,6 +499,29 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         } catch (Exception e) {
             ChatSDK.events().onError(e);
         }
+//        try {
+//            if (bookmarkManager().isSupported()) {
+//                List<BookmarkedConference> conferences = new ArrayList<>(bookmarkManager().getBookmarkedConferences());
+//                for (BookmarkedConference conference: conferences) {
+//                    mucManager.joinChatFromBookmark(conference);
+//                }
+//            }
+//        }
+//        catch (Exception e) {
+//            Logger.warn(e.getLocalizedMessage());
+//            ChatSDK.events().onError(e);
+//        }
+
+        joinExistingGroupChats();
+
+        ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, new HashMap<String, Object>() {{
+            put(HookEvent.User, ChatSDK.currentUser());
+        }}).subscribe(ChatSDK.events());
+
+        loadArchiveMessagesSinceLastOnline();
+    }
+
+    public void joinExistingGroupChats() {
         try {
             if (bookmarkManager().isSupported()) {
                 List<BookmarkedConference> conferences = new ArrayList<>(bookmarkManager().getBookmarkedConferences());
@@ -510,12 +534,6 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
             Logger.warn(e.getLocalizedMessage());
             ChatSDK.events().onError(e);
         }
-
-        ChatSDK.hook().executeHook(HookEvent.DidAuthenticate, new HashMap<String, Object>() {{
-            put(HookEvent.User, ChatSDK.currentUser());
-        }}).subscribe(ChatSDK.events());
-
-        loadArchiveMessagesSinceLastOnline();
     }
 
     public void loadArchiveMessagesSinceLastOnline() {

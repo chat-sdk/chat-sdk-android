@@ -202,12 +202,14 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
         nickMap.put(jid, nick);
 
         User user = ChatSDK.core().getUserNowForEntityID(jid.toString());
-        thread.addUser(user);
+//        if (role != null && role != MUCRole.none) {
+            thread.addUser(user);
+//        }
 
         UserThreadLink link = thread.getUserThreadLink(user.getId());
 
         boolean didJoin = false;
-        if (role != MUCRole.none) {
+        if (role != null && role != MUCRole.none) {
             didJoin = link.setHasLeft(false);
         }
 

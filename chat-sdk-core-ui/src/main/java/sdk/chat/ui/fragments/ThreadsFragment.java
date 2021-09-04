@@ -405,17 +405,25 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         }
     }
 
-    public void addOrUpdateThread(Thread thread) {
+    public synchronized void addOrUpdateThread(Thread thread) {
         ThreadHolder holder = threadHolderHashMap.get(thread);
         if (holder == null) {
-            getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder1 -> {
-                if (dialogsListAdapter.getItemById(holder1.getId()) == null) {
-                    dialogsListAdapter.addItem(holder1);
-                } else {
-                    dialogsListAdapter.updateItemById(holder1);
-                }
-                sortByLastMessageDate();
-            }).ignoreElement().subscribe(this);
+            holder = getOrCreateThreadHolder(thread);
+            if (dialogsListAdapter.getItemById(holder.getId()) == null) {
+                dialogsListAdapter.addItem(holder);
+            } else {
+                dialogsListAdapter.updateItemById(holder);
+            }
+            sortByLastMessageDate();
+//
+//            getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder1 -> {
+//                if (dialogsListAdapter.getItemById(holder1.getId()) == null) {
+//                    dialogsListAdapter.addItem(holder1);
+//                } else {
+//                    dialogsListAdapter.updateItemById(holder1);
+//                }
+//                sortByLastMessageDate();
+//            }).ignoreElement().subscribe(this);
         } else {
             dialogsListAdapter.updateItemById(holder);
             sortByLastMessageDate();

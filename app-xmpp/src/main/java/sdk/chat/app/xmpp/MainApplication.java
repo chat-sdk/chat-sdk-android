@@ -40,6 +40,7 @@ public class MainApplication extends Application {
                     .setDebugModeEnabled(false)
                     .setThreadDestructionEnabled(false)
                     .setClientPushEnabled(true)
+                    .setAllowUserToRejoinGroup(true)
 
 //                    .setDebugUsername("user2")
 //                    .setDebugPassword("testpw00")
@@ -129,8 +130,8 @@ public class MainApplication extends Application {
             }
         }), HookEvent.MessageReceived);
 
-
     }
+
 
 
 //    private void chatsdkAuth(String username, String password, String threadId) {

@@ -181,6 +181,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         return Single.defer(() -> {
 
             Thread thread = threadForRoomID(chat.getRoom().toString());
+            thread.setDeleted(false);
 
             Resourcepart nickname = nickname();
             if (nickname != null) {

@@ -14,6 +14,7 @@ import sdk.chat.core.handlers.TypingIndicatorHandler;
 import sdk.chat.core.interfaces.ThreadType;
 import app.xmpp.adapter.XMPPManager;
 import io.reactivex.Completable;
+import sdk.chat.core.session.ChatSDK;
 import sdk.guru.common.RX;
 
 /**
@@ -62,7 +63,7 @@ public class XMPPTypingIndicatorHandler implements TypingIndicatorHandler {
                 }
                 else if (thread.typeIs(ThreadType.Group)) {
                     MultiUserChat chat = XMPPManager.shared().mucManager.chatForThreadID(thread.getEntityID());
-                    if(chat != null) {
+                    if(chat != null && ChatSDK.thread().hasVoice(thread, ChatSDK.currentUser())) {
                         Message message = new Message();
                         ChatStateExtension extension = new ChatStateExtension(xmppState);
                         message.addExtension(extension);

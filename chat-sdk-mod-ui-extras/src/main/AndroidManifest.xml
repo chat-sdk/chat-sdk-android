@@ -2,6 +2,7 @@
     package="sdk.chat.ui.extras" >
 
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:supportsRtl="true"

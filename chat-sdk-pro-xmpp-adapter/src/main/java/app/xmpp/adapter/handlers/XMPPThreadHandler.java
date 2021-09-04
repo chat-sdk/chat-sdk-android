@@ -205,7 +205,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
     public boolean canJoinThread(Thread thread) {
-        if (thread.typeIs(ThreadType.Group)) {
+        if (thread.typeIs(ThreadType.Group) && ChatSDK.config().allowUserToRejoinGroup) {
             // Get the link
             UserThreadLink link = thread.getUserThreadLink(ChatSDK.currentUser().getId());
             if (link != null && link.hasLeft() && !link.isBanned()) {

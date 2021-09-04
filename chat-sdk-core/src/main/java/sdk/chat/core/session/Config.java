@@ -102,6 +102,8 @@ public class Config<T> extends BaseConfig<T> {
 
     public boolean disablePresence = false;
 
+    public boolean allowUserToRejoinGroup = true;
+
 //    public boolean disconnectFromServerWhenInBackground = true;
 
     public Config(T onBuild) {
@@ -557,6 +559,16 @@ public class Config<T> extends BaseConfig<T> {
      */
     public Config<T> setThreadDestructionEnabled(boolean threadDestructionEnabled) {
         this.threadDestructionEnabled = threadDestructionEnabled;
+        return this;
+    }
+
+    /**
+     * Allow a user to rejoin a room if they leave
+     * @param allowUserToRejoinGroup
+     * @return
+     */
+    public Config<T> setAllowUserToRejoinGroup(boolean allowUserToRejoinGroup) {
+        this.allowUserToRejoinGroup = allowUserToRejoinGroup;
         return this;
     }
 
