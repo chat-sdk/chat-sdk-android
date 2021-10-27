@@ -1,5 +1,6 @@
 package sdk.chat.ui.custom;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 
@@ -11,7 +12,6 @@ import java.util.Map;
 
 import sdk.chat.core.dao.Message;
 import sdk.chat.ui.ChatSDKUI;
-import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
 
 public class MessageCustomizer implements MessageHolders.ContentChecker<MessageHolder> {
@@ -29,6 +29,7 @@ public class MessageCustomizer implements MessageHolders.ContentChecker<MessageH
         addMessageHandler(new TextMessageHandler());
         addMessageHandler(new ImageMessageHandler());
         addMessageHandler(new SystemMessageHandler());
+        addMessageHandler(new Base64ImageMessageHandler());
     }
 
     public Collection<IMessageHandler> getMessageHandlers() {
@@ -58,18 +59,19 @@ public class MessageCustomizer implements MessageHolders.ContentChecker<MessageH
         return null;
     }
 
-    public void onClick(ChatActivity activity, View rootView, Message message) {
+    public void onClick(Activity activity, View rootView, Message message) {
         IMessageHandler handler = handlerForMessage(message);
         if (handler != null) {
             handler.onClick(activity, rootView, message);
         }
     }
 
+
     public IMessageHandler handlerForMessage(Message message) {
         return messageHandlers.get(message.getType().byteValue());
     }
 
-    public void onLongClick(ChatActivity activity, View rootView, Message message) {
+    public void onLongClick(Activity activity, View rootView, Message message) {
         IMessageHandler handler = handlerForMessage(message);
         if (handler != null) {
             handler.onLongClick(activity, rootView, message);

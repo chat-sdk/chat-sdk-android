@@ -12,6 +12,7 @@ public enum EventType {
     MessageUpdated,
     MessageRemoved,
     MessageSendStatusUpdated,
+    MessageSendFailed,
 
     ThreadsUpdated,
     ThreadUserAdded,

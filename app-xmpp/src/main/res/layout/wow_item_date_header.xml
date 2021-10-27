@@ -1,0 +1,18 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@id/messageText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:textAlignment="center"
+        android:layout_margin="8dp"
+        android:textColor="#000000"
+        android:background="@drawable/wow_shape_outcoming_message_bubble"
+        />
+
+</RelativeLayout>
+

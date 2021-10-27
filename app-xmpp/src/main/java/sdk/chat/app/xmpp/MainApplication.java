@@ -6,14 +6,13 @@ import org.jivesoftware.smack.util.TLSUtils;
 import org.pmw.tinylog.Logger;
 
 import app.xmpp.adapter.module.XMPPModule;
-import app.xmpp.receipts.XMPPReadReceiptsModule;
 import io.reactivex.disposables.Disposable;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.encryption.xmpp.XMPPEncryptionModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
-import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.location.LocationMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
@@ -42,6 +41,7 @@ public class MainApplication extends Application {
                     .setClientPushEnabled(true)
                     .setAllowUserToRejoinGroup(true)
 
+
 //                    .setDebugUsername("user2")
 //                    .setDebugPassword("testpw00")
 
@@ -63,7 +63,7 @@ public class MainApplication extends Application {
                             .setSecurityMode("ifpossible")
                             .build())
 
-                    .addModule(AudioMessageModule.shared())
+//                    .addModule(AudioMessageModule.shared())
                     .addModule(LocationMessageModule.shared())
                     .addModule(VideoMessageModule.shared())
                     .addModule(FileMessageModule.shared())
@@ -81,13 +81,13 @@ public class MainApplication extends Application {
                             .setPublicRoomsEnabled(false)
                             .build())
 
-                    .addModule(XMPPReadReceiptsModule.shared())
+//                    .addModule(XMPPReadReceiptsModule.shared())
                     .addModule(ExtrasModule.builder()
                             .setQrCodesEnabled(true)
                             .setDrawerEnabled(false)
                             .build())
 
-//                    .addModule(XMPPEncryptionModule.shared())
+                    .addModule(XMPPEncryptionModule.shared())
 
                     .build().activateWithEmail(this, "ben@sdk.chat");
 

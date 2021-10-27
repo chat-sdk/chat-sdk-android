@@ -1,10 +1,40 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="ChatSDKTheme">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/wowBackground</item>
+
+<!--        Wow-->
+        <item name="outcomingDefaultBubbleColor">#FFFFFF</item>
+        <item name="incomingDefaultBubbleColor">#f66079</item>
+        <item name="incomingTextColor">#FFFFFF</item>
+        <item name="outcomingTextColor">#000000</item>
+
+        <item name="incomingReplyDrawable">@drawable/wow_shape_incoming_reply</item>
+        <item name="incomingReplyImageDrawable">@drawable/wow_shape_incoming_reply_image</item>
+        <item name="incomingBubbleDrawable">@drawable/wow_shape_incoming_message_bubble</item>
+
+        <item name="outcomingReplyDrawable">@drawable/wow_shape_outcoming_reply</item>
+        <item name="outcomingReplyImageDrawable">@drawable/wow_shape_outcoming_reply_image</item>
+        <item name="outcomingBubbleDrawable">@drawable/wow_shape_outcoming_message_bubble</item>
+
+        <item name="outcomingReplyBackgroundColor">#F3F3F3</item>
+        <item name="dateHeaderTextColor">#000</item>
+        <item name="dateHeaderPadding">8dp</item>
+        <item name="chatViewDividerColor">#00FFFFFF</item>
+
+        <item name="inputButtonDefaultBgColor">#000</item>
+        <item name="inputButtonDefaultIconColor">#FFF</item>
+
+        <item name="attachmentButtonDefaultBgColor">#FFF</item>
+<!--        <item name="attachmentButtonDefaultIconColor">#FFF</item>-->
+        <item name="attachmentButtonIcon">@drawable/ic_camera</item>
+
+        <item name="incomingTimeTextColor">#FFF</item>
+        <item name="outcomingTimeTextColor">#FFF</item>
+
     </style>
 
 </resources>

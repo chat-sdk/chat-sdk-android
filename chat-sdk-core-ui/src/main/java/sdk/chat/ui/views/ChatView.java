@@ -107,12 +107,14 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 ilp = new ImageLoaderPayload();
             }
 
-            if (ilp.width == 0) {
+            if (ilp.ar > 0) {
                 ilp.width = maxImageWidth();
+                ilp.height = Math.round(ilp.width / ilp.ar);
+            } else {
+                ilp.width = Math.max(ilp.width, maxImageWidth());
+                ilp.height = Math.max(ilp.height, maxImageWidth());
             }
-            if (ilp.height == 0) {
-                ilp.height = maxImageWidth();
-            }
+
             if (ilp.placeholder == 0) {
                 ilp.placeholder = R.drawable.icn_200_image_message_placeholder;
             }
@@ -179,7 +181,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 builder.override(ilp.width, ilp.height)
                         .placeholder(ilp.placeholder)
                         .error(ilp.error)
-                        .override(maxImageWidth(), maxImageWidth())
+//                        .override(maxImageWidth(), maxImageWidth())
                         .centerCrop()
                         .into(imageView);
             }

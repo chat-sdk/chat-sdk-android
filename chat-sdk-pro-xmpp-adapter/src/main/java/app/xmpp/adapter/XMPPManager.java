@@ -72,6 +72,7 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.annotations.Nullable;
+import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.AppBackgroundMonitor;
@@ -84,6 +85,8 @@ import sdk.guru.common.RX;
  */
 
 public class XMPPManager implements AppBackgroundMonitor.Listener {
+
+    public static String xmppDidSetupStream = "xmppDidSetupStream";
 
     protected ConnectionManager connectionManager = new ConnectionManager(this);
 
@@ -346,6 +349,8 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
 
             addListeners();
             mucManager = new XMPPMUCManager(this);
+
+            ChatSDK.hook().executeHook(xmppDidSetupStream).subscribe();
 
             try {
                 connection.connect();
@@ -704,8 +709,12 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
 
     public void sendStanza(Stanza stanza) {
         try {
+            if (!getConnection().isConnected()) {
+                ChatSDK.events().source().accept(NetworkEvent.messageSendFailed(stanza.getStanzaId(), new Exception("Stream not connected")));
+            }
             getConnection().sendStanza(stanza);
         } catch (Exception e) {
+            ChatSDK.events().source().accept(NetworkEvent.messageSendFailed(stanza.getStanzaId(), e));
             e.printStackTrace();
         }
     }
@@ -743,11 +752,11 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         return null;
     }
 
-
     public static void setCurrentServer(Context context, XMPPServer server) {
         // First get configured server
         ServerKeyStorage storage = new ServerKeyStorage(context);
         storage.setServer(server);
     }
+
 
 }

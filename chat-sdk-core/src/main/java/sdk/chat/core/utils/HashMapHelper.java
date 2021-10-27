@@ -6,6 +6,14 @@ import java.util.Map;
 
 public class HashMapHelper {
 
+    public static Map<String, Object> expandStringMap(Map<String, String> flatMap) {
+        Map<String, Object> map = new HashMap<>();
+        for (String key: flatMap.keySet()) {
+            map.put(key, flatMap.get(key));
+        }
+        return expand(map);
+    }
+
     public static Map<String, Object> expand(Map<String, Object> flatMap) {
 
         Map<String, Object> expandedMap = new HashMap<>();

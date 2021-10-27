@@ -13,7 +13,7 @@ public class ToastHelper {
 
     public static void show(Context context, String text) {
         if(text != null && !text.isEmpty()) {
-            Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
         }
     }
 

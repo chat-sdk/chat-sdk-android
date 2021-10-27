@@ -190,9 +190,9 @@ public class UserWrapper {
 
             // Updating the old bundle
             for (String key : newData.keySet()) {
-                String oldValue = oldData.get(key);
+                Object oldValue = oldData.get(key);
                 Object newValue = newData.get(key);
-                if (oldValue == null || oldValue.isEmpty() || replaceLocal) {
+                if (oldValue == null || (oldValue instanceof String && ((String)oldValue).isEmpty()) || replaceLocal) {
                     oldData.put(key, newValue.toString());
                 }
             }

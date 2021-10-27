@@ -21,6 +21,7 @@ import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.dao.Thread;
 import sdk.chat.core.handlers.IEncryptionHandler;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
@@ -57,13 +58,18 @@ public abstract class EncryptionHandler implements IEncryptionHandler {
 
     @Override
     public Map<String, Object> encrypt(final Message message) {
+        return encryptMeta(message.getThread(), message.getMetaValuesAsMap());
+    }
+
+    @Override
+    public Map<String, Object> encryptMeta(Thread thread, Map<String, Object> meta) {
         // Get the list of keys
-        List<VirgilPublicKey> keys = extractKeysSync(message);
+        List<VirgilPublicKey> keys = extractKeysSync(thread);
 
         if (keys.size() > 0) {
             // Get the message meta data as bytes
             try {
-                byte[] metaData = mapToBytes(message.getMetaValuesAsMap());
+                byte[] metaData = mapToBytes(meta);
 
                 byte[] encryptedMessage = virgilCrypto.encrypt(metaData, keys);
                 String encryptedMessageString = Base64.encode(encryptedMessage);
@@ -95,16 +101,16 @@ public abstract class EncryptionHandler implements IEncryptionHandler {
 
     protected Single<List<VirgilPublicKey>> extractPublicKeys (final Message message) {
         return Single.create((SingleOnSubscribe<List<VirgilPublicKey>>) emitter -> {
-            emitter.onSuccess(extractKeysSync(message));
+            emitter.onSuccess(extractKeysSync(message.getThread()));
         }).subscribeOn(RX.computation());
     }
 
-    public List<VirgilPublicKey> extractKeysSync(final Message message) {
+    public List<VirgilPublicKey> extractKeysSync(final Thread thread) {
         List<VirgilPublicKey> publicKeyList = new ArrayList<>();
 
-        if (!message.getThread().typeIs(ThreadType.Public)) {
+        if (!thread.typeIs(ThreadType.Public)) {
 
-            List<User> users = message.getThread().getUsers();
+            List<User> users = thread.getUsers();
             List<PublicKey> keys = new ArrayList<>();
             List<User> failedUsers = new ArrayList<>();
 
@@ -130,6 +136,7 @@ public abstract class EncryptionHandler implements IEncryptionHandler {
         }
         return publicKeyList;
     }
+
 
     @Override
     public Map<String, Object> decrypt(String message) throws Exception {

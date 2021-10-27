@@ -1,5 +1,6 @@
 package sdk.chat.ui.custom;
 
+import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.view.View;
@@ -14,7 +15,6 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.ImageMessageOnClickHandler;
 import sdk.chat.ui.chat.LocationMessageOnClickHandler;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
@@ -48,7 +48,7 @@ public class ImageMessageHandler extends CustomMessageHandler {
     }
 
     @Override
-    public boolean onClick(ChatActivity activity, View rootView, Message message) {
+    public boolean onClick(Activity activity, View rootView, Message message) {
         if (!super.onClick(activity, rootView, message)) {
             if (message.typeIs(MessageType.Image)) {
                 ImageMessageOnClickHandler.onClick(activity, rootView, message.stringForKey(Keys.ImageUrl));

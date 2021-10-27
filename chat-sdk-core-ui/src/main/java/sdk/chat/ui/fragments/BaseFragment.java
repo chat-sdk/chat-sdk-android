@@ -136,6 +136,9 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
      * @param e the exception, not null.
      */
     public void onError(@NonNull Throwable e) {
+        e.printStackTrace();
+        System.out.println("SHOW TOAST" + e.getLocalizedMessage());
+
         ToastHelper.show(getContext(), e.getLocalizedMessage());
     }
 

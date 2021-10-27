@@ -73,7 +73,6 @@ public class MainApplication extends Application {
                                 .setFirebaseRootPath(rootPath)
                                 .setDisableClientProfileUpdate(false)
                                 .setDevelopmentModeEnabled(true)
-                                .setFirebaseDatabaseURL("https://chat-sdk-v4-5109a.asia-southeast1.firebasedatabase.app/")
                                 .build()
                 )
 

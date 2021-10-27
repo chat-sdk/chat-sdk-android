@@ -5,6 +5,7 @@ import android.content.Intent;
 import java.util.ArrayList;
 import java.util.List;
 
+import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.ui.ProfileFragmentProvider;
@@ -23,6 +24,8 @@ import sdk.chat.ui.activities.SearchActivity;
 import sdk.chat.ui.activities.SplashScreenActivity;
 import sdk.chat.ui.activities.thread.details.ThreadDetailsActivity;
 import sdk.chat.ui.custom.MessageCustomizer;
+import sdk.chat.ui.fragments.AbstractChatFragment;
+import sdk.chat.ui.fragments.ChatFragment;
 import sdk.chat.ui.fragments.ContactsFragment;
 import sdk.chat.ui.fragments.PrivateThreadsFragment;
 import sdk.chat.ui.fragments.PublicThreadsFragment;
@@ -32,6 +35,10 @@ import sdk.chat.ui.utils.FragmentLifecycleManager;
 
 public class ChatSDKUI {
 
+    public interface ChatFragmentProvider {
+        AbstractChatFragment provider(Thread thread, ChatFragment.Delegate delegate);
+    }
+
     protected static final ChatSDKUI instance = new ChatSDKUI();
 
     protected MessageCustomizer messageCustomizer = new MessageCustomizer();
@@ -40,8 +47,18 @@ public class ChatSDKUI {
     protected List<SmartViewModel> settingsItems = new ArrayList<>();
     protected ProfileOption settingsProfileOption;
 
+    protected ChatFragmentProvider chatFragmentProvider = ChatFragment::new;
+
     public static ChatSDKUI shared() {
         return instance;
+    }
+
+    public static void setChatFragmentProvider(ChatFragmentProvider provider) {
+        shared().chatFragmentProvider = provider;
+    }
+
+    public static AbstractChatFragment getChatFragment(Thread thread, ChatFragment.Delegate delegate) {
+        return shared().chatFragmentProvider.provider(thread, delegate);
     }
 
     public static void setLoginActivity(Class<? extends LoginActivity> loginActivity) {

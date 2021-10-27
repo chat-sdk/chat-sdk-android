@@ -1,5 +1,6 @@
 package sdk.chat.message.sticker.module;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 
@@ -26,7 +27,6 @@ import sdk.chat.message.sticker.integration.OutcomingStickerMessageViewHolder;
 import sdk.chat.message.sticker.integration.StickerChatOption;
 import sdk.chat.message.sticker.integration.StickerMessageHolder;
 import sdk.chat.ui.ChatSDKUI;
-import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.custom.CustomMessageHandler;
 import sdk.guru.common.BaseConfig;
@@ -91,12 +91,12 @@ public class StickerMessageModule extends AbstractModule {
             }
 
             @Override
-            public boolean onClick(ChatActivity activity, View rootView, Message message) {
+            public boolean onClick(Activity activity, View rootView, Message message) {
                 return false;
             }
 
             @Override
-            public boolean onLongClick(ChatActivity activity, View rootView, Message message) {
+            public boolean onLongClick(Activity activity, View rootView, Message message) {
                 return false;
             }
         });

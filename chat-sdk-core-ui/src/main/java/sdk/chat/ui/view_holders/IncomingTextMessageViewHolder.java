@@ -10,4 +10,6 @@ public class IncomingTextMessageViewHolder extends BaseIncomingTextMessageViewHo
     public IncomingTextMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
     }
+
+
 }

@@ -1,6 +1,7 @@
 package sdk.chat.message.audio;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 
@@ -17,7 +18,6 @@ import sdk.chat.core.session.Configure;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.licensing.Report;
 import sdk.chat.ui.ChatSDKUI;
-import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.custom.CustomMessageHandler;
 import sdk.guru.common.BaseConfig;
@@ -124,12 +124,12 @@ public class AudioMessageModule extends AbstractModule {
             }
 
             @Override
-            public boolean onClick(ChatActivity activity, View rootView, Message message) {
+            public boolean onClick(Activity activity, View rootView, Message message) {
                 return false;
             }
 
             @Override
-            public boolean onLongClick(ChatActivity activity, View rootView, Message message) {
+            public boolean onLongClick(Activity activity, View rootView, Message message) {
                 return false;
             }
         });

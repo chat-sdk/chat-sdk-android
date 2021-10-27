@@ -53,6 +53,7 @@ public class Keys {
     public static final String Deleted = "deleted";
     public static final String UserId = "user-id";
     public static final String MessageText = "text";
+    public static final String MessageImageData = "image-data";
     public static final String MessageLongitude = "longitude";
     public static final String MessageLatitude = "latitude";
     public static final String MessageImageURL = "image-url";

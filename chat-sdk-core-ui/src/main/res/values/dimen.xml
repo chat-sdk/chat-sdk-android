@@ -21,6 +21,7 @@
 
     <dimen name="reply_image_width">40dp</dimen>
     <dimen name="reply_image_height">40dp</dimen>
+
     <dimen name="reply_corner_radius">4dp</dimen>
 
     <dimen name="icon_corner_radius">8dp</dimen>

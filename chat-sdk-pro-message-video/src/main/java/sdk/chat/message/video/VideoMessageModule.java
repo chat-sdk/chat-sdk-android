@@ -20,7 +20,6 @@ import sdk.chat.core.session.Configure;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.licensing.Report;
 import sdk.chat.ui.ChatSDKUI;
-import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.chat.options.MediaChatOption;
 import sdk.chat.ui.chat.options.MediaType;
@@ -80,7 +79,7 @@ public class VideoMessageModule extends AbstractModule {
             }
 
             @Override
-            public boolean onClick(ChatActivity activity, View rootView, Message message) {
+            public boolean onClick(Activity activity, View rootView, Message message) {
                 if (message.getMessageType().is(MessageType.Video)) {
                     String videoURL = (String) message.valueForKey(Keys.MessageVideoURL);
                     if(videoURL != null) {
@@ -94,7 +93,7 @@ public class VideoMessageModule extends AbstractModule {
             }
 
             @Override
-            public boolean onLongClick(ChatActivity activity, View rootView, Message message) {
+            public boolean onLongClick(Activity activity, View rootView, Message message) {
                 return false;
             }
         });

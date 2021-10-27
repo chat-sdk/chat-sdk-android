@@ -63,6 +63,10 @@
         <activity android:name=".activities.ForwardMessageActivity"
             android:windowSoftInputMode="stateHidden" />
 
+        <activity android:name=".activities.ChatActivityWrapper"
+            android:screenOrientation="portrait">
+        </activity>
+
         <!--Crop image-->
         <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />

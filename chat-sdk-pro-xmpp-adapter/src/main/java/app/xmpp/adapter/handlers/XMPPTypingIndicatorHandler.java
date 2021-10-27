@@ -32,7 +32,7 @@ public class XMPPTypingIndicatorHandler implements TypingIndicatorHandler {
 
     }
 
-    public Completable setChatState (final State state, final Thread thread) {
+    public Completable setChatState(final State state, final Thread thread) {
         return Completable.create(e -> {
             ChatState xmppState;
             switch (state) {
