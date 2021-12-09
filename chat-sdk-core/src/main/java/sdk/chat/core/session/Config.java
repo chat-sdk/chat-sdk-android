@@ -69,6 +69,7 @@ public class Config<T> extends BaseConfig<T> {
     public int imageMaxWidth = 1920;
     public int imageMaxHeight = 2560;
     public int imageMaxThumbnailDimension = 400;
+    public int replyThumbnailSize = 60 * 3;
 
     public boolean remoteConfigEnabled = false;
 
@@ -100,6 +101,8 @@ public class Config<T> extends BaseConfig<T> {
     public Map<String, Object> customProperties = new HashMap<>();
 
     public boolean disablePresence = false;
+
+    public boolean allowUserToRejoinGroup = true;
 
 //    public boolean disconnectFromServerWhenInBackground = true;
 
@@ -556,6 +559,16 @@ public class Config<T> extends BaseConfig<T> {
      */
     public Config<T> setThreadDestructionEnabled(boolean threadDestructionEnabled) {
         this.threadDestructionEnabled = threadDestructionEnabled;
+        return this;
+    }
+
+    /**
+     * Allow a user to rejoin a room if they leave
+     * @param allowUserToRejoinGroup
+     * @return
+     */
+    public Config<T> setAllowUserToRejoinGroup(boolean allowUserToRejoinGroup) {
+        this.allowUserToRejoinGroup = allowUserToRejoinGroup;
         return this;
     }
 

@@ -13,11 +13,11 @@ public class FirebaseUpdateWriter {
 
     ArrayList<FirebaseUpdate> updates = new ArrayList<>();
 
-    public void add (FirebaseUpdate update) {
+    public void add(FirebaseUpdate update) {
         updates.add(update);
     }
 
-    public Completable execute () {
+    public Completable execute() {
         return Completable.defer(() -> {
             HashMap<String, Object> data = new HashMap<>();
             for (FirebaseUpdate update : updates) {
@@ -28,7 +28,7 @@ public class FirebaseUpdateWriter {
         });
     }
 
-    protected DatabaseReference ref () {
+    protected DatabaseReference ref() {
         return FirebasePaths.firebaseRawRef();
     }
 }

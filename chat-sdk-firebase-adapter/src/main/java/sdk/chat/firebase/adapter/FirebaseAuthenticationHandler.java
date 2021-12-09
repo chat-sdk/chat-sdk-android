@@ -62,7 +62,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     public Completable authenticate() {
         return Completable.defer(() -> {
             if (isAuthenticating()) {
-                return authenticating;
+                return authenticating.cache();
             }
             if (isAuthenticatedThisSession()) {
                 return Completable.complete();
@@ -70,6 +70,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             if (!isAuthenticated()) {
                 return Completable.error(ChatSDK.getException(R.string.authentication_required));
             }
+
             authenticating = authenticateWithUser(FirebaseCoreHandler.auth().getCurrentUser());
             return authenticating;
         }).doFinally(this::cancel);
@@ -111,7 +112,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                         emitter.onError(ChatSDK.getException(R.string.no_login_type_defined));
                         break;
                 }
-            }).subscribeOn(RX.io()).flatMapCompletable(this::authenticateWithUser);
+            }).subscribeOn(RX.io()).flatMapCompletable(this::authenticateWithUser).cache();
 
             return authenticating;
         }).doFinally(this::cancel);
@@ -146,6 +147,10 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     public Completable authenticateWithUser(final FirebaseUser user) {
         return Completable.merge(Arrays.asList(Completable.defer(() -> {
 
+            ChatSDK.db().openDatabase(user.getUid());
+
+            Logger.info("authenticateWithUser: " + user.getUid());
+
             User cachedUser = ChatSDK.db().fetchUserWithEntityID(user.getUid());
 
             if (cachedUser != null && (!FirebaseModule.config().developmentModeEnabled || isAuthenticatedThisSession())) {
@@ -154,11 +159,12 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             }
 
             // Do a once() on the user to push its details to firebase.
-            UserWrapper userWrapper = UserWrapper.initWithAuthData(user);
+            UserWrapper userWrapper = FirebaseModule.config().provider.userWrapper(user);
             return userWrapper.push().doOnComplete(() -> {
                 completeAuthentication(userWrapper.getModel());
             });
-        }).doFinally(this::setAuthStateToIdle).subscribeOn(RX.db()), retrieveRemoteConfig()));
+
+        }).doFinally(this::setAuthStateToIdle).subscribeOn(RX.db()), retrieveRemoteConfig())).cache();
     }
 
     protected void completeAuthentication(User user) {
@@ -231,6 +237,9 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                         clearCurrentUserEntityID();
 
                         ChatSDK.events().source().accept(NetworkEvent.logout());
+
+                        ChatSDK.db().closeDatabase();
+                        RealtimeReferenceManager.shared().clear();
 
                         if (ChatSDK.hook() != null) {
                             HashMap<String, Object> data = new HashMap<>();

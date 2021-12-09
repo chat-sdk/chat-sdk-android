@@ -30,8 +30,9 @@ public class MessageType {
     public static final int System = 5;
     public static final int Sticker = 6;
     public static final int File = 7;
-    public static final int Contact = 8;
+    public static final int Base64Image = 8;
     public static final int Snap = 9;
+    public static final int Contact = 10;
 
     public static final int Silent = 98;
     public static final int Custom = 99;

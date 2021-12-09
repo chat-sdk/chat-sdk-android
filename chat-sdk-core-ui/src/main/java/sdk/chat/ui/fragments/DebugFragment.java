@@ -11,7 +11,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import io.reactivex.annotations.NonNull;
-import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.MessageMetaValue;
 import sdk.chat.core.dao.ReadReceiptUserLink;
@@ -46,12 +45,13 @@ public class DebugFragment extends BaseFragment {
 
         deleteThreadsButton.setOnClickListener(v -> {
             List<Object> toDelete = new ArrayList<>();
-            toDelete.addAll(DaoCore.fetchEntitiesOfClass(Thread.class));
-            toDelete.addAll(DaoCore.fetchEntitiesOfClass(Message.class));
-            toDelete.addAll(DaoCore.fetchEntitiesOfClass(UserThreadLink.class));
-            toDelete.addAll(DaoCore.fetchEntitiesOfClass(ThreadMetaValue.class));
-            toDelete.addAll(DaoCore.fetchEntitiesOfClass(MessageMetaValue.class));
-            toDelete.addAll(DaoCore.fetchEntitiesOfClass(ReadReceiptUserLink.class));
+
+            toDelete.addAll(ChatSDK.db().getDaoCore().fetchEntitiesOfClass(Thread.class));
+            toDelete.addAll(ChatSDK.db().getDaoCore().fetchEntitiesOfClass(Message.class));
+            toDelete.addAll(ChatSDK.db().getDaoCore().fetchEntitiesOfClass(UserThreadLink.class));
+            toDelete.addAll(ChatSDK.db().getDaoCore().fetchEntitiesOfClass(ThreadMetaValue.class));
+            toDelete.addAll(ChatSDK.db().getDaoCore().fetchEntitiesOfClass(MessageMetaValue.class));
+            toDelete.addAll(ChatSDK.db().getDaoCore().fetchEntitiesOfClass(ReadReceiptUserLink.class));
 
             for (Object o: toDelete) {
                 ChatSDK.db().delete(o);

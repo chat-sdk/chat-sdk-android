@@ -214,7 +214,7 @@ public class UserThreadLink {
 
         if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {
             if (metaValue == null) {
-                metaValue = ChatSDK.db().createEntity(UserThreadLinkMetaValue.class);
+                metaValue = ChatSDK.db().create(UserThreadLinkMetaValue.class);
                 metaValue.setUserThreadLinkId(this.getId());
                 getMetaValues().add(metaValue);
             }

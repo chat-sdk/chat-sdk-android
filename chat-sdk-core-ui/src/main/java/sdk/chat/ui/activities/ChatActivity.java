@@ -65,6 +65,7 @@ import sdk.chat.ui.views.ChatView;
 import sdk.chat.ui.views.ReplyView;
 import sdk.guru.common.RX;
 
+@Deprecated // Use ChatActivityWrapper instead
 public class ChatActivity extends BaseActivity implements TextInputDelegate, ChatOptionsDelegate, ChatView.Delegate {
 
     public static final int messageForwardActivityCode = 998;
@@ -200,6 +201,10 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     protected void initViews() {
         super.initViews();
 
+        if (getThread() == null) {
+            finish();
+            return;
+        }
 
         chatView.setDelegate(this);
 
@@ -656,7 +661,11 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
         if (ChatSDK.typingIndicator() != null) {
             ChatSDK.typingIndicator().setChatState(state, thread)
                     .observeOn(RX.main())
-                    .subscribe(this);
+                    .doOnError(throwable -> {
+                        System.out.println("Catch disconnected error");
+                        //
+                    })
+                    .subscribe();
         }
     }
 

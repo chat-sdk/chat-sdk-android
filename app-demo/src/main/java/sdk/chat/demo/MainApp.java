@@ -5,7 +5,10 @@ import android.app.Application;
 import org.pmw.tinylog.Logger;
 
 import sdk.chat.app.firebase.ChatSDKFirebase;
+import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.Device;
+import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
 import sdk.chat.firebase.receipts.FirebaseReadReceiptsModule;
 import sdk.chat.message.audio.AudioMessageModule;
@@ -19,10 +22,12 @@ public class MainApp extends Application {
         try {
 
             // Setup Chat SDK
-            ChatSDKFirebase.quickStartWithEmail(this, "pre_2", "AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE", true, "ben@sdk.chat",
+            ChatSDKFirebase.quickStartWithEmail(this, "pre_3", "AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE", !Device.honor(this), "team@sdk.chat",
                     AudioMessageModule.shared(),
                     FirebaseBlockingModule.shared(),
-                    FirebaseReadReceiptsModule.shared()
+                    FirebaseReadReceiptsModule.shared(),
+                    FirebaseLastOnlineModule.shared(),
+                    ContactBookModule.shared()
             );
 
             ChatSDK.events().sourceOnMain().subscribe(event -> {
@@ -33,7 +38,6 @@ public class MainApp extends Application {
                 Logger.debug(event);
                 event.printStackTrace();
             });
-
 
 
             //
@@ -72,8 +76,8 @@ public class MainApp extends Application {
 
 
         } catch (Exception e) {
-            assert false;
             e.printStackTrace();
+            assert(false);
         }
     }
 }

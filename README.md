@@ -22,7 +22,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Java 8** supports Java 8 and lamda expressions
 - **Multi-threaded** agressively multi-threaded
 - **API Level 16+** Compatible with 99.3% of Android devices
-- **Demo** [Google Play Store](https://play.google.com/store/apps/details?id=sdk.chat.live)
+- **Demo** [Download v5.0.1](https://play.google.com/store/apps/details?id=sdk.chat.live)
 
 > Please bear in mind that this version is a major update. As a result we are making new releases every few days to fix bugs and crashes. If you see an issue, please report it on the Github bug tracker and we will fix it. 
 
@@ -47,7 +47,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 
 ## Extras
 
-Sponsor us on either [Github sponsors](https://github.com/sponsors/chat-sdk) or [Paetron](https://www.patreon.com/chatsdk) and get these features. For full details visit our [Modules](https://chat-sdk.gitbook.io/chat-sdk/commercial/module-licensing) page.
+Sponsor us on either [Github sponsors](https://github.com/sponsors/chat-sdk) or [Paetron](https://www.patreon.com/chatsdk) and get these features. For full details visit our [Modules](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/ryODENucU) page.
 
 When you support us on Patreon, you get: **extra modules**, **code updates**, **support** as well as special access to the Discord Server. 
 
@@ -74,15 +74,16 @@ Visit our [Animated GIF Gallery](https://giphy.com/channel/chat-sdk) to see all 
 
 ## About Us
 
-Learn about the history of Chat SDK and our future plans in [this post](https://chat-sdk.gitbook.io/chat-sdk/about-us/history-of-chat-sdk).
+Learn about the history of Chat SDK and our future plans in [this post](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/BkBKhRO0I).
 
 ## Scalability and Cost
 
-People always ask about how much Chat SDK costs to run. And will it scale to millions of users? So I wrote an article talking about [just that](https://chat-sdk.gitbook.io/chat-sdk/commercial/scalability-and-cost). 
+People always ask about how much Chat SDK costs to run. And will it scale to millions of users? So I wrote an article talking about [just that](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/r1LJ26d0L). 
 
 ### Library Size
 
-The Chat SDK library with **ALL** modules is around 20mb
+The Chat SDK library with **ALL** modules is around 
+
 
 ## Community
 
@@ -94,6 +95,7 @@ Document](https://github.com/chat-sdk/chat-sdk-ios/blob/master/CONTRIBUTING.md) 
 + **Give us a star** on Github ⭐
 + **Upvoting us:** [Product Hunt](https://www.producthunt.com/posts/chat-sdk)
 + **Tweet:** about your Chat SDK project using [@chat_sdk](https://mobile.twitter.com/chat_sdk) 
++ **Live Stream** Join us every Saturday 18:00 CEST for a live stream where I answer questions about Chat SDK. For more details please join the Discord Server 
 
 You can also help us by:
 
@@ -126,52 +128,46 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 
 ## Chat SDK Firebase Documentation
 
+#### Migrating from v4
+
+- [Migration guide](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/SJLWjxdcL)
+- If you want to see the v4 docs, they are available on the [v4 branch](https://github.com/chat-sdk/chat-sdk-android/tree/v4)
 
 #### Quick Start
 
 [![Video Tutorial](https://img.youtube.com/vi/ZzfSd3hc3xw/0.jpg)](https://www.youtube.com/watch?v=ZzfSd3hc3xw)
 
 - [Full video tutorial](https://www.youtube.com/watch?v=ZzfSd3hc3xw)
-- [API - Useful for Chat SDK customization](https://chat-sdk.gitbook.io/chat-sdk/guides/api-cheatsheet)
-- [Documentation Homepage](https://chat-sdk.gitbook.io/chat-sdk/)
-- [Building a messaging app using Chat SDK](https://chat-sdk.gitbook.io/android/getting-started/chat-sdk-quickstart)
-- [Adding Chat SDK to a Firebase app](https://chat-sdk.gitbook.io/android/getting-started/getting-started)
-- [Adding Chat SDK to a non-Firebase app](https://chat-sdk.gitbook.io/android/getting-started/add-the-chat-sdk-to-a-non-firebase-app)
+- [Building a messaging app using Chat SDK](https://hackmd.io/iBIxiQ24RDiMY-W76DomfA#Building-a-messaging-app-using-Chat-SDK)
+- [Adding Chat SDK to a Firebase app](https://hackmd.io/iBIxiQ24RDiMY-W76DomfA#Add-the-Chat-SDK-to-a-Firebase-app)
+- [Adding Chat SDK to a non-Firebase app](https://hackmd.io/iBIxiQ24RDiMY-W76DomfA#Add-the-Chat-SDK-to-a-non-Firebase-app)
 
 #### Integration
 
-1. [Add the Chat SDK to your project](https://chat-sdk.gitbook.io/android/setup/add-chat-sdk-to-your-project)
-2. [Firebase Setup](https://chat-sdk.gitbook.io/android/setup/untitled)
-3. [Chat SDK Initialization](https://chat-sdk.gitbook.io/android/setup/chat-sdk-initialization)
-4. [Set the Chat SDK Theme](https://chat-sdk.gitbook.io/android/setup/set-the-chat-sdk-theme)
-5. [Enable Location Messages](https://chat-sdk.gitbook.io/android/setup/enable-location-messages)
-6. [Display the login screen](https://chat-sdk.gitbook.io/android/setup/authentication-screen)
-7. [Add module dependencies](https://chat-sdk.gitbook.io/android/setup/add-additional-modules)
-8. [Module Configuration](https://chat-sdk.gitbook.io/android/setup/module-configuration)
-9. [Proguard](https://chat-sdk.gitbook.io/android/setup/proguard)
+1. [Add the Chat SDK libraries to your project](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/B1S2tXdqL)
+2. [Configure Firebase](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/BkvpPKFqI)
+3. [Configure the Chat SDK](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/Hke7KN_qI)
+4. [Enable Location Messages](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/rkyHX76hU)
+5. [Display the login screen](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/HJzwrrO5L)
+6. [Add additional module dependencies](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/Bkpy076hL)
+7. [Enable and configure the modules](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/BJSBZ5t5U)
+8. [Synchronize user profiles with your app](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/ByPlWV6h8)
+9. [Enable token authentication](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/H18dFBRhL)
 
 #### Customization
 
-1. [Override Activity or Fragment](https://chat-sdk.gitbook.io/android/api/overriding-activities-and-fragments)
-2. [Theme Chat SDK](https://chat-sdk.gitbook.io/android/api/theming)
-3. [Customize the Icons](https://chat-sdk.gitbook.io/android/api/customizing-the-icons)
-4. [Customize the Tabs](https://chat-sdk.gitbook.io/android/api/tab-customization)
-5. [Add a Chat Option](https://chat-sdk.gitbook.io/android/api/add-a-chat-option)
-6. [Custom Message Types](https://chat-sdk.gitbook.io/android/api/message-customization)
-7. [Handling Events](https://chat-sdk.gitbook.io/android/api/events)
-8. [Custom Push Handling](https://chat-sdk.gitbook.io/android/api/overriding-the-push-notification-handler)
-8. [Synchronize user profiles with your app](https://chat-sdk.gitbook.io/android/api/integrating-chat-sdk-user-profiles-with-your-app)
-9. [Custom File Upload Handler](https://chat-sdk.gitbook.io/chat-sdk/guides/custom-file-upload-handler)
-10. [Enable token authentication](https://chat-sdk.gitbook.io/chat-sdk/custom-token-authentication)
+1. [Override Activity or Fragment](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/ByL0mWG0L)
+2. [Theme Chat SDK](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/r1xStjFcU)
+3. [Customize the Icons](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/r1ZeZWGCI)
+4. [Customize the Tabs](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/BkClVbzAU)
+5. [Add a Chat Option](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/HymyNWfA8)
+6. [Custom Message Types](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/ryxEXfA08)
+7. [Handling Events](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/rJFli-GRL)
+8. [Custom Push Handling](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/rywUHXikv)
 
 #### Extras
 
-1. [Example Firebase Schema](https://chat-sdk.gitbook.io/chat-sdk/guides/firebase-schema)
-
-#### Migrating from v4
-
-- [Migration guide](https://chat-sdk.gitbook.io/android/chat-sdk-v4/updating-from-v4-to-v5)
-- If you want to see the v4 docs, they are available on the [v4 branch](https://github.com/chat-sdk/chat-sdk-android/tree/v4)
+1. [Example Firebase Schema](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/Bk9i0lUJv)
 
 <!--
 #### Customization
@@ -189,7 +185,7 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 
 - [RxJava for beginners](https://medium.com/@factoryhr/understanding-java-rxjava-for-beginners-5eacb8de12ca)
 - [API Examples](https://github.com/chat-sdk/chat-sdk-android/tree/master/chat-sdk-demo/src/main/java/sdk/chat/demo/examples/api)
-- [Firebase vs. Firestream vs. XMPP](https://chat-sdk.gitbook.io/chat-sdk/commercial/firebase-vs.-firestream-vs.-xmpp)
+- [Firebase vs. Firestream vs. XMPP](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/Sk8-jryC8)
 
 #### Setup Service
 

@@ -80,7 +80,7 @@ public class NotificationBuilder {
             smallIcon = R.drawable.icn_72_push_mask;
         }
         if (largeIcon == null) {
-            largeIcon = BitmapFactory.decodeResource(context.get().getResources(), R.drawable.ic_logo_big);
+            largeIcon = BitmapFactory.decodeResource(context.get().getResources(), ChatSDK.config().logoDrawableResourceID);
         }
         return setSmallIcon(smallIcon)
                 .setLargeIcon(largeIcon);

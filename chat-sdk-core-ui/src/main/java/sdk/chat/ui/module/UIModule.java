@@ -122,6 +122,10 @@ public class UIModule extends AbstractModule implements InterfaceAdapterProvider
         return timeBinder;
     }
 
+    public void setTimeBinder(TimeBinder binder) {
+        this.timeBinder = binder;
+    }
+
     public void setOnlineStatusBinder(OnlineStatusBinder onlineStatusBinder) {
         this.onlineStatusBinder = onlineStatusBinder;
     }

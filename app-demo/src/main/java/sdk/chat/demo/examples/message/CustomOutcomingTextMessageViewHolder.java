@@ -6,6 +6,7 @@ import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.view_holders.OutcomingTextMessageViewHolder;
 
 public class CustomOutcomingTextMessageViewHolder extends OutcomingTextMessageViewHolder {
+
     public CustomOutcomingTextMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
     }

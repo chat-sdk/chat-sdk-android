@@ -132,7 +132,7 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
         for (int i = 0; i < urls.size(); i++) {
             pictures.put(Integer.toString(i), urls.get(i));
         }
-        Map<String, Object> expendedMeta = expandMeta(user.metaMap());
+        Map<String, Object> expendedMeta = expandMeta((Map<String, String>)user.metaMap());
         expendedMeta.put(KeyPictureURLS, pictures);
         Map<String, String> meta = flattenMeta(expendedMeta);
         user.setMetaMap(meta);
@@ -181,7 +181,7 @@ public class BaseProfilePicturesHandler implements ProfilePicturesHandler {
     }
 
     protected Map<String, Object> expandMeta(Map<String, String> meta) {
-        return HashMapHelper.expand((Map<String, String>) meta);
+        return HashMapHelper.expandStringMap(meta);
     }
 
     protected Map<String, String> flattenMeta(Map<String, Object> meta) {

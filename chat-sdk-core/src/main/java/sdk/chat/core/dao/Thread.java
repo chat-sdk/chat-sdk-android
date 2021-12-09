@@ -12,6 +12,7 @@ import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.OrderBy;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
+import org.greenrobot.greendao.annotation.Unique;
 import org.greenrobot.greendao.query.Query;
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.pmw.tinylog.Logger;
@@ -41,8 +42,9 @@ import sdk.chat.core.utils.StringChecker;
 public class Thread extends AbstractEntity {
 
     @Id private Long id;
+
+    @Unique
     private String entityID;
-    private String userAccountID;
 
     private Date creationDate;
     private Integer type;
@@ -85,12 +87,10 @@ public class Thread extends AbstractEntity {
         this.id = id;
     }
 
-    @Generated(hash = 1731842954)
-    public Thread(Long id, String entityID, String userAccountID, Date creationDate, Integer type, Long creatorId, Date loadMessagesFrom, Boolean deleted, String draft,
-            Date canDeleteMessagesFrom) {
+    @Generated(hash = 2012841452)
+    public Thread(Long id, String entityID, Date creationDate, Integer type, Long creatorId, Date loadMessagesFrom, Boolean deleted, String draft, Date canDeleteMessagesFrom) {
         this.id = id;
         this.entityID = entityID;
-        this.userAccountID = userAccountID;
         this.creationDate = creationDate;
         this.type = type;
         this.creatorId = creatorId;
@@ -106,7 +106,7 @@ public class Thread extends AbstractEntity {
 
     public List<User> getUsers() {
 
-        List<UserThreadLink> links = DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.ThreadId, getId());
+        List<UserThreadLink> links = ChatSDK.db().getDaoCore().fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.ThreadId, getId());
         if (links == null) {
             return Collections.emptyList();
         }
@@ -146,7 +146,7 @@ public class Thread extends AbstractEntity {
     }
 
     public List<UserThreadLink> getLinks() {
-        return DaoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.ThreadId, getId());
+        return ChatSDK.db().getDaoCore().fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.ThreadId, getId());
     }
 
     public boolean containsUser (User user) {
@@ -183,11 +183,12 @@ public class Thread extends AbstractEntity {
     }
 
     public boolean addUser(User user, boolean notify) {
-        boolean didUpdate = DaoCore.connectUserAndThread(user, this) || getUserThreadLink(user.getId()).setHasLeft(false);
-        if (notify && didUpdate) {
-            ChatSDK.events().source().accept(NetworkEvent.threadUserAdded(this, user));
+        if (ChatSDK.db().getDaoCore().connectUserAndThread(user, this)) {
+            if (getUserThreadLink(user.getId()).setHasLeft(false) && notify) {
+                ChatSDK.events().source().accept(NetworkEvent.threadUserAdded(this, user));
+            }
         }
-        return didUpdate;
+        return false;
     }
 
     public void removeUser(User user) {
@@ -195,7 +196,7 @@ public class Thread extends AbstractEntity {
     }
 
     public void removeUser(User user, boolean notify) {
-        if(DaoCore.breakUserAndThread(user, this) && notify) {
+        if(ChatSDK.db().getDaoCore().breakUserAndThread(user, this) && notify) {
             ChatSDK.events().source().accept(NetworkEvent.threadUserRemoved(this, user));
         }
 //        user.update();
@@ -327,7 +328,7 @@ public class Thread extends AbstractEntity {
 
         if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {
             if (metaValue == null) {
-                metaValue = ChatSDK.db().createEntity(ThreadMetaValue.class);
+                metaValue = ChatSDK.db().create(ThreadMetaValue.class);
                 metaValue.setThreadId(this.getId());
                 getMetaValues().add(metaValue);
             }
@@ -454,9 +455,7 @@ public class Thread extends AbstractEntity {
     }
 
     public boolean hasUser(User user) {
-
-        UserThreadLink data =
-                DaoCore.fetchEntityWithProperties(UserThreadLink.class,
+        UserThreadLink data = ChatSDK.db().getDaoCore().fetchEntityWithProperties(UserThreadLink.class,
                         new Property[]{UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, getId(), user.getId());
 
         return data != null;
@@ -797,7 +796,7 @@ public class Thread extends AbstractEntity {
 
     @Nullable
     public UserThreadLink getUserThreadLink(Long userId) {
-        return DaoCore.fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, getId(), userId);
+        return ChatSDK.db().getDaoCore().fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, getId(), userId);
     }
 
     public void setPermission(String userEntityID, String permission) {
@@ -821,22 +820,6 @@ public class Thread extends AbstractEntity {
         }
     }
 
-//    public void setPermission(String userEntityID, String permission, boolean notify, boolean sendSystemMessage) {
-//        User user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
-//        if (user != null) {
-//            UserThreadLink link = getUserThreadLink(user.getId());
-//            if (link != null) {
-//                if(link.setMetaValue(Keys.Permission, permission) && notify) {
-//                    ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(this, user));
-//                    if (sendSystemMessage && user.isMe()) {
-//                        String message = String.format(ChatSDK.getString(R.string.role_changed_to__), ChatSDK.thread().localizeRole(permission));
-//                        ChatSDK.thread().sendLocalSystemMessage(message, this);
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     public String getPermission(String userEntityID) {
         User user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
         if (user != null) {
@@ -847,21 +830,6 @@ public class Thread extends AbstractEntity {
         }
         return null;
     }
-
-//    public String getPermission(String userEntityID) {
-//        User user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
-//        if (user != null) {
-//            UserThreadLink link = getUserThreadLink(user.getId());
-//            if (link != null) {
-//                UserThreadLinkMetaValue permission = link.metaValueForKey(Keys.Permission);
-//                if (permission != null) {
-//                    return permission.getValue();
-//                }
-//            }
-//        }
-//        return null;
-//    }
-
 
     public Date getLoadMessagesFrom() {
         return this.loadMessagesFrom;
@@ -933,24 +901,27 @@ public class Thread extends AbstractEntity {
     }
 
     public void cascadeDelete() {
-        for (Message message: getMessages()) {
-            message.cascadeDelete();
-        }
-        for (UserThreadLink link: getLinks()) {
+        removeMessagesAndMarkDeleted();
+        List<UserThreadLink> links = new ArrayList<>(getLinks());
+        for (UserThreadLink link: links) {
             link.cascadeDelete();
         }
-        for (ThreadMetaValue value :getMetaValues()) {
+        List<ThreadMetaValue> values = new ArrayList<>(getMetaValues());
+        for (ThreadMetaValue value: values) {
             value.delete();
         }
         delete();
     }
 
-    public String getUserAccountID() {
-        return this.userAccountID;
-    }
-
-    public void setUserAccountID(String userAccountID) {
-        this.userAccountID = userAccountID;
+    public void removeMessagesAndMarkDeleted() {
+        List<Message> messages = new ArrayList<>(getMessages());
+        for (Message message: messages) {
+            removeMessage(message);
+            message.cascadeDelete();
+        }
+        setDeleted(true);
+        setLoadMessagesFrom(new Date());
+        update();
     }
 
 }

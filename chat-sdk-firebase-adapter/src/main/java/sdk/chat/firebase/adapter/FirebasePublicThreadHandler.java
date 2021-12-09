@@ -7,7 +7,6 @@ import com.google.firebase.database.ServerValue;
 import java.util.HashMap;
 import java.util.Map;
 
-import sdk.chat.firebase.adapter.wrappers.ThreadWrapper;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import sdk.chat.core.base.AbstractPublicThreadHandler;
@@ -16,6 +15,7 @@ import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.guru.common.RX;
 
 /**
@@ -51,7 +51,7 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
                 thread.updateValues(meta);
             }
 
-            return new ThreadWrapper(thread).push()
+            return FirebaseModule.config().provider.threadWrapper(thread).push()
                     .doOnError(throwable -> {
                         thread.cascadeDelete();
                     })

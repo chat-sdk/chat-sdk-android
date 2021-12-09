@@ -28,6 +28,8 @@ public class PublicKeyDao extends AbstractDao<PublicKey, Long> {
         public final static Property Identifier = new Property(3, String.class, "identifier", false, "IDENTIFIER");
     }
 
+    private DaoSession daoSession;
+
 
     public PublicKeyDao(DaoConfig config) {
         super(config);
@@ -35,6 +37,7 @@ public class PublicKeyDao extends AbstractDao<PublicKey, Long> {
     
     public PublicKeyDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
+        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
@@ -101,6 +104,12 @@ public class PublicKeyDao extends AbstractDao<PublicKey, Long> {
         if (identifier != null) {
             stmt.bindString(4, identifier);
         }
+    }
+
+    @Override
+    protected final void attachEntity(PublicKey entity) {
+        super.attachEntity(entity);
+        entity.__setDaoSession(daoSession);
     }
 
     @Override

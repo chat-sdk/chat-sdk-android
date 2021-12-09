@@ -36,7 +36,7 @@ public class MetaValueHelper {
         return null;
     }
 
-    public static String toString (Object value) {
+    public static String toString(Object value) {
         if (value instanceof String) {
             return (String) value;
         }
@@ -57,7 +57,7 @@ public class MetaValueHelper {
         }
     }
 
-    public static Object toObject (String value) {
+    public static Object toObject(String value) {
         try {
             return Integer.parseInt(value);
         }

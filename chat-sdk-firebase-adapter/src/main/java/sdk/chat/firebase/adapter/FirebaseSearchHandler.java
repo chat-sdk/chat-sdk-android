@@ -62,10 +62,10 @@ public class FirebaseSearchHandler extends AbstractSearchHandler {
                                 if (userSnapshot.hasChild(Keys.Meta)) {
                                     DataSnapshot meta = userSnapshot.child(Keys.Meta);
                                     if (meta.hasChild(index)) {
-                                        String childValue = (String) meta.child(index).getValue();
-                                        String name = (String) meta.child(Keys.Name).getValue();
+                                        String childValue = meta.child(index).getValue(String.class);
+                                        String name = meta.child(Keys.Name).getValue(String.class);
                                         if (childValue != null && childValue.toLowerCase().indexOf(finalValue.toLowerCase()) == 0 && name != null && !name.isEmpty()) {
-                                            final UserWrapper wrapper = new UserWrapper(userSnapshot);
+                                            final UserWrapper wrapper = FirebaseModule.config().provider.userWrapper(userSnapshot);
                                             if (!wrapper.getModel().equals(ChatSDK.currentUser()) && !ChatSDK.contact().exists(wrapper.getModel())) {
                                                 e.onNext(wrapper.getModel());
                                             }

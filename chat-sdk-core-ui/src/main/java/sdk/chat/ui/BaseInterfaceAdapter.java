@@ -17,7 +17,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +38,7 @@ import sdk.chat.core.types.SearchActivityType;
 import sdk.chat.core.ui.ProfileFragmentProvider;
 import sdk.chat.core.utils.ProfileOption;
 import sdk.chat.ui.activities.AddUsersToThreadActivity;
-import sdk.chat.ui.activities.ChatActivity;
+import sdk.chat.ui.activities.ChatActivityWrapper;
 import sdk.chat.ui.activities.CreateThreadActivity;
 import sdk.chat.ui.activities.EditProfileActivity;
 import sdk.chat.ui.activities.EditThreadActivity;
@@ -78,7 +77,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class<? extends Activity> loginActivity = LoginActivity.class;
     protected Class<? extends Activity> splashScreenActivity = SplashScreenActivity.class;
     protected Class<? extends Activity> mainActivity = MainAppBarActivity.class;
-    protected Class<? extends Activity> chatActivity = ChatActivity.class;
+    protected Class<? extends Activity> chatActivity = ChatActivityWrapper.class;
     protected Class<? extends Activity> threadDetailsActivity = ThreadDetailsActivity.class;
     protected Class<? extends Activity> editThreadActivity = EditThreadActivity.class;
     protected Class<? extends Activity> postRegistrationActivity = PostRegistrationActivity.class;
@@ -563,11 +562,14 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public void removeSearchActivity(Class<? extends Activity> className) {
-        Iterator<SearchActivityType> iterator = searchActivities.iterator();
-        while (iterator.hasNext()) {
-            if(iterator.next().className.equals(className)) {
-                searchActivities.remove(iterator.next());
+        List<SearchActivityType> toRemove = new ArrayList<>();
+        for (SearchActivityType type: searchActivities) {
+            if (type.className.equals(className)) {
+                toRemove.add(type);
             }
+        }
+        for (SearchActivityType type: toRemove) {
+            searchActivities.remove(type);
         }
     }
 

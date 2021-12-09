@@ -1,6 +1,7 @@
 package sdk.chat.ui.chat;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.view.Gravity;
 import android.view.View;
@@ -39,4 +40,23 @@ public class ImageMessageOnClickHandler {
             imagePopup.showAtLocation(view, Gravity.CENTER, 0, 0);
         }
     }
+
+    public static void onClick (Activity activity, View view, Bitmap bitmap) {
+        BaseActivity.hideKeyboard(activity);
+
+        PopupImageView popupView = new PopupImageView(activity);
+
+        final PopupWindow imagePopup = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
+        imagePopup.setOnDismissListener(popupView::dispose);
+
+        imagePopup.setContentView(popupView);
+        imagePopup.setBackgroundDrawable(new BitmapDrawable());
+        imagePopup.setOutsideTouchable(true);
+        imagePopup.setAnimationStyle(R.style.ImagePopupAnimation);
+
+        popupView.setBitmap(activity, bitmap);
+
+        imagePopup.showAtLocation(view, Gravity.CENTER, 0, 0);
+    }
+
 }

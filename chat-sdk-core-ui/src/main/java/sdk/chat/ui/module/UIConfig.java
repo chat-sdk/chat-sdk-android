@@ -57,7 +57,9 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     public boolean allowBackPressFromMainActivity = false;
 
+
     public Class<? extends InterfaceAdapter> interfaceAdapter = BaseInterfaceAdapter.class;
+
 
     public UIConfig(T onBuild) {
         super(onBuild);
@@ -326,5 +328,6 @@ public class UIConfig<T> extends BaseConfig<T> {
         this.messageReplyEnabled = messageReplyEnabled;
         return this;
     }
+
 
 }

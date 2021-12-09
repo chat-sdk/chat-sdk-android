@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -82,6 +83,7 @@ public class UserViewHolder extends SmartViewHolder<UserListItem> {
             Glide.with(root)
                     .load(item.getAvatarURL())
                     .dontAnimate()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(UIModule.config().defaultProfilePlaceholder)
                     .override(width, height)
                     .into(avatarImageView);

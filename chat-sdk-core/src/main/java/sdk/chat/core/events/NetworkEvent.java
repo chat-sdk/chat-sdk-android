@@ -32,6 +32,8 @@ public class NetworkEvent {
     protected Map<String, Object> data;
 
     public static String MessageSendProgress = "MessageSendProgress";
+    public static String MessageId = "MessageId";
+    public static String Error = "Error";
     public Location location;
 
     public NetworkEvent(EventType type) {
@@ -50,7 +52,7 @@ public class NetworkEvent {
         this(type, thread, message, user, null);
     }
 
-    public NetworkEvent(EventType type, Thread thread, Message message, User user, HashMap<String, Object> data) {
+    public NetworkEvent(EventType type, Thread thread, Message message, User user, Map<String, Object> data) {
         this.type = type;
         this.thread = thread;
         this.message = message;
@@ -108,6 +110,13 @@ public class NetworkEvent {
 
     public static NetworkEvent messageRemoved(Message message) {
         return new NetworkEvent(EventType.MessageRemoved, message.getThread(), message);
+    }
+
+    public static NetworkEvent messageSendFailed(String messageId, Exception e) {
+        Map<String, Object> map = new HashMap<>();
+        map.put(MessageId, messageId);
+        map.put(Error, e);
+        return new NetworkEvent(EventType.MessageSendFailed, null, null, null, map);
     }
 
     @Deprecated
@@ -322,6 +331,7 @@ public class NetworkEvent {
                 EventType.MessageReadReceiptUpdated,
                 EventType.UserPresenceUpdated,
                 EventType.TypingStateUpdated,
+                EventType.Logout,
                 EventType.UserMetaUpdated // Be careful to check that the user is a member of the thread...
         );
     }

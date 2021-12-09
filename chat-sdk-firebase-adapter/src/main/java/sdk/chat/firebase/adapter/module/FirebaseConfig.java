@@ -6,9 +6,12 @@ import java.util.List;
 import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.firebase.adapter.FirebaseNetworkAdapter;
+import sdk.chat.firebase.adapter.utils.FirebaseProvider;
 import sdk.guru.common.BaseConfig;
 
 public class FirebaseConfig<T> extends BaseConfig<T> {
+
+    public FirebaseProvider provider = new FirebaseProvider();
 
     // Firebase
     public String firebaseRootPath = "pre_1";
@@ -165,9 +168,15 @@ public class FirebaseConfig<T> extends BaseConfig<T> {
      */
     public FirebaseConfig<T> setNetworkAdapter(Class<? extends BaseNetworkAdapter> networkAdapter) {
         this.networkAdapter = networkAdapter;
+
         return this;
     }
 
+
+    public FirebaseConfig<T> setFirebaseProvider(FirebaseProvider provider) {
+        this.provider = provider;
+        return this;
+    }
 
 
 }

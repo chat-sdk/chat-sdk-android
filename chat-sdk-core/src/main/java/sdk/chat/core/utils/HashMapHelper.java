@@ -6,13 +6,21 @@ import java.util.Map;
 
 public class HashMapHelper {
 
-    public static Map<String, Object> expand(Map<String, String> flatMap) {
+    public static Map<String, Object> expandStringMap(Map<String, String> flatMap) {
+        Map<String, Object> map = new HashMap<>();
+        for (String key: flatMap.keySet()) {
+            map.put(key, flatMap.get(key));
+        }
+        return expand(map);
+    }
+
+    public static Map<String, Object> expand(Map<String, Object> flatMap) {
 
         Map<String, Object> expandedMap = new HashMap<>();
 
         for (String key : flatMap.keySet()) {
             String [] splitKey = key.split("/");
-            String value = flatMap.get(key);
+            Object value = flatMap.get(key);
 
             // In this case, we have a composite key i.e. A/B/C which needs to be expanded
             if (splitKey.length > 1) {
@@ -23,7 +31,7 @@ public class HashMapHelper {
 
                 // Make a new child map which would contain the value keyed by the child key
                 // i.e. B/C => Value
-                HashMap<String, String> childMap = new HashMap<>();
+                Map<String, Object> childMap = new HashMap<>();
                 childMap.put(childKey, value);
 
                 // It may be that we already have a sub map, mapped to this key,
@@ -62,7 +70,7 @@ public class HashMapHelper {
             // In Firebase if we have a number indexing the data, Firebase thinks its an array list.
             if (value instanceof ArrayList) {
                 ArrayList arrayList = (ArrayList) value;
-                HashMap<String, Object> tempMap = new HashMap<>();
+                Map<String, Object> tempMap = new HashMap<>();
                 for(Integer i = 0; i < arrayList.size(); i++) {
                     if (arrayList.get(i) != null) {
                         tempMap.put(i.toString(), arrayList.get(i));

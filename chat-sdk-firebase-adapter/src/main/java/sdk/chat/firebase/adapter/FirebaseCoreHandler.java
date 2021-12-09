@@ -12,7 +12,6 @@ import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
-import sdk.chat.firebase.adapter.wrappers.UserWrapper;
 import sdk.guru.common.RX;
 
 
@@ -43,7 +42,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public Completable pushUser() {
-        return Completable.defer(() -> new UserWrapper(ChatSDK.currentUser()).push());
+        return Completable.defer(() -> FirebaseModule.config().provider.userWrapper(ChatSDK.currentUser()).push());
     }
 
     @Override
@@ -51,7 +50,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         return Completable.defer(() -> {
             if (!ChatSDK.config().disablePresence) {
                 if (ChatSDK.auth() != null && ChatSDK.auth().isAuthenticatedThisSession()) {
-                    return UserWrapper.initWithModel(currentUser()).goOnline();
+                    return FirebaseModule.config().provider.userWrapper(currentUser()).goOnline();
                 }
             }
             return Completable.complete();
@@ -63,7 +62,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
         return Completable.defer(() -> {
             if (!ChatSDK.config().disablePresence) {
                 if (ChatSDK.auth() != null && ChatSDK.auth().isAuthenticatedThisSession()) {
-                    return UserWrapper.initWithModel(currentUser()).goOffline();
+                    return FirebaseModule.config().provider.userWrapper(currentUser()).goOffline();
                 }
             }
             return Completable.complete();
@@ -75,7 +74,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
             if (!ChatSDK.config().disablePresence) {
                 User current = ChatSDK.currentUser();
                 if (current != null && !current.getEntityID().isEmpty()) {
-                    return UserWrapper.initWithModel(currentUser()).goOnline();
+                    return FirebaseModule.config().provider.userWrapper(currentUser()).goOnline();
                 }
             }
             return Completable.complete();
@@ -127,11 +126,11 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     }
 
     public Completable userOn(final User user) {
-        return new UserWrapper(user).on();
+        return FirebaseModule.config().provider.userWrapper(user).on();
     }
 
     public void userOff(final User user) {
-        new UserWrapper(user).off();
+        FirebaseModule.config().provider.userWrapper(user).off();
     }
 
     public void save() {

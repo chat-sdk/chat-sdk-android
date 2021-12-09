@@ -15,7 +15,6 @@ import java.util.List;
 
 import io.reactivex.plugins.RxJavaPlugins;
 import sdk.chat.core.base.BaseNetworkAdapter;
-import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -25,10 +24,10 @@ import sdk.chat.core.handlers.BlockingHandler;
 import sdk.chat.core.handlers.ContactHandler;
 import sdk.chat.core.handlers.ContactMessageHandler;
 import sdk.chat.core.handlers.CoreHandler;
-import sdk.chat.core.handlers.IEncryptionHandler;
 import sdk.chat.core.handlers.EventHandler;
 import sdk.chat.core.handlers.FileMessageHandler;
 import sdk.chat.core.handlers.HookHandler;
+import sdk.chat.core.handlers.IEncryptionHandler;
 import sdk.chat.core.handlers.ImageMessageHandler;
 import sdk.chat.core.handlers.LastOnlineHandler;
 import sdk.chat.core.handlers.LocationMessageHandler;
@@ -49,6 +48,8 @@ import sdk.chat.core.interfaces.InterfaceAdapter;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.notifications.NotificationDisplayHandler;
+import sdk.chat.core.rigs.DownloadManager;
+import sdk.chat.core.rigs.MessageSender;
 import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.chat.core.utils.KeyStorage;
@@ -84,8 +85,11 @@ public class ChatSDK {
     protected boolean isActive = false;
     protected String licenseIdentifier;
     protected IKeyStorage keyStorage;
+    protected DownloadManager downloadManager;
+    protected MessageSender messageSender;
 
     protected List<Runnable> onActivateListeners = new ArrayList<>();
+    protected List<Runnable> onPermissionsRequestedListeners = new ArrayList<>();
 
     protected ChatSDK () {
     }
@@ -140,9 +144,12 @@ public class ChatSDK {
         }
 
         setContext(context);
-         keyStorage = new KeyStorage(context);
+        keyStorage = new KeyStorage(context);
 
         config = builder.config();
+
+        downloadManager = new DownloadManager(context);
+        messageSender = new MessageSender(context);
 
         Class<? extends BaseNetworkAdapter> networkAdapter = builder.networkAdapter;
         if (builder.networkAdapter != null) {
@@ -210,9 +217,7 @@ public class ChatSDK {
             throw new Exception("The interface adapter cannot be null. An interface adapter must be defined using ChatSDK.configure(...) or by a module");
         }
 
-        DaoCore.init(context);
-
-        storageManager = new StorageManager();
+        storageManager = new StorageManager(context);
 
         // Monitor the app so if it goes into the background we know
         AppBackgroundMonitor.shared().setEnabled(true);
@@ -234,7 +239,7 @@ public class ChatSDK {
                 Message message = (Message) messageObject;
                 Thread thread = (Thread) threadObject;
 
-                if (!thread.isMuted()) {
+                if (!thread.isMuted() && !thread.isDeleted()) {
                         if (thread.typeIs(ThreadType.Private) || ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled) {
                             if (!message.isDelivered()) {
                                 boolean inBackground = AppBackgroundMonitor.shared().inBackground();
@@ -485,12 +490,30 @@ public class ChatSDK {
         onActivateListeners.add(runnable);
     }
 
+    public void addOnPermissionRequestedListener(Runnable runnable) {
+        onPermissionsRequestedListeners.add(runnable);
+    }
+
+    public void permissionsRequested() {
+        for (Runnable r: onPermissionsRequestedListeners) {
+            r.run();
+        }
+    }
+
     public String getLicenseIdentifier() {
         return licenseIdentifier;
     }
 
     public IKeyStorage getKeyStorage() {
         return keyStorage;
+    }
+
+    public static DownloadManager downloadManager() {
+        return shared().downloadManager;
+    }
+
+    public static MessageSender messageSender() {
+        return shared().messageSender;
     }
 
 }

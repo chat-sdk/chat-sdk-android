@@ -1,5 +1,7 @@
 package sdk.chat.core.dao;
 
+import androidx.annotation.Nullable;
+
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.annotation.Entity;
@@ -7,6 +9,7 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.ToMany;
+import org.greenrobot.greendao.annotation.Unique;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,7 +33,10 @@ public class User extends AbstractEntity implements UserListItem {
 
     @Id
     private Long id;
+
+    @Unique
     private String entityID;
+
     private Date lastOnline;
     private Boolean isOnline;
 
@@ -65,7 +71,7 @@ public class User extends AbstractEntity implements UserListItem {
         List<User> contactList = new ArrayList<>();
 
         // For some reason the default ContactLinks do not persist, have to find in DB
-        List<ContactLink> contactLinks = DaoCore.fetchEntitiesWithProperty(ContactLink.class,
+        List<ContactLink> contactLinks = ChatSDK.db().getDaoCore().fetchEntitiesWithProperty(ContactLink.class,
                 ContactLinkDao.Properties.LinkOwnerUserDaoId, this.getId());
 
         for (ContactLink contactLink : contactLinks){
@@ -126,7 +132,7 @@ public class User extends AbstractEntity implements UserListItem {
                         ContactLinkDao.Properties.Type
                 };
 
-                List<ContactLink> contactLinks = DaoCore.fetchEntitiesWithProperties(ContactLink.class,
+                List<ContactLink> contactLinks = ChatSDK.db().getDaoCore().fetchEntitiesWithProperties(ContactLink.class,
                         properties, this.getId(), user.getId(), type.ordinal());
 
                 for(ContactLink link : contactLinks) {
@@ -185,6 +191,7 @@ public class User extends AbstractEntity implements UserListItem {
         return metaStringForKey(Keys.PresenceSubscription);
     }
 
+    @Nullable
     public String getAvatarURL() {
         String url = metaStringForKey(Keys.AvatarURL);
         if (StringChecker.isNullOrEmpty(url)) {
@@ -293,12 +300,6 @@ public class User extends AbstractEntity implements UserListItem {
         if (!getIsOnline()) {
             return null;
         }
-//        String availability = metaStringForKey(Keys.Availability);
-//        if (availability != null) {
-//            return availability;
-//        } else {
-//            return Availability.Available;
-//        }
         return metaStringForKey(Keys.Availability);
     }
 
@@ -315,7 +316,14 @@ public class User extends AbstractEntity implements UserListItem {
     }
 
     public String metaStringForKey(String key) {
-        return metaMap().get(key);
+        List<UserMetaValue> values = getMetaValues();
+        for (UserMetaValue value: values) {
+            if (value.getKey().equals(key)) {
+                return value.getValue();
+            }
+        }
+        return null;
+//        return metaMap().get(key);
     }
 
     public Boolean metaBooleanForKey(String key) {
@@ -373,7 +381,7 @@ public class User extends AbstractEntity implements UserListItem {
 
                 if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {
                     if (metaValue == null) {
-                        metaValue = ChatSDK.db().createEntity(UserMetaValue.class);
+                        metaValue = ChatSDK.db().create(UserMetaValue.class);
                         metaValue.setUserId(this.getId());
                         getMetaValues().add(metaValue);
                     }
@@ -400,7 +408,7 @@ public class User extends AbstractEntity implements UserListItem {
     }
 
     public boolean hasThread(Thread thread){
-        UserThreadLink data = DaoCore.fetchEntityWithProperties(
+        UserThreadLink data = ChatSDK.db().getDaoCore().fetchEntityWithProperties(
                 UserThreadLink.class,
                 new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId},
                 thread.getId(),
@@ -551,4 +559,5 @@ public class User extends AbstractEntity implements UserListItem {
         }
         delete();
     }
+
 }

@@ -57,6 +57,7 @@ public class FirebasePushHandler extends AbstractPushHandler {
     public Completable subscribeToPushChannel(final String channel) {
         return Completable.defer(() -> {
             String hash = hashChannel(channel);
+            Logger.info("Subscribe to channel: " + hash);
             return Completable.create(emitter -> messaging().subscribeToTopic(hash).addOnSuccessListener(aVoid -> {
                 emitter.onComplete();
             }).addOnFailureListener(emitter::onError)).andThen(super.subscribeToPushChannel(hash)).subscribeOn(RX.io());

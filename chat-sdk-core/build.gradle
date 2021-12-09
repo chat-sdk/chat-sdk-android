@@ -1,9 +1,8 @@
 plugins {
     id 'com.android.library'
-    id 'com.jfrog.bintray'
+    id 'com.jfrog.artifactory'
     id 'maven-publish'
     id 'org.greenrobot.greendao'
-//    id 'com.jakewharton.hugo'
 }
 
 android {
@@ -39,7 +38,7 @@ android {
 }
 
 greendao {
-    schemaVersion 19
+    schemaVersion 20
     targetGenDir "src/main/java"
     daoPackage "sdk.chat.core.dao"
 }
@@ -48,9 +47,9 @@ rootProject.allprojects {
     repositories {
         google()
         jcenter()
+        mavenCentral()
         maven { url "https://jitpack.io" }
-        maven { url "http://dl.bintray.com/chat-sdk/dexter" }
-        maven { url "https://dl.bintray.com/mikepenz/maven" }
+//        maven { url "https://dl.bintray.com/mikepenz/maven" }
     }
 }
 

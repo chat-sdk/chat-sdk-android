@@ -16,6 +16,12 @@ android {
     }
 
     signingConfigs {
+        release {
+            keyAlias 'androiddebugkey'
+            keyPassword 'D3bug123'
+            storeFile file('debug.keystore')
+            storePassword 'D3bug123'
+        }
         debug {
             keyAlias 'androiddebugkey'
             keyPassword 'D3bug123'
@@ -31,14 +37,14 @@ android {
     }
 
     buildTypes {
-//        release {
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-//            signingConfig signingConfigs.release
-//            debuggable false
-//            jniDebuggable false
-//            zipAlignEnabled true
-//        }
+        release {
+            minifyEnabled project.hasProperty('minifyCore')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
         debug {
+            minifyEnabled project.hasProperty('minifyDebug')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             debuggable true
             jniDebuggable true
             ext.alwaysUpdateBuildId = false
@@ -91,13 +97,6 @@ dependencies {
     implementation project(':chat-sdk-mod-ui-extras')
     implementation project(':chat-sdk-mod-firebase-ui')
     implementation project(':chat-sdk-mod-profile-pictures')
-
-//    // Recommended: Add the Firebase SDK for Google Analytics.
-//    implementation "com.google.firebase:firebase-analytics:$firebaseAnalyticsVersion"
-//
-//    // Add the Firebase Crashlytics SDK.
-//    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
-//    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
 
 }
 

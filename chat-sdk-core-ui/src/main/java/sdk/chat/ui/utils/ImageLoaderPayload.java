@@ -4,6 +4,8 @@ public class ImageLoaderPayload {
 
     public int width = 0;
     public int height = 0;
+    public float ar = 1;
+
     public int placeholder = 0;
     public int error = 0;
     public boolean isAnimated = false;

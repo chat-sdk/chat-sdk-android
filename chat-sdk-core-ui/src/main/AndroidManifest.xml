@@ -4,12 +4,12 @@
 
     <!--For capturing photos in profile and chat UI-->
     <uses-feature android:name="android.hardware.camera" android:required="true" />
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.CAMERA" />
-
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
@@ -48,7 +48,7 @@
             android:windowSoftInputMode="stateVisible" />
 
         <activity android:name=".recycler.ModerationActivity"
-            android:windowSoftInputMode="stateVisible" />
+            android:windowSoftInputMode="stateAlwaysHidden" />
 
         <activity android:name=".activities.ProfileActivity"
             android:windowSoftInputMode="stateHidden"
@@ -62,6 +62,10 @@
 
         <activity android:name=".activities.ForwardMessageActivity"
             android:windowSoftInputMode="stateHidden" />
+
+        <activity android:name=".activities.ChatActivityWrapper"
+            android:screenOrientation="portrait">
+        </activity>
 
         <!--Crop image-->
         <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"

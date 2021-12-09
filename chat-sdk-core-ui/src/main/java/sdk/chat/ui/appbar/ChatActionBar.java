@@ -122,7 +122,7 @@ public class ChatActionBar extends AppBarLayout {
                 }
             }).subscribeOn(RX.computation()).observeOn(RX.main()).subscribe(output -> {
                 subtitleTextView.setText(output);
-            }));
+            }, ChatSDK.events()));
         } else {
             subtitleTextView.setText(text);
         }

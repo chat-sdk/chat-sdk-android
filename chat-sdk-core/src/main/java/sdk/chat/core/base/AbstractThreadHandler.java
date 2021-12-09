@@ -27,6 +27,7 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.types.ReadStatus;
+import sdk.chat.core.utils.GoogleUtils;
 import sdk.guru.common.RX;
 
 
@@ -273,12 +274,13 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable deleteThread(Thread thread) {
         return Completable.create(emitter -> {
-            for (Message m: thread.getMessages()) {
-                thread.removeMessage(m);
-                m.cascadeDelete();
-            }
-            thread.setLoadMessagesFrom(new Date());
-            thread.setDeleted(true);
+            thread.removeMessagesAndMarkDeleted();
+//            for (Message m: thread.getMessages()) {
+//                thread.removeMessage(m);
+//                m.cascadeDelete();
+//            }
+//            thread.setLoadMessagesFrom(new Date());
+//            thread.setDeleted(true);
             emitter.onComplete();
 
 //            return thread.deleteThread().doOnComplete(() -> {
@@ -321,6 +323,16 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
                 newMessage.setValueForKey(message.getSender().getEntityID(), Keys.From);
             }
             newMessage.setValueForKey(reply, Keys.Reply);
+
+            if (message.typeIs(MessageType.Location)) {
+
+                double longitude = message.doubleForKey(Keys.MessageLongitude);
+                double latitude = message.doubleForKey(Keys.MessageLatitude);
+                int size = ChatSDK.config().replyThumbnailSize;
+
+                newMessage.setValueForKey(GoogleUtils.getMapImageURL(latitude, longitude, size, size), Keys.ImageUrl);
+            }
+
             return new MessageSendRig(newMessage, thread).run();
 
         }).subscribeOn(RX.db());

@@ -7,7 +7,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
+//import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import butterknife.BindView;
 import sdk.chat.core.session.ChatSDK;
@@ -51,11 +51,11 @@ public class WelcomeActivity extends AbstractDemoActivity {
                     ChatSDK.ui().startSplashScreenActivity(this);
                 } else {
                     showToast("Something went wrong! Please contact team@sdk.chat");
-                    FirebaseCrashlytics.getInstance().recordException(new Exception("Something went wrong! Chat SDK init failed"));
+//                    FirebaseCrashlytics.getInstance().recordException(new Exception("Something went wrong! Chat SDK init failed"));
                 }
             } catch (Exception e) {
                 showToast(e.getLocalizedMessage());
-                FirebaseCrashlytics.getInstance().recordException(e);
+//                FirebaseCrashlytics.getInstance().recordException(e);
                 e.printStackTrace();
                 launch.setEnabled(true);
             }

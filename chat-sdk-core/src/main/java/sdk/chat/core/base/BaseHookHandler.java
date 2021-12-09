@@ -44,7 +44,7 @@ public class BaseHookHandler implements HookHandler {
     }
 
     @Override
-    public Completable executeHook(String name, HashMap<String, Object> data) {
+    public Completable executeHook(String name, Map<String, Object> data) {
         ArrayList<Hook> existingHooks = hooks.get(name);
         ArrayList<Completable> completables = new ArrayList<>();
         if(existingHooks != null) {

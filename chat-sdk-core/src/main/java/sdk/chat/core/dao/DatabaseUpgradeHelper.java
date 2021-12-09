@@ -56,6 +56,7 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         migrations.add(new MigrationV17());
         migrations.add(new MigrationV18());
         migrations.add(new MigrationV19());
+        migrations.add(new MigrationV20());
 
         // Sorting just to be safe, in case other people add migrations in the wrong order.
         Comparator<Migration> migrationComparator = (m1, m2) -> m1.getVersion().compareTo(m2.getVersion());
@@ -276,7 +277,7 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
 
         @Override
         public void runMigration(Database db) {
-            db.execSQL("ALTER TABLE " + ThreadDao.TABLENAME + " ADD COLUMN " + ThreadDao.Properties.UserAccountID.columnName + " TEXT");
+            db.execSQL("ALTER TABLE " + ThreadDao.TABLENAME + " ADD COLUMN " + "USER_ACCOUNT_ID" + " TEXT");
         }
     }
 
@@ -304,6 +305,21 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         @Override
         public void runMigration(Database db) {
             db.execSQL("ALTER TABLE " + MessageDao.TABLENAME + " ADD COLUMN " + MessageDao.Properties.EncryptedText.columnName + " TEXT");
+        }
+    }
+
+    private static class MigrationV20 implements Migration {
+        @Override
+        public Integer getVersion() {
+            return 20;
+        }
+
+        @Override
+        public void runMigration(Database db) {
+            db.execSQL("ALTER TABLE " + ThreadDao.TABLENAME + " RENAME TO old_table");
+            ThreadDao.createTable(db, true);
+            db.execSQL("INSERT INTO " + ThreadDao.TABLENAME + " SELECT * FROM old_table");
+            db.execSQL("DROP TABLE old_table");
         }
     }
 

@@ -35,6 +35,7 @@ import sdk.chat.core.types.MessageType;
 import sdk.chat.core.ui.ProfileFragmentProvider;
 import sdk.chat.demo.examples.activities.AProfileFragment;
 import sdk.chat.firebase.adapter.FirebasePaths;
+import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.adapter.wrappers.UserWrapper;
 import sdk.chat.ui.activities.LoginActivity;
 import sdk.guru.common.RX;
@@ -273,7 +274,7 @@ public class ApiExamples {
                     List<User> users = new ArrayList<>();
                     if (dataSnapshot.exists()) {
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
-                            UserWrapper uw = new UserWrapper(child);
+                            UserWrapper uw = FirebaseModule.config().provider.userWrapper(child);
                             users.add(uw.getModel());
                         }
                     }

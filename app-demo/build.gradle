@@ -10,7 +10,7 @@ android {
         applicationId "sdk.chat.android.live"
 
         multiDexEnabled = true
-        minSdkVersion Integer.parseInt(project.MIN_SDK)
+        minSdkVersion Integer.parseInt(project.DEMO_MIN_SDK)
         targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
 
         versionName CHAT_SDK_VERSION
@@ -45,12 +45,13 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled project.hasProperty('minifyRelease')
+            minifyEnabled project.hasProperty('minifyCore')
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
             minifyEnabled project.hasProperty('minifyDebug')
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            ext.alwaysUpdateBuildId = false
         }
     }
 
@@ -66,11 +67,7 @@ dependencies {
     implementation project(':chat-sdk-demo')
 //    api project(':chat-sdk-app-firebase')
 
-//    // Recommended: Add the Firebase SDK for Google Analytics.
-//    implementation "com.google.firebase:firebase-analytics:$firebaseAnalyticsVersion"
-//
-//    // Add the Firebase Crashlytics SDK.
-    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
-    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
+//    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
+//    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
 
 }

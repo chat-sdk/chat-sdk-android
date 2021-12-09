@@ -65,6 +65,21 @@ public class PopupImageView extends RelativeLayout {
         progressBar.setVisibility(View.VISIBLE);
     }
 
+    public void setBitmap(Activity activity, Bitmap bitmap) {
+        photoView.setImageBitmap(bitmap);
+        progressBar.setVisibility(View.INVISIBLE);
+        fab.setVisibility(View.VISIBLE);
+        fab.setOnClickListener(v1 -> PermissionRequestHandler.requestWriteExternalStorage(activity).subscribe(() -> {
+            if (bitmap != null) {
+                String bitmapURL = MediaStore.Images.Media.insertImage(activity.getContentResolver(), bitmap, "", "");
+                if (bitmapURL != null) {
+                    ToastHelper.show(activity, activity.getString(R.string.image_saved));
+                } else {
+                    ToastHelper.show(activity, activity.getString(R.string.image_save_failed));
+                }
+            }
+        }, throwable -> ToastHelper.show(activity, throwable.getLocalizedMessage())));    }
+
     public void setUrl(Activity activity, String url, Runnable dismiss) {
 
         Single<Bitmap> onLoad = Single.create((SingleOnSubscribe<Bitmap>) emitter -> {
@@ -72,19 +87,7 @@ public class PopupImageView extends RelativeLayout {
         }).subscribeOn(RX.io()).observeOn(RX.main());
 
         dm.add(onLoad.subscribe(bitmap -> {
-            photoView.setImageBitmap(bitmap);
-            progressBar.setVisibility(View.INVISIBLE);
-            fab.setVisibility(View.VISIBLE);
-            fab.setOnClickListener(v1 -> PermissionRequestHandler.requestWriteExternalStorage(activity).subscribe(() -> {
-                if (bitmap != null) {
-                    String bitmapURL = MediaStore.Images.Media.insertImage(activity.getContentResolver(), bitmap, "", "");
-                    if (bitmapURL != null) {
-                        ToastHelper.show(activity, activity.getString(R.string.image_saved));
-                    } else {
-                        ToastHelper.show(activity, activity.getString(R.string.image_save_failed));
-                    }
-                }
-            }, throwable -> ToastHelper.show(activity, throwable.getLocalizedMessage())));
+            this.setBitmap(activity, bitmap);
         }, throwable -> {
             ToastHelper.show(activity, throwable.getLocalizedMessage());
             dismiss.run();

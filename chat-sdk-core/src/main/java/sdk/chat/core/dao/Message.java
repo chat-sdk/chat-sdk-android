@@ -197,7 +197,7 @@ public class Message extends AbstractEntity {
     protected void setMetaValue(String key, Object value) {
         MessageMetaValue metaValue = (MessageMetaValue) metaValue(key);
         if (metaValue == null) {
-            metaValue = ChatSDK.db().createEntity(MessageMetaValue.class);
+            metaValue = ChatSDK.db().create(MessageMetaValue.class);
             metaValue.setMessageId(this.getId());
             getMetaValues().add(metaValue);
         }
@@ -220,15 +220,16 @@ public class Message extends AbstractEntity {
         }
     }
 
-    public String stringForKey (String key) {
-        Object value = valueForKey(key);
+    public String stringForKey(String key) {
+        MetaValue<String> valueObject = metaValue(key);
+        if (valueObject == null) {
+            return "";
+        }
+        String value = MetaValueHelper.toString(valueObject.getValue());
         if (value == null)  {
             return "";
         }
-        if (value instanceof String) {
-            return (String) value;
-        }
-        return value.toString();
+        return value;
     }
 
     public Integer integerForKey (String key) {
@@ -270,7 +271,7 @@ public class Message extends AbstractEntity {
             if(link == null) {
                 Logger.debug("CREATE LINK - uid: " + user.getId() + " mid: " + this.getId());
 
-                link = ChatSDK.db().createEntity(ReadReceiptUserLink.class);
+                link = ChatSDK.db().create(ReadReceiptUserLink.class);
                 link.setMessageId(this.getId());
                 link.setUser(user);
                 link.setUserId(user.getId());
@@ -727,5 +728,6 @@ public class Message extends AbstractEntity {
     public void setEncryptedText(String encryptedText) {
         this.encryptedText = encryptedText;
     }
+
 
 }
