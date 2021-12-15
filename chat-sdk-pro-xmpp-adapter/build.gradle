@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
-    id 'com.jfrog.artifactory'
+    id 'com.jfrog.artifactory' version "$jfrogVersion"
+
     id 'maven-publish'
     id 'com.jakewharton.butterknife'
     id 'kotlin-android'
@@ -65,14 +66,8 @@ dependencies {
     api "org.igniterealtime.smack:smack-extensions:$smackVersion"
     api "org.igniterealtime.smack:smack-experimental:$smackVersion"
     api "org.igniterealtime.smack:smack-sasl-provided:$smackVersion"
-    api "org.igniterealtime.smack:smack-omemo:$smackVersion"
-    implementation "org.igniterealtime.smack:smack-omemo-signal:$smackVersion"
 
-//    implementation("org.igniterealtime.smack:smack-omemo-signal:$smackVersion") {
-//        exclude group: "com.google.protobuf", module: "protobuf-java"
-//    }
-
-    implementation "com.miguelcatalan:materialsearchview:$materialSearchVersion"
+//    implementation "com.miguelcatalan:materialsearchview:$materialSearchVersion"
 
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"

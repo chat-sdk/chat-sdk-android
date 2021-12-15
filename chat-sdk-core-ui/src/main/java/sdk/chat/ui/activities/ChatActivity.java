@@ -24,7 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
-import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.stfalcon.chatkit.messages.MessageInput;
 
 import org.pmw.tinylog.Logger;
@@ -36,6 +35,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import io.reactivex.Completable;
+import materialsearchview.MaterialSearchView;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;

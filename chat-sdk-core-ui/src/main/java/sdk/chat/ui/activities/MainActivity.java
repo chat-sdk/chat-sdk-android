@@ -15,8 +15,7 @@ import android.view.MenuItem;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.miguelcatalan.materialsearchview.MaterialSearchView;
-
+import materialsearchview.MaterialSearchView;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.interfaces.ThreadType;

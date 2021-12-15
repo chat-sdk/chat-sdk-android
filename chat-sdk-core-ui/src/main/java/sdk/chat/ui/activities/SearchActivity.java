@@ -7,6 +7,8 @@
 
 package sdk.chat.ui.activities;
 
+import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -25,7 +27,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import org.pmw.tinylog.Logger;
 
@@ -36,6 +37,7 @@ import butterknife.BindView;
 import io.reactivex.Completable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import materialsearchview.MaterialSearchView;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
@@ -45,8 +47,6 @@ import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.chat.ui.icons.Icons;
 import sdk.guru.common.RX;
-
-import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL;
 
 /**
  * Created by braunster on 29/06/14.

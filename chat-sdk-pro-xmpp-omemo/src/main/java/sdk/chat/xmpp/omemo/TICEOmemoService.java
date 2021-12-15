@@ -1,4 +1,4 @@
-package app.xmpp.adapter.omemo;
+package sdk.chat.xmpp.omemo;
 
 import org.jivesoftware.smackx.omemo.OmemoManager;
 import org.jivesoftware.smackx.omemo.OmemoRatchet;

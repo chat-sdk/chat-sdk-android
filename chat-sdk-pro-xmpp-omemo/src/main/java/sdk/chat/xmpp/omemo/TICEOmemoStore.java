@@ -1,4 +1,4 @@
-package app.xmpp.adapter.omemo;
+package sdk.chat.xmpp.omemo;
 
 import org.jivesoftware.smackx.omemo.OmemoStore;
 import org.jivesoftware.smackx.omemo.exceptions.CorruptedOmemoKeyException;

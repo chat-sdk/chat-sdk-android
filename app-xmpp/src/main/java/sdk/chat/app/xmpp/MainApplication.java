@@ -11,7 +11,7 @@ import sdk.chat.core.dao.Message;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.encryption.xmpp.XMPPEncryptionModule;
+import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.location.LocationMessageModule;
@@ -49,7 +49,7 @@ public class MainApplication extends Application {
 
                     // Add modules to handle file uploads, push notifications
                     .addModule(FirebaseUploadModule.shared())
-//                    .addModule(FirebasePushModule.shared())
+                    .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
 //                            .setXMPP("we-connect-dev.com", "we-connect-dev.com")
@@ -87,7 +87,7 @@ public class MainApplication extends Application {
                             .setDrawerEnabled(false)
                             .build())
 
-                    .addModule(XMPPEncryptionModule.shared())
+//                    .addModule(XMPPEncryptionModule.shared())
 
                     .build().activateWithEmail(this, "ben@sdk.chat");
 

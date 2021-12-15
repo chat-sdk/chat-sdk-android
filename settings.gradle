@@ -42,4 +42,5 @@ include 'app',
         'firestream-realtime',
         'app-demo',
         'app-firestream',
-        'app-live'
+        'app-live',
+        'chat-sdk-pro-xmpp-omemo'

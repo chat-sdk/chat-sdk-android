@@ -12,11 +12,11 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
-import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import java.util.List;
 
 import butterknife.BindView;
+import materialsearchview.MaterialSearchView;
 import sdk.chat.core.Tab;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.R;
