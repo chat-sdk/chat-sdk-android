@@ -12,15 +12,16 @@ import org.pmw.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import app.xmpp.adapter.XMPPManager;
+import app.xmpp.adapter.module.XMPPModule;
 import io.reactivex.Observable;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ConnectionType;
 import sdk.guru.common.RX;
-
-
 
 /**
  * Created by benjaminsmiley-andrews on 04/07/2017.
@@ -44,10 +45,16 @@ public class XMPPRosterListener implements RosterListener {
 
             // Only add as a contact if this is actually a contact...
             RosterEntry entry = manager.get().roster().getEntry(bare);
-            if (entry.getType() == RosterPacket.ItemType.to || entry.getType() == RosterPacket.ItemType.both) {
+
+            Map<String, Object> data = new HashMap<>();
+            if (entry != null) {
+                data.put(XMPPManager.xmppRosterEntry, entry);
+            }
+            ChatSDK.hook().executeHook(XMPPManager.xmppRosterItemAdded, data).subscribe();
+
+            if (XMPPModule.shared().config.reciprocalPresenceRequests && (entry.getType() == RosterPacket.ItemType.to || entry.getType() == RosterPacket.ItemType.both)) {
                 manager.get().userManager.addContact(bare).subscribe(ChatSDK.events());
-            } else {
-                try {
+            } else {                try {
                     manager.get().roster().preApprove(bare);
                 } catch (Exception e) {
 //                    e.printStackTrace();
@@ -60,6 +67,13 @@ public class XMPPRosterListener implements RosterListener {
     @Override
     public void entriesUpdated(Collection<Jid> addresses) {
         for(Jid jid : addresses) {
+            RosterEntry entry = manager.get().roster().getEntry(jid.asBareJid());
+
+            Map<String, Object> data = new HashMap<>();
+            if (entry != null) {
+                data.put(XMPPManager.xmppRosterEntry, entry);
+            }
+            ChatSDK.hook().executeHook(XMPPManager.xmppRosterItemUpdated, data).subscribe();
             Logger.debug("Updated in roster " + jid.toString());
         }
     }
@@ -69,7 +83,13 @@ public class XMPPRosterListener implements RosterListener {
         for(Jid jid : addresses) {
 
             RosterEntry entry = manager.get().roster().getEntry(jid.asBareJid());
-            if (entry.getType() == RosterPacket.ItemType.to || entry.getType() == RosterPacket.ItemType.both) {
+            Map<String, Object> data = new HashMap<>();
+            if (entry != null) {
+                data.put(XMPPManager.xmppRosterEntry, entry);
+            }
+            ChatSDK.hook().executeHook(XMPPManager.xmppRosterItemRemoved, data).subscribe();
+
+            if (entry != null && (entry.getType() == RosterPacket.ItemType.to || entry.getType() == RosterPacket.ItemType.both)) {
                 User user = ChatSDK.db().fetchUserWithEntityID(jid.asBareJid().toString());
                 ChatSDK.contact().deleteContact(user, ConnectionType.Contact).subscribe(ChatSDK.events());
                 Logger.debug("Deleted from roster " + jid);

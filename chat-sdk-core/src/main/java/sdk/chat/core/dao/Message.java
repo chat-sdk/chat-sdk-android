@@ -220,18 +220,19 @@ public class Message extends AbstractEntity {
         }
     }
 
-    public String stringForKey (String key) {
-        Object value = valueForKey(key);
+    public String stringForKey(String key) {
+        MetaValue<String> valueObject = metaValue(key);
+        if (valueObject == null) {
+            return "";
+        }
+        String value = MetaValueHelper.toString(valueObject.getValue());
         if (value == null)  {
             return "";
         }
-        if (value instanceof String) {
-            return (String) value;
-        }
-        return value.toString();
+        return value;
     }
 
-    public Integer integerForKey (String key) {
+    public Integer integerForKey(String key) {
         Object value = valueForKey(key);
         if (value instanceof Integer)  {
             return (Integer) value;
@@ -239,7 +240,7 @@ public class Message extends AbstractEntity {
         return 0;
     }
 
-    public Double doubleForKey (String key) {
+    public Double doubleForKey(String key) {
         Object value = valueForKey(key);
         if (value instanceof Double) {
             return (Double) value;

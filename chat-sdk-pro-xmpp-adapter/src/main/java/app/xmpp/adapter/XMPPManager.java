@@ -87,6 +87,10 @@ import sdk.guru.common.RX;
 public class XMPPManager implements AppBackgroundMonitor.Listener {
 
     public static String xmppDidSetupStream = "xmppDidSetupStream";
+    public static String xmppRosterItemAdded = "xmppRosterItemAdded";
+    public static String xmppRosterItemRemoved = "xmppRosterItemRemoved";
+    public static String xmppRosterItemUpdated = "xmppRosterItemUpdated";
+    public static String xmppRosterEntry = "xmppRosterEntry";
 
     protected ConnectionManager connectionManager = new ConnectionManager(this);
 
@@ -148,7 +152,7 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         mamManager = new XMPPMamManager(this);
 
         // We accept all roster invitations
-        Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.accept_all);
+        Roster.setDefaultSubscriptionMode(XMPPModule.shared().config.subscriptionMode);
 
         // Enable stream management
         // TODO: Check this

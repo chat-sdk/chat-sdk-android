@@ -1,6 +1,7 @@
 package app.xmpp.adapter.module;
 
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 
 import java.util.ArrayList;
@@ -33,6 +34,9 @@ public class XMPPConfig<T> extends BaseConfig<T> {
     public int pingInterval = 15;
     public boolean streamManagementEnabled = true;
     public ConnectionConfigProvider connectionConfigProvider;
+
+    public boolean reciprocalPresenceRequests = true;
+    public Roster.SubscriptionMode subscriptionMode = Roster.SubscriptionMode.accept_all;
 
     public boolean saveNameToVCardNickname = true;
 
@@ -260,4 +264,13 @@ public class XMPPConfig<T> extends BaseConfig<T> {
         return this;
     }
 
+    public XMPPConfig<T> setSubscriptionMode(Roster.SubscriptionMode mode) {
+        this.subscriptionMode = mode;
+        return this;
+    }
+
+    public XMPPConfig<T> setReciprocalPresenceRequest(boolean value) {
+        this.reciprocalPresenceRequests = value;
+        return this;
+    }
 }

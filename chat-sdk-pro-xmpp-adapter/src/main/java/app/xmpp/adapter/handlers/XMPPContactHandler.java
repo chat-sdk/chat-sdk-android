@@ -21,7 +21,7 @@ public class XMPPContactHandler extends BaseContactHandler {
                 return XMPPManager.shared().userManager.addUserToRoster(user).concatWith(XMPPContactHandler.super.addContact(user, type));
             }
             else {
-                return Completable.complete();
+                return XMPPContactHandler.super.addContact(user, type);
             }
         }).subscribeOn(RX.io());
     }
@@ -33,7 +33,7 @@ public class XMPPContactHandler extends BaseContactHandler {
                 return XMPPManager.shared().userManager.removeUserFromRoster(user).concatWith(XMPPContactHandler.super.deleteContact(user, type));
             }
             else {
-                return Completable.complete();
+                return XMPPContactHandler.super.deleteContact(user, type);
             }
         }).subscribeOn(RX.io());
     }

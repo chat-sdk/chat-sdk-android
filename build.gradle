@@ -14,7 +14,6 @@ buildscript {
         classpath 'com.jakewharton:butterknife-gradle-plugin:10.2.1'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.6.1'
         classpath 'com.google.firebase:perf-plugin:1.4.0'
-//        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.15.2"
         classpath "org.greenrobot:greendao-gradle-plugin:3.3.0"
     }
 }

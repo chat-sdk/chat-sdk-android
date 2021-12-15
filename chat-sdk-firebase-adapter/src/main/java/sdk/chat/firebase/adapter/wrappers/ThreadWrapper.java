@@ -542,7 +542,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
      * Updating thread details from given map
      **/
     @SuppressWarnings("all") // To remove setType warning.
-    void deserialize(DataSnapshot snapshot) {
+    protected void deserialize(DataSnapshot snapshot) {
 
         if (snapshot.hasChild(Keys.CreationDate)) {
             Long date = snapshot.child(Keys.CreationDate).getValue(Long.class);

@@ -2,6 +2,7 @@ package sdk.chat.core.base;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Completable;
@@ -14,11 +15,11 @@ import sdk.chat.core.hook.Hook;
 
 public class BaseHookHandler implements HookHandler {
 
-    protected Map<String, ArrayList<Hook>> hooks = new HashMap<>();
+    protected Map<String, List<Hook>> hooks = new HashMap<>();
 
     @Override
     public void addHook(Hook hook, String name) {
-        ArrayList<Hook> existingHooks = hooks.get(name);
+        List<Hook> existingHooks = hooks.get(name);
         if(existingHooks == null) {
             existingHooks = new ArrayList<>();
         }
@@ -37,16 +38,16 @@ public class BaseHookHandler implements HookHandler {
 
     @Override
     public void removeHook(Hook hook, String name) {
-        ArrayList<Hook> existingHooks = hooks.get(name);
+        List<Hook> existingHooks = hooks.get(name);
         if(existingHooks != null) {
             existingHooks.remove(hook);
         }
     }
 
     @Override
-    public Completable executeHook(String name, HashMap<String, Object> data) {
-        ArrayList<Hook> existingHooks = hooks.get(name);
-        ArrayList<Completable> completables = new ArrayList<>();
+    public Completable executeHook(String name, Map<String, Object> data) {
+        List<Hook> existingHooks = hooks.get(name);
+        List<Completable> completables = new ArrayList<>();
         if(existingHooks != null) {
             for(Hook hook : existingHooks) {
                 completables.add(hook.executeAsync(data).doOnComplete(() -> {
