@@ -208,7 +208,9 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
         }
 
         refreshFab.setOnClickListener { v: View? ->
-            ChatSDK.thread().refreshRoles(thread).subscribe()
+            dm.add(ChatSDK.thread().refreshRoles(thread).observeOn(RX.main()).subscribe(Action {
+                reloadData()
+            }))
         }
 
         val profileHeader = UIModule.config().profileHeaderImage

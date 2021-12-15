@@ -148,6 +148,17 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
     public Single<List<Affiliate>> updateAffiliates() {
         return manager.get().requestAffiliatesFromServer(thread).doOnSuccess(affiliates -> {
             updateMembershipMap(affiliates);
+
+            for(User user: thread.getUsers()) {
+                MUCAffiliation affiliation = affiliationMap.get(JidCreate.bareFrom(user.getEntityID()));
+                boolean hasLeft = affiliation == null || affiliation == MUCAffiliation.outcast || affiliation == MUCAffiliation.none;
+
+                UserThreadLink link = thread.getUserThreadLink(user.getId());
+                if (link != null) {
+                    link.setHasLeft(hasLeft);
+                }
+            }
+
 //            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread, ChatSDK.currentUser()));
         }).subscribeOn(RX.io());
     }
@@ -190,6 +201,10 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
 
     public void updateMembershipMap(List<Affiliate> affiliates) {
         Iterator<Affiliate> iterator = affiliates.iterator();
+
+        affiliationMap.clear();
+        roleMap.clear();
+
         while(iterator.hasNext()) {
             Affiliate a = iterator.next();
             updateMembershipMap(a.getJid(), a.getNick(), a.getAffiliation(), a.getRole());
