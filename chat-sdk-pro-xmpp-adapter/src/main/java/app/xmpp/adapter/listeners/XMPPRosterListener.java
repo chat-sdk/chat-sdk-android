@@ -50,6 +50,9 @@ public class XMPPRosterListener implements RosterListener {
             if (entry != null) {
                 data.put(XMPPManager.xmppRosterEntry, entry);
             }
+            data.put(XMPPManager.xmppRosterJID, jid);
+            data.put(XMPPManager.xmppRosterEventType, XMPPManager.xmppRosterItemAdded);
+
             ChatSDK.hook().executeHook(XMPPManager.xmppRosterItemAdded, data).subscribe();
 
             if (XMPPModule.shared().config.reciprocalPresenceRequests && (entry.getType() == RosterPacket.ItemType.to || entry.getType() == RosterPacket.ItemType.both)) {
@@ -73,6 +76,9 @@ public class XMPPRosterListener implements RosterListener {
             if (entry != null) {
                 data.put(XMPPManager.xmppRosterEntry, entry);
             }
+            data.put(XMPPManager.xmppRosterJID, jid);
+            data.put(XMPPManager.xmppRosterEventType, XMPPManager.xmppRosterItemUpdated);
+
             ChatSDK.hook().executeHook(XMPPManager.xmppRosterItemUpdated, data).subscribe();
             Logger.debug("Updated in roster " + jid.toString());
         }
@@ -87,6 +93,9 @@ public class XMPPRosterListener implements RosterListener {
             if (entry != null) {
                 data.put(XMPPManager.xmppRosterEntry, entry);
             }
+            data.put(XMPPManager.xmppRosterJID, jid);
+            data.put(XMPPManager.xmppRosterEventType, XMPPManager.xmppRosterItemRemoved);
+
             ChatSDK.hook().executeHook(XMPPManager.xmppRosterItemRemoved, data).subscribe();
 
             if (entry != null && (entry.getType() == RosterPacket.ItemType.to || entry.getType() == RosterPacket.ItemType.both)) {

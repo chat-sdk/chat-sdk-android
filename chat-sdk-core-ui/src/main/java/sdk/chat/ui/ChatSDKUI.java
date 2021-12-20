@@ -55,6 +55,7 @@ public class ChatSDKUI {
 
     public static void setChatFragmentProvider(ChatFragmentProvider provider) {
         shared().chatFragmentProvider = provider;
+
     }
 
     public static AbstractChatFragment getChatFragment(Thread thread, ChatFragment.Delegate delegate) {

@@ -90,7 +90,10 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
     public static String xmppRosterItemAdded = "xmppRosterItemAdded";
     public static String xmppRosterItemRemoved = "xmppRosterItemRemoved";
     public static String xmppRosterItemUpdated = "xmppRosterItemUpdated";
+
     public static String xmppRosterEntry = "xmppRosterEntry";
+    public static String xmppRosterJID= "xmppRosterJID";
+    public static String xmppRosterEventType= "xmppRosterEventType";
 
     protected ConnectionManager connectionManager = new ConnectionManager(this);
 

@@ -65,6 +65,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         final DatabaseReference threadsRef = FirebasePaths.userThreadsRef(entityID);
 
         new RXRealtime().childOn(threadsRef).flatMapCompletable(change -> {
+
             final ThreadWrapper thread = FirebaseModule.config().provider.threadWrapper(change.getSnapshot().getKey());
             if (change.getType() == EventType.Added && !thread.getModel().typeIs(ThreadType.Public)) {
 

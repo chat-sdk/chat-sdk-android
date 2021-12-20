@@ -2,9 +2,11 @@ package sdk.chat.app.xmpp;
 
 import android.app.Application;
 
+import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.util.TLSUtils;
 import org.pmw.tinylog.Logger;
 
+import app.xmpp.adapter.XMPPManager;
 import app.xmpp.adapter.module.XMPPModule;
 import io.reactivex.disposables.Disposable;
 import sdk.chat.core.dao.Message;
@@ -129,6 +131,14 @@ public class MainApplication extends Application {
                 Logger.info(message);
             }
         }), HookEvent.MessageReceived);
+
+        ChatSDK.hook().addHook(Hook.sync(data -> {
+            Object entryObject = data.get(XMPPManager.xmppRosterEntry);
+            if (entryObject instanceof RosterEntry) {
+                RosterEntry entry = (RosterEntry) entryObject;
+                Logger.debug(entry);
+            }
+        }), XMPPManager.xmppRosterItemUpdated, XMPPManager.xmppRosterItemAdded, XMPPManager.xmppRosterItemRemoved);
 
     }
 
