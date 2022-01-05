@@ -2,11 +2,15 @@ package sdk.chat.app.firestream.examples;
 
 import android.content.Context;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import firestream.chat.FirestreamConfig;
 import firestream.chat.chat.User;
 import firestream.chat.firestore.FirestoreService;
 import firestream.chat.interfaces.IChat;
 import firestream.chat.interfaces.IFireStream;
+import firestream.chat.message.Body;
 import firestream.chat.namespace.Fire;
 import firestream.chat.realtime.RealtimeService;
 import firestream.chat.types.RoleType;
@@ -38,6 +42,7 @@ public class API {
 
         // or
         Fire.stream().initialize(context, config, new FirestoreService());
+
 
         // Send a message from text
         Disposable d1 = Fire.stream().sendMessageWithText("user-id", "Hello", messageId -> {

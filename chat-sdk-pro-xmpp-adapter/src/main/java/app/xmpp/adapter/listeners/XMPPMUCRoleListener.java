@@ -151,14 +151,15 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
 
             for(User user: thread.getUsers()) {
                 MUCAffiliation affiliation = affiliationMap.get(JidCreate.bareFrom(user.getEntityID()));
-                boolean hasLeft = affiliation == null || affiliation == MUCAffiliation.outcast || affiliation == MUCAffiliation.none;
+                if (affiliation == null) {
+                    affiliation = MUCAffiliation.outcast;
+                }
 
                 UserThreadLink link = thread.getUserThreadLink(user.getId());
                 if (link != null) {
-                    link.setHasLeft(hasLeft);
+                    link.setAffiliation(affiliation.name());
                 }
             }
-
 //            ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleChanged(thread, ChatSDK.currentUser()));
         }).subscribeOn(RX.io());
     }

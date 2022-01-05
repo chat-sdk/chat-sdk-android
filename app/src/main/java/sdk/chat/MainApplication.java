@@ -51,12 +51,14 @@ public class MainApplication extends Application {
     }
 
     public void firebase() throws Exception {
-        String rootPath = "pre_3";
+        String rootPath = "pre_99";
 
         ChatSDK.builder()
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
                 .setAnonymousLoginEnabled(false)
                 .setReuseDeleted1to1Threads(false)
+
+
 
 //                .setDebugModeEnabled(true)
                 .setRemoteConfigEnabled(false)
@@ -86,22 +88,22 @@ public class MainApplication extends Application {
 
 
         // Add modules to handle file uploads, push notifications
-                .addModule(FirebaseUploadModule.shared())
-                .addModule(FirebasePushModule.shared())
+    .addModule(FirebaseUploadModule.shared())
+    .addModule(FirebasePushModule.shared())
 //                .addModule(FirebaseEncryptionModule.shared())
 //                .addModule(ProfilePicturesModule.shared())
 //
-                .addModule(ContactBookModule.shared())
+    .addModule(ContactBookModule.shared())
 
-                .addModule(FileMessageModule.shared())
-                .addModule(AudioMessageModule.shared())
-                .addModule(StickerMessageModule.shared())
-                .addModule(VideoMessageModule.shared())
-                .addModule(FirebaseBlockingModule.shared())
-                .addModule(FirebaseLastOnlineModule.shared())
-                .addModule(FirebaseNearbyUsersModule.builder().build())
-                .addModule(FirebaseReadReceiptsModule.shared())
-                .addModule(FirebaseTypingIndicatorModule.shared())
+    .addModule(FileMessageModule.shared())
+    .addModule(AudioMessageModule.shared())
+    .addModule(StickerMessageModule.shared())
+    .addModule(VideoMessageModule.shared())
+    .addModule(FirebaseBlockingModule.shared())
+    .addModule(FirebaseLastOnlineModule.shared())
+    .addModule(FirebaseNearbyUsersModule.builder().build())
+    .addModule(FirebaseReadReceiptsModule.shared())
+    .addModule(FirebaseTypingIndicatorModule.shared())
 
                 .addModule(ExtrasModule.builder(config -> {
 //                    if (Device.honor(this)) {

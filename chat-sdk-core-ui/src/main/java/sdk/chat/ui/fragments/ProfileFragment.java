@@ -141,6 +141,7 @@ public class ProfileFragment extends BaseFragment {
         super.onResume();
         avatarImageView.setEnabled(true);
         editFab.setEnabled(true);
+        updateInterface();
     }
 
     protected void block() {

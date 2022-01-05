@@ -106,11 +106,11 @@ public class UserWrapper {
 
         String profileURL = model.getAvatarURL();
 
-        if(StringChecker.isNullOrEmpty(profileURL)) {
+//        if(StringChecker.isNullOrEmpty(profileURL)) {
             if (authData.getPhotoUrl() != null) {
                 profileURL = authData.getPhotoUrl().toString();
             }
-        }
+//        }
         if (StringChecker.isNullOrEmpty(profileURL)) {
             profileURL = ChatSDK.config().defaultUserAvatarURL;
         }

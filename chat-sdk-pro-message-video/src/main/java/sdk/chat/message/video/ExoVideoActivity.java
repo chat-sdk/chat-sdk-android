@@ -8,19 +8,10 @@ import androidx.annotation.Nullable;
 
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.database.DatabaseProvider;
-import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.cache.Cache;
-import com.google.android.exoplayer2.upstream.cache.CacheEvictor;
-import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor;
-import com.google.android.exoplayer2.upstream.cache.SimpleCache;
-
-import java.io.File;
 
 import butterknife.BindView;
 import sdk.chat.core.dao.Keys;
-import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.activities.BaseActivity;
 
 public class ExoVideoActivity extends BaseActivity {
@@ -33,9 +24,9 @@ public class ExoVideoActivity extends BaseActivity {
     protected int currentWindow = 0;
     protected long playbackPosition = 0L;
 
-    protected Cache simpleCache;
-    protected DatabaseProvider databaseProvider;
-    protected CacheEvictor evictor;
+//    protected Cache simpleCache;
+//    protected DatabaseProvider databaseProvider;
+//    protected CacheEvictor evictor;
 
     @Override
     protected int getLayout() {
@@ -46,11 +37,11 @@ public class ExoVideoActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        databaseProvider = new ExoDatabaseProvider(this);
-        evictor = new LeastRecentlyUsedCacheEvictor(VideoMessageModule.shared().config.cacheSizeMB * 1024 * 1024);
-
-        File cache = ChatSDK.shared().fileManager().videoStorage();
-        simpleCache = new SimpleCache(cache, evictor, databaseProvider);
+//        databaseProvider = new ExoDatabaseProvider(this);
+//        evictor = new LeastRecentlyUsedCacheEvictor(VideoMessageModule.shared().config.cacheSizeMB * 1024 * 1024);
+//
+//        File cache = ChatSDK.shared().fileManager().videoStorage();
+//        simpleCache = new SimpleCache(cache, evictor, databaseProvider);
 
 
         if (getVideoPath() == null) {

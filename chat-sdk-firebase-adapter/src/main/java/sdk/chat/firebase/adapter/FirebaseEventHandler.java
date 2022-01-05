@@ -66,6 +66,28 @@ public class FirebaseEventHandler extends AbstractEventHandler {
 
         new RXRealtime().childOn(threadsRef).flatMapCompletable(change -> {
 
+//            // WAKA - Get the date
+//            if (change.getType() == EventType.Added) {
+//                String key = change.getSnapshot().getKey();
+//
+//                // Add the last message added listener
+//                DatabaseReference ref = FirebasePaths.threadRef(key).child("updated").child("messages");
+//                dm.add(new RXRealtime().on(ref).subscribe(documentChange -> {
+//                    DataSnapshot snapshot = documentChange.getSnapshot();
+//                    Long value = snapshot.getValue(Long.class);
+//                    if (value != null) {
+//                        Date date = new Date(value);
+//                        long now = new Date().getTime();
+//                        long age = now - value;
+//                        if(age < TimeUnit.MINUTES.toMillis(ChatSDK.config().privateChatRoomLifetimeMinutes)) {
+//                            // Do thread on code...
+//
+//                        }
+//                        Logger.warn("Date: "+date.toString()+" Age: " + age);
+//                    }
+//                }));
+//            }
+
             final ThreadWrapper thread = FirebaseModule.config().provider.threadWrapper(change.getSnapshot().getKey());
             if (change.getType() == EventType.Added && !thread.getModel().typeIs(ThreadType.Public)) {
 
