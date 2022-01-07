@@ -62,7 +62,7 @@ dependencies {
 
 //    implementation "androidmads.library.qrgenearator:QRGenearator:$qrGenerator"
 
-    implementation "com.github.androidmads:QRGenerator:$qrGenerator"
+    implementation "com.github.chat-sdk:QRGenerator:$qrGenerator"
 
     implementation "com.github.chat-sdk:barcodescanner:$zxing"
 
