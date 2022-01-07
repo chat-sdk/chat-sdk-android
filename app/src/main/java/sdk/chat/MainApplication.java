@@ -101,7 +101,7 @@ public class MainApplication extends Application {
     .addModule(VideoMessageModule.shared())
     .addModule(FirebaseBlockingModule.shared())
     .addModule(FirebaseLastOnlineModule.shared())
-    .addModule(FirebaseNearbyUsersModule.builder().build())
+//    .addModule(FirebaseNearbyUsersModule.builder().build())
     .addModule(FirebaseReadReceiptsModule.shared())
     .addModule(FirebaseTypingIndicatorModule.shared())
 

@@ -196,6 +196,9 @@ public class User extends AbstractEntity implements UserListItem {
 //        if (StringChecker.isNullOrEmpty(url)) {
 //            return ChatSDK.ui().getAvatarGenerator().getAvatarURL(this);
 //        }
+        if (url == "") {
+            return null;
+        }
         return url;
     }
 

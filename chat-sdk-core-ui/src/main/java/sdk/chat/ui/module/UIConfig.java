@@ -43,7 +43,7 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean requestPermissionsOnStartup = true;
     public boolean showNamesInGroupChatView = true;
     public boolean showAvatarInChatView = true;
-    public String messageTimeFormat = null;
+    public String messageTimeFormat = "dd/MM HH:mm";
 
     public boolean messageForwardingEnabled = true;
     public boolean messageReplyEnabled = true;

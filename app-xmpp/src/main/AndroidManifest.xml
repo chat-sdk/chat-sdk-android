@@ -15,7 +15,7 @@
 
         <activity
             android:name="sdk.chat.ui.activities.SplashScreenActivity"
-            android:exported="false"
+            android:exported="true"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

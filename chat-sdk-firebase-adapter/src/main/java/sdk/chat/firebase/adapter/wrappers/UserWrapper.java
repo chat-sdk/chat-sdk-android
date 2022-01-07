@@ -23,8 +23,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
-import sdk.chat.core.avatar.HashAvatarGenerator;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.defines.Availability;
@@ -34,17 +36,14 @@ import sdk.chat.core.utils.HashMapHelper;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.firebase.adapter.FirebaseCoreHandler;
 import sdk.chat.firebase.adapter.FirebaseEntity;
-import sdk.guru.common.Optional;
-import sdk.guru.realtime.RealtimeEventListener;
 import sdk.chat.firebase.adapter.FirebasePaths;
-import sdk.guru.realtime.RealtimeReferenceManager;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.adapter.utils.FirebaseRX;
 import sdk.chat.firebase.adapter.utils.Generic;
-import io.reactivex.Completable;
-import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
+import sdk.guru.common.Optional;
 import sdk.guru.common.RX;
+import sdk.guru.realtime.RealtimeEventListener;
+import sdk.guru.realtime.RealtimeReferenceManager;
 
 
 
@@ -130,7 +129,7 @@ public class UserWrapper {
         // Test to see if the avatar is valid
         ChatSDK.events().disposeOnLogout(ImageUtils.bitmapForURL(profileURL).subscribe((bitmap, throwable) -> {
             if (throwable != null) {
-                model.setAvatarURL(new HashAvatarGenerator().getAvatarURL(model));
+                model.setAvatarURL("");
 //                push().subscribe(ChatSDK.events());
             }
         }));
