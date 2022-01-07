@@ -14,7 +14,9 @@
         android:hardwareAccelerated="true"
         tools:replace="allowBackup"
         >
-        <activity android:name="sdk.chat.demo.activities.WelcomeActivity">
+        <activity
+            android:name="sdk.chat.demo.activities.WelcomeActivity"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -25,7 +27,7 @@
             android:name="sdk.chat.demo.DemoBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <category android:name="${applicationId}" />

@@ -56,7 +56,7 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean startProfileActivityOnChatViewIconClick = true;
 
     public boolean allowBackPressFromMainActivity = false;
-
+    public int threadFragmentEventBatcherThresholdInMillis = 250;
 
     public Class<? extends InterfaceAdapter> interfaceAdapter = BaseInterfaceAdapter.class;
 
@@ -326,6 +326,11 @@ public class UIConfig<T> extends BaseConfig<T> {
      */
     public UIConfig<T> setMessageReplyEnabled(boolean messageReplyEnabled) {
         this.messageReplyEnabled = messageReplyEnabled;
+        return this;
+    }
+
+    public UIConfig<T> setThreadFragmentEventBatcherThresholdInMillis(int millis) {
+        this.threadFragmentEventBatcherThresholdInMillis = millis;
         return this;
     }
 

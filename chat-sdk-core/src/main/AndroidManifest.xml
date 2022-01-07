@@ -12,7 +12,8 @@
         android:usesCleartextTraffic="true"
         >
 
-        <service android:name="sdk.chat.core.notifications.MessagingService" />
+        <service android:name="sdk.chat.core.notifications.MessagingService"
+            android:exported="true" />
 
     </application>
 

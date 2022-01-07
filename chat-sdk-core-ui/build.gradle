@@ -47,12 +47,14 @@ android {
 rootProject.allprojects {
     repositories {
         mavenCentral()
-        jcenter()
+//        jcenter()
         maven { url "https://jitpack.io" }
 //        maven { url "https://dl.bintray.com/manneohlund/maven" }
 
         maven { url "https://chatsdk.jfrog.io/artifactory/release/chatkit" }
         maven { url "https://chatsdk.jfrog.io/artifactory/release/matisse" }
+        maven { url "https://chatsdk.jfrog.io/artifactory/release/material-search-view" }
+        maven { url "https://chatsdk.jfrog.io/artifactory/release/android-image-cropper" }
     }
 }
 
@@ -62,7 +64,9 @@ dependencies {
 
     api "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     implementation "org.ocpsoft.prettytime:prettytime:$rootProject.ext.prettyTimeVersion"
-    implementation "com.theartofdev.edmodo:android-image-cropper:$rootProject.ext.imageCropperVersion"
+
+    implementation "sdk.chat:android-image-cropper:$imageCropperVersion"
+
     implementation "com.github.chrisbanes:PhotoView:$rootProject.ext.photoViewVersion"
 //    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
     implementation "id.zelory:compressor:$compressorVersion"
@@ -96,7 +100,8 @@ dependencies {
     implementation "net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:$keyboardVisibilityEventVersion"
 
     // Audio
-    implementation "com.github.adrielcafe:AndroidAudioRecorder:$androidAudioRecorderVersion"
+//    implementation "com.github.adrielcafe:AndroidAudioRecorder:$androidAudioRecorderVersion"
+    implementation "com.github.chat-sdk:AndroidAudioRecorder:$androidAudioRecorderVersion"
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"

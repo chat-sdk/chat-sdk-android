@@ -55,13 +55,16 @@ dependencies {
     // Need this: maven { url "https://dl.bintray.com/mikepenz/maven" }
     api "com.mikepenz:materialdrawer-iconics:$materialDrawerVersion"
 
-    api "com.miguelcatalan:materialsearchview:$materialSearchVersion"
+    api "sdk.chat:material-search-view:$materialSearchVersion"
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
 //    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
-    implementation "androidmads.library.qrgenearator:QRGenearator:$qrGenerator"
-    implementation "me.dm7.barcodescanner:zxing:$zxing"
+//    implementation "androidmads.library.qrgenearator:QRGenearator:$qrGenerator"
+
+    implementation "com.github.androidmads:QRGenerator:$qrGenerator"
+
+    implementation "com.github.chat-sdk:barcodescanner:$zxing"
 
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"

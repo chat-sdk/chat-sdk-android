@@ -47,7 +47,7 @@ greendao {
 rootProject.allprojects {
     repositories {
         google()
-        jcenter()
+//        jcenter()
         mavenCentral()
         maven { url "https://jitpack.io" }
 //        maven { url "https://dl.bintray.com/mikepenz/maven" }

@@ -47,10 +47,10 @@ dependencies {
     implementation 'com.virgilsecurity.sdk:crypto-android:5.0.2@aar'
     implementation 'com.virgilsecurity.sdk:sdk:5.0.9'
 
-    implementation "androidmads.library.qrgenearator:QRGenearator:$qrGenerator"
-    implementation "me.dm7.barcodescanner:zxing:$zxing"
+    implementation "com.github.chat-sdk:QRGenerator:$qrGenerator"
 
-    implementation 'com.budiyev.android:code-scanner:2.1.0'
+    implementation "com.github.chat-sdk:barcodescanner:$zxing"
+    implementation 'com.github.yuriy-budiyev:code-scanner:v2.1.0'
 
     // Stay on the old version because it supports API level 16
 //    implementation "com.virgilsecurity.sdk:sdk-android:7.1.0"

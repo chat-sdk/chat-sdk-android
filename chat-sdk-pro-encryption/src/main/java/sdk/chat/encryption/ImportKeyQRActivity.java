@@ -13,7 +13,6 @@ public class ImportKeyQRActivity extends BaseActivity {
     protected CodeScannerView scannerView;
     protected CodeScanner scanner;
 
-
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
