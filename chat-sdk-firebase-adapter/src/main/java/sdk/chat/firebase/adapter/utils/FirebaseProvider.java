@@ -31,7 +31,6 @@ public class FirebaseProvider {
     public ThreadWrapper threadWrapper(String value) {
         return new ThreadWrapper(value);
     }
-
     public ThreadWrapper threadWrapper(Thread value) {
         return new ThreadWrapper(value);
     }

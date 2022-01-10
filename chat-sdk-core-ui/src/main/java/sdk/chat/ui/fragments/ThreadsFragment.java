@@ -285,9 +285,9 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             }
         });
 
-        if (UIModule.config().messageTimeFormat != null) {
+        if (UIModule.config().threadTimeFormat != null) {
             dialogsListAdapter.setDatesFormatter(date -> {
-                return DateFormatter.format(date, UIModule.config().messageTimeFormat);
+                return DateFormatter.format(date, UIModule.config().threadTimeFormat);
             });
         }
 

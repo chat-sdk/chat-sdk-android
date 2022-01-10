@@ -30,6 +30,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
@@ -146,7 +147,6 @@ public class EditProfileActivity extends BaseActivity {
 
         doneFab.setImageDrawable(Icons.get(this, Icons.choose().check, Icons.shared().actionBarIconColor));
         doneFab.setOnClickListener(v -> {
-            doneFab.setEnabled(false);
             saveAndExit();
         });
         logoutFab.setImageDrawable(Icons.get(this, Icons.choose().logout, Icons.shared().actionBarIconColor));
@@ -255,6 +255,8 @@ public class EditProfileActivity extends BaseActivity {
             return;
         }
 
+        doneFab.setEnabled(false);
+
         String location = locationEditView.getText();
         String phoneNumber = phoneEditView.getText();
         String email = emailEditView.getText();
@@ -295,6 +297,7 @@ public class EditProfileActivity extends BaseActivity {
             showOrUpdateProgressDialog(getString(R.string.alert_save_contact));
             dm.add(ChatSDK.core().pushUser()
                     .observeOn(RX.main())
+                    .doOnError(throwable -> doneFab.setEnabled(true))
                     .subscribe(() -> {
                         dismissProgressDialog();
                         finished.run();

@@ -155,7 +155,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                     Message message = ChatSDK.db().fetchEntityWithEntityID(change.getSnapshot().getKey(), Message.class);
                     // If the message send fails for example if there is a permission error
                     if (message != null && (message.getSender() == null || !message.getSender().isMe() || message.getMessageStatus() != MessageSendStatus.Failed)) {
-                        model.removeMessage(message);
+                        removeMessage(message);
                     }
                 }
             }).ignoreElements().subscribe(ChatSDK.events());
@@ -285,6 +285,10 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             ChatSDK.config().setShowLocalNotifications(localPushEnabled);
         }).subscribe(ChatSDK.events());
 
+    }
+
+    public void removeMessage(Message message) {
+        model.removeMessage(message);
     }
 
     /**

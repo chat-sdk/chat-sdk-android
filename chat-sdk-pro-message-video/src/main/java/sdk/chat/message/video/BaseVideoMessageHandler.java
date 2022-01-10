@@ -34,33 +34,40 @@ public class BaseVideoMessageHandler implements VideoMessageHandler {
     public static String imageMimeType = "image/jpeg";
 
     public Completable sendMessageWithVideo(final File videoFile, final Thread thread) {
+        return Completable.defer(() -> {
+            // Check the file size.. and if it's bigger than max, report error
 
-        Bitmap preview = ThumbnailUtils.createVideoThumbnail(videoFile.getPath(),
-                MediaStore.Images.Thumbnails.MINI_KIND);
+            if (videoFile.length() > VideoMessageModule.shared().config.maxFileSizeInBytes()) {
+                return Completable.error(new Throwable(String.format(ChatSDK.getString(R.string.file_too_large_max_size__), VideoMessageModule.shared().config.maxFileSizeInMB)));
+            } else {
+                Bitmap preview = ThumbnailUtils.createVideoThumbnail(videoFile.getPath(),
+                        MediaStore.Images.Thumbnails.MINI_KIND);
 
-        if (preview == null) {
-            preview = BitmapFactory.decodeResource(ChatSDK.shared().context().getResources(), R.drawable.icn_200_image_message_placeholder);
-        }
-        final Bitmap thumb = preview;
+                if (preview == null) {
+                    preview = BitmapFactory.decodeResource(ChatSDK.shared().context().getResources(), R.drawable.icn_200_image_message_placeholder);
+                }
+                final Bitmap thumb = preview;
 
-        final File thumbFile =ImageUtils.saveBitmapToFile(thumb);
+                final File thumbFile = ImageUtils.saveBitmapToFile(thumb);
 
-        ArrayList<Uploadable> uploadables = new ArrayList<>();
-        uploadables.add(new FileUploadable(videoFile, videoName, videoMimeType));
-        uploadables.add(new JPEGUploadable(thumbFile, imageName));
+                ArrayList<Uploadable> uploadables = new ArrayList<>();
+                uploadables.add(new FileUploadable(videoFile, videoName, videoMimeType));
+                uploadables.add(new JPEGUploadable(thumbFile, imageName).setReportProgress(false));
 
-        return new MessageSendRig(new MessageType(MessageType.Video), thread, message -> {
-            message.setValueForKey(thumb.getWidth(), Keys.MessageImageWidth);
-            message.setValueForKey(thumb.getHeight(), Keys.MessageImageHeight);
-            message.setText(ChatSDK.getString(R.string.video_message));
-        }).setUploadables(uploadables, (message, result) -> {
-            if(result.mimeType.equals(imageMimeType)) {
-                message.setValueForKey(result.url, Keys.MessageImageURL);
+                return new MessageSendRig(new MessageType(MessageType.Video), thread, message -> {
+                    message.setValueForKey(thumb.getWidth(), Keys.MessageImageWidth);
+                    message.setValueForKey(thumb.getHeight(), Keys.MessageImageHeight);
+                    message.setText(ChatSDK.getString(R.string.video_message));
+                }).setUploadables(uploadables, (message, result) -> {
+                    if(result.mimeType.equals(imageMimeType)) {
+                        message.setValueForKey(result.url, Keys.MessageImageURL);
+                    }
+                    if(result.mimeType.equals(videoMimeType)) {
+                        message.setValueForKey(result.url, Keys.MessageVideoURL);
+                    }
+                }).run();
             }
-            if(result.mimeType.equals(videoMimeType)) {
-                message.setValueForKey(result.url, Keys.MessageVideoURL);
-            }
-        }).run();
+        });
     }
 
     @Override

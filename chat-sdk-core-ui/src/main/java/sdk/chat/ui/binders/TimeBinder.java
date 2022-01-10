@@ -12,6 +12,7 @@ public class TimeBinder {
     public void bind(TextView time, MessageHolder message) {
         if (UIModule.config().messageTimeFormat != null && time != null) {
             time.setText(DateFormatter.format(message.getCreatedAt(), UIModule.config().messageTimeFormat));
+//            Logger.warn(time.getText());
         }
     }
 }

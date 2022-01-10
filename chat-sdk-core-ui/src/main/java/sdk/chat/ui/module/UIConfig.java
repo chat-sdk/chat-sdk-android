@@ -43,12 +43,13 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean requestPermissionsOnStartup = true;
     public boolean showNamesInGroupChatView = true;
     public boolean showAvatarInChatView = true;
-    public String messageTimeFormat = "dd/MM HH:mm";
+    public String messageTimeFormat = "HH:mm";
+    public String threadTimeFormat = "dd/MM HH:mm";
+
+    public boolean showFileSizeDuringUpload = false;
 
     public boolean messageForwardingEnabled = true;
     public boolean messageReplyEnabled = true;
-
-    public String dateFormat = "HH:mm";
 
     public String usernameHint = null;
 
@@ -186,8 +187,8 @@ public class UIConfig<T> extends BaseConfig<T> {
      * @param format
      * @return
      */
-    public UIConfig<T> setDateFormat(String format) {
-        this.dateFormat = format;
+    public UIConfig<T> setThreadTimeFormat(String format) {
+        this.threadTimeFormat = format;
         return this;
     }
 
@@ -331,6 +332,11 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     public UIConfig<T> setThreadFragmentEventBatcherThresholdInMillis(int millis) {
         this.threadFragmentEventBatcherThresholdInMillis = millis;
+        return this;
+    }
+
+    public UIConfig<T> setShowFileSizeDuringUpload(boolean value) {
+        this.showFileSizeDuringUpload = value;
         return this;
     }
 

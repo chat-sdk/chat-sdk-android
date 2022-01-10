@@ -220,6 +220,9 @@ public class User extends AbstractEntity implements UserListItem {
 
     public String getName() {
         String name = metaStringForKey(Keys.Name);
+        if (name == null || name.isEmpty()) {
+            name = metaStringForKey(Keys.Phone);
+        }
         return name;
 //        return getName(true);
     }

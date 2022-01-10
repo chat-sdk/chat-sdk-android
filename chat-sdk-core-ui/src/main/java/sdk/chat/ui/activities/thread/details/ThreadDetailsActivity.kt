@@ -127,11 +127,12 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
             }
         })
 
-        if (thread.typeIs(ThreadType.Group)) {
-            onlineIndicator.visibility = View.INVISIBLE
-        } else {
-            onlineIndicator.visibility = View.VISIBLE
-        }
+        onlineIndicator.visibility = View.INVISIBLE
+//        if (thread.typeIs(ThreadType.Group)) {
+//            onlineIndicator.visibility = View.INVISIBLE
+//        } else {
+//            onlineIndicator.visibility = View.VISIBLE
+//        }
 
         adapter = SmartRecyclerAdapter
                 .items(items)

@@ -20,7 +20,7 @@
 
     <item
         android:id="@+id/action_reply"
-        android:title="@string/copy"
+        android:title="@string/reply"
         app:showAsAction="always"/>
 
 </menu>

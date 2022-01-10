@@ -7,6 +7,7 @@ public abstract class Uploadable {
     public String name;
     public String mimeType;
     public Compressor compressor;
+    public boolean reportProgress = true;
 
     public interface Compressor {
         Uploadable compress (Uploadable uploadable) throws IOException;
@@ -31,4 +32,8 @@ public abstract class Uploadable {
 
     public abstract byte [] getBytes();
 
+    public Uploadable setReportProgress(boolean reportProgress) {
+        this.reportProgress = reportProgress;
+        return this;
+    }
 }

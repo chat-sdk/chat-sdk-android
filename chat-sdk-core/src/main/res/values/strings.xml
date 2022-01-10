@@ -14,6 +14,7 @@
     <string name="send">Send</string>
     <string name="encrypted_message">Encrypted Message</string>
 
+    <string name="file_too_large_max_size__" formatted="false">File too large. Max size: %.0fMB</string>
 
     <string name="register">Register</string>
     <string name="login">Login</string>

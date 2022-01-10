@@ -21,5 +21,7 @@ public class JPEGUploadable extends FileUploadable {
             }
             return uploadable;
         });
+        this.reportProgress = reportProgress;
     }
+
 }

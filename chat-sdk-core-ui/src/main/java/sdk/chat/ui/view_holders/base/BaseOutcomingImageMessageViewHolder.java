@@ -43,8 +43,8 @@ public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> e
         }
 
         UIModule.shared().getReadStatusViewBinder().onBind(readStatus, message);
-        UIModule.shared().getMessageBinder().onBindSendStatus(time, message);
         UIModule.shared().getTimeBinder().bind(time, message);
+        UIModule.shared().getMessageBinder().onBindSendStatus(time, message);
 
     }
 

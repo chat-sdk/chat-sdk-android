@@ -45,7 +45,7 @@ public class BaseOutcomingTextMessageViewHolder<T extends MessageHolder>
         UIModule.shared().getReadStatusViewBinder().onBind(readStatus, message);
         UIModule.shared().getMessageBinder().onBindSendStatus(time, message);
         UIModule.shared().getIconBinder().bind(messageIcon, message, imageLoader);
-        UIModule.shared().getTimeBinder().bind(time, message);
+//        UIModule.shared().getTimeBinder().bind(time, message);
 
         if(text != null) {
             text.setAutoLinkMask(Linkify.ALL);

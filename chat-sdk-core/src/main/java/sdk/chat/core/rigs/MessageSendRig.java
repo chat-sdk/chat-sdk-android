@@ -145,7 +145,9 @@ public class MessageSendRig {
             put(HookEvent.Message, message);
         }})).doOnComplete(() -> {
             message.setMessageStatus(MessageSendStatus.Sent);
-        }).doOnError(throwable -> message.setMessageStatus(MessageSendStatus.Failed));
+        }).doOnError(throwable -> {
+            message.setMessageStatus(MessageSendStatus.Failed);
+        });
     }
 
     protected Completable uploadFiles() {
@@ -158,7 +160,9 @@ public class MessageSendRig {
             for (Uploadable item : uploadables) {
                 completables.add(ChatSDK.upload().uploadFile(item.getBytes(), item.name, item.mimeType).flatMapMaybe(result -> {
 
-                    ChatSDK.events().source().accept(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message, MessageSendStatus.Uploading, result.progress)));
+                    if (item.reportProgress) {
+                        ChatSDK.events().source().accept(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message, MessageSendStatus.Uploading, result.progress)));
+                    }
 
                     if (result.urlValid() && messageDidUploadUpdateAction != null) {
                         messageDidUploadUpdateAction.update(message, result);

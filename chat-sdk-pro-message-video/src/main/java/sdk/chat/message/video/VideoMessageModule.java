@@ -104,6 +104,7 @@ public class VideoMessageModule extends AbstractModule {
         public Class<? extends Activity> videoPlayerActivity = ExoVideoActivity.class;
 
         public long cacheSizeMB = 100;
+        public long maxFileSizeInMB = 50;
 
         public Config(T onBuild) {
             super(onBuild);
@@ -125,6 +126,15 @@ public class VideoMessageModule extends AbstractModule {
         public Config<T> setCacheSizeMB(long cacheSizeMB) {
             this.cacheSizeMB = cacheSizeMB;
             return this;
+        }
+
+        public Config<T> setMaxFileSizeInMB(long max) {
+            this.maxFileSizeInMB = max;
+            return this;
+        }
+
+        public long maxFileSizeInBytes() {
+            return maxFileSizeInMB * 1000 * 1000;
         }
 
     }

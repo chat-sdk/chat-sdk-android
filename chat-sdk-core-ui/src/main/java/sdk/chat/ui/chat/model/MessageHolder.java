@@ -15,7 +15,6 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.ReadStatus;
-import sdk.chat.ui.binders.MessageBinder;
 import sdk.chat.ui.module.UIModule;
 
 public class MessageHolder implements IMessage {
@@ -26,6 +25,7 @@ public class MessageHolder implements IMessage {
 
     protected boolean isGroup;
     protected boolean previousSenderEqualsSender;
+    protected boolean nextSenderEqualsSender;
     protected boolean showDate;
     protected String quotedImageURL;
 
@@ -39,9 +39,10 @@ public class MessageHolder implements IMessage {
         Message previousMessage = message.getPreviousMessage();
 
         previousSenderEqualsSender = previousMessage != null && message.getSender().equalsEntity(previousMessage.getSender());
+        nextSenderEqualsSender = nextMessage != null && message.getSender().equalsEntity(nextMessage.getSender());
 
         DateFormat format = UIModule.shared().getMessageBinder().messageTimeComparisonDateFormat(ChatSDK.ctx());
-        showDate = nextMessage == null || !format.format(message.getDate()).equals(format.format(nextMessage.getDate()));
+        showDate = nextMessage == null || !format.format(message.getDate()).equals(format.format(nextMessage.getDate())) && nextSenderEqualsSender;
         isGroup = message.getThread().typeIs(ThreadType.Group);
 
         if (message.isReply()) {
@@ -98,6 +99,13 @@ public class MessageHolder implements IMessage {
     public Integer getUploadPercentage() {
         if (progress != null && progress.uploadProgress != null) {
             return Math.round(progress.uploadProgress.asFraction() * 100);
+        }
+        return null;
+    }
+
+    public Double getFileSize() {
+        if (progress != null && progress.uploadProgress != null) {
+            return Math.floor(progress.uploadProgress.getTotalBytes() / 1000);
         }
         return null;
     }
