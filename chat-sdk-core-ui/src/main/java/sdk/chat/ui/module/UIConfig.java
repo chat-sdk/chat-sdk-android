@@ -48,6 +48,8 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     public boolean showFileSizeDuringUpload = false;
 
+    public int cropperButtonResourceId = R.string.send;
+
     public boolean messageForwardingEnabled = true;
     public boolean messageReplyEnabled = true;
 
@@ -340,5 +342,9 @@ public class UIConfig<T> extends BaseConfig<T> {
         return this;
     }
 
+    public UIConfig<T> setCropperButtonResourceId(int value) {
+        this.cropperButtonResourceId = value;
+        return this;
+    }
 
 }

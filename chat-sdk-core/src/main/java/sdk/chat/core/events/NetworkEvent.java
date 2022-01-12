@@ -328,6 +328,7 @@ public class NetworkEvent {
                 EventType.ThreadUserUpdated,
                 EventType.MessageAdded,
                 EventType.MessageRemoved,
+                EventType.MessageUpdated,
                 EventType.MessageReadReceiptUpdated,
                 EventType.UserPresenceUpdated,
                 EventType.TypingStateUpdated,

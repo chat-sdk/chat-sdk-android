@@ -72,6 +72,8 @@ public class XMPPRosterListener implements RosterListener {
         for(Jid jid : addresses) {
             RosterEntry entry = manager.get().roster().getEntry(jid.asBareJid());
 
+            entry.canSeeHisPresence();
+
             Map<String, Object> data = new HashMap<>();
             if (entry != null) {
                 data.put(XMPPManager.xmppRosterEntry, entry);

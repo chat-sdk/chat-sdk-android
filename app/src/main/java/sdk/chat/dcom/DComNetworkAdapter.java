@@ -8,9 +8,9 @@ import sdk.chat.firebase.adapter.FirebaseNetworkAdapter;
 import sdk.chat.firebase.adapter.FirebasePublicThreadHandler;
 import sdk.chat.firebase.adapter.FirebaseSearchHandler;
 
-public class DComFirebaseNetworkAdapter extends FirebaseNetworkAdapter {
+public class DComNetworkAdapter extends FirebaseNetworkAdapter {
 
-    public DComFirebaseNetworkAdapter () {
+    public DComNetworkAdapter() {
         events = new FirebaseEventHandler();
         core = new FirebaseCoreHandler();
         auth = new FirebaseAuthenticationHandler();

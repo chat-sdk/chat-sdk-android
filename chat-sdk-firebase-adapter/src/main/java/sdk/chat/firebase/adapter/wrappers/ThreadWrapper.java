@@ -144,7 +144,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             }
 
             if (startDate != null) {
-                query = query.startAt(startDate.getTime());
+                query = query.startAt(startDate.getTime() - 1000);
                 model.setCanDeleteMessagesFrom(startDate);
             } else {
                 model.setCanDeleteMessagesFrom(new Date());

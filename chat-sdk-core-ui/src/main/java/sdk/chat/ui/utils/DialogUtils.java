@@ -24,6 +24,7 @@ public class DialogUtils {
         if (message != 0) {
             builder.setMessage(message);
         }
+
         if (positive != 0) {
             builder.setPositiveButton(positive, (dialog, which) -> {
                 if (positiveAction != null) {

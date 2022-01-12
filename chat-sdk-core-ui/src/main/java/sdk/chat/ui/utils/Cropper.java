@@ -13,6 +13,9 @@ import android.net.Uri;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.ui.module.UIModule;
+
 /**
  * Created by braunster on 04/09/14.
  */
@@ -28,6 +31,7 @@ public class Cropper {
                 .setAllowFlipping(false)
                 .setInitialCropWindowPaddingRatio(0)
                 .setGuidelines(CropImageView.Guidelines.ON)
+                .setCropMenuCropButtonTitle(ChatSDK.getString(UIModule.config().cropperButtonResourceId))
                 .start(activity);
 
     }
@@ -40,6 +44,7 @@ public class Cropper {
                 .setAspectRatio(1,1)
                 .setInitialCropWindowPaddingRatio(0)
                 .setGuidelines(CropImageView.Guidelines.ON)
+                .setCropMenuCropButtonTitle(ChatSDK.getString(UIModule.config().cropperButtonResourceId))
                 .start(activity);
     }
 
@@ -49,6 +54,7 @@ public class Cropper {
                 .setInitialCropWindowPaddingRatio(0)
                 .setAspectRatio(1, 1)
                 .setGuidelines(CropImageView.Guidelines.ON)
+                .setCropMenuCropButtonTitle(ChatSDK.getString(UIModule.config().cropperButtonResourceId))
                 .start(activity);
     }
 

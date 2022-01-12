@@ -39,6 +39,7 @@ public class UserHolder implements IUser {
             url =  ImageUtils.uriForResourceId(ChatSDK.ctx(), UIModule.config().defaultProfilePlaceholder).toString();
         }
 
+
         return url;
     }
 

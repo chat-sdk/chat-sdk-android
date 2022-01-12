@@ -220,7 +220,8 @@ public class MessageWrapper  {
 //                    ChatSDK.hook().executeHook(HookEvent.MessageSent, data).subscribe(ChatSDK.events());
                     e.onComplete();
                 } else {
-                    e.onError(firebaseError.toException());
+                    firebaseError.toException().printStackTrace();
+                    e.onError(new Exception(ChatSDK.getString(R.string.message_failed_to_send)));
                 }
             });
         }).subscribeOn(RX.io());

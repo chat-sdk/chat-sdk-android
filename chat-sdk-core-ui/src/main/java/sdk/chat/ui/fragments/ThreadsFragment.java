@@ -152,11 +152,11 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                             removeThread(thread);
                         }
                     }
-                    else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.ThreadMetaUpdated)) {
+                    else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.ThreadMetaUpdated)) {
                         if (inList) {
                             dm.add(holder.updateAsync().observeOn(RX.main()).subscribe(() -> {
                                 dialogsListAdapter.updateItemById(holder);
-                                if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved)) {
+                                if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved)) {
                                     sortByLastMessageDate();
                                 }
                             }));

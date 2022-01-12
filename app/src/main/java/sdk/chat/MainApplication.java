@@ -11,6 +11,10 @@ import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.dcom.DComChatFragment;
+import sdk.chat.dcom.DComFirebaseProvider;
+import sdk.chat.dcom.DComNetworkAdapter;
+import sdk.chat.dcom.DComPrivateThreadsFragment;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
@@ -51,14 +55,12 @@ public class MainApplication extends Application {
     }
 
     public void firebase() throws Exception {
-        String rootPath = "pre_99";
+        String rootPath = "test_1";
 
         ChatSDK.builder()
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
                 .setAnonymousLoginEnabled(false)
                 .setReuseDeleted1to1Threads(false)
-
-
 
 //                .setDebugModeEnabled(true)
                 .setRemoteConfigEnabled(false)
@@ -72,6 +74,8 @@ public class MainApplication extends Application {
                 // Add the network adapter module
                 .addModule(
                         FirebaseModule.builder()
+                                .setNetworkAdapter(DComNetworkAdapter.class)
+                                .setFirebaseProvider(new DComFirebaseProvider())
                                 .setFirebaseRootPath(rootPath)
                                 .setDisableClientProfileUpdate(false)
                                 .setDevelopmentModeEnabled(true)
@@ -140,6 +144,9 @@ public class MainApplication extends Application {
             Logger.warn("ThreadAdded" + networkEvent.getThread().getEntityID());
         });
 
+        ChatSDKUI.setChatFragmentProvider(DComChatFragment::new);
+        UIModule.shared().config.setShowFileSizeDuringUpload(true);
+        ChatSDKUI.setPrivateThreadsFragment(new DComPrivateThreadsFragment());
 
         String nearbyUsersDisabled = "nearby-users-disabled";
         boolean disabled = ChatSDK.shared().getKeyStorage().getBoolean(nearbyUsersDisabled);
@@ -157,6 +164,8 @@ public class MainApplication extends Application {
                 FirebaseNearbyUsersModule.shared().startService();
             }
         }));
+
+
 
 //        String nearbyUsersDisabled = "nearby-users-disabled";
 //        boolean disabled = ChatSDK.shared().getKeyStorage().getBoolean(nearbyUsersDisabled);
