@@ -21,6 +21,7 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.handlers.AudioMessageHandler;
 import sdk.chat.core.handlers.AuthenticationHandler;
 import sdk.chat.core.handlers.BlockingHandler;
+import sdk.chat.core.handlers.CallHandler;
 import sdk.chat.core.handlers.ContactHandler;
 import sdk.chat.core.handlers.ContactMessageHandler;
 import sdk.chat.core.handlers.CoreHandler;
@@ -344,6 +345,10 @@ public class ChatSDK {
 
     public static PushHandler push () {
         return a().push;
+    }
+
+    public static CallHandler call() {
+        return a().call;
     }
 
     public static UploadHandler upload () {

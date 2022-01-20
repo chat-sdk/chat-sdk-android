@@ -152,7 +152,14 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
             realtime.childOn(query).observeOn(RX.db()).doOnNext(change -> {
                 if(change.getSnapshot().exists() && change.getType() == EventType.Removed) {
-                    Message message = ChatSDK.db().fetchEntityWithEntityID(change.getSnapshot().getKey(), Message.class);
+
+                    Message message = ChatSDK.db().fetchMessageWithEntityID(change.getSnapshot().getKey());
+                    if (message != null) {
+                        if (message.getMessageStatus() == MessageSendStatus.WillSend) {
+                            return;
+                        }
+                    }
+
                     // If the message send fails for example if there is a permission error
                     if (message != null && (message.getSender() == null || !message.getSender().isMe() || message.getMessageStatus() != MessageSendStatus.Failed)) {
                         removeMessage(message);
@@ -251,6 +258,14 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                 RXRealtime realtime = new RXRealtime(this);
                 realtime.childOn(query).observeOn(RX.db()).doOnNext(change -> {
                     if (change.getType() == EventType.Added) {
+
+//                        Message m = ChatSDK.db().fetchMessageWithEntityID(change.getSnapshot().getKey());
+//                        if (m != null) {
+//                            if (m.getMessageStatus() == MessageSendStatus.WillSend) {
+//                                return;
+//                            }
+//                        }
+
                         String from = change.getSnapshot().child(Keys.From).getValue(String.class);
                         if (ChatSDK.blocking() == null || !ChatSDK.blocking().isBlocked(from)) {
                             model.setDeleted(false);

@@ -109,6 +109,11 @@ public class MainApplication extends Application {
     .addModule(FirebaseReadReceiptsModule.shared())
     .addModule(FirebaseTypingIndicatorModule.shared())
 
+//    .addModule(SinchModule.builder()
+//            .setApplicationKey("90c5e8c0-7a3d-4bd5-8d8f-075e5c24cd1f")
+//            .setSecret("bM0AbXIhG0eIVMlTLcHYrQ==")
+//            .build())
+
                 .addModule(ExtrasModule.builder(config -> {
 //                    if (Device.honor(this)) {
 //                        config.setDrawerEnabled(true);
@@ -130,6 +135,7 @@ public class MainApplication extends Application {
 //        }
 //        ChatSDK.ui().setTab("Debug", null, new DebugFragment(), 99);
 //        ChatSDK.ui().removeTab(0);
+
 
 
         Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {

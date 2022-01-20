@@ -94,7 +94,11 @@ minifyEnabled project.hasProperty('minifyCore')
 
 dependencies {
 
+    implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
+
 //    implementation project(':chat-sdk-demo')
+
+    implementation project(':chat-sdk-pro-calling')
 
     implementation project(':chat-sdk-core-ui')
     implementation project(':chat-sdk-firebase-adapter')
