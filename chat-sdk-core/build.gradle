@@ -39,7 +39,7 @@ android {
 }
 
 greendao {
-    schemaVersion 20
+    schemaVersion 23
     targetGenDir "src/main/java"
     daoPackage "sdk.chat.core.dao"
 }
@@ -80,7 +80,7 @@ dependencies {
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
-
+    implementation "com.google.code.gson:gson:$gsonVersion"
 }
 
 ext {

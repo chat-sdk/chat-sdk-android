@@ -43,8 +43,6 @@ public class Message extends AbstractEntity {
     @Unique
     private String entityID;
 
-//    @Convert(converter = DaoDateTimeConverter.class, columnType = Long.class)
-//    private DateTime date;
     private Date date;
 
     private Integer type;
@@ -179,8 +177,13 @@ public class Message extends AbstractEntity {
     }
 
     public Map<String, Object> getMetaValuesAsMap() {
+        return getMetaValuesAsMap(false);
+    }
+
+    public Map<String, Object> getMetaValuesAsMap(boolean includeLocal) {
         Map<String, Object> values = new HashMap<>();
         for (MessageMetaValue v : getMetaValues()) {
+            if (!v.getIsLocal() || includeLocal)
             values.put(v.getKey(), v.getValue());
         }
         return values;
@@ -193,8 +196,11 @@ public class Message extends AbstractEntity {
             }
         }
     }
+    public void setMetaValue(String key, Object value) {
+        setMetaValue(key, value, false, "");
+    }
 
-    protected void setMetaValue(String key, Object value) {
+    public void setMetaValue(String key, Object value, boolean isLocal, String tag) {
         MessageMetaValue metaValue = (MessageMetaValue) metaValue(key);
         if (metaValue == null) {
             metaValue = ChatSDK.db().create(MessageMetaValue.class);
@@ -203,6 +209,8 @@ public class Message extends AbstractEntity {
         }
         metaValue.setValue(MetaValueHelper.toString(value));
         metaValue.setKey(key);
+        metaValue.setTag(tag);
+        metaValue.setIsLocal(isLocal);
         metaValue.update();
 //        this.update();
     }

@@ -8,6 +8,7 @@ import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.identityscope.IdentityScopeType;
 import org.greenrobot.greendao.internal.DaoConfig;
 
+import sdk.chat.core.dao.CachedFile;
 import sdk.chat.core.dao.ContactLink;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.MessageMetaValue;
@@ -20,6 +21,7 @@ import sdk.chat.core.dao.UserMetaValue;
 import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.dao.UserThreadLinkMetaValue;
 
+import sdk.chat.core.dao.CachedFileDao;
 import sdk.chat.core.dao.ContactLinkDao;
 import sdk.chat.core.dao.MessageDao;
 import sdk.chat.core.dao.MessageMetaValueDao;
@@ -41,6 +43,7 @@ import sdk.chat.core.dao.UserThreadLinkMetaValueDao;
  */
 public class DaoSession extends AbstractDaoSession {
 
+    private final DaoConfig cachedFileDaoConfig;
     private final DaoConfig contactLinkDaoConfig;
     private final DaoConfig messageDaoConfig;
     private final DaoConfig messageMetaValueDaoConfig;
@@ -53,6 +56,7 @@ public class DaoSession extends AbstractDaoSession {
     private final DaoConfig userThreadLinkDaoConfig;
     private final DaoConfig userThreadLinkMetaValueDaoConfig;
 
+    private final CachedFileDao cachedFileDao;
     private final ContactLinkDao contactLinkDao;
     private final MessageDao messageDao;
     private final MessageMetaValueDao messageMetaValueDao;
@@ -68,6 +72,9 @@ public class DaoSession extends AbstractDaoSession {
     public DaoSession(Database db, IdentityScopeType type, Map<Class<? extends AbstractDao<?, ?>>, DaoConfig>
             daoConfigMap) {
         super(db);
+
+        cachedFileDaoConfig = daoConfigMap.get(CachedFileDao.class).clone();
+        cachedFileDaoConfig.initIdentityScope(type);
 
         contactLinkDaoConfig = daoConfigMap.get(ContactLinkDao.class).clone();
         contactLinkDaoConfig.initIdentityScope(type);
@@ -102,6 +109,7 @@ public class DaoSession extends AbstractDaoSession {
         userThreadLinkMetaValueDaoConfig = daoConfigMap.get(UserThreadLinkMetaValueDao.class).clone();
         userThreadLinkMetaValueDaoConfig.initIdentityScope(type);
 
+        cachedFileDao = new CachedFileDao(cachedFileDaoConfig, this);
         contactLinkDao = new ContactLinkDao(contactLinkDaoConfig, this);
         messageDao = new MessageDao(messageDaoConfig, this);
         messageMetaValueDao = new MessageMetaValueDao(messageMetaValueDaoConfig, this);
@@ -114,6 +122,7 @@ public class DaoSession extends AbstractDaoSession {
         userThreadLinkDao = new UserThreadLinkDao(userThreadLinkDaoConfig, this);
         userThreadLinkMetaValueDao = new UserThreadLinkMetaValueDao(userThreadLinkMetaValueDaoConfig, this);
 
+        registerDao(CachedFile.class, cachedFileDao);
         registerDao(ContactLink.class, contactLinkDao);
         registerDao(Message.class, messageDao);
         registerDao(MessageMetaValue.class, messageMetaValueDao);
@@ -128,6 +137,7 @@ public class DaoSession extends AbstractDaoSession {
     }
     
     public void clear() {
+        cachedFileDaoConfig.clearIdentityScope();
         contactLinkDaoConfig.clearIdentityScope();
         messageDaoConfig.clearIdentityScope();
         messageMetaValueDaoConfig.clearIdentityScope();
@@ -139,6 +149,10 @@ public class DaoSession extends AbstractDaoSession {
         userMetaValueDaoConfig.clearIdentityScope();
         userThreadLinkDaoConfig.clearIdentityScope();
         userThreadLinkMetaValueDaoConfig.clearIdentityScope();
+    }
+
+    public CachedFileDao getCachedFileDao() {
+        return cachedFileDao;
     }
 
     public ContactLinkDao getContactLinkDao() {

@@ -2,6 +2,7 @@ package sdk.chat.core.session;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -51,7 +52,9 @@ import sdk.chat.core.notifications.NotificationDisplayHandler;
 import sdk.chat.core.rigs.DownloadManager;
 import sdk.chat.core.rigs.MessageSender;
 import sdk.chat.core.storage.FileManager;
+import sdk.chat.core.storage.UploadManager;
 import sdk.chat.core.utils.AppBackgroundMonitor;
+import sdk.chat.core.utils.ConnectionStateMonitor;
 import sdk.chat.core.utils.KeyStorage;
 import sdk.chat.core.utils.StringChecker;
 import sdk.guru.common.RX;
@@ -87,6 +90,8 @@ public class ChatSDK {
     protected IKeyStorage keyStorage;
     protected DownloadManager downloadManager;
     protected MessageSender messageSender;
+    protected UploadManager uploadManager = new UploadManager();
+    protected ConnectionStateMonitor connectionStateMonitor;
 
     protected List<Runnable> onActivateListeners = new ArrayList<>();
     protected List<Runnable> onPermissionsRequestedListeners = new ArrayList<>();
@@ -229,6 +234,11 @@ public class ChatSDK {
         for (Module module: builder.modules) {
             module.activate(context);
             Logger.info("Module " + module.getName() + " activated successfully");
+        }
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            connectionStateMonitor = new ConnectionStateMonitor();
+            connectionStateMonitor.enable(context);
         }
 
         // Local notifications
@@ -514,6 +524,10 @@ public class ChatSDK {
 
     public static MessageSender messageSender() {
         return shared().messageSender;
+    }
+
+    public static UploadManager uploadManager() {
+        return shared().uploadManager;
     }
 
 }

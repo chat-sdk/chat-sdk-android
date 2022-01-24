@@ -35,7 +35,8 @@ public abstract class CustomMessageHandler implements IMessageHandler {
 
     @Override
     public boolean onClick(Activity activity, View rootView, Message message) {
-        if (message.getSender().isMe() && message.getMessageStatus() == MessageSendStatus.Failed) {
+        MessageSendStatus status = message.getMessageStatus();
+        if (message.getSender().isMe() && status == MessageSendStatus.Failed || status == MessageSendStatus.UploadFailed) {
             DialogUtils.showToastDialog(activity, R.string.message_send_failed, R.string.try_to_resend_the_message, R.string.send, R.string.cancel, () -> {
                 MessageSendRig.create(message).run().subscribe(ChatSDK.events());
             }, null);

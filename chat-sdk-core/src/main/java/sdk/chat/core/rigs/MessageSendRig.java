@@ -9,11 +9,13 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
+import sdk.chat.core.dao.CachedFile;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.storage.UploadStatus;
 import sdk.chat.core.types.FileUploadResult;
 import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
@@ -21,6 +23,8 @@ import sdk.chat.core.types.MessageType;
 import sdk.guru.common.RX;
 
 public class MessageSendRig {
+
+    public static String linkedFileKey = "linked-file";
 
     public interface MessageDidUploadUpdateAction {
         void update (Message message, FileUploadResult result);
@@ -56,6 +60,21 @@ public class MessageSendRig {
     public MessageSendRig(Message message) {
         this.thread = message.getThread();
         this.message = message;
+
+        // If upload failed
+        if (message.getMessageStatus() == MessageSendStatus.UploadFailed) {
+
+            // Re-upload any files that failed before
+            List<CachedFile> files = ChatSDK.uploadManager().getFiles(message.getEntityID());
+            for (CachedFile file: files) {
+                if (file.getUploadStatus() != UploadStatus.Complete) {
+                    Uploadable uploadable = file.getUploadable();
+                    if (uploadable != null) {
+                        uploadables.add(uploadable);
+                    }
+                }
+            }
+        }
     }
 
     public static MessageSendRig create(MessageType type, Thread thread, MessageDidCreateUpdateAction action) {
@@ -157,24 +176,45 @@ public class MessageSendRig {
             message.setMessageStatus(MessageSendStatus.WillUpload);
             message.setMessageStatus(MessageSendStatus.Uploading);
 
+            // Add the files to the upload manager
+            for (Uploadable item : uploadables) {
+                CachedFile file = ChatSDK.uploadManager().add(item, message);
+                file.setUploadStatus(UploadStatus.WillStart);
+            }
+
             for (Uploadable item : uploadables) {
                 completables.add(ChatSDK.upload().uploadFile(item.getBytes(), item.name, item.mimeType).flatMapMaybe(result -> {
+
+                    ChatSDK.uploadManager().setStatus(item.hash(), result.status);
 
                     if (item.reportProgress) {
                         ChatSDK.events().source().accept(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(message, MessageSendStatus.Uploading, result.progress)));
                     }
 
-                    if (result.urlValid() && messageDidUploadUpdateAction != null) {
-                        messageDidUploadUpdateAction.update(message, result);
+                    // Success
+                    if (result.urlValid()) {
+                        if (messageDidUploadUpdateAction != null) {
+                            messageDidUploadUpdateAction.update(message, result);
+                        }
+
+                        message.setValueForKey(result.url, item.messageKey);
 
                         for (String key : result.meta.keySet()) {
                             message.setValueForKey(result.meta.get(key), key);
+                        }
+
+                        CachedFile file = ChatSDK.uploadManager().getFile(item.hash());
+                        if (file != null) {
+                            file.setRemotePath(result.url);
+                            file.update();
                         }
 
                         return Maybe.just(message);
                     } else {
                         return Maybe.empty();
                     }
+                }).doOnError(throwable -> {
+                    message.setMessageStatus(MessageSendStatus.UploadFailed);
                 }).firstElement().ignoreElement());
             }
             emitter.onSuccess(completables);

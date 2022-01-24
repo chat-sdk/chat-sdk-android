@@ -24,6 +24,7 @@ public class BaseImageMessageHandler implements ImageMessageHandler {
 
     @Override
     public Completable sendMessageWithImage(final File imageFile, final Thread thread) {
+
         MessageSendRig rig = new MessageSendRig(new MessageType(MessageType.Image), thread, message -> {
             // Get the image and set the image text dimensions
             final Bitmap image = BitmapFactory.decodeFile(imageFile.getPath(), null);
@@ -31,9 +32,9 @@ public class BaseImageMessageHandler implements ImageMessageHandler {
             message.setValueForKey(image.getWidth(), Keys.MessageImageWidth);
             message.setValueForKey(image.getHeight(), Keys.MessageImageHeight);
 
-        }).setUploadable(new JPEGUploadable(imageFile, "image.jpg"), (message, result) -> {
+        }).setUploadable(new JPEGUploadable(imageFile, "image.jpg", Keys.MessageImageURL), (message, result) -> {
             // When the file has uploaded, set the image URL
-            message.setValueForKey(result.url, Keys.MessageImageURL);
+//            message.setValueForKey(result.url, Keys.MessageImageURL);
 
         });
         return rig.run();

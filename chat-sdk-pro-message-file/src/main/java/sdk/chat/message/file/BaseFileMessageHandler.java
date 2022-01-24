@@ -40,14 +40,14 @@ public class BaseFileMessageHandler implements FileMessageHandler {
     public Completable sendMessageWithFile(final String fileName, final String mimeType, File file, final Thread thread) {
 
         List<Uploadable> uploadables = new ArrayList<>();
-        uploadables.add(new FileUploadable(file, fileName, mimeType));
+        uploadables.add(new FileUploadable(file, fileName, mimeType, Keys.MessageFileURL));
 
         if (mimeType.equals("application/pdf")) {
             // Generate the preview image
             try {
                 Bitmap bitmap = pdfPreview(file);
                 if (bitmap != null) {
-                    uploadables.add(new BitmapUploadable(bitmap, imageName, imageMimeType));
+                    uploadables.add(new BitmapUploadable(bitmap, imageName, imageMimeType, Keys.MessageImageURL));
                 }
             } catch (Exception e) {
                 // Just abort and don't send the preview
@@ -60,12 +60,14 @@ public class BaseFileMessageHandler implements FileMessageHandler {
             message.setValueForKey(fileName, Keys.MessageText);
             message.setValueForKey(mimeType, Keys.MessageMimeType);
         }).setUploadables(uploadables, (message, result) -> {
-            if(result.mimeType.equals(imageMimeType)) {
-                message.setValueForKey(result.url, Keys.MessageImageURL);
-            }
-            if(result.mimeType.equals(mimeType)) {
-                message.setValueForKey(result.url, Keys.MessageFileURL);
-            }
+
+//            if(result.mimeType.equals(imageMimeType)) {
+//                message.setValueForKey(result.url, Keys.MessageImageURL);
+//            }
+//            if(result.mimeType.equals(mimeType)) {
+//                message.setValueForKey(result.url, Keys.MessageFileURL);
+//            }
+
         });
         return rig.run();
     }

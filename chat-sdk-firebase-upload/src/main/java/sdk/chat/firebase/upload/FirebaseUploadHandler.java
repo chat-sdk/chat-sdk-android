@@ -6,17 +6,54 @@ import com.google.firebase.storage.UploadTask;
 
 import org.pmw.tinylog.Logger;
 
-import sdk.chat.core.base.AbstractUploadHandler;
-import sdk.chat.core.types.FileUploadResult;
-import sdk.chat.firebase.adapter.FirebaseCoreHandler;
+import java.util.ArrayList;
+import java.util.List;
+
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
+import sdk.chat.core.base.AbstractUploadHandler;
+import sdk.chat.core.storage.UploadStatus;
+import sdk.chat.core.types.FileUploadResult;
+import sdk.chat.core.utils.AppBackgroundMonitor;
+import sdk.chat.firebase.adapter.FirebaseCoreHandler;
 import sdk.guru.common.RX;
 
 /**
  * Created by Erk on 26.07.2016.
  */
 public class FirebaseUploadHandler extends AbstractUploadHandler {
+
+    public List<UploadTask> tasks = new ArrayList<>();
+
+    public FirebaseUploadHandler() {
+
+        // If we lose connection, pause tasks
+//        ChatSDK.events().source().filter(NetworkEvent.filterType(EventType.NetworkStateChanged)).doOnNext(networkEvent -> {
+//            for (UploadTask task: tasks) {
+//                if (networkEvent.getIsOnline()) {
+//                    task.resume();
+//                } else {
+//                    task.pause();
+//                }
+//            }
+//        }).ignoreElements().subscribe(ChatSDK.events());
+
+        // Cancel tasks if the app is sent to the background
+        AppBackgroundMonitor.shared().addListener(new AppBackgroundMonitor.Listener() {
+            @Override
+            public void didStart() {
+
+            }
+
+            @Override
+            public void didStop() {
+                for (UploadTask task: tasks) {
+                    task.cancel();
+                }
+                tasks.clear();
+            }
+        });
+    }
 
     public Observable<FileUploadResult> uploadFile(final byte[] data, final String name, final String mimeType) {
         return Observable.create((ObservableOnSubscribe<FileUploadResult>) e -> {
@@ -28,9 +65,11 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
             final FileUploadResult result = new FileUploadResult();
 
             UploadTask uploadTask = fileRef.putBytes(data);
+            tasks.add(uploadTask);
 
             uploadTask.addOnProgressListener(taskSnapshot -> {
                 result.progress.set(taskSnapshot.getTotalByteCount(), taskSnapshot.getBytesTransferred());
+                result.status = UploadStatus.InProgress;
 
                 double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                 Logger.debug("Progress: " + progress);
@@ -42,13 +81,33 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
                     result.mimeType = mimeType;
                     result.url = uri.toString();
                     result.progress.set(taskSnapshot.getTotalByteCount(), taskSnapshot.getTotalByteCount());
+                    result.status = UploadStatus.Complete;
+
                     e.onNext(result);
+
                     e.onComplete();
                 });
-            }).addOnFailureListener(e::onError);
+                tasks.remove(uploadTask);
+
+            }).addOnFailureListener(err -> {
+                //
+                result.status = UploadStatus.Failed;
+                e.onNext(result);
+
+                tasks.remove(uploadTask);
+
+                e.onError(err);
+            }).addOnCanceledListener(() -> {
+                result.status = UploadStatus.Failed;
+                e.onNext(result);
+               tasks.remove(uploadTask);
+                e.onError(new Exception("Upload Failed"));
+            });
 
         }).subscribeOn(RX.io());
     }
+
+
 
     public boolean shouldUploadAvatar () {
         return true;

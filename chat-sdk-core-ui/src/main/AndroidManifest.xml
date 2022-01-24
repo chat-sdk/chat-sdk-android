@@ -34,9 +34,6 @@
         <activity android:name=".activities.EditThreadActivity"
             android:windowSoftInputMode="adjustResize" />
 
-        <activity android:name=".activities.ChatActivity"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
-
         <activity android:name=".activities.EditProfileActivity"
             android:windowSoftInputMode="stateHidden|adjustPan" />
 
@@ -63,7 +60,7 @@
         <activity android:name=".activities.ForwardMessageActivity"
             android:windowSoftInputMode="stateHidden" />
 
-        <activity android:name=".activities.ChatActivityWrapper"
+        <activity android:name=".activities.ChatActivity"
             android:screenOrientation="portrait">
         </activity>
 

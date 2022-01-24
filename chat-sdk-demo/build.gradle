@@ -106,8 +106,8 @@ dependencies {
 
 
     // Demo
-    implementation 'com.romandanylyk:pageindicatorview:1.0.3'
-
+//    implementation 'com.romandanylyk:pageindicatorview:1.0.3'
+    implementation 'com.github.chat-sdk:PageIndicatorView:1.0.4'
 //    implementation project(':firestream')
 
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"

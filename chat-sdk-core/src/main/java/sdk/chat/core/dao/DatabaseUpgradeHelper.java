@@ -57,6 +57,9 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         migrations.add(new MigrationV18());
         migrations.add(new MigrationV19());
         migrations.add(new MigrationV20());
+        migrations.add(new MigrationV21());
+        migrations.add(new MigrationV22());
+        migrations.add(new MigrationV23());
 
         // Sorting just to be safe, in case other people add migrations in the wrong order.
         Comparator<Migration> migrationComparator = (m1, m2) -> m1.getVersion().compareTo(m2.getVersion());
@@ -320,6 +323,42 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
             ThreadDao.createTable(db, true);
             db.execSQL("INSERT INTO " + ThreadDao.TABLENAME + " SELECT * FROM old_table");
             db.execSQL("DROP TABLE old_table");
+        }
+    }
+
+    private static class MigrationV21 implements Migration {
+        @Override
+        public Integer getVersion() {
+            return 21;
+        }
+
+        @Override
+        public void runMigration(Database db) {
+            db.execSQL("ALTER TABLE " + MessageMetaValueDao.TABLENAME + " ADD COLUMN " + MessageMetaValueDao.Properties.IsLocal.columnName + " INTEGER");
+        }
+    }
+
+    private static class MigrationV22 implements Migration {
+        @Override
+        public Integer getVersion() {
+            return 22;
+        }
+
+        @Override
+        public void runMigration(Database db) {
+            db.execSQL("ALTER TABLE " + MessageMetaValueDao.TABLENAME + " ADD COLUMN " + MessageMetaValueDao.Properties.Tag.columnName + " INTEGER");
+        }
+    }
+
+    private static class MigrationV23 implements Migration {
+        @Override
+        public Integer getVersion() {
+            return 23;
+        }
+
+        @Override
+        public void runMigration(Database db) {
+            CachedFileDao.createTable(db, true);
         }
     }
 

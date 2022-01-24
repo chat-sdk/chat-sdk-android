@@ -11,10 +11,6 @@ import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.dcom.DComChatFragment;
-import sdk.chat.dcom.DComFirebaseProvider;
-import sdk.chat.dcom.DComNetworkAdapter;
-import sdk.chat.dcom.DComPrivateThreadsFragment;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
@@ -32,6 +28,9 @@ import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.recycler.SectionViewModel;
 import sdk.chat.ui.recycler.ToggleViewModel;
+import sdk.chat.waka.V4V5FirebaseProvider;
+import sdk.chat.waka.ZChatActivity;
+import sdk.chat.waka.ZFirebaseNetworkAdapter;
 
 /**
  * Created by Ben Smiley on 6/8/2014.
@@ -74,8 +73,11 @@ public class MainApplication extends Application {
                 // Add the network adapter module
                 .addModule(
                         FirebaseModule.builder()
-                                .setNetworkAdapter(DComNetworkAdapter.class)
-                                .setFirebaseProvider(new DComFirebaseProvider())
+//                                .setNetworkAdapter(DComNetworkAdapter.class)
+//                                .setFirebaseProvider(new DComFirebaseProvider())
+                                .setNetworkAdapter(ZFirebaseNetworkAdapter.class)
+                                .setFirebaseProvider(new V4V5FirebaseProvider())
+
                                 .setFirebaseRootPath(rootPath)
                                 .setDisableClientProfileUpdate(false)
                                 .setDevelopmentModeEnabled(true)
@@ -110,6 +112,7 @@ public class MainApplication extends Application {
     .addModule(FirebaseTypingIndicatorModule.shared())
 
                 .addModule(ExtrasModule.builder(config -> {
+                    config.setDrawerEnabled(false);
 //                    if (Device.honor(this)) {
 //                        config.setDrawerEnabled(true);
 //                    }
@@ -144,9 +147,11 @@ public class MainApplication extends Application {
             Logger.warn("ThreadAdded" + networkEvent.getThread().getEntityID());
         });
 
-        ChatSDKUI.setChatFragmentProvider(DComChatFragment::new);
-        UIModule.shared().config.setShowFileSizeDuringUpload(true);
-        ChatSDKUI.setPrivateThreadsFragment(new DComPrivateThreadsFragment());
+        ChatSDK.ui().setChatActivity(ZChatActivity.class);
+
+//        ChatSDKUI.setChatFragmentProvider(DComChatFragment::new);
+//        UIModule.shared().config.setShowFileSizeDuringUpload(true);
+//        ChatSDKUI.setPrivateThreadsFragment(new DComPrivateThreadsFragment());
 
         String nearbyUsersDisabled = "nearby-users-disabled";
         boolean disabled = ChatSDK.shared().getKeyStorage().getBoolean(nearbyUsersDisabled);

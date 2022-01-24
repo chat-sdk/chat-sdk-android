@@ -51,20 +51,20 @@ public class BaseVideoMessageHandler implements VideoMessageHandler {
                 final File thumbFile = ImageUtils.saveBitmapToFile(thumb);
 
                 ArrayList<Uploadable> uploadables = new ArrayList<>();
-                uploadables.add(new FileUploadable(videoFile, videoName, videoMimeType));
-                uploadables.add(new JPEGUploadable(thumbFile, imageName).setReportProgress(false));
+                uploadables.add(new FileUploadable(videoFile, videoName, videoMimeType, Keys.MessageVideoURL));
+                uploadables.add(new JPEGUploadable(thumbFile, imageName, Keys.MessageImageURL).setReportProgress(false));
 
                 return new MessageSendRig(new MessageType(MessageType.Video), thread, message -> {
                     message.setValueForKey(thumb.getWidth(), Keys.MessageImageWidth);
                     message.setValueForKey(thumb.getHeight(), Keys.MessageImageHeight);
                     message.setText(ChatSDK.getString(R.string.video_message));
                 }).setUploadables(uploadables, (message, result) -> {
-                    if(result.mimeType.equals(imageMimeType)) {
-                        message.setValueForKey(result.url, Keys.MessageImageURL);
-                    }
-                    if(result.mimeType.equals(videoMimeType)) {
-                        message.setValueForKey(result.url, Keys.MessageVideoURL);
-                    }
+//                    if(result.mimeType.equals(imageMimeType)) {
+//                        message.setValueForKey(result.url, Keys.MessageImageURL);
+//                    }
+//                    if(result.mimeType.equals(videoMimeType)) {
+//                        message.setValueForKey(result.url, Keys.MessageVideoURL);
+//                    }
                 }).run();
             }
         });

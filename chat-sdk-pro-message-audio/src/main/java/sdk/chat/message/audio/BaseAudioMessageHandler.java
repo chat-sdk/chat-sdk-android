@@ -31,11 +31,15 @@ public class BaseAudioMessageHandler implements AudioMessageHandler {
     @Override
     public Completable sendMessage(Context context, final File file, String mimeType, long duration, final Thread thread) {
         return compressAudio(context, file).flatMapCompletable(file1 -> {
-            return new MessageSendRig(new MessageType(MessageType.Audio), thread, null).setUploadable(new FileUploadable(file1, "recording", mimeType), (message, result) -> {
+            return new MessageSendRig(new MessageType(MessageType.Audio), thread, message -> {
                 message.setText(ChatSDK.getString(R.string.audio_message));
-                message.setValueForKey(result.url, Keys.MessageAudioURL);
                 message.setValueForKey(duration, Keys.MessageAudioLength);
                 message.update();
+
+            }).setUploadable(new FileUploadable(file1, "recording", mimeType, Keys.MessageAudioURL), (message, result) -> {
+//                message.setValueForKey(result.url, Keys.MessageAudioURL);
+//                message.setValueForKey(duration, Keys.MessageAudioLength);
+//                message.update();
             }).run();
         });
     }

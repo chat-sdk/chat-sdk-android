@@ -30,6 +30,7 @@ public class NetworkEvent {
     protected User user;
     protected String text;
     protected Map<String, Object> data;
+    protected boolean isOnline = false;
 
     public static String MessageSendProgress = "MessageSendProgress";
     public static String MessageId = "MessageId";
@@ -166,6 +167,12 @@ public class NetworkEvent {
 
     public static NetworkEvent messageReadReceiptUpdated(Message message) {
         return new NetworkEvent(EventType.MessageReadReceiptUpdated, message.getThread(), message);
+    }
+
+    public static NetworkEvent networkStateChanged(boolean isOnline) {
+        NetworkEvent event = new NetworkEvent(EventType.NetworkStateChanged);
+        event.isOnline = isOnline;
+        return event;
     }
 
     @Deprecated
@@ -394,6 +401,10 @@ public class NetworkEvent {
 
     public Message getMessage() {
         return message;
+    }
+
+    public boolean getIsOnline() {
+        return isOnline;
     }
 
     public Thread getThread() {

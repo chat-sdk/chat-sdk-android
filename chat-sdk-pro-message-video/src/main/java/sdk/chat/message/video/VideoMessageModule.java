@@ -80,14 +80,16 @@ public class VideoMessageModule extends AbstractModule {
 
             @Override
             public boolean onClick(Activity activity, View rootView, Message message) {
-                if (message.getMessageType().is(MessageType.Video)) {
-                    String videoURL = (String) message.valueForKey(Keys.MessageVideoURL);
-                    if(videoURL != null) {
-                        Intent intent = new Intent(activity, config.getVideoPlayerActivity());
-                        intent.putExtra(Keys.IntentKeyFilePath, videoURL);
-                        activity.startActivity(intent);
+                if (!super.onClick(activity, rootView, message)) {
+                    if (message.getMessageType().is(MessageType.Video)) {
+                        String videoURL = (String) message.valueForKey(Keys.MessageVideoURL);
+                        if(videoURL != null) {
+                            Intent intent = new Intent(activity, config.getVideoPlayerActivity());
+                            intent.putExtra(Keys.IntentKeyFilePath, videoURL);
+                            activity.startActivity(intent);
+                        }
+                        return true;
                     }
-                    return true;
                 }
                 return false;
             }

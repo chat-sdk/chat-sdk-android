@@ -101,7 +101,6 @@ open class ModerationActivity: BaseActivity() {
 
                 .into(recyclerView)
 
-        update()
     }
 
     override fun onStart() {
@@ -111,11 +110,17 @@ open class ModerationActivity: BaseActivity() {
             update()
         }, this))
 
+
     }
 
     override fun onStop() {
         super.onStop()
         dm.dispose()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        update()
     }
     
     public fun update() {

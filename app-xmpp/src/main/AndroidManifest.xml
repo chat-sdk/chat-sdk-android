@@ -23,8 +23,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="sdk.chat.app.xmpp.wow.WowChatActivity" />
-
     </application>
 
 </manifest>

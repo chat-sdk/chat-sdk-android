@@ -16,6 +16,8 @@ import java.util.Map;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import sdk.chat.core.dao.CachedFile;
+import sdk.chat.core.dao.CachedFileDao;
 import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.MessageDao;
@@ -164,14 +166,17 @@ public class StorageManager {
         if (c == Thread.class) {
             qb.where(ThreadDao.Properties.EntityID.eq(entityID));
         }
-        if (c == PublicKey.class) {
+        else if (c == PublicKey.class) {
             qb.where(PublicKeyDao.Properties.EntityID.eq(entityID));
         }
-        if (c == Message.class) {
+        else if (c == Message.class) {
             qb.where(MessageDao.Properties.EntityID.eq(entityID));
         }
-        if (c == User.class) {
+        else if (c == User.class) {
             qb.where(UserDao.Properties.EntityID.eq(entityID));
+        }
+        else if (c == CachedFile.class) {
+            qb.where(CachedFileDao.Properties.EntityID.eq(entityID));
         }
 
         List<T> entities = qb.list();
@@ -185,7 +190,6 @@ public class StorageManager {
     public <T extends CoreEntity> Single<T> fetchEntityWithEntityIDAsync(String entityID, Class<T> c) {
         return Single.defer(() -> Single.just(fetchEntityWithEntityID(entityID, c)).subscribeOn(RX.db()));
     }
-
 
     public Single<User> fetchUserWithEntityIDAsync(String entityID) {
         return Single.defer(() -> Single.just(fetchUserWithEntityID(entityID)).subscribeOn(RX.db()));
@@ -337,6 +341,12 @@ public class StorageManager {
         List<Message> list = qb.list();
 
         return  list;
+    }
+
+    public List<CachedFile> fetchFilesWithIdentifier(String identifier) {
+        QueryBuilder<CachedFile> qb = daoCore.getDaoSession().queryBuilder(CachedFile.class);
+        qb.where(CachedFileDao.Properties.Identifier.eq(identifier));
+        return qb.list();
     }
 
     public List<Message> fetchMessagesWithFailedDecryption() {

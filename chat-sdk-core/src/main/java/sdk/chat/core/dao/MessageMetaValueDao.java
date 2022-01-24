@@ -30,7 +30,9 @@ public class MessageMetaValueDao extends AbstractDao<MessageMetaValue, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property Key = new Property(1, String.class, "key", false, "KEY");
         public final static Property Value = new Property(2, String.class, "value", false, "VALUE");
-        public final static Property MessageId = new Property(3, Long.class, "messageId", false, "MESSAGE_ID");
+        public final static Property Tag = new Property(3, String.class, "tag", false, "TAG");
+        public final static Property IsLocal = new Property(4, boolean.class, "isLocal", false, "IS_LOCAL");
+        public final static Property MessageId = new Property(5, Long.class, "messageId", false, "MESSAGE_ID");
     }
 
     private DaoSession daoSession;
@@ -53,7 +55,9 @@ public class MessageMetaValueDao extends AbstractDao<MessageMetaValue, Long> {
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"KEY\" TEXT," + // 1: key
                 "\"VALUE\" TEXT," + // 2: value
-                "\"MESSAGE_ID\" INTEGER);"); // 3: messageId
+                "\"TAG\" TEXT," + // 3: tag
+                "\"IS_LOCAL\" INTEGER NOT NULL ," + // 4: isLocal
+                "\"MESSAGE_ID\" INTEGER);"); // 5: messageId
     }
 
     /** Drops the underlying database table. */
@@ -81,9 +85,15 @@ public class MessageMetaValueDao extends AbstractDao<MessageMetaValue, Long> {
             stmt.bindString(3, value);
         }
  
+        String tag = entity.getTag();
+        if (tag != null) {
+            stmt.bindString(4, tag);
+        }
+        stmt.bindLong(5, entity.getIsLocal() ? 1L: 0L);
+ 
         Long messageId = entity.getMessageId();
         if (messageId != null) {
-            stmt.bindLong(4, messageId);
+            stmt.bindLong(6, messageId);
         }
     }
 
@@ -106,9 +116,15 @@ public class MessageMetaValueDao extends AbstractDao<MessageMetaValue, Long> {
             stmt.bindString(3, value);
         }
  
+        String tag = entity.getTag();
+        if (tag != null) {
+            stmt.bindString(4, tag);
+        }
+        stmt.bindLong(5, entity.getIsLocal() ? 1L: 0L);
+ 
         Long messageId = entity.getMessageId();
         if (messageId != null) {
-            stmt.bindLong(4, messageId);
+            stmt.bindLong(6, messageId);
         }
     }
 
@@ -129,7 +145,9 @@ public class MessageMetaValueDao extends AbstractDao<MessageMetaValue, Long> {
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // key
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // value
-            cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3) // messageId
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // tag
+            cursor.getShort(offset + 4) != 0, // isLocal
+            cursor.isNull(offset + 5) ? null : cursor.getLong(offset + 5) // messageId
         );
         return entity;
     }
@@ -139,7 +157,9 @@ public class MessageMetaValueDao extends AbstractDao<MessageMetaValue, Long> {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setKey(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setValue(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setMessageId(cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3));
+        entity.setTag(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setIsLocal(cursor.getShort(offset + 4) != 0);
+        entity.setMessageId(cursor.isNull(offset + 5) ? null : cursor.getLong(offset + 5));
      }
     
     @Override

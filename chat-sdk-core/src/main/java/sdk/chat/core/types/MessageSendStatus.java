@@ -10,6 +10,7 @@ public enum MessageSendStatus {
     Compressing,
     WillUpload,
     Uploading,
+    UploadFailed,
     DidUpload,
     WillSend,
     Sent,
