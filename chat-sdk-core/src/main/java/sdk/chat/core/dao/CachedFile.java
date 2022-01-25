@@ -48,8 +48,8 @@ public class CachedFile extends AbstractEntity {
     private transient CachedFileDao myDao;
     @Generated(hash = 1409345268)
     public CachedFile(Long id, String entityID, String identifier, Integer type,
-            String localPath, String remotePath, String name, String messageKey,
-            boolean reportProgress, String mimeType, Integer status) {
+                      String localPath, String remotePath, String name, String messageKey,
+                      boolean reportProgress, String mimeType, Integer status) {
         this.id = id;
         this.entityID = entityID;
         this.identifier = identifier;
@@ -162,6 +162,10 @@ public class CachedFile extends AbstractEntity {
             return UploadStatus.values()[getStatus()];
         }
         return UploadStatus.None;
+    }
+
+    public boolean completeAndValid() {
+        return getUploadStatus() == UploadStatus.Complete && getRemotePath() != null && !getRemotePath().isEmpty();
     }
 
     public void setFileType(Type type) {

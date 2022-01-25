@@ -7,7 +7,10 @@ import com.google.firebase.storage.UploadTask;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
@@ -24,6 +27,7 @@ import sdk.guru.common.RX;
 public class FirebaseUploadHandler extends AbstractUploadHandler {
 
     public List<UploadTask> tasks = new ArrayList<>();
+    public Map<String, UploadTask> taskMap = new HashMap<>();
 
     public FirebaseUploadHandler() {
 
@@ -50,12 +54,12 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
                 for (UploadTask task: tasks) {
                     task.cancel();
                 }
-                tasks.clear();
+                clearTasks();
             }
         });
     }
 
-    public Observable<FileUploadResult> uploadFile(final byte[] data, final String name, final String mimeType) {
+    public Observable<FileUploadResult> uploadFile(final byte[] data, final String name, final String mimeType, String identifier) {
         return Observable.create((ObservableOnSubscribe<FileUploadResult>) e -> {
 
             StorageReference filesRef = storage().getReference().child("files");
@@ -65,7 +69,10 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
             final FileUploadResult result = new FileUploadResult();
 
             UploadTask uploadTask = fileRef.putBytes(data);
-            tasks.add(uploadTask);
+
+            // Get the identifier for the data
+
+            addTask(identifier, uploadTask);
 
             uploadTask.addOnProgressListener(taskSnapshot -> {
                 result.progress.set(taskSnapshot.getTotalByteCount(), taskSnapshot.getBytesTransferred());
@@ -87,30 +94,71 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
 
                     e.onComplete();
                 });
-                tasks.remove(uploadTask);
+                removeTask(uploadTask);
 
             }).addOnFailureListener(err -> {
                 //
                 result.status = UploadStatus.Failed;
                 e.onNext(result);
 
-                tasks.remove(uploadTask);
+                removeTask(uploadTask);
 
                 e.onError(err);
             }).addOnCanceledListener(() -> {
                 result.status = UploadStatus.Failed;
                 e.onNext(result);
-               tasks.remove(uploadTask);
+                removeTask(uploadTask);
                 e.onError(new Exception("Upload Failed"));
             });
 
         }).subscribeOn(RX.io());
     }
 
+    public void addTask(String id, UploadTask task) {
+        tasks.add(task);
+        if (id != null) {
+            taskMap.put(id, task);
+        }
+    }
 
+    public void removeTask(UploadTask task) {
+        tasks.remove(task);
+        Set<String> keys = taskMap.keySet();
+        String foundKey = null;
+        for (String key: keys) {
+            UploadTask existingTask = taskMap.get(key);
+            if (existingTask.equals(task)) {
+                foundKey = key;
+                break;
+            }
+        }
+        if (foundKey != null) {
+            taskMap.remove(foundKey);
+        }
+    }
+
+    public void clearTasks() {
+        tasks.clear();
+    }
 
     public boolean shouldUploadAvatar () {
         return true;
+    }
+
+    public UploadStatus uploadStatus(String identifier) {
+        UploadTask task = taskMap.get(identifier);
+        if (task != null) {
+            if (task.isInProgress()) {
+                return UploadStatus.InProgress;
+            }
+            if (task.isComplete()) {
+                return UploadStatus.Complete;
+            }
+            if (task.isCanceled()) {
+                return UploadStatus.Failed;
+            }
+        }
+        return UploadStatus.None;
     }
 
     public static FirebaseStorage storage () {

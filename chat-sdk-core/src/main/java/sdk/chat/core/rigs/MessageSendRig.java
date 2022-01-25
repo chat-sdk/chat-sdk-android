@@ -62,18 +62,21 @@ public class MessageSendRig {
         this.message = message;
 
         // If upload failed
-        if (message.getMessageStatus() == MessageSendStatus.UploadFailed) {
+        if (message.uploadFailed()) {
 
             // Re-upload any files that failed before
             List<CachedFile> files = ChatSDK.uploadManager().getFiles(message.getEntityID());
             for (CachedFile file: files) {
-                if (file.getUploadStatus() != UploadStatus.Complete) {
+                if (!file.completeAndValid()) {
                     Uploadable uploadable = file.getUploadable();
                     if (uploadable != null) {
                         uploadables.add(uploadable);
+                        file.setUploadStatus(UploadStatus.WillStart);
+                        file.update();
                     }
                 }
             }
+            message.setMessageStatus(MessageSendStatus.Created, true);
         }
     }
 
@@ -176,14 +179,22 @@ public class MessageSendRig {
             message.setMessageStatus(MessageSendStatus.WillUpload);
             message.setMessageStatus(MessageSendStatus.Uploading);
 
+            List<Uploadable> toUpload = new ArrayList<>();
+
             // Add the files to the upload manager
             for (Uploadable item : uploadables) {
                 CachedFile file = ChatSDK.uploadManager().add(item, message);
-                file.setUploadStatus(UploadStatus.WillStart);
+
+                if (file.completeAndValid()) {
+                    message.setValueForKey(file.getRemotePath(), item.messageKey);
+                } else {
+                    file.setUploadStatus(UploadStatus.WillStart);
+                    toUpload.add(item);
+                }
             }
 
-            for (Uploadable item : uploadables) {
-                completables.add(ChatSDK.upload().uploadFile(item.getBytes(), item.name, item.mimeType).flatMapMaybe(result -> {
+            for (Uploadable item : toUpload) {
+                completables.add(ChatSDK.upload().uploadFile(item.getBytes(), item.name, item.mimeType, item.hash()).flatMapMaybe(result -> {
 
                     ChatSDK.uploadManager().setStatus(item.hash(), result.status);
 

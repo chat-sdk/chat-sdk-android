@@ -29,6 +29,7 @@ import sdk.chat.core.base.AbstractEntity;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.storage.UploadStatus;
 import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
@@ -81,7 +82,7 @@ public class Message extends AbstractEntity {
 
     @Generated(hash = 1026695031)
     public Message(Long id, String entityID, Date date, Integer type, Integer status, Long senderId, Long threadId,
-            Long nextMessageId, Long previousMessageId, String encryptedText) {
+                   Long nextMessageId, Long previousMessageId, String encryptedText) {
         this.id = id;
         this.entityID = entityID;
         this.date = date;
@@ -184,7 +185,7 @@ public class Message extends AbstractEntity {
         Map<String, Object> values = new HashMap<>();
         for (MessageMetaValue v : getMetaValues()) {
             if (!v.getIsLocal() || includeLocal)
-            values.put(v.getKey(), v.getValue());
+                values.put(v.getKey(), v.getValue());
         }
         return values;
     }
@@ -737,5 +738,59 @@ public class Message extends AbstractEntity {
         this.encryptedText = encryptedText;
     }
 
+    /**
+     * We can resend if sending or if upload failed
+     * @return
+     */
+    public boolean canResend() {
+
+        if (!getSender().isMe()) {
+            return false;
+        }
+
+        MessageSendStatus status = getMessageStatus();
+
+        if (status == MessageSendStatus.Failed || status == MessageSendStatus.UploadFailed) {
+            return true;
+        }
+        if (uploadFailed()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Upload can fail with a known status of upload failed or if uploading is interrupted and
+     * stuck in the uploading state. In that case, we check each file and
+     * @return
+     */
+    public boolean uploadFailed() {
+        MessageSendStatus status = getMessageStatus();
+        if (status == MessageSendStatus.UploadFailed) {
+            return true;
+        }
+        else if(status == MessageSendStatus.Uploading) {
+            if (ChatSDK.upload() != null) {
+                // Check if the task is active...
+                List<CachedFile> files = ChatSDK.uploadManager().getFiles(getEntityID());
+                for (CachedFile file: files) {
+                    UploadStatus fileUploadStatus = file.getUploadStatus();
+                    if (fileUploadStatus == UploadStatus.Complete || fileUploadStatus == UploadStatus.WillStart) {
+                        continue;
+                    }
+                    else if (fileUploadStatus == UploadStatus.Failed) {
+                        return true;
+                    } else {
+                        UploadStatus us = ChatSDK.upload().uploadStatus(file.getEntityID());
+                        if (us != UploadStatus.InProgress) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
 }

@@ -4,11 +4,8 @@ import android.util.Base64;
 
 import androidx.annotation.Nullable;
 
-import com.google.gson.Gson;
-
 import java.io.IOException;
 import java.security.MessageDigest;
-import java.util.HashMap;
 
 import sdk.chat.core.storage.FileManager;
 
@@ -57,22 +54,16 @@ public abstract class Uploadable {
         return FileManager.saveToFile(hash(), getBytes());
     }
 
-    public String serialize() {
-        Gson gson = new Gson();
-        HashMap<String,String> values = new HashMap<String, String>() {{
-            put(nameKey, name);
-            put(mimeTypeKey, mimeType);
-            put(pathKey, cache());
-        }};
-        return gson.toJson(values);
-    }
-
     @Nullable
     public String hash() {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(getBytes());
-            return Base64.encodeToString(hash, Base64.DEFAULT);
+            String hashString = Base64.encodeToString(hash, Base64.DEFAULT);
+            hashString = hashString.replace("=", "_");
+            hashString = hashString.replace("+", "-");
+            hashString = hashString.replace("/", "__");
+            return hashString;
         } catch (Exception e) {
             return null;
         }

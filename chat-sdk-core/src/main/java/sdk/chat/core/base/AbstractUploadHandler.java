@@ -27,4 +27,8 @@ public abstract class AbstractUploadHandler implements UploadHandler {
         return false;
     }
 
+    public Observable<FileUploadResult> uploadFile(final byte[] data, final String name, final String mimeType) {
+        return uploadFile(data, name, mimeType, null);
+    }
+
 }

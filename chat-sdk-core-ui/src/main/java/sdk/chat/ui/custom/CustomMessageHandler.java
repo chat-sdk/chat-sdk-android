@@ -10,7 +10,6 @@ import java.util.List;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.utils.DialogUtils;
@@ -35,8 +34,7 @@ public abstract class CustomMessageHandler implements IMessageHandler {
 
     @Override
     public boolean onClick(Activity activity, View rootView, Message message) {
-        MessageSendStatus status = message.getMessageStatus();
-        if (message.getSender().isMe() && status == MessageSendStatus.Failed || status == MessageSendStatus.UploadFailed) {
+        if (message.canResend()) {
             DialogUtils.showToastDialog(activity, R.string.message_send_failed, R.string.try_to_resend_the_message, R.string.send, R.string.cancel, () -> {
                 MessageSendRig.create(message).run().subscribe(ChatSDK.events());
             }, null);
