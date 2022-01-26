@@ -8,6 +8,9 @@
 -renamesourcefileattribute SourceFile
 -keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
 
+-keep class org.jivesoftware.smack.** { *; }
+-keep class org.jivesoftware.smackx.** { *; }
+
 -keepclasseswithmembernames,includedescriptorclasses class sdk.chat.**, sdk.guru.**, firestream.chat.**, app.xmpp.**, co.chatsdk.** {
     native <methods>;
 }
