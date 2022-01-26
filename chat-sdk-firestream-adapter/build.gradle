@@ -17,7 +17,7 @@ android {
     buildTypes {
         debug {
             minifyEnabled project.hasProperty('minifyDebug')
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
         }
         release {
             minifyEnabled project.hasProperty('minifyCore')
