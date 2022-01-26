@@ -151,6 +151,7 @@ You can check out the project: [Firestream on Github](https://github.com/chat-sd
 7. [Add module dependencies](https://chat-sdk.gitbook.io/android/setup/add-additional-modules)
 8. [Module Configuration](https://chat-sdk.gitbook.io/android/setup/module-configuration)
 9. [Proguard](https://chat-sdk.gitbook.io/android/setup/proguard)
+10. [Push Notifications, Security Rules and Storage](https://github.com/chat-sdk/chat-sdk-firebase)
 
 #### Customization
 
