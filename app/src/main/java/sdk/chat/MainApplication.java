@@ -94,7 +94,7 @@ public class MainApplication extends Application {
         d = ChatSDK.events().errorSourceOnMain().subscribe(t -> {
             t.printStackTrace();
         });
-
+        
 
     }
 
