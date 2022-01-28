@@ -44,7 +44,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
         }
         debug {
-            minifyEnabled project.hasProperty('minifyDebug')
+            minifyEnabled project.hasProperty('minifyDebug') && minifyDebug
             proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
 
             debuggable true

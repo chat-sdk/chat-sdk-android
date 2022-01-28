@@ -81,6 +81,7 @@ public class LocationHandler {
     public void stop() {
         if (timerDisposable != null) {
             timerDisposable.dispose();
+            timerDisposable = null;
         }
 //        singleEmitters.clear();
     }

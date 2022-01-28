@@ -9,6 +9,7 @@ package sdk.chat.ui.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import io.reactivex.functions.Consumer;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.activities.BaseActivity;
+import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.AlertUtils;
 import sdk.chat.ui.utils.ToastHelper;
 import sdk.guru.common.DisposableMap;
@@ -50,7 +52,15 @@ public abstract class BaseFragment extends DialogFragment implements Consumer<Th
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         super.onCreateView(inflater, container, savedInstanceState);
 
-        rootView = inflater.inflate(getLayout(), container, false);
+        LayoutInflater localInflater = inflater;
+        if(UIModule.config().theme != 0 && getActivity() != null) {
+            final Context contextThemeWrapper = new ContextThemeWrapper(getActivity(), UIModule.config().theme);
+
+            // clone the inflater using the ContextThemeWrapper
+            localInflater = inflater.cloneInContext(contextThemeWrapper);
+        }
+        rootView = localInflater.inflate(getLayout(), container, false);
+
         ButterKnife.bind(this, rootView);
 
         setHasOptionsMenu(true);

@@ -40,4 +40,3 @@ public static java.lang.String TABLENAME;
 
 -keep,includedescriptorclasses class net.sqlcipher.** { *; }
 -keep,includedescriptorclasses interface net.sqlcipher.** { *; }
-

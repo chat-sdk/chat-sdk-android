@@ -1,18 +1,21 @@
-
 #            | Classes | Members |
 # Shrink:    |         |         |
 # Obfuscate: |         |         |
--keep public class sdk.chat.ui.**, sdk.chat.core.dao.**, **.R$*, org.bouncycastle.jcajce.provider.**, org.jivesoftware.**  {
+-keep public class org.bouncycastle.jcajce.provider.**, org.jivesoftware.**, app.xmpp.**, sdk.chat.**, firestream.chat.**, sdk.guru.**, co.chatsdk.** {
     public protected *;
+}
+
+-keep public class smartadapter.**, materialsearchview.**, org.ocpsoft.prettytime.** {
+    public protected *;
+}
+
+-keep class **.R$* {
     <fields>;
 }
 
 #            | Classes | Members |
 # Shrink:    |    x    |         |
 # Obfuscate: |    x    |         |
--keepclassmembers public class app.xmpp.** {
-    public protected *;
-}
 
 #            | Classes | Members |
 # Shrink:    |    x    |    x    |
@@ -24,6 +27,6 @@
 #            | Classes | Members |
 # Shrink:    |    x    |    x    |
 # Obfuscate: |    x    |         |
--keepclassmembernames public class sdk.chat.core.**, firestream.chat.**, sdk.guru.**, co.chatsdk.**, app.xmpp.** {
-    public protected *;
-}
+#-keepclassmembernames public class sdk.chat.core.**, firestream.chat.**, sdk.guru.**, co.chatsdk.** {
+#    public protected *;
+#}

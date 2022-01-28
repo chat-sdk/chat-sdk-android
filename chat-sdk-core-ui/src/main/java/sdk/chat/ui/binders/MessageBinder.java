@@ -26,7 +26,13 @@ public class MessageBinder {
 //            textView.setText(format.format(holder.getCreatedAt()));
         }
 
-        String status = format(textView.getContext(), holder.getStatus(), holder.getUploadPercentage(), holder.getFileSize());
+        // If the upload failed..
+        String status;
+        if (holder.canResend()) {
+            status = textView.getContext().getString(R.string.failed);
+        } else {
+            status = format(textView.getContext(), holder.getStatus(), holder.getUploadPercentage(), holder.getFileSize());
+        }
         if (holder.getStatus() != MessageSendStatus.Uploading) {
             status += " " + textView.getText();
         }

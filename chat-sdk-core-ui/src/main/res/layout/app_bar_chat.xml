@@ -5,7 +5,8 @@
     android:background="?actionBarBackgroundColor"
     app:titleTextColor="?actionBarTextColor"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
 
     <com.google.android.material.appbar.CollapsingToolbarLayout
         android:layout_width="match_parent"

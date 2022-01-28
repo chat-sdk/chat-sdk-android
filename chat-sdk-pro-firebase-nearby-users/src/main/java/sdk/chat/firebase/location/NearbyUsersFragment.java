@@ -1,5 +1,6 @@
 package sdk.chat.firebase.location;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -181,6 +182,8 @@ public class NearbyUsersFragment extends BaseFragment {
 
                 ArrayList<UserListItem> items = new ArrayList<>(users);
 
+                Context context = getContext();
+
                 RX.main().scheduleDirect(() -> {
                     adapter.setUsers(items);
                     if(listOnClickListenerDisposable != null) {
@@ -189,7 +192,7 @@ public class NearbyUsersFragment extends BaseFragment {
                     listOnClickListenerDisposable = adapter.onClickObservable().subscribe(o -> {
                         if(o instanceof LocationUser) {
                             final User clickedUser = ((LocationUser) o).user;
-                            ChatSDK.ui().startProfileActivity(getContext(), clickedUser.getEntityID());
+                            ChatSDK.ui().startProfileActivity(context, clickedUser.getEntityID());
                         }
                     });
                 });

@@ -14,12 +14,14 @@ import sdk.chat.core.utils.StringChecker;
 
 public class BaseBroadcastHandler implements BroadcastHandler {
 
-    public void onReceive(Context context, Intent intent) {
+    public boolean onReceive(Context context, Intent intent) {
+
+        android.os.Debug.waitForDebugger();
 
         Bundle extras = intent.getExtras();
 
         if(!ChatSDK.shared().isValid() || !ChatSDK.config().inboundPushHandlingEnabled || !ChatSDK.push().enabled() || extras == null) {
-            return;
+            return false;
         }
 
         final String threadEntityID = extras.getString(Keys.PushKeyThreadEntityID);
@@ -27,14 +29,29 @@ public class BaseBroadcastHandler implements BroadcastHandler {
         final String title = extras.getString(Keys.PushKeyTitle);
 
         if (StringChecker.isNullOrEmpty(threadEntityID) || StringChecker.isNullOrEmpty(userEntityID)) {
-            return;
+            return false;
+        }
+
+        // If the database is not open...
+        if (!ChatSDK.db().isDatabaseOpen()) {
+            String currentUserId = ChatSDK.auth().getCurrentUserEntityID();
+            if (currentUserId != null) {
+                try {
+                    ChatSDK.db().openDatabase(currentUserId);
+                } catch (Exception e) {
+
+                }
+            }
+        }
+        if (!ChatSDK.db().isDatabaseOpen()) {
+            return true;
         }
 
         // Check if notifications are muted
         Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
         if (thread != null) {
             if (thread.isMuted()) {
-                return;
+                return true;
             }
         }
 
@@ -73,6 +90,6 @@ public class BaseBroadcastHandler implements BroadcastHandler {
 
             ChatSDK.ui().notificationDisplayHandler().createMessageNotification(context, appIntent, userEntityID, threadEntityID, title, body);
         }
-
+        return true;
     }
 }

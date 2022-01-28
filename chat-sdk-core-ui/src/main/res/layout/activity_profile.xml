@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    >
 
     <fragment
         class="sdk.chat.ui.fragments.ProfileFragment"

@@ -188,6 +188,9 @@ public class UIConfig<T> extends BaseConfig<T> {
      * default is yyyy-MM-dd HH:mm:ss
      * @param format
      * @return
+     *
+     * MM/dd/yyyy HH:mm
+     *
      */
     public UIConfig<T> setThreadTimeFormat(String format) {
         this.threadTimeFormat = format;

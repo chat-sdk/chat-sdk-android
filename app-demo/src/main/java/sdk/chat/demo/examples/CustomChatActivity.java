@@ -9,7 +9,7 @@ public class CustomChatActivity extends ChatActivity {
 
     protected @LayoutRes
     int getLayout() {
-        return R.layout.activity_chat;
+        return R.layout.fragment_chat;
     }
 
 }

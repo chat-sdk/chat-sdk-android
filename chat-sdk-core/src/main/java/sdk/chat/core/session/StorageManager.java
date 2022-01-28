@@ -434,6 +434,9 @@ public class StorageManager {
         daoCore.closeDB();
     }
 
+    public boolean isDatabaseOpen() {
+        return daoCore != null && daoCore.getDaoSession() != null;
+    }
 
 }
 
