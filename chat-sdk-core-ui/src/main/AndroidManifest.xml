@@ -22,6 +22,9 @@
         <activity android:name=".activities.SplashScreenActivity"
             android:screenOrientation="portrait"/>
 
+        <activity android:name=".activities.ImageEditorActivity"
+            android:screenOrientation="portrait"/>
+
         <activity android:name=".settings.SettingsActivity"
             android:windowSoftInputMode="stateHidden" />
 

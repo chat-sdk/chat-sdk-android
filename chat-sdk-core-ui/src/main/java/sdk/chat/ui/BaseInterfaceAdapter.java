@@ -43,6 +43,7 @@ import sdk.chat.ui.activities.CreateThreadActivity;
 import sdk.chat.ui.activities.EditProfileActivity;
 import sdk.chat.ui.activities.EditThreadActivity;
 import sdk.chat.ui.activities.ForwardMessageActivity;
+import sdk.chat.ui.activities.ImageEditorActivity;
 import sdk.chat.ui.activities.LoginActivity;
 import sdk.chat.ui.activities.MainAppBarActivity;
 import sdk.chat.ui.activities.PostRegistrationActivity;
@@ -90,6 +91,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class<? extends Activity> createThreadActivity = CreateThreadActivity.class;
     protected Class<? extends Activity> addUsersToThreadActivity = AddUsersToThreadActivity.class;
     protected Class<? extends Activity> forwardMessageActivity = ForwardMessageActivity.class;
+    protected Class<? extends Activity> imageEditorActivity = ImageEditorActivity.class;
     protected AvatarGenerator avatarGenerator = new HashAvatarGenerator();
 
     protected Intent loginIntent;
@@ -368,6 +370,16 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
+    public Class<? extends Activity> getImageEditorActivity() {
+        return imageEditorActivity;
+    }
+
+    @Override
+    public void setImageEditorActivity (Class<? extends Activity> imageEditorActivity) {
+        this.imageEditorActivity = imageEditorActivity;
+    }
+
+    @Override
     public void setProfileActivity (Class<? extends Activity> profileActivity) {
         this.profileActivity = profileActivity;
     }
@@ -598,8 +610,9 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         if (!defaultChatOptionsAdded) {
 
             if(UIModule.config().imageMessagesEnabled) {
-                //chatOptions.add(new MediaChatOption(stringTakePhoto, MediaType.takePhoto()));
-                chatOptions.add(new MediaChatOption(context.get().getResources().getString(R.string.image_or_photo), MediaType.choosePhoto()));
+                chatOptions.add(new MediaChatOption(context.get().getResources().getString(R.string.image_or_photo),
+                        MediaType.choosePhoto(),
+                        UIModule.config().cropType));
             }
             defaultChatOptionsAdded = true;
         }
@@ -612,6 +625,13 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         Intent intent = new Intent(context, getProfileActivity());
         intent.putExtra(Keys.IntentKeyUserEntityID, userEntityID);
         context.startActivity(intent);
+    }
+
+    @Override
+    public void startImageEditorActivity(Activity activity, String imagePath) {
+        Intent intent = new Intent(activity, getImageEditorActivity());
+        intent.putExtra(Keys.IntentKeyImagePath, imagePath);
+        activity.startActivityForResult(intent, ImageEditorActivity.activityIdentifier);
     }
 
     @Override
