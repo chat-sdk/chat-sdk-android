@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sdk.chat.contact.ContactBookModule;
+import sdk.chat.core.module.ImageMessageModule;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
@@ -267,6 +268,7 @@ public class DemoConfigBuilder {
                 .addModule(FirebasePushModule.shared())
                 .addModule(ProfilePicturesModule.shared())
                 .addModule(LocationMessageModule.shared())
+                .addModule(ImageMessageModule.shared())
 
                 .addModule(ContactBookModule.shared())
 //                    .addModule(EncryptionModule.shared())

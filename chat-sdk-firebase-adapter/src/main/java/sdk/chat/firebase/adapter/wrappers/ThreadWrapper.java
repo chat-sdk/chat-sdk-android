@@ -85,10 +85,10 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             });
 
             // Update our permission level
-            if (model.typeIs(ThreadType.Group)) {
-                return myPermission().andThen(metaOnCompletable);
-            }
-            return metaOnCompletable;
+//            if (model.typeIs(ThreadType.Group)) {
+            return myPermission().andThen(metaOnCompletable);
+//            }
+//            return metaOnCompletable;
         });
     }
 
@@ -356,6 +356,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                         Map<String, Object> map = snapshot.getValue(Generic.mapStringObject());
                         for (String key: map.keySet()) {
                             final UserWrapper user = FirebaseModule.config().provider.userWrapper(key);
+
                             user.on().subscribe();
                             model.addUser(user.getModel());
                         }
@@ -636,6 +637,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
     public void permissionsOn() {
         DatabaseReference ref = FirebasePaths.threadPermissionsRef(model.getEntityID());
         if (!RealtimeReferenceManager.shared().isOn(ref)) {
+
             RXRealtime realtime = new RXRealtime(this);
 
             realtime.childOn(ref).map(change -> {
@@ -646,8 +648,11 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                         updateListenersForPermissions();
                     }
                 } else {
-                    // If no permission is set, we set it to member
-                    model.setPermission(change.getSnapshot().getKey(), Permission.Member);
+                    if (model.getCreator() != null && model.getCreator().isMe()) {
+                        model.setPermission(change.getSnapshot().getKey(), Permission.Owner);
+                    } else {
+                        model.setPermission(change.getSnapshot().getKey(), Permission.Member);
+                    }
                 }
                 return model;
             }).ignoreElements().subscribe(ChatSDK.events());
@@ -670,7 +675,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                     model.setPermission(currentEntityID, change.get().getValue(String.class), true, false);
                 } else {
                     // If no permission is set, we set it to member
-                    model.setPermission(currentEntityID, model.getCreator().isMe() ? Permission.Owner : Permission.Member, true, false);
+                    model.setPermission(currentEntityID, Permission.Member, true, false);
                 }
                 return Completable.complete();
             });

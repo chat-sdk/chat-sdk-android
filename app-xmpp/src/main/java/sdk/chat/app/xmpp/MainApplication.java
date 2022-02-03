@@ -12,6 +12,7 @@ import io.reactivex.disposables.Disposable;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.module.ImageMessageModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
@@ -62,6 +63,7 @@ public class MainApplication extends Application {
 
                     .addModule(AudioMessageModule.shared())
                     .addModule(LocationMessageModule.shared())
+                    .addModule(ImageMessageModule.shared())
                     .addModule(VideoMessageModule.shared())
                     .addModule(FileMessageModule.shared())
                     .addModule(StickerMessageModule.builder()

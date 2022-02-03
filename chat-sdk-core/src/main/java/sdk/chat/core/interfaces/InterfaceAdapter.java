@@ -95,7 +95,7 @@ public interface InterfaceAdapter {
 
     void removeTab(int index);
 
-    void startImageEditorActivity(Activity activity, String imagePath);
+    void startImageEditorActivity(Activity activity, String path, int resultCode);
 
     void startActivity(Context context, Class<? extends Activity> activity);
     void startActivity(Context context, Intent intent);

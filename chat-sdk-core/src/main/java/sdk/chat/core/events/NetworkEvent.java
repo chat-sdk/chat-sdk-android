@@ -455,4 +455,8 @@ public class NetworkEvent {
         }
         return false;
     }
+
+    public void setData(Map<String, Object> data) {
+        this.data = data;
+    }
 }

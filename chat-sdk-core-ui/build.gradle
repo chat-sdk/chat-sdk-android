@@ -122,9 +122,10 @@ dependencies {
     // Nested adapter extension library
 //    implementation 'io.github.manneohlund:smart-recycler-adapter-nestedadapter:1.0.0-beta01'
 
-    implementation "androidx.activity:activity-ktx:$activity_ktx_version"
+//    implementation "androidx.activity:activity-ktx:$activity_ktx_version"
 
-    implementation 'com.burhanrashid52:photoeditor:2.0.0'
+//    implementation 'com.burhanrashid52:photoeditor:2.0.0'
+
 }
 
 

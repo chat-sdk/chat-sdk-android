@@ -35,7 +35,6 @@ import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import sdk.chat.core.utils.PermissionRequestHandler;
 import sdk.chat.ui.R;
-import sdk.chat.ui.activities.ImageEditorActivity;
 import sdk.chat.ui.chat.options.MediaType;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.Cropper;
@@ -49,6 +48,7 @@ public class MediaSelector {
     public static final int CHOOSE_PHOTO = 100;
     public static final int TAKE_VIDEO = 101;
     public static final int CHOOSE_VIDEO = 102;
+    public static final int EDITOR = 103;
 
     public static final int SELECTION_MAX_SIZE = 5;
 
@@ -200,7 +200,8 @@ public class MediaSelector {
             else if (cropType == CropType.Editor) {
                 File imageFile = fileFromURI(uri, activity, MediaStore.Images.Media.DATA);
                 String path = imageFile.getPath();
-                ChatSDK.ui().startImageEditorActivity(activity, path);
+
+                ChatSDK.ui().startImageEditorActivity(activity, path, EDITOR);
             }
             else {
                 Cropper.startActivity(activity, uri);
@@ -280,11 +281,7 @@ public class MediaSelector {
     }
 
     protected void processEditedPhoto(Activity activity, int resultCode, Intent data) throws Exception {
-        if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE || resultCode == Activity.RESULT_CANCELED) {
-            // TODO:
-            throw new Exception("Editing failed");
-        }
-        else if (resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             try {
                 String uriString = data.getStringExtra(Keys.IntentKeyImagePath);
                 Uri uri = Uri.parse(uriString);
@@ -293,8 +290,9 @@ public class MediaSelector {
             catch (NullPointerException e){
                 notifyError(new Exception(activity.getString(R.string.unable_to_fetch_image)));
             }
+        } else {
+            throw new Exception("Editing failed");
         }
-
     }
 
     public void handleImageFiles (Activity activity, File... files) {
@@ -322,8 +320,8 @@ public class MediaSelector {
             else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
                 processCroppedPhoto(activity, resultCode, intent);
             }
-            else if (requestCode == ImageEditorActivity.activityIdentifier) {
-                processCroppedPhoto(activity, resultCode, intent);
+            else if (requestCode == EDITOR) {
+                processEditedPhoto(activity, resultCode, intent);
             }
             else if (requestCode == TAKE_VIDEO || requestCode == CHOOSE_VIDEO) {
                 Uri videoUri = intent.getData();

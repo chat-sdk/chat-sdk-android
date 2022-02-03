@@ -6,8 +6,11 @@ import java.util.List;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.ui.ChatSDKUI;
 
 public class DCom {
+
+    public static String reloadData = "reload";
 
     static final DCom instance = new DCom();
     public static DCom shared() {
@@ -25,4 +28,8 @@ public class DCom {
         ChatSDK.thread().deleteMessages(messages).subscribe();
     }
 
+    public void setup() {
+        ChatSDKUI.setChatFragmentProvider(DComChatFragment::new);
+        ChatSDK.ui().setPrivateThreadsFragment(new DComPrivateThreadsFragment());
+    }
 }

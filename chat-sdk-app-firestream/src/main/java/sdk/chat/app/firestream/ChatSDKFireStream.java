@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import sdk.chat.core.module.ImageMessageModule;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.QuickStart;
@@ -61,6 +62,7 @@ public class ChatSDKFireStream extends QuickStart {
                         .build(),
 
                 LocationMessageModule.shared(),
+                ImageMessageModule.shared(),
 
                 FirebaseUploadModule.shared(),
 

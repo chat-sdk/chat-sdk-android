@@ -127,7 +127,7 @@ public class MessageSendRig {
                 return send();
             } else {
                 // First pass back an empty result so that we add the cell to the table view
-                message.setMessageStatus(MessageSendStatus.Uploading);
+//                message.setMessageStatus(MessageSendStatus.WillUpload);
 
                 ArrayList<Uploadable> compressedUploadables = new ArrayList<>();
 
@@ -177,7 +177,6 @@ public class MessageSendRig {
             ArrayList<Completable> completables = new ArrayList<>();
 
             message.setMessageStatus(MessageSendStatus.WillUpload);
-            message.setMessageStatus(MessageSendStatus.Uploading);
 
             List<Uploadable> toUpload = new ArrayList<>();
 
@@ -185,13 +184,19 @@ public class MessageSendRig {
             for (Uploadable item : uploadables) {
                 CachedFile file = ChatSDK.uploadManager().add(item, message);
 
-                if (file.completeAndValid()) {
-                    message.setValueForKey(file.getRemotePath(), item.messageKey);
-                } else {
+//                if (file.completeAndValid()) {
+//                    message.setValueForKey(file.getRemotePath(), item.messageKey);
+//                } else {
+//                    file.setUploadStatus(UploadStatus.WillStart);
+//                    toUpload.add(item);
+//                }
+                if (!file.completeAndValid()) {
                     file.setUploadStatus(UploadStatus.WillStart);
                     toUpload.add(item);
                 }
             }
+
+            message.setMessageStatus(MessageSendStatus.Uploading);
 
             for (Uploadable item : toUpload) {
                 completables.add(ChatSDK.upload().uploadFile(item.getBytes(), item.name, item.mimeType, item.hash()).flatMapMaybe(result -> {

@@ -8,6 +8,8 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import sdk.chat.core.base.BaseLocationMessageHandler;
+import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.module.UIModule;
@@ -24,6 +26,7 @@ public class LocationMessageModule extends AbstractModule {
 
     @Override
     public void activate(@NonNull Context context) throws Exception {
+        ChatSDK.a().locationMessage = new BaseLocationMessageHandler();
         locationProvider = new LocationProvider();
         if(UIModule.config().locationMessagesEnabled) {
             ChatSDK.ui().addChatOption(new LocationChatOption(context.getResources().getString(sdk.chat.ui.R.string.location)));
@@ -47,6 +50,11 @@ public class LocationMessageModule extends AbstractModule {
 
     public boolean isPremium() {
         return false;
+    }
+
+    @Override
+    public MessageHandler getMessageHandler() {
+        return ChatSDK.locationMessage();
     }
 
 }

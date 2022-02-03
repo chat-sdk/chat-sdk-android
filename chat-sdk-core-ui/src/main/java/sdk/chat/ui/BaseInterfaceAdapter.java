@@ -43,7 +43,6 @@ import sdk.chat.ui.activities.CreateThreadActivity;
 import sdk.chat.ui.activities.EditProfileActivity;
 import sdk.chat.ui.activities.EditThreadActivity;
 import sdk.chat.ui.activities.ForwardMessageActivity;
-import sdk.chat.ui.activities.ImageEditorActivity;
 import sdk.chat.ui.activities.LoginActivity;
 import sdk.chat.ui.activities.MainAppBarActivity;
 import sdk.chat.ui.activities.PostRegistrationActivity;
@@ -91,7 +90,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class<? extends Activity> createThreadActivity = CreateThreadActivity.class;
     protected Class<? extends Activity> addUsersToThreadActivity = AddUsersToThreadActivity.class;
     protected Class<? extends Activity> forwardMessageActivity = ForwardMessageActivity.class;
-    protected Class<? extends Activity> imageEditorActivity = ImageEditorActivity.class;
+    protected Class<? extends Activity> imageEditorActivity = null;
     protected AvatarGenerator avatarGenerator = new HashAvatarGenerator();
 
     protected Intent loginIntent;
@@ -628,10 +627,10 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public void startImageEditorActivity(Activity activity, String imagePath) {
+    public void startImageEditorActivity(Activity activity, String path, int resultCode) {
         Intent intent = new Intent(activity, getImageEditorActivity());
-        intent.putExtra(Keys.IntentKeyImagePath, imagePath);
-        activity.startActivityForResult(intent, ImageEditorActivity.activityIdentifier);
+        intent.putExtra(Keys.IntentKeyImagePath, path);
+        activity.startActivityForResult(intent, resultCode);
     }
 
     @Override

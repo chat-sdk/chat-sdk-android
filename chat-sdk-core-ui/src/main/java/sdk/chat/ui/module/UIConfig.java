@@ -55,7 +55,7 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean messageReplyEnabled = true;
 
     public String usernameHint = null;
-    public MediaSelector.CropType cropType = MediaSelector.CropType.Editor;
+    public MediaSelector.CropType cropType = MediaSelector.CropType.Rectangle;
 
     public boolean imageCroppingEnabled = true;
     public boolean startProfileActivityOnChatViewIconClick = true;

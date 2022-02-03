@@ -1,11 +1,8 @@
 package sdk.chat.core.storage;
 
-import static android.os.Environment.isExternalStorageRemovable;
-
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Environment;
 
 import androidx.annotation.Nullable;
 
@@ -35,23 +32,23 @@ public class FileManager {
 
     public File storage() {
         File dir;
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-                !isExternalStorageRemovable()) {
-            dir = context.getExternalFilesDir("");
-        } else {
+//        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+//                !isExternalStorageRemovable()) {
+//            dir = context.getExternalCacheDir();
+//        } else {
             dir = context.getFilesDir();
-        }
+//        }
         return subdir(dir, ChatSDK.config().storageDirectory);
     }
 
     public File cache() {
         File dir;
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-                !isExternalStorageRemovable()) {
-            dir = context.getExternalCacheDir();
-        } else {
+//        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+//                !isExternalStorageRemovable()) {
+//            dir = context.getExternalCacheDir();
+//        } else {
             dir = context.getCacheDir();
-        }
+//        }
         return subdir(dir, ChatSDK.config().storageDirectory);
     }
 

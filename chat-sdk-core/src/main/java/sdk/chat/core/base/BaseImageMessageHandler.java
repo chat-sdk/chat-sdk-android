@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.Completable;
 import sdk.chat.core.R;
@@ -20,7 +22,7 @@ import sdk.chat.core.types.MessageType;
  * Created by ben on 10/24/17.
  */
 
-public class BaseImageMessageHandler implements ImageMessageHandler {
+public class BaseImageMessageHandler extends AbstractMessageHandler implements ImageMessageHandler {
 
     @Override
     public Completable sendMessageWithImage(final File imageFile, final Thread thread) {
@@ -58,4 +60,16 @@ public class BaseImageMessageHandler implements ImageMessageHandler {
         return null;
     }
 
+    @Override
+    public List<String> remoteURLs(Message message) {
+        if (!message.typeIs(MessageType.Image)) {
+            return super.remoteURLs(message);
+        }
+        List<String> urls = new ArrayList<>();
+        String url = message.stringForKey(Keys.MessageImageURL);
+        if (url != null) {
+            urls.add(url);
+        }
+        return urls;
+    }
 }

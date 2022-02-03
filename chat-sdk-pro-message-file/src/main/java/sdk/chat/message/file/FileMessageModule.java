@@ -42,8 +42,10 @@ public class FileMessageModule extends AbstractModule {
     @Override
     public void activate(Context context) {
         ChatSDK.a().fileMessage = new BaseFileMessageHandler();
+
         ChatSDK.ui().addChatOption(new FileChatOption(ChatSDK.shared().context().getString(R.string.file_message)));
         Report.shared().add(getName());
+
 
         ChatSDKUI.shared().getMessageCustomizer().addMessageHandler(new CustomMessageHandler() {
 

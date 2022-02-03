@@ -32,6 +32,7 @@ import sdk.chat.core.handlers.IEncryptionHandler;
 import sdk.chat.core.handlers.ImageMessageHandler;
 import sdk.chat.core.handlers.LastOnlineHandler;
 import sdk.chat.core.handlers.LocationMessageHandler;
+import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.handlers.ProfilePicturesHandler;
 import sdk.chat.core.handlers.PublicThreadHandler;
 import sdk.chat.core.handlers.PushHandler;
@@ -444,19 +445,12 @@ public class ChatSDK {
 
     public static String getMessageImageURL(Message message) {
         String imageURL = message.getImageURL();
+
         if(StringChecker.isNullOrEmpty(imageURL)) {
-            imageURL = imageMessage().getImageURL(message);
-        }
-        if(StringChecker.isNullOrEmpty(imageURL)) {
-            imageURL = locationMessage().getImageURL(message);
-        }
-        if(StringChecker.isNullOrEmpty(imageURL)) {
-           for (Module module: shared().builder.modules) {
-                if (module.getMessageHandler() != null) {
-                    imageURL = module.getMessageHandler().getImageURL(message);
-                    if (imageURL != null) {
-                        break;
-                    }
+            for (MessageHandler handler: getMessageHandlers()) {
+                imageURL = handler.getImageURL(message);
+                if (imageURL != null) {
+                    break;
                 }
             }
         }
@@ -465,23 +459,36 @@ public class ChatSDK {
 
     public static String getMessageText(Message message) {
         String text = message.isReply() ? message.getReply() : message.getText();
+
         if(StringChecker.isNullOrEmpty(text)) {
-            text = imageMessage().toString(message);
-        }
-        if(StringChecker.isNullOrEmpty(text)) {
-            text = locationMessage().toString(message);
-        }
-        if(StringChecker.isNullOrEmpty(text)) {
-            for (Module module: shared().builder.modules) {
-                if (module.getMessageHandler() != null) {
-                    text = module.getMessageHandler().toString(message);
-                    if (!StringChecker.isNullOrEmpty(text)) {
-                        break;
-                    }
+            for (MessageHandler handler: getMessageHandlers()) {
+                text = handler.toString(message);
+                if (!StringChecker.isNullOrEmpty(text)) {
+                    break;
                 }
             }
         }
         return text;
+    }
+
+    public static List<String> getRemoteFilePaths(Message message) {
+        List<String> paths = new ArrayList<>();
+
+        for (MessageHandler handler: getMessageHandlers()) {
+            paths.addAll(handler.remoteURLs(message));
+        }
+
+        return paths;
+    }
+
+    public static List<MessageHandler> getMessageHandlers() {
+        List<MessageHandler> handlers = new ArrayList<>();
+        for (Module module: shared().builder.modules) {
+            if (module.getMessageHandler() != null) {
+                handlers.add(module.getMessageHandler());
+            }
+        }
+        return handlers;
     }
 
     public List<String> getRequiredPermissions() {

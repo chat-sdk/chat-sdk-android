@@ -3,12 +3,11 @@ package sdk.chat.message.audio;
 import android.content.Context;
 
 import java.io.File;
+import java.util.List;
 
-//import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
-//import cafe.adriel.androidaudioconverter.callback.IConvertCallback;
-//import cafe.adriel.androidaudioconverter.model.AudioFormat;
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import sdk.chat.core.base.AbstractMessageHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -24,7 +23,7 @@ import sdk.guru.common.RX;
  * Created by ben on 9/28/17.
  */
 
-public class BaseAudioMessageHandler implements AudioMessageHandler {
+public class BaseAudioMessageHandler extends AbstractMessageHandler implements AudioMessageHandler {
 
     protected boolean compressionEnabled = false;
 
@@ -86,6 +85,19 @@ public class BaseAudioMessageHandler implements AudioMessageHandler {
 //            return ImageUtils.uriForResourceId(ChatSDK.ctx(), R.drawable.icn_50_audio).toString();
 //        }
         return null;
+    }
+
+    @Override
+    public List<String> remoteURLs(Message message) {
+        List<String> urls = super.remoteURLs(message);
+        if (!message.typeIs(MessageType.Audio)) {
+            return urls;
+        }
+        String audioURL = message.stringForKey(Keys.MessageAudioURL);
+        if (audioURL != null) {
+            urls.add(audioURL);
+        }
+        return urls;
     }
 
 }

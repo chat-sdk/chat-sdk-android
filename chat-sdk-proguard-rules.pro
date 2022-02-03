@@ -13,6 +13,10 @@
     <fields>;
 }
 
+-keep class org.kxml2.io.**, org.xmlpull.** {
+    public protected *;
+}
+
 #            | Classes | Members |
 # Shrink:    |    x    |         |
 # Obfuscate: |    x    |         |
@@ -20,9 +24,9 @@
 #            | Classes | Members |
 # Shrink:    |    x    |    x    |
 # Obfuscate: |         |         |
--keepnames class org.kxml2.io.**, org.xmlpull.** {
-    public protected *;
-}
+#-keepnames class org.kxml2.io.**, org.xmlpull.** {
+#    public protected *;
+#}
 
 #            | Classes | Members |
 # Shrink:    |    x    |    x    |

@@ -783,7 +783,7 @@ public class Message extends AbstractEntity {
                         return true;
                     } else {
                         UploadStatus us = ChatSDK.upload().uploadStatus(file.getEntityID());
-                        if (us != UploadStatus.InProgress) {
+                        if (us != UploadStatus.InProgress && us != UploadStatus.WillStart) {
                             return true;
                         }
                     }

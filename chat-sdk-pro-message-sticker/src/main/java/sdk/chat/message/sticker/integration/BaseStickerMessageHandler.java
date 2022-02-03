@@ -8,6 +8,7 @@ import android.net.Uri;
 import org.pmw.tinylog.Logger;
 
 import io.reactivex.Completable;
+import sdk.chat.core.base.AbstractMessageHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -23,7 +24,7 @@ import sdk.chat.message.sticker.R;
  * Created by ben on 10/11/17.
  */
 
-public class BaseStickerMessageHandler implements StickerMessageHandler {
+public class BaseStickerMessageHandler extends AbstractMessageHandler implements StickerMessageHandler {
     @Override
     public Completable sendMessageWithSticker(final String stickerImageName, final Thread thread) {
         return new MessageSendRig(new MessageType(MessageType.Sticker), thread, message -> {

@@ -7,8 +7,10 @@ import android.provider.MediaStore;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.Completable;
+import sdk.chat.core.base.AbstractMessageHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -25,7 +27,7 @@ import sdk.chat.core.types.MessageType;
  * Created by ben on 10/6/17.
  */
 
-public class BaseVideoMessageHandler implements VideoMessageHandler {
+public class BaseVideoMessageHandler extends AbstractMessageHandler implements VideoMessageHandler {
 
     public static String videoName = "video.mp4";
     public static String videoMimeType = "video/mp4";
@@ -86,5 +88,22 @@ public class BaseVideoMessageHandler implements VideoMessageHandler {
             return message.getImageURL();
         }
         return null;
+    }
+
+    @Override
+    public List<String> remoteURLs(Message message) {
+        List<String> urls = super.remoteURLs(message);
+        if (!message.typeIs(MessageType.File)) {
+            return urls;
+        }
+        String imageURL = message.stringForKey(Keys.MessageImageURL);
+        if (imageURL != null) {
+            urls.add(imageURL);
+        }
+        String videoURL = message.stringForKey(Keys.MessageVideoURL);
+        if (videoURL != null) {
+            urls.add(videoURL);
+        }
+        return urls;
     }
 }

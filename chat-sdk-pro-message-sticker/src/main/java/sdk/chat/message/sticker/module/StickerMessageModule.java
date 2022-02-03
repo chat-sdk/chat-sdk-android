@@ -57,8 +57,6 @@ public class StickerMessageModule extends AbstractModule {
         ChatSDK.a().stickerMessage = new BaseStickerMessageHandler();
         ChatSDK.ui().addChatOption(new StickerChatOption(context.getResources().getString(R.string.sticker_message)));
 
-
-
         ChatSDKUI.shared().getMessageCustomizer().addMessageHandler(new CustomMessageHandler() {
 
             @Override

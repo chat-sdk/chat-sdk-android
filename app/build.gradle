@@ -102,6 +102,8 @@ dependencies {
     implementation project(':chat-sdk-firebase-push')
     implementation project(':chat-sdk-firebase-upload')
 
+    api project(':chat-sdk-mod-image-editor')
+
     implementation project(':chat-sdk-pro-contact-book')
 
 //    implementation project(':chat-sdk-firestream-adapter')

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import sdk.chat.core.base.AbstractUploadHandler;
@@ -114,6 +115,16 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
         }).subscribeOn(RX.io());
     }
 
+    @Override
+    public Completable deleteFile(String remotePath) {
+        return Completable.create(emitter -> {
+            StorageReference fileRef = storage().getReferenceFromUrl(remotePath);
+            fileRef.delete().addOnSuccessListener(unused -> {
+                emitter.onComplete();
+            }).addOnFailureListener(emitter::onError);
+        });
+    }
+
     public void addTask(String id, UploadTask task) {
         tasks.add(task);
         if (id != null) {
@@ -139,10 +150,6 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
 
     public void clearTasks() {
         tasks.clear();
-    }
-
-    public boolean shouldUploadAvatar () {
-        return true;
     }
 
     public UploadStatus uploadStatus(String identifier) {

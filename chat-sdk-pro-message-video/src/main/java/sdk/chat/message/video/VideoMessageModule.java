@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.view.View;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
@@ -44,9 +45,10 @@ public class VideoMessageModule extends AbstractModule {
     public void activate(Context context) {
         Report.shared().add(getName());
         ChatSDK.a().videoMessage = new BaseVideoMessageHandler();
+
         ChatSDK.ui().addChatOption(new MediaChatOption(context.getResources().getString(R.string.take_video), MediaType.takeVideo()));
         ChatSDK.ui().addChatOption(new MediaChatOption(context.getResources().getString(R.string.choose_video), MediaType.chooseVideo()));
-
+        
         ChatSDKUI.shared().getMessageCustomizer().addMessageHandler(new CustomMessageHandler() {
 
             @Override
@@ -162,7 +164,10 @@ public class VideoMessageModule extends AbstractModule {
 
         permissions.add(Manifest.permission.CAMERA);
         permissions.add(Manifest.permission.RECORD_AUDIO);
-        permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
 
         return permissions;
     }
