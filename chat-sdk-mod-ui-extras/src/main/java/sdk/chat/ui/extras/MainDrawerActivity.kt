@@ -151,6 +151,11 @@ open class MainDrawerActivity : MainActivity() {
         setFragmentForPosition(0);
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateLocalNotificationsForTab()
+    }
+
     open fun privateTabName(): Single<StringHolder> {
         return KotlinHelper.privateTabName().observeOn(RX.main())
     }
@@ -193,6 +198,8 @@ open class MainDrawerActivity : MainActivity() {
         }
 
     }
+
+
 
     /**
      * small helper method to reuse the logic to build the AccountHeader

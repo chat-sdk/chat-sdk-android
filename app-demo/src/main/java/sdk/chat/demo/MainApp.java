@@ -30,6 +30,7 @@ public class MainApp extends Application {
                     ContactBookModule.shared()
             );
 
+
             ChatSDK.events().sourceOnMain().subscribe(event -> {
                 Logger.debug(event);
             });

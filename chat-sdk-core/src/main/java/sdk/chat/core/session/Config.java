@@ -64,7 +64,7 @@ public class Config<T> extends BaseConfig<T> {
     // Should we open a new thread with a user after the thread has been deleted?
     public boolean reuseDeleted1to1Threads = true;
 
-    public int messageDeletionListenerLimit = 30;
+    public int messageDeletionListenerLimit = -1;
 
     public int imageMaxWidth = 1920;
     public int imageMaxHeight = 2560;

@@ -43,7 +43,7 @@ public class MainApplication extends Application {
     }
 
     public void firebase() throws Exception {
-        String rootPath = "pre_5";
+        String rootPath = "x_1";
 
         ChatSDK.builder()
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
@@ -75,8 +75,8 @@ public class MainApplication extends Application {
 
                 // Add the UI module
                 .addModule(UIModule.builder()
-                                .setPublicRoomCreationEnabled(true)
-                                .setPublicRoomsEnabled(true)
+                                .setPublicRoomCreationEnabled(false)
+                                .setPublicRoomsEnabled(false)
                                 .build()
                 )
 

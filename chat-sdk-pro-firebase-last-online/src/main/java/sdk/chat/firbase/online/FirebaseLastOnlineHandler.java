@@ -7,6 +7,7 @@ import java.util.Date;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.handlers.LastOnlineHandler;
@@ -22,7 +23,6 @@ public class FirebaseLastOnlineHandler implements LastOnlineHandler {
         AppBackgroundMonitor.shared().addListener(new AppBackgroundMonitor.Listener() {
             @Override
             public void didStart() {
-
             }
 
             @Override

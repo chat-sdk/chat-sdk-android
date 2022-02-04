@@ -132,22 +132,27 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         Query query = FirebasePaths.threadMessagesRef(model.getEntityID());
 
         if (!RealtimeReferenceManager.shared().isOn(query)) {
-            query = query.orderByChild(Keys.Date);
 
-            Date startDate = null;
-
-            // We do it this way because otherwise when we exceed the number of messages,
-            // This event is triggered as the messages go out of scope
-            int indexOfFirstDeletableMessage = model.indexOfFirstDeletableMessage();
-            if (indexOfFirstDeletableMessage >=0 ) {
-                startDate = model.getMessages().get(indexOfFirstDeletableMessage).getDate();
-            }
-
-            if (startDate != null) {
-                query = query.startAt(startDate.getTime() - 1000);
-                model.setCanDeleteMessagesFrom(startDate);
+            if (ChatSDK.config().messageDeletionListenerLimit < 0) {
+                model.setCanDeleteMessagesFrom(new Date(0));
             } else {
-                model.setCanDeleteMessagesFrom(new Date());
+                query = query.orderByChild(Keys.Date);
+
+                Date startDate = null;
+
+                // We do it this way because otherwise when we exceed the number of messages,
+                // This event is triggered as the messages go out of scope
+                int indexOfFirstDeletableMessage = model.indexOfFirstDeletableMessage();
+                if (indexOfFirstDeletableMessage >=0 ) {
+                    startDate = model.getMessages().get(indexOfFirstDeletableMessage).getDate();
+                }
+
+                if (startDate != null) {
+                    query = query.startAt(startDate.getTime() - 1000);
+                    model.setCanDeleteMessagesFrom(startDate);
+                } else {
+                    model.setCanDeleteMessagesFrom(new Date());
+                }
             }
 
             realtime.childOn(query).observeOn(RX.db()).doOnNext(change -> {

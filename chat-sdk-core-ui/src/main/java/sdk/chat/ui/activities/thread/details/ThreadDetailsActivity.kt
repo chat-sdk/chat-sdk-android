@@ -217,9 +217,9 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
         val profileHeader = UIModule.config().profileHeaderImage
         headerImageView.setImageResource(profileHeader)
 
-        reloadData()
-        reloadInterface()
-        reloadButtons()
+//        reloadData()
+//        reloadInterface()
+//        reloadButtons()
     }
 
     override fun onStart() {
@@ -327,7 +327,11 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
         if (ChatSDK.thread().canRefreshRoles(thread)) {
             ChatSDK.thread().refreshRoles(thread).subscribe()
         }
-        //        reloadData(false);
+        addUsersFab.isEnabled = true
+
+        reloadInterface();
+        reloadData();
+        reloadButtons();
     }
 
     override fun onBackPressed() {
