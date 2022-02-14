@@ -49,6 +49,7 @@ import sdk.chat.core.interfaces.InterfaceAdapter;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.notifications.NotificationDisplayHandler;
+import sdk.chat.core.push.BroadcastHandler;
 import sdk.chat.core.rigs.DownloadManager;
 import sdk.chat.core.rigs.MessageSender;
 import sdk.chat.core.storage.FileManager;
@@ -91,6 +92,8 @@ public class ChatSDK {
 
     protected List<Runnable> onActivateListeners = new ArrayList<>();
     protected List<Runnable> onPermissionsRequestedListeners = new ArrayList<>();
+
+    protected List<BroadcastHandler> broadcastHandlers = new ArrayList<>();
 
     protected ChatSDK () {
     }
@@ -519,6 +522,22 @@ public class ChatSDK {
 
     public static MessageSender messageSender() {
         return shared().messageSender;
+    }
+
+    public void addBroadcastHandler(BroadcastHandler handler) {
+        broadcastHandlers.add(handler);
+    }
+
+    public void removeBroadcastHandler(BroadcastHandler handler) {
+        broadcastHandlers.remove(handler);
+    }
+
+    public List<BroadcastHandler> broadcastHandlers() {
+        return broadcastHandlers;
+    }
+
+    public void clearBroadcastHandlers() {
+        broadcastHandlers.clear();
     }
 
 }

@@ -98,7 +98,7 @@ public class CallActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.car_activity_call_screen);
+        setContentView(R.layout.activity_call_screen);
 
         audioPlayer = new CarAudioPlayer(this);
         llUserDetails = findViewById(R.id.llUserDetails);

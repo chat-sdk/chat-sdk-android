@@ -39,7 +39,7 @@ public class IncomingCallActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.car_activity_incoming_call);
+        setContentView(R.layout.activity_incoming_call);
 
         ivAvatar = findViewById(R.id.ivAvatar);
         tvUsername = findViewById(R.id.tvUsername);

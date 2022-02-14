@@ -107,6 +107,8 @@ dependencies {
 
     implementation project(':chat-sdk-pro-contact-book')
 
+    implementation project(':chat-sdk-pro-calling')
+
 //    implementation project(':chat-sdk-firestream-adapter')
 //
     implementation project(':chat-sdk-mod-ui-extras')
