@@ -49,7 +49,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
 
     implementation project(':chat-sdk-core')
-    api project(':chat-sdk-core-ui')
+    implementation project(':chat-sdk-core-ui')
+    implementation project(':chat-sdk-firebase-push')
 
 //    implementation(name: 'sinch-android-rtc', version: '+', ext: 'aar')
 

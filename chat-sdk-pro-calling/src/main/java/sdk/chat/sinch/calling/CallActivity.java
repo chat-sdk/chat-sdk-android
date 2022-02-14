@@ -137,7 +137,6 @@ public class CallActivity extends Activity {
             finish();
         }
 
-
         if (speakerEnabled) {
             setSpeakerEnabled(true);
         }

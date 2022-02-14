@@ -6,10 +6,13 @@ import android.util.Log;
 
 import com.sinch.android.rtc.AudioController;
 import com.sinch.android.rtc.ClientRegistration;
+import com.sinch.android.rtc.PushTokenRegistrationCallback;
 import com.sinch.android.rtc.Sinch;
 import com.sinch.android.rtc.SinchClient;
 import com.sinch.android.rtc.SinchClientListener;
 import com.sinch.android.rtc.SinchError;
+import com.sinch.android.rtc.UserController;
+import com.sinch.android.rtc.UserRegistrationCallback;
 import com.sinch.android.rtc.calling.Call;
 import com.sinch.android.rtc.calling.CallClient;
 import com.sinch.android.rtc.calling.CallClientListener;
@@ -30,6 +33,7 @@ public class SinchService {
     private String mUserId;
 
     private StartFailedListener mListener;
+    protected UserController userController;
 
     public void start(Context context, String userId) {
         if (mSinchClient == null) {
@@ -48,6 +52,17 @@ public class SinchService {
             mSinchClient.getCallClient().addCallClientListener(new SinchCallClientListener());
             mSinchClient.start();
         }
+
+        if (userController == null) {
+            userController = Sinch.getUserControllerBuilder()
+                    .context(context)
+                    .applicationKey(SinchModule.config().applicationKey)
+                    .userId(userId)
+                    .environmentHost(SinchModule.config().environmentHost)
+                    .build();
+            userController.registerUser(new SinchUserRegistrationCallback(), new SinchPushTokenRegistrationCallback());
+        }
+
     }
 
     public void stop() {
@@ -55,6 +70,9 @@ public class SinchService {
             mSinchClient.terminateGracefully();
             mSinchClient = null;
             mUserId = null;
+        }
+        if (userController != null) {
+            userController.unregisterPushToken(new SinchPushTokenRegistrationCallback());
         }
     }
 
@@ -178,6 +196,43 @@ public class SinchService {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
             ChatSDK.ctx().startActivity(intent);
+
+        }
+    }
+
+    private class SinchPushTokenRegistrationCallback implements PushTokenRegistrationCallback {
+
+        @Override
+        public void onPushTokenRegistered() {
+
+        }
+
+        @Override
+        public void onPushTokenRegistrationFailed(SinchError sinchError) {
+
+        }
+    }
+
+    private class SinchUserRegistrationCallback implements UserRegistrationCallback {
+
+        @Override
+        public void onCredentialsRequired(ClientRegistration clientRegistration) {
+            Disposable d = SinchModule.config().jwtProvider.getJWT(getUserId()).subscribe(s -> {
+                if (s != null) {
+                    clientRegistration.register(s);
+                } else {
+                    clientRegistration.registerFailed();
+                }
+            });
+        }
+
+        @Override
+        public void onUserRegistered() {
+
+        }
+
+        @Override
+        public void onUserRegistrationFailed(SinchError sinchError) {
 
         }
     }

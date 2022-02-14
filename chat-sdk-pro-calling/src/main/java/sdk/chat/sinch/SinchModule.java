@@ -5,6 +5,9 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.google.firebase.messaging.RemoteMessage;
+import com.sinch.android.rtc.SinchHelpers;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,8 +17,10 @@ import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.module.Module;
+import sdk.chat.core.push.PushMessage;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
+import sdk.chat.firebase.push.FirebaseBroadcastHandler;
 import sdk.guru.common.BaseConfig;
 import sdk.guru.common.RX;
 
@@ -107,6 +112,20 @@ public class SinchModule implements Module {
 
 //        ChatSDKUI.setMainActivity(SinchMainAppBarActivity.class);
         ChatSDK.a().call = new SinchCallHandler();
+
+        // Add a broadcast handler for sinch messages
+        ChatSDK.shared().addBroadcastHandler(new FirebaseBroadcastHandler() {
+            @Override
+            public boolean onReceive(RemoteMessage message) {
+                if (SinchHelpers.isSinchPushPayload(message.getData())) {
+                    sinchService.client().relayRemotePushNotificationPayload(message.getData());
+                    return true;
+                }
+                return false;
+            }
+
+            @Override public boolean onReceive(PushMessage message) { return false; }
+        }, 0);
 
     }
 
