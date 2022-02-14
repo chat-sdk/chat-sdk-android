@@ -159,8 +159,9 @@ public class ApiExamples {
     public void customPushNotificationHandling () {
         ChatSDK.push().setBroadcastHandler(new BroadcastHandler() {
             @Override
-            public void onReceive(Context context, Intent intent) {
+            public boolean onReceive(Context context, Intent intent) {
                 // Handle push notifications here
+                return true;
             }
         });
     }

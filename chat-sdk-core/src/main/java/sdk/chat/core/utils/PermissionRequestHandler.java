@@ -1,7 +1,10 @@
 package sdk.chat.core.utils;
 
+import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
+
 import android.Manifest;
 import android.app.Activity;
+import android.os.Build;
 
 import androidx.core.content.ContextCompat;
 
@@ -21,8 +24,6 @@ import io.reactivex.Completable;
 import sdk.chat.core.R;
 import sdk.chat.core.session.ChatSDK;
 import sdk.guru.common.RX;
-
-import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
 
 /**
  * Created by ben on 9/28/17.
@@ -44,11 +45,17 @@ public class PermissionRequestHandler {
     }
 
     public static Completable requestRecordAudio(Activity activity) {
-        return requestPermissions(activity, Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            return requestPermissions(activity, Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        return requestPermissions(activity, Manifest.permission.RECORD_AUDIO);
     }
 
     public static Completable requestWriteExternalStorage(Activity activity) {
-        return requestPermissions(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            return requestPermissions(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        return Completable.complete();
     }
 
     public static Completable requestManageDocumentsStorage(Activity activity) {
@@ -60,7 +67,8 @@ public class PermissionRequestHandler {
     }
 
     public static Completable requestImageMessage(Activity activity) {
-        return requestPermissions(activity, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA);
+//        return requestPermissions(activity, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA);
+        return requestPermissions(activity, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA);
     }
 
     public static Completable requestCameraAccess(Activity activity) {
@@ -91,8 +99,7 @@ public class PermissionRequestHandler {
                                 if (report.areAllPermissionsGranted()) {
                                     Logger.debug("Dexter Complete" + new Date().getTime());
                                     emitter.onComplete();
-                                } else {
-                                    Logger.debug("Dexter Error" + new Date().getTime());
+                                } else { Logger.debug("Dexter Error" + new Date().getTime());
                                     emitter.onError(new Throwable(activity.getString(R.string.permission_denied)));
                                 }
                             }

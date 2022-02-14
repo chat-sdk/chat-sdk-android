@@ -495,6 +495,28 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         messagesListAdapter.addToEnd(messageHolders, true);
     }
 
+    public void reloadMessage(Message message) {
+        MessageHolder holder = messageHolderHashMap.get(message);
+        if (holder != null) {
+            int index = messageHolders.indexOf(holder);
+            MessageHolder newHolder = ChatSDKUI.shared().getMessageCustomizer().onNewMessageHolder(message);
+
+            messageHolders.remove(index);
+            messageHolders.add(index, newHolder);
+
+            // Now replace the holder...
+//            messagesListAdapter.notifyItemRemoved(index);
+//            messagesListAdapter.notifyItemChanged(index);
+            messageHolderHashMap.put(message, newHolder);
+
+//            messagesListAdapter.update(newHolder);
+
+            messagesListAdapter.clear(true);
+            messagesListAdapter.addToEnd(messageHolders, false);
+
+        }
+    }
+
 //    @Override
 //    protected void onDetachedFromWindow() {
 //        super.onDetachedFromWindow();

@@ -14,6 +14,8 @@ public class MessageMetaValue implements MetaValue<String> {
 
     private String key;
     private String value;
+    private String tag;
+    private boolean isLocal;
 
     private Long messageId;
 
@@ -28,11 +30,14 @@ public class MessageMetaValue implements MetaValue<String> {
     @Generated(hash = 1491679537)
     private transient MessageMetaValueDao myDao;
 
-    @Generated(hash = 304350448)
-    public MessageMetaValue(Long id, String key, String value, Long messageId) {
+    @Generated(hash = 1725731066)
+    public MessageMetaValue(Long id, String key, String value, String tag, boolean isLocal,
+            Long messageId) {
         this.id = id;
         this.key = key;
         this.value = value;
+        this.tag = tag;
+        this.isLocal = isLocal;
         this.messageId = messageId;
     }
 
@@ -149,5 +154,21 @@ public class MessageMetaValue implements MetaValue<String> {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getMessageMetaValueDao() : null;
+    }
+
+    public boolean getIsLocal() {
+        return this.isLocal;
+    }
+
+    public void setIsLocal(boolean isLocal) {
+        this.isLocal = isLocal;
+    }
+
+    public String getTag() {
+        return this.tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 }

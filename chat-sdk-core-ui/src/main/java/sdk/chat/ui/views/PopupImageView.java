@@ -78,7 +78,8 @@ public class PopupImageView extends RelativeLayout {
                     ToastHelper.show(activity, activity.getString(R.string.image_save_failed));
                 }
             }
-        }, throwable -> ToastHelper.show(activity, throwable.getLocalizedMessage())));    }
+        }, throwable -> ToastHelper.show(activity, throwable.getLocalizedMessage())));
+    }
 
     public void setUrl(Activity activity, String url, Runnable dismiss) {
 

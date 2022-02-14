@@ -1,5 +1,7 @@
 package sdk.chat.ui.chat;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -27,6 +29,7 @@ import id.zelory.compressor.Compressor;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.disposables.Disposable;
+import sdk.chat.core.dao.Keys;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
@@ -35,8 +38,6 @@ import sdk.chat.ui.R;
 import sdk.chat.ui.chat.options.MediaType;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.Cropper;
-
-import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by benjaminsmiley-andrews on 23/05/2017.
@@ -47,6 +48,7 @@ public class MediaSelector {
     public static final int CHOOSE_PHOTO = 100;
     public static final int TAKE_VIDEO = 101;
     public static final int CHOOSE_VIDEO = 102;
+    public static final int EDITOR = 103;
 
     public static final int SELECTION_MAX_SIZE = 5;
 
@@ -63,6 +65,7 @@ public class MediaSelector {
         Rectangle,
         Square,
         Circle,
+        Editor,
     }
 
     public Single<List<File>> startActivity (Activity activity, MediaType type) {
@@ -194,13 +197,19 @@ public class MediaSelector {
             else if (cropType == CropType.Square) {
                 Cropper.startSquareActivity(activity, uri);
             }
+            else if (cropType == CropType.Editor) {
+                File imageFile = fileFromURI(uri, activity, MediaStore.Images.Media.DATA);
+                String path = imageFile.getPath();
+
+                ChatSDK.ui().startImageEditorActivity(activity, path, EDITOR);
+            }
             else {
                 Cropper.startActivity(activity, uri);
             }
         }
     }
 
-    public static File fileFromURI (Uri uri, Activity activity, String column) {
+    public static File fileFromURI(Uri uri, Activity activity, String column) {
         File file = null;
         if (uri.getPath() != null) {
             file = new File(uri.getPath());
@@ -271,6 +280,21 @@ public class MediaSelector {
 
     }
 
+    protected void processEditedPhoto(Activity activity, int resultCode, Intent data) throws Exception {
+        if (resultCode == RESULT_OK) {
+            try {
+                String uriString = data.getStringExtra(Keys.IntentKeyImagePath);
+                Uri uri = Uri.parse(uriString);
+                handleImageFiles(activity, new File(uri.getPath()));
+            }
+            catch (NullPointerException e){
+                notifyError(new Exception(activity.getString(R.string.unable_to_fetch_image)));
+            }
+        } else {
+            throw new Exception("Editing failed");
+        }
+    }
+
     public void handleImageFiles (Activity activity, File... files) {
         handleImageFiles(activity, Arrays.asList(files));
     }
@@ -295,6 +319,9 @@ public class MediaSelector {
             }
             else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
                 processCroppedPhoto(activity, resultCode, intent);
+            }
+            else if (requestCode == EDITOR) {
+                processEditedPhoto(activity, resultCode, intent);
             }
             else if (requestCode == TAKE_VIDEO || requestCode == CHOOSE_VIDEO) {
                 Uri videoUri = intent.getData();

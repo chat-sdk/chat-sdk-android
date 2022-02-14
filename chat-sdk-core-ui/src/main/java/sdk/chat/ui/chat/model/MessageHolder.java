@@ -158,4 +158,8 @@ public class MessageHolder implements IMessage {
         return messages;
     }
 
+    public boolean canResend() {
+        return message.canResend();
+    }
+
 }

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Completable;
+import sdk.chat.core.base.AbstractMessageHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -32,7 +33,7 @@ import sdk.chat.core.types.MessageType;
  * Created by Pepe on 01/05/18.
  */
 
-public class BaseFileMessageHandler implements FileMessageHandler {
+public class BaseFileMessageHandler extends AbstractMessageHandler implements FileMessageHandler {
 
     public static String imageName = "image.jpg";
     public static String imageMimeType = "image/jpeg";
@@ -40,14 +41,14 @@ public class BaseFileMessageHandler implements FileMessageHandler {
     public Completable sendMessageWithFile(final String fileName, final String mimeType, File file, final Thread thread) {
 
         List<Uploadable> uploadables = new ArrayList<>();
-        uploadables.add(new FileUploadable(file, fileName, mimeType));
+        uploadables.add(new FileUploadable(file, fileName, mimeType, Keys.MessageFileURL));
 
         if (mimeType.equals("application/pdf")) {
             // Generate the preview image
             try {
                 Bitmap bitmap = pdfPreview(file);
                 if (bitmap != null) {
-                    uploadables.add(new BitmapUploadable(bitmap, imageName, imageMimeType));
+                    uploadables.add(new BitmapUploadable(bitmap, imageName, imageMimeType, Keys.MessageImageURL));
                 }
             } catch (Exception e) {
                 // Just abort and don't send the preview
@@ -60,12 +61,14 @@ public class BaseFileMessageHandler implements FileMessageHandler {
             message.setValueForKey(fileName, Keys.MessageText);
             message.setValueForKey(mimeType, Keys.MessageMimeType);
         }).setUploadables(uploadables, (message, result) -> {
-            if(result.mimeType.equals(imageMimeType)) {
-                message.setValueForKey(result.url, Keys.MessageImageURL);
-            }
-            if(result.mimeType.equals(mimeType)) {
-                message.setValueForKey(result.url, Keys.MessageFileURL);
-            }
+
+//            if(result.mimeType.equals(imageMimeType)) {
+//                message.setValueForKey(result.url, Keys.MessageImageURL);
+//            }
+//            if(result.mimeType.equals(mimeType)) {
+//                message.setValueForKey(result.url, Keys.MessageFileURL);
+//            }
+
         });
         return rig.run();
     }
@@ -80,7 +83,7 @@ public class BaseFileMessageHandler implements FileMessageHandler {
         return ChatSDK.getString(R.string.file_message);
     }
 
-    Bitmap pdfPreview(File file) throws Exception {
+    protected Bitmap pdfPreview(File file) throws Exception {
         Context context = ChatSDK.shared().context();
 
         int pageNumber = 0;
@@ -102,7 +105,7 @@ public class BaseFileMessageHandler implements FileMessageHandler {
         return bitmap;
     }
 
-    byte [] fileToBytes (File file) throws Exception {
+    protected byte[] fileToBytes (File file) throws Exception {
         int size = (int) file.length();
         byte[] bytes = new byte[size];
         BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
@@ -138,6 +141,23 @@ public class BaseFileMessageHandler implements FileMessageHandler {
             }
         }
         return null;
+    }
+
+    @Override
+    public List<String> remoteURLs(Message message) {
+        List<String> urls = super.remoteURLs(message);
+        if (!message.typeIs(MessageType.File)) {
+            return urls;
+        }
+        String imageURL = message.stringForKey(Keys.MessageImageURL);
+        if (imageURL != null) {
+            urls.add(imageURL);
+        }
+        String fileURL = message.stringForKey(Keys.MessageFileURL);
+        if (fileURL != null) {
+            urls.add(fileURL);
+        }
+        return urls;
     }
 
 }

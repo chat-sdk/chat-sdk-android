@@ -16,6 +16,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.media.ExifInterface;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 
@@ -54,6 +55,45 @@ public class ImageUtils {
             e.printStackTrace();
         }
         return outFile;
+    }
+
+    public static int getCameraPhotoOrientation(String imagePath) {
+        int rotate = 0;
+        try {
+            ExifInterface exif  = null;
+            try {
+                exif = new ExifInterface(imagePath);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            int orientation = exif.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION, 0);
+            switch (orientation) {
+
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    rotate = 180;
+                    break;
+
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    rotate = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    rotate = 90;
+                    break;
+                default:
+                    rotate = 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return rotate;
+    }
+
+    public static Bitmap rotate(Bitmap bitmap, float degrees) {
+        Matrix mMatrix = new Matrix();
+        mMatrix.setRotate(degrees);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+                bitmap.getHeight(), mMatrix, false);
     }
 
     /**

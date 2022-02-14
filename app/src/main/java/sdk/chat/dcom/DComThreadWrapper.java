@@ -1,5 +1,7 @@
 package sdk.chat.dcom;
 
+import java.util.HashMap;
+
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.NetworkEvent;
@@ -18,9 +20,19 @@ public class DComThreadWrapper extends ThreadWrapper {
     }
 
     public void removeMessage(Message message) {
-        message.setType(MessageType.Text);
-        message.setText("Message Deleted");
 
-        ChatSDK.events().source().accept(NetworkEvent.messageUpdated(message));
+        boolean reloadAll = !message.typeIs(MessageType.Text);
+
+        message.setText("Message Deleted");
+        message.setType(MessageType.Text);
+        message.update();
+
+        NetworkEvent event = NetworkEvent.messageUpdated(message);
+        if (reloadAll) {
+            event.setData(new HashMap<String, Object>() {{
+                put(DCom.reloadData, true);
+            }});
+        }
+        ChatSDK.events().source().accept(event);
     }
 }

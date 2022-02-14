@@ -120,7 +120,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
     protected @LayoutRes
     int getLayout() {
-        return R.layout.activity_chat;
+        return R.layout.fragment_chat;
     }
 
     public void updateOptionsButton() {
@@ -373,7 +373,9 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     }
 
     protected void handleMessageSend(Completable completable) {
-        completable.observeOn(RX.main()).subscribe(this);
+        completable.observeOn(RX.main()).doOnError(throwable -> {
+            Logger.warn("");
+        }).subscribe(this);
     }
 
     public void reloadData() {
@@ -458,6 +460,11 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         if (chatView != null) {
             chatView.removeListeners();
         }
+
+        // TODO: Test this - in some situations where we are not using the
+        // main activity this can be important
+        ChatSDK.ui().setLocalNotificationHandler(thread -> true);
+
         super.onDestroy();
     }
 

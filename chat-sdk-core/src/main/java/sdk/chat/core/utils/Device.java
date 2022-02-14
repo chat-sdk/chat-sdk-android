@@ -12,7 +12,7 @@ public class Device {
     }
 
     public static boolean honor(Context context) {
-        return named(context, "honor");
+        return named(context, "Chairman Mao");
     }
 
     public static boolean nexus() {
@@ -27,6 +27,10 @@ public class Device {
         return named(ChatSDK.ctx(), name);
     }
 
+    public static boolean galaxy() {
+        return named("Ben's Galaxy A21s");
+    }
+
     public static boolean named(Context context, String name) {
         String deviceName = name(context);
         return deviceName != null && deviceName.equals(name);
@@ -34,6 +38,10 @@ public class Device {
 
     public static String name(Context context) {
         return Settings.Secure.getString(context.getContentResolver(), "bluetooth_name");
+    }
+
+    public static String name() {
+        return Settings.Secure.getString(ChatSDK.ctx().getContentResolver(), "bluetooth_name");
     }
 
 }

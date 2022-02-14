@@ -1,31 +1,17 @@
-# ChatSDK
--keep public class sdk.chat.**, sdk.guru.**, firestream.chat.**, app.xmpp.**, co.chatsdk.** {
+#            | Classes | Members |
+# Shrink:    |         |         |
+# Obfuscate: |         |         |
+-keep public class org.bouncycastle.jcajce.provider.**, org.jivesoftware.**, app.xmpp.**, sdk.chat.**, firestream.chat.**, sdk.guru.**, co.chatsdk.** {
     public protected *;
 }
 
--keepparameternames
--keeppackagenames
--renamesourcefileattribute SourceFile
--keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
-
--keepclasseswithmembernames,includedescriptorclasses class sdk.chat.**, sdk.guru.**, firestream.chat.**, app.xmpp.**, co.chatsdk.** {
-    native <methods>;
+-keep public class smartadapter.**, materialsearchview.**, org.ocpsoft.prettytime.** {
+    public protected *;
 }
 
--keepclassmembers,allowoptimization enum sdk.chat.**, sdk.guru.**, firestream.chat.**, app.xmpp.**, co.chatsdk.** {
-    public static **[] values();
-    public static ** valueOf(java.lang.String);
+-keep class **.R$* {
+    <fields>;
 }
-
--keepclassmembers class sdk.chat.**, sdk.guru.**, firestream.chat.**, app.xmpp.**, co.chatsdk.** implements java.io.Serializable {
-    static final long serialVersionUID;
-    private static final java.io.ObjectStreamField[] serialPersistentFields;
-    private void writeObject(java.io.ObjectOutputStream);
-    private void readObject(java.io.ObjectInputStream);
-    java.lang.Object writeReplace();
-    java.lang.Object readResolve();
-}
-# End
 
 # GreenDao
 -keepclassmembers class * extends org.greenrobot.greendao.AbstractDao {

@@ -119,6 +119,12 @@ public class MainAppBarActivity extends MainActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateLocalNotificationsForTab();
+    }
+
     public void tabSelected(TabLayout.Tab tab) {
 
         int index = tab.getPosition();

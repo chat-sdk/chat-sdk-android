@@ -42,8 +42,10 @@ public class FileMessageModule extends AbstractModule {
     @Override
     public void activate(Context context) {
         ChatSDK.a().fileMessage = new BaseFileMessageHandler();
+
         ChatSDK.ui().addChatOption(new FileChatOption(ChatSDK.shared().context().getString(R.string.file_message)));
         Report.shared().add(getName());
+
 
         ChatSDKUI.shared().getMessageCustomizer().addMessageHandler(new CustomMessageHandler() {
 
@@ -78,19 +80,21 @@ public class FileMessageModule extends AbstractModule {
 
             @Override
             public boolean onClick(Activity activity, View rootView, Message message) {
-                if (message.getMessageType().is(MessageType.File)) {
-                    String url = message.stringForKey(Keys.MessageFileURL);
-                    Uri uri = Uri.parse(url);
-                    final String mimeType = message.stringForKey(Keys.MessageMimeType);
+                if (!super.onClick(activity, rootView, message)) {
+                    if (message.getMessageType().is(MessageType.File)) {
+                        String url = message.stringForKey(Keys.MessageFileURL);
+                        Uri uri = Uri.parse(url);
+                        final String mimeType = message.stringForKey(Keys.MessageMimeType);
 
-                    try {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setDataAndType(Uri.parse(uri.toString()), mimeType);
-                        activity.startActivity(intent);
-                        return true;
-                    } catch (ActivityNotFoundException e) {
-                        Logger.debug(e);
-                        activity.startActivity(Intent.createChooser(new Intent(Intent.ACTION_VIEW, uri), activity.getText(R.string.open_with)));
+                        try {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setDataAndType(Uri.parse(uri.toString()), mimeType);
+                            activity.startActivity(intent);
+                            return true;
+                        } catch (ActivityNotFoundException e) {
+                            Logger.debug(e);
+                            activity.startActivity(Intent.createChooser(new Intent(Intent.ACTION_VIEW, uri), activity.getText(R.string.open_with)));
+                        }
                     }
                 }
                 return false;

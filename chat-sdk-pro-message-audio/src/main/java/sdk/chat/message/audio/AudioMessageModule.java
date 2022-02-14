@@ -125,7 +125,7 @@ public class AudioMessageModule extends AbstractModule {
 
             @Override
             public boolean onClick(Activity activity, View rootView, Message message) {
-                return false;
+                return super.onClick(activity, rootView, message);
             }
 
             @Override

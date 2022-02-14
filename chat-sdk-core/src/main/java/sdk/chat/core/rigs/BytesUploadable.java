@@ -4,12 +4,12 @@ public class BytesUploadable extends Uploadable {
 
     byte [] bytes;
 
-    public BytesUploadable(byte [] bytes, String name, String mimeType) {
-        this(bytes, name, mimeType, null);
+    public BytesUploadable(byte [] bytes, String name, String mimeType, String messageKey) {
+        this(bytes, name, mimeType, messageKey, null);
     }
 
-    public BytesUploadable(byte [] bytes, String name, String mimeType, Compressor compressor) {
-        super(name, mimeType, compressor);
+    public BytesUploadable(byte [] bytes, String name, String mimeType, String messageKey, Compressor compressor) {
+        super(name, mimeType, messageKey, compressor);
         this.bytes = bytes;
     }
 

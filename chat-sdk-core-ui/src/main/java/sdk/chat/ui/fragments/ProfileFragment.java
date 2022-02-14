@@ -350,6 +350,8 @@ public class ProfileFragment extends BaseFragment {
                 .subscribe(thread -> {
                     ChatSDK.ui().startChatActivityForID(getContext(), thread.getEntityID());
                 }, this.snackbarOnErrorConsumer()));
+
+
     }
 
     @Override

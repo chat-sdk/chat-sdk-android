@@ -39,13 +39,14 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled project.hasProperty('minifyCore')
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled project.hasProperty('minifyRelease')
             signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
         }
         debug {
-            minifyEnabled project.hasProperty('minifyDebug')
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled project.hasProperty('minifyDebug') && minifyDebug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+
             debuggable true
             jniDebuggable true
             ext.alwaysUpdateBuildId = false

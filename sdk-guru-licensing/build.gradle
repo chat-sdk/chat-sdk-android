@@ -15,12 +15,12 @@ android {
 
     buildTypes {
         debug {
-            minifyEnabled project.hasProperty('minifyDebug')
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled project.hasProperty('minifyDebug') && minifyDebug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
         }
         release {
-            minifyEnabled project.hasProperty('minifyPro')
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled project.hasProperty('minifyRelease') && minifyRelease
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
         }
     }
 
@@ -51,4 +51,7 @@ ext {
     libraryDescription = 'Guru Licensing'
 }
 
-apply from: '../bintray.gradle'
+if (project.hasProperty("mavenPublish") && mavenPublish) {
+    apply from: '../bintray.gradle'
+}
+

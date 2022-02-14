@@ -38,7 +38,7 @@ import sdk.chat.core.types.SearchActivityType;
 import sdk.chat.core.ui.ProfileFragmentProvider;
 import sdk.chat.core.utils.ProfileOption;
 import sdk.chat.ui.activities.AddUsersToThreadActivity;
-import sdk.chat.ui.activities.ChatActivityWrapper;
+import sdk.chat.ui.activities.ChatActivity;
 import sdk.chat.ui.activities.CreateThreadActivity;
 import sdk.chat.ui.activities.EditProfileActivity;
 import sdk.chat.ui.activities.EditThreadActivity;
@@ -77,7 +77,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class<? extends Activity> loginActivity = LoginActivity.class;
     protected Class<? extends Activity> splashScreenActivity = SplashScreenActivity.class;
     protected Class<? extends Activity> mainActivity = MainAppBarActivity.class;
-    protected Class<? extends Activity> chatActivity = ChatActivityWrapper.class;
+    protected Class<? extends Activity> chatActivity = ChatActivity.class;
     protected Class<? extends Activity> threadDetailsActivity = ThreadDetailsActivity.class;
     protected Class<? extends Activity> editThreadActivity = EditThreadActivity.class;
     protected Class<? extends Activity> postRegistrationActivity = PostRegistrationActivity.class;
@@ -90,6 +90,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     protected Class<? extends Activity> createThreadActivity = CreateThreadActivity.class;
     protected Class<? extends Activity> addUsersToThreadActivity = AddUsersToThreadActivity.class;
     protected Class<? extends Activity> forwardMessageActivity = ForwardMessageActivity.class;
+    protected Class<? extends Activity> imageEditorActivity = null;
     protected AvatarGenerator avatarGenerator = new HashAvatarGenerator();
 
     protected Intent loginIntent;
@@ -368,6 +369,16 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
+    public Class<? extends Activity> getImageEditorActivity() {
+        return imageEditorActivity;
+    }
+
+    @Override
+    public void setImageEditorActivity (Class<? extends Activity> imageEditorActivity) {
+        this.imageEditorActivity = imageEditorActivity;
+    }
+
+    @Override
     public void setProfileActivity (Class<? extends Activity> profileActivity) {
         this.profileActivity = profileActivity;
     }
@@ -598,8 +609,9 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         if (!defaultChatOptionsAdded) {
 
             if(UIModule.config().imageMessagesEnabled) {
-                //chatOptions.add(new MediaChatOption(stringTakePhoto, MediaType.takePhoto()));
-                chatOptions.add(new MediaChatOption(context.get().getResources().getString(R.string.image_or_photo), MediaType.choosePhoto()));
+                chatOptions.add(new MediaChatOption(context.get().getResources().getString(R.string.image_or_photo),
+                        MediaType.choosePhoto(),
+                        UIModule.config().cropType));
             }
             defaultChatOptionsAdded = true;
         }
@@ -612,6 +624,13 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         Intent intent = new Intent(context, getProfileActivity());
         intent.putExtra(Keys.IntentKeyUserEntityID, userEntityID);
         context.startActivity(intent);
+    }
+
+    @Override
+    public void startImageEditorActivity(Activity activity, String path, int resultCode) {
+        Intent intent = new Intent(activity, getImageEditorActivity());
+        intent.putExtra(Keys.IntentKeyImagePath, path);
+        activity.startActivityForResult(intent, resultCode);
     }
 
     @Override

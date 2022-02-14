@@ -1,74 +1,39 @@
 package sdk.chat.dcom;
 
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import io.reactivex.annotations.NonNull;
 import sdk.chat.core.dao.Thread;
+import sdk.chat.core.events.EventType;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.fragments.ChatFragment;
 
 public class DComChatFragment extends ChatFragment {
+
     public DComChatFragment(Thread thread, Delegate delegate) {
         super(thread, delegate);
     }
 
-//    @Override
-//    public void onCreateOptionsMenu(@androidx.annotation.NonNull Menu menu, @androidx.annotation.NonNull MenuInflater inflater) {
-//
-//        if (thread != null) {
-//            if (!chatView.getSelectedMessages().isEmpty()) {
-//
-//                chatActionBar.hideSearchIcon();
-//
-//                inflater.inflate(R.menu.activity_chat_actions_menu, menu);
-//
-//                if (getActivity() != null) {
-//                    menu.findItem(R.id.action_copy).setIcon(Icons.get(getActivity(), Icons.choose().copy, Icons.shared().actionBarIconColor));
-//                    menu.findItem(R.id.action_delete).setIcon(Icons.get(getActivity(), Icons.choose().delete, Icons.shared().actionBarIconColor));
-//                    menu.findItem(R.id.action_forward).setIcon(Icons.get(getActivity(), Icons.choose().forward, Icons.shared().actionBarIconColor));
-//                    menu.findItem(R.id.action_reply).setIcon(Icons.get(getActivity(), Icons.choose().reply, Icons.shared().actionBarIconColor));
-//                }
-//
-//                if (!UIModule.config().messageForwardingEnabled) {
-//                    menu.removeItem(R.id.action_forward);
-//                }
-//
-//                if (!UIModule.config().messageReplyEnabled) {
-//                    menu.removeItem(R.id.action_reply);
-//                }
-//
-//                if (chatView.getSelectedMessages().size() != 1) {
-//                    menu.removeItem(R.id.action_reply);
-//                }
-//
-//                if (!hasVoice(ChatSDK.currentUser())) {
-//                    menu.removeItem(R.id.action_reply);
-//                    menu.removeItem(R.id.action_delete);
-//                    menu.removeItem(R.id.action_forward);
-//                }
-//
-//                // Check that the messages could be deleted
-//                boolean canBeDeleted = true;
-//                for (MessageHolder holder: chatView.getSelectedMessages()) {
-//                    if (!ChatSDK.thread().canDeleteMessage(holder.getMessage())) {
-//                        canBeDeleted = false;
-//                    }
-//                }
-//                if (!canBeDeleted) {
-//                    menu.removeItem(R.id.action_delete);
-//                }
-//
-//                chatActionBar.hideText();
-//            } else {
-//
-//                chatActionBar.showSearchIcon();
-//
-//                if (ChatSDK.thread().canAddUsersToThread(thread) && getActivity() != null) {
-//                    inflater.inflate(R.menu.add_menu, menu);
-//                    menu.findItem(R.id.action_add).setIcon(Icons.get(getActivity(), Icons.choose().add, Icons.shared().actionBarIconColor));
-//                }
-//
-//                chatActionBar.showText();
-//            }
-//        }
-//
-//        super.onCreateOptionsMenu(menu, inflater);
-//    }
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = super.onCreateView(inflater, container, savedInstanceState);
+
+        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageUpdated)).subscribe(networkEvent -> {
+            // This can be expensive and this method can be called a lot... so make sure the reload data key is also set
+            if (networkEvent.getMessage() != null && networkEvent.getData() != null && networkEvent.getData().containsKey(DCom.reloadData)) {
+                chatView.post(() -> {
+                    chatView.reloadMessage(networkEvent.getMessage());
+                });
+            }
+        }));
+
+
+
+        return rootView;
+    }
 
 }

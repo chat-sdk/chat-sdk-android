@@ -15,7 +15,7 @@
         android:orientation="horizontal">
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/avatarImageView"
+            android:id="@+id/userAvatarImageView"
             style="@style/CircleIconStyle"
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -36,8 +36,8 @@
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:background="@drawable/shape_bubble_online"
-            app:layout_constraintEnd_toEndOf="@+id/avatarImageView"
-            app:layout_constraintTop_toTopOf="@+id/avatarImageView" />
+            app:layout_constraintEnd_toEndOf="@+id/userAvatarImageView"
+            app:layout_constraintTop_toTopOf="@+id/userAvatarImageView" />
 
         <TextView
             android:id="@+id/nameTextView"
@@ -53,7 +53,7 @@
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/availabilityImageView"
-            app:layout_constraintStart_toEndOf="@+id/avatarImageView"
+            app:layout_constraintStart_toEndOf="@+id/userAvatarImageView"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -70,7 +70,7 @@
             android:scrollHorizontally="true"
             android:textSize="12sp"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/avatarImageView"
+            app:layout_constraintStart_toEndOf="@+id/userAvatarImageView"
             app:layout_constraintEnd_toStartOf="@+id/availabilityImageView"
             app:layout_constraintTop_toBottomOf="@+id/nameTextView" />
 

@@ -42,12 +42,13 @@ android {
 
     buildTypes {
         release {
-minifyEnabled project.hasProperty('minifyCore')
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled project.hasProperty('minifyRelease') && minifyRelease
             signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
         }
         debug {
-            minifyEnabled project.hasProperty('minifyDebug')
+            minifyEnabled project.hasProperty('minifyDebug') && minifyDebug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
             debuggable true
             jniDebuggable true
             ext.alwaysUpdateBuildId = false
@@ -105,6 +106,8 @@ dependencies {
     implementation project(':chat-sdk-firebase-push')
     implementation project(':chat-sdk-firebase-upload')
 
+    api project(':chat-sdk-mod-image-editor')
+
     implementation project(':chat-sdk-pro-contact-book')
 
     implementation project(':chat-sdk-pro-calling')
@@ -156,7 +159,7 @@ dependencies {
 }
 
 
-task copyDependencies(type: Copy) {
-    from configurations.compile
-    into 'dependencies'
-}
+//task copyDependencies(type: Copy) {
+//    from configurations.compile
+//    into 'dependencies'
+//}

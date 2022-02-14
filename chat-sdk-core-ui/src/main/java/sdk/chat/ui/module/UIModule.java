@@ -2,6 +2,7 @@ package sdk.chat.ui.module;
 
 import android.Manifest;
 import android.content.Context;
+import android.os.Build;
 
 import androidx.annotation.Nullable;
 
@@ -78,7 +79,9 @@ public class UIModule extends AbstractModule implements InterfaceAdapterProvider
         }
 
         permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
-        permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
         permissions.add(Manifest.permission.INTERNET);
 
         permissions.add(Manifest.permission.CAMERA);

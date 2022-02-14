@@ -32,6 +32,7 @@ import io.reactivex.Single;
 import sdk.chat.core.R;
 import sdk.chat.core.base.AbstractEntity;
 import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.StringChecker;
 
@@ -811,7 +812,7 @@ public class Thread extends AbstractEntity {
                 if (link.setAffiliation(permission) && notify) {
                     Logger.info("Set Affiliation " + userEntityID + " " + permission);
                     ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(this, user));
-                    if (sendSystemMessage && user.isMe()) {
+                    if (sendSystemMessage && user.isMe() && typeIs(ThreadType.Group)) {
                         String message = String.format(ChatSDK.getString(R.string.role_changed_to__), ChatSDK.thread().localizeRole(permission));
                         ChatSDK.thread().sendLocalSystemMessage(message, this);
                     }

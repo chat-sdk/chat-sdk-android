@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="sdk.chat.ui">
 
     <!--For capturing photos in profile and chat UI-->
     <uses-feature android:name="android.hardware.camera" android:required="true" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"  android:maxSdkVersion="29" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
+        android:requestLegacyExternalStorage="true"
         android:hardwareAccelerated="true">
 
         <activity android:name=".activities.LoginActivity"
@@ -33,9 +35,6 @@
 
         <activity android:name=".activities.EditThreadActivity"
             android:windowSoftInputMode="adjustResize" />
-
-        <activity android:name=".activities.ChatActivity"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <activity android:name=".activities.EditProfileActivity"
             android:windowSoftInputMode="stateHidden|adjustPan" />
@@ -63,7 +62,7 @@
         <activity android:name=".activities.ForwardMessageActivity"
             android:windowSoftInputMode="stateHidden" />
 
-        <activity android:name=".activities.ChatActivityWrapper"
+        <activity android:name=".activities.ChatActivity"
             android:screenOrientation="portrait">
         </activity>
 

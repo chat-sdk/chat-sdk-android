@@ -33,5 +33,6 @@ public enum EventType {
     NearbyUserMoved,
     NearbyUserRemoved,
     NearbyUsersUpdated,
+    NetworkStateChanged,
     Error
 }

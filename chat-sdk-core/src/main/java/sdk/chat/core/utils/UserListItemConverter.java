@@ -12,11 +12,7 @@ import sdk.chat.core.interfaces.UserListItem;
 
 public class UserListItemConverter {
     public static List<UserListItem> toUserItemList (List<User> users) {
-        ArrayList<UserListItem> userItemList = new ArrayList<>();
-        for(User u : users) {
-            userItemList.add(u);
-        }
-        return userItemList;
+        return new ArrayList<>(users);
     }
 
     public static List<User> toUserList (List<UserListItem> items) {

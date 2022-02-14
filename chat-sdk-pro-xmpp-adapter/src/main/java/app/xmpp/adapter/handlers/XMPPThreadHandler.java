@@ -141,6 +141,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
         }).doFinally(() -> {
             thread.removeMessagesAndMarkDeleted();
         });
+
 //        return Completable.defer(() -> {
 //
 //            thread.cascadeDelete();

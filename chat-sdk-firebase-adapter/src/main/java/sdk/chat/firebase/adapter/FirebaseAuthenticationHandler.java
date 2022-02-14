@@ -73,7 +73,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
 
             authenticating = authenticateWithUser(FirebaseCoreHandler.auth().getCurrentUser());
             return authenticating;
-        }).doFinally(this::cancel);
+        }).subscribeOn(RX.io()).doFinally(this::cancel);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
             }).subscribeOn(RX.io()).flatMapCompletable(this::authenticateWithUser).cache();
 
             return authenticating;
-        }).doFinally(this::cancel);
+        }).subscribeOn(RX.io()).doFinally(this::cancel);
     }
 
     public Boolean cachedCredentialsAvailable() {

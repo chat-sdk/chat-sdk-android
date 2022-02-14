@@ -12,9 +12,9 @@ import io.reactivex.disposables.Disposable;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
+import sdk.chat.core.module.ImageMessageModule;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.firebase.push.FirebasePushModule;
-import sdk.chat.firebase.upload.FirebaseUploadModule;
+import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.location.LocationMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
@@ -33,6 +33,7 @@ public class MainApplication extends Application {
     public void xmpp() {
         try {
 
+
             ChatSDK.builder()
 
                     // Configure the library
@@ -42,16 +43,11 @@ public class MainApplication extends Application {
                     .setThreadDestructionEnabled(false)
                     .setClientPushEnabled(true)
                     .setAllowUserToRejoinGroup(true)
-
-
-//                    .setDebugUsername("user2")
-//                    .setDebugPassword("testpw00")
-
                     .build()
 
                     // Add modules to handle file uploads, push notifications
-                    .addModule(FirebaseUploadModule.shared())
-                    .addModule(FirebasePushModule.shared())
+//                    .addModule(FirebaseUploadModule.shared())
+//                    .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
 //                            .setXMPP("we-connect-dev.com", "we-connect-dev.com")
@@ -65,8 +61,9 @@ public class MainApplication extends Application {
                             .setSecurityMode("ifpossible")
                             .build())
 
-//                    .addModule(AudioMessageModule.shared())
+                    .addModule(AudioMessageModule.shared())
                     .addModule(LocationMessageModule.shared())
+                    .addModule(ImageMessageModule.shared())
                     .addModule(VideoMessageModule.shared())
                     .addModule(FileMessageModule.shared())
                     .addModule(StickerMessageModule.builder()
@@ -88,8 +85,6 @@ public class MainApplication extends Application {
                             .setQrCodesEnabled(true)
                             .setDrawerEnabled(false)
                             .build())
-
-//                    .addModule(XMPPEncryptionModule.shared())
 
                     .build().activateWithEmail(this, "ben@sdk.chat");
 

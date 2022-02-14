@@ -26,6 +26,7 @@ import java.util.List;
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.functions.BiConsumer;
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -191,6 +192,7 @@ public class EditThreadActivity extends BaseActivity {
                     fab.setEnabled(true);
                 }
             };
+
 
             // If we aren't adding users then this is a public thread
             if (users.isEmpty()) {

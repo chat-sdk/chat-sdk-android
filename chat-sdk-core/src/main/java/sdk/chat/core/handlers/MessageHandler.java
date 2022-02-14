@@ -1,5 +1,7 @@
 package sdk.chat.core.handlers;
 
+import java.util.List;
+
 import sdk.chat.core.dao.Message;
 
 /**
@@ -23,5 +25,7 @@ public interface MessageHandler {
      * @return
      */
     String toString(Message message);
+
+    List<String> remoteURLs(Message message);
 
 }

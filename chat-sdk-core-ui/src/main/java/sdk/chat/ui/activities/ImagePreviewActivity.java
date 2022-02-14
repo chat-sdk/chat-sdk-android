@@ -19,6 +19,8 @@ import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 
+import sdk.chat.ui.R;
+
 public class ImagePreviewActivity extends BaseActivity {
 
     protected Animator currentAnimator;
@@ -107,8 +109,10 @@ public class ImagePreviewActivity extends BaseActivity {
     }
 
     protected void zoomImageFromThumbnail(final View thumbnailView, String uri) {
-        Glide.with(expandedImageView).load(uri).dontAnimate().into(expandedImageView);
-        zoomImageFromThumbnail(thumbnailView);
+        if (uri != null) {
+            Glide.with(expandedImageView).load(uri).placeholder(R.drawable.icn_100_profile).dontAnimate().into(expandedImageView);
+            zoomImageFromThumbnail(thumbnailView);
+        }
     }
 
     protected void zoomImageFromThumbnail(final View thumbnailView) {

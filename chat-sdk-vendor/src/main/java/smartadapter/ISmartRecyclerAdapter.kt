@@ -11,6 +11,8 @@ import smartadapter.internal.mapper.ViewHolderMapper
 import smartadapter.widget.ViewTypeResolver
 import kotlin.reflect.KClass
 
+//import kotlin.reflect.KClass
+
 /**
  * Basic definitions of a [SmartRecyclerAdapter] implementation.
  */

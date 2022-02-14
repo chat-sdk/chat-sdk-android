@@ -27,6 +27,7 @@ import sdk.chat.core.types.MessageType;
 import sdk.chat.core.utils.Debug;
 import sdk.chat.firebase.adapter.moderation.Permission;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
+import sdk.chat.firebase.adapter.wrappers.ThreadWrapper;
 import sdk.guru.common.RX;
 import sdk.guru.realtime.RXRealtime;
 
@@ -238,14 +239,17 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
             thread.update();
 
+            ThreadWrapper wrapper = FirebaseModule.config().provider.threadWrapper(thread);
+
             // Save the thread to the database.
-            return FirebaseModule.config().provider.threadWrapper(thread).push()
+            return wrapper.push()
                     .doOnError(throwable -> {
                         thread.cascadeDelete();
                     })
                     .andThen(Completable.defer(() -> {
                         return ChatSDK.thread().addUsersToThread(thread, thread.getUsers());
                     }))
+                    .andThen(wrapper.setPermission(ChatSDK.currentUserID(), Permission.Owner))
                     .toSingle(() -> thread);
 
         }).subscribeOn(RX.db());
@@ -267,6 +271,12 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     public Completable deleteMessage(Message message) {
         return Completable.defer(() -> {
             if (message.getSender().isMe() && message.getMessageStatus().equals(MessageSendStatus.Sent) && !message.getMessageType().is(MessageType.System)) {
+                // If possible delete the files associated with this message
+                List<String> paths = ChatSDK.getRemoteFilePaths(message);
+                for (String path: paths) {
+                    ChatSDK.upload().deleteFile(path).subscribe();
+                }
+
                 return FirebaseModule.config().provider.messageWrapper(message).delete();
             }
             message.getThread().removeMessage(message);

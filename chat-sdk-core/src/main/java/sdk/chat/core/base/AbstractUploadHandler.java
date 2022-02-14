@@ -2,12 +2,12 @@ package sdk.chat.core.base;
 
 import android.graphics.Bitmap;
 
+import io.reactivex.Observable;
 import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.handlers.UploadHandler;
 import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.FileUploadResult;
-import io.reactivex.Observable;
 
 /**
  * Created by benjaminsmiley-andrews on 24/05/2017.
@@ -23,8 +23,8 @@ public abstract class AbstractUploadHandler implements UploadHandler {
         return DaoCore.generateRandomName();
     }
 
-    public boolean shouldUploadAvatar () {
-        return false;
+    public Observable<FileUploadResult> uploadFile(final byte[] data, final String name, final String mimeType) {
+        return uploadFile(data, name, mimeType, null);
     }
 
 }

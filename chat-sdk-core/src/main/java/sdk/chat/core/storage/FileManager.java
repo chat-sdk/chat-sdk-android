@@ -3,13 +3,13 @@ package sdk.chat.core.storage;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Environment;
 
 import androidx.annotation.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -17,8 +17,6 @@ import java.util.Date;
 
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.CurrentLocale;
-
-import static android.os.Environment.isExternalStorageRemovable;
 
 public class FileManager {
 
@@ -34,23 +32,23 @@ public class FileManager {
 
     public File storage() {
         File dir;
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-                !isExternalStorageRemovable()) {
-            dir = context.getExternalFilesDir("");
-        } else {
+//        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+//                !isExternalStorageRemovable()) {
+//            dir = context.getExternalCacheDir();
+//        } else {
             dir = context.getFilesDir();
-        }
+//        }
         return subdir(dir, ChatSDK.config().storageDirectory);
     }
 
     public File cache() {
         File dir;
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-                !isExternalStorageRemovable()) {
-            dir = context.getExternalCacheDir();
-        } else {
+//        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+//                !isExternalStorageRemovable()) {
+//            dir = context.getExternalCacheDir();
+//        } else {
             dir = context.getCacheDir();
-        }
+//        }
         return subdir(dir, ChatSDK.config().storageDirectory);
     }
 
@@ -60,6 +58,18 @@ public class FileManager {
             return directory;
         }
         return null;
+    }
+
+    public static String saveToFile(String name, byte [] bytes) {
+        FileManager fm = ChatSDK.shared().fileManager();
+        File dir = fm.storage();
+        File outFile = fm.newDatedFile(dir, name, null);
+        try (FileOutputStream out = new FileOutputStream(outFile)) {
+            out.write(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return outFile.getAbsolutePath();
     }
 
     public File imageCache() {

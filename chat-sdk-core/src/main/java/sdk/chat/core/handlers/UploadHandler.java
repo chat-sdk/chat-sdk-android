@@ -2,8 +2,10 @@ package sdk.chat.core.handlers;
 
 import android.graphics.Bitmap;
 
-import sdk.chat.core.types.FileUploadResult;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
+import sdk.chat.core.storage.UploadStatus;
+import sdk.chat.core.types.FileUploadResult;
 
 /**
  * Created by SimonSmiley-Andrews on 01/05/2017.
@@ -12,9 +14,10 @@ import io.reactivex.Observable;
 public interface UploadHandler {
 
     Observable<FileUploadResult> uploadFile(byte[] data, String name, String mimeType);
-//    Observable<MessageUploadResult> uploadImage(final Bitmap image, final Bitmap thumbnail);
     Observable<FileUploadResult> uploadImage(final Bitmap image);
 
-    boolean shouldUploadAvatar ();
+    UploadStatus uploadStatus(String identifier);
+    Observable<FileUploadResult> uploadFile(final byte[] data, final String name, final String mimeType, String identifier);
 
+    Completable deleteFile(String remotePath);
 }

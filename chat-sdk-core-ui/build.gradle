@@ -19,12 +19,12 @@ android {
 
     buildTypes {
         debug {
-            minifyEnabled project.hasProperty('minifyDebug')
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled project.hasProperty('minifyDebug') && minifyDebug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
         }
         release {
-            minifyEnabled project.hasProperty('minifyCore')
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled project.hasProperty('minifyRelease') && minifyRelease
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
         }
     }
 
@@ -122,7 +122,10 @@ dependencies {
     // Nested adapter extension library
 //    implementation 'io.github.manneohlund:smart-recycler-adapter-nestedadapter:1.0.0-beta01'
 
-    implementation "androidx.activity:activity-ktx:$activity_ktx_version"
+//    implementation "androidx.activity:activity-ktx:$activity_ktx_version"
+
+//    implementation 'com.burhanrashid52:photoeditor:2.0.0'
+
 }
 
 
@@ -132,6 +135,9 @@ ext {
     libraryDescription = 'Core UI'
 }
 
-apply from: '../bintray.gradle'
+if (project.hasProperty("mavenPublish") && mavenPublish) {
+    apply from: '../bintray.gradle'
+}
+
 
 

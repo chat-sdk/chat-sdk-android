@@ -22,16 +22,17 @@ public class ReadStatusViewBinder {
 //            int resource = R.drawable.icn_30_sending;
             int resource = -1;
 
-            if (sendStatus == MessageSendStatus.Failed) {
+            if (holder.canResend()) {
                 resource = R.drawable.icn_30_sending;
-            }
-            if (sendStatus == MessageSendStatus.Sent) {
-                resource = R.drawable.icn_30_sent;
-            }
-            if (status.is(ReadStatus.delivered())) {
-                resource = R.drawable.icn_30_delivered;
-            } else if (status.is(ReadStatus.read())) {
-                resource = R.drawable.icn_30_read;
+            } else {
+                if (sendStatus == MessageSendStatus.Sent) {
+                    resource = R.drawable.icn_30_sent;
+                }
+                if (status.is(ReadStatus.delivered())) {
+                    resource = R.drawable.icn_30_delivered;
+                } else if (status.is(ReadStatus.read())) {
+                    resource = R.drawable.icn_30_read;
+                }
             }
 
             if (view != null && resource != -1) {

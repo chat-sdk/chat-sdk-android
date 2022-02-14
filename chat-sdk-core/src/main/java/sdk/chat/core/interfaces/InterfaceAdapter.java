@@ -51,6 +51,8 @@ public interface InterfaceAdapter {
     Class<? extends Activity> getPostRegistrationActivity();
     Class<? extends Activity> getModerationActivity();
     Class<? extends Activity> getSettingsActivity();
+    Class<? extends Activity> getImageEditorActivity();
+
 
     void setLoginActivity(Class<? extends Activity> loginActivity);
     void setSplashScreenActivity(Class<? extends Activity> splashScreenActivity);
@@ -69,6 +71,7 @@ public interface InterfaceAdapter {
     void setProfileActivity(Class<? extends Activity> profileActivity);
     void setModerationActivity(Class<? extends Activity> moderationActivity);
     void setSettingsActivity(Class<? extends Activity> settingsActivity);
+    void setImageEditorActivity (Class<? extends Activity> imageEditorActivity);
 
     void setPostRegistrationActivity (Class<? extends Activity> postRegistrationActivity);
     void setPrivateThreadsFragment(Fragment privateThreadsFragment);
@@ -91,6 +94,8 @@ public interface InterfaceAdapter {
     void setTab(String title, Drawable icon, Fragment fragment, int index);
 
     void removeTab(int index);
+
+    void startImageEditorActivity(Activity activity, String path, int resultCode);
 
     void startActivity(Context context, Class<? extends Activity> activity);
     void startActivity(Context context, Intent intent);

@@ -17,12 +17,12 @@ android {
 
     buildTypes {
         debug {
-            minifyEnabled project.hasProperty('minifyDebug')
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled project.hasProperty('minifyDebug') && minifyDebug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
         }
         release {
-            minifyEnabled project.hasProperty('minifyCore')
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled project.hasProperty('minifyRelease') && minifyRelease
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
         }
     }
 
@@ -39,7 +39,7 @@ android {
 }
 
 greendao {
-    schemaVersion 20
+    schemaVersion 23
     targetGenDir "src/main/java"
     daoPackage "sdk.chat.core.dao"
 }
@@ -80,7 +80,7 @@ dependencies {
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
-
+    implementation "com.google.code.gson:gson:$gsonVersion"
 }
 
 ext {
@@ -89,5 +89,8 @@ ext {
     libraryDescription = 'Core'
 }
 
-apply from: '../bintray.gradle'
+if (project.hasProperty("mavenPublish") && mavenPublish) {
+    apply from: '../bintray.gradle'
+}
+
 
