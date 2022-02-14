@@ -548,6 +548,9 @@ public class ChatSDK {
     public void addBroadcastHandler(BroadcastHandler handler) {
         broadcastHandlers.add(handler);
     }
+    public void addBroadcastHandler(BroadcastHandler handler, int index) {
+        broadcastHandlers.add(index, handler);
+    }
 
     public void removeBroadcastHandler(BroadcastHandler handler) {
         broadcastHandlers.remove(handler);

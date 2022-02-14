@@ -5,11 +5,12 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.google.firebase.messaging.RemoteMessage;
 import com.sinch.android.rtc.SinchHelpers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
@@ -17,10 +18,8 @@ import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.module.Module;
-import sdk.chat.core.push.PushMessage;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
-import sdk.chat.firebase.push.FirebaseBroadcastHandler;
 import sdk.guru.common.BaseConfig;
 import sdk.guru.common.RX;
 
@@ -114,17 +113,20 @@ public class SinchModule implements Module {
         ChatSDK.a().call = new SinchCallHandler();
 
         // Add a broadcast handler for sinch messages
-        ChatSDK.shared().addBroadcastHandler(new FirebaseBroadcastHandler() {
-            @Override
-            public boolean onReceive(RemoteMessage message) {
-                if (SinchHelpers.isSinchPushPayload(message.getData())) {
-                    sinchService.client().relayRemotePushNotificationPayload(message.getData());
-                    return true;
+        ChatSDK.shared().addBroadcastHandler((ctx, intent) -> {
+            Map<String, String> data = new HashMap<>();
+            for (String key: intent.getExtras().keySet()) {
+                String value = intent.getExtras().getString(key);
+                if (value != null) {
+                    data.put(key, value);
                 }
-                return false;
             }
 
-            @Override public boolean onReceive(PushMessage message) { return false; }
+            if (SinchHelpers.isSinchPushPayload(data)) {
+                sinchService.client().relayRemotePushNotificationPayload(data);
+                return true;
+            }
+            return false;
         }, 0);
 
     }

@@ -72,16 +72,6 @@ public abstract class AbstractPushHandler implements PushHandler {
 
     public static String QuickReplyNotificationCategory = "co.chatsdk.QuickReply";
 
-    protected BroadcastHandler broadcastHandler = new BaseBroadcastHandler();
-
-    public BroadcastHandler getBroadcastHandler() {
-        return broadcastHandler;
-    }
-
-    public void setBroadcastHandler(BroadcastHandler broadcastHandler) {
-        this.broadcastHandler = broadcastHandler;
-    }
-
     @Override
     public Map<String, Object> pushDataForMessage(Message message) {
         String body = message.getText();
