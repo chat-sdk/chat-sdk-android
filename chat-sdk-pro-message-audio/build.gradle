@@ -49,7 +49,8 @@ dependencies {
     api project(':chat-sdk-core-ui')
     implementation project(":sdk-guru-licensing")
 
-    implementation "com.github.chat-sdk:AndroidAudioRecorder:$androidAudioRecorderVersion"
+//    implementation "com.github.chat-sdk:AndroidAudioRecorder:$androidAudioRecorderVersion"
+    implementation "sdk.chat:android-audio-recorder:$androidAudioRecorderVersion"
 
 //    implementation "com.github.adrielcafe:AndroidAudioRecorder:$androidAudioRecorderVersion"
 //    implementation "com.github.adrielcafe:AndroidAudioConverter:$androidAudioConverterVersion"

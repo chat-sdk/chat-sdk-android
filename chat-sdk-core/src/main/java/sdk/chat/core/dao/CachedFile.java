@@ -7,6 +7,7 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Unique;
 
 import java.io.File;
+import java.util.Date;
 
 import sdk.chat.core.base.AbstractEntity;
 import sdk.chat.core.rigs.FileUploadable;
@@ -35,6 +36,7 @@ public class CachedFile extends AbstractEntity {
     private String name;
     private String messageKey;
     private boolean reportProgress;
+    private Date startTime;
 
     private String mimeType;
     private Integer status;
@@ -46,10 +48,9 @@ public class CachedFile extends AbstractEntity {
     /** Used for active entity operations. */
     @Generated(hash = 1018577903)
     private transient CachedFileDao myDao;
-    @Generated(hash = 1409345268)
-    public CachedFile(Long id, String entityID, String identifier, Integer type,
-                      String localPath, String remotePath, String name, String messageKey,
-                      boolean reportProgress, String mimeType, Integer status) {
+    @Generated(hash = 795961539)
+    public CachedFile(Long id, String entityID, String identifier, Integer type, String localPath, String remotePath,
+            String name, String messageKey, boolean reportProgress, Date startTime, String mimeType, Integer status) {
         this.id = id;
         this.entityID = entityID;
         this.identifier = identifier;
@@ -59,6 +60,7 @@ public class CachedFile extends AbstractEntity {
         this.name = name;
         this.messageKey = messageKey;
         this.reportProgress = reportProgress;
+        this.startTime = startTime;
         this.mimeType = mimeType;
         this.status = status;
     }
@@ -212,6 +214,12 @@ public class CachedFile extends AbstractEntity {
     }
     public void setReportProgress(boolean reportProgress) {
         this.reportProgress = reportProgress;
+    }
+    public Date getStartTime() {
+        return this.startTime;
+    }
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
     }
 
 }

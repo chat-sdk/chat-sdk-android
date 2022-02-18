@@ -31,8 +31,9 @@ public class CachedFileDao extends AbstractDao<CachedFile, Long> {
         public final static Property Name = new Property(6, String.class, "name", false, "NAME");
         public final static Property MessageKey = new Property(7, String.class, "messageKey", false, "MESSAGE_KEY");
         public final static Property ReportProgress = new Property(8, boolean.class, "reportProgress", false, "REPORT_PROGRESS");
-        public final static Property MimeType = new Property(9, String.class, "mimeType", false, "MIME_TYPE");
-        public final static Property Status = new Property(10, Integer.class, "status", false, "STATUS");
+        public final static Property StartTime = new Property(9, java.util.Date.class, "startTime", false, "START_TIME");
+        public final static Property MimeType = new Property(10, String.class, "mimeType", false, "MIME_TYPE");
+        public final static Property Status = new Property(11, Integer.class, "status", false, "STATUS");
     }
 
     private DaoSession daoSession;
@@ -60,8 +61,9 @@ public class CachedFileDao extends AbstractDao<CachedFile, Long> {
                 "\"NAME\" TEXT," + // 6: name
                 "\"MESSAGE_KEY\" TEXT," + // 7: messageKey
                 "\"REPORT_PROGRESS\" INTEGER NOT NULL ," + // 8: reportProgress
-                "\"MIME_TYPE\" TEXT," + // 9: mimeType
-                "\"STATUS\" INTEGER);"); // 10: status
+                "\"START_TIME\" INTEGER," + // 9: startTime
+                "\"MIME_TYPE\" TEXT," + // 10: mimeType
+                "\"STATUS\" INTEGER);"); // 11: status
     }
 
     /** Drops the underlying database table. */
@@ -115,14 +117,19 @@ public class CachedFileDao extends AbstractDao<CachedFile, Long> {
         }
         stmt.bindLong(9, entity.getReportProgress() ? 1L: 0L);
  
+        java.util.Date startTime = entity.getStartTime();
+        if (startTime != null) {
+            stmt.bindLong(10, startTime.getTime());
+        }
+ 
         String mimeType = entity.getMimeType();
         if (mimeType != null) {
-            stmt.bindString(10, mimeType);
+            stmt.bindString(11, mimeType);
         }
  
         Integer status = entity.getStatus();
         if (status != null) {
-            stmt.bindLong(11, status);
+            stmt.bindLong(12, status);
         }
     }
 
@@ -171,14 +178,19 @@ public class CachedFileDao extends AbstractDao<CachedFile, Long> {
         }
         stmt.bindLong(9, entity.getReportProgress() ? 1L: 0L);
  
+        java.util.Date startTime = entity.getStartTime();
+        if (startTime != null) {
+            stmt.bindLong(10, startTime.getTime());
+        }
+ 
         String mimeType = entity.getMimeType();
         if (mimeType != null) {
-            stmt.bindString(10, mimeType);
+            stmt.bindString(11, mimeType);
         }
  
         Integer status = entity.getStatus();
         if (status != null) {
-            stmt.bindLong(11, status);
+            stmt.bindLong(12, status);
         }
     }
 
@@ -205,8 +217,9 @@ public class CachedFileDao extends AbstractDao<CachedFile, Long> {
             cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // name
             cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // messageKey
             cursor.getShort(offset + 8) != 0, // reportProgress
-            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // mimeType
-            cursor.isNull(offset + 10) ? null : cursor.getInt(offset + 10) // status
+            cursor.isNull(offset + 9) ? null : new java.util.Date(cursor.getLong(offset + 9)), // startTime
+            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // mimeType
+            cursor.isNull(offset + 11) ? null : cursor.getInt(offset + 11) // status
         );
         return entity;
     }
@@ -222,8 +235,9 @@ public class CachedFileDao extends AbstractDao<CachedFile, Long> {
         entity.setName(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
         entity.setMessageKey(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
         entity.setReportProgress(cursor.getShort(offset + 8) != 0);
-        entity.setMimeType(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
-        entity.setStatus(cursor.isNull(offset + 10) ? null : cursor.getInt(offset + 10));
+        entity.setStartTime(cursor.isNull(offset + 9) ? null : new java.util.Date(cursor.getLong(offset + 9)));
+        entity.setMimeType(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
+        entity.setStatus(cursor.isNull(offset + 11) ? null : cursor.getInt(offset + 11));
      }
     
     @Override

@@ -9,12 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import sdk.chat.core.api.SimpleAPI;
+import io.reactivex.Single;
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.image.ImageUploadResult;
 import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.utils.PermissionRequestHandler;
 import sdk.chat.ui.chat.MediaSelector;
-import io.reactivex.Single;
 
 public class ImagePickerUploader {
 
@@ -33,6 +33,8 @@ public class ImagePickerUploader {
         return PermissionRequestHandler.requestImageMessage(activity)
                 .andThen(mediaSelector.startChooseMediaActivity(activity, MimeType.ofImage(), cropType, multiSelectEnabled, true, width, height)
                         .flatMap(this::uploadImageFiles));
+
+
     }
 
     public Single<List<File>> choosePhoto(Activity activity) {

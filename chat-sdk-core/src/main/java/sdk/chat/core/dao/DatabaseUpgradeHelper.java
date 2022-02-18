@@ -362,4 +362,16 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         }
     }
 
+    private static class MigrationV24 implements Migration {
+        @Override
+        public Integer getVersion() {
+            return 24;
+        }
+
+        @Override
+        public void runMigration(Database db) {
+            db.execSQL("ALTER TABLE " + CachedFileDao.TABLENAME + " ADD COLUMN " + CachedFileDao.Properties.StartTime.columnName + " INTEGER");
+        }
+    }
+
 }

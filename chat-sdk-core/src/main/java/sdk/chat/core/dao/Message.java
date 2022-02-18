@@ -782,6 +782,10 @@ public class Message extends AbstractEntity {
                     else if (fileUploadStatus == UploadStatus.Failed) {
                         return true;
                     } else {
+                        double age = file.getStartTime().getTime() - new Date().getTime();
+                        if (age < 10) {
+                            continue;
+                        }
                         UploadStatus us = ChatSDK.upload().uploadStatus(file.getEntityID());
                         if (us != UploadStatus.InProgress && us != UploadStatus.WillStart) {
                             return true;

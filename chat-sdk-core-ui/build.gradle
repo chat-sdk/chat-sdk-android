@@ -55,6 +55,7 @@ rootProject.allprojects {
         maven { url "https://chatsdk.jfrog.io/artifactory/release/matisse" }
         maven { url "https://chatsdk.jfrog.io/artifactory/release/material-search-view" }
         maven { url "https://chatsdk.jfrog.io/artifactory/release/android-image-cropper" }
+        maven { url "https://chatsdk.jfrog.io/artifactory/release/android-audio-recorder" }
     }
 }
 
@@ -101,7 +102,8 @@ dependencies {
 
     // Audio
 //    implementation "com.github.adrielcafe:AndroidAudioRecorder:$androidAudioRecorderVersion"
-    implementation "com.github.chat-sdk:AndroidAudioRecorder:$androidAudioRecorderVersion"
+//    implementation "com.github.chat-sdk:AndroidAudioRecorder:$androidAudioRecorderVersion"
+    implementation "sdk.chat:android-audio-recorder:$androidAudioRecorderVersion"
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"

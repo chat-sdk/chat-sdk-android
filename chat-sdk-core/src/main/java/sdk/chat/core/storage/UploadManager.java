@@ -1,5 +1,6 @@
 package sdk.chat.core.storage;
 
+import java.util.Date;
 import java.util.List;
 
 import sdk.chat.core.dao.CachedFile;
@@ -23,6 +24,7 @@ public class UploadManager {
             file.setFileType(CachedFile.Type.Upload);
             file.setMessageKey(uploadable.messageKey);
             file.setReportProgress(uploadable.reportProgress);
+            file.setStartTime(new Date());
             file.update();
             return file;
         }
