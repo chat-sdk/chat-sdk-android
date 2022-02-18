@@ -2,9 +2,11 @@ package sdk.chat.sinch;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
+import com.sinch.android.rtc.NotificationResult;
 import com.sinch.android.rtc.SinchHelpers;
 
 import java.util.ArrayList;
@@ -20,6 +22,8 @@ import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
+import sdk.chat.core.utils.AppBackgroundMonitor;
+import sdk.chat.sinch.calling.IncomingCallActivity;
 import sdk.guru.common.BaseConfig;
 import sdk.guru.common.RX;
 
@@ -123,8 +127,14 @@ public class SinchModule implements Module {
             }
 
             if (SinchHelpers.isSinchPushPayload(data)) {
-                sinchService.client().relayRemotePushNotificationPayload(data);
-                return true;
+                NotificationResult result = sinchService.client().relayRemotePushNotificationPayload(data);
+                if (result.isValid() && AppBackgroundMonitor.shared().inBackground()) {
+                    Intent appIntent = new Intent(context, IncomingCallActivity.class);
+                    appIntent.putExtra(SinchService.CALL_ID, result.getCallResult().getCallId());
+                    appIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    ChatSDK.ui().notificationDisplayHandler().createCallNotification(context, appIntent, result.getCallResult().getRemoteUserId(), result.getDisplayName());
+                    return true;
+                }
             }
             return false;
         }, 0);

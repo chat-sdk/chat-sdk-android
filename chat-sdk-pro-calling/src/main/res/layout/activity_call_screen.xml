@@ -17,10 +17,21 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="false"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="H,3:4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="50dp"
+        />
+
+    <LinearLayout
+        android:id="@+id/llLocalVideo"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:orientation="horizontal"
+        android:layout_marginTop="70dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <LinearLayout
         android:id="@+id/llUserDetails"
@@ -70,7 +81,6 @@
         android:id="@+id/flButtons"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/llLocalVideo"
         app:alignContent="center"
         app:alignItems="center"
         app:flexWrap="wrap_reverse"
@@ -101,26 +111,28 @@
             android:src="@drawable/baseline_videocam_off_24"
             android:text="@string/call_toggle_video" />
 
+<!--        <ImageButton-->
+<!--            android:id="@+id/btnSpeaker"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_margin="16dp"-->
+<!--            android:background="@drawable/circle_green"-->
+<!--            android:contentDescription="@string/call_toggle_speaker"-->
+<!--            android:padding="16dp"-->
+<!--            android:src="@drawable/baseline_volume_off_24"-->
+<!--            android:text="@string/call_toggle_speaker" />-->
+
         <ImageButton
-            android:id="@+id/btnSpeaker"
+            android:id="@+id/btnMute"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:background="@drawable/circle_green"
-            android:contentDescription="@string/call_toggle_speaker"
+            android:contentDescription="@string/call_toggle_mute"
             android:padding="16dp"
             android:src="@drawable/baseline_volume_off_24"
-            android:text="@string/call_toggle_speaker" />
+            android:text="@string/call_toggle_mute" />
 
     </com.google.android.flexbox.FlexboxLayout>
-
-    <LinearLayout
-        android:id="@+id/llLocalVideo"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:orientation="horizontal"
-        android:layout_margin="5dp"
-        app:layout_constraintTop_toTopOf="@+id/llRemoteVideo"
-        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

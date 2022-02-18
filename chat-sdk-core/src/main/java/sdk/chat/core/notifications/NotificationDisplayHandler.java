@@ -20,6 +20,7 @@ import androidx.core.app.NotificationManagerCompat;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import sdk.chat.core.R;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -46,6 +47,25 @@ public class NotificationDisplayHandler implements Consumer<Throwable> {
                 wakeScreen(context);
             }, this);
         }
+
+    }
+
+    public Disposable createCallNotification(final Context context, Intent resultIntent, String userEntityID, String title) {
+
+        // We are not connected... so we can't mark read or reply
+        NotificationBuilder builder = new NotificationBuilder(context);
+        builder.disableMarkRead();
+        builder.disableReply();
+        builder = builder.useDefault()
+                    .setIntent(resultIntent)
+                    .addIconForUserEntityID(userEntityID)
+                    .setTitle(title)
+                    .setText(context.getResources().getString(R.string.incoming_call));
+
+        return builder.build().subscribe(nb -> {
+            NotificationManagerCompat.from(context).notify(MESSAGE_NOTIFICATION_ID, nb.build());
+            wakeScreen(context);
+        }, this);
 
     }
 

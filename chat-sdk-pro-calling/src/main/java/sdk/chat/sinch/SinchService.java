@@ -90,7 +90,6 @@ public class SinchService {
         return call;
     }
 
-
     public String getUserId() {
         return mUserId;
     }
@@ -204,12 +203,12 @@ public class SinchService {
 
         @Override
         public void onPushTokenRegistered() {
-
+            Logger.warn("Registered");
         }
 
         @Override
         public void onPushTokenRegistrationFailed(SinchError sinchError) {
-
+            Logger.warn("Failed");
         }
     }
 
@@ -228,12 +227,12 @@ public class SinchService {
 
         @Override
         public void onUserRegistered() {
-
+            Logger.warn("Registered");
         }
 
         @Override
         public void onUserRegistrationFailed(SinchError sinchError) {
-
+            Logger.warn("Failed");
         }
     }
 

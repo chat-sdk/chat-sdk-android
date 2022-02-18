@@ -51,8 +51,9 @@ public class CallActivity extends Activity {
     private boolean callEstablished = false;
     private boolean addedListener = false;
     private boolean speakerEnabled = false;
-    private boolean videoEnabled = false;
-    private boolean showRemoteVideo = false;
+    private boolean micEnabled = true;
+    private boolean videoEnabled = true;
+    private boolean showRemoteVideo = true;
     private boolean isInitiator = false;
 
     private LinearLayout llUserDetails;
@@ -60,7 +61,8 @@ public class CallActivity extends Activity {
     private TextView tvCallState;
     private TextView tvRemoteUser;
     private ImageButton btnHangup;
-    private ImageButton btnToggleSpeaker;
+//    private ImageButton btnToggleSpeaker;
+    private ImageButton btnToggleMute;
     private ImageButton btnToggleVideo;
 
     private DisposableMap disposableList = new DisposableMap();
@@ -106,15 +108,18 @@ public class CallActivity extends Activity {
         tvRemoteUser = findViewById(R.id.tvUsername);
         tvCallState = findViewById(R.id.tvCallState);
         btnHangup = findViewById(R.id.btnHangup);
-        btnToggleSpeaker = findViewById(R.id.btnSpeaker);
+//        btnToggleSpeaker = findViewById(R.id.btnSpeaker);
         btnToggleVideo = findViewById(R.id.btnVideo);
+        btnToggleMute = findViewById(R.id.btnMute);
 
         btnHangup.setOnClickListener(v -> endCall());
 
-        btnToggleSpeaker.setVisibility(View.GONE);
+//        btnToggleSpeaker.setVisibility(View.GONE);
         btnToggleVideo.setVisibility(View.GONE);
+        btnToggleMute.setVisibility(View.GONE);
 
-        btnToggleSpeaker.setOnClickListener(v -> setSpeakerEnabled(!speakerEnabled));
+//        btnToggleSpeaker.setOnClickListener(v -> setSpeakerEnabled(!speakerEnabled));
+        btnToggleMute.setOnClickListener(v -> setMicEnabled(!micEnabled));
         btnToggleVideo.setOnClickListener(v -> setVideoEnabled(!videoEnabled));
 
         callId = getIntent().getStringExtra(SinchService.CALL_ID);
@@ -137,8 +142,12 @@ public class CallActivity extends Activity {
             finish();
         }
 
-        if (speakerEnabled) {
-            setSpeakerEnabled(true);
+//        if (speakerEnabled) {
+//            setSpeakerEnabled(true);
+//        }
+
+        if (micEnabled) {
+            setMicEnabled(true);
         }
 
         if (videoEnabled) {
@@ -151,7 +160,8 @@ public class CallActivity extends Activity {
 
         if (callEstablished) {
             startDurationTimer();
-            btnToggleSpeaker.setVisibility(View.VISIBLE);
+//            btnToggleSpeaker.setVisibility(View.VISIBLE);
+            btnToggleMute.setVisibility(View.VISIBLE);
             btnToggleVideo.setVisibility(View.VISIBLE);
         }
 
@@ -163,18 +173,29 @@ public class CallActivity extends Activity {
         return SinchModule.shared().sinchService;
     }
 
-    private void setSpeakerEnabled(boolean enabled) {
+//    private void setSpeakerEnabled(boolean enabled) {
+//        AudioController audioController = sinchService().getAudioController();
+//        if (enabled) {
+//            audioController.enableSpeaker();
+//            btnToggleSpeaker.setImageResource(R.drawable.baseline_volume_up_24);
+//        } else {
+//            audioController.disableSpeaker();
+//            btnToggleSpeaker.setImageResource(R.drawable.baseline_volume_off_24);
+//        }
+//        speakerEnabled = enabled;
+//    }
+
+    private void setMicEnabled(boolean enabled) {
         AudioController audioController = sinchService().getAudioController();
         if (enabled) {
-            audioController.enableSpeaker();
-            btnToggleSpeaker.setImageResource(R.drawable.baseline_volume_up_24);
+            audioController.unmute();
+            btnToggleMute.setImageResource(R.drawable.baseline_volume_up_24);
         } else {
-            audioController.disableSpeaker();
-            btnToggleSpeaker.setImageResource(R.drawable.baseline_volume_off_24);
+            audioController.mute();
+            btnToggleMute.setImageResource(R.drawable.baseline_volume_off_24);
         }
-        speakerEnabled = enabled;
+        micEnabled = enabled;
     }
-
     private void setVideoEnabled(boolean enabled) {
         Call call = sinchService().getCall(callId);
         if (call != null) {
@@ -379,7 +400,8 @@ public class CallActivity extends Activity {
             setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
             callStart = System.currentTimeMillis();
 
-            btnToggleSpeaker.setVisibility(View.VISIBLE);
+//            btnToggleSpeaker.setVisibility(View.VISIBLE);
+            btnToggleMute.setVisibility(View.VISIBLE);
             btnToggleVideo.setVisibility(View.VISIBLE);
         }
 

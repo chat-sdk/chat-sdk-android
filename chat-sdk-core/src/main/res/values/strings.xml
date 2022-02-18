@@ -217,4 +217,6 @@
     <string name="me">Me</string>
     <string name="participants">Participants</string>
 
+    <string name="incoming_call">Incoming Call</string>
+
 </resources>

@@ -13,5 +13,6 @@
     <string name="call_hangup">Hangup</string>
     <string name="call_toggle_video">Video</string>
     <string name="call_toggle_speaker">Speaker</string>
+    <string name="call_toggle_mute">Mute</string>
 
 </resources>
