@@ -535,6 +535,10 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
                     inflater.inflate(R.menu.add_menu, menu);
                     menu.findItem(R.id.action_add).setIcon(Icons.get(getActivity(), Icons.choose().add, Icons.shared().actionBarIconColor));
                 }
+                if (ChatSDK.call() != null && ChatSDK.call().callEnabled(this, thread.getEntityID())) {
+                    inflater.inflate(R.menu.call_menu, menu);
+                    menu.findItem(R.id.action_call).setIcon(Icons.get(getActivity(), Icons.choose().call, Icons.shared().actionBarIconColor));
+                }
 
                 chatActionBar.showText();
             }
@@ -607,7 +611,9 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
             ChatSDK.ui().startAddUsersToThreadActivity(getActivity(), thread.getEntityID());
         }
-
+        if (id == R.id.action_call) {
+            ChatSDK.call().startCall(this, thread.otherUser().getEntityID());
+        }
         return super.onOptionsItemSelected(item);
     }
 

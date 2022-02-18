@@ -23,6 +23,8 @@ import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
+import sdk.chat.sinch.SinchModule;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
 
@@ -92,6 +94,11 @@ public class MainApplication extends Application {
                 .addModule(FirebaseLastOnlineModule.shared())
                 .addModule(FirebaseReadReceiptsModule.shared())
                 .addModule(FirebaseTypingIndicatorModule.shared())
+
+    .addModule(SinchModule.builder()
+            .setApplicationKey("90c5e8c0-7a3d-4bd5-8d8f-075e5c24cd1f")
+            .setSecret("bM0AbXIhG0eIVMlTLcHYrQ==")
+            .build())
 
                 .addModule(ExtrasModule.builder(config -> {
                     config.setDrawerEnabled(false);

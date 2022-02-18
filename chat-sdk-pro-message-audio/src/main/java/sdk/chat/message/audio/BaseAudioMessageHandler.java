@@ -18,6 +18,10 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import sdk.guru.common.RX;
 
+//import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
+//import cafe.adriel.androidaudioconverter.callback.IConvertCallback;
+//import cafe.adriel.androidaudioconverter.model.AudioFormat;
+
 
 /**
  * Created by ben on 9/28/17.
@@ -40,6 +44,8 @@ public class BaseAudioMessageHandler extends AbstractMessageHandler implements A
 //                message.setValueForKey(duration, Keys.MessageAudioLength);
 //                message.update();
             }).run();
+        }).doOnError(throwable -> {
+
         });
     }
 

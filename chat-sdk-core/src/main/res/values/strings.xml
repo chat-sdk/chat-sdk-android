@@ -162,6 +162,7 @@
     <string name="success">Success!</string>
     <string name="online">Online</string>
     <string name="add">Add</string>
+    <string name="call">Call</string>
 
     <string name="options">Options</string>
     <string name="info">Info</string>
@@ -215,5 +216,7 @@
 
     <string name="me">Me</string>
     <string name="participants">Participants</string>
+
+    <string name="incoming_call">Incoming Call</string>
 
 </resources>

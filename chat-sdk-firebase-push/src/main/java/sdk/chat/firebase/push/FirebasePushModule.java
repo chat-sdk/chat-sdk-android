@@ -5,6 +5,8 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import sdk.chat.core.module.AbstractModule;
+import sdk.chat.core.push.BaseBroadcastHandler;
+import sdk.chat.core.push.BroadcastHandler;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.guru.common.BaseConfig;
@@ -38,6 +40,7 @@ public class FirebasePushModule extends AbstractModule {
     public static class Config<T> extends BaseConfig<T> {
 
         public String firebaseFunctionsRegion;
+        public BroadcastHandler broadcastHandler;
 
         public Config(T onBuild) {
             super(onBuild);
@@ -52,6 +55,11 @@ public class FirebasePushModule extends AbstractModule {
             this.firebaseFunctionsRegion = firebaseFunctionsRegion;
             return this;
         }
+
+        public Config<T> setBroadcastHandler(BroadcastHandler handler) {
+            this.broadcastHandler = handler;
+            return this;
+        }
     }
 
     protected Config<FirebasePushModule> config = new Config<>(this);
@@ -59,11 +67,7 @@ public class FirebasePushModule extends AbstractModule {
     @Override
     public void activate(@NonNull Context context) {
         ChatSDK.a().push = new FirebasePushHandler();
-//        try {
-//            FirebaseApp.initializeApp(context);
-//        } catch (Exception e) {
-//            Logger.debug(e);
-//        }
+        ChatSDK.shared().addBroadcastHandler(new BaseBroadcastHandler());
     }
 
     public static Config config() {

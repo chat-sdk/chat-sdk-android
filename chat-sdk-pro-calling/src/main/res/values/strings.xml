@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">chat-sdk-calling</string>
+    <string name="call_progressing">Connecting</string>
+    <string name="call_anonymous">Anonymous</string>
+    <string name="call_ringing">Ringing</string>
+
+    <string name="call_history">Call History</string>
+    <string name="call_started">Call Started</string>
+    <string name="call_ended">Call Ended</string>
+    <string name="incoming_call">Incoming Call</string>
+    <string name="call_answer">Answer</string>
+    <string name="call_decline">Decline</string>
+    <string name="call_hangup">Hangup</string>
+    <string name="call_toggle_video">Video</string>
+    <string name="call_toggle_speaker">Speaker</string>
+    <string name="call_toggle_mute">Mute</string>
+
+</resources>

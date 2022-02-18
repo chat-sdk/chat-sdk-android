@@ -22,6 +22,7 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.handlers.AudioMessageHandler;
 import sdk.chat.core.handlers.AuthenticationHandler;
 import sdk.chat.core.handlers.BlockingHandler;
+import sdk.chat.core.handlers.CallHandler;
 import sdk.chat.core.handlers.ContactHandler;
 import sdk.chat.core.handlers.ContactMessageHandler;
 import sdk.chat.core.handlers.CoreHandler;
@@ -50,6 +51,7 @@ import sdk.chat.core.interfaces.InterfaceAdapter;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.notifications.NotificationDisplayHandler;
+import sdk.chat.core.push.BroadcastHandler;
 import sdk.chat.core.rigs.DownloadManager;
 import sdk.chat.core.rigs.MessageSender;
 import sdk.chat.core.storage.FileManager;
@@ -96,6 +98,8 @@ public class ChatSDK {
 
     protected List<Runnable> onActivateListeners = new ArrayList<>();
     protected List<Runnable> onPermissionsRequestedListeners = new ArrayList<>();
+
+    protected List<BroadcastHandler> broadcastHandlers = new ArrayList<>();
 
     protected ChatSDK () {
     }
@@ -357,6 +361,10 @@ public class ChatSDK {
         return a().push;
     }
 
+    public static CallHandler call() {
+        return a().call;
+    }
+
     public static UploadHandler upload () {
         return a().upload;
     }
@@ -535,6 +543,25 @@ public class ChatSDK {
 
     public static UploadManager uploadManager() {
         return shared().uploadManager;
+    }
+
+    public void addBroadcastHandler(BroadcastHandler handler) {
+        broadcastHandlers.add(handler);
+    }
+    public void addBroadcastHandler(BroadcastHandler handler, int index) {
+        broadcastHandlers.add(index, handler);
+    }
+
+    public void removeBroadcastHandler(BroadcastHandler handler) {
+        broadcastHandlers.remove(handler);
+    }
+
+    public List<BroadcastHandler> broadcastHandlers() {
+        return broadcastHandlers;
+    }
+
+    public void clearBroadcastHandlers() {
+        broadcastHandlers.clear();
     }
 
 }

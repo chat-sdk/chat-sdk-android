@@ -14,8 +14,15 @@ import sdk.chat.core.session.ChatSDK;
 public class DefaultBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (ChatSDK.shared().isValid() && ChatSDK.push() != null && ChatSDK.push().getBroadcastHandler() != null) {
-            ChatSDK.push().getBroadcastHandler().onReceive(context, intent);
+
+//        android.os.Debug.waitForDebugger();
+
+        if (ChatSDK.shared().isValid()) {
+            for (BroadcastHandler handler: ChatSDK.shared().broadcastHandlers()) {
+                if (handler.onReceive(context, intent)) {
+                    break;
+                }
+            }
         }
     }
 }

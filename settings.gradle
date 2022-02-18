@@ -43,5 +43,6 @@ include 'app',
         'app-demo',
         'app-firestream',
         'app-live',
+        'chat-sdk-pro-calling',
         'chat-sdk-pro-xmpp-omemo',
         'chat-sdk-mod-image-editor'

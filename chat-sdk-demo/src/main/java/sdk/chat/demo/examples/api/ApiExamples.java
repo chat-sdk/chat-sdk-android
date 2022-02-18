@@ -1,7 +1,6 @@
 package sdk.chat.demo.examples.api;
 
 import android.content.Context;
-import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -37,6 +36,7 @@ import sdk.chat.demo.examples.activities.AProfileFragment;
 import sdk.chat.firebase.adapter.FirebasePaths;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.adapter.wrappers.UserWrapper;
+import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.ui.activities.LoginActivity;
 import sdk.guru.common.RX;
 
@@ -157,13 +157,17 @@ public class ApiExamples {
      * push module.
      */
     public void customPushNotificationHandling () {
-        ChatSDK.push().setBroadcastHandler(new BroadcastHandler() {
-            @Override
-            public boolean onReceive(Context context, Intent intent) {
-                // Handle push notifications here
-                return true;
-            }
-        });
+
+        BroadcastHandler handler = (context, intent) -> {
+            return false;
+        };
+
+        // During Chat SDK initialization
+        FirebasePushModule.builder().setBroadcastHandler(handler).build();
+
+        // Add an extra receiver
+        ChatSDK.shared().addBroadcastHandler(handler);
+
     }
 
     /**

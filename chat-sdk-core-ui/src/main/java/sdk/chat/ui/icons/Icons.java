@@ -64,6 +64,8 @@ public class Icons {
         user_100 = context.getResources().getDrawable(R.drawable.icn_100_user);
         group_100 = context.getResources().getDrawable(R.drawable.icn_100_group);
 
+        call = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_call);
+
     }
 
     public IconicsDrawable dummy;
@@ -96,6 +98,7 @@ public class Icons {
     public IconicsDrawable arrowRight;
     public Drawable group_100;
     public Drawable user_100;
+    public IconicsDrawable call;
 
     public static Icons choose() {
         return shared();

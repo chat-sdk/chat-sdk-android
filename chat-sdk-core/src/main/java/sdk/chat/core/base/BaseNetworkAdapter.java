@@ -5,6 +5,7 @@ import java.util.HashMap;
 import sdk.chat.core.handlers.AudioMessageHandler;
 import sdk.chat.core.handlers.AuthenticationHandler;
 import sdk.chat.core.handlers.BlockingHandler;
+import sdk.chat.core.handlers.CallHandler;
 import sdk.chat.core.handlers.ContactHandler;
 import sdk.chat.core.handlers.ContactMessageHandler;
 import sdk.chat.core.handlers.CoreHandler;
@@ -59,6 +60,7 @@ public class BaseNetworkAdapter {
     public HookHandler hook = new BaseHookHandler();
     public IEncryptionHandler encryption;
     public ContactMessageHandler contactMessage;
+    public CallHandler call;
 
     private HashMap<String, Object> handlers = new HashMap<>();
 
