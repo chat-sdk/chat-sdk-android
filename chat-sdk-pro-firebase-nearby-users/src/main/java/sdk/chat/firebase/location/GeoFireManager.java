@@ -11,7 +11,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.jakewharton.rxrelay2.PublishRelay;
 import com.jakewharton.rxrelay2.ReplayRelay;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -17,7 +17,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;

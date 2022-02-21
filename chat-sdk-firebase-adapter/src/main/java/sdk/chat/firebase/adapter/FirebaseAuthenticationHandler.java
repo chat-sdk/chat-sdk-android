@@ -7,7 +7,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.Arrays;
 import java.util.HashMap;

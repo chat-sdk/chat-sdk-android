@@ -12,7 +12,7 @@ package sdk.chat.encryption;
 ////import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 ////import com.virgilsecurity.sdk.utils.Base64;
 //
-//import org.pmw.tinylog.Logger;
+//import org.tinylog.Logger;
 //
 //import java.io.IOException;
 //import java.net.URLEncoder;

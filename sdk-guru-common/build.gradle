@@ -28,12 +28,12 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
-    lintOptions {
+    lint {
         abortOnError false
         checkReleaseBuilds false
         lintConfig file('lint.xml')
     }
+
 
 }
 
@@ -43,7 +43,9 @@ dependencies {
     api "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
     api "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
     api "com.jakewharton.rxrelay2:rxrelay:$rxRelayVersion"
-    api "org.tinylog:tinylog:$tinyLogVersion"
+//    api "org.tinylog:tinylog:$tinyLogVersion"
+    api "org.tinylog:tinylog-impl:2.4.1"
+    api "org.tinylog:tinylog-api:2.4.1"
 }
 
 ext {

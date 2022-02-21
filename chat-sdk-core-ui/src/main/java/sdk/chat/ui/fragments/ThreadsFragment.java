@@ -19,7 +19,7 @@ import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 import com.stfalcon.chatkit.utils.DateFormatter;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;

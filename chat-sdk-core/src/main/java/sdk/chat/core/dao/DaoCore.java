@@ -14,7 +14,7 @@ import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.async.AsyncSession;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.query.QueryBuilder;
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.lang.reflect.Constructor;
 import java.math.BigInteger;

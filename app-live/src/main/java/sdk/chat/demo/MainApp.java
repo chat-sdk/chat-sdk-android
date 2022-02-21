@@ -4,7 +4,7 @@ import android.app.Application;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;

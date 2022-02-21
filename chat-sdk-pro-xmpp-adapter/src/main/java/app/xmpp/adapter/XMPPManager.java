@@ -46,7 +46,7 @@ import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.net.InetAddress;
 import java.util.ArrayList;

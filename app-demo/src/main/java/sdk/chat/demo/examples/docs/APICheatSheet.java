@@ -1,6 +1,6 @@
 package sdk.chat.demo.examples.docs;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.Collections;
 import java.util.List;

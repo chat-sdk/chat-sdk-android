@@ -2,7 +2,7 @@ package sdk.chat.ui.update;
 
 import com.jakewharton.rxrelay2.PublishRelay;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;

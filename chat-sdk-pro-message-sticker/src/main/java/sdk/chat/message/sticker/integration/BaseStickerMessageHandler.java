@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import io.reactivex.Completable;
 import sdk.chat.core.base.AbstractMessageHandler;

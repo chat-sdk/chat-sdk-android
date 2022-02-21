@@ -1,6 +1,6 @@
 package app.xmpp.adapter.handlers;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import sdk.chat.core.base.AbstractSearchHandler;
 import sdk.chat.core.dao.User;

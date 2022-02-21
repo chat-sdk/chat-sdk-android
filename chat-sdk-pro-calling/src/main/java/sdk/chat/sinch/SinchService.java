@@ -18,7 +18,7 @@ import com.sinch.android.rtc.calling.CallClient;
 import com.sinch.android.rtc.calling.CallClientListener;
 import com.sinch.android.rtc.video.VideoController;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import io.reactivex.disposables.Disposable;
 import sdk.chat.core.session.ChatSDK;

@@ -29,12 +29,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
         }
     }
-
-    lintOptions {
+    lint {
         abortOnError false
         checkReleaseBuilds false
         lintConfig file('lint.xml')
     }
+
 
 }
 

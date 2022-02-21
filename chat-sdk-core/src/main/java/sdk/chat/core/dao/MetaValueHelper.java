@@ -1,6 +1,6 @@
 package sdk.chat.core.dao;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.HashMap;
 import java.util.List;

@@ -11,7 +11,7 @@ import org.jivesoftware.smackx.carbons.CarbonCopyReceivedListener;
 import org.jivesoftware.smackx.carbons.packet.CarbonExtension;
 import org.jivesoftware.smackx.chatstates.packet.ChatStateExtension;
 import org.jxmpp.jid.EntityBareJid;
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.Date;
 import java.util.HashMap;

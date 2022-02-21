@@ -11,7 +11,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.Map;
 import java.util.concurrent.Callable;

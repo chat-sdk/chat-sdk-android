@@ -4,7 +4,7 @@ import android.app.Application;
 
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.util.TLSUtils;
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import app.xmpp.adapter.XMPPManager;
 import app.xmpp.adapter.module.XMPPModule;

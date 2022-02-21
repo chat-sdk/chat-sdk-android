@@ -3,7 +3,7 @@ package sdk.chat.test;
 import android.os.AsyncTask;
 
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;

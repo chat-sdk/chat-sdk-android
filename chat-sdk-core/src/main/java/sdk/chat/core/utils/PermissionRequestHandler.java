@@ -14,7 +14,7 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.Arrays;
 import java.util.Date;

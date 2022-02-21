@@ -1,7 +1,7 @@
 package app.xmpp.adapter.listeners;
 
 import org.jivesoftware.smack.ReconnectionListener;
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;

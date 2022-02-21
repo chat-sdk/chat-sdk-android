@@ -7,7 +7,7 @@ import android.os.Build;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
@@ -177,7 +177,6 @@ public class ChatSDK {
                     NetworkAdapterProvider provider = (NetworkAdapterProvider) module;
                     if (provider.getNetworkAdapter() != null) {
                         networkAdapter = provider.getNetworkAdapter();
-                        Logger.info("Module: " + module.getName() + " provided network adapter");
                     }
                 }
             }

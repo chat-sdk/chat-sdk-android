@@ -2,7 +2,7 @@ package firestream.chat.chat;
 
 import androidx.annotation.Nullable;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;

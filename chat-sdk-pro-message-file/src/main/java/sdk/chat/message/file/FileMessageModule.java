@@ -9,7 +9,7 @@ import android.view.View;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.List;

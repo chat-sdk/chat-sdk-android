@@ -14,7 +14,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.jakewharton.rxrelay2.PublishRelay;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.concurrent.TimeUnit;
 

@@ -20,7 +20,7 @@ import com.stfalcon.chatkit.messages.MessageInput;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.io.File;
 import java.lang.ref.WeakReference;

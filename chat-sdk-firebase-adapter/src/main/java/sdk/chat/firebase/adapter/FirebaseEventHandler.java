@@ -4,7 +4,7 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.Date;
 import java.util.HashMap;

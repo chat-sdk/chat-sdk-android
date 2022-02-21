@@ -16,7 +16,7 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Unique;
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.Date;
 import java.util.HashMap;

@@ -16,7 +16,7 @@ import org.jivesoftware.smackx.muc.packet.MUCUser;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Resourcepart;
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;

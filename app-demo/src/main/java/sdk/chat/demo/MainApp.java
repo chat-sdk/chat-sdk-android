@@ -2,7 +2,7 @@ package sdk.chat.demo;
 
 import android.app.Application;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import sdk.chat.app.firebase.ChatSDKFirebase;
 import sdk.chat.contact.ContactBookModule;

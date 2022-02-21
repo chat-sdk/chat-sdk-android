@@ -2,7 +2,7 @@ package sdk.chat.ui.chat.model;
 
 import com.stfalcon.chatkit.commons.models.IMessage;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.text.DateFormat;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
 package sdk.chat.core.utils;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -2,9 +2,6 @@ package sdk.chat.core.session;
 
 import android.graphics.Color;
 
-import org.pmw.tinylog.Level;
-import org.pmw.tinylog.Logger;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -143,7 +140,7 @@ public class Config<T> extends BaseConfig<T> {
     public Config<T> setDebugModeEnabled(boolean debug) {
         this.debug = debug;
         if (debug) {
-            Logger.getConfiguration().level(Level.DEBUG).activate();
+//            Logger.getConfiguration().level(Level.DEBUG).activate();
         }
         return this;
     }

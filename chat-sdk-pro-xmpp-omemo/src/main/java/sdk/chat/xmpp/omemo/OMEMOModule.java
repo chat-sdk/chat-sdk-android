@@ -20,7 +20,7 @@ import org.jivesoftware.smackx.omemo.trust.TrustState;
 
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.UUID;
 

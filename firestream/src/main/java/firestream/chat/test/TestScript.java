@@ -2,7 +2,7 @@ package firestream.chat.test;
 
 import android.content.Context;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.List;

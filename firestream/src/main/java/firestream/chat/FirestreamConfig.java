@@ -1,6 +1,6 @@
 package firestream.chat;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import sdk.guru.common.BaseConfig;
 

@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.XMPPConnection;
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;

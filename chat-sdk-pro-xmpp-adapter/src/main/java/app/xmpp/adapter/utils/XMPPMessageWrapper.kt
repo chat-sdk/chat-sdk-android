@@ -11,7 +11,6 @@ import org.jivesoftware.smackx.chatstates.packet.ChatStateExtension
 import org.jivesoftware.smackx.delay.packet.DelayInformation
 import org.jivesoftware.smackx.receipts.DeliveryReceipt
 import org.jxmpp.jid.impl.JidCreate
-import org.pmw.tinylog.Logger
 import sdk.chat.core.dao.Thread
 import sdk.chat.core.dao.User
 import sdk.chat.core.interfaces.ThreadType
@@ -202,7 +201,7 @@ open class XMPPMessageWrapper(val message: Stanza) {
     }
 
     open fun debug() {
-        Logger.debug(prettyXML())
+        System.out.println(prettyXML())
     }
 
     open fun prettyXML(): String {
@@ -268,7 +267,7 @@ fun Stanza.extFrom(): String? {
                 fromJID = jids[0]
             }
             if (jids.size > 1) {
-                Logger.debug("Something went wrong")
+                System.out.println("Something went wrong")
             }
         }
         if (fromJID == null) {

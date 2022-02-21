@@ -26,7 +26,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import butterknife.BindView;
 import io.reactivex.Completable;

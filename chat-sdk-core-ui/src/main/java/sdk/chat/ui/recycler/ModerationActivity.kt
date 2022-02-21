@@ -5,7 +5,6 @@ import android.os.Bundle
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import kotlinx.android.synthetic.main.activity_smart_recycler.*
-import org.pmw.tinylog.Logger
 import sdk.chat.core.dao.Keys
 import sdk.chat.core.dao.Thread
 import sdk.chat.core.dao.User
@@ -147,7 +146,7 @@ open class ModerationActivity: BaseActivity() {
                 var roleRunnable = object : RadioRunnable {
                     override fun run(value: String) {
                         dm.add(ChatSDK.thread().setRole(value, thread, user).observeOn(RX.main()).subscribe(Action {
-                            Logger.info("Done")
+
                         }, this@ModerationActivity))
                     }
                 }
@@ -184,11 +183,9 @@ open class ModerationActivity: BaseActivity() {
                     override fun run(value: Boolean) {
                         if (value) {
                             dm.add(ChatSDK.thread().grantModerator(thread, user).observeOn(RX.main()).subscribe(Action {
-                                Logger.info("Done")
                             }, this@ModerationActivity))
                         } else {
                             dm.add(ChatSDK.thread().revokeModerator(thread, user).observeOn(RX.main()).subscribe(Action {
-                                Logger.info("Done")
                             }, this@ModerationActivity))
                         }
                     }
@@ -207,11 +204,11 @@ open class ModerationActivity: BaseActivity() {
                     override fun run(value: Boolean) {
                         if (value) {
                             dm.add(ChatSDK.thread().revokeVoice(thread, user).observeOn(RX.main()).subscribe(Action {
-                                Logger.info("Done")
+
                             }, this@ModerationActivity))
                         } else {
                             dm.add(ChatSDK.thread().grantVoice(thread, user).observeOn(RX.main()).subscribe(Action {
-                                Logger.info("Done")
+
                             }, this@ModerationActivity))
                         }
                     }

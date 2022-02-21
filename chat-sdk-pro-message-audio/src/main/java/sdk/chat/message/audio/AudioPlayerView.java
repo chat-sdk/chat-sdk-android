@@ -15,7 +15,7 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.exoplayer2.Player;
 
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

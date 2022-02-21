@@ -8,7 +8,7 @@ import org.jivesoftware.smack.roster.RosterListener;
 import org.jivesoftware.smack.roster.packet.RosterPacket;
 import org.jxmpp.jid.BareJid;
 import org.jxmpp.jid.Jid;
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
 import java.util.Collection;

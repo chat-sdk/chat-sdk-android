@@ -1,6 +1,8 @@
 package sdk.chat;
 
 import android.app.Application;
+import android.os.Build;
+import android.os.StrictMode;
 
 import java.util.concurrent.TimeUnit;
 
@@ -42,6 +44,19 @@ public class MainApplication extends Application {
     public void firebase() throws Exception {
         String rootPath = "x_1";
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectNonSdkApiUsage()
+                    .penaltyLog()
+                    .build());
+
+//            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+//                    .detectDiskReads()
+//                    .detectDiskWrites()
+//                    .detectNetwork()
+//                    .penaltyLog()
+//                    .build());
+        }
 
         ChatSDK.builder()
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
@@ -52,7 +67,7 @@ public class MainApplication extends Application {
                 .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                 .setSendSystemMessageWhenRoleChanges(true)
                 .setRemoteConfigEnabled(true)
-                .setDatabaseEncryptionKey("test")
+//                .setDatabaseEncryptionKey("test")
 
                 .build()
 

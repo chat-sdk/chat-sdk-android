@@ -23,7 +23,7 @@ import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
 import org.jxmpp.jid.util.JidUtil;
 import org.jxmpp.stringprep.XmppStringprepException;
-import org.pmw.tinylog.Logger;
+import org.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
