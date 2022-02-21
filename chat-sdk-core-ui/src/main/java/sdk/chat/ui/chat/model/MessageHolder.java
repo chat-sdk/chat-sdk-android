@@ -69,6 +69,7 @@ public class MessageHolder implements IMessage {
         if (userHolder == null) {
             userHolder = new UserHolder(message.getSender());
         }
+
         return userHolder;
     }
 

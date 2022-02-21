@@ -8,6 +8,7 @@ import org.greenrobot.greendao.annotation.Unique;
 
 import java.io.File;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import sdk.chat.core.base.AbstractEntity;
 import sdk.chat.core.rigs.FileUploadable;
@@ -220,6 +221,11 @@ public class CachedFile extends AbstractEntity {
     }
     public void setStartTime(Date startTime) {
         this.startTime = startTime;
+    }
+
+    public long ageInSeconds() {
+        long age = new Date().getTime() - getStartTime().getTime();
+        return TimeUnit.MILLISECONDS.toSeconds(age);
     }
 
 }

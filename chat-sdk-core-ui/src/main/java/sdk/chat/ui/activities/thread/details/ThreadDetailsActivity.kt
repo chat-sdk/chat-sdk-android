@@ -7,6 +7,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.appbar.AppBarLayout
@@ -40,7 +42,6 @@ import sdk.guru.common.RX
 import smartadapter.SmartRecyclerAdapter
 import smartadapter.viewevent.listener.OnClickEventListener
 import smartadapter.viewevent.listener.OnLongClickEventListener
-import java.util.*
 import kotlin.math.abs
 
 /**
@@ -61,6 +62,7 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
     open lateinit var joinButton: ButtonViewModel
 
     open var items: MutableList<Any> = ArrayList()
+    open lateinit var resultLauncher: ActivityResultLauncher<Intent>;
 
     @LayoutRes
     override fun getLayout(): Int {
@@ -69,6 +71,7 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         var thread: Thread? = null
         if (savedInstanceState != null) {
             thread = getDataFromBundle(savedInstanceState)
@@ -85,6 +88,15 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
         } else {
             this.thread = thread
         }
+
+        resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                if (result.data?.getBooleanExtra(Keys.IntentKeyRestartActivity, false) == true) {
+                    restart()
+                }
+            }
+        }
+
         initViews()
     }
 
@@ -117,7 +129,15 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
 
         editButton = ButtonViewModel(getString(R.string.edit), resources.getColor(R.color.blue), object : ButtonRunnable {
             override fun run(value: Activity) {
-                ChatSDK.ui().startEditThreadActivity(this@ThreadDetailsActivity, thread.entityID)
+
+                val intent = Intent(this@ThreadDetailsActivity, ChatSDK.ui().editThreadActivity)
+                if (thread.entityID != null) {
+                    intent.putExtra(Keys.IntentKeyThreadEntityID, thread.entityID)
+                }
+                resultLauncher.launch(intent)
+
+//                finish()
+//                ChatSDK.ui().startEditThreadActivity(this@ThreadDetailsActivity, thread.entityID)
             }
         })
 
@@ -324,6 +344,7 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
 
     override fun onResume() {
         super.onResume()
+
         if (ChatSDK.thread().canRefreshRoles(thread)) {
             ChatSDK.thread().refreshRoles(thread).subscribe()
         }
@@ -400,4 +421,10 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
         return super.onPrepareOptionsMenu(menu)
     }
 
+    fun restart() {
+        finish()
+        overridePendingTransition(0, 0)
+        startActivity(intent)
+        overridePendingTransition(0, 0)
+    }
 }

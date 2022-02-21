@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.async.AsyncSession;
+import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.pmw.tinylog.Logger;
 
@@ -37,6 +38,8 @@ public class DaoCore {
     protected DaoMaster.OpenHelper helper;
 
     protected SQLiteDatabase db;
+    protected Database edb;
+
     protected String dbName;
     protected DaoMaster daoMaster;
     protected DaoSession daoSession;
@@ -54,8 +57,14 @@ public class DaoCore {
     public final static Property EntityID = new Property(1, String.class, "entityID", false, "ENTITY_ID");
 
     public void closeDB() {
-        db.close();
-        db = null;
+        if (db != null) {
+            db.close();
+            db = null;
+        }
+        if (edb != null) {
+            edb.close();
+            edb = null;
+        }
         daoMaster = null;
         helper = null;
         daoSession = null;
@@ -75,12 +84,17 @@ public class DaoCore {
                 helper = new DatabaseUpgradeHelper(context, name);
             }
 
-            if (db != null) {
+            if (db != null || edb != null) {
                 closeDB();
             }
 
-            db = helper.getWritableDatabase();
-            daoMaster = new DaoMaster(db);
+            if (ChatSDK.config().databaseEncryptionKey != null) {
+                edb = helper.getEncryptedReadableDb(ChatSDK.config().databaseEncryptionKey);
+                daoMaster = new DaoMaster(edb);
+            } else {
+                db = helper.getWritableDatabase();
+                daoMaster = new DaoMaster(db);
+            }
             daoSession = daoMaster.newSession();
             asyncSession = daoSession.startAsyncSession();
 

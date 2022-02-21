@@ -8,6 +8,7 @@
 package sdk.chat.ui.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -26,7 +27,6 @@ import java.util.List;
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.functions.BiConsumer;
-import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
@@ -211,14 +211,18 @@ public class EditThreadActivity extends BaseActivity {
                 thread.setImageUrl(threadImageURL);
             }
             thread.update();
-            dm.add(ChatSDK.thread().pushThreadMeta(thread).subscribe(this::finish, this));
+            dm.add(ChatSDK.thread().pushThreadMeta(thread).subscribe(() -> {
+                Intent intent = new Intent();
+                intent.putExtra(Keys.IntentKeyRestartActivity, true);
+                setResult(Activity.RESULT_OK, intent);
+                finish();
+            }, this));
         }
     }
 
     @Override
     public void onBackPressed() {
-        setResult(Activity.RESULT_OK);
-        finish();
+        super.onBackPressed();
     }
 
     @Override

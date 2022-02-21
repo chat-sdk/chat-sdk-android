@@ -101,6 +101,7 @@ public interface InterfaceAdapter {
     void startActivity(Context context, Intent intent);
     void startChatActivityForID(Context context, String threadEntityID);
     void startChatActivityForID(Context context, String threadEntityID, @Nullable Integer flags);
+    void startActivity(Context context, Class<? extends Activity> activity, Map<String, Object> extras, int flags);
 
     void startEditThreadActivity(Context context, String threadEntityID);
     void startEditThreadActivity(Context context, String threadEntityID, ArrayList<String> userEntityIDs);

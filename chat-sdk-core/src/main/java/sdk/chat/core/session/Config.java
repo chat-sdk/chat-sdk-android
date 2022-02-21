@@ -33,6 +33,9 @@ public class Config<T> extends BaseConfig<T> {
     // Google
     public String googleMapsApiKey;
 
+    // Database encryption key
+    public String databaseEncryptionKey = null;
+
     // Rooms that are older than this will be hidden
     // Zero is infinite lifetime
     // Default - 7 days
@@ -176,6 +179,16 @@ public class Config<T> extends BaseConfig<T> {
         return this;
     }
 
+    /**
+     * Set the database encryptoin key. This will protect the data stored on the device
+     * if null, encryption is disabled
+     * @param key
+     * @return
+     */
+    public Config<T> setDatabaseEncryptionKey(String key) {
+        this.databaseEncryptionKey = key;
+        return this;
+    }
     /**
      * Allow the user to reply directly from a push notification
      * @param enabled

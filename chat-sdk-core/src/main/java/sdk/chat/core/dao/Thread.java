@@ -184,8 +184,12 @@ public class Thread extends AbstractEntity {
     }
 
     public boolean addUser(User user, boolean notify) {
-        if (ChatSDK.db().getDaoCore().connectUserAndThread(user, this)) {
-            if (getUserThreadLink(user.getId()).setHasLeft(false) && notify) {
+        UserThreadLink link = getUserThreadLink(user.getId());
+        if (ChatSDK.db().getDaoCore().connectUserAndThread(user, this) || link != null && link.hasLeft()) {
+            if (link == null) {
+                link = getUserThreadLink(user.getId());
+            }
+            if (link != null && link.setHasLeft(false) && notify) {
                 ChatSDK.events().source().accept(NetworkEvent.threadUserAdded(this, user));
             }
         }

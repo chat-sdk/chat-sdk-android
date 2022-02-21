@@ -2,14 +2,11 @@ package sdk.chat;
 
 import android.app.Application;
 
-import com.burhanrashid52.photoediting.EditImageActivity;
-
 import java.util.concurrent.TimeUnit;
 
 import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.module.ImageMessageModule;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.dcom.DCom;
 import sdk.chat.dcom.DComFirebaseProvider;
 import sdk.chat.dcom.DComNetworkAdapter;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
@@ -23,8 +20,6 @@ import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
-import sdk.chat.sinch.SinchModule;
-import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
 
@@ -47,6 +42,7 @@ public class MainApplication extends Application {
     public void firebase() throws Exception {
         String rootPath = "x_1";
 
+
         ChatSDK.builder()
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
                 .setAnonymousLoginEnabled(false)
@@ -56,6 +52,7 @@ public class MainApplication extends Application {
                 .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                 .setSendSystemMessageWhenRoleChanges(true)
                 .setRemoteConfigEnabled(true)
+                .setDatabaseEncryptionKey("test")
 
                 .build()
 
@@ -95,10 +92,10 @@ public class MainApplication extends Application {
                 .addModule(FirebaseReadReceiptsModule.shared())
                 .addModule(FirebaseTypingIndicatorModule.shared())
 
-    .addModule(SinchModule.builder()
-            .setApplicationKey("90c5e8c0-7a3d-4bd5-8d8f-075e5c24cd1f")
-            .setSecret("bM0AbXIhG0eIVMlTLcHYrQ==")
-            .build())
+//    .addModule(SinchModule.builder()
+//            .setApplicationKey("90c5e8c0-7a3d-4bd5-8d8f-075e5c24cd1f")
+//            .setSecret("bM0AbXIhG0eIVMlTLcHYrQ==")
+//            .build())
 
                 .addModule(ExtrasModule.builder(config -> {
                     config.setDrawerEnabled(false);
@@ -107,9 +104,9 @@ public class MainApplication extends Application {
                 .activateWithEmail(this, "team@sdk.chat");
 
 
-        ChatSDK.ui().setImageEditorActivity(EditImageActivity.class);
+//        ChatSDK.ui().setImageEditorActivity(EditImageActivity.class);
 
-        DCom.shared().setup();
+//        DCom.shared().setup();
 
 
 

@@ -335,11 +335,11 @@ public class MediaSelector {
         }
     }
 
-    protected void notifySuccess (@NonNull File... file) {
+    protected void notifySuccess(@NonNull File... file) {
         notifySuccess(Arrays.asList(file));
     }
 
-    protected void notifySuccess (@NonNull List<File> files) {
+    protected void notifySuccess(@NonNull List<File> files) {
         if (emitter != null) {
             emitter.onSuccess(files);
         }

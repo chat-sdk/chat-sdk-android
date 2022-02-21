@@ -782,7 +782,7 @@ public class Message extends AbstractEntity {
                     else if (fileUploadStatus == UploadStatus.Failed) {
                         return true;
                     } else {
-                        double age = file.getStartTime().getTime() - new Date().getTime();
+                        double age = file.ageInSeconds();
                         if (age < 10) {
                             continue;
                         }

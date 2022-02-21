@@ -375,6 +375,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     protected void handleMessageSend(Completable completable) {
         completable.observeOn(RX.main()).doOnError(throwable -> {
             Logger.warn("");
+            showToast(throwable.getLocalizedMessage());
         }).subscribe(this);
     }
 
