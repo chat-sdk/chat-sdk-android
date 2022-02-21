@@ -47,10 +47,7 @@ android {
 rootProject.allprojects {
     repositories {
         mavenCentral()
-//        jcenter()
         maven { url "https://jitpack.io" }
-//        maven { url "https://dl.bintray.com/manneohlund/maven" }
-
         maven { url "https://chatsdk.jfrog.io/artifactory/release/chatkit" }
         maven { url "https://chatsdk.jfrog.io/artifactory/release/matisse" }
         maven { url "https://chatsdk.jfrog.io/artifactory/release/material-search-view" }
@@ -64,12 +61,11 @@ dependencies {
     api project(':chat-sdk-core')
 
     api "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
-    implementation "org.ocpsoft.prettytime:prettytime:$rootProject.ext.prettyTimeVersion"
+    implementation "org.ocpsoft.prettytime:prettytime:$prettyTimeVersion"
 
     implementation "sdk.chat:android-image-cropper:$imageCropperVersion"
 
-    implementation "com.github.chrisbanes:PhotoView:$rootProject.ext.photoViewVersion"
-//    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
+    implementation "com.github.chrisbanes:PhotoView:$photoViewVersion"
     implementation "id.zelory:compressor:$compressorVersion"
 
     implementation "com.jakewharton.rxrelay2:rxrelay:$rxRelayVersion"
@@ -94,39 +90,11 @@ dependencies {
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
 
-//    implementation "com.miguelcatalan:materialsearchview:$materialSearchVersion"
-
     implementation "com.jaredrummler:material-spinner:$materialSpinnerVersion"
-
     implementation "net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:$keyboardVisibilityEventVersion"
-
-    // Audio
-//    implementation "com.github.adrielcafe:AndroidAudioRecorder:$androidAudioRecorderVersion"
-//    implementation "com.github.chat-sdk:AndroidAudioRecorder:$androidAudioRecorderVersion"
     implementation "sdk.chat:android-audio-recorder:$androidAudioRecorderVersion"
-
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
-
-//    api 'io.github.manneohlund:smart-recycler-adapter:5.0.0-rc01'
-    // ViewEvent click listeners, multi select, swipe dismiss and drag & drop
-
-//    implementation 'io.github.manneohlund:smart-recycler-adapter:5.0.0-rc01'
-//
-//    implementation 'io.github.manneohlund:smart-recycler-adapter-viewevent:1.0.0-beta03'
-
-//    implementation 'io.github.manneohlund:smart-recycler-adapter-viewevent:1.0.0-beta03' {
-//        exclude group: 'io.github.manneohlund', module: 'smart-recycler-adapter'
-//    }
-
-    // DiffUtil extension library
-//    implementation 'io.github.manneohlund:smart-recycler-adapter-diffutil:1.0.0-beta01'
-    // Nested adapter extension library
-//    implementation 'io.github.manneohlund:smart-recycler-adapter-nestedadapter:1.0.0-beta01'
-
-//    implementation "androidx.activity:activity-ktx:$activity_ktx_version"
-
-//    implementation 'com.burhanrashid52:photoeditor:2.0.0'
 
 }
 
