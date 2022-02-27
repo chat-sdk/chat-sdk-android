@@ -3,6 +3,7 @@
 
     <attr name="actionBarBackgroundColor" format="reference|color" />
     <attr name="actionBarTextColor" format="reference|color" />
+    <attr name="actionBarSubtitleTextColor" format="reference|color" />
 
 <!--    <declare-styleable name="ChatSDK">-->
 

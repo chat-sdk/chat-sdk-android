@@ -15,6 +15,7 @@
 
     <item name="actionBarBackgroundColor">@color/primary</item>
     <item name="actionBarTextColor">@color/white</item>
+    <item name="actionBarSubtitleTextColor">@color/white</item>
     <item name="avatarBackgroundColor">@color/white</item>
     <item name="avatarBorderColor">@color/white</item>
     <item name="onlineIndicatorBorderColor">@color/white</item>

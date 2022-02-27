@@ -37,6 +37,6 @@ public static java.lang.String TABLENAME;
 }
 
 # androidDatabaseSQPCipher
-
--keep,includedescriptorclasses class net.sqlcipher.** { *; }
--keep,includedescriptorclasses interface net.sqlcipher.** { *; }
+-keep class net.sqlcipher.** { *; }
+-keep interface net.sqlcipher.** { *; }
+-keep enum net.sqlcipher.** { *; }

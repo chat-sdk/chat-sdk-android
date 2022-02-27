@@ -99,6 +99,8 @@ public class Thread extends AbstractEntity {
         this.deleted = deleted;
         this.draft = draft;
         this.canDeleteMessagesFrom = canDeleteMessagesFrom;
+
+
     }
 
     public void setMessages(List<Message> messages) {

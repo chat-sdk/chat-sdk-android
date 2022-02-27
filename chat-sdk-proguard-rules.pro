@@ -17,6 +17,11 @@
     public protected *;
 }
 
+-keep class net.sqlcipher.**, org.greenrobot.** { *; }
+-keep interface net.sqlcipher.**, org.greenrobot.** { *; }
+-keep enum net.sqlcipher.**, org.greenrobot.** { *; }
+
+
 #            | Classes | Members |
 # Shrink:    |    x    |         |
 # Obfuscate: |    x    |         |

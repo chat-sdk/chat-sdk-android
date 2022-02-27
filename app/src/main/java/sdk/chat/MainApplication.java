@@ -17,8 +17,6 @@ import sdk.chat.firebase.receipts.FirebaseReadReceiptsModule;
 import sdk.chat.firebase.typing.FirebaseTypingIndicatorModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.audio.AudioMessageModule;
-import sdk.chat.message.file.FileMessageModule;
-import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
@@ -42,6 +40,17 @@ public class MainApplication extends Application {
     public void firebase() throws Exception {
         String rootPath = "x_1";
 
+//        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+//                .detectDiskReads()
+//                .detectDiskWrites()
+//                .detectNetwork()
+//                .penaltyLog()
+//                .build());
+
+//        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+//                .detectAll()
+//                .penaltyLog()
+//                .build());
 
         ChatSDK.builder()
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
@@ -53,6 +62,9 @@ public class MainApplication extends Application {
                 .setSendSystemMessageWhenRoleChanges(true)
                 .setRemoteConfigEnabled(true)
                 .setDatabaseEncryptionKey("test")
+
+                .setDebugUsername("2@d.co")
+                .setDebugPassword("123456")
 
                 .build()
 
@@ -83,9 +95,9 @@ public class MainApplication extends Application {
                 .addModule(FirebaseUploadModule.shared())
                 .addModule(FirebasePushModule.shared())
                 .addModule(ContactBookModule.shared())
-                .addModule(FileMessageModule.shared())
+//                .addModule(FileMessageModule.shared())
                 .addModule(AudioMessageModule.shared())
-                .addModule(StickerMessageModule.shared())
+//                .addModule(StickerMessageModule.shared())
                 .addModule(VideoMessageModule.shared())
                 .addModule(FirebaseBlockingModule.shared())
                 .addModule(FirebaseLastOnlineModule.shared())

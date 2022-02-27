@@ -11,8 +11,10 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -278,8 +280,10 @@ public class StorageManager {
 
     public Thread fetchThreadWithUsers (List<User> users) {
         Logger.debug(java.lang.Thread.currentThread().getName());
+        Set<User> set = new HashSet<>(users);
         for(Thread t : allThreads()) {
-            if(t.getUsers().equals(users)) {
+            Set<User> compareTo = new HashSet<>(t.getUsers());
+            if(set.equals(compareTo)) {
                 return t;
             }
         }

@@ -89,7 +89,13 @@ public class DaoCore {
             }
 
             if (ChatSDK.config().databaseEncryptionKey != null) {
-                edb = helper.getEncryptedReadableDb(ChatSDK.config().databaseEncryptionKey);
+
+//                edb =
+
+//                SqlCipherEncryptedHelper helper;
+                net.sqlcipher.database.SQLiteOpenHelper db;
+
+                edb = helper.getEncryptedWritableDb(ChatSDK.config().databaseEncryptionKey);
                 daoMaster = new DaoMaster(edb);
             } else {
                 db = helper.getWritableDatabase();

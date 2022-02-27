@@ -55,7 +55,7 @@ ext {
     prettyTimeVersion = "4.0.1.Final"
     imageCropperVersion = "2.9.0"
     photoViewVersion = "2.3.0"
-    androidDatabaseSQLCipher = "4.3.0"
+    androidDatabaseSQLCipher = "4.4.2"
     matisseVersion = "0.5.3-beta3b2"
     chatKitVersion = "0.3.4"
     shapeImageViewVersion = "0.9.+@aar"
