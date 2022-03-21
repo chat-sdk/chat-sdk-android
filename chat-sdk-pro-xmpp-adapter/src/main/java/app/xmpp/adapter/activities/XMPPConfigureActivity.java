@@ -27,6 +27,7 @@ public class XMPPConfigureActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        // TODO: 22
         XMPPConfigureFragment fragment = (XMPPConfigureFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
         if (fragment != null) {
             fragment.save();

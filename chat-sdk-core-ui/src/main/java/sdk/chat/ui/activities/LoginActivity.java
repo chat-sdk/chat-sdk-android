@@ -74,8 +74,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         initViews();
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().hide();
+        if (getActionBar() != null) {
+            getActionBar().hide();
         }
 
     }

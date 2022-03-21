@@ -46,6 +46,7 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean showAvatarInChatView = true;
     public String messageTimeFormat = "HH:mm";
     public String threadTimeFormat = "dd/MM HH:mm";
+    public boolean goToMainActivityOnChatActivityBackPressed = true;
 
     public boolean showFileSizeDuringUpload = false;
 
@@ -349,6 +350,17 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     public UIConfig<T> setCropperButtonResourceId(int value) {
         this.cropperButtonResourceId = value;
+        return this;
+    }
+
+    /**
+     * Should we go to the main activity when back is pressed in the Chat Activity or should
+     * we go to the previous activity
+     * @param enabled
+     * @return
+     */
+    public UIConfig<T> setGoToMainActivityOnChatActivityBackPressed(boolean enabled) {
+        this.goToMainActivityOnChatActivityBackPressed = enabled;
         return this;
     }
 

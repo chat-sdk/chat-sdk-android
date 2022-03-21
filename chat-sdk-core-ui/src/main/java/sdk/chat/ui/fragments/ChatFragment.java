@@ -11,9 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.Toolbar;
 
 import androidx.annotation.LayoutRes;
-import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.stfalcon.chatkit.messages.MessageInput;
@@ -68,7 +68,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
     public interface Delegate {
         void invalidateOptionsMenu();
-        void setSupportActionBar(Toolbar toolbar);
+        void setActionBar(Toolbar toolbar);
     }
 
     protected View rootView;
@@ -270,7 +270,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
             chatActionBar.setEnabled(false);
             openThreadDetailsActivity();
         });
-        delegate.get().setSupportActionBar(chatActionBar.getToolbar());
+        delegate.get().setActionBar(chatActionBar.getToolbar());
         chatActionBar.reload(thread);
 
         setChatState(TypingIndicatorHandler.State.active);

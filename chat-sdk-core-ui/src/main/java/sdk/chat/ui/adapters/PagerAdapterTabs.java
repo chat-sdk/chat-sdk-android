@@ -8,9 +8,10 @@
 package sdk.chat.ui.adapters;
 
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import java.util.List;
 
@@ -20,12 +21,12 @@ import sdk.chat.core.session.ChatSDK;
 /**
  * Created by itzik on 6/16/2014.
  */
-public class PagerAdapterTabs extends FragmentPagerAdapter {
+public class PagerAdapterTabs extends FragmentStateAdapter {
 
     protected List<Tab> tabs;
 
-    public PagerAdapterTabs(FragmentManager fm) {
-        super(fm);
+    public PagerAdapterTabs(@NonNull FragmentActivity fragmentActivity) {
+        super(fragmentActivity);
         tabs = ChatSDK.ui().tabs();
     }
 
@@ -33,19 +34,14 @@ public class PagerAdapterTabs extends FragmentPagerAdapter {
         return tabs;
     }
 
+    @NonNull
     @Override
-    public CharSequence getPageTitle(int position) {
-        return tabs.get(position).title;
-    }
-
-    @Override
-    public int getCount() {
-        return tabs.size();
-    }
-
-    @Override
-    public Fragment getItem(int position) {
+    public Fragment createFragment(int position) {
         return tabs.get(position).fragment;
     }
 
+    @Override
+    public int getItemCount() {
+        return tabs.size();
+    }
 }

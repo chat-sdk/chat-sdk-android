@@ -37,8 +37,8 @@ public class SplashScreenActivity extends BaseActivity {
 
         stopProgressBar();
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().hide();
+        if (getActionBar() != null) {
+            getActionBar().hide();
         }
     }
 

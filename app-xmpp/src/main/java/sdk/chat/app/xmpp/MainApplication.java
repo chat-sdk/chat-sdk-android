@@ -9,6 +9,7 @@ import org.pmw.tinylog.Logger;
 import app.xmpp.adapter.XMPPManager;
 import app.xmpp.adapter.module.XMPPModule;
 import io.reactivex.disposables.Disposable;
+import sdk.chat.app.xmpp.utils.SecureKeyStore;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
@@ -57,6 +58,7 @@ public class MainApplication extends Application {
 //                            .setSecurityMode("ifpossible")
 //                            .setSecurityMode("ifpossible")
                             .setPingInterval(5)
+
                             .setDebugEnabled(true)
                             .setSecurityMode("ifpossible")
                             .build())
@@ -134,6 +136,14 @@ public class MainApplication extends Application {
                 Logger.debug(entry);
             }
         }), XMPPManager.xmppRosterItemUpdated, XMPPManager.xmppRosterItemAdded, XMPPManager.xmppRosterItemRemoved);
+
+        // Use encrypted shared preferences
+        try {
+            SecureKeyStore store = new SecureKeyStore(this);
+            ChatSDK.shared().setKeyStorage(store);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 

@@ -9,7 +9,7 @@ android {
         applicationId "sdk.chat.android.live"
 
         multiDexEnabled = true
-        minSdkVersion Integer.parseInt(project.DEMO_MIN_SDK)
+        minSdkVersion 23
 
 
         versionName CHAT_SDK_VERSION
@@ -65,20 +65,6 @@ android {
         exclude("META-INF/*.kotlin_module")
     }
 
-    dexOptions {
-        javaMaxHeapSize "6g"
-        preDexLibraries = false
-    }
-
-//    flavorDimensions "default"
-//    productFlavors {
-//        development {
-//            dimension "default"
-//            minSdkVersion 21
-//            resConfigs("en", "xxhdpi")
-//        }
-//    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -100,6 +86,8 @@ dependencies {
     api project(':chat-sdk-pro-message-file')
     api project(':chat-sdk-pro-message-video')
     api project(':chat-sdk-pro-encryption')
+
+    implementation 'androidx.security:security-crypto:1.0.0'
 
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"

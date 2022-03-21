@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
 import butterknife.ButterKnife;
 import io.reactivex.CompletableObserver;
@@ -35,7 +35,7 @@ import sdk.guru.common.DisposableMap;
 /**
  * Created by itzik on 6/17/2014.
  */
-public abstract class BaseFragment extends DialogFragment implements Consumer<Throwable>, CompletableObserver {
+public abstract class BaseFragment extends Fragment implements Consumer<Throwable>, CompletableObserver {
 
     protected AlertUtils alert;
 

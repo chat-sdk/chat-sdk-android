@@ -251,8 +251,8 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
 
         val name = Strings.nameForThread(thread)
 
-        supportActionBar?.title = name
-        supportActionBar?.setHomeButtonEnabled(true)
+        actionBar?.title = name
+        actionBar?.setHomeButtonEnabled(true)
 
         avatarImageView.setOnClickListener { v: View? -> zoomImageFromThumbnail(avatarImageView, thread.imageUrl) }
         ThreadImageBuilder.load(avatarImageView, thread, Dimen.from(this, R.dimen.large_avatar_width))

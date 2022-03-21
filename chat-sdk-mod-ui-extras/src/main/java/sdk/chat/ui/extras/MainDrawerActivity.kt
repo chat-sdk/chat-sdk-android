@@ -101,11 +101,12 @@ open class MainDrawerActivity : MainActivity() {
         })
 
         // Handle Toolbar
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeButtonEnabled(true)
+        setActionBar(toolbar)
+        actionBar?.setDisplayHomeAsUpEnabled(true)
+        actionBar?.setHomeButtonEnabled(true)
 
-        actionBarDrawerToggle = ActionBarDrawerToggle(this, root, toolbar, R.string.material_drawer_open, R.string.material_drawer_close)
+        // TODO: 22
+//        actionBarDrawerToggle = ActionBarDrawerToggle(this, root, toolbar, R.string.material_drawer_open, R.string.material_drawer_close)
 
         buildHeader(false, savedInstanceState)
 
@@ -183,8 +184,9 @@ open class MainDrawerActivity : MainActivity() {
     open fun setFragmentForPosition(position: Int) {
         val tabs = ChatSDK.ui().tabs()
         val tab = tabs.get(position)
+        // TODO: 22
         supportFragmentManager.beginTransaction().replace(R.id.fragment_container, tab.fragment).commit()
-        supportActionBar?.setTitle(tab.title)
+        actionBar?.setTitle(tab.title)
         currentFragment = tab.fragment
         updateLocalNotificationsForTab()
 

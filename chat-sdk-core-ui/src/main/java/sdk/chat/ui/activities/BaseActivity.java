@@ -7,6 +7,7 @@
 
 package sdk.chat.ui.activities;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -24,14 +25,13 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.Toolbar;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentActivity;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
@@ -55,7 +55,7 @@ import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.AlertUtils;
 import sdk.guru.common.DisposableMap;
 
-public abstract class BaseActivity extends AppCompatActivity implements Consumer<Throwable>, CompletableObserver {
+public abstract class BaseActivity extends FragmentActivity implements Consumer<Throwable>, CompletableObserver {
 
     // This is a list of extras that are passed to the login view
     protected Map<String, Object> extras = new HashMap<>();
@@ -108,11 +108,12 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     protected void initViews() {
         Toolbar toolbar = getToolbar();
         if (toolbar != null) {
-            setSupportActionBar(toolbar);
+            setActionBar(toolbar);
         }
     }
 
-    protected @Nullable Toolbar getToolbar() {
+    protected @Nullable
+    Toolbar getToolbar() {
         return findViewById(R.id.toolbar);
     }
 
@@ -121,7 +122,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     }
 
     protected void setActionBarTitle (int resourceId) {
-        ActionBar ab = getSupportActionBar();
+        ActionBar ab = getActionBar();
         if (ab != null) {
             ab.setTitle(getString(resourceId));
             ab.setHomeButtonEnabled(true);

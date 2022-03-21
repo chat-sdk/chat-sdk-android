@@ -17,11 +17,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.Toolbar;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -80,8 +80,8 @@ public class SearchActivity extends BaseActivity {
     protected void initViews() {
         super.initViews();
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setHomeButtonEnabled(true);
+        if (getActionBar() != null) {
+            getActionBar().setHomeButtonEnabled(true);
         }
 
         setActionBarTitle(R.string.search);

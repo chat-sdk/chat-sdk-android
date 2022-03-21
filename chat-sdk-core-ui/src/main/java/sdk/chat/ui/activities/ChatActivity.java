@@ -12,6 +12,7 @@ import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.fragments.AbstractChatFragment;
 import sdk.chat.ui.fragments.ChatFragment;
+import sdk.chat.ui.module.UIModule;
 
 public class ChatActivity extends BaseActivity implements ChatFragment.Delegate {
 
@@ -27,6 +28,7 @@ public class ChatActivity extends BaseActivity implements ChatFragment.Delegate 
 
         chatFragment = ChatSDKUI.getChatFragment(thread, this);
 
+        // TODO: 22
         getSupportFragmentManager().beginTransaction().add(R.id.chatViewWrapper, chatFragment).commit();
 
     }
@@ -79,9 +81,13 @@ public class ChatActivity extends BaseActivity implements ChatFragment.Delegate 
 
     @Override
     public void onBackPressed() {
-        // Do this so that even if we were editing the thread, we always go back to the
-        // main activity
-        ChatSDK.ui().startMainActivity(this);
+        if (UIModule.config().goToMainActivityOnChatActivityBackPressed) {
+            // Do this so that even if we were editing the thread, we always go back to the
+            // main activity
+            ChatSDK.ui().startMainActivity(this);
+        } else {
+            super.onBackPressed();
+        }
     }
 
 }

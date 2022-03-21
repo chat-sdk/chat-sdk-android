@@ -34,6 +34,7 @@ public class ProfileActivity extends BaseActivity {
         if (userEntityID != null && !userEntityID.isEmpty()) {
             ChatSDK.db().fetchUserWithEntityIDAsync(userEntityID).observeOn(RX.main()).doOnSuccess(user -> {
                 if (user != null) {
+                    // TODO: 22
                     ProfileFragment fragment = (ProfileFragment) getSupportFragmentManager().findFragmentById(R.id.profileFragment);
                     fragment.setUser(user);
                 } else {

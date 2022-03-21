@@ -533,6 +533,10 @@ public class ChatSDK {
         return keyStorage;
     }
 
+    public void setKeyStorage(IKeyStorage storage) {
+        this.keyStorage = storage;
+    }
+
     public static DownloadManager downloadManager() {
         return shared().downloadManager;
     }

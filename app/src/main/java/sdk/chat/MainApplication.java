@@ -4,7 +4,12 @@ import android.app.Application;
 
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.disposables.Disposable;
 import sdk.chat.contact.ContactBookModule;
+import sdk.chat.core.events.EventType;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.module.ImageMessageModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.dcom.DComFirebaseProvider;
@@ -30,6 +35,7 @@ public class MainApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
         try {
             firebase();
         } catch (Exception e) {
@@ -115,16 +121,19 @@ public class MainApplication extends Application {
                 .build()
                 .activateWithEmail(this, "team@sdk.chat");
 
+        //
+        // User, Thread, Message
+        Disposable d = ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageAdded))
+                .subscribe(networkEvent -> {
+                    networkEvent.getMessage();
+        });
+        d.dispose();
 
-//        ChatSDK.ui().setImageEditorActivity(EditImageActivity.class);
+        ChatSDK.hook().addHook(Hook.sync(data -> {
 
-//        DCom.shared().setup();
+        }), HookEvent.ContactWasAdded);
 
-
-
-//        ChatSDK.ui().setChatActivity(ZChatActivity.class);
 
     }
-
-
 }

@@ -26,7 +26,7 @@ public interface ContactHandler {
     /**
     * Get a list of the user's contacts
     */
-    List<User> contactsWithType (ConnectionType type);
+    List<User> contactsWithType(ConnectionType type);
 
     /**
     * Add a user to contacts

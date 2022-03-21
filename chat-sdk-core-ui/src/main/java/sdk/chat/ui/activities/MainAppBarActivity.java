@@ -4,14 +4,15 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toolbar;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class MainAppBarActivity extends MainActivity {
 
     @BindView(R2.id.toolbar) protected Toolbar toolbar;
     @BindView(R2.id.tabLayout) protected TabLayout tabLayout;
-    @BindView(R2.id.viewPager) protected ViewPager viewPager;
+    @BindView(R2.id.viewPager) protected ViewPager2 viewPager;
     @BindView(R2.id.content) protected RelativeLayout content;
     @BindView(R2.id.searchView) protected MaterialSearchView searchView;
     @BindView(R2.id.root) protected FrameLayout root;
@@ -74,7 +75,7 @@ public class MainAppBarActivity extends MainActivity {
 
         // Only creates the adapter if it wasn't initiated already
         if (adapter == null) {
-            adapter = new PagerAdapterTabs(getSupportFragmentManager());
+            adapter = new PagerAdapterTabs(this);
         }
 
         final List<Tab> tabs = adapter.getTabs();
@@ -84,7 +85,10 @@ public class MainAppBarActivity extends MainActivity {
 
         viewPager.setAdapter(adapter);
 
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            tab.setText(tabs.get(position).title);
+        }).attach();
+
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -113,9 +117,9 @@ public class MainAppBarActivity extends MainActivity {
     @Override
     public void onStart() {
         super.onStart();
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setHomeAsUpIndicator(Icons.get(this, Icons.choose().user, Icons.shared().actionBarIconColor));
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getActionBar() != null) {
+            getActionBar().setHomeAsUpIndicator(Icons.get(this, Icons.choose().user, Icons.shared().actionBarIconColor));
+            getActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }
 
