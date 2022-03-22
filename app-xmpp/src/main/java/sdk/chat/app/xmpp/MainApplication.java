@@ -6,6 +6,8 @@ import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.util.TLSUtils;
 import org.pmw.tinylog.Logger;
 
+import java.lang.reflect.Field;
+
 import app.xmpp.adapter.XMPPManager;
 import app.xmpp.adapter.module.XMPPModule;
 import io.reactivex.disposables.Disposable;
@@ -85,7 +87,7 @@ public class MainApplication extends Application {
 //                    .addModule(XMPPReadReceiptsModule.shared())
                     .addModule(ExtrasModule.builder()
                             .setQrCodesEnabled(true)
-                            .setDrawerEnabled(false)
+                            .setDrawerEnabled(true)
                             .build())
 
                     .build().activateWithEmail(this, "ben@sdk.chat");
@@ -139,11 +141,22 @@ public class MainApplication extends Application {
 
         // Use encrypted shared preferences
         try {
-            SecureKeyStore store = new SecureKeyStore(this);
-            ChatSDK.shared().setKeyStorage(store);
+//            SecureKeyStore store = new SecureKeyStore(this);
+//            ChatSDK.shared().setKeyStorage(store);
+
+            Field field = ChatSDK.class.getDeclaredField("keyStorage");
+            field.setAccessible(true);
+            field.set(ChatSDK.shared(), new SecureKeyStore(this));
+            System.out.println("Ok");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // Navbar title black
+        // Chat screen ... rather than +
+        // Message selected buttons not showing i nav bar
+        // Chat attachment button is camera???
 
     }
 

@@ -34,27 +34,18 @@ public class ProfileActivity extends BaseActivity {
         if (userEntityID != null && !userEntityID.isEmpty()) {
             ChatSDK.db().fetchUserWithEntityIDAsync(userEntityID).observeOn(RX.main()).doOnSuccess(user -> {
                 if (user != null) {
-                    // TODO: 22
                     ProfileFragment fragment = (ProfileFragment) getSupportFragmentManager().findFragmentById(R.id.profileFragment);
-                    fragment.setUser(user);
+                    if (fragment != null) {
+                        fragment.setUser(user);
+                    } else {
+                        finish();
+                    }
                 } else {
                     ToastHelper.show(this, R.string.user_entity_id_not_set);
                     finish();
                 }
             }).ignoreElement().subscribe(this);
-
-//            user =  ChatSDK.db().fetchUserWithEntityID(userEntityID);
-//            if (user != null) {
-//                ProfileFragment fragment = (ProfileFragment) getSupportFragmentManager().findFragmentById(R.id.profileFragment);
-//                fragment.setUser(user);
-//                return;
-//            }
         }
-
-
-
-//        finish();
-
     }
 
     @Override

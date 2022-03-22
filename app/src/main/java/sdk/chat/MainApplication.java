@@ -121,6 +121,7 @@ public class MainApplication extends Application {
                 .build()
                 .activateWithEmail(this, "team@sdk.chat");
 
+//        ChatSDK.shared()
         //
         // User, Thread, Message
         Disposable d = ChatSDK.events().sourceOnMain()

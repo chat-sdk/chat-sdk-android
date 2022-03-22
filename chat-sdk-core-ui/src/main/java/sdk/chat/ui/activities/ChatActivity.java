@@ -28,7 +28,6 @@ public class ChatActivity extends BaseActivity implements ChatFragment.Delegate 
 
         chatFragment = ChatSDKUI.getChatFragment(thread, this);
 
-        // TODO: 22
         getSupportFragmentManager().beginTransaction().add(R.id.chatViewWrapper, chatFragment).commit();
 
     }
