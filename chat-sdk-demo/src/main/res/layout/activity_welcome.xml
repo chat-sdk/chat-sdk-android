@@ -18,7 +18,6 @@
         android:layout_margin="10dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -28,7 +27,6 @@
         android:layout_margin="10dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
         app:backgroundTint="@color/chat_orange"
         app:rippleColor="@color/chat_orange"/>
 

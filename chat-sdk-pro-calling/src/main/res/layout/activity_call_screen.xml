@@ -13,7 +13,6 @@
         android:id="@+id/llRemoteVideo"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_alignParentLeft="false"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="false"
         android:orientation="horizontal"

@@ -5,15 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="4dp"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
     android:layout_marginTop="4dp">
 
     <com.github.siyamed.shapeimageview.mask.PorterShapeImageView
         android:id="@id/image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/message_outcoming_bubble_margin_left"
         android:layout_marginStart="@dimen/message_outcoming_bubble_margin_left"
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
@@ -27,7 +26,6 @@
         android:layout_margin="5dp"
         android:layout_alignBottom="@id/image"
         android:layout_alignEnd="@id/image"
-        android:layout_alignRight="@id/image"
         android:background="@drawable/overlay_background_circle">
 
         <ImageView
@@ -46,9 +44,7 @@
         android:layout_alignTop="@id/image"
         android:layout_alignBottom="@id/image"
         android:layout_alignStart="@id/image"
-        android:layout_alignLeft="@id/image"
         android:layout_alignEnd="@id/image"
-        android:layout_alignRight="@id/image"
         android:layout_margin="80dp"
         />
 
@@ -57,7 +53,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/image"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:orientation="horizontal">
 
         <TextView
@@ -65,7 +60,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_marginRight="5dp"
             android:layout_marginEnd="5dp"
             android:maxLines="1"/>
 

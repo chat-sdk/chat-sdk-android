@@ -16,14 +16,13 @@
             android:id="@+id/txtClose"
             android:layout_width="wrap_content"
             android:layout_height="?attr/actionBarSize"
-            android:layout_marginStart="8dp"
             android:gravity="center"
             android:text="Close"
             android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginLeft="8dp" />
+            android:layout_marginStart="8dp" />
 
         <View
             android:id="@+id/lineView"
@@ -48,14 +47,13 @@
             android:id="@+id/txtDone"
             android:layout_width="wrap_content"
             android:layout_height="?attr/actionBarSize"
-            android:layout_marginEnd="8dp"
             android:gravity="center"
             android:text="Done"
             android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginRight="8dp" />
+            android:layout_marginEnd="8dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

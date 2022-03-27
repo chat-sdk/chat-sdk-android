@@ -36,6 +36,7 @@ import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.provider.MenuItemProvider;
 
 /**
  * Created by itzik on 6/17/2014.
@@ -82,16 +83,13 @@ public abstract class SelectContactActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
-        MenuItem item = menu.add(Menu.NONE, R.id.action_search, 0, getString(R.string.search));
-        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(Icons.get(this, ChatSDKUI.icons().search, ChatSDKUI.icons().actionBarIconColor));
+        ChatSDKUI.provider().menuItems().addSearchItem(this, menu, 0);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_search) {
+        if (item.getItemId() == MenuItemProvider.searchItemId) {
             ChatSDK.ui().startSearchActivity(this);
         }
         return true;

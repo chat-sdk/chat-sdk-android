@@ -49,14 +49,12 @@
                 android:id="@+id/action_voice_btn"
                 style="@style/MSV_ImageButton"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:src="@drawable/ic_action_voice_search"/>
 
             <ImageButton
                 android:id="@+id/action_empty_btn"
                 style="@style/MSV_ImageButton"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:src="@drawable/ic_action_navigation_close"
                 android:visibility="gone"/>
 

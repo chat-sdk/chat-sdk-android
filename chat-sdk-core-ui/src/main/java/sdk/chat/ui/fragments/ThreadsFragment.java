@@ -334,7 +334,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         ChatSDKUI.provider().menuItems().addAddItem(getContext(), menu, 1);
         
         if (!allowThreadCreation()) {
-            menu.removeItem(MenuItemProvider.AddItemId);
+            menu.removeItem(MenuItemProvider.addItemId);
         }
     }
 

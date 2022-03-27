@@ -170,7 +170,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         int id = item.getItemId();
 
         // Each user that will be found in the filter context will be automatically added as a contact.
-        if (id == MenuItemProvider.AddItemId) {
+        if (id == MenuItemProvider.addItemId) {
             startSearchActivity();
             return true;
         }

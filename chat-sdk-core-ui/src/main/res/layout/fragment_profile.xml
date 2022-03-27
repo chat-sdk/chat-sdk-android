@@ -41,6 +41,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
                 app:layout_collapseMode="pin"
+                app:titleTextColor="?actionBarTextColor"
+                android:titleTextColor="?actionBarTextColor"
                 />
 
             <RelativeLayout
@@ -53,7 +55,6 @@
                     android:id="@+id/titleTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
                     android:layout_marginStart="5dp"
                     android:textSize="20sp"
                     android:gravity="center_vertical" />
@@ -84,8 +85,8 @@
                 android:id="@+id/statusCardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -119,8 +120,8 @@
                 android:id="@+id/availabilityCardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -134,8 +135,8 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -149,8 +150,8 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -167,7 +168,6 @@
         android:id="@+id/editFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="16dp"
         android:layout_marginEnd="16dp"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|end" />
@@ -176,7 +176,6 @@
         android:id="@+id/optionsFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|start" />
@@ -202,14 +201,9 @@
             android:id="@+id/onlineIndicator"
             android:layout_width="18dp"
             android:layout_height="18dp"
-
             android:layout_marginTop="20dp"
-            android:layout_marginRight="12dp"
             android:layout_marginEnd="12dp"
-
             android:background="@drawable/shape_bubble_online_big"
-
-            android:layout_alignRight="@id/avatarImageView"
             android:layout_alignEnd="@id/avatarImageView"
             android:layout_alignTop="@id/avatarImageView"
             />

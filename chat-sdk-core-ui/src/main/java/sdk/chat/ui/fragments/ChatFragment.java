@@ -56,7 +56,6 @@ import sdk.chat.ui.appbar.ChatActionBar;
 import sdk.chat.ui.audio.AudioBinder;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.interfaces.TextInputDelegate;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.provider.MenuItemProvider;
@@ -490,31 +489,29 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
                 chatActionBar.hideSearchIcon();
 
-                inflater.inflate(R.menu.activity_chat_actions_menu, menu);
-
-                if (getActivity() != null) {
-                    menu.findItem(R.id.action_copy).setIcon(Icons.get(getActivity(), ChatSDKUI.icons().copy, ChatSDKUI.icons().actionBarIconColor));
-                    menu.findItem(R.id.action_delete).setIcon(Icons.get(getActivity(), ChatSDKUI.icons().delete, ChatSDKUI.icons().actionBarIconColor));
-                    menu.findItem(R.id.action_forward).setIcon(Icons.get(getActivity(), ChatSDKUI.icons().forward, ChatSDKUI.icons().actionBarIconColor));
-                    menu.findItem(R.id.action_reply).setIcon(Icons.get(getActivity(), ChatSDKUI.icons().reply, ChatSDKUI.icons().actionBarIconColor));
+                if (getContext() != null) {
+                    ChatSDKUI.provider().menuItems().addCopyItem(getContext(), menu, 0);
+                    ChatSDKUI.provider().menuItems().addDeleteItem(getContext(), menu, 1);
+                    ChatSDKUI.provider().menuItems().addForwardItem(getContext(), menu, 2);
+                    ChatSDKUI.provider().menuItems().addReplyItem(getContext(), menu, 3);
                 }
 
                 if (!UIModule.config().messageForwardingEnabled) {
-                    menu.removeItem(R.id.action_forward);
+                    menu.removeItem(MenuItemProvider.forwardItemId);
                 }
 
                 if (!UIModule.config().messageReplyEnabled) {
-                    menu.removeItem(R.id.action_reply);
+                    menu.removeItem(MenuItemProvider.replyItemId);
                 }
 
                 if (chatView.getSelectedMessages().size() != 1) {
-                    menu.removeItem(R.id.action_reply);
+                    menu.removeItem(MenuItemProvider.replyItemId);
                 }
 
                 if (!hasVoice(ChatSDK.currentUser())) {
-                    menu.removeItem(R.id.action_reply);
-                    menu.removeItem(R.id.action_delete);
-                    menu.removeItem(R.id.action_forward);
+                    menu.removeItem(MenuItemProvider.replyItemId);
+                    menu.removeItem(MenuItemProvider.deleteItemId);
+                    menu.removeItem(MenuItemProvider.forwardItemId);
                 }
 
                 // Check that the messages could be deleted
@@ -525,7 +522,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
                     }
                 }
                 if (!canBeDeleted) {
-                    menu.removeItem(R.id.action_delete);
+                    menu.removeItem(MenuItemProvider.deleteItemId);
                 }
 
                 chatActionBar.hideText();
@@ -537,8 +534,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
                     ChatSDKUI.provider().menuItems().addAddItem(getContext(), menu, 1);
                 }
                 if (ChatSDK.call() != null && ChatSDK.call().callEnabled(this, thread.getEntityID())) {
-                    inflater.inflate(R.menu.call_menu, menu);
-                    menu.findItem(R.id.action_call).setIcon(Icons.get(getActivity(), ChatSDKUI.icons().call, ChatSDKUI.icons().actionBarIconColor));
+                    ChatSDKUI.provider().menuItems().addCallItem(getContext(), menu, 2);
                 }
 
                 chatActionBar.showText();
@@ -552,19 +548,19 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
         /* Cant use switch in the library*/
         int id = item.getItemId();
-        if (id == R.id.action_delete) {
+        if (id == MenuItemProvider.deleteItemId) {
             List<MessageHolder> holders = chatView.getSelectedMessages();
             ChatSDK.thread().deleteMessages(MessageHolder.toMessages(holders)).subscribe(this);
             clearSelection();
         }
-        if (id == R.id.action_copy && getActivity() != null) {
+        if (id == MenuItemProvider.copyItemId && getActivity() != null) {
             chatView.copySelectedMessagesText(getActivity(), holder -> {
                 DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", CurrentLocale.get());
                 return dateFormatter.format(holder.getCreatedAt()) + ", " + holder.getUser().getName() + ": " + holder.getText();
             }, false);
             showToast(R.string.copied_to_clipboard);
         }
-        if (id == R.id.action_forward) {
+        if (id == MenuItemProvider.forwardItemId) {
 
             List<MessageHolder> holders = chatView.getSelectedMessages();
 
@@ -592,7 +588,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
             clearSelection();
         }
 
-        if (id == R.id.action_reply) {
+        if (id == MenuItemProvider.replyItemId) {
             MessageHolder holder = chatView.getSelectedMessages().get(0);
             String imageURL = null;
             if (holder instanceof ImageMessageHolder) {
@@ -603,7 +599,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
             showKeyboard();
         }
 
-        if (id == MenuItemProvider.AddItemId && getActivity() != null) {
+        if (id == MenuItemProvider.addItemId && getActivity() != null) {
 
             // We don't want to remove the user if we load another activity
             // Like the sticker activity
@@ -611,7 +607,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
             ChatSDK.ui().startAddUsersToThreadActivity(getActivity(), thread.getEntityID());
         }
-        if (id == R.id.action_call) {
+        if (id == MenuItemProvider.callItemId) {
             ChatSDK.call().startCall(this, thread.otherUser().getEntityID());
         }
         return super.onOptionsItemSelected(item);

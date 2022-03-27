@@ -29,7 +29,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="50dp"
-        android:layout_marginRight="50dp"
         android:padding="?replyTextPadding"
         android:textSize="?replyTextSize"
         app:layout_constraintBottom_toBottomOf="parent"

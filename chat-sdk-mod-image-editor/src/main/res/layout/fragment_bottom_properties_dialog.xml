@@ -9,7 +9,6 @@
         android:id="@+id/rvColors"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
@@ -23,7 +22,7 @@
         app:layout_constraintTop_toBottomOf="@+id/sbOpacity"
         tools:background="@android:color/black"
         tools:listitem="@layout/color_picker_item_list"
-        android:layout_alignParentRight="true" />
+        android:layout_alignParentEnd="true" />
 
     <SeekBar
         android:id="@+id/sbOpacity"

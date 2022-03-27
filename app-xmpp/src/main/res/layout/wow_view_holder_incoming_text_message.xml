@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="4dp"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
     android:layout_marginTop="4dp"
     >
 
@@ -16,11 +16,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="0dp"
         android:layout_marginStart="0dp"
         android:layout_marginEnd="5dp"
-        android:layout_marginRight="5dp"
         android:layout_marginBottom="3dp"
         android:textColor="?incomingUserNameTextColor"
         android:textSize="?incomingUserNameTextSize"
@@ -35,7 +32,6 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
         android:layout_below="@id/userName"
         app:civ_circle_background_color="?avatarBackgroundColor"
         android:visibility="gone"
@@ -48,10 +44,8 @@
         android:layout_width="12dp"
         android:layout_height="12dp"
         android:layout_alignEnd="@id/messageUserAvatar"
-        android:layout_alignRight="@id/messageUserAvatar"
         android:layout_alignTop="@id/messageUserAvatar"
         android:layout_marginEnd="5dp"
-        android:layout_marginRight="5dp"
         android:visibility="gone"
         />
 
@@ -60,9 +54,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
-        android:layout_marginRight="30dp"
         android:layout_toEndOf="@id/messageUserAvatar"
-        android:layout_toRightOf="@id/messageUserAvatar"
         android:layout_below="@id/messageTime"
         android:orientation="vertical">
 
@@ -87,7 +79,6 @@
                 android:layout_width="@dimen/reply_image_width"
                 android:layout_height="@dimen/reply_image_height"
                 android:layout_marginStart="2dp"
-                android:layout_marginLeft="2dp"
                 android:layout_marginTop="2dp"
                 android:layout_marginBottom="2dp"
                 />
@@ -100,7 +91,6 @@
                 android:textColor="?incomingReplyTextColor"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:layout_marginLeft="2dp"
                 android:layout_marginStart="2dp"
                 android:padding="2dp" />
 
@@ -115,7 +105,6 @@
                 android:id="@+id/messageIcon"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_marginRight="8dp"
                 android:layout_marginEnd="8dp"
                 />
 
@@ -145,9 +134,7 @@
         android:id="@id/messageTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/bubble"
         android:layout_alignStart="@id/bubble"
-        android:layout_marginLeft="0dp"
         android:layout_marginStart="0dp"
         />
 

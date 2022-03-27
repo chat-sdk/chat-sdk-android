@@ -4,8 +4,8 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginBottom="4dp"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
     android:layout_marginTop="4dp">
 
     <LinearLayout
@@ -13,8 +13,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginLeft="40dp"
         android:layout_marginStart="40dp"
         android:orientation="vertical">
 
@@ -30,7 +28,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/bubble"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:orientation="horizontal">
 
         <TextView
@@ -38,7 +35,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_marginRight="5dp"
             android:layout_marginEnd="5dp"
             android:maxLines="1"/>
 

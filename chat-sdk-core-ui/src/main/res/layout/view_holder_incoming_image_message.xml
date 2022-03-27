@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
     android:layout_marginTop="8dp">
 
     <TextView
@@ -14,9 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_alignRight="@id/image"
         android:layout_alignEnd="@id/image"
-        android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="0dp"
         android:textColor="?incomingUserNameTextColor"
@@ -29,7 +27,6 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
         app:civ_circle_background_color="?avatarBackgroundColor"
         />
 
@@ -39,17 +36,14 @@
         android:layout_width="12dp"
         android:layout_height="12dp"
         android:layout_alignEnd="@id/messageUserAvatar"
-        android:layout_alignRight="@id/messageUserAvatar"
         android:layout_alignTop="@id/messageUserAvatar"
-        android:layout_marginEnd="5dp"
-        android:layout_marginRight="5dp"/>
+        android:layout_marginEnd="5dp"/>
 
     <com.github.siyamed.shapeimageview.mask.PorterShapeImageView
         android:id="@id/image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/message_incoming_bubble_margin_right"
-        android:layout_marginRight="@dimen/message_incoming_bubble_margin_right"
         android:layout_toEndOf="@id/messageUserAvatar"
         android:layout_toRightOf="@id/messageUserAvatar"
         android:adjustViewBounds="true"
@@ -63,7 +57,6 @@
         android:layout_margin="5dp"
         android:layout_alignBottom="@id/image"
         android:layout_alignEnd="@id/image"
-        android:layout_alignRight="@id/image"
         android:background="@drawable/overlay_background_circle">
 
         <ImageView
@@ -80,9 +73,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignEnd="@id/image"
-        android:layout_alignRight="@id/image"
         android:layout_below="@id/image"
-        android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
         />
 

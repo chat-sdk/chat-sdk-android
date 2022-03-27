@@ -25,11 +25,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginTop="19dp"
             android:layout_toEndOf="@id/dialogAvatar"
-            android:layout_toLeftOf="@id/dialogDate"
-            android:layout_toRightOf="@id/dialogAvatar"
             android:layout_toStartOf="@id/dialogDate"
             android:ellipsize="end"
             android:fontFamily="@string/font_fontFamily_medium"
@@ -41,9 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginTop="16dp"
             android:ellipsize="end"
             android:maxLines="1"/>
@@ -53,11 +48,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/dialogName"
             android:layout_marginEnd="12dp"
-            android:layout_marginRight="12dp"
             android:layout_marginTop="3dp"
             android:layout_toEndOf="@id/dialogAvatar"
-            android:layout_toLeftOf="@+id/dialogUnreadBubble"
-            android:layout_toRightOf="@id/dialogAvatar"
             android:layout_toStartOf="@+id/dialogUnreadBubble">
 
             <de.hdodenhof.circleimageview.CircleImageView
@@ -65,7 +57,6 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="7dp"
-                android:layout_marginRight="7dp"
                 app:civ_circle_background_color="?avatarBackgroundColor"
                 />
 
@@ -75,9 +66,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_toEndOf="@id/dialogLastMessageUserAvatar"
-                android:layout_toRightOf="@id/dialogLastMessageUserAvatar"
                 android:layout_toStartOf="@id/readStatus"
-                android:layout_toLeftOf="@id/readStatus"
                 android:ellipsize="end"
                 android:gravity="top"
                 android:maxLines="2"/>
@@ -86,7 +75,6 @@
                 android:id="@id/readStatus"
                 android:layout_width="26dp"
                 android:layout_height="13dp"
-                android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true" />
 
         </RelativeLayout>
@@ -95,10 +83,8 @@
             android:id="@+id/onlineIndicator"
             android:layout_width="12dp"
             android:layout_height="12dp"
-            android:layout_alignRight="@id/dialogAvatar"
             android:layout_alignEnd="@id/dialogAvatar"
             android:layout_alignTop="@id/dialogAvatar"
-            android:layout_marginRight="5dp"
             android:layout_marginEnd="5dp"
             android:background="@drawable/shape_bubble_online"
             />
@@ -108,10 +94,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_below="@id/dialogDate"
             android:layout_marginEnd="24dp"
-            android:layout_marginRight="24dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/bubble_circle"
             android:ellipsize="end"

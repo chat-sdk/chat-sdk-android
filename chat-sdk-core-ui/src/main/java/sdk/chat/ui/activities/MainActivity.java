@@ -125,10 +125,6 @@ public abstract class MainActivity extends BaseActivity {
         boolean value = super.onCreateOptionsMenu(menu);
          if (searchEnabled()) {
              MenuItem item = ChatSDKUI.provider().menuItems().addSearchItem(this, menu, 0);
-
-//            getMenuInflater().inflate(R.menu.activity_search_menu, menu);
-//            MenuItem item = menu.findItem(R.id.action_search);
-//            item.setIcon(Icons.get(this, ChatSDKUI.icons().search, ChatSDKUI.icons().actionBarIconColor));
             searchView().setMenuItem(item);
         }
         return value;

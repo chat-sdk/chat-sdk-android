@@ -80,7 +80,7 @@ public class PrivateThreadsFragment extends ThreadsFragment {
         /* Cant use switch in the library*/
         int id = item.getItemId();
 
-        if (id == MenuItemProvider.AddItemId) {
+        if (id == MenuItemProvider.addItemId) {
             ChatSDK.ui().startCreateThreadActivity(getContext());
             return true;
         }

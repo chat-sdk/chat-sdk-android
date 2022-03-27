@@ -19,6 +19,8 @@ import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.module.ImageMessageModule;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.firebase.push.FirebasePushModule;
+import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.location.LocationMessageModule;
@@ -54,8 +56,8 @@ public class MainApplication extends Application {
                     .build()
 
                     // Add modules to handle file uploads, push notifications
-//                    .addModule(FirebaseUploadModule.shared())
-//                    .addModule(FirebasePushModule.shared())
+                    .addModule(FirebaseUploadModule.shared())
+                    .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
 //                            .setXMPP("we-connect-dev.com", "we-connect-dev.com")

@@ -176,13 +176,8 @@ public class SearchActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
-        getMenuInflater().inflate(R.menu.activity_search_menu, menu);
-
-        MenuItem item = menu.findItem(R.id.action_search);
-        item.setIcon(Icons.get(this, ChatSDKUI.icons().search, ChatSDKUI.icons().actionBarIconColor));
+        MenuItem item = ChatSDKUI.provider().menuItems().addSearchItem(this, menu, 0);
         searchView.setMenuItem(item);
-
         return true;
     }
 
