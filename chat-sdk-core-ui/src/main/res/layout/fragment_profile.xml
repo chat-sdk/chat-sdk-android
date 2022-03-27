@@ -12,8 +12,9 @@
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        app:theme="@style/AppBarLayout"
-        android:fitsSystemWindows="true">
+        android:fitsSystemWindows="true"
+        android:theme="?chatCollapsingToolbarStyle"
+        >
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/collapsingToolbar"
@@ -25,7 +26,8 @@
             app:expandedTitleGravity="center_horizontal|center_vertical"
             app:expandedTitleMarginTop="12dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:titleEnabled="true">
+            app:titleEnabled="true"
+            >
 
             <ImageView
                 android:id="@+id/headerImageView"
@@ -41,8 +43,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
                 app:layout_collapseMode="pin"
-                app:titleTextColor="?actionBarTextColor"
-                android:titleTextColor="?actionBarTextColor"
                 />
 
             <RelativeLayout

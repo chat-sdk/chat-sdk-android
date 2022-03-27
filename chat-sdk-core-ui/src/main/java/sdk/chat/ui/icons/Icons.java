@@ -97,18 +97,22 @@ public class Icons {
     public Drawable user_100;
     public IconicsDrawable call;
 
+    @Deprecated
     public static Drawable get(IconicsDrawable icon, @ColorRes int colorRes) {
         return get(icon, colorRes, 0, 0);
     }
 
+    @Deprecated
     public static Drawable get(Context context, IconicsDrawable icon, @ColorRes int colorRes) {
         return get(context, icon, colorRes, 0, 0);
     }
 
+    @Deprecated
     public static Drawable get(Drawable icon, @ColorRes int colorRes) {
         return get(context(), icon, colorRes);
     }
 
+    @Deprecated
     public static Drawable get(Context context, Drawable icon, @ColorRes int colorRes) {
         if (colorRes != 0) {
             icon.setColorFilter(ContextCompat.getColor(context, colorRes), PorterDuff.Mode.MULTIPLY);
@@ -116,14 +120,17 @@ public class Icons {
         return icon;
     }
 
+    @Deprecated
     public static Drawable get(IconicsDrawable icon, int colorRes, int width, int height) {
         return get(context(), icon, colorRes, width, height);
     }
 
+    @Deprecated
     public static Drawable getLarge(IconicsDrawable icon, int colorRes) {
         return get(context(), icon, colorRes, Dimen.from(R.dimen.large_icon_width), Dimen.from(R.dimen.large_icon_height));
     }
 
+    @Deprecated
     public static Drawable get(Context context, IconicsDrawable drawable, int colorRes, int width, int height) {
 
         if (colorRes != 0) {

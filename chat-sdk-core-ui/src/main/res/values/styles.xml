@@ -117,20 +117,16 @@
     <item name="resetPasswordButtonTextColor">@color/dark_text</item>
     <item name="resetPasswordButtonColor">@color/reset_password_button_color</item>
 
-    <item name="actionBarStyle">@style/ChatSDKTheme.ActionBarStyle</item>
+    <item name="chatCollapsingToolbarStyle">@style/CollapsingToolbarTheme</item>
+    <item name="chatTextInputStyle">@style/TextInput</item>
+    <item name="chatLightTextInputStyle">@style/LightTextInputLayoutStyle</item>
+    <item name="chatMaterialButtonStyle">@style/MaterialButton</item>
+    <item name="chatCircleIconStyle">@style/CircleIconStyle</item>
+    <item name="chatCardHeaderStyle">@style/CardHeader</item>
 </style>
 
-<style name="AppBarLayout" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-<!--    <item name="android:textColor">@color/white</item>-->
-</style>
-
-<style name="ChatSDKTheme.ActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar">
-    <item name="android:titleTextStyle">@style/ChatSDKTheme.AppBar.TitleTextStyle</item>
-</style>
-
-<style name="ChatSDKTheme.AppBar.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
-    <item name="android:textColor">@color/white</item>
-    <item name="android:titleTextColor">@color/white</item>
+<style name="CollapsingToolbarTheme" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+    <item name="android:textColorPrimary">?actionBarTextColor</item>
 </style>
 
 <style name="TextInput">

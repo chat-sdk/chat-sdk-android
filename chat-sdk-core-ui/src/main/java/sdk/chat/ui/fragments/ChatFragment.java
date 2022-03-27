@@ -115,6 +115,12 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         // HERE
         initViews();
 
+        if (getActivity() != null) {
+            KeyboardVisibilityEvent.setEventListener(getActivity(), isOpen -> {
+                System.out.println("Is Open: " + isOpen);
+            });
+        }
+
         return rootView;
     }
 

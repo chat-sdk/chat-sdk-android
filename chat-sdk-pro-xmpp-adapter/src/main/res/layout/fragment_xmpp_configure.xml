@@ -32,7 +32,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/addressTextInputLayout"
-                style="@style/LightTextInputLayoutStyle"
+                style="?chatLightTextInputStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -50,7 +50,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/domainTextInputLayout"
-                style="@style/LightTextInputLayoutStyle"
+                style="?chatLightTextInputStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -74,7 +74,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/portTextInputLayout"
-                style="@style/LightTextInputLayoutStyle"
+                style="?chatLightTextInputStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -99,7 +99,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/resourceTextInputLayout"
-                style="@style/LightTextInputLayoutStyle"
+                style="?chatLightTextInputStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"

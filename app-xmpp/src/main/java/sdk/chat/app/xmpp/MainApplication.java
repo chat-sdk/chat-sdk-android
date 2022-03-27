@@ -1,22 +1,15 @@
 package sdk.chat.app.xmpp;
 
 import android.app.Application;
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.os.StrictMode;
 
-import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.util.TLSUtils;
 import org.pmw.tinylog.Logger;
 
 import java.lang.reflect.Field;
 
-import app.xmpp.adapter.XMPPManager;
 import app.xmpp.adapter.module.XMPPModule;
-import io.reactivex.disposables.Disposable;
 import sdk.chat.app.xmpp.utils.SecureKeyStore;
-import sdk.chat.core.dao.Message;
-import sdk.chat.core.hook.Hook;
-import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.module.ImageMessageModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.firebase.push.FirebasePushModule;
@@ -42,7 +35,14 @@ public class MainApplication extends Application {
     public void xmpp() {
         try {
 
-            store = new SecureKeyStore(this);
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectNetwork()   // or .detectAll() for all detectable problems
+                    .penaltyLog()
+                    .build());
+
+//            store = new SecureKeyStore(this);
 
             ChatSDK.builder()
 
@@ -122,33 +122,8 @@ public class MainApplication extends Application {
             }
         });
 
-        Disposable d = ChatSDK.events().sourceOnMain().subscribe(networkEvent -> {
-            networkEvent.debug();
-        });
-
-        d = ChatSDK.events().errorSourceOnMain().subscribe(throwable -> {
-            // Catch errors
-            throwable.printStackTrace();
-        });
-
-        ChatSDK.hook().addHook(Hook.sync(data -> {
-            Object message = data.get(HookEvent.Message);
-            if (message instanceof Message) {
-                Logger.info(message);
-            }
-        }), HookEvent.MessageReceived);
-
-        ChatSDK.hook().addHook(Hook.sync(data -> {
-            Object entryObject = data.get(XMPPManager.xmppRosterEntry);
-            if (entryObject instanceof RosterEntry) {
-                RosterEntry entry = (RosterEntry) entryObject;
-                Logger.debug(entry);
-            }
-        }), XMPPManager.xmppRosterItemUpdated, XMPPManager.xmppRosterItemAdded, XMPPManager.xmppRosterItemRemoved);
-
         // Use encrypted shared preferences
         try {
-
             Field field = ChatSDK.class.getDeclaredField("keyStorage");
             field.setAccessible(true);
             field.set(ChatSDK.shared(), new SecureKeyStore(this));
@@ -158,57 +133,15 @@ public class MainApplication extends Application {
             e.printStackTrace();
         }
 
-        // Navbar title black
-        // Chat screen ... rather than +
-        // Message selected buttons not showing i nav bar
-        // Chat attachment button is camera???
 
     }
 
-    @Override
-    public SharedPreferences getSharedPreferences(String name, int mode) {
-        if (name.equals(ChatSDK.Preferences) && mode == Context.MODE_PRIVATE) {
-            return store.pref();
-        }
-        return super.getSharedPreferences(name, mode);
-    }
-
-
-//    private void chatsdkAuth(String username, String password, String threadId) {
-//        if (ChatSDK.auth().isAuthenticatedThisSession()) {
-//            chatsdkGroup(threadId);
-//        } else {
-//            ChatSDK.auth().authenticate(AccountDetails.username(username, password)).subscribe(() -> {
-//                chatsdkGroup(threadId);
-//            }, throwable -> {
-//                ChatSDK.auth().authenticate(AccountDetails.signUp(username, password)).subscribe(() -> {
-//                    chatsdkGroup(threadId);
-//                }, throwable1 -> {
-////                    view.displayFailure("Gagal register group");
-//                });
-//            });
+//    @Override
+//    public SharedPreferences getSharedPreferences(String name, int mode) {
+//        if (name.equals(ChatSDK.Preferences) && mode == Context.MODE_PRIVATE) {
+//            return store.pref();
 //        }
+//        return super.getSharedPreferences(name, mode);
 //    }
-//
-//    private void chatsdkGroup(String threadId){
-//        Thread thread = getThread(threadId);
-//        if(thread != null) {
-////            if(ChatSDK.thread().hasVoice(thread, ChatSDK.currentUser())){
-//                ChatSDK.thread().joinThread(thread).observeOn(RX.main()).subscribe(() -> {
-//                    startChatActivity(thread);
-//                }, throwable -> {
-////                    view.displayFailure("Gagal join group");
-//                });
-//        }
-//    }
-//
-//    private Thread getThread(String threadId){
-//        Thread thread =  ChatSDK.db().fetchOrCreateThreadWithEntityID(threadId);
-//        thread.setType(ThreadType.PrivateGroup);
-//        return thread;
-//    }
-//
-//    private void startChatActivity(Thread thread){
-//        ChatSDK.ui().startChatActivityForID(this, thread.getEntityID(), Intent.FLAG_ACTIVITY_NEW_TASK);
-//    }
+
 }

@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:fitsSystemWindows="true"
-        app:theme="@style/AppBarLayout"
+        android:theme="?chatCollapsingToolbarStyle"
         >
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -107,7 +107,7 @@
                         android:id="@+id/statusTitleTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:theme="@style/CardHeader"
+                        android:theme="?chatCardHeaderStyle"
                         android:text="@string/status"
                         android:paddingBottom="4dp"
                         />
@@ -116,7 +116,7 @@
                         android:id="@+id/statusEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:theme="@style/TextInput"
+                        android:theme="?chatTextInputStyle"
                         android:gravity="top"
                         android:inputType="textMultiLine|textCapSentences"
                         android:overScrollMode="always"

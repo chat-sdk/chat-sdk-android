@@ -63,7 +63,16 @@
     <attr name="resetPasswordButtonTextColor" format="reference|color" />
     <attr name="resetPasswordButtonColor" format="reference|color" />
 
-<!--    </declare-styleable>-->
+    <attr name="chatCollapsingToolbarStyle" format="reference" />
+    <attr name="chatTextInputStyle" format="reference" />
+    <attr name="chatLightTextInputStyle" format="reference" />
+    <attr name="chatMaterialButtonStyle" format="reference" />
+    <attr name="chatCircleIconStyle" format="reference" />
+    <attr name="chatCardHeaderStyle" format="reference" />
+    <attr name="chatImagePopupAnimationStyle" format="reference" />
+
+
+    <!--    </declare-styleable>-->
     <!--    <attr name="" format="reference|color" />-->
 
 </resources>

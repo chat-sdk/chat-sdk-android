@@ -16,7 +16,7 @@
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/userAvatarImageView"
-            style="@style/CircleIconStyle"
+            style="?chatCircleIconStyle"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginBottom="8dp"

@@ -43,7 +43,8 @@
             android:gravity="center"
             android:inputType="textCapSentences"
             android:textSize="14sp"
-            android:theme="@style/TextInput" />
+            android:theme="?chatTextInputStyle"
+            />
 
     </com.google.android.material.textfield.TextInputLayout>
 
