@@ -8,6 +8,7 @@ import com.bumptech.glide.Glide;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.utils.Dimen;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.icons.Icons;
 
@@ -148,10 +149,10 @@ public class ThreadImageBuilder {
 
     public static Drawable defaultDrawable(Thread thread) {
         if (thread == null || thread.typeIs(ThreadType.Private1to1)) {
-            return Icons.get(Icons.choose().user_100, 0);
+            return Icons.get(ChatSDKUI.icons().user_100, 0);
         }
         else {
-            return Icons.get(Icons.choose().group_100, 0);
+            return Icons.get(ChatSDKUI.icons().group_100, 0);
         }
     }
 

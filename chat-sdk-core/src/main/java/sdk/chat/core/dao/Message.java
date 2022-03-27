@@ -234,11 +234,7 @@ public class Message extends AbstractEntity {
         if (valueObject == null) {
             return "";
         }
-        String value = MetaValueHelper.toString(valueObject.getValue());
-        if (value == null)  {
-            return "";
-        }
-        return value;
+        return MetaValueHelper.toString(valueObject.getValue());
     }
 
     public Integer integerForKey(String key) {

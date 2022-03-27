@@ -1,5 +1,8 @@
 package sdk.chat.message.audio;
 
+import static com.google.android.exoplayer2.Player.STATE_ENDED;
+import static com.google.android.exoplayer2.Player.STATE_READY;
+
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.util.AttributeSet;
@@ -20,11 +23,9 @@ import org.pmw.tinylog.Logger;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import sdk.chat.core.audio.AudioPlayer;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.icons.Icons;
 import sdk.guru.common.DisposableMap;
-
-import static com.google.android.exoplayer2.Player.STATE_ENDED;
-import static com.google.android.exoplayer2.Player.STATE_READY;
 
 /**
  * Created by ben on 9/28/17.
@@ -173,9 +174,9 @@ public class AudioPlayerView extends LinearLayout {
                 seekBar.setEnabled(ready);
             }
             if (player != null && player.isPlaying()) {
-                playButton.setImageDrawable(Icons.get(getContext(), Icons.choose().pause, buttonColor));
+                playButton.setImageDrawable(Icons.get(getContext(), ChatSDKUI.icons().pause, buttonColor));
             } else {
-                playButton.setImageDrawable(Icons.get(getContext(), Icons.choose().play, buttonColor));
+                playButton.setImageDrawable(Icons.get(getContext(), ChatSDKUI.icons().play, buttonColor));
             }
         }
     }

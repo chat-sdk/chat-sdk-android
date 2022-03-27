@@ -38,13 +38,14 @@ import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.ThreadHolder;
 import sdk.chat.ui.chat.model.TypingThreadHolder;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.interfaces.SearchSupported;
 import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.provider.MenuItemProvider;
 import sdk.chat.ui.utils.GlideWith;
 import sdk.chat.ui.utils.ThreadImageBuilder;
 import sdk.chat.ui.view_holders.ThreadViewHolder;
@@ -329,10 +330,11 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.add_menu, menu);
-        menu.findItem(R.id.action_add).setIcon(Icons.get(getContext(), Icons.choose().add, Icons.shared().actionBarIconColor));
+
+        ChatSDKUI.provider().menuItems().addAddItem(getContext(), menu, 1);
+        
         if (!allowThreadCreation()) {
-            menu.removeItem(R.id.action_add);
+            menu.removeItem(MenuItemProvider.AddItemId);
         }
     }
 

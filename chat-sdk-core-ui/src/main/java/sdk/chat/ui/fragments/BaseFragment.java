@@ -188,7 +188,6 @@ public abstract class BaseFragment extends Fragment implements Consumer<Throwabl
     protected Consumer<? super Throwable> snackbarOnErrorConsumer () {
         return alert.snackbarOnErrorConsumer();
     }
-
     protected void showProgressDialog(int stringResId) {
         alert.showProgressDialog(stringResId);
     }

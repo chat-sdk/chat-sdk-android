@@ -39,11 +39,12 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ConnectionType;
 import sdk.chat.core.types.SearchActivityType;
 import sdk.chat.core.utils.UserListItemConverter;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.interfaces.SearchSupported;
+import sdk.chat.ui.provider.MenuItemProvider;
 import sdk.chat.ui.utils.DialogUtils;
 import sdk.guru.common.Optional;
 import sdk.guru.common.RX;
@@ -158,8 +159,8 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.add_menu, menu);
-        menu.findItem(R.id.action_add).setIcon(Icons.get(getContext(), Icons.choose().add, Icons.shared().actionBarIconColor));
+
+        ChatSDKUI.provider().menuItems().addAddItem(getContext(), menu, 1);
     }
 
     @Override
@@ -169,7 +170,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
         int id = item.getItemId();
 
         // Each user that will be found in the filter context will be automatically added as a contact.
-        if (id == R.id.action_add) {
+        if (id == MenuItemProvider.AddItemId) {
             startSearchActivity();
             return true;
         }

@@ -29,6 +29,7 @@ import sdk.chat.core.interfaces.ThreadType
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.core.utils.Dimen
 import sdk.chat.core.utils.Strings
+import sdk.chat.ui.ChatSDKUI
 import sdk.chat.ui.R
 import sdk.chat.ui.activities.ImagePreviewActivity
 import sdk.chat.ui.fragments.ProfileViewOffsetChangeListener
@@ -260,13 +261,13 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
 
     open fun reloadButtons() {
         if (ChatSDK.thread().canAddUsersToThread(thread)) {
-            addUsersFab.setImageDrawable(Icons.get(this, Icons.choose().add, R.color.white))
+            addUsersFab.setImageDrawable(Icons.get(this, ChatSDKUI.icons().add, R.color.white))
             addUsersFab.visibility = View.VISIBLE
         } else {
             addUsersFab.visibility = View.INVISIBLE
         }
         if (ChatSDK.thread().canRefreshRoles(thread)) {
-            refreshFab.setImageDrawable(Icons.get(this, Icons.choose().refresh, R.color.white))
+            refreshFab.setImageDrawable(Icons.get(this, ChatSDKUI.icons().refresh, R.color.white))
             refreshFab.visibility = View.VISIBLE
         } else {
             refreshFab.visibility = View.INVISIBLE

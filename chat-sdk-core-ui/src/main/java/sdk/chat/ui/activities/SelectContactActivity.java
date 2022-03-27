@@ -11,11 +11,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toolbar;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,6 +31,7 @@ import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
@@ -81,9 +82,10 @@ public abstract class SelectContactActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         MenuItem item = menu.add(Menu.NONE, R.id.action_search, 0, getString(R.string.search));
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        item.setIcon(Icons.get(this, Icons.choose().search, Icons.shared().actionBarIconColor));
+        item.setIcon(Icons.get(this, ChatSDKUI.icons().search, ChatSDKUI.icons().actionBarIconColor));
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -101,7 +103,7 @@ public abstract class SelectContactActivity extends BaseActivity {
             fab.setEnabled(false);
             doneButtonPressed(adapter.getSelectedUsers());
         });
-        fab.setImageDrawable(Icons.get(this, Icons.choose().check, R.color.fab_icon_color));
+        fab.setImageDrawable(Icons.get(this, ChatSDKUI.icons().check, R.color.fab_icon_color));
     }
 
     protected void initList() {

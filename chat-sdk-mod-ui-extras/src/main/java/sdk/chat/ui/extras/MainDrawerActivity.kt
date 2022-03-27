@@ -4,9 +4,8 @@ import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
+import android.view.MenuItem
 import android.widget.ImageView
-import androidx.appcompat.app.ActionBarDrawerToggle
-
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
@@ -22,7 +21,6 @@ import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader
 import com.mikepenz.materialdrawer.util.DrawerImageLoader
 import com.mikepenz.materialdrawer.util.updateName
 import com.mikepenz.materialdrawer.widget.AccountHeaderView
-
 import io.reactivex.Single
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
@@ -35,6 +33,7 @@ import sdk.chat.core.hook.Hook
 import sdk.chat.core.hook.HookEvent
 import sdk.chat.core.interfaces.LocalNotificationHandler
 import sdk.chat.core.session.ChatSDK
+import sdk.chat.ui.ChatSDKUI
 import sdk.chat.ui.activities.MainActivity
 import sdk.chat.ui.fragments.BaseFragment
 import sdk.chat.ui.icons.Icons
@@ -48,14 +47,13 @@ open class MainDrawerActivity : MainActivity() {
         return R.layout.activity_main_drawer
     }
 
-    public lateinit var headerView: AccountHeaderView
-    public lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
+    open lateinit var headerView: AccountHeaderView
 
-    public lateinit var profile: IProfile
-    public var currentFragment: Fragment? = null
+    open lateinit var profile: IProfile
+    open var currentFragment: Fragment? = null
 
-    public lateinit var privateThreadItem: PrimaryDrawerItem
-    public lateinit var publicThreadItem: PrimaryDrawerItem
+    open lateinit var privateThreadItem: PrimaryDrawerItem
+    open lateinit var publicThreadItem: PrimaryDrawerItem
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,16 +104,22 @@ open class MainDrawerActivity : MainActivity() {
         actionBar?.setDisplayHomeAsUpEnabled(true)
         actionBar?.setHomeButtonEnabled(true)
 
-        // TODO: 22
-        actionBarDrawerToggle = ActionBarDrawerToggle(this, root, toolbar, R.string.material_drawer_open, R.string.material_drawer_close)
+        actionBar!!.setHomeAsUpIndicator(
+            Icons.get(
+                this,
+                ChatSDKUI.icons().drawer,
+                ChatSDKUI.icons().actionBarIconColor
+            )
+        )
+        actionBar!!.setDisplayHomeAsUpEnabled(true)
 
         buildHeader(false, savedInstanceState)
 
-        val logoutItem = PrimaryDrawerItem().withName(R.string.logout).withIcon(Icons.get(this, Icons.choose().logout, R.color.logout_button_color))
+        val logoutItem = PrimaryDrawerItem().withName(R.string.logout).withIcon(Icons.get(this, ChatSDKUI.icons().logout, R.color.logout_button_color))
         logoutItem.name = StringHolder(R.string.logout)
         logoutItem.isSelectable = false
 
-        val profileItem = PrimaryDrawerItem().withName(R.string.profile).withIcon(Icons.get(this, Icons.choose().user, R.color.profile_icon_color))
+        val profileItem = PrimaryDrawerItem().withName(R.string.profile).withIcon(Icons.get(this, ChatSDKUI.icons().user, R.color.profile_icon_color))
         profileItem.isSelectable = false
 
         slider.apply {
@@ -151,6 +155,16 @@ open class MainDrawerActivity : MainActivity() {
         }
 
         setFragmentForPosition(0);
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                toggleDrawer()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onResume() {
@@ -202,8 +216,6 @@ open class MainDrawerActivity : MainActivity() {
 
     }
 
-
-
     /**
      * small helper method to reuse the logic to build the AccountHeader
      * this will be used to replace the header of the drawer with a compact/normal header
@@ -223,7 +235,7 @@ open class MainDrawerActivity : MainActivity() {
                     //don't ask but google uses 14dp for the add account icon in gmail but 20dp for the normal icons (like manage account)
 //                    ProfileSettingDrawerItem().apply {
 //                        name = StringHolder(R.string.logout)
-//                        icon = ImageHolder(Icons.get(this, Icons.choose().logout, R.color.logout_button_color))
+//                        icon = ImageHolder(Icons.get(this, ChatSDKUI.icons().logout, R.color.logout_button_color))
 //                    }
             )
             selectionListEnabledForSingleProfile = false
@@ -259,12 +271,12 @@ open class MainDrawerActivity : MainActivity() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        actionBarDrawerToggle.onConfigurationChanged(newConfig)
+//        actionBarDrawerToggle.onConfigurationChanged(newConfig)
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        actionBarDrawerToggle.syncState()
+//        actionBarDrawerToggle.syncState()
     }
 
     override fun onSaveInstanceState(_outState: Bundle) {
@@ -283,6 +295,26 @@ open class MainDrawerActivity : MainActivity() {
             root.closeDrawer(slider)
         } else {
             super.onBackPressed()
+        }
+    }
+
+    fun openDrawer() {
+        if (!root.isDrawerOpen(slider)) {
+            root.openDrawer(slider)
+        }
+    }
+
+    fun closeDrawer() {
+        if (root.isDrawerOpen(slider)) {
+            root.closeDrawer(slider)
+        }
+    }
+
+    fun toggleDrawer() {
+        if (root.isDrawerOpen(slider)) {
+            root.closeDrawer(slider)
+        } else {
+            root.openDrawer(slider)
         }
     }
 

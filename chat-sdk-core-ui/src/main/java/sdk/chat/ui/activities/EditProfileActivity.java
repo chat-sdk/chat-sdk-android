@@ -11,10 +11,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Space;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
-import android.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
@@ -30,7 +30,6 @@ import java.util.Map;
 
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
@@ -38,6 +37,7 @@ import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
 import sdk.chat.core.utils.StringChecker;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.binders.AvailabilityHelper;
@@ -145,11 +145,11 @@ public class EditProfileActivity extends BaseActivity {
             }, this));
         });
 
-        doneFab.setImageDrawable(Icons.get(this, Icons.choose().check, Icons.shared().actionBarIconColor));
+        doneFab.setImageDrawable(Icons.get(this, ChatSDKUI.icons().check, ChatSDKUI.icons().actionBarIconColor));
         doneFab.setOnClickListener(v -> {
             saveAndExit();
         });
-        logoutFab.setImageDrawable(Icons.get(this, Icons.choose().logout, Icons.shared().actionBarIconColor));
+        logoutFab.setImageDrawable(Icons.get(this, ChatSDKUI.icons().logout, ChatSDKUI.icons().actionBarIconColor));
         logoutFab.setOnClickListener(v -> {
             logoutFab.setEnabled(false);
             logout();
@@ -214,24 +214,24 @@ public class EditProfileActivity extends BaseActivity {
 
         nameEditView.setText(name);
         nameEditView.setNextFocusDown(R.id.locationEditView);
-        nameEditView.setIcon(Icons.get(this, Icons.choose().user, R.color.edit_profile_icon_color));
+        nameEditView.setIcon(Icons.get(this, ChatSDKUI.icons().user, R.color.edit_profile_icon_color));
         nameEditView.setHint(R.string.name_hint);
         nameEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
         locationEditView.setText(location);
         locationEditView.setNextFocusDown(R.id.phoneEditView);
-        locationEditView.setIcon(Icons.get(this, Icons.choose().location, R.color.edit_profile_icon_color));
+        locationEditView.setIcon(Icons.get(this, ChatSDKUI.icons().location, R.color.edit_profile_icon_color));
         locationEditView.setHint(R.string.location_hint);
         locationEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
         phoneEditView.setText(phoneNumber);
         phoneEditView.setNextFocusDown(R.id.emailEditView);
-        phoneEditView.setIcon(Icons.get(this, Icons.choose().phone, R.color.edit_profile_icon_color));
+        phoneEditView.setIcon(Icons.get(this, ChatSDKUI.icons().phone, R.color.edit_profile_icon_color));
         phoneEditView.setHint(R.string.phone_number_hint);
         phoneEditView.setInputType(InputType.TYPE_CLASS_PHONE);
 
         emailEditView.setText(email);
-        emailEditView.setIcon(Icons.get(this, Icons.choose().email, R.color.edit_profile_icon_color));
+        emailEditView.setIcon(Icons.get(this, ChatSDKUI.icons().email, R.color.edit_profile_icon_color));
         emailEditView.setHint(R.string.email_hint);
         emailEditView.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
     }

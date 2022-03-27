@@ -21,6 +21,7 @@ import butterknife.ButterKnife;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.utils.PermissionRequestHandler;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.icons.Icons;
@@ -59,7 +60,7 @@ public class PopupImageView extends RelativeLayout {
         inflater.inflate(R.layout.view_popup_image, this);
         ButterKnife.bind(this);
 
-        fab.setImageDrawable(Icons.get(getContext(), Icons.choose().save, R.color.fab_icon_color));
+        fab.setImageDrawable(Icons.get(getContext(), ChatSDKUI.icons().save, R.color.fab_icon_color));
 
         fab.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.VISIBLE);

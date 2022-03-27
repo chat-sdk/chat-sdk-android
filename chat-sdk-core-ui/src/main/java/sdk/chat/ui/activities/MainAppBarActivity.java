@@ -20,6 +20,7 @@ import butterknife.BindView;
 import materialsearchview.MaterialSearchView;
 import sdk.chat.core.Tab;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.PagerAdapterTabs;
@@ -118,7 +119,7 @@ public class MainAppBarActivity extends MainActivity {
     public void onStart() {
         super.onStart();
         if (getActionBar() != null) {
-            getActionBar().setHomeAsUpIndicator(Icons.get(this, Icons.choose().user, Icons.shared().actionBarIconColor));
+            getActionBar().setHomeAsUpIndicator(Icons.get(this, ChatSDKUI.icons().user, ChatSDKUI.icons().actionBarIconColor));
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }

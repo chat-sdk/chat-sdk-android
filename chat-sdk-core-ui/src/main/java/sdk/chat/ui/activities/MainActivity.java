@@ -21,8 +21,7 @@ import sdk.chat.core.dao.Thread;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.PermissionRequestHandler;
-import sdk.chat.ui.R;
-import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.module.UIModule;
 
 
@@ -124,14 +123,14 @@ public abstract class MainActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean value = super.onCreateOptionsMenu(menu);
+         if (searchEnabled()) {
+             MenuItem item = ChatSDKUI.provider().menuItems().addSearchItem(this, menu, 0);
 
-        if (searchEnabled()) {
-            getMenuInflater().inflate(R.menu.activity_search_menu, menu);
-            MenuItem item = menu.findItem(R.id.action_search);
-            item.setIcon(Icons.get(this, Icons.choose().search, Icons.shared().actionBarIconColor));
+//            getMenuInflater().inflate(R.menu.activity_search_menu, menu);
+//            MenuItem item = menu.findItem(R.id.action_search);
+//            item.setIcon(Icons.get(this, ChatSDKUI.icons().search, ChatSDKUI.icons().actionBarIconColor));
             searchView().setMenuItem(item);
         }
-
         return value;
     }
 

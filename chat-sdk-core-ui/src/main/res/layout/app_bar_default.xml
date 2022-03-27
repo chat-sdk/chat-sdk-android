@@ -8,4 +8,5 @@
     android:layout_height="wrap_content"
     android:background="?actionBarBackgroundColor"
     app:titleTextColor="?actionBarTextColor"
+    android:titleTextColor="?actionBarTextColor"
     />

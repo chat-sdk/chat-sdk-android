@@ -13,8 +13,6 @@
         <item name="actionBarBackgroundColor">#339966</item>
         <item name="actionBarTextColor">@color/white</item>
 
-        <item name="actionBarTextColor">@color/white</item>
-
 <!--        <item name="dialogTitleTextColor">@color/red</item>-->
 
     </style>

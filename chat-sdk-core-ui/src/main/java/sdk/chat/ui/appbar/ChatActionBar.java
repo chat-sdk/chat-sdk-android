@@ -27,6 +27,7 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.core.utils.Strings;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.icons.Icons;
@@ -68,7 +69,7 @@ public class ChatActionBar extends AppBarLayout {
         titleTextView.setOnClickListener(this::onClick);
         imageView.setOnClickListener(this::onClick);
         subtitleTextView.setOnClickListener(this::onClick);
-        searchImageView.setImageDrawable(Icons.get(getContext(), Icons.choose().search, Icons.shared().actionBarIconColor));
+        searchImageView.setImageDrawable(Icons.get(getContext(), ChatSDKUI.icons().search, ChatSDKUI.icons().actionBarIconColor));
     }
 
     public void onClick(View view) {

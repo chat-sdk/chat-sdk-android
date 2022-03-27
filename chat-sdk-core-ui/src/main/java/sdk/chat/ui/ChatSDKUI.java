@@ -29,6 +29,8 @@ import sdk.chat.ui.fragments.ChatFragment;
 import sdk.chat.ui.fragments.ContactsFragment;
 import sdk.chat.ui.fragments.PrivateThreadsFragment;
 import sdk.chat.ui.fragments.PublicThreadsFragment;
+import sdk.chat.ui.icons.Icons;
+import sdk.chat.ui.provider.UIProvider;
 import sdk.chat.ui.recycler.SmartViewModel;
 import sdk.chat.ui.settings.SettingsActivity;
 import sdk.chat.ui.utils.FragmentLifecycleManager;
@@ -51,6 +53,20 @@ public class ChatSDKUI {
 
     public static ChatSDKUI shared() {
         return instance;
+    }
+
+    protected UIProvider provider = new UIProvider();
+
+    public static UIProvider provider() {
+        return shared().provider;
+    }
+
+    public static Icons icons() {
+        return provider().icons();
+    }
+
+    public void setProvider(UIProvider provider) {
+        this.provider = provider;
     }
 
     public static void setChatFragmentProvider(ChatFragmentProvider provider) {

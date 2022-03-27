@@ -113,7 +113,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     public BaseInterfaceAdapter (Context context) {
         this.context = new WeakReference<>(context);
 
-        Icons.shared().initialize(context);
+        ChatSDKUI.icons().initialize(context);
 
         searchActivities.add(new SearchActivityType(searchActivity, context.getString(R.string.search_with_name)));
 
@@ -171,7 +171,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab privateThreadsTab() {
         if (privateThreadsTab == null) {
-            privateThreadsTab = new Tab(String.format(context.get().getString(R.string.conversations__), ""), Icons.get(context.get(), Icons.choose().chat, Icons.shared().tabIconColor), privateThreadsFragment());
+            privateThreadsTab = new Tab(String.format(context.get().getString(R.string.conversations__), ""), Icons.get(context.get(), ChatSDKUI.icons().chat, ChatSDKUI.icons().tabIconColor), privateThreadsFragment());
         }
         return privateThreadsTab;
     }
@@ -179,7 +179,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab publicThreadsTab() {
         if (publicThreadsTab == null) {
-            publicThreadsTab = new Tab(context.get().getString(R.string.chat_rooms), Icons.get(context.get(), Icons.choose().publicChat, Icons.shared().tabIconColor), publicThreadsFragment());
+            publicThreadsTab = new Tab(context.get().getString(R.string.chat_rooms), Icons.get(context.get(), ChatSDKUI.icons().publicChat, ChatSDKUI.icons().tabIconColor), publicThreadsFragment());
         }
         return publicThreadsTab;
     }
@@ -187,7 +187,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab contactsTab() {
         if (contactsTab == null) {
-            contactsTab = new Tab(context.get().getString(R.string.contacts), Icons.get(context.get(), Icons.choose().contact, Icons.shared().tabIconColor), contactsFragment());
+            contactsTab = new Tab(context.get().getString(R.string.contacts), Icons.get(context.get(), ChatSDKUI.icons().contact, ChatSDKUI.icons().tabIconColor), contactsFragment());
         }
         return contactsTab;
     }

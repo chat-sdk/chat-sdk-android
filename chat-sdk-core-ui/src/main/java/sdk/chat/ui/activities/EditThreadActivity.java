@@ -34,6 +34,7 @@ import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.StringChecker;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.MediaSelector;
@@ -113,7 +114,7 @@ public class EditThreadActivity extends BaseActivity {
             fab.setEnabled(false);
             didClickOnSaveButton();
         });
-        fab.setImageDrawable(Icons.get(this, Icons.choose().check, R.color.fab_icon_color));
+        fab.setImageDrawable(Icons.get(this, ChatSDKUI.icons().check, R.color.fab_icon_color));
 
         if (UIModule.config().customizeGroupImageEnabled && ChatSDK.upload() != null) {
             threadImageView.setOnClickListener(view -> {

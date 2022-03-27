@@ -19,6 +19,7 @@ import sdk.chat.core.session.Configure;
 import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.chat.core.utils.PermissionRequestHandler;
 import sdk.chat.licensing.Report;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.icons.Icons;
 import sdk.guru.common.BaseConfig;
 
@@ -246,7 +247,7 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
     }
 
     public static Tab nearbyUsersTab() {
-        return new Tab(R.string.nearby_users, Icons.get(Icons.choose().location, Icons.shared().tabIconColor), nearbyUsersFragment());
+        return new Tab(R.string.nearby_users, Icons.get(ChatSDKUI.icons().location, ChatSDKUI.icons().tabIconColor), nearbyUsersFragment());
     }
 
     public static Fragment nearbyUsersFragment() {

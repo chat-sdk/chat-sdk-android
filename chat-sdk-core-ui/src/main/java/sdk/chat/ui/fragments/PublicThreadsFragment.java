@@ -14,8 +14,8 @@ import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.ui.R;
 import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.provider.MenuItemProvider;
 import sdk.guru.common.RX;
 
 public class PublicThreadsFragment extends ThreadsFragment {
@@ -68,7 +68,7 @@ public class PublicThreadsFragment extends ThreadsFragment {
         /* Cant use switch in the library*/
         int id = item.getItemId();
 
-        if (id == R.id.action_add) {
+        if (id == MenuItemProvider.AddItemId) {
             ChatSDK.ui().startEditThreadActivity(getContext(), null);
             return true;
         }

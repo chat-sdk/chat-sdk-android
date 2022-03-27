@@ -3,11 +3,12 @@ package sdk.chat.ui.chat.options;
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
 
+import io.reactivex.Completable;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.interfaces.ChatOption;
-import sdk.guru.common.DisposableMap;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.icons.Icons;
-import io.reactivex.Completable;
+import sdk.guru.common.DisposableMap;
 
 /**
  * Created by ben on 10/11/17.
@@ -35,7 +36,7 @@ public class BaseChatOption implements ChatOption {
         if (drawable != null) {
             return drawable;
         } else {
-            return Icons.get(Icons.choose().add, Icons.shared().chatOptionIconColor);
+            return Icons.get(ChatSDKUI.icons().add, ChatSDKUI.icons().chatOptionIconColor);
         }
     }
 

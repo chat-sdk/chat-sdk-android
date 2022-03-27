@@ -9,6 +9,7 @@ import kotlinx.android.synthetic.main.recycler_view_holder_radio.view.*
 import kotlinx.android.synthetic.main.recycler_view_holder_section.view.*
 import kotlinx.android.synthetic.main.recycler_view_holder_section.view.textView
 import kotlinx.android.synthetic.main.recycler_view_holder_toggle.view.*
+import sdk.chat.ui.ChatSDKUI
 import sdk.chat.ui.R
 import sdk.chat.ui.icons.Icons
 import smartadapter.viewholder.SmartViewHolder
@@ -126,7 +127,7 @@ open class NavigationViewHolder(parentView: ViewGroup) :
 
     init {
         with(itemView) {
-            imageView.setImageDrawable(Icons.get(Icons.choose().arrowRight, R.color.gray_very_light))
+            imageView.setImageDrawable(Icons.get(ChatSDKUI.icons().arrowRight, R.color.gray_very_light))
         }
     }
 

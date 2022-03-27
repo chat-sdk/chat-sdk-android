@@ -130,6 +130,7 @@
 
 <style name="ChatSDKTheme.AppBar.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
     <item name="android:textColor">@color/white</item>
+    <item name="android:titleTextColor">@color/white</item>
 </style>
 
 <style name="TextInput">

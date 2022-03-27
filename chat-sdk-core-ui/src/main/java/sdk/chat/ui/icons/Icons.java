@@ -15,15 +15,10 @@ import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial;
 
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 
 public class Icons {
-
-    public static final Icons instance = new Icons();
-
-    public static Icons shared() {
-        return instance;
-    }
 
     public @ColorRes int actionBarIconColor = R.color.app_bar_icon_color;
     public @ColorRes int chatOptionIconColor = R.color.white;
@@ -59,6 +54,7 @@ public class Icons {
         pause = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_pause);
         send = context.getResources().getDrawable(R.drawable.ic_send);
         options = new IconicsDrawable(context, FontAwesome.Icon.faw_ellipsis_h);
+        drawer = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_list);
         refresh = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_sync);
         arrowRight = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_keyboard_arrow_right);
         user_100 = context.getResources().getDrawable(R.drawable.icn_100_user);
@@ -93,16 +89,13 @@ public class Icons {
     public IconicsDrawable play;
     public IconicsDrawable pause;
     public IconicsDrawable options;
+    public IconicsDrawable drawer;
     public Drawable send;
     public IconicsDrawable refresh;
     public IconicsDrawable arrowRight;
     public Drawable group_100;
     public Drawable user_100;
     public IconicsDrawable call;
-
-    public static Icons choose() {
-        return shared();
-    }
 
     public static Drawable get(IconicsDrawable icon, @ColorRes int colorRes) {
         return get(icon, colorRes, 0, 0);
@@ -150,6 +143,22 @@ public class Icons {
 
     public static Context context() {
         return ChatSDK.ctx();
+    }
+
+    /**
+     * Use ChatSDKUI.icons()
+     */
+    @Deprecated
+    public static Icons choose() {
+        return ChatSDKUI.icons();
+    }
+
+    /**
+     * Use ChatSDKUI.icons()
+     */
+    @Deprecated
+    public static Icons shared() {
+        return ChatSDKUI.icons();
     }
 
 }

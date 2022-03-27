@@ -42,6 +42,7 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ConnectionType;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
@@ -179,8 +180,7 @@ public class SearchActivity extends BaseActivity {
         getMenuInflater().inflate(R.menu.activity_search_menu, menu);
 
         MenuItem item = menu.findItem(R.id.action_search);
-        item.setIcon(Icons.get(this, Icons.choose().search, Icons.shared().actionBarIconColor));
-
+        item.setIcon(Icons.get(this, ChatSDKUI.icons().search, ChatSDKUI.icons().actionBarIconColor));
         searchView.setMenuItem(item);
 
         return true;
@@ -289,7 +289,7 @@ public class SearchActivity extends BaseActivity {
     }
 
     public void refreshDoneButton() {
-        fab.setImageDrawable(Icons.get(this, Icons.choose().check, R.color.white));
+        fab.setImageDrawable(Icons.get(this, ChatSDKUI.icons().check, R.color.white));
         fab.setVisibility(adapter.getSelectedCount() > 0 ? View.VISIBLE : View.INVISIBLE);
     }
 

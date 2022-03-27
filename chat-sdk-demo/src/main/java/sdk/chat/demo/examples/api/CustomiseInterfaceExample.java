@@ -85,7 +85,7 @@ public class CustomiseInterfaceExample extends BaseExample {
             ChatSDK.ui().setPrivateThreadsFragment(new APrivateThreadsFragment());
 
             // Add an extra tab
-            ChatSDK.ui().setTab("Title", Icons.get(context, Icons.choose().search, R.color.gray), new APrivateThreadsFragment(), 0);
+            ChatSDK.ui().setTab("Title", Icons.get(context, ChatSDKUI.icons().search, R.color.gray), new APrivateThreadsFragment(), 0);
 
             // Remove a tab
             ChatSDK.ui().removeTab(0);
@@ -107,7 +107,7 @@ public class CustomiseInterfaceExample extends BaseExample {
             // Handle error
         }
 
-        Icons.shared().block = new IconicsDrawable(context, FontAwesome.Icon.faw_user);
+        ChatSDKUI.icons().block = new IconicsDrawable(context, FontAwesome.Icon.faw_user);
 
         // Override some activities
 

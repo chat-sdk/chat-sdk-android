@@ -1,6 +1,8 @@
 package sdk.chat.app.xmpp;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.util.TLSUtils;
@@ -27,6 +29,8 @@ import sdk.chat.ui.module.UIModule;
 
 public class MainApplication extends Application {
 
+    public SecureKeyStore store;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -36,6 +40,7 @@ public class MainApplication extends Application {
     public void xmpp() {
         try {
 
+            store = new SecureKeyStore(this);
 
             ChatSDK.builder()
 
@@ -87,7 +92,7 @@ public class MainApplication extends Application {
 //                    .addModule(XMPPReadReceiptsModule.shared())
                     .addModule(ExtrasModule.builder()
                             .setQrCodesEnabled(true)
-                            .setDrawerEnabled(true)
+                            .setDrawerEnabled(false)
                             .build())
 
                     .build().activateWithEmail(this, "ben@sdk.chat");
@@ -141,8 +146,6 @@ public class MainApplication extends Application {
 
         // Use encrypted shared preferences
         try {
-//            SecureKeyStore store = new SecureKeyStore(this);
-//            ChatSDK.shared().setKeyStorage(store);
 
             Field field = ChatSDK.class.getDeclaredField("keyStorage");
             field.setAccessible(true);
@@ -160,6 +163,13 @@ public class MainApplication extends Application {
 
     }
 
+    @Override
+    public SharedPreferences getSharedPreferences(String name, int mode) {
+        if (name.equals(ChatSDK.Preferences) && mode == Context.MODE_PRIVATE) {
+            return store.pref();
+        }
+        return super.getSharedPreferences(name, mode);
+    }
 
 
 //    private void chatsdkAuth(String username, String password, String threadId) {

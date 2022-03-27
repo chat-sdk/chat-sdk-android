@@ -14,6 +14,7 @@ import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.R;
+import sdk.chat.ui.provider.MenuItemProvider;
 import sdk.chat.ui.utils.DialogUtils;
 import sdk.chat.ui.utils.ToastHelper;
 import sdk.guru.common.RX;
@@ -79,7 +80,7 @@ public class PrivateThreadsFragment extends ThreadsFragment {
         /* Cant use switch in the library*/
         int id = item.getItemId();
 
-        if (id == R.id.action_add) {
+        if (id == MenuItemProvider.AddItemId) {
             ChatSDK.ui().startCreateThreadActivity(getContext());
             return true;
         }

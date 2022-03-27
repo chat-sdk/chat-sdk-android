@@ -59,6 +59,7 @@ import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.interfaces.TextInputDelegate;
 import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.provider.MenuItemProvider;
 import sdk.chat.ui.views.ChatView;
 import sdk.chat.ui.views.ReplyView;
 import sdk.guru.common.DisposableMap;
@@ -492,10 +493,10 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
                 inflater.inflate(R.menu.activity_chat_actions_menu, menu);
 
                 if (getActivity() != null) {
-                    menu.findItem(R.id.action_copy).setIcon(Icons.get(getActivity(), Icons.choose().copy, Icons.shared().actionBarIconColor));
-                    menu.findItem(R.id.action_delete).setIcon(Icons.get(getActivity(), Icons.choose().delete, Icons.shared().actionBarIconColor));
-                    menu.findItem(R.id.action_forward).setIcon(Icons.get(getActivity(), Icons.choose().forward, Icons.shared().actionBarIconColor));
-                    menu.findItem(R.id.action_reply).setIcon(Icons.get(getActivity(), Icons.choose().reply, Icons.shared().actionBarIconColor));
+                    menu.findItem(R.id.action_copy).setIcon(Icons.get(getActivity(), ChatSDKUI.icons().copy, ChatSDKUI.icons().actionBarIconColor));
+                    menu.findItem(R.id.action_delete).setIcon(Icons.get(getActivity(), ChatSDKUI.icons().delete, ChatSDKUI.icons().actionBarIconColor));
+                    menu.findItem(R.id.action_forward).setIcon(Icons.get(getActivity(), ChatSDKUI.icons().forward, ChatSDKUI.icons().actionBarIconColor));
+                    menu.findItem(R.id.action_reply).setIcon(Icons.get(getActivity(), ChatSDKUI.icons().reply, ChatSDKUI.icons().actionBarIconColor));
                 }
 
                 if (!UIModule.config().messageForwardingEnabled) {
@@ -533,18 +534,16 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
                 chatActionBar.showSearchIcon();
 
                 if (ChatSDK.thread().canAddUsersToThread(thread) && getActivity() != null) {
-                    inflater.inflate(R.menu.add_menu, menu);
-                    menu.findItem(R.id.action_add).setIcon(Icons.get(getActivity(), Icons.choose().add, Icons.shared().actionBarIconColor));
+                    ChatSDKUI.provider().menuItems().addAddItem(getContext(), menu, 1);
                 }
                 if (ChatSDK.call() != null && ChatSDK.call().callEnabled(this, thread.getEntityID())) {
                     inflater.inflate(R.menu.call_menu, menu);
-                    menu.findItem(R.id.action_call).setIcon(Icons.get(getActivity(), Icons.choose().call, Icons.shared().actionBarIconColor));
+                    menu.findItem(R.id.action_call).setIcon(Icons.get(getActivity(), ChatSDKUI.icons().call, ChatSDKUI.icons().actionBarIconColor));
                 }
 
                 chatActionBar.showText();
             }
         }
-
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -604,7 +603,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
             showKeyboard();
         }
 
-        if (id == R.id.action_add && getActivity() != null) {
+        if (id == MenuItemProvider.AddItemId && getActivity() != null) {
 
             // We don't want to remove the user if we load another activity
             // Like the sticker activity

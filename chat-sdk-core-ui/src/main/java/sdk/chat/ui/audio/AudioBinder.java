@@ -1,5 +1,7 @@
 package sdk.chat.ui.audio;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -26,13 +28,12 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import sdk.chat.core.utils.PermissionRequestHandler;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.interfaces.TextInputDelegate;
 import sdk.chat.ui.utils.ToastHelper;
 import sdk.guru.common.DisposableMap;
-
-import static android.app.Activity.RESULT_OK;
 
 public class AudioBinder {
 
@@ -151,7 +152,7 @@ public class AudioBinder {
     }
 
     protected void startRecordingMode() {
-        messageInput.getButton().setImageDrawable(Icons.get(activity, Icons.choose().microphone, R.color.white));
+        messageInput.getButton().setImageDrawable(Icons.get(activity, ChatSDKUI.icons().microphone, R.color.white));
         messageInput.getButton().setEnabled(true);
         audioModeEnabled = true;
     }

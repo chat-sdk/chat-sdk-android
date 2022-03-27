@@ -9,6 +9,7 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.Base64ImageMessageHolder;
@@ -36,7 +37,7 @@ public class BaseIncomingBase64ImageMessageViewHolder <T extends Base64ImageMess
 
         image.setImageBitmap(message.image());
 
-        imageOverlay.setImageDrawable(Icons.get(imageOverlay.getContext(), Icons.choose().check, R.color.white));
+        imageOverlay.setImageDrawable(Icons.get(imageOverlay.getContext(), ChatSDKUI.icons().check, R.color.white));
 
         if (imageOverlayContainer != null) {
             imageOverlayContainer.setVisibility(isSelected() ? View.VISIBLE : View.INVISIBLE);

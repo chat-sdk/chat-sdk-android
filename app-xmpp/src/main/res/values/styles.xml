@@ -21,16 +21,15 @@
         <item name="outcomingBubbleDrawable">@drawable/wow_shape_outcoming_message_bubble</item>
 
         <item name="outcomingReplyBackgroundColor">#F3F3F3</item>
-        <item name="dateHeaderTextColor">#000</item>
-        <item name="dateHeaderPadding">8dp</item>
-        <item name="chatViewDividerColor">#00FFFFFF</item>
+<!--        <item name="dateHeaderTextColor">#000</item>-->
+<!--        <item name="dateHeaderPadding">8dp</item>-->
+<!--        <item name="chatViewDividerColor">#00FFFFFF</item>-->
 
-        <item name="inputButtonDefaultBgColor">#000</item>
-        <item name="inputButtonDefaultIconColor">#FFF</item>
+<!--        <item name="inputButtonDefaultBgColor">#000</item>-->
+<!--        <item name="inputButtonDefaultIconColor">#FFF</item>-->
 
-        <item name="attachmentButtonDefaultBgColor">#FFF</item>
+<!--        <item name="attachmentButtonDefaultBgColor">#FFF</item>-->
 <!--        <item name="attachmentButtonDefaultIconColor">#FFF</item>-->
-        <item name="attachmentButtonIcon">@drawable/ic_camera</item>
 
         <item name="incomingTimeTextColor">#FFF</item>
         <item name="outcomingTimeTextColor">#FFF</item>
