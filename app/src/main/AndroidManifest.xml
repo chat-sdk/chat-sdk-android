@@ -21,6 +21,7 @@
         android:theme="@style/GGTheme"
         android:name="sdk.chat.MainApplication"
         android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="true"
         tools:replace="allowBackup, icon">
 
 

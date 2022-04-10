@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sdk.chat.app.xmpp.CustomScrollView
+    android:id="@+id/scroll"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <sdk.chat.ui.keyboard.KeyboardAwareLinearLayout
+        android:theme="@style/TestTheme"
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="2000dp"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical"
+        android:background="@color/red"
+
+        >
+
+        <Space
+            android:id="@+id/space"
+            android:background="@color/blue"
+            android:layout_height="500dp"
+            android:layout_width="match_parent"
+            />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Open Keyboard"
+            android:layout_below="@id/space">
+
+        </Button>
+
+        <EditText
+            android:id="@+id/edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionNone"
+            android:layout_below="@id/button"
+            />
+
+        <View
+            android:background="@color/chat_orange"
+            android:layout_width="match_parent"
+            android:layout_height="800dp"
+            android:layout_below="@id/edit"
+            ></View>
+
+
+    </sdk.chat.ui.keyboard.KeyboardAwareLinearLayout>
+</sdk.chat.app.xmpp.CustomScrollView>
+
+

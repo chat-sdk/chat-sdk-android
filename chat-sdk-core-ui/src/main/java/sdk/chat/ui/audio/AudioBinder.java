@@ -120,6 +120,8 @@ public class AudioBinder {
 
         // So we want to be in audio mode if the keyboard is not showing and
         // there is no text in the edit text
+
+        // TODO: Key
         KeyboardVisibilityEvent.setEventListener(activity, isOpen -> {
             updateRecordMode();
         });
@@ -141,6 +143,8 @@ public class AudioBinder {
 
     public void updateRecordMode() {
         if (activity != null && messageInput != null && permissionsGranted) {
+
+            // TODO: Key
             boolean keyboardVisible = KeyboardVisibilityEvent.INSTANCE.isKeyboardVisible(activity);
             boolean isEmpty = messageInput.getInputEditText().getText().toString().isEmpty();
             if (keyboardVisible || !isEmpty || replyViewShowing) {
@@ -148,6 +152,7 @@ public class AudioBinder {
             } else {
                 startRecordingMode();
             }
+
         }
     }
 

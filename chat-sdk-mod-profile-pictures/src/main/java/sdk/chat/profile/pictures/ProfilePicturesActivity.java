@@ -24,10 +24,13 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.image.ImageUploadResult;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.PermissionRequestHandler;
+import sdk.chat.ui.ChatSDKUI;
+import sdk.chat.ui.R2;
 import sdk.chat.ui.activities.ImagePreviewActivity;
 import sdk.chat.ui.chat.MediaSelector;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.provider.MenuItemProvider;
 import sdk.chat.ui.utils.ImagePickerUploader;
 import sdk.chat.ui.utils.ToastHelper;
 import sdk.guru.common.RX;
@@ -213,8 +216,10 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
         if (!getUser().isMe())
             return super.onCreateOptionsMenu(menu);
 
-        getMenuInflater().inflate(R.menu.add_menu, menu);
-        addMenuItem = menu.findItem(R.id.action_add).setIcon(Icons.get(this, ChatSDKUI.icons().add, ChatSDKUI.icons().actionBarIconColor));
+        addMenuItem = ChatSDKUI.provider().menuItems().addAddItem(this, menu, 0);
+
+        //        getMenuInflater().inflate(R.menu.add_menu, menu);
+//        addMenuItem = menu.findItem(R.id.action_add).setIcon(Icons.get(this, ChatSDKUI.icons().add, ChatSDKUI.icons().actionBarIconColor));
         addMenuItem.setVisible(shouldShowAddButton(ChatSDK.profilePictures().fromUser(getUser())));
 
         return super.onCreateOptionsMenu(menu);
@@ -225,7 +230,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
 
         int id = item.getItemId();
 
-        if (id == R.id.action_add) {
+        if (id == MenuItemProvider.addItemId) {
             addProfilePicture();
             return true;
         }

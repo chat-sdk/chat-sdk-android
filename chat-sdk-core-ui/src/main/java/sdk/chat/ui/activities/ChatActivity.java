@@ -53,8 +53,23 @@ public class ChatActivity extends BaseActivity implements ChatFragment.Delegate 
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
     protected int getLayout() {
-        return R.layout.activity_chat_wrapper;
+        return R.layout.activity_chat;
     }
 
     @Override
@@ -80,13 +95,14 @@ public class ChatActivity extends BaseActivity implements ChatFragment.Delegate 
 
     @Override
     public void onBackPressed() {
-        if (UIModule.config().goToMainActivityOnChatActivityBackPressed) {
-            // Do this so that even if we were editing the thread, we always go back to the
-            // main activity
-            ChatSDK.ui().startMainActivity(this);
-        } else {
-            super.onBackPressed();
+        if (!chatFragment.onBackPressed()) {
+            if (UIModule.config().goToMainActivityOnChatActivityBackPressed) {
+                // Do this so that even if we were editing the thread, we always go back to the
+                // main activity
+                ChatSDK.ui().startMainActivity(this);
+            } else {
+                super.onBackPressed();
+            }
         }
     }
-
 }

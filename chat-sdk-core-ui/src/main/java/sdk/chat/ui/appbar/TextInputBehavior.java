@@ -43,9 +43,11 @@ public class TextInputBehavior extends CoordinatorLayout.Behavior<View> {
                        @NonNull View dependency) {
 
 //        if (child instanceof LinearLayout && dependency instanceof ChatView) {
-            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) dependency.getLayoutParams();
-            params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, child.getHeight());
-            dependency.setLayoutParams(params);
+
+//            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) dependency.getLayoutParams();
+//            params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, child.getHeight());
+//            dependency.setLayoutParams(params);
+
 //        }
     }
 

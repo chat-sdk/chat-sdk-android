@@ -1,6 +1,7 @@
 package sdk.chat.ui.fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Debug;
 import android.view.LayoutInflater;
@@ -9,7 +10,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toolbar;
 
@@ -17,8 +19,6 @@ import androidx.annotation.LayoutRes;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.stfalcon.chatkit.messages.MessageInput;
-
-import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
 import org.pmw.tinylog.Logger;
 
@@ -51,12 +51,12 @@ import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
-import sdk.chat.ui.activities.BaseActivity;
 import sdk.chat.ui.appbar.ChatActionBar;
 import sdk.chat.ui.audio.AudioBinder;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.interfaces.TextInputDelegate;
+import sdk.chat.ui.keyboard.KeyboardAwareFrameLayout;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.provider.MenuItemProvider;
 import sdk.chat.ui.views.ChatView;
@@ -91,14 +91,19 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     @BindView(R2.id.divider) protected View divider;
     @BindView(R2.id.replyView) protected ReplyView replyView;
     @BindView(R2.id.input) protected MessageInput input;
-    @BindView(R2.id.viewContainer) protected CoordinatorLayout viewContainer;
+    @BindView(R2.id.listContainer) protected CoordinatorLayout listContainer;
     @BindView(R2.id.searchView) protected MaterialSearchView searchView;
-    @BindView(R2.id.root) protected FrameLayout root;
+    @BindView(R2.id.root) protected KeyboardAwareFrameLayout root;
     @BindView(R2.id.messageInputLinearLayout) protected LinearLayout messageInputLinearLayout;
+    @BindView(R2.id.keyboardOverlay) protected LinearLayout keyboardOverlay;
 
     protected AudioBinder audioBinder = null;
     protected DisposableMap dm = new DisposableMap();
     protected WeakReference<Delegate> delegate;
+
+    protected boolean keyboardOverlayActive = false;
+
+    protected int viewHeight = 0;
 
     public ChatFragment(Thread thread, Delegate delegate) {
         this.thread = thread;
@@ -115,13 +120,46 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         // HERE
         initViews();
 
-        if (getActivity() != null) {
-            KeyboardVisibilityEvent.setEventListener(getActivity(), isOpen -> {
-                System.out.println("Is Open: " + isOpen);
-            });
-        }
+        setupKeyboardListeners();
 
         return rootView;
+    }
+
+    protected void setupKeyboardListeners() {
+        root.keyboardShown = () -> {
+
+            if (!keyboardOverlayActive) {
+                hideKeyboardOverlay();
+            } else {
+                showKeyboardOverlay();
+            }
+
+            // We want the bottom margin to be just the height of the input + reply view
+            setChatViewBottomMargin(bottomMargin());
+
+        };
+
+        root.keyboardHidden = () -> {
+
+            int bottomMargin = bottomMargin();
+
+            if (keyboardOverlayActive) {
+                keyboardOverlay.setVisibility(View.VISIBLE);
+                bottomMargin += root.getKeyboardHeight();
+            }
+
+            setChatViewBottomMargin(bottomMargin);
+        };
+
+        root.heightUpdater = height -> {
+            setKeyboardOverlayHeight(height);
+        };
+    }
+
+    protected void setChatViewBottomMargin(int margin) {
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) chatView.getLayoutParams();
+        params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, margin);
+        chatView.setLayoutParams(params);
     }
 
     protected @LayoutRes
@@ -153,46 +191,41 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         chatView.clearSelection();
         replyView.hide();
         updateOptionsButton();
-
-        // We need this otherwise the margin isn't updated when the view is gone
-//        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) chatView.getLayoutParams();
-//        params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, messageInputLinearLayout.getHeight() - replyView.getHeight());
-//        chatView.setLayoutParams(params);
-
         updateChatViewMargins();
-
     }
 
     public void updateChatViewMargins() {
         input.post(() -> {
-            int bottomMargin = 0;
-            if (replyView.isVisible()) {
-                bottomMargin += replyView.getHeight();
-            }
-            if (input.getVisibility() != View.GONE) {
-                bottomMargin += input.getHeight() + divider.getHeight();
-            }
 
+            int bottomMargin = bottomMargin();
+
+            // TODO: Margins
             CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) chatView.getLayoutParams();
             params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, bottomMargin);
             chatView.setLayoutParams(params);
         });
     }
 
+    public int bottomMargin() {
+        int bottomMargin = 0;
+        if (replyView.isVisible()) {
+            bottomMargin += replyView.getHeight();
+        }
+        if (input.getVisibility() != View.GONE) {
+            bottomMargin += input.getHeight() + divider.getHeight();
+        }
+        return bottomMargin;
+    }
+
     public void showReplyView(String title, String imageURL, String text) {
+        hideKeyboardOverlayAndShowKeyboard();
         updateOptionsButton();
         if (audioBinder != null) {
             audioBinder.showReplyView();
         }
         replyView.show(title, imageURL, text);
 
-        // We need this otherwise the margin isn't updated when the view is gone
-//        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) chatView.getLayoutParams();
-//        params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, messageInputLinearLayout.getHeight() + replyView.getHeight());
-//        chatView.setLayoutParams(params);
-
         updateChatViewMargins();
-
     }
 
     protected void initViews() {
@@ -431,8 +464,6 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         } else {
             thread.setDraft(null);
         }
-
-
     }
 
     /**
@@ -624,14 +655,6 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         updateOptionsButton();
     }
 
-    public void showKeyboard() {
-        if (getActivity() != null) {
-            if(!KeyboardVisibilityEvent.INSTANCE.isKeyboardVisible(getActivity())) {
-                BaseActivity.showKeyboard(getActivity());
-            }
-        }
-    }
-
     /**
      * Open the thread details context, Admin user can change thread name an messageImageView there.
      */
@@ -677,28 +700,99 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         }
     }
 
-    /**
-     * Show the option popup when the add_menu key is pressed.
-     */
-    // HERE
-//    @Override
-//    public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        switch (keyCode) {
-//            case KeyEvent.KEYCODE_MENU:
-//                showOptions();
-//                return true;
-//        }
-//        return super.onKeyDown(keyCode, event);
-//    }
+    public static InputMethodManager getInputMethodManager(Context context) {
+        return (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+    }
+
+    public void showKeyboard() {
+        EditText et = input.getInputEditText();
+        et.post(() -> {
+            et.requestFocus();
+            imm().showSoftInput(et, 0);
+        });
+    }
+
+    public void hideKeyboard() {
+        EditText et = input.getInputEditText();
+        imm().hideSoftInputFromWindow(et.getWindowToken(), 0);
+    }
+
+    public InputMethodManager imm() {
+        EditText et = input.getInputEditText();
+        return getInputMethodManager(et.getContext());
+    }
+
+    public void showKeyboardOverlay() {
+        keyboardOverlay.setVisibility(View.VISIBLE);
+    }
+
+    protected void setKeyboardOverlayHeight(int height) {
+        ViewGroup.LayoutParams params = keyboardOverlay.getLayoutParams();
+        params.height = height;
+        keyboardOverlay.setLayoutParams(params);
+    }
+
+    public void hideKeyboardOverlay() {
+        keyboardOverlayActive = false;
+        keyboardOverlay.setVisibility(View.GONE);
+    }
+
+    public boolean keyboardOverlayVisible() {
+        return keyboardOverlay.getVisibility() == View.VISIBLE;
+    }
+
+    public void hideKeyboardOverlayAndShowKeyboard() {
+        keyboardOverlayActive = false;
+        showKeyboard();
+    }
+
+    public void hideKeyboardAndShowKeyboardOverlay() {
+        keyboardOverlayActive = true;
+        hideKeyboard();
+    }
 
     public void showOptions() {
-        // We don't want to remove the user if we load another activity
-        // Like the sticker activity
-        removeUserFromChatOnExit = false;
+        // If the keyboard overlay is available
+        if (root.keyboardOverlayAvailable() && getActivity() != null) {
 
-        if (getActivity() != null) {
-            optionsHandler = ChatSDK.ui().getChatOptionsHandler(this);
-            optionsHandler.show(getActivity());
+            // If the keyboard is hidden and the options overlay is not visible
+            if (!root.isKeyboardOpen()) {
+                if (keyboardOverlayVisible()) {
+                    hideKeyboardOverlayAndShowKeyboard();
+//                    keyboardOverlayActive = false;
+//                    showKeyboard();
+                } else {
+                    keyboardOverlayActive = true;
+
+                    int height = root.getKeyboardHeight();
+//                    messageInputLinearLayout.post(() -> {
+                        setKeyboardOverlayHeight(height);
+                        showKeyboardOverlay();
+                        setChatViewBottomMargin(bottomMargin() + height);
+//                        root.requestLayout();
+//                    });
+                }
+            } else {
+                if (keyboardOverlayVisible()) {
+                    hideKeyboardOverlayAndShowKeyboard();
+//                    keyboardOverlayActive = false;
+//                    showKeyboard();
+                } else {
+                    hideKeyboardAndShowKeyboardOverlay();
+//                    keyboardOverlayActive = true;
+//                    hideKeyboard();
+                }
+            }
+        } else {
+            // We don't want to remove the user if we load another activity
+            // Like the sticker activity
+            removeUserFromChatOnExit = false;
+
+            if (getActivity() != null) {
+                optionsHandler = ChatSDK.ui().getChatOptionsHandler(this);
+                optionsHandler.show(getActivity());
+            }
+
         }
     }
 
@@ -726,6 +820,16 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         if (getActivity() != null) {
             ChatSDKUI.shared().getMessageCustomizer().onLongClick(getActivity(), root, message);
         }
+    }
+
+    public boolean onBackPressed() {
+        // If the keyboard overlay is showing, we go back to the keyboard
+        if (keyboardOverlayVisible()) {
+            keyboardOverlayActive = false;
+            showKeyboard();
+            return true;
+        }
+        return false;
     }
 
 }

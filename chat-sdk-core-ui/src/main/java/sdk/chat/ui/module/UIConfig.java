@@ -55,6 +55,8 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean messageForwardingEnabled = true;
     public boolean messageReplyEnabled = true;
 
+    public int keyboardOverlayHeight = 550;
+
     public String usernameHint = null;
     public MediaSelector.CropType cropType = MediaSelector.CropType.Rectangle;
 
@@ -350,6 +352,11 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     public UIConfig<T> setCropperButtonResourceId(int value) {
         this.cropperButtonResourceId = value;
+        return this;
+    }
+
+    public UIConfig<T> setKeyboardOverlayHeight(int value) {
+        this.keyboardOverlayHeight = value;
         return this;
     }
 

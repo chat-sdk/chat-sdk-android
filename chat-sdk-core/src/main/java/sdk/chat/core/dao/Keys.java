@@ -100,4 +100,7 @@ public class Keys {
     public static final String Active = "active";
     public static final String Banned = "banned";
 
+    public static String KeyboardHeightPortrait = "keyboard_portrait";
+    public static String KeyboardHeightLandscape = "keyboard_landscape";
+
 }

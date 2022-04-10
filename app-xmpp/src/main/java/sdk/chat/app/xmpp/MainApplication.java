@@ -29,7 +29,7 @@ public class MainApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        xmpp();
+//        xmpp();
     }
 
     public void xmpp() {

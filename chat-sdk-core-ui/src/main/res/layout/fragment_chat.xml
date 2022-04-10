@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
+<sdk.chat.ui.keyboard.KeyboardAwareFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     >
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/viewContainer"
+        android:id="@+id/listContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true">
@@ -22,7 +23,6 @@ xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/messageInputLinearLayout"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             />
 
         <LinearLayout
@@ -31,7 +31,6 @@ xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_gravity="bottom"
-            app:layout_behavior="sdk.chat.ui.appbar.TextInputBehavior"
             >
 
             <View
@@ -55,6 +54,15 @@ xmlns:app="http://schemas.android.com/apk/res-auto"
                 app:showAttachmentButton="true"
                 android:background="?chatViewMessageInputBackgroundColor"/>
 
+            <LinearLayout
+                android:id="@+id/keyboardOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="@color/red"
+                android:orientation="vertical"
+                android:visibility="gone"
+                />
+
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -63,11 +71,11 @@ xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-<!--    <LinearLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="20dp"-->
-<!--        android:background="@color/red"-->
-<!--        android:layout_gravity="bottom"-->
-<!--        />-->
+    <!--    <LinearLayout-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="20dp"-->
+    <!--        android:background="@color/red"-->
+    <!--        android:layout_gravity="bottom"-->
+    <!--        />-->
 
-</FrameLayout>
+</sdk.chat.ui.keyboard.KeyboardAwareFrameLayout>

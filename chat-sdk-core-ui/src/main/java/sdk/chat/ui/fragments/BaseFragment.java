@@ -94,8 +94,12 @@ public abstract class BaseFragment extends Fragment implements Consumer<Throwabl
 
     protected abstract @LayoutRes int getLayout();
 
-    public void hideKeyboard () {
+    public void hideKeyboard() {
         BaseActivity.hideKeyboard(getActivity());
+    }
+
+    public void hideKeyboard(View focus) {
+        BaseActivity.hideKeyboard(getActivity(), focus);
     }
 
     protected abstract void initViews();

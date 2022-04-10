@@ -63,7 +63,9 @@
             android:windowSoftInputMode="stateHidden" />
 
         <activity android:name=".activities.ChatActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            >
         </activity>
 
         <!--Crop image-->

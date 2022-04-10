@@ -282,12 +282,17 @@ public abstract class BaseActivity extends FragmentActivity implements Consumer<
     }
 
     public static void hideKeyboard(@Nullable Activity activity) {
+        hideKeyboard(activity, null);
+    }
+    public static void hideKeyboard(@Nullable Activity activity, View focus) {
         if (activity != null) {
-            View view = activity.getCurrentFocus();
-            if (view != null) {
+            if (focus == null) {
+                focus = activity.getCurrentFocus();
+            }
+            if (focus != null) {
                 InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (inputManager != null) {
-                    inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                    inputManager.hideSoftInputFromWindow(focus.getWindowToken(), 0);
                 }
             }
         }

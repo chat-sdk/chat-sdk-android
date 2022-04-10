@@ -4,4 +4,5 @@ import sdk.chat.core.dao.Thread;
 
 public abstract class AbstractChatFragment extends BaseFragment {
     public abstract void onNewIntent(Thread thread);
+    public abstract boolean onBackPressed();
 }
