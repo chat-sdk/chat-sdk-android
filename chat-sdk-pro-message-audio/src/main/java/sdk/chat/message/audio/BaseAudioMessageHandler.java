@@ -16,6 +16,9 @@ import sdk.chat.core.rigs.FileUploadable;
 import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.core.ui.AbstractKeyboardOverlayFragment;
+import sdk.chat.core.ui.KeyboardOverlayHandler;
+import sdk.chat.message.audio.keyboard.RecordAudioKeyboardOverlayFragment;
 import sdk.guru.common.RX;
 
 //import cafe.adriel.androidaudioconverter.AndroidAudioConverter;
@@ -52,6 +55,11 @@ public class BaseAudioMessageHandler extends AbstractMessageHandler implements A
     @Override
     public void setCompressionEnabled(boolean enabled) {
         compressionEnabled = enabled;
+    }
+
+    @Override
+    public AbstractKeyboardOverlayFragment getOverlay(KeyboardOverlayHandler handler) {
+        return new RecordAudioKeyboardOverlayFragment(handler);
     }
 
     public Single<File> compressAudio(Context context, File audioFile) {

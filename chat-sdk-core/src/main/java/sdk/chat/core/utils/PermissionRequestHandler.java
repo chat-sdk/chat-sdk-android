@@ -51,6 +51,13 @@ public class PermissionRequestHandler {
         return requestPermissions(activity, Manifest.permission.RECORD_AUDIO);
     }
 
+    public static boolean recordAudioGranted() {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            return permissionGranted(Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        return permissionGranted(Manifest.permission.RECORD_AUDIO);
+    }
+
     public static Completable requestWriteExternalStorage(Activity activity) {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             return requestPermissions(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);

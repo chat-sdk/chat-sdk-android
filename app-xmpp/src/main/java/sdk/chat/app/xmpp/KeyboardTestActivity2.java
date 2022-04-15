@@ -1,5 +1,7 @@
 package sdk.chat.app.xmpp;
 
+import static sdk.chat.ui.fragments.ChatFragment.getInputMethodManager;
+
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.View;
@@ -18,7 +20,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.util.List;
 
-import sdk.chat.app.xmpp.signal.ServiceUtil;
 import sdk.chat.demo.xmpp.R;
 
 public class KeyboardTestActivity2 extends AppCompatActivity {
@@ -113,12 +114,12 @@ public class KeyboardTestActivity2 extends AppCompatActivity {
 
         button.setOnClickListener(v -> {
             if (keyboardOpen) {
-                ServiceUtil.getInputMethodManager(et.getContext())
+                getInputMethodManager(et.getContext())
                         .hideSoftInputFromWindow(et.getWindowToken(), 0);
             } else {
                 et.post(() -> {
                     et.requestFocus();
-                    ServiceUtil.getInputMethodManager(et.getContext()).showSoftInput(et, 0);
+                    getInputMethodManager(et.getContext()).showSoftInput(et, 0);
                 });
             }
 

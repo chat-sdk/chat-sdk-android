@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">chat_sdk_audio_message</string>
+    <string name="permission_denied">Permission Denied</string>
 </resources>

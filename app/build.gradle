@@ -111,9 +111,10 @@ dependencies {
 //    implementation project(':chat-sdk-mod-firebase-ui')
 //    implementation project(':chat-sdk-mod-profile-pictures')
 //
+    implementation project(':chat-sdk-mod-message-location')
     implementation project(':chat-sdk-pro-message-audio')
-//    implementation project(':chat-sdk-pro-message-sticker')
-//    implementation project(':chat-sdk-pro-message-file')
+    implementation project(':chat-sdk-pro-message-sticker')
+    implementation project(':chat-sdk-pro-message-file')
     implementation project(':chat-sdk-pro-message-video')
 //
 //    implementation project(':chat-sdk-pro-encryption')

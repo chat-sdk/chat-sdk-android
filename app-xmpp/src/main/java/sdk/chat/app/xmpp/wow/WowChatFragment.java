@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -40,8 +41,7 @@ public class WowChatFragment extends ChatFragment {
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
         this.chatView.setBackgroundColor(getResources().getColor(R.color.wowBackground));
-        option = new MediaChatOption(getResources().getString(sdk.chat.ui.R.string.image_or_photo), MediaType.choosePhoto());
-
+        option = new MediaChatOption(R.string.image_or_photo, R.drawable.icn_100_gallery, MediaType.choosePhoto());
         return view;
     }
 

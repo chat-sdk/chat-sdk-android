@@ -16,9 +16,12 @@ import sdk.chat.core.handlers.StickerMessageHandler;
 import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.core.ui.AbstractKeyboardOverlayFragment;
+import sdk.chat.core.ui.KeyboardOverlayHandler;
 import sdk.chat.core.utils.StringChecker;
-import sdk.chat.message.sticker.PListLoader;
 import sdk.chat.message.sticker.R;
+import sdk.chat.message.sticker.keyboard.KeyboardOverlayStickerFragment;
+import sdk.chat.message.sticker.provider.PListStickerPackProvider;
 
 /**
  * Created by ben on 10/11/17.
@@ -31,6 +34,11 @@ public class BaseStickerMessageHandler extends AbstractMessageHandler implements
             message.setText(stickerImageName);
             message.setValueForKey(stickerImageName, Keys.MessageStickerName);
         }).run();
+    }
+
+    @Override
+    public AbstractKeyboardOverlayFragment keyboardOverlay(KeyboardOverlayHandler sender) {
+        return new KeyboardOverlayStickerFragment(sender);
     }
 
     @Override
@@ -60,7 +68,7 @@ public class BaseStickerMessageHandler extends AbstractMessageHandler implements
             // Do this because otherwise we get a crash because the message
             // holder tries to update before it's ready
             if (!StringChecker.isNullOrEmpty(stickerName)) {
-                int resID = PListLoader.resourceId(context, stickerName);
+                int resID = PListStickerPackProvider.resourceId(context, stickerName);
 
                 Uri uri = new Uri.Builder()
                         .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)

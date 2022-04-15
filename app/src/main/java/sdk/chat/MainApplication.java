@@ -12,8 +12,6 @@ import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.module.ImageMessageModule;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.dcom.DComFirebaseProvider;
-import sdk.chat.dcom.DComNetworkAdapter;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
@@ -22,6 +20,9 @@ import sdk.chat.firebase.receipts.FirebaseReadReceiptsModule;
 import sdk.chat.firebase.typing.FirebaseTypingIndicatorModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.audio.AudioMessageModule;
+import sdk.chat.message.file.FileMessageModule;
+import sdk.chat.message.location.LocationMessageModule;
+import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
@@ -77,12 +78,6 @@ public class MainApplication extends Application {
                 // Add the network adapter module
                 .addModule(
                         FirebaseModule.builder()
-                                .setNetworkAdapter(DComNetworkAdapter.class)
-                                .setFirebaseProvider(new DComFirebaseProvider())
-
-//                                .setNetworkAdapter(ZFirebaseNetworkAdapter.class)
-//                                .setFirebaseProvider(new V4V5FirebaseProvider())
-
                                 .setFirebaseRootPath(rootPath)
                                 .setDisableClientProfileUpdate(false)
                                 .setDevelopmentModeEnabled(true)
@@ -99,11 +94,12 @@ public class MainApplication extends Application {
 
                 // Add modules to handle file uploads, push notifications
                 .addModule(FirebaseUploadModule.shared())
+                .addModule(LocationMessageModule.shared())
                 .addModule(FirebasePushModule.shared())
                 .addModule(ContactBookModule.shared())
-//                .addModule(FileMessageModule.shared())
+                .addModule(FileMessageModule.shared())
                 .addModule(AudioMessageModule.shared())
-//                .addModule(StickerMessageModule.shared())
+                .addModule(StickerMessageModule.shared())
                 .addModule(VideoMessageModule.shared())
                 .addModule(FirebaseBlockingModule.shared())
                 .addModule(FirebaseLastOnlineModule.shared())

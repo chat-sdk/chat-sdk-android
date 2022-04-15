@@ -1,9 +1,10 @@
 plugins {
     id 'com.android.library'
     id 'com.jfrog.artifactory' version "$jfrogVersion"
-
     id 'maven-publish'
     id 'com.jakewharton.butterknife'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
 }
 
 android {
@@ -59,6 +60,8 @@ dependencies {
 
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
+
+    implementation 'com.github.piasy:rxandroidaudio:1.7.0'
 
 //    implementation "com.mikepenz:iconics-views:$iconicsVersion"
 

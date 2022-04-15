@@ -1,6 +1,8 @@
 package sdk.chat.message.sticker;
 
-import androidx.annotation.DrawableRes;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -22,38 +24,39 @@ public class StickerPack implements StickerListItem {
         void onClick (StickerPack pack);
     }
 
-    @DrawableRes public int icon;
-    private List<Sticker> stickers = new ArrayList<>();
+    public String imageURL;
+
+    protected List<Sticker> stickers = new ArrayList<>();
 
     public StickerOnClickListener stickerOnClickListener;
     public StickerPackOnClickListener onClickListener;
 
-    public StickerPack(@DrawableRes int icon) {
-        this.icon = icon;
+    public StickerPack(String imageURL) {
+        this.imageURL = imageURL;
     }
 
-    public StickerPack(@DrawableRes int icon, List<Sticker> stickers) {
-        this.icon = icon;
+    public StickerPack(String imageURL, List<Sticker> stickers) {
+        this.imageURL = imageURL;
         this.stickers.addAll(stickers);
     }
 
     public boolean isValid () {
-        return icon != 0 && stickers.size() > 0;
+        return imageURL != null && stickers.size() > 0;
     }
 
     public List<Sticker> getStickers() {
         return stickers;
     }
 
-    public void addSticker(@DrawableRes int image, String name) {
-        addSticker(image, name, null);
+    public void addSticker(String imageURL, String name) {
+        addSticker(imageURL, name, null);
     }
 
-    public void addSticker(@DrawableRes int image, String name, String sound) {
+    public void addSticker(String imageURL, String name, String sound) {
         Sticker sticker = new Sticker();
 
+        sticker.imageURL = imageURL;
         sticker.imageName = name;
-        sticker.image = image;
         sticker.sound = sound;
         sticker.pack = new WeakReference<>(this);
 
@@ -61,14 +64,18 @@ public class StickerPack implements StickerListItem {
     }
 
     @Override
-    public @DrawableRes int getIcon() {
-        return icon;
-    }
-
-    @Override
     public void click() {
         if(onClickListener != null) {
             onClickListener.onClick(this);
+        }
+    }
+
+    @Override
+    public void load(ImageView view) {
+        if (imageURL == null) {
+            Glide.with(view).asGif().load(imageURL).into(view);
+        } else {
+            Glide.with(view).load(imageURL).into(view);
         }
     }
 
@@ -80,7 +87,6 @@ public class StickerPack implements StickerListItem {
         return items;
     }
 
-    @Override
     public boolean isAnimated() {
         return false;
     }

@@ -123,6 +123,12 @@
     <item name="chatMaterialButtonStyle">@style/MaterialButton</item>
     <item name="chatCircleIconStyle">@style/CircleIconStyle</item>
     <item name="chatCardHeaderStyle">@style/CardHeader</item>
+
+    <item name="chatOptionBackground">@drawable/shape_chat_option</item>
+    <item name="chatOptionBackgroundColor">@color/gray_very_light</item>
+    <item name="chatOptionBackgroundCornerRadius">@dimen/_10sdp</item>
+    <item name="chatOptionTextColor">@color/gray_1</item>
+
 </style>
 
 <style name="CollapsingToolbarTheme" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">

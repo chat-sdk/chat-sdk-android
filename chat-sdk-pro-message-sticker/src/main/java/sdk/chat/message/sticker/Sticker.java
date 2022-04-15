@@ -1,6 +1,8 @@
 package sdk.chat.message.sticker;
 
-import androidx.annotation.DrawableRes;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
 
 import java.lang.ref.WeakReference;
 
@@ -12,7 +14,8 @@ import sdk.chat.message.sticker.view.StickerListItem;
 
 public class Sticker implements StickerListItem {
 
-    public @DrawableRes int image;
+    public String imageURL;
+
     public String imageName;
     public String sound;
     public WeakReference<StickerPack> pack;
@@ -22,20 +25,21 @@ public class Sticker implements StickerListItem {
     }
 
     @Override
-    public @DrawableRes int getIcon() {
-        return image;
-    }
-
-    @Override
     public void click () {
         if(pack.get().stickerOnClickListener != null) {
             pack.get().stickerOnClickListener.onClick(this);
         }
     }
 
-    @Override
     public boolean isAnimated() {
         return imageName.contains(".gif");
     }
 
+    public void load(ImageView view) {
+        if (imageURL == null) {
+            Glide.with(view).asGif().load(imageURL).into(view);
+        } else {
+            Glide.with(view).load(imageURL).into(view);
+        }
+    }
 }

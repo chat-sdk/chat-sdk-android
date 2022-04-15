@@ -6,8 +6,9 @@
     <string name="audio_message">🎤 Recording</string>
     <string name="video_message">📹 Video</string>
     <string name="sticker_message">🙂 Sticker</string>
-    <string name="file_message">📂 File</string>
+    <string name="file_message">File</string>
     <string name="no_name">No Name</string>
+    <string name="sticker">Sticker</string>
 
     <string name="message_send_failed">Message send failed</string>
     <string name="try_to_resend_the_message">Try to resend the message</string>
@@ -111,9 +112,9 @@
     <string name="name_hint_required">Name *</string>
     <string name="phone_number_hint">Phone Number</string>
     <string name="email_hint">Email</string>
-    <string name="location">📍 Location</string>
+    <string name="location">Location</string>
     <string name="location_message">@string/location</string>
-    <string name="image_or_photo">📷 Photo</string>
+    <string name="image_or_photo">Photo</string>
 
     <string name="availability">Availability</string>
     <string name="blocked">Blocked</string>
@@ -194,8 +195,8 @@
     <string name="sent">Sent</string>
     <string name="failed">Failed</string>
 
-    <string name="choose_video">🎞️ Choose Video</string>
-    <string name="take_video">📹 Take Video</string>
+    <string name="choose_video">Choose Video</string>
+    <string name="take_video">Take Video</string>
     <string name="seconds_remaining__" formatted="false">Seconds remaining %d</string>
     <string name="recording_too_short">Recording too short</string>
 

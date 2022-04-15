@@ -609,7 +609,8 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         if (!defaultChatOptionsAdded) {
 
             if(UIModule.config().imageMessagesEnabled) {
-                chatOptions.add(new MediaChatOption(context.get().getResources().getString(R.string.image_or_photo),
+                chatOptions.add(new MediaChatOption(R.string.image_or_photo,
+                        R.drawable.icn_100_camera,
                         MediaType.choosePhoto(),
                         UIModule.config().cropType));
             }

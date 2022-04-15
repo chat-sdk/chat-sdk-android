@@ -33,7 +33,7 @@ public class DialogChatOptionsHandler extends AbstractChatOptionsHandler {
         int i = 0;
 
         for(ChatOption option : options) {
-            items[i++] = option.getTitle();
+            items[i++] = activity.getString(option.getTitle());
         }
 
         hasExecuted = false;

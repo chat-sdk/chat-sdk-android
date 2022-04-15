@@ -1,6 +1,7 @@
 package sdk.chat.ui.chat.options;
 
-import android.graphics.drawable.Drawable;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.StringRes;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,8 +17,8 @@ import sdk.chat.ui.chat.MediaSelector;
 
 public class MediaChatOption extends BaseChatOption {
 
-    public MediaChatOption(String title, Drawable iconDrawable, final MediaType type, MediaSelector.CropType cropType) {
-        super(title, iconDrawable, null);
+    public MediaChatOption(@StringRes int title, @DrawableRes int image, final MediaType type, MediaSelector.CropType cropType) {
+        super(title, image, null);
         action = (activity, thread) -> new MediaSelector().startActivity(activity, type, cropType).flatMapCompletable(files -> {
             ArrayList<Completable> completables = new ArrayList<>();
             for (File file: files) {
@@ -32,15 +33,7 @@ public class MediaChatOption extends BaseChatOption {
         });
     }
 
-    public MediaChatOption(String title, MediaType type, MediaSelector.CropType cropType) {
-        this(title, null, type, cropType);
-    }
-
-    public MediaChatOption(String title, MediaType type) {
-        this(title, null, type, MediaSelector.CropType.Rectangle);
-    }
-
-    public MediaChatOption(String title, Drawable iconDrawable, final MediaType type) {
-        this(title, iconDrawable, type, MediaSelector.CropType.Rectangle);
+    public MediaChatOption(@StringRes int title, @DrawableRes int image, MediaType type) {
+        this(title, image, type, MediaSelector.CropType.Rectangle);
     }
 }

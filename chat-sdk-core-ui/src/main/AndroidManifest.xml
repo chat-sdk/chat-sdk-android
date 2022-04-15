@@ -17,12 +17,10 @@
         android:requestLegacyExternalStorage="true"
         android:hardwareAccelerated="true">
 
-        <activity android:name=".activities.LoginActivity"
-            android:screenOrientation="portrait">
-        </activity>
+        <activity android:name=".activities.LoginActivity" />
 
-        <activity android:name=".activities.SplashScreenActivity"
-            android:screenOrientation="portrait"/>
+
+        <activity android:name=".activities.SplashScreenActivity" />
 
         <activity android:name=".settings.SettingsActivity"
             android:windowSoftInputMode="stateHidden" />
@@ -34,14 +32,15 @@
             android:windowSoftInputMode="stateHidden" />
 
         <activity android:name=".activities.EditThreadActivity"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            />
 
         <activity android:name=".activities.EditProfileActivity"
             android:windowSoftInputMode="stateHidden|adjustPan" />
 
         <activity android:name=".activities.PostRegistrationActivity"
             android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait" />
+            />
 
         <activity android:name=".activities.SearchActivity"
             android:windowSoftInputMode="stateVisible" />
@@ -51,9 +50,11 @@
 
         <activity android:name=".activities.ProfileActivity"
             android:windowSoftInputMode="stateHidden"
-            android:screenOrientation="portrait" />
+            />
 
         <activity android:name=".activities.MainAppBarActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="fullSensor"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
         <activity android:name=".activities.AddUsersToThreadActivity"
@@ -63,9 +64,7 @@
             android:windowSoftInputMode="stateHidden" />
 
         <activity android:name=".activities.ChatActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"
-            >
+            android:windowSoftInputMode="adjustResize">
         </activity>
 
         <!--Crop image-->

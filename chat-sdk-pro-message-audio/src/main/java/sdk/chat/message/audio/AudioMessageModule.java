@@ -53,9 +53,15 @@ public class AudioMessageModule extends AbstractModule {
     public static class Config<T> extends BaseConfig<T> {
 
 //        public boolean compressionEnabled = true;
+        public int minimumAudioRecordingLength = 2;
 
         public Config(T onBuild) {
             super(onBuild);
+        }
+
+        public Config<T> setMinimumAudioRecordingLength(int length) {
+            this.minimumAudioRecordingLength = length;
+            return this;
         }
 
         /**

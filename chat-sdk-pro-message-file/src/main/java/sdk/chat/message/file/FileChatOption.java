@@ -24,14 +24,17 @@ import sdk.chat.ui.chat.options.BaseChatOption;
 import static android.app.Activity.RESULT_OK;
 import static sdk.chat.message.file.FileMessageModule.CHOOSE_FILE;
 
+import androidx.annotation.DrawableRes;
+import androidx.annotation.StringRes;
+
 /**
  * Created by Pepe on 01/05/18.
  */
 
 public class FileChatOption extends BaseChatOption {
 
-    public FileChatOption(String title, Drawable iconDrawable) {
-        super(title, iconDrawable, null);
+    public FileChatOption(@StringRes int title, @DrawableRes int image) {
+        super(title, image, null);
         action = (activity, thread) -> Completable.create(emitter -> {
             dispose();
            dm.add(selectFileWithDefaultPicker(activity, thread).subscribe(emitter::onComplete, emitter::onError));
@@ -122,10 +125,6 @@ public class FileChatOption extends BaseChatOption {
         input.close();
 
         return file;
-    }
-
-    public FileChatOption(String title) {
-        this(title, null);
     }
 
 }

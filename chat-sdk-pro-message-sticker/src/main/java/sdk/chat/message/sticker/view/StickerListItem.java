@@ -1,6 +1,6 @@
 package sdk.chat.message.sticker.view;
 
-import androidx.annotation.DrawableRes;
+import android.widget.ImageView;
 
 /**
  * Created by ben on 10/11/17.
@@ -8,8 +8,6 @@ import androidx.annotation.DrawableRes;
 
 public interface StickerListItem {
 
-    @DrawableRes int getIcon();
     void click();
-    boolean isAnimated();
-
+    void load(ImageView view);
 }

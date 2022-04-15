@@ -54,14 +54,25 @@
                 app:showAttachmentButton="true"
                 android:background="?chatViewMessageInputBackgroundColor"/>
 
-            <LinearLayout
+            <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/keyboardOverlay"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:background="@color/red"
                 android:orientation="vertical"
                 android:visibility="gone"
+                android:background="@color/gray_10"
                 />
+
+<!--            <LinearLayout-->
+<!--                android:id="@+id/keyboardOverlay"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="0dp"-->
+<!--                android:background="@color/red"-->
+<!--                android:orientation="vertical"-->
+<!--                android:visibility="gone"-->
+<!--                >-->
+
+<!--            </LinearLayout>-->
 
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

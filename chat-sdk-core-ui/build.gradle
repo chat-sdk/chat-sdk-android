@@ -106,6 +106,7 @@ dependencies {
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
+    implementation 'com.intuit.sdp:sdp-android:1.0.6'
 }
 
 

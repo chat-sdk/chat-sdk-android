@@ -1,5 +1,6 @@
 package sdk.chat.ui.module;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StyleRes;
 
@@ -66,8 +67,11 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean allowBackPressFromMainActivity = false;
     public int threadFragmentEventBatcherThresholdInMillis = 250;
 
+    public @ColorRes int chatOptionIconColor = R.color.gray_1;
+
     public Class<? extends InterfaceAdapter> interfaceAdapter = BaseInterfaceAdapter.class;
 
+    public boolean keyboardOverlayEnabled = true;
 
     public UIConfig(T onBuild) {
         super(onBuild);
@@ -342,6 +346,7 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     public UIConfig<T> setThreadFragmentEventBatcherThresholdInMillis(int millis) {
         this.threadFragmentEventBatcherThresholdInMillis = millis;
+
         return this;
     }
 
@@ -357,6 +362,16 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     public UIConfig<T> setKeyboardOverlayHeight(int value) {
         this.keyboardOverlayHeight = value;
+        return this;
+    }
+
+    public UIConfig<T> setChatOptionIconColor(@ColorRes int value) {
+        this.chatOptionIconColor = value;
+        return this;
+    }
+
+    public UIConfig<T> setKeyboardOverlayEnabled(boolean value) {
+        this.keyboardOverlayEnabled = value;
         return this;
     }
 

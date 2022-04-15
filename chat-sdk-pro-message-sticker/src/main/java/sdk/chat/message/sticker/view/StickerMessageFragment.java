@@ -50,13 +50,6 @@ public class StickerMessageFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
-        try {
-            stickerPacks = StickerMessageModule.shared().getStickerPacks();
-        }
-        catch (Exception e) {
-            finish();
-        }
-
         selectPackRecyclerView = rootView.findViewById(R.id.select_pack_recycler);
         selectPackRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
 
@@ -71,6 +64,19 @@ public class StickerMessageFragment extends BaseFragment {
         selectStickerListAdapter = new StickerListAdapter();
         selectStickerRecyclerView.setAdapter(selectStickerListAdapter);
 
+        try {
+            dm.add(StickerMessageModule.config().stickerPackProvider.getPacks().subscribe(stickerPacks -> {
+                this.stickerPacks = stickerPacks;
+                loadItems();
+            }));
+        }
+        catch (Exception e) {
+            finish();
+        }
+        return view;
+    }
+
+    protected void loadItems() {
         if(stickerPacks != null && stickerPacks.size() > 0) {
 
             selectPackListAdapter.setItems(stickerPackListItems());
@@ -88,8 +94,6 @@ public class StickerMessageFragment extends BaseFragment {
             // TODO: Quit context
             finish();
         }
-
-        return view;
     }
 
     @Override

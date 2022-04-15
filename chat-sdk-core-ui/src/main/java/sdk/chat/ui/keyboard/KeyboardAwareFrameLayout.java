@@ -80,12 +80,16 @@ public class KeyboardAwareFrameLayout extends FrameLayout {
     }
 
     protected String orientationKey() {
-        int orientation = getResources().getConfiguration().orientation;
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+        if (isPortrait()) {
             return Keys.KeyboardHeightPortrait;
         } else {
             return Keys.KeyboardHeightLandscape;
         }
+    }
+
+    public boolean isPortrait() {
+        int orientation = getResources().getConfiguration().orientation;
+        return orientation == Configuration.ORIENTATION_PORTRAIT;
     }
 
     protected void setKeyboardHeight(int height) {
@@ -105,7 +109,7 @@ public class KeyboardAwareFrameLayout extends FrameLayout {
             if (height > 0) {
                 return height;
             } else {
-                return (int) Math.ceil(getMeasuredHeight() * 0.3);
+                return (int) Math.ceil(getMeasuredHeight() - 50);
             }
         }
     }

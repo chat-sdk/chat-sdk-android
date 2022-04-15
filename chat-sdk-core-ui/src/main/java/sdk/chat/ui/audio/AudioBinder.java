@@ -55,63 +55,6 @@ public class AudioBinder {
 
         sendButtonDrawable = messageInput.getButton().getDrawable();
 
-        messageInput.setInputListener(input -> {
-            if (audioModeEnabled) {
-
-                int requestCode = 8898;
-
-                FileManager fm = ChatSDK.shared().fileManager();
-                File audioFile = fm.newDatedFile(fm.audioStorage(), "voice_message", "wav");
-
-                dm.add(ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
-                    if (activityResult.requestCode == requestCode) {
-                        if (activityResult.resultCode == RESULT_OK) {
-                            // Great! User has recorded and saved the audio file
-
-                            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-                            mmr.setDataSource(audioFile.getAbsolutePath());
-                            String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-                            int millSecond = Integer.parseInt(durationStr);
-
-                            delegate.sendAudio(audioFile, "audio/wav", TimeUnit.MILLISECONDS.toSeconds(millSecond));
-                            dm.dispose();
-                        }
-                    }
-                }));
-
-                int color = activity.getResources().getColor(R.color.primary);
-
-                AudioManager audioManager = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
-                audioManager.requestAudioFocus(focusChange -> {
-                    if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-                        Logger.debug("");
-                    }
-                    if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-                        Logger.debug("");
-                    }
-                }, AudioManager.MODE_NORMAL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
-
-                AndroidAudioRecorder.with(activity)
-                        // Required
-                        .setFilePath(audioFile.getPath())
-                        .setColor(color)
-                        .setRequestCode(requestCode)
-
-                        // Optional
-                        .setSource(AudioSource.MIC)
-                        .setChannel(AudioChannel.MONO)
-                        .setSampleRate(AudioSampleRate.HZ_16000)
-                        .setKeepDisplayOn(true)
-
-                        // Start recording
-                        .record();
-
-            } else {
-                delegate.sendMessage(String.valueOf(input));
-            }
-            return true;
-        });
-
         dm.add(PermissionRequestHandler.requestRecordAudio(activity).subscribe(() -> {
             permissionsGranted = true;
             updateRecordMode();
@@ -139,20 +82,91 @@ public class AudioBinder {
             }
         });
 
+        messageInput.setInputListener(input -> {
+            if (audioModeEnabled) {
+                if (!delegate.keyboardOverlayAvailable()) {
+                    addLegacyInputListener(input);
+                } else {
+                    addKeyboardOverlayInputListener(input);
+                }
+            } else {
+                delegate.sendMessage(String.valueOf(input));
+            }
+            return true;
+        });
+    }
+
+    public void addKeyboardOverlayInputListener(CharSequence input) {
+        delegate.showOverlay(ChatSDK.audioMessage().getOverlay(delegate));
+    }
+
+    public void addLegacyInputListener(CharSequence input) {
+        if (audioModeEnabled) {
+
+            int requestCode = 8898;
+
+            FileManager fm = ChatSDK.shared().fileManager();
+            File audioFile = fm.newDatedFile(fm.audioStorage(), "voice_message", "wav");
+
+            dm.add(ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
+                if (activityResult.requestCode == requestCode) {
+                    if (activityResult.resultCode == RESULT_OK) {
+                        // Great! User has recorded and saved the audio file
+
+                        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+                        mmr.setDataSource(audioFile.getAbsolutePath());
+                        String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                        int millSecond = Integer.parseInt(durationStr);
+
+                        delegate.sendAudio(audioFile, "audio/wav", TimeUnit.MILLISECONDS.toSeconds(millSecond));
+                        dm.dispose();
+                    }
+                }
+            }));
+
+            int color = activity.getResources().getColor(R.color.primary);
+
+            AudioManager audioManager = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
+            audioManager.requestAudioFocus(focusChange -> {
+                if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+                    Logger.debug("");
+                }
+                if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+                    Logger.debug("");
+                }
+            }, AudioManager.MODE_NORMAL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+
+            AndroidAudioRecorder.with(activity)
+                    // Required
+                    .setFilePath(audioFile.getPath())
+                    .setColor(color)
+                    .setRequestCode(requestCode)
+
+                    // Optional
+                    .setSource(AudioSource.MIC)
+                    .setChannel(AudioChannel.MONO)
+                    .setSampleRate(AudioSampleRate.HZ_16000)
+                    .setKeepDisplayOn(true)
+
+                    // Start recording
+                    .record();
+
+        } else {
+            delegate.sendMessage(String.valueOf(input));
+        }
     }
 
     public void updateRecordMode() {
         if (activity != null && messageInput != null && permissionsGranted) {
 
             // TODO: Key
-            boolean keyboardVisible = KeyboardVisibilityEvent.INSTANCE.isKeyboardVisible(activity);
+//            boolean keyboardVisible = KeyboardVisibilityEvent.INSTANCE.isKeyboardVisible(activity);
             boolean isEmpty = messageInput.getInputEditText().getText().toString().isEmpty();
-            if (keyboardVisible || !isEmpty || replyViewShowing) {
+            if (!isEmpty || replyViewShowing) {
                 endRecordingMode();
             } else {
                 startRecordingMode();
             }
-
         }
     }
 

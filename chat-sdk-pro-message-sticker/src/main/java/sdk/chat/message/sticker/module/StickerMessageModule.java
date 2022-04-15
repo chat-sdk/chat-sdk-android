@@ -8,7 +8,6 @@ import androidx.annotation.RawRes;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import sdk.chat.core.dao.Message;
@@ -18,14 +17,14 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.licensing.Report;
-import sdk.chat.message.sticker.PListLoader;
 import sdk.chat.message.sticker.R;
-import sdk.chat.message.sticker.StickerPack;
 import sdk.chat.message.sticker.integration.BaseStickerMessageHandler;
 import sdk.chat.message.sticker.integration.IncomingStickerMessageViewHolder;
 import sdk.chat.message.sticker.integration.OutcomingStickerMessageViewHolder;
 import sdk.chat.message.sticker.integration.StickerChatOption;
 import sdk.chat.message.sticker.integration.StickerMessageHolder;
+import sdk.chat.message.sticker.provider.PListStickerPackProvider;
+import sdk.chat.message.sticker.provider.StickerPackProvider;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.custom.CustomMessageHandler;
@@ -46,16 +45,13 @@ public class StickerMessageModule extends AbstractModule {
         return instance;
     }
 
-    public List<StickerPack> stickerPacks = new ArrayList<>();
-
-
 
     @Override
     public void activate(Context context) {
         Report.shared().add(getName());
 
         ChatSDK.a().stickerMessage = new BaseStickerMessageHandler();
-        ChatSDK.ui().addChatOption(new StickerChatOption(context.getResources().getString(R.string.sticker_message)));
+        ChatSDK.ui().addChatOption(new StickerChatOption(R.string.sticker, R.drawable.icn_100_sticker));
 
         ChatSDKUI.shared().getMessageCustomizer().addMessageHandler(new CustomMessageHandler() {
 
@@ -101,7 +97,9 @@ public class StickerMessageModule extends AbstractModule {
 
         if (config.loadStickersFromPlist) {
             try {
-                stickerPacks = PListLoader.getStickerPacks(context, config.plist);
+                if (config.stickerPackProvider == null) {
+                    config.stickerPackProvider = new PListStickerPackProvider(context, config.plist);
+                }
             } catch (Exception e) {}
         }
 
@@ -132,6 +130,7 @@ public class StickerMessageModule extends AbstractModule {
         public @RawRes int plist = R.raw.default_stickers;
 
         public boolean loadStickersFromPlist = true;
+        public StickerPackProvider stickerPackProvider;
 
         public Config(T onBuild) {
             super(onBuild);
@@ -166,6 +165,12 @@ public class StickerMessageModule extends AbstractModule {
             this.maxSize = size;
             return this;
         }
+
+        public Config<T> setStickerPackProvider(StickerPackProvider stickerPackProvider) {
+            this.stickerPackProvider = stickerPackProvider;
+            return this;
+        }
+
     }
 
     public Config<StickerMessageModule> config = new Config<>(this);
@@ -179,11 +184,5 @@ public class StickerMessageModule extends AbstractModule {
         config = new Config<>(this);
     }
 
-    public List<StickerPack> getStickerPacks() {
-        return stickerPacks;
-    }
 
-    public void addPack(StickerPack pack) {
-        stickerPacks.add(pack);
-    }
 }

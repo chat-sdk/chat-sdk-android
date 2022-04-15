@@ -43,7 +43,7 @@ public class FileMessageModule extends AbstractModule {
     public void activate(Context context) {
         ChatSDK.a().fileMessage = new BaseFileMessageHandler();
 
-        ChatSDK.ui().addChatOption(new FileChatOption(ChatSDK.shared().context().getString(R.string.file_message)));
+        ChatSDK.ui().addChatOption(new FileChatOption(R.string.file_message, R.drawable.icn_100_file));
         Report.shared().add(getName());
 
 

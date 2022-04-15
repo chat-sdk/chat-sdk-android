@@ -7,8 +7,6 @@ import android.widget.ImageView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,12 +41,7 @@ public class StickerListAdapter extends RecyclerView.Adapter<StickerListAdapter.
 
         final StickerListItem listItem = items.get(position);
 
-        if (listItem.isAnimated()) {
-            Glide.with(holder.imageView).asGif().load(listItem.getIcon()).into(holder.imageView);
-        } else {
-            holder.imageView.setImageResource(listItem.getIcon());
-        }
-
+        listItem.load(holder.imageView);
         holder.imageView.setOnClickListener(view -> listItem.click());
 
     }

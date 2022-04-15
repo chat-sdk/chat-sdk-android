@@ -29,7 +29,7 @@ public class LocationMessageModule extends AbstractModule {
         ChatSDK.a().locationMessage = new BaseLocationMessageHandler();
         locationProvider = new LocationProvider();
         if(UIModule.config().locationMessagesEnabled) {
-            ChatSDK.ui().addChatOption(new LocationChatOption(context.getResources().getString(sdk.chat.ui.R.string.location)));
+            ChatSDK.ui().addChatOption(new LocationChatOption(R.string.location, R.drawable.icn_100_location));
         }
     }
 

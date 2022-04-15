@@ -2,23 +2,28 @@ package sdk.chat.ui.chat.options;
 
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.DrawableRes;
+import androidx.annotation.IntegerRes;
+import androidx.annotation.StringRes;
+
 public class ChatOptionBuilder {
 
-    String title;
-    Drawable drawable;
+    @StringRes
+    int title;
+    @DrawableRes int image;
     BaseChatOption.Action action;
 
     public ChatOptionBuilder () {
 
     }
 
-    public ChatOptionBuilder icon(Drawable iconDrawable) {
-        this.drawable = iconDrawable;
+    public ChatOptionBuilder title(@StringRes int title) {
+        this.title = title;
         return this;
     }
 
-    public ChatOptionBuilder title(String title) {
-        this.title = title;
+    public ChatOptionBuilder image(@DrawableRes int image) {
+        this.image = image;
         return this;
     }
 
@@ -28,7 +33,7 @@ public class ChatOptionBuilder {
     }
 
     public BaseChatOption build () {
-        return new BaseChatOption(title, drawable, action);
+        return new BaseChatOption(title, image, action);
     }
 
 }

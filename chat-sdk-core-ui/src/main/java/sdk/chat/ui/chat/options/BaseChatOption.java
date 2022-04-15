@@ -1,13 +1,15 @@
 package sdk.chat.ui.chat.options;
 
 import android.app.Activity;
-import android.graphics.drawable.Drawable;
+
+import androidx.annotation.DrawableRes;
+import androidx.annotation.StringRes;
 
 import io.reactivex.Completable;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.interfaces.ChatOption;
-import sdk.chat.ui.ChatSDKUI;
-import sdk.chat.ui.icons.Icons;
+import sdk.chat.core.ui.AbstractKeyboardOverlayFragment;
+import sdk.chat.core.ui.KeyboardOverlayHandler;
 import sdk.guru.common.DisposableMap;
 
 /**
@@ -17,31 +19,23 @@ import sdk.guru.common.DisposableMap;
 public class BaseChatOption implements ChatOption {
 
     protected Action action;
-    protected String title;
-    protected Drawable drawable;
+    protected @StringRes int title;
+    protected @DrawableRes int image;
     protected DisposableMap dm = new DisposableMap();
 
-    public BaseChatOption (String title, Drawable drawable, Action action) {
+    public BaseChatOption (@StringRes int title, @DrawableRes int image, Action action) {
         this.action = action;
         this.title = title;
-        this.drawable = drawable;
-    }
-
-    public BaseChatOption (String title, Action action, MediaType type) {
-        this(title, null, action);
+        this.image = image;
     }
 
     @Override
-    public Drawable getIconDrawable() {
-        if (drawable != null) {
-            return drawable;
-        } else {
-            return Icons.get(ChatSDKUI.icons().add, ChatSDKUI.icons().chatOptionIconColor);
-        }
+    public @DrawableRes int getImage() {
+        return image;
     }
 
     @Override
-    public String getTitle() {
+    public @StringRes int getTitle() {
         return title;
     }
 
@@ -60,4 +54,15 @@ public class BaseChatOption implements ChatOption {
     protected void dispose () {
         dm.dispose();
     }
+
+    @Override
+    public AbstractKeyboardOverlayFragment getOverlay(KeyboardOverlayHandler sender) {
+        return null;
+    }
+
+    @Override
+    public boolean hasOverlay() {
+        return false;
+    }
+
 }

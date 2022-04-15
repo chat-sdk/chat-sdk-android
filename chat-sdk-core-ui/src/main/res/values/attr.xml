@@ -71,6 +71,12 @@
     <attr name="chatCardHeaderStyle" format="reference" />
     <attr name="chatImagePopupAnimationStyle" format="reference" />
 
+    <attr name="chatOptionBackground" format="reference" />
+    <attr name="chatOptionBackgroundColor" format="reference" />
+    <attr name="chatOptionBackgroundCornerRadius" format="reference" />
+    <attr name="chatOptionTextColor" format="reference" />
+
+
 
     <!--    </declare-styleable>-->
     <!--    <attr name="" format="reference|color" />-->

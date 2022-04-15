@@ -1,24 +1,16 @@
 package sdk.chat.app.xmpp;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Rect;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Surface;
-import android.view.View;
 import android.widget.RelativeLayout;
 
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.lang.reflect.Field;
-
-import sdk.chat.app.xmpp.signal.ServiceUtil;
-import sdk.chat.app.xmpp.signal.ViewUtil;
 
 public class CustomLayout extends RelativeLayout {
 
@@ -34,14 +26,6 @@ public class CustomLayout extends RelativeLayout {
     public HeightUpdater heightUpdater;
     private int viewInset;
 
-    private int minKeyboardSize;
-    private int minCustomKeyboardSize;
-    private int defaultCustomKeyboardSize;
-    private int minCustomKeyboardTopMarginPortrait;
-    private int minCustomKeyboardTopMarginLandscape;
-    private int minCustomKeyboardTopMarginLandscapeBubble;
-    private int statusBarHeight;
-
     public CustomLayout(Context context) {
         super(context, null);
     }
@@ -52,15 +36,6 @@ public class CustomLayout extends RelativeLayout {
 
     public CustomLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
-        minKeyboardSize                           = getResources().getDimensionPixelSize(R.dimen.min_keyboard_size);
-        minCustomKeyboardSize                     = getResources().getDimensionPixelSize(R.dimen.min_custom_keyboard_size);
-        defaultCustomKeyboardSize                 = getResources().getDimensionPixelSize(R.dimen.default_custom_keyboard_size);
-        minCustomKeyboardTopMarginPortrait        = getResources().getDimensionPixelSize(R.dimen.min_custom_keyboard_top_margin_portrait);
-        minCustomKeyboardTopMarginLandscape       = getResources().getDimensionPixelSize(R.dimen.min_custom_keyboard_top_margin_portrait);
-        minCustomKeyboardTopMarginLandscapeBubble = getResources().getDimensionPixelSize(R.dimen.min_custom_keyboard_top_margin_landscape_bubble);
-        statusBarHeight                           = ViewUtil.getStatusBarHeight(this);
-        viewInset                                 = getViewInset();
 
     }
 
@@ -97,28 +72,10 @@ public class CustomLayout extends RelativeLayout {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private int getViewInset() {
-        try {
-            Field attachInfoField = View.class.getDeclaredField("mAttachInfo");
-            attachInfoField.setAccessible(true);
-            Object attachInfo = attachInfoField.get(this);
-            if (attachInfo != null) {
-                Field stableInsetsField = attachInfo.getClass().getDeclaredField("mStableInsets");
-                stableInsetsField.setAccessible(true);
-                Rect insets = (Rect) stableInsetsField.get(attachInfo);
-                if (insets != null) {
-                    return insets.bottom;
-                }
-            }
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            // Do nothing
-        }
-        return statusBarHeight;
-    }
+
 
     public int getKeyboardHeight() {
-        return isLandscape() ? getKeyboardLandscapeHeight() : getKeyboardPortraitHeight();
+        return 100;
     }
 
     public boolean isLandscape() {
@@ -130,25 +87,8 @@ public class CustomLayout extends RelativeLayout {
         if (Build.VERSION.SDK_INT >= 30) {
             getContext().getDisplay().getRealMetrics(displayMetrics);
         } else {
-            ServiceUtil.getWindowManager(getContext()).getDefaultDisplay().getRealMetrics(displayMetrics);
         }
         return displayMetrics.widthPixels > displayMetrics.heightPixels ? Surface.ROTATION_90 : Surface.ROTATION_0;
-    }
-
-    private int getKeyboardLandscapeHeight() {
-        if (isBubble) {
-            return getRootView().getHeight() - minCustomKeyboardTopMarginLandscapeBubble;
-        }
-
-        int keyboardHeight = PreferenceManager.getDefaultSharedPreferences(getContext())
-                .getInt("keyboard_height_landscape", defaultCustomKeyboardSize);
-        return clamp(keyboardHeight, minCustomKeyboardSize, getRootView().getHeight() - minCustomKeyboardTopMarginLandscape);
-    }
-
-    private int getKeyboardPortraitHeight() {
-        int keyboardHeight = PreferenceManager.getDefaultSharedPreferences(getContext())
-                .getInt("keyboard_height_portrait", defaultCustomKeyboardSize);
-        return clamp(keyboardHeight, minCustomKeyboardSize, getRootView().getHeight() - minCustomKeyboardTopMarginPortrait);
     }
 
     public static int clamp(int value, int min, int max) {
