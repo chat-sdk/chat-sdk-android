@@ -3,6 +3,7 @@
 <style name="ChatSDKTheme" parent="Theme.MaterialComponents.Light.Bridge">
 
     <item name= "android:windowIsTranslucent">true</item>
+    <item name="android:windowFullscreen">true</item>
 
     <item name="colorPrimary">@color/primary</item>
     <item name="colorPrimaryDark">@color/primary_dark</item>

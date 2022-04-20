@@ -15,8 +15,8 @@ public class WowIntegration {
 
 
         //        ChatSDK.ui().setChatActivity(WowChatActivity.class);
-        ChatSDKUI.shared().getMessageCustomizer().addMessageHandler(new WowTextMessageHandler());
-        ChatSDKUI.shared().getMessageCustomizer().addMessageHandler(new WowImageMessageHandler());
+        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new WowTextMessageRegistration());
+        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new WowImageMessageRegistration());
         UIModule.config().setTheme(R.style.AppTheme);
         UIModule.config().showAvatarInChatView = false;
         UIModule.shared().setOnlineStatusBinder(new WowOnlineStatusBinder());

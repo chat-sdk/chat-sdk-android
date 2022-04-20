@@ -24,6 +24,7 @@ public class FirebaseConfig<T> extends BaseConfig<T> {
     public boolean disablePublicThreads = false;
 
     public boolean enableWebCompatibility = false;
+    public boolean authenticateAutomatically = true;
 
     final public List<String> searchIndexes = new ArrayList<>();
 
@@ -178,5 +179,9 @@ public class FirebaseConfig<T> extends BaseConfig<T> {
         return this;
     }
 
+    public FirebaseConfig<T> setAuthenticateAutomatically(boolean value) {
+        this.authenticateAutomatically = value;
+        return this;
+    }
 
 }

@@ -8,9 +8,9 @@ import java.util.List;
 
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.CustomMessageHandler;
+import sdk.chat.ui.custom.DefaultMessageRegistration;
 
-public class ExampleSnapMessageHandler extends CustomMessageHandler {
+public class ExampleSnapMessageRegistration extends DefaultMessageRegistration {
 
     public static int SnapMessageType = 919;
 
@@ -32,6 +32,6 @@ public class ExampleSnapMessageHandler extends CustomMessageHandler {
                 sdk.chat.ui.R.layout.view_holder_incoming_image_message,
                 OutcomingSnapMessageViewHolder.class,
                 sdk.chat.ui.R.layout.view_holder_outcoming_image_message,
-                ChatSDKUI.shared().getMessageCustomizer());
+                ChatSDKUI.shared().getMessageRegistrationManager());
     }
 }

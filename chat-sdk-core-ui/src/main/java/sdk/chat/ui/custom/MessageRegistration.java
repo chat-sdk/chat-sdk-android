@@ -15,7 +15,7 @@ import sdk.chat.ui.chat.model.MessageHolder;
  * Use this class to customize messages and their click behaviour
  */
 
-public interface IMessageHandler {
+public interface MessageRegistration {
 
     List<Byte> getTypes();
     boolean hasContentFor(MessageHolder holder);

@@ -19,8 +19,9 @@
 
         <activity android:name=".activities.LoginActivity" />
 
-
-        <activity android:name=".activities.SplashScreenActivity" />
+        <activity android:name=".activities.SplashScreenActivity"
+            android:screenOrientation="fullSensor"
+            />
 
         <activity android:name=".settings.SettingsActivity"
             android:windowSoftInputMode="stateHidden" />
@@ -64,6 +65,7 @@
             android:windowSoftInputMode="stateHidden" />
 
         <activity android:name=".activities.ChatActivity"
+            android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize">
         </activity>
 

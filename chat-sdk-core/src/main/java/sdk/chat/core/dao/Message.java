@@ -773,6 +773,7 @@ public class Message extends AbstractEntity {
                 for (CachedFile file: files) {
                     UploadStatus fileUploadStatus = file.getUploadStatus();
                     if (fileUploadStatus == UploadStatus.Complete || fileUploadStatus == UploadStatus.WillStart) {
+                        file.setFinishTime(new Date());
                         continue;
                     }
                     else if (fileUploadStatus == UploadStatus.Failed) {

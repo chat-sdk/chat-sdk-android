@@ -1,6 +1,5 @@
 package sdk.chat.message.audio.keyboard
 
-import android.content.res.Resources
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.Rect
@@ -57,7 +56,7 @@ class RecordAudioKeyboardOverlayFragment(keyboardOverlayHandler: KeyboardOverlay
     var recordMode: RecordButtonMode = RecordButtonMode.permission
     var audioFile: File? = null
 
-    override fun setViewSize(width: Int?, height: Int?, resources: Resources?) {
+    override fun setViewSize(width: Int?, height: Int?) {
 
     }
 
@@ -232,8 +231,8 @@ class RecordAudioKeyboardOverlayFragment(keyboardOverlayHandler: KeyboardOverlay
     }
 
     fun requestAudioPermission() {
-        activity.let {
-            PermissionRequestHandler.requestRecordAudio(it.get()).doOnComplete(Action {
+        keyboardOverlayHandler.get()?.activity.let {
+            PermissionRequestHandler.requestRecordAudio(it).doOnComplete(Action {
                 updateRecordButtonForPermissions()
             }).doOnError(Consumer {
                 updateRecordButtonForPermissions()

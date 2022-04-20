@@ -15,7 +15,7 @@ import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.view_holders.IncomingTextMessageViewHolder;
 import sdk.chat.ui.view_holders.OutcomingTextMessageViewHolder;
 
-public class TextMessageHandler extends CustomMessageHandler {
+public class TextMessageRegistration extends DefaultMessageRegistration {
 
     @Override
     public void onBindMessageHolders(Context context, MessageHolders holders) {

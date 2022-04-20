@@ -1,6 +1,6 @@
 package sdk.chat.ui.keyboard
 
-import android.content.res.Resources
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,13 +27,11 @@ class KeyboardOverlayOptionsFragment(keyboardOverlayHandler: KeyboardOverlayHand
     open lateinit var rootView: View
     open var optionExecutor: OptionExecutor? = null
 
-    var itemHeight: Int = 100
-    set(value) {
-        field = value
-        if (::smartRecyclerAdapter.isInitialized) {
-            smartRecyclerAdapter.setItems(items())
-        }
-    }
+    var screenWidth: Int = 0
+    var screenHeight: Int = 0
+
+    var itemHeight: Int? = null
+    var itemWidth: Int? = null
 
     fun getLayout(): Int {
         return R.layout.fragment_smart_recycler
@@ -67,11 +65,6 @@ class KeyboardOverlayOptionsFragment(keyboardOverlayHandler: KeyboardOverlayHand
         // Depending on the orientation
 
 
-        if (isPortrait) {
-            recyclerView.layoutManager = GridLayoutManager(context, 3, RecyclerView.VERTICAL, false)
-        } else {
-            recyclerView.layoutManager = GridLayoutManager(context, 1, RecyclerView.HORIZONTAL, false)
-        }
 
         return rootView
     }
@@ -85,23 +78,49 @@ class KeyboardOverlayOptionsFragment(keyboardOverlayHandler: KeyboardOverlayHand
 //        itemHeight = rootView.measuredWidth / 3 + 50
     }
 
-    override fun setViewSize(width: Int, height: Int, resources: Resources) {
-        if (isPortrait) {
-            itemHeight = width / 3 + 30
-        } else {
-            itemHeight = height / 3 + 30
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        updateViewLayout()
+    }
+
+    fun updateViewLayout() {
+        if (::smartRecyclerAdapter.isInitialized) {
+            if (isPortrait) {
+                recyclerView.layoutManager = GridLayoutManager(context, 3, RecyclerView.VERTICAL, false)
+            } else {
+                recyclerView.layoutManager = GridLayoutManager(context, 2, RecyclerView.HORIZONTAL, false)
+            }
+
+            if (isPortrait) {
+                itemWidth = null
+                itemHeight = screenWidth / 3 + 30
+            } else {
+                itemHeight = null
+                itemWidth = screenHeight / 2
+            }
+
+            if (::smartRecyclerAdapter.isInitialized) {
+                smartRecyclerAdapter.setItems(items())
+            }
+
+        }
+    }
+
+    override fun setViewSize(width: Int, height: Int) {
+        screenWidth = width
+        screenHeight = height
+        context.let {
+            updateViewLayout()
         }
     }
 
     fun items(): MutableList<Any> {
         var items = arrayListOf<Any>()
 
-//        val height = rootView.measuredWidth / 3 + 50
-
         // Get the items
         val options = ChatSDK.ui().chatOptions
         for (option in options) {
-            items.add(ChatOptionModel(resources.getString(option.title), option.image, itemHeight, Runnable {
+            items.add(ChatOptionModel(resources.getString(option.title), option.image, itemWidth, itemHeight, Runnable {
                 this.executeOption(option)
             }))
         }

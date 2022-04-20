@@ -3,28 +3,19 @@ package sdk.chat.message.video;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
-import android.view.View;
-
-import com.stfalcon.chatkit.messages.MessageHolders;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Message;
 import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
-import sdk.chat.core.types.MessageType;
 import sdk.chat.licensing.Report;
 import sdk.chat.ui.ChatSDKUI;
-import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.chat.options.MediaChatOption;
 import sdk.chat.ui.chat.options.MediaType;
-import sdk.chat.ui.custom.CustomMessageHandler;
 import sdk.guru.common.BaseConfig;
 
 /**
@@ -49,58 +40,7 @@ public class VideoMessageModule extends AbstractModule {
         ChatSDK.ui().addChatOption(new MediaChatOption(R.string.take_video, R.drawable.icn_100_take_video, MediaType.takeVideo()));
         ChatSDK.ui().addChatOption(new MediaChatOption(R.string.choose_video, R.drawable.icn_100_video, MediaType.chooseVideo()));
         
-        ChatSDKUI.shared().getMessageCustomizer().addMessageHandler(new CustomMessageHandler() {
-
-            @Override
-            public List<Byte> getTypes() {
-                return types(MessageType.Video);
-            }
-
-            @Override
-            public boolean hasContentFor(MessageHolder holder) {
-                return holder.getClass().equals(VideoMessageHolder.class);
-            }
-
-            @Override
-            public void onBindMessageHolders(Context ctx, MessageHolders holders) {
-                holders.registerContentType(
-                        (byte) MessageType.Video,
-                        IncomingVideoMessageViewHolder.class,
-                        R.layout.view_holder_incoming_video_message,
-                        OutcomingVideoMessageViewHolder.class,
-                        R.layout.view_holder_outcoming_video_message,
-                        ChatSDKUI.shared().getMessageCustomizer());
-            }
-
-            @Override
-            public MessageHolder onNewMessageHolder(Message message) {
-                if (message.getMessageType().is(MessageType.Video)) {
-                    return new VideoMessageHolder(message);
-                }
-                return null;
-            }
-
-            @Override
-            public boolean onClick(Activity activity, View rootView, Message message) {
-                if (!super.onClick(activity, rootView, message)) {
-                    if (message.getMessageType().is(MessageType.Video)) {
-                        String videoURL = (String) message.valueForKey(Keys.MessageVideoURL);
-                        if(videoURL != null) {
-                            Intent intent = new Intent(activity, config.getVideoPlayerActivity());
-                            intent.putExtra(Keys.IntentKeyFilePath, videoURL);
-                            activity.startActivity(intent);
-                        }
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-            @Override
-            public boolean onLongClick(Activity activity, View rootView, Message message) {
-                return false;
-            }
-        });
+        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new VideoMessageRegistration());
     }
 
     public static class Config<T> extends BaseConfig<T> {
@@ -170,6 +110,10 @@ public class VideoMessageModule extends AbstractModule {
         }
 
         return permissions;
+    }
+
+    public static Config<VideoMessageModule> config() {
+        return shared().config;
     }
 
     @Override

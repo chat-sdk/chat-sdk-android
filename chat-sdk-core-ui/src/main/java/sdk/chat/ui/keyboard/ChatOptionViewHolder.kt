@@ -15,10 +15,20 @@ class ChatOptionViewHolder(parentView: ViewGroup):
 
     override fun bind(item: ChatOptionModel) {
         with(itemView) {
-            itemView.layoutParams.height = item.size
+
+            item.width?.let {
+                itemView.layoutParams.width = it
+            }
+
+            item.height?.let {
+                itemView.layoutParams.height = it
+            }
+
 //            itemView.layoutParams.width = item.size
             textView.text = item.title
             imageView.setImageResource(item.imageRes)
+
+
             val filter = PorterDuffColorFilter(ContextCompat.getColor(context, UIModule.config().chatOptionIconColor), PorterDuff.Mode.MULTIPLY)
             imageView.drawable.colorFilter = filter
 

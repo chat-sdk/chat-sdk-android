@@ -29,7 +29,7 @@ public class MainApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-//        xmpp();
+        xmpp();
     }
 
     public void xmpp() {
@@ -61,7 +61,8 @@ public class MainApplication extends Application {
 
                     .addModule(XMPPModule.builder()
 //                            .setXMPP("we-connect-dev.com", "we-connect-dev.com")
-                            .setXMPP("xmpp.app", "xmpp.app")
+//                            .setXMPP("xmpp.app", "xmpp.app")
+                            .setXMPP("91.196.232.99", 10045)
                             .setAllowServerConfiguration(false)
 //                            .setSecurityMode("required")
 //                            .setSecurityMode("ifpossible")

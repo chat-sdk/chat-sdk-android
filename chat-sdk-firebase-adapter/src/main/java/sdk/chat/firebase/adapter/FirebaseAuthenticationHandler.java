@@ -55,7 +55,10 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 }
             }
         };
-        FirebaseAuth.getInstance(FirebaseCoreHandler.app()).addAuthStateListener(authStateListener);
+
+        if (FirebaseModule.config().authenticateAutomatically) {
+            FirebaseAuth.getInstance(FirebaseCoreHandler.app()).addAuthStateListener(authStateListener);
+        }
     }
 
     @Override

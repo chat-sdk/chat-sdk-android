@@ -1,8 +1,7 @@
 package sdk.chat.core.ui;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -11,8 +10,6 @@ import java.lang.ref.WeakReference;
 
 public abstract class AbstractKeyboardOverlayFragment extends Fragment {
 
-    protected WeakReference<Activity> activity;
-
     @NonNull
     protected WeakReference<KeyboardOverlayHandler> keyboardOverlayHandler;
 
@@ -20,14 +17,19 @@ public abstract class AbstractKeyboardOverlayFragment extends Fragment {
         this.keyboardOverlayHandler = new WeakReference<>(keyboardOverlayHandler);
     }
 
-    public abstract void setViewSize(Integer width, Integer height, Resources resources);
+    public abstract void setViewSize(Integer width, Integer height);
 
-    public void setActivity(Activity activity) {
-        this.activity = new WeakReference<>(activity);
+    public Boolean isPortrait() {
+        if (getContext() != null) {
+            int orientation = getContext().getResources().getConfiguration().orientation;
+            return orientation == Configuration.ORIENTATION_PORTRAIT;
+        }
+        return true;
     }
 
-    public boolean isPortrait() {
-        int orientation = getResources().getConfiguration().orientation;
-        return orientation == Configuration.ORIENTATION_PORTRAIT;
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
     }
+
 }

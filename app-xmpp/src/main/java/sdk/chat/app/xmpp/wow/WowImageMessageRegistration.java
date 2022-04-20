@@ -7,9 +7,9 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.demo.xmpp.R;
 import sdk.chat.ui.ChatSDKUI;
-import sdk.chat.ui.custom.ImageMessageHandler;
+import sdk.chat.ui.custom.ImageMessageRegistration;
 
-public class WowImageMessageHandler extends ImageMessageHandler {
+public class WowImageMessageRegistration extends ImageMessageRegistration {
 
     @Override
     public void onBindMessageHolders(Context context, MessageHolders holders) {
@@ -21,6 +21,6 @@ public class WowImageMessageHandler extends ImageMessageHandler {
                 WowOutcomingImageMessageViewHolder.class,
                 getAvatarClickPayload(context),
                 R.layout.wow_view_holder_outcoming_image_message,
-                ChatSDKUI.shared().getMessageCustomizer());
+                ChatSDKUI.shared().getMessageRegistrationManager());
     }
 }

@@ -23,7 +23,7 @@ import sdk.chat.ui.activities.ProfileActivity;
 import sdk.chat.ui.activities.SearchActivity;
 import sdk.chat.ui.activities.SplashScreenActivity;
 import sdk.chat.ui.activities.thread.details.ThreadDetailsActivity;
-import sdk.chat.ui.custom.MessageCustomizer;
+import sdk.chat.ui.custom.MessageRegistrationManager;
 import sdk.chat.ui.fragments.AbstractChatFragment;
 import sdk.chat.ui.fragments.ChatFragment;
 import sdk.chat.ui.fragments.ContactsFragment;
@@ -43,7 +43,7 @@ public class ChatSDKUI {
 
     protected static final ChatSDKUI instance = new ChatSDKUI();
 
-    protected MessageCustomizer messageCustomizer = new MessageCustomizer();
+    protected MessageRegistrationManager messageRegistrationManager = new MessageRegistrationManager();
     protected FragmentLifecycleManager fragmentLifecycleManager = new FragmentLifecycleManager();
 
     protected List<SmartViewModel> settingsItems = new ArrayList<>();
@@ -150,8 +150,8 @@ public class ChatSDKUI {
         ChatSDK.ui().setSettingsActivity(settingsActivity);
     }
 
-    public MessageCustomizer getMessageCustomizer() {
-        return messageCustomizer;
+    public MessageRegistrationManager getMessageRegistrationManager() {
+        return messageRegistrationManager;
     }
 
     public FragmentLifecycleManager getFragmentLifecycleManager() {
@@ -159,7 +159,7 @@ public class ChatSDKUI {
     }
 
     public void stop() {
-        messageCustomizer.stop();
+        messageRegistrationManager.stop();
     }
 
     /**

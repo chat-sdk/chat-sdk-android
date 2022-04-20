@@ -22,7 +22,7 @@ import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.view_holders.IncomingImageMessageViewHolder;
 import sdk.chat.ui.view_holders.OutcomingImageMessageViewHolder;
 
-public class ImageMessageHandler extends CustomMessageHandler {
+public class ImageMessageRegistration extends DefaultMessageRegistration {
 
     @Override
     public List<Byte> getTypes() {
@@ -44,7 +44,7 @@ public class ImageMessageHandler extends CustomMessageHandler {
                 OutcomingImageMessageViewHolder.class,
                 getAvatarClickPayload(context),
                 R.layout.view_holder_outcoming_image_message,
-                ChatSDKUI.shared().getMessageCustomizer());
+                ChatSDKUI.shared().getMessageRegistrationManager());
     }
 
     @Override

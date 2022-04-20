@@ -38,6 +38,7 @@ public class CachedFile extends AbstractEntity {
     private String messageKey;
     private boolean reportProgress;
     private Date startTime;
+    private Date finishTime;
 
     private String mimeType;
     private Integer status;
@@ -49,9 +50,10 @@ public class CachedFile extends AbstractEntity {
     /** Used for active entity operations. */
     @Generated(hash = 1018577903)
     private transient CachedFileDao myDao;
-    @Generated(hash = 795961539)
+    @Generated(hash = 141902122)
     public CachedFile(Long id, String entityID, String identifier, Integer type, String localPath, String remotePath,
-            String name, String messageKey, boolean reportProgress, Date startTime, String mimeType, Integer status) {
+            String name, String messageKey, boolean reportProgress, Date startTime, Date finishTime, String mimeType,
+            Integer status) {
         this.id = id;
         this.entityID = entityID;
         this.identifier = identifier;
@@ -62,6 +64,7 @@ public class CachedFile extends AbstractEntity {
         this.messageKey = messageKey;
         this.reportProgress = reportProgress;
         this.startTime = startTime;
+        this.finishTime = finishTime;
         this.mimeType = mimeType;
         this.status = status;
     }
@@ -223,8 +226,18 @@ public class CachedFile extends AbstractEntity {
         this.startTime = startTime;
     }
 
+    public Date getFinishTime() {
+        return this.finishTime;
+    }
+    public void setFinishTime(Date finishTime) {
+        this.finishTime = finishTime;
+    }
+
     public long ageInSeconds() {
-        long age = new Date().getTime() - getStartTime().getTime();
+        if (getFinishTime() == null) {
+            return 0;
+        }
+        long age = new Date().getTime() - getFinishTime().getTime();
         return TimeUnit.MILLISECONDS.toSeconds(age);
     }
 

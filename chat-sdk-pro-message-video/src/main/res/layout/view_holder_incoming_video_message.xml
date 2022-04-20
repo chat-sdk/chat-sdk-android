@@ -36,7 +36,7 @@
         android:layout_height="12dp"
         android:layout_alignEnd="@id/messageUserAvatar"
         android:layout_alignTop="@id/messageUserAvatar"
-        android:layout_marginEnd="5dp"/>
+        android:layout_marginEnd="0dp"/>
 
     <com.github.siyamed.shapeimageview.mask.PorterShapeImageView
         android:id="@id/image"

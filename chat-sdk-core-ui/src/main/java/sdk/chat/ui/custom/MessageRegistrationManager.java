@@ -14,37 +14,37 @@ import sdk.chat.core.dao.Message;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.chat.model.MessageHolder;
 
-public class MessageCustomizer implements MessageHolders.ContentChecker<MessageHolder> {
+public class MessageRegistrationManager implements MessageHolders.ContentChecker<MessageHolder> {
 
     /**
      * @deprecated use {@link ChatSDKUI#shared().getMessageCustomizer() }
      */
     @Deprecated
-    public static MessageCustomizer shared() {
-        return ChatSDKUI.shared().getMessageCustomizer();
+    public static MessageRegistrationManager shared() {
+        return ChatSDKUI.shared().getMessageRegistrationManager();
     }
 
-    Map<Byte, IMessageHandler> messageHandlers = new HashMap<>();
+    Map<Byte, MessageRegistration> messageRegistrations = new HashMap<>();
     {
-        addMessageHandler(new TextMessageHandler());
-        addMessageHandler(new ImageMessageHandler());
-        addMessageHandler(new SystemMessageHandler());
-        addMessageHandler(new Base64ImageMessageHandler());
+        addMessageRegistration(new TextMessageRegistration());
+        addMessageRegistration(new ImageMessageRegistration());
+        addMessageRegistration(new SystemMessageRegistration());
+        addMessageRegistration(new Base64ImageMessageRegistration());
     }
 
-    public Collection<IMessageHandler> getMessageHandlers() {
-        return messageHandlers.values();
+    public Collection<MessageRegistration> getMessageRegistrations() {
+        return messageRegistrations.values();
     }
 
     public void onBindMessageHolders(Context context, MessageHolders holders) {
-        for (IMessageHandler handler: getMessageHandlers()) {
+        for (MessageRegistration handler: getMessageRegistrations()) {
             handler.onBindMessageHolders(context, holders);
         }
     }
 
-    public void addMessageHandler(IMessageHandler handler) {
-        for (Byte type: handler.getTypes()) {
-            messageHandlers.put(type, handler);
+    public void addMessageRegistration(MessageRegistration registration) {
+        for (Byte type: registration.getTypes()) {
+            messageRegistrations.put(type, registration);
         }
     }
 
@@ -52,7 +52,7 @@ public class MessageCustomizer implements MessageHolders.ContentChecker<MessageH
      * Return message holder, the last non-null holder registered will be returned
      */
     public MessageHolder onNewMessageHolder(Message message) {
-        IMessageHandler handler = handlerForMessage(message);
+        MessageRegistration handler = handlerForMessage(message);
         if (handler != null) {
             return handler.onNewMessageHolder(message);
         }
@@ -60,19 +60,19 @@ public class MessageCustomizer implements MessageHolders.ContentChecker<MessageH
     }
 
     public void onClick(Activity activity, View rootView, Message message) {
-        IMessageHandler handler = handlerForMessage(message);
+        MessageRegistration handler = handlerForMessage(message);
         if (handler != null) {
             handler.onClick(activity, rootView, message);
         }
     }
 
 
-    public IMessageHandler handlerForMessage(Message message) {
-        return messageHandlers.get(message.getType().byteValue());
+    public MessageRegistration handlerForMessage(Message message) {
+        return messageRegistrations.get(message.getType().byteValue());
     }
 
     public void onLongClick(Activity activity, View rootView, Message message) {
-        IMessageHandler handler = handlerForMessage(message);
+        MessageRegistration handler = handlerForMessage(message);
         if (handler != null) {
             handler.onLongClick(activity, rootView, message);
         }
@@ -80,7 +80,7 @@ public class MessageCustomizer implements MessageHolders.ContentChecker<MessageH
 
     @Override
     public boolean hasContentFor(MessageHolder message, byte type) {
-        IMessageHandler handler = messageHandlers.get(type);
+        MessageRegistration handler = messageRegistrations.get(type);
         if (handler != null) {
             return handler.hasContentFor(message);
         }
@@ -88,7 +88,7 @@ public class MessageCustomizer implements MessageHolders.ContentChecker<MessageH
     }
 
     public void stop() {
-        messageHandlers.clear();
+        messageRegistrations.clear();
     }
 
 }

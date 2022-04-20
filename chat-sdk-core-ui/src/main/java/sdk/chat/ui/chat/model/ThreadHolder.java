@@ -40,7 +40,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
     public void update() {
         Message message = thread.lastMessage();
         if (message != null) {
-            lastMessage = ChatSDKUI.shared().getMessageCustomizer().onNewMessageHolder(message);
+            lastMessage = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
         } else {
             lastMessage = null;
         }

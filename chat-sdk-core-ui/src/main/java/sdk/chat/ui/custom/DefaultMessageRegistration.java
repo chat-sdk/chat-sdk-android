@@ -15,7 +15,7 @@ import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.utils.DialogUtils;
 import sdk.chat.ui.view_holders.base.BaseIncomingTextMessageViewHolder;
 
-public abstract class CustomMessageHandler implements IMessageHandler {
+public abstract class DefaultMessageRegistration implements MessageRegistration {
 
     protected BaseIncomingTextMessageViewHolder.Payload getAvatarClickPayload(Context context) {
         BaseIncomingTextMessageViewHolder.Payload holderPayload = new BaseIncomingTextMessageViewHolder.Payload();

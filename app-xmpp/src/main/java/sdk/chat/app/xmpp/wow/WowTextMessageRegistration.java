@@ -5,9 +5,9 @@ import android.content.Context;
 import com.stfalcon.chatkit.messages.MessageHolders;
 
 import sdk.chat.demo.xmpp.R;
-import sdk.chat.ui.custom.TextMessageHandler;
+import sdk.chat.ui.custom.TextMessageRegistration;
 
-public class WowTextMessageHandler extends TextMessageHandler {
+public class WowTextMessageRegistration extends TextMessageRegistration {
 
     @Override
     public void onBindMessageHolders(Context context, MessageHolders holders) {

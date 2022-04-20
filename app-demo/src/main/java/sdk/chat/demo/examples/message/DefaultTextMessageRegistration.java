@@ -5,10 +5,10 @@ import android.content.Context;
 import com.stfalcon.chatkit.messages.MessageHolders;
 
 import sdk.chat.demo.pre.R;
-import sdk.chat.ui.custom.TextMessageHandler;
+import sdk.chat.ui.custom.TextMessageRegistration;
 import sdk.chat.ui.view_holders.IncomingTextMessageViewHolder;
 
-public class CustomTextMessageHandler extends TextMessageHandler {
+public class DefaultTextMessageRegistration extends TextMessageRegistration {
 
     @Override
     public void onBindMessageHolders(Context context, MessageHolders holders) {

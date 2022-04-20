@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -33,7 +34,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.reactivex.Completable;
 import io.reactivex.annotations.NonNull;
 import materialsearchview.MaterialSearchView;
@@ -83,7 +83,6 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
     protected Thread thread;
 
-    public static final int messageForwardActivityCode = 998;
 
     protected ChatOptionsHandler optionsHandler;
 
@@ -123,15 +122,17 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
+        rootView = super.onCreateView(inflater, container, savedInstanceState);
 
-        rootView = inflater.inflate(getLayout(), container, false);
-        ButterKnife.bind(this, rootView);
+//        rootView = inflater.inflate(getLayout(), container, false);
+//        ButterKnife.bind(this, rootView);
 
         // HERE
         initViews();
         setupKeyboardListeners();
         showOptionsKeyboardOverlay();
+
+        input.getInputEditText().setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
 
         return rootView;
     }
@@ -247,34 +248,9 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
             searchView.showSearch();
         });
 
-        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                chatView.filter(query);
-                chatActionBar.hideSearchIcon();
-                return true;
-            }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                chatView.filter(newText);
-                chatActionBar.hideSearchIcon();
-                return false;
-            }
-        });
 
-        searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
-            @Override
-            public void onSearchViewShown() {
-
-            }
-
-            @Override
-            public void onSearchViewClosed() {
-                chatView.clearFilter();
-                chatActionBar.showSearchIcon();
-            }
-        });
+        addOnSearchListener();
 
         chatView.initViews();
 
@@ -290,7 +266,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         }
 
         if (ChatSDK.audioMessage() != null && getActivity() != null) {
-            audioBinder = new AudioBinder(getActivity(), this, input);
+            addAudioBinder();
         } else {
             input.setInputListener(input -> {
                 sendMessage(String.valueOf(input));
@@ -298,18 +274,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
             });
         }
 
-
-        input.setTypingListener(new MessageInput.TypingListener() {
-            @Override
-            public void onStartTyping() {
-                startTyping();
-            }
-
-            @Override
-            public void onStopTyping() {
-                stopTyping();
-            }
-        });
+        addTypingListener();
 
         input.setAttachmentsListener(this::showOptions);
 
@@ -329,6 +294,13 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
             Debug.startMethodTracing("chat");
         }
 
+        addListeners();
+
+
+        delegate.get().invalidateOptionsMenu();
+    }
+
+    protected void addListeners() {
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated, EventType.ThreadUserAdded, EventType.ThreadUserRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
@@ -368,13 +340,15 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
                     showOrHideTextInputView();
                 }));
 
-
         if (chatView != null) {
             chatView.addListeners();
 //            chatView.onLoadMore(0, 0);
         }
 
-        delegate.get().invalidateOptionsMenu();
+    }
+
+    protected void addAudioBinder() {
+        audioBinder = new AudioBinder(getActivity(), this, input);
     }
 
     @Override
@@ -615,8 +589,8 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
             List<MessageHolder> holders = chatView.getSelectedMessages();
 
-            dm.put(messageForwardActivityCode, ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
-                if (activityResult.requestCode == messageForwardActivityCode) {
+            dm.put(Keys.messageForwardActivityCode, ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
+                if (activityResult.requestCode == Keys.messageForwardActivityCode) {
                     if (activityResult.resultCode == Activity.RESULT_OK) {
                         showToast(R.string.success);
                     } else {
@@ -625,7 +599,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
                             showToast(errorMessage);
                         }
                     }
-                    dm.dispose(messageForwardActivityCode);
+                    dm.dispose(Keys.messageForwardActivityCode);
                 }
             }));
 
@@ -634,7 +608,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
             removeUserFromChatOnExit = false;
 
             if (getActivity() != null) {
-                ChatSDK.ui().startForwardMessageActivityForResult(getActivity(), thread, MessageHolder.toMessages(holders), messageForwardActivityCode);
+                ChatSDK.ui().startForwardMessageActivityForResult(getActivity(), thread, MessageHolder.toMessages(holders), Keys.messageForwardActivityCode);
             }
             clearSelection();
         }
@@ -714,6 +688,11 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         }
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+    }
+
     public static InputMethodManager getInputMethodManager(Context context) {
         return (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
     }
@@ -744,7 +723,6 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         ViewGroup.LayoutParams params = keyboardOverlay.getLayoutParams();
         params.height = height;
         keyboardOverlay.setLayoutParams(params);
-//        keyboardOverlayOptionsFragment.setItemHeight(height / 2);
     }
 
     public void hideKeyboardOverlay() {
@@ -777,33 +755,20 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
             FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.keyboardOverlay, overlay).addToBackStack(null).commit();
 
-            this.currentKeyboardOverlayFragment = overlay;
+            currentKeyboardOverlayFragment = overlay;
 
-            this.currentKeyboardOverlayFragment.setViewSize(
+            currentKeyboardOverlayFragment.setViewSize(
                     rootView.getMeasuredWidth(),
-                    root.getKeyboardHeight(),
-                    getResources());
+                    root.getKeyboardHeight());
 
-            this.currentKeyboardOverlayFragment.setActivity(getActivity());
         }
     }
 
     public void showOptionsKeyboardOverlay() {
         if (currentKeyboardOverlayFragment == null) {
-
             optionsKeyboardOverlayFragment = ChatSDKUI.provider().keyboardOverlayOptionsFragment(this);
-
-//            optionsKeyboardOverlayFragment.setOptionExecutor(option -> {
-//                if (option.getOverlay(this) != null) {
-//                    setCurrentOverlay(option.getOverlay());
-//                } else {
-//                    executeChatOption(option);
-//                }
-//            });
         }
-
         setCurrentOverlay(optionsKeyboardOverlayFragment);
-
     }
 
     public void showOptions() {
@@ -812,8 +777,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
             currentKeyboardOverlayFragment.setViewSize(
                     rootView.getMeasuredWidth(),
-                    root.getKeyboardHeight(),
-                    getResources());
+                    root.getKeyboardHeight());
 
             // If the keyboard is hidden and the options overlay is not visible
             if (!root.isKeyboardOpen()) {
@@ -866,14 +830,14 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     @Override
     public void onClick(Message message) {
         if (getActivity() != null) {
-            ChatSDKUI.shared().getMessageCustomizer().onClick(getActivity(), root, message);
+            ChatSDKUI.shared().getMessageRegistrationManager().onClick(getActivity(), root, message);
         }
     }
 
     @Override
     public void onLongClick(Message message) {
         if (getActivity() != null) {
-            ChatSDKUI.shared().getMessageCustomizer().onLongClick(getActivity(), root, message);
+            ChatSDKUI.shared().getMessageRegistrationManager().onLongClick(getActivity(), root, message);
         }
     }
 
@@ -916,4 +880,49 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         return root.keyboardOverlayAvailable() && UIModule.config().keyboardOverlayEnabled;
     }
 
+    protected void addOnSearchListener() {
+
+        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                chatView.filter(query);
+                chatActionBar.hideSearchIcon();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                chatView.filter(newText);
+                chatActionBar.hideSearchIcon();
+                return false;
+            }
+        });
+
+        searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
+            @Override
+            public void onSearchViewShown() {
+
+            }
+
+            @Override
+            public void onSearchViewClosed() {
+                chatView.clearFilter();
+                chatActionBar.showSearchIcon();
+            }
+        });
+    }
+
+    protected void addTypingListener() {
+        input.setTypingListener(new MessageInput.TypingListener() {
+            @Override
+            public void onStartTyping() {
+                startTyping();
+            }
+
+            @Override
+            public void onStopTyping() {
+                stopTyping();
+            }
+        });
+    }
 }

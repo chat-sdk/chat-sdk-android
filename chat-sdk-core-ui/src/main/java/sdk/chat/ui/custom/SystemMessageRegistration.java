@@ -14,7 +14,7 @@ import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.chat.model.SystemMessageHolder;
 import sdk.chat.ui.view_holders.SystemMessageViewHolder;
 
-public class SystemMessageHandler extends CustomMessageHandler {
+public class SystemMessageRegistration extends DefaultMessageRegistration {
 
     @Override
     public List<Byte> getTypes() {
@@ -33,7 +33,7 @@ public class SystemMessageHandler extends CustomMessageHandler {
                 SystemMessageViewHolder.class,
                 R.layout.view_holder_system_message,
                 R.layout.view_holder_system_message,
-                ChatSDKUI.shared().getMessageCustomizer());
+                ChatSDKUI.shared().getMessageRegistrationManager());
     }
 
     @Override

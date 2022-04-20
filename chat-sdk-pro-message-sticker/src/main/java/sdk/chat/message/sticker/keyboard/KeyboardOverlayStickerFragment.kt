@@ -1,6 +1,5 @@
 package sdk.chat.message.sticker.keyboard
 
-import android.content.res.Resources
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -97,9 +96,9 @@ class KeyboardOverlayStickerFragment(keyboardOverlayHandler: KeyboardOverlayHand
         return rootView
     }
 
-    override fun setViewSize(width: Int, height: Int, resources: Resources) {
+    override fun setViewSize(width: Int, height: Int) {
         // Work out the sticker item size
-        packWidth = packWidth(resources)
+        packWidth = packWidth()
         stickerSize = (height - packWidth) / 2f
 
         if (::packRecyclerAdapter.isInitialized) {
@@ -140,7 +139,7 @@ class KeyboardOverlayStickerFragment(keyboardOverlayHandler: KeyboardOverlayHand
         return items
     }
 
-    fun packWidth(resources: Resources): Int {
+    fun packWidth(): Int {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70f, resources.displayMetrics).toInt()
     }
 

@@ -1,33 +1,21 @@
 package sdk.chat.message.sticker.module;
 
-import android.app.Activity;
 import android.content.Context;
-import android.view.View;
 
 import androidx.annotation.RawRes;
 
-import com.stfalcon.chatkit.messages.MessageHolders;
-
-import java.util.List;
-
-import sdk.chat.core.dao.Message;
 import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
-import sdk.chat.core.types.MessageType;
 import sdk.chat.licensing.Report;
 import sdk.chat.message.sticker.R;
+import sdk.chat.message.sticker.StickerMessageRegistration;
 import sdk.chat.message.sticker.integration.BaseStickerMessageHandler;
-import sdk.chat.message.sticker.integration.IncomingStickerMessageViewHolder;
-import sdk.chat.message.sticker.integration.OutcomingStickerMessageViewHolder;
 import sdk.chat.message.sticker.integration.StickerChatOption;
-import sdk.chat.message.sticker.integration.StickerMessageHolder;
 import sdk.chat.message.sticker.provider.PListStickerPackProvider;
 import sdk.chat.message.sticker.provider.StickerPackProvider;
 import sdk.chat.ui.ChatSDKUI;
-import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.custom.CustomMessageHandler;
 import sdk.guru.common.BaseConfig;
 
 /**
@@ -53,47 +41,7 @@ public class StickerMessageModule extends AbstractModule {
         ChatSDK.a().stickerMessage = new BaseStickerMessageHandler();
         ChatSDK.ui().addChatOption(new StickerChatOption(R.string.sticker, R.drawable.icn_100_sticker));
 
-        ChatSDKUI.shared().getMessageCustomizer().addMessageHandler(new CustomMessageHandler() {
-
-            @Override
-            public List<Byte> getTypes() {
-                return types(MessageType.Sticker);
-            }
-
-            @Override
-            public boolean hasContentFor(MessageHolder holder) {
-                return holder.getClass().equals(StickerMessageHolder.class);
-            }
-
-            @Override
-            public void onBindMessageHolders(Context ctx, MessageHolders holders) {
-                holders.registerContentType(
-                        (byte) MessageType.Sticker,
-                        IncomingStickerMessageViewHolder.class,
-                        R.layout.view_holder_incoming_image_message,
-                        OutcomingStickerMessageViewHolder.class,
-                        R.layout.view_holder_outcoming_image_message,
-                        ChatSDKUI.shared().getMessageCustomizer());
-            }
-
-            @Override
-            public MessageHolder onNewMessageHolder(Message message) {
-                if (message.getMessageType().is(MessageType.Sticker)) {
-                    return new StickerMessageHolder(message);
-                }
-                return null;
-            }
-
-            @Override
-            public boolean onClick(Activity activity, View rootView, Message message) {
-                return super.onClick(activity, rootView, message);
-            }
-
-            @Override
-            public boolean onLongClick(Activity activity, View rootView, Message message) {
-                return false;
-            }
-        });
+        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new StickerMessageRegistration());
 
         if (config.loadStickersFromPlist) {
             try {

@@ -96,7 +96,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         ButterKnife.bind(this);
 
         final MessageHolders holders = new MessageHolders();
-        ChatSDKUI.shared().getMessageCustomizer().onBindMessageHolders(getContext(), holders);
+        ChatSDKUI.shared().getMessageRegistrationManager().onBindMessageHolders(getContext(), holders);
 
         messagesListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, (imageView, url, payload) -> {
 
@@ -374,7 +374,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
         if (holder == null) {
 
-            final MessageHolder finalHolder = ChatSDKUI.shared().getMessageCustomizer().onNewMessageHolder(message);
+            final MessageHolder finalHolder = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
 
             messageHolders.add(0, finalHolder);
             messageHolderHashMap.put(finalHolder.getMessage(), finalHolder);
@@ -436,7 +436,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
             for (Message message : messages) {
                 MessageHolder holder = messageHolderHashMap.get(message);
                 if (holder == null) {
-                    holder = ChatSDKUI.shared().getMessageCustomizer().onNewMessageHolder(message);
+                    holder = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
                     if (holder != null) {
                         messageHolderHashMap.put(message, holder);
                         holders.add(holder);
@@ -499,7 +499,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         MessageHolder holder = messageHolderHashMap.get(message);
         if (holder != null) {
             int index = messageHolders.indexOf(holder);
-            MessageHolder newHolder = ChatSDKUI.shared().getMessageCustomizer().onNewMessageHolder(message);
+            MessageHolder newHolder = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
 
             messageHolders.remove(index);
             messageHolders.add(index, newHolder);

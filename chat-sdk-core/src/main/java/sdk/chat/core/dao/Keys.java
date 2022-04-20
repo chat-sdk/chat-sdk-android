@@ -103,4 +103,6 @@ public class Keys {
     public static String KeyboardHeightPortrait = "keyboard_portrait";
     public static String KeyboardHeightLandscape = "keyboard_landscape";
 
+    public static final int messageForwardActivityCode = 998;
+
 }
