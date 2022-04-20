@@ -3,7 +3,12 @@
 <style name="ChatSDKTheme" parent="Theme.MaterialComponents.Light.Bridge">
 
     <item name= "android:windowIsTranslucent">true</item>
-    <item name="android:windowFullscreen">true</item>
+
+<!--    Important for keyboard overlay -->
+    <item name="android:windowFullscreen">false</item>
+
+<!--         default, shortEdges, or never -->
+    <item name="android:windowLayoutInDisplayCutoutMode">never</item>
 
     <item name="colorPrimary">@color/primary</item>
     <item name="colorPrimaryDark">@color/primary_dark</item>

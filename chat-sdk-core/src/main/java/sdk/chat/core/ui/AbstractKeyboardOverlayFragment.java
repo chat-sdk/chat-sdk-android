@@ -17,7 +17,7 @@ public abstract class AbstractKeyboardOverlayFragment extends Fragment {
         this.keyboardOverlayHandler = new WeakReference<>(keyboardOverlayHandler);
     }
 
-    public abstract void setViewSize(Integer width, Integer height);
+    public abstract void setViewSize(Integer width, Integer height, Context context);
 
     public Boolean isPortrait() {
         if (getContext() != null) {

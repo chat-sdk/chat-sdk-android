@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -62,7 +61,7 @@ public class WowChatFragment extends ChatFragment {
 
     }
 
-    public void showOptions() {
+    public void toggleOptions() {
         // We don't want to remove the user if we load another activity
         // Like the sticker activity
         removeUserFromChatOnExit = false;

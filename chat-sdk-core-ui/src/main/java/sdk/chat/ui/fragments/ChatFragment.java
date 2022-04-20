@@ -21,7 +21,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentContainerView;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.stfalcon.chatkit.messages.MessageInput;
 
@@ -63,8 +62,8 @@ import sdk.chat.ui.audio.AudioBinder;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.interfaces.TextInputDelegate;
+import sdk.chat.ui.keyboard.ChatFragmentKeyboardOverlayHelper;
 import sdk.chat.ui.keyboard.KeyboardAwareFrameLayout;
-import sdk.chat.ui.keyboard.KeyboardOverlayOptionsFragment;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.provider.MenuItemProvider;
 import sdk.chat.ui.views.ChatView;
@@ -108,12 +107,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     protected DisposableMap dm = new DisposableMap();
     protected WeakReference<Delegate> delegate;
 
-    protected KeyboardOverlayOptionsFragment optionsKeyboardOverlayFragment;
-    protected AbstractKeyboardOverlayFragment currentKeyboardOverlayFragment;
-
-    protected boolean keyboardOverlayActive = false;
-
-    protected int viewHeight = 0;
+    protected ChatFragmentKeyboardOverlayHelper koh;
 
     public ChatFragment(Thread thread, Delegate delegate) {
         this.thread = thread;
@@ -129,46 +123,16 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
         // HERE
         initViews();
-        setupKeyboardListeners();
-        showOptionsKeyboardOverlay();
+
+        koh = new ChatFragmentKeyboardOverlayHelper(this);
+        koh.showOptionsKeyboardOverlay();
 
         input.getInputEditText().setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
 
         return rootView;
     }
 
-    protected void setupKeyboardListeners() {
-        root.keyboardShown = () -> {
-
-            if (!keyboardOverlayActive || keyboardOverlayVisible()) {
-                hideKeyboardOverlay();
-            } else {
-                showKeyboardOverlay();
-            }
-
-            // We want the bottom margin to be just the height of the input + reply view
-            setChatViewBottomMargin(bottomMargin());
-
-        };
-
-        root.keyboardHidden = () -> {
-
-            int bottomMargin = bottomMargin();
-
-            if (keyboardOverlayActive) {
-                keyboardOverlay.setVisibility(View.VISIBLE);
-                bottomMargin += root.getKeyboardHeight();
-            }
-
-            setChatViewBottomMargin(bottomMargin);
-        };
-
-        root.heightUpdater = height -> {
-            setKeyboardOverlayHeight(height);
-        };
-    }
-
-    protected void setChatViewBottomMargin(int margin) {
+    public void setChatViewBottomMargin(int margin) {
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) chatView.getLayoutParams();
         params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, margin);
         chatView.setLayoutParams(params);
@@ -230,7 +194,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     }
 
     public void showReplyView(String title, String imageURL, String text) {
-        hideKeyboardOverlayAndShowKeyboard();
+        koh.hideKeyboardOverlayAndShowKeyboard();
         updateOptionsButton();
         if (audioBinder != null) {
             audioBinder.showReplyView();
@@ -247,8 +211,6 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         chatActionBar.onSearchClicked(v -> {
             searchView.showSearch();
         });
-
-
 
         addOnSearchListener();
 
@@ -276,7 +238,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
         addTypingListener();
 
-        input.setAttachmentsListener(this::showOptions);
+        input.setAttachmentsListener(this::toggleOptions);
 
         replyView.setOnCancelListener(v -> hideReplyView());
 
@@ -715,93 +677,10 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         return getInputMethodManager(et.getContext());
     }
 
-    public void showKeyboardOverlay() {
-        keyboardOverlay.setVisibility(View.VISIBLE);
-    }
-
-    protected void setKeyboardOverlayHeight(int height) {
-        ViewGroup.LayoutParams params = keyboardOverlay.getLayoutParams();
-        params.height = height;
-        keyboardOverlay.setLayoutParams(params);
-    }
-
-    public void hideKeyboardOverlay() {
-        keyboardOverlayActive = false;
-        keyboardOverlay.setVisibility(View.GONE);
-    }
-
-    public boolean keyboardOverlayVisible() {
-        return keyboardOverlay.getVisibility() == View.VISIBLE;
-    }
-
-    public void hideKeyboardOverlayAndShowKeyboard() {
-        keyboardOverlayActive = false;
-        showKeyboard();
-    }
-
-    public void hideKeyboardAndShowKeyboardOverlay() {
-        keyboardOverlayActive = true;
-        hideKeyboard();
-    }
-
-    public void setCurrentOverlay(AbstractKeyboardOverlayFragment overlay) {
-
-        if (overlay == currentKeyboardOverlayFragment) {
-            return;
-        }
-
-        // Add the keyboard overlay fragment
-        if (getActivity() != null) {
-            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.keyboardOverlay, overlay).addToBackStack(null).commit();
-
-            currentKeyboardOverlayFragment = overlay;
-
-            currentKeyboardOverlayFragment.setViewSize(
-                    rootView.getMeasuredWidth(),
-                    root.getKeyboardHeight());
-
-        }
-    }
-
-    public void showOptionsKeyboardOverlay() {
-        if (currentKeyboardOverlayFragment == null) {
-            optionsKeyboardOverlayFragment = ChatSDKUI.provider().keyboardOverlayOptionsFragment(this);
-        }
-        setCurrentOverlay(optionsKeyboardOverlayFragment);
-    }
-
-    public void showOptions() {
+    public void toggleOptions() {
         // If the keyboard overlay is available
         if (root.keyboardOverlayAvailable() && getActivity() != null) {
-
-            currentKeyboardOverlayFragment.setViewSize(
-                    rootView.getMeasuredWidth(),
-                    root.getKeyboardHeight());
-
-            // If the keyboard is hidden and the options overlay is not visible
-            if (!root.isKeyboardOpen()) {
-                if (keyboardOverlayVisible()) {
-                    hideKeyboardOverlayAndShowKeyboard();
-                } else {
-                    keyboardOverlayActive = true;
-
-                    int height = root.getKeyboardHeight();
-                    setKeyboardOverlayHeight(height);
-                    showKeyboardOverlay();
-                    setChatViewBottomMargin(bottomMargin() + height);
-                }
-            } else {
-                if (keyboardOverlayVisible()) {
-                    if (currentKeyboardOverlayFragment != optionsKeyboardOverlayFragment) {
-                        setCurrentOverlay(optionsKeyboardOverlayFragment);
-                    } else {
-                        hideKeyboardOverlayAndShowKeyboard();
-                    }
-                } else {
-                    hideKeyboardAndShowKeyboardOverlay();
-                }
-            }
+            koh.toggle();
         } else {
             // We don't want to remove the user if we load another activity
             // Like the sticker activity
@@ -843,15 +722,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
     public boolean onBackPressed() {
         // If the keyboard overlay is showing, we go back to the keyboard
-        if (keyboardOverlayVisible()) {
-            if (currentKeyboardOverlayFragment != optionsKeyboardOverlayFragment) {
-                setCurrentOverlay(optionsKeyboardOverlayFragment);
-            } else {
-                hideKeyboardOverlayAndShowKeyboard();
-            }
-            return true;
-        }
-        return false;
+        return koh.back();
     }
 
     @Override
@@ -861,23 +732,12 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
     @Override
     public void showOverlay(AbstractKeyboardOverlayFragment fragment) {
-        if (!root.isKeyboardOpen()) {
-                keyboardOverlayActive = true;
-
-                int height = root.getKeyboardHeight();
-                setKeyboardOverlayHeight(height);
-                showKeyboardOverlay();
-                setChatViewBottomMargin(bottomMargin() + height);
-
-        } else {
-                hideKeyboardAndShowKeyboardOverlay();
-        }
-        setCurrentOverlay(fragment);
+        koh.showOverlay(fragment);
     }
 
     @Override
     public boolean keyboardOverlayAvailable() {
-        return root.keyboardOverlayAvailable() && UIModule.config().keyboardOverlayEnabled;
+        return getKeyboardAwareView().keyboardOverlayAvailable() && UIModule.config().keyboardOverlayEnabled;
     }
 
     protected void addOnSearchListener() {
@@ -924,5 +784,13 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
                 stopTyping();
             }
         });
+    }
+
+    public KeyboardAwareFrameLayout getKeyboardAwareView() {
+        return root;
+    }
+
+    public FragmentContainerView getKeyboardOverlay() {
+        return keyboardOverlay;
     }
 }

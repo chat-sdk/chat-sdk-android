@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.ui.module.UIModule;
 
 public class KeyboardAwareFrameLayout extends FrameLayout {
 
@@ -47,7 +48,7 @@ public class KeyboardAwareFrameLayout extends FrameLayout {
     }
 
     public boolean keyboardOverlayAvailable() {
-        return ViewCompat.getRootWindowInsets(this) != null;
+        return ViewCompat.getRootWindowInsets(this) != null && UIModule.config().keyboardOverlayEnabled;
     }
 
     private void updateKeyboardState() {
@@ -109,7 +110,11 @@ public class KeyboardAwareFrameLayout extends FrameLayout {
             if (height > 0) {
                 return height;
             } else {
-                return (int) Math.ceil(getMeasuredHeight() - 50);
+                if (isPortrait()) {
+                    return (int) Math.ceil(getMeasuredHeight() * 0.4);
+                } else {
+                    return (int) Math.ceil(getMeasuredHeight() - 50);
+                }
             }
         }
     }

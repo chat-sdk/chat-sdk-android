@@ -60,6 +60,13 @@ class KeyboardOverlayOptionsFragment(keyboardOverlayHandler: KeyboardOverlayHand
             })
             .into(recyclerView)
 
+        if (isPortrait) {
+            recyclerView.layoutManager = GridLayoutManager(context, 3, RecyclerView.VERTICAL, false)
+        } else {
+            recyclerView.layoutManager = GridLayoutManager(context, 2, RecyclerView.HORIZONTAL, false)
+        }
+
+
 //        recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
 
         // Depending on the orientation
@@ -85,11 +92,6 @@ class KeyboardOverlayOptionsFragment(keyboardOverlayHandler: KeyboardOverlayHand
 
     fun updateViewLayout() {
         if (::smartRecyclerAdapter.isInitialized) {
-            if (isPortrait) {
-                recyclerView.layoutManager = GridLayoutManager(context, 3, RecyclerView.VERTICAL, false)
-            } else {
-                recyclerView.layoutManager = GridLayoutManager(context, 2, RecyclerView.HORIZONTAL, false)
-            }
 
             if (isPortrait) {
                 itemWidth = null
@@ -106,12 +108,12 @@ class KeyboardOverlayOptionsFragment(keyboardOverlayHandler: KeyboardOverlayHand
         }
     }
 
-    override fun setViewSize(width: Int, height: Int) {
+    override fun setViewSize(width: Int, height: Int, context: Context) {
         screenWidth = width
         screenHeight = height
-        context.let {
+//        context.let {
             updateViewLayout()
-        }
+//        }
     }
 
     fun items(): MutableList<Any> {

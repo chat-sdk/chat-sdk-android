@@ -1,5 +1,6 @@
 package sdk.chat.message.audio.keyboard
 
+import android.content.Context
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.Rect
@@ -56,7 +57,7 @@ class RecordAudioKeyboardOverlayFragment(keyboardOverlayHandler: KeyboardOverlay
     var recordMode: RecordButtonMode = RecordButtonMode.permission
     var audioFile: File? = null
 
-    override fun setViewSize(width: Int?, height: Int?) {
+    override fun setViewSize(width: Int?, height: Int?, context: Context) {
 
     }
 
@@ -97,7 +98,7 @@ class RecordAudioKeyboardOverlayFragment(keyboardOverlayHandler: KeyboardOverlay
             micImageView.drawable.colorFilter = filter
         }
 
-        updateRecordButtonForPermissions()
+//        updateRecordButtonForPermissions()
         reset()
 
         return rootView
@@ -186,11 +187,12 @@ class RecordAudioKeyboardOverlayFragment(keyboardOverlayHandler: KeyboardOverlay
 
     fun reset() {
         stopTimer()
-        if (audioPermissionGranted()) {
-            setRecordButtonMode(RecordButtonMode.normal)
-        } else {
-            setRecordButtonMode(RecordButtonMode.permission)
-        }
+        updateRecordButtonForPermissions()
+//        if (audioPermissionGranted()) {
+//            setRecordButtonMode(RecordButtonMode.normal)
+//        } else {
+//            setRecordButtonMode(RecordButtonMode.permission)
+//        }
         setLockButtonSelected(false)
         isRecording = false
         timeTextView.text = Util.formatSeconds(0)
@@ -241,6 +243,10 @@ class RecordAudioKeyboardOverlayFragment(keyboardOverlayHandler: KeyboardOverlay
     }
 
     fun updateRecordButtonForPermissions() {
+
+        recordImageView.visibility = View.VISIBLE
+        infoTextView.visibility = View.VISIBLE
+
         if (audioPermissionGranted()) {
             permissionGranted = true
             setRecordButtonMode(RecordButtonMode.normal)

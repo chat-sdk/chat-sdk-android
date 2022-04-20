@@ -28,7 +28,10 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
 
         if (dialog.getThread().typeIs(ThreadType.Private1to1)) {
             onlineIndicator.setVisibility(View.VISIBLE);
-            boolean isOnline = dialog.getThread().otherUser().getIsOnline();
+            boolean isOnline = false;
+            if (dialog.getThread().otherUser() != null) {
+                isOnline = dialog.getThread().otherUser().getIsOnline();
+            }
             UIModule.shared().getOnlineStatusBinder().bind(onlineIndicator, isOnline);
         } else {
             onlineIndicator.setVisibility(View.GONE);
