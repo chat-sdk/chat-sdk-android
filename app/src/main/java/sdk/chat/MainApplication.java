@@ -5,6 +5,7 @@ import android.app.Application;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.PublishSubject;
 import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
@@ -37,11 +38,52 @@ public class MainApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        PublishSubject<NetworkEvent> ps = PublishSubject.create();
+
+        ps.subscribe(networkEvent -> {
+            if (networkEvent.typeIs(EventType.ContactAdded)) {
+                System.out.println("");
+            }
+        });
+
+        long start = System.currentTimeMillis();
+        ps.onNext(new NetworkEvent(EventType.MessageAdded));
+        long split1 = System.currentTimeMillis();
+
+        for (int i = 0; i < 10000; i++) {
+            if (i%100 == 0) {
+                Disposable d = ps.subscribe(networkEvent -> {
+                    if (networkEvent.typeIs(EventType.ContactAdded)) {
+                        System.out.println("");
+                    }
+                });
+            } else {
+                Disposable d = ps.subscribe(networkEvent -> {
+                    if (networkEvent.typeIs(EventType.MessageAdded)) {
+                        System.out.println("Ok");
+                    }
+                });
+            }
+        }
+
+        long split2 = System.currentTimeMillis();
+        ps.onNext(new NetworkEvent(EventType.MessageAdded));
+        long split3 = System.currentTimeMillis();
+
+        System.out.println("Diff 1: " + (split1 - start));
+        System.out.println("Diff 2: " + (split3 - split2));
+        System.out.println("Done");
+
+
         try {
-            firebase();
+//            firebase();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void logTime() {
+
     }
 
     public void firebase() throws Exception {

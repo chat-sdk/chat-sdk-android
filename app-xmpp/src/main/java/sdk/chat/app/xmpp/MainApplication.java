@@ -62,7 +62,7 @@ public class MainApplication extends Application {
                     .addModule(XMPPModule.builder()
 //                            .setXMPP("we-connect-dev.com", "we-connect-dev.com")
 //                            .setXMPP("xmpp.app", "xmpp.app")
-                            .setXMPP("91.196.232.99", 10045)
+                            .setXMPP("91.196.232.99", "localhost", 10045)
                             .setAllowServerConfiguration(false)
 //                            .setSecurityMode("required")
 //                            .setSecurityMode("ifpossible")
