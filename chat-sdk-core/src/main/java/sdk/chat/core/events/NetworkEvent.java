@@ -263,6 +263,17 @@ public class NetworkEvent {
         };
     }
 
+    public static Predicate<NetworkEvent> filterMessageEntityID(final String entityID) {
+        return networkEvent -> {
+            if(networkEvent.getMessage() != null) {
+                if (networkEvent.getMessage().equalsEntityID(entityID)) {
+                    return true;
+                }
+            }
+            return false;
+        };
+    }
+
     public static Predicate<NetworkEvent> filterThreadEntityID(final String entityID) {
         return networkEvent -> {
             if(networkEvent.getThread() != null) {

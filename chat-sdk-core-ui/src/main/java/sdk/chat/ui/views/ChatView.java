@@ -235,7 +235,8 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         listenersAdded = true;
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.MessageSendStatusUpdated))
+                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageRemoved))
+//                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.MessageSendStatusUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
                 .subscribe(networkEvent -> {
                     networkEvent.debug();
@@ -269,13 +270,13 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                     }
                 }));
 
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated, EventType.UserMetaUpdated))
-                .subscribe(networkEvent -> {
-                    if (delegate.getThread().containsUser(networkEvent.getUser())) {
-                        notifyDataSetChanged();
-                    }
-                }));
+//        dm.add(ChatSDK.events().sourceOnMain()
+//                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated, EventType.UserMetaUpdated))
+//                .subscribe(networkEvent -> {
+//                    if (delegate.getThread().containsUser(networkEvent.getUser())) {
+//                        notifyDataSetChanged();
+//                    }
+//                }));
     }
 
     protected int maxImageWidth() {

@@ -10,11 +10,15 @@ import androidx.core.view.ViewCompat
 import com.stfalcon.chatkit.messages.MessageHolders
 import com.stfalcon.chatkit.messages.MessagesListStyle
 import de.hdodenhof.circleimageview.CircleImageView
+import sdk.chat.core.events.EventType
+import sdk.chat.core.events.NetworkEvent
+import sdk.chat.core.session.ChatSDK
 import sdk.chat.ui.R
 import sdk.chat.ui.chat.model.MessageHolder
 import sdk.chat.ui.module.UIModule
 import sdk.chat.ui.utils.DrawableUtil
 import sdk.chat.ui.view_holders.base.BaseIncomingTextMessageViewHolder
+import sdk.guru.common.DisposableMap
 import java.text.DateFormat
 
 open class BaseMessageViewHolder<T : MessageHolder?>(itemView: View?, payload: Any?) :
@@ -41,21 +45,9 @@ open class BaseMessageViewHolder<T : MessageHolder?>(itemView: View?, payload: A
 
     var format: DateFormat? = null
 
+    val dm = DisposableMap()
+
     init {
-        bubble = itemView?.findViewById(R.id.bubble)
-
-        messageIcon = itemView?.findViewById(R.id.messageIcon)
-        onlineIndicator = itemView?.findViewById(R.id.onlineIndicator)
-        userName = itemView?.findViewById(R.id.userName)
-        userAvatar = itemView?.findViewById(R.id.messageUserAvatar)
-
-        text = itemView?.findViewById(R.id.messageText)
-        time = itemView?.findViewById(R.id.messageTime)
-
-        readStatus = itemView?.findViewById(R.id.readStatus)
-        replyView = itemView?.findViewById(R.id.replyView)
-        replyImageView = itemView?.findViewById(R.id.replyImageView)
-        replyTextView = itemView?.findViewById(R.id.replyTextView)
 
         itemView?.let {
             format = UIModule.shared().messageBinder.messageTimeComparisonDateFormat(it.context)
@@ -64,17 +56,13 @@ open class BaseMessageViewHolder<T : MessageHolder?>(itemView: View?, payload: A
     }
 
     override fun onBind(t: T) {
+        bindViews()
+        bindListeners(t)
+        bindStyle(t)
+        bind(t)
+    }
 
-        style?.let {
-            if (t != null) {
-                if (t.direction() == MessageDirection.Incoming) {
-                    applyIncomingStyle(it)
-                } else {
-                    applyOutcomingStyle(it)
-                }
-            }
-        }
-
+    open fun bind(t: T) {
         bubble?.let {
             it.isSelected = isSelected
         }
@@ -111,6 +99,19 @@ open class BaseMessageViewHolder<T : MessageHolder?>(itemView: View?, payload: A
 
             }
 
+            bindUser(t)
+
+            if (messageIcon != null) {
+                UIModule.shared().iconBinder.bind(messageIcon, it, imageLoader)
+            }
+
+            bindReadStatus(t)
+
+        }
+    }
+
+    open fun bindUser(t: T) {
+        t?.let {
             if (userAvatar != null) {
                 val pl = payload as? BaseIncomingTextMessageViewHolder.Payload
                 if(pl != null) {
@@ -128,30 +129,80 @@ open class BaseMessageViewHolder<T : MessageHolder?>(itemView: View?, payload: A
                 if (isAvatarExists) {
                     imageLoader.loadImage(userAvatar, it.user.avatar, null)
                 }
-
             }
 
             if (userName != null) {
                 UIModule.shared().nameBinder.bind(userName, it)
             }
+        }
+    }
 
-            if (messageIcon != null) {
-                UIModule.shared().iconBinder.bind(messageIcon, it, imageLoader)
-            }
-
+    open fun bindReadStatus(t: T) {
+        t?.let {
             if (readStatus != null) {
                 UIModule.shared().readStatusViewBinder.onBind(readStatus, it)
             }
-
         }
+    }
 
+    open fun bindViews() {
+        bubble = itemView.findViewById(R.id.bubble)
+
+        messageIcon = itemView.findViewById(R.id.messageIcon)
+        onlineIndicator = itemView.findViewById(R.id.onlineIndicator)
+        userName = itemView.findViewById(R.id.userName)
+        userAvatar = itemView.findViewById(R.id.messageUserAvatar)
+
+        text = itemView.findViewById(R.id.messageText)
+        time = itemView.findViewById(R.id.messageTime)
+
+        readStatus = itemView.findViewById(R.id.readStatus)
+        replyView = itemView.findViewById(R.id.replyView)
+        replyImageView = itemView.findViewById(R.id.replyImageView)
+        replyTextView = itemView.findViewById(R.id.replyTextView)
+    }
+
+    open fun bindListeners(t: T) {
+        dm.dispose()
+        t?.let {
+            dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated, EventType.MessageSendStatusUpdated))
+                .filter(NetworkEvent.filterMessageEntityID(t.id))
+                .subscribe {
+                    bindReadStatus(t)
+                })
+            dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated, EventType.UserMetaUpdated))
+                .filter(NetworkEvent.filterUserEntityID(t.user.id))
+                .subscribe {
+                    bindUser(t)
+            })
+            dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageUpdated))
+                .filter(NetworkEvent.filterMessageEntityID(t.id))
+                .subscribe {
+                    bind(t)
+                })
+        }
     }
 
     override fun applyStyle(style: MessagesListStyle) {
         this.style = style
     }
 
-    fun applyIncomingStyle(style: MessagesListStyle) {
+    open fun bindStyle(t: T) {
+        style?.let {
+            if (t != null) {
+                if (t.direction() == MessageDirection.Incoming) {
+                    applyIncomingStyle(it)
+                } else {
+                    applyOutcomingStyle(it)
+                }
+            }
+        }
+    }
+
+    open fun applyIncomingStyle(style: MessagesListStyle) {
         bubble?.let {
             it.setPadding(
                 style.incomingDefaultBubblePaddingLeft,
@@ -198,7 +249,7 @@ open class BaseMessageViewHolder<T : MessageHolder?>(itemView: View?, payload: A
         }
     }
 
-    fun applyOutcomingStyle(style: MessagesListStyle) {
+    open fun applyOutcomingStyle(style: MessagesListStyle) {
         bubble?.let {
             it.setPadding(
                 style.outcomingDefaultBubblePaddingLeft,

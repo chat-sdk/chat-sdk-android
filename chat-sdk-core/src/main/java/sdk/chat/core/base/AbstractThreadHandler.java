@@ -119,7 +119,8 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             }
         }
 
-        thread.addMessage(message, false);
+        // TODO: Message Flow
+        thread.addMessage(message, true);
 
         return message;
     }
