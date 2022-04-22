@@ -55,4 +55,8 @@ public class UserHolder implements IUser {
     public boolean isOnline() {
         return user.getIsOnline();
     }
+
+    public boolean isMe() {
+        return user.isMe();
+    }
 }

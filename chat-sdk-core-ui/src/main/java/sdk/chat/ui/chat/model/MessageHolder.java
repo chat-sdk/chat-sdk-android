@@ -16,6 +16,7 @@ import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.ReadStatus;
 import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.view_holders.v2.MessageDirection;
 
 public class MessageHolder implements IMessage {
 
@@ -161,6 +162,10 @@ public class MessageHolder implements IMessage {
 
     public boolean canResend() {
         return message.canResend();
+    }
+
+    public MessageDirection direction() {
+        return getUser().isMe() ? MessageDirection.Outcoming : MessageDirection.Incoming;
     }
 
 }

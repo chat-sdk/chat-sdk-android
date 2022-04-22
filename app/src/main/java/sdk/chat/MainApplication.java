@@ -20,11 +20,13 @@ import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.receipts.FirebaseReadReceiptsModule;
 import sdk.chat.firebase.typing.FirebaseTypingIndicatorModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
+import sdk.chat.message.V2TextMessageRegistration;
 import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.location.LocationMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
 
@@ -76,7 +78,7 @@ public class MainApplication extends Application {
 
 
         try {
-//            firebase();
+            firebase();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -158,6 +160,8 @@ public class MainApplication extends Application {
                 }))
                 .build()
                 .activateWithEmail(this, "team@sdk.chat");
+
+        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2TextMessageRegistration());
 
 //        ChatSDK.shared()
         //

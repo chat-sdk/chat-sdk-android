@@ -57,7 +57,7 @@ ext {
     photoViewVersion = "2.3.0"
     androidDatabaseSQLCipher = "4.4.2"
     matisseVersion = "0.5.3-beta3b2"
-    chatKitVersion = "0.3.4"
+    chatKitVersion = "0.3.7"
     shapeImageViewVersion = "0.9.+@aar"
     circleImageViewVersion = "3.1.0"
     dexterVersion = "6.0.2"
