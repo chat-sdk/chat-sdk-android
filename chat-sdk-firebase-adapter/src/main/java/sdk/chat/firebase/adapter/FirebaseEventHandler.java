@@ -65,68 +65,50 @@ public class FirebaseEventHandler extends AbstractEventHandler {
         final DatabaseReference threadsRef = FirebasePaths.userThreadsRef(entityID);
 
         new RXRealtime().childOn(threadsRef).flatMapCompletable(change -> {
+            return Completable.create(emitter -> {
 
-//            // WAKA - Get the date
-//            if (change.getType() == EventType.Added) {
-//                String key = change.getSnapshot().getKey();
-//
-//                // Add the last message added listener
-//                DatabaseReference ref = FirebasePaths.threadRef(key).child("updated").child("messages");
-//                dm.add(new RXRealtime().on(ref).subscribe(documentChange -> {
-//                    DataSnapshot snapshot = documentChange.getSnapshot();
-//                    Long value = snapshot.getValue(Long.class);
-//                    if (value != null) {
-//                        Date date = new Date(value);
-//                        long now = new Date().getTime();
-//                        long age = now - value;
-//                        if(age < TimeUnit.MINUTES.toMillis(ChatSDK.config().privateChatRoomLifetimeMinutes)) {
-//                            // Do thread on code...
-//
-//                        }
-//                        Logger.warn("Date: "+date.toString()+" Age: " + age);
-//                    }
-//                }));
-//            }
+//                ChatSDK.db().getDaoCore().getDaoSession().runInTx(() -> {
 
-            final ThreadWrapper thread = FirebaseModule.config().provider.threadWrapper(change.getSnapshot().getKey());
-            if (change.getType() == EventType.Added && !thread.getModel().typeIs(ThreadType.Public)) {
+                    final ThreadWrapper thread = FirebaseModule.config().provider.threadWrapper(change.getSnapshot().getKey());
+                    if (change.getType() == EventType.Added && !thread.getModel().typeIs(ThreadType.Public)) {
 
-                long now = new Date().getTime();
-                if (ChatSDK.config().privateChatRoomLifetimeMinutes == 0 || thread.getModel().getCreationDate() == null || (now - thread.getModel().getCreationDate().getTime()) < TimeUnit.MINUTES.toMillis(ChatSDK.config().privateChatRoomLifetimeMinutes)) {
+                        long now = new Date().getTime();
+                        if (ChatSDK.config().privateChatRoomLifetimeMinutes == 0 || thread.getModel().getCreationDate() == null || (now - thread.getModel().getCreationDate().getTime()) < TimeUnit.MINUTES.toMillis(ChatSDK.config().privateChatRoomLifetimeMinutes)) {
 
-                    Logger.debug("Thread added: " + change.getSnapshot().getKey());
+                            Logger.debug("Thread added: " + change.getSnapshot().getKey());
 
-                    if (thread.getModel().typeIs(ThreadType.Group)) {
-                        String permission = thread.getModel().getPermission(user.getEntityID());
-                        if (permission != null && permission.equals(Permission.None)) {
-                            ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(R.string.you_were_added_to_the_thread), thread.getModel());
+                            if (thread.getModel().typeIs(ThreadType.Group)) {
+                                String permission = thread.getModel().getPermission(user.getEntityID());
+                                if (permission != null && permission.equals(Permission.None)) {
+                                    ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(R.string.you_were_added_to_the_thread), thread.getModel());
+                                }
+                            }
+
+                            thread.getModel().addUser(user, false);
+
+                            thread.on().doOnComplete(() -> {
+                                ChatSDK.events().source().accept(NetworkEvent.threadAdded(thread.getModel()));
+                            }).subscribe();
+
                         }
+
                     }
+                    if (change.getType() == EventType.Removed) {
+                        Logger.debug("Thread removed: " + change.getSnapshot().getKey());
 
-                    thread.getModel().addUser(user, false);
-
-                    thread.on().doOnComplete(() -> {
-                        ChatSDK.events().source().accept(NetworkEvent.threadAdded(thread.getModel()));
-                    }).subscribe();
-
-                }
-
-            }
-            if (change.getType() == EventType.Removed) {
-                Logger.debug("Thread removed: " + change.getSnapshot().getKey());
-
-                if (thread.getModel().typeIs(ThreadType.Group)) {
-                    ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(R.string.you_were_removed_from_the_thread), thread.getModel());
-                }
-                thread.getModel().setPermission(user.getEntityID(), Permission.None, true, false);
-                thread.getModel().getUserThreadLink(ChatSDK.currentUser().getId()).setHasLeft(true);
+                        if (thread.getModel().typeIs(ThreadType.Group)) {
+                            ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(R.string.you_were_removed_from_the_thread), thread.getModel());
+                        }
+                        thread.getModel().setPermission(user.getEntityID(), Permission.None, true, false);
+                        thread.getModel().getUserThreadLink(ChatSDK.currentUser().getId()).setHasLeft(true);
 
 //                ChatSDK.events().source().accept(NetworkEvent.threadRemoved(thread.getModel()));
 
-                thread.off();
-            }
-            return Completable.complete();
-
+                        thread.off();
+                    }
+                    emitter.onComplete();
+//                });
+            });
         }).subscribe(this);
     }
 

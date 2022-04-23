@@ -22,8 +22,13 @@
         android:name="sdk.chat.MainApplication"
         android:hardwareAccelerated="true"
         android:usesCleartextTraffic="true"
-        tools:replace="allowBackup, icon">
+        tools:replace="allowBackup, icon"
+        >
 
+        <profileable
+            android:enabled="true"
+            android:shell="true"
+            tools:ignore="UnusedAttribute" />
 
 <!--                <activity android:name="sdk.chat.custom.EmptyActivity">-->
 <!--                    <intent-filter>-->

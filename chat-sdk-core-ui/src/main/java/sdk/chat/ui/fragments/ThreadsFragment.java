@@ -42,7 +42,6 @@ import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.ThreadHolder;
-import sdk.chat.ui.chat.model.TypingThreadHolder;
 import sdk.chat.ui.interfaces.SearchSupported;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.provider.MenuItemProvider;
@@ -133,67 +132,110 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 //            onError(throwable);
 //        }));
 
-        batcher = new EventBatcher(250, new EventBatcher.Listener() {
-            @Override
-            public void onNext(NetworkEvent networkEvent) {
-                if (networkEvent.typeIs(EventType.ThreadsUpdated)) {
-                    loadData();
-                }
+        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(
+                EventType.ThreadsUpdated,
+                EventType.ThreadAdded,
+                EventType.ThreadRemoved,
+                EventType.MessageAdded,
+                EventType.MessageRemoved
+        )).subscribe(networkEvent -> {
 
+            if (networkEvent.typeIs(EventType.ThreadsUpdated)) {
+                loadData();
+            } else {
                 final Thread thread = networkEvent.getThread();
                 if (thread != null) {
                     ThreadHolder holder = threadHolderHashMap.get(thread);
                     final boolean inList = holder != null;
 
-                    if (networkEvent.typeIs(EventType.ThreadAdded, EventType.MessageAdded) && !inList) {
-                        addOrUpdateThread(thread);
+                    if (networkEvent.typeIs(EventType.ThreadAdded)) {
+                        if (!inList) {
+                            addOrUpdateThread(thread);
+                        }
                     }
                     else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
                         if (inList) {
                             removeThread(thread);
                         }
                     }
-                    else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.ThreadMetaUpdated)) {
+                    else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved)) {
                         if (inList) {
-                            dm.add(holder.updateAsync().observeOn(RX.main()).subscribe(() -> {
-                                dialogsListAdapter.updateItemById(holder);
-                                if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved)) {
-                                    sortByLastMessageDate();
-                                }
-                            }));
+                            sortByLastMessageDate();
                         }
                     }
-                    else if (networkEvent.typeIs(EventType.TypingStateUpdated)) {
-                        if (inList) {
-                            if (networkEvent.getText() != null) {
-                                String typingText = networkEvent.getText();
-                                typingText += getString(R.string.typing);
-                                dialogsListAdapter.updateItemById(new TypingThreadHolder(thread, typingText));
-                            } else {
-                                dialogsListAdapter.updateItemById(holder);
-                            }
-                        }
-                    }
-                    else {
-                        if (inList) {
-                            dialogsListAdapter.updateItemById(holder);
-                        }
-                    }
-                } else {
-                    if (networkEvent.typeIs(EventType.UserPresenceUpdated, EventType.UserMetaUpdated)) {
-                        softReloadData();
-                    }
+//                    else {
+//                        if (inList) {
+//                            dialogsListAdapter.updateItemById(holder);
+//                        }
+//                    }
                 }
-            }
 
-            @Override
-            public void batchFinished() {
-                RX.main().scheduleDirect(() -> {
-                    loadData();
-                    Logger.warn("Load Load Load");
-                });
             }
-        });
+        }));
+
+//        batcher = new EventBatcher(250, new EventBatcher.Listener() {
+//            @Override
+//            public void onNext(NetworkEvent networkEvent) {
+//                if (networkEvent.typeIs(EventType.ThreadsUpdated)) {
+//                    loadData();
+//                }
+//
+//                final Thread thread = networkEvent.getThread();
+//                if (thread != null) {
+//                    ThreadHolder holder = threadHolderHashMap.get(thread);
+//                    final boolean inList = holder != null;
+//
+//                    if (networkEvent.typeIs(EventType.ThreadAdded, EventType.MessageAdded) && !inList) {
+//                        addOrUpdateThread(thread);
+//                    }
+//                    else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
+//                        if (inList) {
+//                            removeThread(thread);
+//                        }
+//                    }
+//                    else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved)) {
+////                    else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.ThreadMetaUpdated)) {
+//                        if (inList) {
+//                            dm.add(holder.updateAsync().observeOn(RX.main()).subscribe(() -> {
+//                                dialogsListAdapter.updateItemById(holder);
+//                                if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved)) {
+//                                    sortByLastMessageDate();
+//                                }
+//                            }));
+//                        }
+//                    }
+////                    else if (networkEvent.typeIs(EventType.TypingStateUpdated)) {
+////                        if (inList) {
+////                            if (networkEvent.getText() != null) {
+////                                String typingText = networkEvent.getText();
+////                                typingText += getString(R.string.typing);
+////                                dialogsListAdapter.updateItemById(new TypingThreadHolder(thread, typingText));
+////                            } else {
+////                                dialogsListAdapter.updateItemById(holder);
+////                            }
+////                        }
+////                    }
+//                    else {
+//                        if (inList) {
+//                            dialogsListAdapter.updateItemById(holder);
+//                        }
+//                    }
+//                }
+////                else {
+////                    if (networkEvent.typeIs(EventType.UserPresenceUpdated, EventType.UserMetaUpdated)) {
+////                        softReloadData();
+////                    }
+////                }
+//            }
+//
+//            @Override
+//            public void batchFinished() {
+//                RX.main().scheduleDirect(() -> {
+//                    loadData();
+//                    Logger.warn("Load Load Load");
+//                });
+//            }
+//        });
 
         dm.add(ChatSDK.events().sourceOnBackground()
                 .filter(mainEventFilter())
@@ -417,15 +459,6 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 dialogsListAdapter.updateItemById(holder);
             }
             sortByLastMessageDate();
-//
-//            getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder1 -> {
-//                if (dialogsListAdapter.getItemById(holder1.getId()) == null) {
-//                    dialogsListAdapter.addItem(holder1);
-//                } else {
-//                    dialogsListAdapter.updateItemById(holder1);
-//                }
-//                sortByLastMessageDate();
-//            }).ignoreElement().subscribe(this);
         } else {
             dialogsListAdapter.updateItemById(holder);
             sortByLastMessageDate();

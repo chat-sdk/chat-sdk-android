@@ -13,7 +13,7 @@ import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.ui.ChatSDKUI;
-import sdk.guru.common.RX;
+import sdk.guru.common.DisposableMap;
 
 public class ThreadHolder implements IDialog<MessageHolder> {
 
@@ -23,35 +23,95 @@ public class ThreadHolder implements IDialog<MessageHolder> {
     protected Integer unreadCount = null;
     protected Date creationDate;
     protected String displayName;
+    protected DisposableMap dm = new DisposableMap();
 
     public ThreadHolder(Thread thread) {
         this.thread = thread;
         creationDate = thread.getCreationDate();
-        update();
+
+//        dm.add(ChatSDK.events().sourceOnMain()
+//                .filter(NetworkEvent.filterType(EventType.MessageUpdated))
+//                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+//                .subscribe(networkEvent -> {
+//                    updateLastMessage();
+//                }));
+//
+//        dm.add(ChatSDK.events().sourceOnMain()
+//                .filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated))
+//                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+//                .subscribe(networkEvent -> {
+//
+//                }));
+//
+//        dm.add(ChatSDK.events().sourceOnMain()
+//                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
+//                .filter(NetworkEvent.filterThreadContainsUser(thread))
+//                .subscribe(networkEvent -> {
+//
+//                }));
+//
+//        dm.add(ChatSDK.events().sourceOnMain()
+//                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
+//                .filter(NetworkEvent.filterThreadContainsUser(thread))
+//                .subscribe(networkEvent -> {
+//                    updateDisplayName();
+//                }));
+//
+//        dm.add(ChatSDK.events().sourceOnMain()
+//                .filter(NetworkEvent.filterType(EventType.TypingStateUpdated))
+//                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+//                .subscribe(networkEvent -> {
+//                }));
+//
+//        dm.add(ChatSDK.events().sourceOnMain()
+//                .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated))
+//                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
+//                .subscribe(networkEvent -> {
+//                    updateDisplayName();
+//                }));
+//
+//        update();
     }
 
     public Completable updateAsync() {
-        return Completable.create(emitter -> {
-            update();
-            emitter.onComplete();
-        }).subscribeOn(RX.computation());
+        return Completable.complete();
+//        return Completable.create(emitter -> {
+//            update();
+//            emitter.onComplete();
+//        }).subscribeOn(RX.computation());
     }
 
     public void update() {
-        Message message = thread.lastMessage();
-        if (message != null) {
-            lastMessage = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
-        } else {
-            lastMessage = null;
-        }
+//        updateLastMessage();
+//        updateDisplayName();
+//        updateUsers();
+//        updateUnreadCount();
+    }
+
+    public void updateUnreadCount() {
+        unreadCount = thread.getUnreadMessagesCount();
+    }
+
+    public void updateUsers() {
         users.clear();
         for (User user: thread.getUsers()) {
             if (!user.isMe()) {
                 users.add(new UserHolder(user));
             }
         }
-        unreadCount = thread.getUnreadMessagesCount();
+    }
+
+    public void updateDisplayName() {
         displayName = thread.getDisplayName();
+    }
+
+    public void updateLastMessage() {
+        Message message = thread.lastMessage();
+        if (message != null) {
+            lastMessage = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
+        } else {
+            lastMessage = null;
+        }
     }
 
     @Override
@@ -79,28 +139,32 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     @Override
     public String getDialogName() {
-        if (displayName == null || displayName.isEmpty()) {
-            update();
-        }
-        return displayName;
+        return thread.getDisplayName();
+
+//        if (displayName == null || displayName.isEmpty()) {
+//            update();
+//        }
+//        return displayName;
     }
 
     @Override
     public List<UserHolder> getUsers() {
-        if (users == null) {
-            List<UserHolder> list = new ArrayList<>();
-            for (User user: thread.getUsers()) {
-                if (!user.isMe()) {
-                    list.add(new UserHolder(user));
-                }
-            }
-            users = list;
-        }
+//        if (users == null) {
+//            List<UserHolder> list = new ArrayList<>();
+//            for (User user: thread.getUsers()) {
+//                if (!user.isMe()) {
+//                    list.add(new UserHolder(user));
+//                }
+//            }
+//            users = list;
+//        }
+        updateUsers();
         return users;
     }
 
     @Override
     public MessageHolder getLastMessage() {
+        updateLastMessage();
         return lastMessage;
     }
 
@@ -112,9 +176,10 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     @Override
     public int getUnreadCount() {
-        if (unreadCount == null) {
-            unreadCount = thread.getUnreadMessagesCount();
-        }
+//        if (unreadCount == null) {
+//            unreadCount = thread.getUnreadMessagesCount();
+//        }
+        updateUnreadCount();
         return unreadCount;
     }
 

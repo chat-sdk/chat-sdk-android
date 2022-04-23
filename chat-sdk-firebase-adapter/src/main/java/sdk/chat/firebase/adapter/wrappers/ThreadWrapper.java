@@ -197,6 +197,8 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
      * @return*/
     protected void messagesAddedOn() {
 
+
+
         if (RealtimeReferenceManager.shared().isOn(messagesRef())) {
             return;
         }
@@ -525,28 +527,28 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             }
 
             query.addListenerForSingleValueEvent(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
-                List<Message> messages = new ArrayList<>();
+//                ChatSDK.db().getDaoCore().getDaoSession().runInTx(() -> {
+                    List<Message> messages = new ArrayList<>();
+                    if(hasValue) {
 
-                if(hasValue) {
+                        Map<String, Object> hashData = snapshot.getValue(Generic.mapStringObject());
 
-                    Map<String, Object> hashData = snapshot.getValue(Generic.mapStringObject());
+                        MessageWrapper message;
+                        for (String key : hashData.keySet()) {
+                            message = FirebaseModule.config().provider.messageWrapper(snapshot.child(key));
+                            model.addMessage(message.getModel(), false);
+                            messages.add(message.getModel());
+                        }
 
-                    MessageWrapper message;
-                    for (String key : hashData.keySet()) {
-                        message = FirebaseModule.config().provider.messageWrapper(snapshot.child(key));
-                        model.addMessage(message.getModel(), false);
-                        messages.add(message.getModel());
+                        // Sort the messages
+                        // We need to do this because the data comes as a hash map that's not sorted
+                        Collections.sort(messages, new MessageSorter());
+
+                        ChatSDK.events().source().accept(NetworkEvent.messageAdded(messages.get(0)));
                     }
 
-                    // Sort the messages
-                    // We need to do this because the data comes as a hash map that's not sorted
-                    Collections.sort(messages, new MessageSorter());
-
-                    ChatSDK.events().source().accept(NetworkEvent.messageAdded(messages.get(0)));
-
-                }
-
-                e.onSuccess(messages);
+                    e.onSuccess(messages);
+//                });
             }));
         }).subscribeOn(RX.io());
     }

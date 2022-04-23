@@ -317,6 +317,15 @@ public class NetworkEvent {
         };
     }
 
+    public static Predicate<NetworkEvent> filterThreadContainsUser(final Thread thread) {
+        return networkEvent -> {
+            if(networkEvent.getUser() != null && thread != null) {
+                return thread.containsUser(networkEvent.getUser());
+            }
+            return false;
+        };
+    }
+
     public static Predicate<NetworkEvent> filterThreadTypeOrNull(final int type) {
         return networkEvent -> {
             if(networkEvent.getThread() != null) {
@@ -407,7 +416,7 @@ public class NetworkEvent {
         if (message != null) {
             text += ", " + message.getEntityID() + " - " + message.getText();
         }
-        Logger.debug(text);
+        Logger.warn(text);
     }
 
     public Message getMessage() {

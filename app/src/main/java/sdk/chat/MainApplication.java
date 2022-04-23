@@ -77,8 +77,27 @@ public class MainApplication extends Application {
         System.out.println("Done");
 
 
+
+
+
         try {
             firebase();
+
+//            ChatSDK.hook().addHook(Hook.sync(data -> {
+//
+//                Lorem lorem = LoremIpsum.getInstance();
+//
+//                for (int i = 0; i < 50; i++) {
+//                    Disposable d = ChatSDK.thread().createThread(lorem.getName(), ChatSDK.contact().contacts()).subscribe(thread -> {
+//                        // Add some messages
+//                        for (int j = 0; j < 100; j++) {
+//                            ChatSDK.thread().sendMessageWithText(lorem.getCity(), thread).subscribe();
+//                        }
+//                    });
+//                }
+//
+//
+//            }), HookEvent.DidAuthenticate);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -167,9 +186,8 @@ public class MainApplication extends Application {
         //
         // User, Thread, Message
         Disposable d = ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageAdded))
                 .subscribe(networkEvent -> {
-                    networkEvent.getMessage();
+                    networkEvent.debug();
         });
         d.dispose();
 
