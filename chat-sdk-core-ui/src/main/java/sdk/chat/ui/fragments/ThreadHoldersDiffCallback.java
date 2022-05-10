@@ -35,8 +35,14 @@ public class ThreadHoldersDiffCallback extends DiffUtil.Callback {
 
     @Override
     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-        ThreadHolder oldHolder = oldThreadHolderList.get(oldItemPosition);
         ThreadHolder newHolder = newThreadHolderList.get(newItemPosition);
-        return oldHolder.contentsIsEqual(newHolder);
+        if (newHolder.isDirty()) {
+            newHolder.markClean();
+            return false;
+        }
+        return true;
+
+//        ThreadHolder oldHolder = oldThreadHolderList.get(oldItemPosition);
+//        return oldHolder.contentsIsEqual(newHolder);
     }
 }

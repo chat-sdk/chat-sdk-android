@@ -38,7 +38,6 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
 
     @Override
     public void onBind(ThreadHolder holder) {
-//        holder.update();
 
         if (typingThreadHolder != null) {
             holder = typingThreadHolder;
@@ -67,6 +66,7 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
         bindOnlineIndicator(holder);
         bindReadStatus(holder);
 
+        holder.markClean();
         addListeners(holder);
     }
 
@@ -94,6 +94,7 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
                 .filter(NetworkEvent.filterType(EventType.MessageUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(holder.getId()))
                 .subscribe(networkEvent -> {
+                    holder.updateLastMessage();
                     super.onBind(holder);
         }));
 
@@ -101,6 +102,7 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
                 .filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(holder.getId()))
                 .subscribe(networkEvent -> {
+                    holder.updateUnreadCount();
                     bindReadStatus(holder);
                 }));
 
@@ -115,6 +117,7 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
                 .filter(NetworkEvent.filterThreadContainsUser(holder.getThread()))
                 .subscribe(networkEvent -> {
+                    holder.updateDisplayName();
                     super.onBind(holder);
                 }));
 
@@ -122,6 +125,7 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
                 .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(holder.getId()))
                 .subscribe(networkEvent -> {
+                    holder.updateLastMessage();
                     super.onBind(holder);
                 }));
 

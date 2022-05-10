@@ -13,9 +13,6 @@ import java.util.Set;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
-import sdk.chat.core.events.EventType;
-import sdk.chat.core.events.NetworkEvent;
-import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.guru.common.DisposableMap;
 
@@ -29,47 +26,13 @@ public class ThreadHolder implements IDialog<MessageHolder> {
     protected String displayName;
     protected DisposableMap dm = new DisposableMap();
 
-    protected String typingText = null;
+    protected boolean isDirty;
+
+//    protected String typingText = null;
 
     public ThreadHolder(Thread thread) {
         this.thread = thread;
         creationDate = thread.getCreationDate();
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .subscribe(networkEvent -> {
-                    updateLastMessage();
-                }));
-
-                dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .subscribe(networkEvent -> {
-                    updateUnreadCount();
-                }));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
-                .filter(NetworkEvent.filterThreadContainsUser(thread))
-                .subscribe(networkEvent -> {
-                    updateDisplayName();
-                }));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.TypingStateUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .subscribe(networkEvent -> {
-
-                }));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
-                .subscribe(networkEvent -> {
-                    updateDisplayName();
-                }));
-
         update();
     }
 
@@ -79,6 +42,14 @@ public class ThreadHolder implements IDialog<MessageHolder> {
         updateUsers();
         updateUnreadCount();
     }
+
+    public void checkDirty() {
+        updateLastMessage();
+        updateDisplayName();
+        updateUsers();
+        updateUnreadCount();
+    }
+
 
     public void updateUnreadCount() {
         unreadCount = thread.getUnreadMessagesCount();
@@ -94,11 +65,22 @@ public class ThreadHolder implements IDialog<MessageHolder> {
     }
 
     public void updateDisplayName() {
-        displayName = thread.getDisplayName();
+        String newName = thread.getDisplayName();
+        if (!isDirty) {
+            isDirty = !newName.equals(displayName);
+        }
+        displayName = newName;
     }
 
     public void updateLastMessage() {
         Message message = thread.lastMessage();
+
+        if (!isDirty) {
+            String lastMessageId = lastMessage != null ? lastMessage.getId() : "";
+            String messageId = message != null ? message.getEntityID() : "";
+            isDirty = !messageId.equals(lastMessageId);
+        }
+
         if (message != null) {
             lastMessage = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
         } else {
@@ -132,25 +114,10 @@ public class ThreadHolder implements IDialog<MessageHolder> {
     @Override
     public String getDialogName() {
         return thread.getDisplayName();
-
-//        if (displayName == null || displayName.isEmpty()) {
-//            update();
-//        }
-//        return displayName;
     }
 
     @Override
     public List<UserHolder> getUsers() {
-//        if (users == null) {
-//            List<UserHolder> list = new ArrayList<>();
-//            for (User user: thread.getUsers()) {
-//                if (!user.isMe()) {
-//                    list.add(new UserHolder(user));
-//                }
-//            }
-//            users = list;
-//        }
-
         if (users == null) {
             updateUsers();
         }
@@ -174,9 +141,6 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     @Override
     public int getUnreadCount() {
-        if (typingText != null) {
-            return 0;
-        }
         if (unreadCount == null) {
             updateUnreadCount();
         }
@@ -228,5 +192,12 @@ public class ThreadHolder implements IDialog<MessageHolder> {
         return thread.getWeight();
     }
 
+    public boolean isDirty() {
+        return isDirty;
+    }
+
+    public void markClean() {
+        isDirty = false;
+    }
 
 }
