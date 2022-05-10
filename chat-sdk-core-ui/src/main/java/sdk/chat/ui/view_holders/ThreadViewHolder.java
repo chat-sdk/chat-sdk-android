@@ -12,11 +12,7 @@ import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import sdk.chat.core.events.EventType;
-import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.ThreadHolder;
 import sdk.chat.ui.chat.model.TypingThreadHolder;
@@ -65,9 +61,6 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
 
         bindOnlineIndicator(holder);
         bindReadStatus(holder);
-
-        holder.markClean();
-        addListeners(holder);
     }
 
     public void bindReadStatus(ThreadHolder holder) {
@@ -87,69 +80,10 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
         }
     }
 
-    public void addListeners(ThreadHolder holder) {
-        dm.dispose();
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(holder.getId()))
-                .subscribe(networkEvent -> {
-                    holder.updateLastMessage();
-                    super.onBind(holder);
-        }));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(holder.getId()))
-                .subscribe(networkEvent -> {
-                    holder.updateUnreadCount();
-                    bindReadStatus(holder);
-                }));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
-                .filter(NetworkEvent.filterThreadContainsUser(holder.getThread()))
-                .subscribe(networkEvent -> {
-                    bindOnlineIndicator(holder);
-                }));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
-                .filter(NetworkEvent.filterThreadContainsUser(holder.getThread()))
-                .subscribe(networkEvent -> {
-                    holder.updateDisplayName();
-                    super.onBind(holder);
-                }));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageRemoved))
-                .filter(NetworkEvent.filterThreadEntityID(holder.getId()))
-                .subscribe(networkEvent -> {
-                    holder.updateLastMessage();
-                    super.onBind(holder);
-                }));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.TypingStateUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(holder.getId()))
-                .subscribe(networkEvent -> {
-                    if (networkEvent.getText() != null) {
-                        String typingText = networkEvent.getText();
-                        typingText += ChatSDK.getString(R.string.typing);
-                        typingThreadHolder = new TypingThreadHolder(networkEvent.getThread(), typingText);
-                        super.onBind(typingThreadHolder);
-                    } else {
-                        typingThreadHolder = null;
-                        super.onBind(holder);
-                    }
-                }));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(holder.getId()))
-                .subscribe(networkEvent -> {
-                    super.onBind(holder);
-                }));
-    }
+//    public void addListeners(ThreadHolder holder) {
+//        dm.dispose();
+//
+//
+//    }
 
 }

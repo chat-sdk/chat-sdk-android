@@ -82,8 +82,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @Override
     public void onStart() {
         super.onStart();
-//        reloadData();
-//        addListeners();
+        addListeners();
     }
 
     @Override
@@ -109,13 +108,34 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         }
         listenersAdded = true;
 
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageRemoved))
+                .subscribe(networkEvent -> {
+                    root.post(() -> {
+                        synchronize(true);
+                    });
+                }));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(
+                        EventType.ThreadMetaUpdated,
+                        EventType.TypingStateUpdated,
+                        EventType.UserMetaUpdated,
+                        EventType.MessageReadReceiptUpdated,
+                        EventType.MessageUpdated))
+                .subscribe(networkEvent -> {
+                    root.post(() -> {
+                        //
+                        synchronize(false);
+                    });
+                }));
+
         dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(
                 EventType.ThreadsUpdated,
                 EventType.ThreadAdded,
                 EventType.ThreadRemoved,
                 EventType.MessageAdded,
-                EventType.MessageRemoved,
-                EventType.TypingStateUpdated
+                EventType.MessageRemoved
         )).subscribe(networkEvent -> {
 
             if (networkEvent.typeIs(EventType.ThreadsUpdated)) {
@@ -123,53 +143,34 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             } else {
                 final Thread thread = networkEvent.getThread();
                 if (thread != null) {
-                    ThreadHolder holder = threadHolderHashMap.get(thread);
-                    final boolean inList = holder != null;
-
                     if (networkEvent.typeIs(EventType.ThreadAdded)) {
-                        if (!inList) {
+                        root.post(() -> {
                             addThread(thread, true, true);
-//                            addOrUpdateThread(thread);
-                        }
+                        });
                     }
                     else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
-                        if (inList) {
+                        root.post(() -> {
                             removeThread(thread);
-                        }
+                        });
                     }
-                    // TODO: Thread
                     else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved)) {
-                        if (inList) {
-                            updateThread(thread);
-//                            sortByLastMessageDate();
-                        }
+                        root.post(() -> {
+                            if (!addThread(thread, true, true)) {
+                                synchronize(true);
+                            }
+                        });
                     }
-//                    else {
-//                        if (inList) {
-//                            dialogsListAdapter.updateItemById(holder);
-//                        }
-//                    }
                 }
-
             }
         }));
 
         dm.add(ChatSDK.events().sourceOnBackground()
-//                .filter(mainEventFilter())
                 .filter(NetworkEvent.filterType(EventType.Logout))
                 .observeOn(RX.main())
                 .subscribe(networkEvent -> {
-
-//                    if (networkEvent.typeIs(EventType.Logout)) {
-                        threadHolderHashMap.clear();
-                        dialogsListAdapter.clear();
-//                    } else {
-//                        batcher.add(networkEvent, networkEvent.typeIs(EventType.TypingStateUpdated));
-//                    }
-//
-//                    Logger.debug("Network Event: " + networkEvent.type);
-
-
+                    threadHolderHashMap.clear();
+                    threadHolders.clear();
+                    dialogsListAdapter.clear();
                 }));
     }
 
@@ -313,30 +314,19 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                     for (Thread thread : threads) {
                         addThread(thread, false, false);
                     }
-                    sortThreadHolders();
                     return threadHolders;
                 }).observeOn(RX.single()).observeOn(RX.main()).doOnSuccess(threadHolders -> {
-                    synchronize();
-                    addListeners();
+                    synchronize(true);
                 }).subscribe();
 
                 didLoadData = true;
             } else {
-                sortThreadHolders();
-                synchronize();
+                synchronize(true);
             }
         }
     }
 
-//    public ThreadHolder getOrCreateThreadHolder(Thread thread) {
-//        ThreadHolder holder = threadHolderHashMap.get(thread);
-//        if (holder == null) {
-//            holder = createThreadHolder(thread);
-//        }
-//        return holder;
-//    }
-
-    public void addThread(Thread thread, boolean sort, boolean sync) {
+    public boolean addThread(Thread thread, boolean sort, boolean sync) {
         if (!threadHolderExists(thread)) {
             ThreadHolder holder = createThreadHolder(thread);
             threadHolders.add(holder);
@@ -344,13 +334,19 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 sortThreadHolders();
             }
             if (sync) {
-                synchronize();
+                synchronize(false);
             }
+            return true;
         }
+        return false;
     }
 
     // Synchronize the thread holders with the list
-    protected void synchronize() {
+    protected void synchronize(boolean sort) {
+
+        if (sort) {
+            sortThreadHolders();
+        }
 
         long start = System.currentTimeMillis();
 
@@ -370,56 +366,12 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     }
 
-    protected class UpdateThread {
-        int from = -1;
-        int to = -1;
-        boolean doUpdate() {
-            return from != -1 && to != -1 && from != to;
-        }
-    }
-
     public void updateThread(final Thread thread) {
         final ThreadHolder holder = threadHolderHashMap.get(thread);
         if (holder != null) {
-
             holder.update();
-            synchronize();
-
-            sortThreadHolders();
-
-            int from = dialogsListAdapter.getItems().indexOf(holder);
-            int to = threadHolders.indexOf(holder);
-
-            // TODO: Thread
-//            dialogsListAdapter.updateItemById(holder);
-            if (from >=0) {
-                if (to >= 0 && from != to) {
-                    dialogsListAdapter.moveItem(from, to);
-                } else {
-                    // TODO: Doesn't seem to cause update
-                    dialogsListAdapter.notifyItemChanged(from);
-                }
-            }
+            synchronize(false);
         }
-
-//        if (holder != null) {
-//            Single.create((SingleOnSubscribe<UpdateThread>) emitter -> {
-//
-//                sortThreadHolders();
-//
-//                UpdateThread update = new UpdateThread();
-//
-//                update.from = dialogsListAdapter.getItems().indexOf(holder);
-//                update.to = threadHolders.indexOf(holder);
-//
-//            }).subscribeOn(RX.single()).observeOn(RX.main()).doOnSuccess(update -> {
-//
-//                dialogsListAdapter.updateItemById(holder);
-//                if (update.doUpdate()) {
-//                    dialogsListAdapter.moveItem(update.from, update.to);
-//                }
-//
-//            }).subscribe();
 
     }
 
@@ -431,28 +383,6 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             return o2.getDate().compareTo(o1.getDate());
         });
     }
-
-//    public void sortByLastMessageDate() {
-////         TODO: Thread
-//        dialogsListAdapter.sort((o1, o2) -> {
-//            if (!o1.getWeight().equals(o2.getWeight())) {
-//                return o1.getWeight().compareTo(o2.getWeight());
-//            }
-//            return o2.getDate().compareTo(o1.getDate());
-//        });
-//    }
-
-//    public Single<ThreadHolder> getOrCreateThreadHolderAsync(Thread thread) {
-//        return Single.create((SingleOnSubscribe<ThreadHolder>) emitter -> {
-//            ThreadHolder holder = threadHolderHashMap.get(thread);
-//            if (holder == null) {
-//                holder = new ThreadHolder(thread);
-//                threadHolderHashMap.put(thread, holder);
-//            }
-//            emitter.onSuccess(holder);
-//        }).subscribeOn(RX.single());
-//    }
-//
 
     public ThreadHolder createThreadHolder(Thread thread) {
         ThreadHolder holder = new ThreadHolder(thread);
@@ -469,7 +399,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         if (holder != null) {
             threadHolderHashMap.remove(thread);
             threadHolders.remove(holder);
-            synchronize();
+            synchronize(false);
         }
     }
 

@@ -33,6 +33,8 @@ public class MessageHolder implements IMessage {
     protected boolean showDate;
     protected String quotedImageURL;
 
+    protected String typingText = null;
+
     public MessageHolder(Message message) {
         this.message = message;
         update();
@@ -62,6 +64,9 @@ public class MessageHolder implements IMessage {
 
     @Override
     public String getText() {
+        if (typingText != null) {
+            return typingText;
+        }
         if (isReply()) {
             return message.getReply();
         }
@@ -179,5 +184,8 @@ public class MessageHolder implements IMessage {
         return false;
     }
 
+    public void setTypingText(String text) {
+        typingText = text;
+    }
 
 }

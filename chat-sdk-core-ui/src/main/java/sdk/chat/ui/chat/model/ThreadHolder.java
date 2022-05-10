@@ -13,27 +13,85 @@ import java.util.Set;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.events.EventType;
+import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.ChatSDKUI;
+import sdk.chat.ui.R;
 import sdk.guru.common.DisposableMap;
 
 public class ThreadHolder implements IDialog<MessageHolder> {
 
     protected Thread thread;
+
     protected List<UserHolder> users = new ArrayList<>();
+    protected Set<String> userIds = new HashSet<>();
+
     protected MessageHolder lastMessage = null;
-    protected Integer unreadCount = null;
+    protected int unreadCount = -1;
     protected Date creationDate;
     protected String displayName;
     protected DisposableMap dm = new DisposableMap();
 
     protected boolean isDirty;
 
-//    protected String typingText = null;
+    protected String typingText = null;
 
     public ThreadHolder(Thread thread) {
         this.thread = thread;
         creationDate = thread.getCreationDate();
         update();
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageUpdated))
+                .filter(NetworkEvent.filterThreadEntityID(getId()))
+                .subscribe(networkEvent -> {
+                    updateLastMessage();
+                }));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated))
+                .filter(NetworkEvent.filterThreadEntityID(getId()))
+                .subscribe(networkEvent -> {
+                    updateUnreadCount();
+                    updateLastMessage();
+                }));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
+                .filter(NetworkEvent.filterThreadContainsUser(thread))
+                .subscribe(networkEvent -> {
+                    updateDisplayName();
+                }));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageRemoved))
+                .filter(NetworkEvent.filterThreadEntityID(getId()))
+                .subscribe(networkEvent -> {
+                    updateLastMessage();
+                }));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.TypingStateUpdated))
+                .filter(NetworkEvent.filterThreadEntityID(getId()))
+                .subscribe(networkEvent -> {
+                    if (networkEvent.getText() != null) {
+                        typingText = networkEvent.getText();
+                        typingText += ChatSDK.getString(R.string.typing);
+                        isDirty = true;
+                    } else {
+                        typingText = null;
+                        isDirty = true;
+                    }
+                }));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated))
+                .filter(NetworkEvent.filterThreadEntityID(getId()))
+                .subscribe(networkEvent -> {
+                    updateDisplayName();
+                }));
+
     }
 
     public void update() {
@@ -43,23 +101,29 @@ public class ThreadHolder implements IDialog<MessageHolder> {
         updateUnreadCount();
     }
 
-    public void checkDirty() {
-        updateLastMessage();
-        updateDisplayName();
-        updateUsers();
-        updateUnreadCount();
-    }
-
-
     public void updateUnreadCount() {
-        unreadCount = thread.getUnreadMessagesCount();
+        int count = thread.getUnreadMessagesCount();
+        if (!isDirty && count != unreadCount) {
+            isDirty = true;
+        }
+        unreadCount = count;
     }
 
     public void updateUsers() {
-        users.clear();
+        Set<String> newUserIds = new HashSet<>();
         for (User user: thread.getUsers()) {
             if (!user.isMe()) {
-                users.add(new UserHolder(user));
+                newUserIds.add(user.getEntityID());
+            }
+        }
+        isDirty = !userIds.equals(newUserIds);
+        if (isDirty) {
+            userIds = newUserIds;
+            users.clear();
+            for (User user: thread.getUsers()) {
+                if (!user.isMe()) {
+                    users.add(new UserHolder(user));
+                }
             }
         }
     }
@@ -94,7 +158,8 @@ public class ThreadHolder implements IDialog<MessageHolder> {
     }
 
     public void markRead() {
-        unreadCount = null;
+        unreadCount = -1;
+        isDirty = true;
     }
 
     @Override
@@ -113,7 +178,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     @Override
     public String getDialogName() {
-        return thread.getDisplayName();
+        return displayName;
     }
 
     @Override
@@ -126,54 +191,60 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     @Override
     public MessageHolder getLastMessage() {
-        // TODO: Thread
         if (lastMessage == null) {
             updateLastMessage();
+        }
+        if (lastMessage != null) {
+            lastMessage.setTypingText(typingText);
         }
         return lastMessage;
     }
 
     @Override
     public void setLastMessage(MessageHolder message) {
+        // TODO: Check
         lastMessage = message;
-        unreadCount = null;
+        unreadCount = -1;
     }
 
     @Override
     public int getUnreadCount() {
-        if (unreadCount == null) {
+        if (typingText != null) {
+            return 0;
+        }
+        if (unreadCount == -1) {
             updateUnreadCount();
         }
-        return unreadCount;
+        return unreadCount == -1 ? 0 : unreadCount;
     }
 
-    public boolean contentsIsEqual(ThreadHolder holder) {
-        // Do some null checks
-        if (getDialogName() != null && holder.getDialogName() != null) {
-            if (!getDialogName().equals(holder.getDialogName())) {
-                return false;
-            }
-        }
-        if (getDialogPhoto() != null && holder.getDialogPhoto() != null) {
-            if (!getDialogPhoto().equals(holder.getDialogPhoto())) {
-                return false;
-            }
-        }
-        if (getLastMessage() != null && holder.getLastMessage() != null) {
-            if (!getLastMessage().equals(holder.getLastMessage())) {
-                return false;
-            }
-        }
-        if (getUnreadCount() != holder.getUnreadCount()) {
-            return false;
-        }
-        Set<UserHolder> thisUsers = new HashSet<>(getUsers());
-        Set<UserHolder> thatUsers = new HashSet<>(holder.getUsers());
-        if (!thisUsers.equals(thatUsers)) {
-            return false;
-        }
-        return true;
-    }
+//    public boolean contentsIsEqual(ThreadHolder holder) {
+//        // Do some null checks
+//        if (getDialogName() != null && holder.getDialogName() != null) {
+//            if (!getDialogName().equals(holder.getDialogName())) {
+//                return false;
+//            }
+//        }
+//        if (getDialogPhoto() != null && holder.getDialogPhoto() != null) {
+//            if (!getDialogPhoto().equals(holder.getDialogPhoto())) {
+//                return false;
+//            }
+//        }
+//        if (getLastMessage() != null && holder.getLastMessage() != null) {
+//            if (!getLastMessage().equals(holder.getLastMessage())) {
+//                return false;
+//            }
+//        }
+//        if (getUnreadCount() != holder.getUnreadCount()) {
+//            return false;
+//        }
+//        Set<UserHolder> thisUsers = new HashSet<>(getUsers());
+//        Set<UserHolder> thatUsers = new HashSet<>(holder.getUsers());
+//        if (!thisUsers.equals(thatUsers)) {
+//            return false;
+//        }
+//        return true;
+//    }
 
     @Override
     public boolean equals(Object object) {
