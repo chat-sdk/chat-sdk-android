@@ -44,6 +44,8 @@ public class MainApplication extends Application {
 
 //            store = new SecureKeyStore(this);
 
+
+
             ChatSDK.builder()
 
                     // Configure the library
@@ -53,7 +55,13 @@ public class MainApplication extends Application {
                     .setThreadDestructionEnabled(false)
                     .setClientPushEnabled(true)
                     .setAllowUserToRejoinGroup(true)
+
+                    .setDebugUsername("2")
+                    .setDebugPassword("123")
+
                     .build()
+
+
 
                     // Add modules to handle file uploads, push notifications
                     .addModule(FirebaseUploadModule.shared())
@@ -61,8 +69,11 @@ public class MainApplication extends Application {
 
                     .addModule(XMPPModule.builder()
 //                            .setXMPP("we-connect-dev.com", "we-connect-dev.com")
-//                            .setXMPP("xmpp.app", "xmpp.app")
-                            .setXMPP("91.196.232.99", "localhost", 10045)
+                            .setXMPP("xmpp.app", "xmpp.app")
+//                            .setXMPP("75.119.138.93", "xmpp.app")
+//                            .setXMPP("91.196.232.99", "localhost", 10045, "Android")
+//                            .setXMPP("wavea.cc", "localhost", 10045, "Android")
+                            .setSecurityMode("required")
                             .setAllowServerConfiguration(false)
 //                            .setSecurityMode("required")
 //                            .setSecurityMode("ifpossible")
@@ -70,7 +81,6 @@ public class MainApplication extends Application {
                             .setPingInterval(5)
 
                             .setDebugEnabled(true)
-                            .setSecurityMode("ifpossible")
                             .build())
 
                     .addModule(AudioMessageModule.shared())

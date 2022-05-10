@@ -154,4 +154,5 @@ public class UIModule extends AbstractModule implements InterfaceAdapterProvider
     }
 
 
+
 }

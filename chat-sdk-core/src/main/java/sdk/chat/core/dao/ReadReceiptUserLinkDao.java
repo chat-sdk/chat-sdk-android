@@ -56,6 +56,13 @@ public class ReadReceiptUserLinkDao extends AbstractDao<ReadReceiptUserLink, Lon
                 "\"USER_ID\" INTEGER," + // 2: userId
                 "\"STATUS\" INTEGER," + // 3: status
                 "\"DATE\" INTEGER);"); // 4: date
+        // Add Indexes
+        db.execSQL("CREATE INDEX " + constraint + "IDX_READ_RECEIPT_USER_LINK_MESSAGE_ID ON \"READ_RECEIPT_USER_LINK\"" +
+                " (\"MESSAGE_ID\" ASC);");
+        db.execSQL("CREATE INDEX " + constraint + "IDX_READ_RECEIPT_USER_LINK_USER_ID ON \"READ_RECEIPT_USER_LINK\"" +
+                " (\"USER_ID\" ASC);");
+        db.execSQL("CREATE INDEX " + constraint + "IDX_READ_RECEIPT_USER_LINK_STATUS ON \"READ_RECEIPT_USER_LINK\"" +
+                " (\"STATUS\" ASC);");
     }
 
     /** Drops the underlying database table. */

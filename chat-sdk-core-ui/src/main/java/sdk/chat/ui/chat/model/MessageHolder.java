@@ -1,5 +1,7 @@
 package sdk.chat.ui.chat.model;
 
+import android.content.Context;
+
 import com.stfalcon.chatkit.commons.models.IMessage;
 
 import org.pmw.tinylog.Logger;
@@ -9,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import io.reactivex.Single;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -167,5 +170,14 @@ public class MessageHolder implements IMessage {
     public MessageDirection direction() {
         return getUser().isMe() ? MessageDirection.Outcoming : MessageDirection.Incoming;
     }
+
+    public Single<String> save(final Context context) {
+        return Single.just("");
+    }
+
+    public boolean canSave() {
+        return false;
+    }
+
 
 }

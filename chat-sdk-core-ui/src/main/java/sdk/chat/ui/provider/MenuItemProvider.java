@@ -17,6 +17,7 @@ public class MenuItemProvider {
     public static int forwardItemId = 904;
     public static int replyItemId = 905;
     public static int callItemId = 906;
+    public static int saveItemId = 907;
 
     public MenuItem addAddItem(Context context, Menu menu, int order) {
         MenuItem item = menu.findItem(addItemId);
@@ -84,6 +85,16 @@ public class MenuItemProvider {
         if (item == null) {
             item = menu.add(Menu.NONE, callItemId, order, R.string.call)
                     .setIcon(Icons.get(context, ChatSDKUI.icons().call, ChatSDKUI.icons().actionBarIconColor));
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
+        return item;
+    }
+
+    public MenuItem addSaveItem(Context context, Menu menu, int order) {
+        MenuItem item = menu.findItem(saveItemId);
+        if (item == null) {
+            item = menu.add(Menu.NONE, saveItemId, order, R.string.save)
+                    .setIcon(Icons.get(context, ChatSDKUI.icons().save, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         return item;

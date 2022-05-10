@@ -51,6 +51,13 @@ public class ContactLinkDao extends AbstractDao<ContactLink, Long> {
                 "\"USER_ID\" INTEGER," + // 1: userId
                 "\"LINK_OWNER_USER_DAO_ID\" INTEGER," + // 2: linkOwnerUserDaoId
                 "\"TYPE\" INTEGER NOT NULL );"); // 3: type
+        // Add Indexes
+        db.execSQL("CREATE INDEX " + constraint + "IDX_CONTACT_LINK_USER_ID ON \"CONTACT_LINK\"" +
+                " (\"USER_ID\" ASC);");
+        db.execSQL("CREATE INDEX " + constraint + "IDX_CONTACT_LINK_LINK_OWNER_USER_DAO_ID ON \"CONTACT_LINK\"" +
+                " (\"LINK_OWNER_USER_DAO_ID\" ASC);");
+        db.execSQL("CREATE INDEX " + constraint + "IDX_CONTACT_LINK_TYPE ON \"CONTACT_LINK\"" +
+                " (\"TYPE\" ASC);");
     }
 
     /** Drops the underlying database table. */

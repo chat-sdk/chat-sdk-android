@@ -60,6 +60,7 @@ public class FirebasePushModule extends AbstractModule {
             this.broadcastHandler = handler;
             return this;
         }
+
     }
 
     protected Config<FirebasePushModule> config = new Config<>(this);

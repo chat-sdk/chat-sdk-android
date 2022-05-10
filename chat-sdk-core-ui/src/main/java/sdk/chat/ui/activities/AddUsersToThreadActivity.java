@@ -35,6 +35,8 @@ public class AddUsersToThreadActivity extends SelectContactActivity {
     protected void loadData () {
         final List<User> list = ChatSDK.contact().contacts();
 
+        Bundle extras = getIntent().getExtras();
+
         Object threadEntityIDObject = extras.get(Keys.IntentKeyThreadEntityID);;
         if (threadEntityIDObject instanceof String) {
             String threadEntityID = (String) threadEntityIDObject;

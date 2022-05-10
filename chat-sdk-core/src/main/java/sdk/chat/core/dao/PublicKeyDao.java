@@ -45,9 +45,14 @@ public class PublicKeyDao extends AbstractDao<PublicKey, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"PUBLIC_KEY\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
-                "\"ENTITY_ID\" TEXT UNIQUE ," + // 1: entityID
+                "\"ENTITY_ID\" TEXT," + // 1: entityID
                 "\"KEY\" TEXT," + // 2: key
                 "\"IDENTIFIER\" TEXT);"); // 3: identifier
+        // Add Indexes
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_PUBLIC_KEY_ENTITY_ID ON \"PUBLIC_KEY\"" +
+                " (\"ENTITY_ID\" ASC);");
+        db.execSQL("CREATE INDEX " + constraint + "IDX_PUBLIC_KEY_KEY ON \"PUBLIC_KEY\"" +
+                " (\"KEY\" ASC);");
     }
 
     /** Drops the underlying database table. */

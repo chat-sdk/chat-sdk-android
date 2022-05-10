@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 import sdk.chat.android.live.R;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -203,7 +204,11 @@ public class ZFirebaseEventHandler extends FirebaseEventHandler {
                 ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(R.string.you_were_removed_from_the_thread), thread.getModel());
             }
             thread.getModel().setPermission(user.getEntityID(), Permission.None, true, false);
-            thread.getModel().getUserThreadLink(ChatSDK.currentUser().getId()).setHasLeft(true);
+
+            UserThreadLink link = thread.getModel().getUserThreadLink(ChatSDK.currentUser().getId());
+            if (link != null) {
+                link.setHasLeft(true);
+            }
 
 //                ChatSDK.events().source().accept(NetworkEvent.threadRemoved(thread.getModel()));
 

@@ -68,14 +68,14 @@ public class SplashScreenActivity extends BaseActivity {
 
     protected void startMainActivity() {
         if (StringChecker.isNullOrEmpty(ChatSDK.currentUser().getName())) {
-            ChatSDK.ui().startPostRegistrationActivity(this, extras);
+            ChatSDK.ui().startPostRegistrationActivity(this, null);
         } else {
-            ChatSDK.ui().startMainActivity(this, extras);
+            ChatSDK.ui().startMainActivity(this, null);
         }
     }
 
     protected void startLoginActivity() {
-        startActivityForResult(ChatSDK.ui().getLoginIntent(this, extras), AUTH);
+        startActivityForResult(ChatSDK.ui().getLoginIntent(this, null), AUTH);
     }
 
     protected void startProgressBar() {

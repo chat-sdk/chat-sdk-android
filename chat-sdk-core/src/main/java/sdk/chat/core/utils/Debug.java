@@ -17,7 +17,7 @@ public class Debug {
             for(Message m: list) {
                 String t = m.getDate() + " : " + m.getEntityID() + " - " + m.getText();
                 text.add(t);
-                Logger.debug(t);
+                Logger.warn(t);
             }
             return text;
         }

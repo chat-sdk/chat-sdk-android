@@ -7,11 +7,10 @@ package sdk.chat.core.dao;
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
-
+import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.ToOne;
 
-import sdk.chat.core.base.AbstractEntity;
 import sdk.chat.core.types.ConnectionType;
 
 @org.greenrobot.greendao.annotation.Entity
@@ -19,10 +18,13 @@ public class ContactLink {
 
     @Id
     private Long id;
+    @Index
     private Long userId;
+    @Index
     private Long linkOwnerUserDaoId;
 
     @NotNull
+    @Index
     private Integer type;
 
     @ToOne(joinProperty = "userId")

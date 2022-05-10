@@ -7,7 +7,6 @@
 
 package sdk.chat.firebase.adapter.wrappers;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.firebase.database.DataSnapshot;
@@ -15,7 +14,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
-import com.google.firebase.database.ValueEventListener;
 
 import org.pmw.tinylog.Logger;
 
@@ -30,6 +28,7 @@ import java.util.Map;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
+import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -77,8 +76,9 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         return Completable.defer(() -> {
             Completable metaOnCompletable = metaOn().doOnComplete(() -> {
                 usersOn();
+                // TODO: Thread
                 permissionsOn();
-                messagesOn();
+//                messagesOn();
                 if (ChatSDK.typingIndicator() != null) {
                     ChatSDK.typingIndicator().typingOn(model);
                 }
@@ -86,8 +86,12 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
             // Update our permission level
 //            if (model.typeIs(ThreadType.Group)) {
+
+            // TODO: Thread
             return myPermission().andThen(metaOnCompletable);
-//            }
+//            return metaOnCompletable;
+
+            //            }
 //            return metaOnCompletable;
         });
     }
@@ -369,27 +373,40 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         final DatabaseReference ref = FirebasePaths.threadUsersRef(model.getEntityID());
 
         if(!RealtimeReferenceManager.shared().isOn(ref)) {
+
             RXRealtime realtime = new RXRealtime(this);
 
-            ref.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.getValue() != null) {
-                        Map<String, Object> map = snapshot.getValue(Generic.mapStringObject());
-                        for (String key: map.keySet()) {
-                            final UserWrapper user = FirebaseModule.config().provider.userWrapper(key);
-
-                            user.on().subscribe();
-                            model.addUser(user.getModel());
-                        }
-                    }
+        realtime.on(ref).doOnNext(document -> {
+            if (document.hasValue() && document.getType() == EventType.Modified) {
+                Map<String, Object> map = document.getSnapshot().getValue(Generic.mapStringObject());
+                for (String key: map.keySet()) {
+                    final UserWrapper user = FirebaseModule.config().provider.userWrapper(key);
+                    user.on().subscribe();
+                    model.addUser(user.getModel());
                 }
+            }
+        }).subscribe();
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
+            // TODO: Thread
+//            ref.addValueEventListener(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                    if (snapshot.getValue() != null) {
+//                        Map<String, Object> map = snapshot.getValue(Generic.mapStringObject());
+//                        for (String key: map.keySet()) {
+//                            final UserWrapper user = FirebaseModule.config().provider.userWrapper(key);
+//
+//                            user.on().subscribe();
+//                            model.addUser(user.getModel());
+//                        }
+//                    }
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError error) {
+//
+//                }
+//            });
 
             realtime.childOn(ref).map(change -> {
                 final UserWrapper user = FirebaseModule.config().provider.userWrapper(change.getSnapshot().getKey());
@@ -529,6 +546,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             query.addListenerForSingleValueEvent(new RealtimeEventListener().onValue((snapshot, hasValue) -> {
 //                ChatSDK.db().getDaoCore().getDaoSession().runInTx(() -> {
                     List<Message> messages = new ArrayList<>();
+
                     if(hasValue) {
 
                         Map<String, Object> hashData = snapshot.getValue(Generic.mapStringObject());
@@ -536,15 +554,21 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                         MessageWrapper message;
                         for (String key : hashData.keySet()) {
                             message = FirebaseModule.config().provider.messageWrapper(snapshot.child(key));
-                            model.addMessage(message.getModel(), false);
                             messages.add(message.getModel());
                         }
 
                         // Sort the messages
                         // We need to do this because the data comes as a hash map that's not sorted
-                        Collections.sort(messages, new MessageSorter());
+                        Collections.sort(messages, new MessageSorter(DaoCore.ORDER_ASC));
 
-                        ChatSDK.events().source().accept(NetworkEvent.messageAdded(messages.get(0)));
+                        for (Message m: messages) {
+                            model.addMessage(m, false, false);
+                        }
+
+                        model.update();
+
+                        ChatSDK.events().source().accept(NetworkEvent.threadMessagesUpdated(getModel()));
+//                        ChatSDK.events().source().accept(NetworkEvent.messageAdded(model.lastMessage()));
                     }
 
                     e.onSuccess(messages);
@@ -670,6 +694,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                         updateListenersForPermissions();
                     }
                 } else {
+                    // TODO: Thread
                     if (model.getCreator() != null && model.getCreator().isMe()) {
                         model.setPermission(change.getSnapshot().getKey(), Permission.Owner);
                     } else {
@@ -694,10 +719,10 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             RXRealtime realtime = new RXRealtime(this);
             return realtime.get(ref).flatMapCompletable(change -> {
                 if (!change.isEmpty()) {
-                    model.setPermission(currentEntityID, change.get().getValue(String.class), true, false);
+                    model.setPermission(ChatSDK.currentUser(), change.get().getValue(String.class), true, false);
                 } else {
                     // If no permission is set, we set it to member
-                    model.setPermission(currentEntityID, Permission.Member, true, false);
+                    model.setPermission(ChatSDK.currentUser(), Permission.Member, true, false);
                 }
                 return Completable.complete();
             });

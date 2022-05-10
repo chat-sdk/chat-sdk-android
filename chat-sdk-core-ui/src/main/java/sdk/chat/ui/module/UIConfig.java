@@ -46,7 +46,7 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean showNamesInGroupChatView = true;
     public boolean showAvatarInChatView = true;
     public String messageTimeFormat = "HH:mm";
-    public String threadTimeFormat = "dd/MM HH:mm";
+    public String threadTimeFormat = "HH:mm dd/MM";
     public boolean goToMainActivityOnChatActivityBackPressed = true;
 
     public boolean showFileSizeDuringUpload = false;
@@ -72,6 +72,8 @@ public class UIConfig<T> extends BaseConfig<T> {
     public Class<? extends InterfaceAdapter> interfaceAdapter = BaseInterfaceAdapter.class;
 
     public boolean keyboardOverlayEnabled = true;
+
+    public @ColorRes int threadViewHolderTypingTextColor = 0;
 
     public UIConfig(T onBuild) {
         super(onBuild);
@@ -383,6 +385,17 @@ public class UIConfig<T> extends BaseConfig<T> {
      */
     public UIConfig<T> setGoToMainActivityOnChatActivityBackPressed(boolean enabled) {
         this.goToMainActivityOnChatActivityBackPressed = enabled;
+        return this;
+    }
+
+    public UIConfig<T> setThreadViewHolderTypingTextColor(@ColorRes int value) {
+        this.threadViewHolderTypingTextColor = value;
+        return this;
+    }
+
+    public boolean includeDateAndNameWhenCopyingMessages = true;
+    public UIConfig<T> setIncludeDateAndNameWhenCopyingMessages(boolean value) {
+        this.includeDateAndNameWhenCopyingMessages = value;
         return this;
     }
 

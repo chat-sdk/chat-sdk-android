@@ -39,9 +39,7 @@ import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.ButterKnife;
 import io.reactivex.CompletableObserver;
@@ -58,7 +56,8 @@ import sdk.guru.common.DisposableMap;
 public abstract class BaseActivity extends FragmentActivity implements Consumer<Throwable>, CompletableObserver {
 
     // This is a list of extras that are passed to the login view
-    protected Map<String, Object> extras = new HashMap<>();
+//    protected Map<String, Object> extras = new HashMap<>();
+
     protected DisposableMap dm = new DisposableMap();
 
     protected AlertUtils alert;
@@ -97,7 +96,7 @@ public abstract class BaseActivity extends FragmentActivity implements Consumer<
 
         Logger.debug("onCreate: " + this);
 
-        updateExtras(getIntent().getExtras());
+//        updateExtras(getIntent().getExtras());
 
         // Setting the default task description.
         if (getTaskDescriptionBitmap() != null) {
@@ -168,18 +167,18 @@ public abstract class BaseActivity extends FragmentActivity implements Consumer<
         }
     }
 
-    protected void updateExtras (@Nullable Bundle bundle) {
-        if (bundle != null) {
-            for (String s : bundle.keySet()) {
-                extras.put(s, bundle.get(s));
-            }
-        }
-    }
+//    protected void updateExtras (@Nullable Bundle bundle) {
+//        if (bundle != null) {
+//            for (String s : bundle.keySet()) {
+//                extras.put(s, bundle.get(s));
+//            }
+//        }
+//    }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        updateExtras(intent.getExtras());
+//        updateExtras(intent.getExtras());
     }
 
     @Override
@@ -212,24 +211,25 @@ public abstract class BaseActivity extends FragmentActivity implements Consumer<
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        for (String key: extras.keySet()) {
-            Object extra = extras.get(key);
-            if (extra instanceof String) {
-                outState.putString(key, (String) extra);
-            }
-            if (extra instanceof Integer) {
-                outState.putInt(key, (Integer) extra);
-            }
-            if (extra instanceof Float) {
-                outState.putFloat(key, (Float) extra);
-            }
-            if (extra instanceof Double) {
-                outState.putDouble(key, (Double) extra);
-            }
-            if (extra instanceof Long) {
-                outState.putLong(key, (Long) extra);
-            }
-        }
+
+//        for (String key: extras.keySet()) {
+//            Object extra = extras.get(key);
+//            if (extra instanceof String) {
+//                outState.putString(key, (String) extra);
+//            }
+//            if (extra instanceof Integer) {
+//                outState.putInt(key, (Integer) extra);
+//            }
+//            if (extra instanceof Float) {
+//                outState.putFloat(key, (Float) extra);
+//            }
+//            if (extra instanceof Double) {
+//                outState.putDouble(key, (Double) extra);
+//            }
+//            if (extra instanceof Long) {
+//                outState.putLong(key, (Long) extra);
+//            }
+//        }
     }
 
     /**

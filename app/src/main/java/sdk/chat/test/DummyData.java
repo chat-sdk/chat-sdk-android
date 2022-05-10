@@ -58,6 +58,7 @@ public class DummyData {
     }
 
     public void createThread() {
+
         final Thread thread = ChatSDK.db().createEntity(Thread.class);
 
         User currentUser = ChatSDK.currentUser();

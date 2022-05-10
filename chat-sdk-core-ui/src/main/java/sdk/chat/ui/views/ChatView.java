@@ -21,6 +21,7 @@ import org.ocpsoft.prettytime.PrettyTime;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -235,6 +237,13 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         listenersAdded = true;
 
         dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.ThreadMessagesUpdated))
+                .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
+                .subscribe(networkEvent -> {
+                    reloadMessages();
+                }));
+
+        dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageRemoved))
 //                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.MessageSendStatusUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
@@ -279,6 +288,17 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 //                }));
     }
 
+    protected void reloadMessages() {
+        // Get the ordered messages
+        int count = Math.max(ChatSDK.config().messagesToLoadPerBatch, messagesListAdapter.getItemCount());
+        List<Message> messages = delegate.getThread().getMessagesWithOrder(DaoCore.ORDER_DESC, count);
+        List<MessageHolder> holders = getMessageHolders(messages);
+
+        messagesListAdapter.clear(true);
+        messagesListAdapter.addToEnd(holders, false);
+
+    }
+
     protected int maxImageWidth() {
         // Prevent overly big messages in landscape mode
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -306,20 +326,46 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
             dm.add(ChatSDK.thread()
                     .loadMoreMessagesAfter(delegate.getThread(), loadMessagesFrom, totalItemsCount != 0)
                     .observeOn(RX.main())
-                    .subscribe(this::addMessagesToEnd));
+                    .subscribe(messages -> {
+                       // TODO: Check this
+                        addMessagesToEnd(messages, true);
+                    }));
         } else {
             Date loadFromDate = null;
             if (totalItemsCount != 0) {
                 // This list has the newest first
                 loadFromDate = messageHolders.get(messageHolders.size() - 1).getCreatedAt();
+                dm.add(ChatSDK.thread()
+                        .loadMoreMessagesBefore(delegate.getThread(), loadFromDate, totalItemsCount != 0)
+                        .observeOn(RX.main())
+                        .subscribe(messages -> {
+                            addMessagesToEnd(messages, true);
+                        }));
+            } else {
+                List<Message> messages = new ArrayList<>(delegate.getThread().getMessages());
+//                Collections.reverse(reverse);
+                addMessagesToEnd(messages, true);
+//                addMessageToStartOrUpdate(delegate.getThread().getMessages());
             }
 
-            dm.add(ChatSDK.thread()
-                    .loadMoreMessagesBefore(delegate.getThread(), loadFromDate, totalItemsCount != 0)
-                    .observeOn(RX.main())
-                    .subscribe(this::addMessagesToEnd));
+            // TODO: Thread
+//            if (totalItemsCount != 0) {
+//                // This list has the newest first
+//                loadFromDate = messageHolders.get(messageHolders.size() - 1).getCreatedAt();
+//            }
+//
+//            dm.add(ChatSDK.thread()
+//                    .loadMoreMessagesBefore(delegate.getThread(), loadFromDate, totalItemsCount != 0)
+//                    .observeOn(RX.main())
+//                    .subscribe(this::addMessagesToEnd));
+
         }
     }
+
+//    protected void reloadMessages() {
+//        messagesListAdapter.clear();
+//        onLoadMore(0, 0);
+//    }
 
     public void removeMessage(Message message) {
         MessageHolder holder = messageHolderHashMap.get(message);
@@ -425,7 +471,24 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         }
     }
 
-    public void addMessagesToEnd(final List<Message> messages) {
+    public List<MessageHolder> getMessageHolders(List<Message> messages) {
+        final List<MessageHolder> holders = new ArrayList<>();
+        for (Message message : messages) {
+            MessageHolder holder = messageHolderHashMap.get(message);
+            if (holder == null) {
+                holder = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
+                if (holder != null) {
+                    messageHolderHashMap.put(message, holder);
+                } else {
+                    Logger.debug("Not allowed");
+                }
+            }
+            holders.add(holder);
+        }
+        return holders;
+    }
+
+    public void addMessagesToEnd(final List<Message> messages, boolean reverse) {
         if (messages.isEmpty()) {
             return;
         }
@@ -434,21 +497,30 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         final List<MessageHolder> holders = new ArrayList<>();
 
         RX.runSingle(() -> {
-            for (Message message : messages) {
-                MessageHolder holder = messageHolderHashMap.get(message);
-                if (holder == null) {
-                    holder = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
-                    if (holder != null) {
-                        messageHolderHashMap.put(message, holder);
-                        holders.add(holder);
-                    } else {
-                        Logger.debug("Not allowed");
-                    }
-                }
+
+            if (reverse) {
+                Collections.reverse(messages);
             }
+
+            holders.addAll(getMessageHolders(messages));
+
+//            for (Message message : messages) {
+//                MessageHolder holder = messageHolderHashMap.get(message);
+//                if (holder == null) {
+//                    holder = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
+//                    if (holder != null) {
+//                        messageHolderHashMap.put(message, holder);
+//                        holders.add(holder);
+//                    } else {
+//                        Logger.debug("Not allowed");
+//                    }
+//                }
+//            }
             Debug.messageList(messages);
         }, ()-> {
-            messageHolders.addAll(holders);
+
+
+            messageHolders.addAll(0, holders);
             messagesListAdapter.addToEnd(holders, false);
         }).subscribe(ChatSDK.events());
     }

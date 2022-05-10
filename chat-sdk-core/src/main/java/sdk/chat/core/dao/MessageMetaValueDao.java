@@ -58,6 +58,9 @@ public class MessageMetaValueDao extends AbstractDao<MessageMetaValue, Long> {
                 "\"TAG\" TEXT," + // 3: tag
                 "\"IS_LOCAL\" INTEGER NOT NULL ," + // 4: isLocal
                 "\"MESSAGE_ID\" INTEGER);"); // 5: messageId
+        // Add Indexes
+        db.execSQL("CREATE INDEX " + constraint + "IDX_MESSAGE_META_VALUE_KEY ON \"MESSAGE_META_VALUE\"" +
+                " (\"KEY\" ASC);");
     }
 
     /** Drops the underlying database table. */

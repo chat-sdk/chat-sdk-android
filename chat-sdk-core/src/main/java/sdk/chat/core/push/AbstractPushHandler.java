@@ -70,6 +70,17 @@ public abstract class AbstractPushHandler implements PushHandler {
 
     }
 
+    // TODO: Master We already handled this by moving it to Chat SDK
+//    protected BroadcastHandler broadcastHandler = new BaseBroadcastHandler();
+//
+//    public BroadcastHandler getBroadcastHandler() {
+//        return broadcastHandler;
+//    }
+//
+//    public void setBroadcastHandler(BroadcastHandler broadcastHandler) {
+//        this.broadcastHandler = broadcastHandler;
+//    }
+
     public static String QuickReplyNotificationCategory = "co.chatsdk.QuickReply";
 
     @Override

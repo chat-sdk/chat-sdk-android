@@ -39,7 +39,7 @@ android {
 }
 
 greendao {
-    schemaVersion 25
+    schemaVersion 26
     targetGenDir "src/main/java"
     daoPackage "sdk.chat.core.dao"
 }
@@ -62,6 +62,8 @@ dependencies {
 
     implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     implementation "androidx.lifecycle:lifecycle-extensions:$androidxLifecycleExtensionsVersion"
+
+    api "com.github.amitshekhariitbhu.Fast-Android-Networking:android-networking:$androidNetworkingVersion"
 
     // Needed to surpress error with GreenDao
     implementation "net.zetetic:android-database-sqlcipher:$androidDatabaseSQLCipher"

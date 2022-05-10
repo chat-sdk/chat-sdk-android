@@ -53,6 +53,7 @@ import sdk.chat.core.ui.KeyboardOverlayHandler;
 import sdk.chat.core.ui.Sendable;
 import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import sdk.chat.core.utils.CurrentLocale;
+import sdk.chat.core.utils.PermissionRequestHandler;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
@@ -66,6 +67,7 @@ import sdk.chat.ui.keyboard.ChatFragmentKeyboardOverlayHelper;
 import sdk.chat.ui.keyboard.KeyboardAwareFrameLayout;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.provider.MenuItemProvider;
+import sdk.chat.ui.utils.ToastHelper;
 import sdk.chat.ui.views.ChatView;
 import sdk.chat.ui.views.ReplyView;
 import sdk.guru.common.DisposableMap;
@@ -292,7 +294,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
                         typingText += getString(R.string.typing);
                     }
                     Logger.debug(typingText);
-                    chatActionBar.setSubtitleText(thread, typingText);
+                    chatActionBar.setTypingText(thread, typingText);
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()
@@ -477,10 +479,11 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
                 chatActionBar.hideSearchIcon();
 
                 if (getContext() != null) {
-                    ChatSDKUI.provider().menuItems().addCopyItem(getContext(), menu, 0);
-                    ChatSDKUI.provider().menuItems().addDeleteItem(getContext(), menu, 1);
-                    ChatSDKUI.provider().menuItems().addForwardItem(getContext(), menu, 2);
-                    ChatSDKUI.provider().menuItems().addReplyItem(getContext(), menu, 3);
+                    ChatSDKUI.provider().menuItems().addSaveItem(getContext(), menu, 0);
+                    ChatSDKUI.provider().menuItems().addCopyItem(getContext(), menu, 1);
+                    ChatSDKUI.provider().menuItems().addDeleteItem(getContext(), menu, 2);
+                    ChatSDKUI.provider().menuItems().addForwardItem(getContext(), menu, 3);
+                    ChatSDKUI.provider().menuItems().addReplyItem(getContext(), menu, 4);
                 }
 
                 if (!UIModule.config().messageForwardingEnabled) {
@@ -493,6 +496,11 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
                 if (chatView.getSelectedMessages().size() != 1) {
                     menu.removeItem(MenuItemProvider.replyItemId);
+                    menu.removeItem(MenuItemProvider.saveItemId);
+                } else {
+                    if (!chatView.getSelectedMessages().get(0).canSave()) {
+                        menu.removeItem(MenuItemProvider.saveItemId);
+                    }
                 }
 
                 if (!hasVoice(ChatSDK.currentUser())) {
@@ -535,6 +543,26 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
         /* Cant use switch in the library*/
         int id = item.getItemId();
+        if (id == MenuItemProvider.saveItemId) {
+            List<MessageHolder> holders = chatView.getSelectedMessages();
+
+            Activity activity = getActivity();
+            if (activity != null) {
+                dm.add(PermissionRequestHandler.requestWriteExternalStorage(activity).subscribe(() -> {
+                    for (MessageHolder holder: holders) {
+
+                        dm.add(holder.save(activity).subscribe(s -> {
+                            ToastHelper.show(activity, s);
+                        }, throwable -> {
+                            ToastHelper.show(activity, throwable.getLocalizedMessage());
+                        }));
+
+                    }
+                }, throwable -> ToastHelper.show(activity, throwable.getLocalizedMessage())));
+            }
+
+            clearSelection();
+        }
         if (id == MenuItemProvider.deleteItemId) {
             List<MessageHolder> holders = chatView.getSelectedMessages();
             ChatSDK.thread().deleteMessages(MessageHolder.toMessages(holders)).subscribe(this);
@@ -542,8 +570,12 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         }
         if (id == MenuItemProvider.copyItemId && getActivity() != null) {
             chatView.copySelectedMessagesText(getActivity(), holder -> {
-                DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", CurrentLocale.get());
-                return dateFormatter.format(holder.getCreatedAt()) + ", " + holder.getUser().getName() + ": " + holder.getText();
+                if (chatView.getSelectedMessages().size() > 1 && UIModule.config().includeDateAndNameWhenCopyingMessages) {
+                    DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", CurrentLocale.get());
+                    return dateFormatter.format(holder.getCreatedAt()) + ", " + holder.getUser().getName() + ": " + holder.getText();
+                } else {
+                    return holder.getText();
+                }
             }, false);
             showToast(R.string.copied_to_clipboard);
         }

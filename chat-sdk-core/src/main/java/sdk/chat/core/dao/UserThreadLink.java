@@ -8,6 +8,7 @@ import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
@@ -20,9 +21,11 @@ import sdk.chat.core.types.Affiliation;
 @Entity
 public class UserThreadLink {
 
-    @Id
-    private Long id;
+    @Id private Long id;
+
+    @Index
     private Long userId;
+    @Index
     private Long threadId;
 
     @ToMany(referencedJoinProperty = "userThreadLinkId")
@@ -214,7 +217,10 @@ public class UserThreadLink {
 
         if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {
             if (metaValue == null) {
-                metaValue = ChatSDK.db().create(UserThreadLinkMetaValue.class);
+                metaValue = new UserThreadLinkMetaValue();
+                ChatSDK.db().getDaoCore().createEntity(metaValue);
+
+//                metaValue = ChatSDK.db().create(UserThreadLinkMetaValue.class);
                 metaValue.setUserThreadLinkId(this.getId());
                 getMetaValues().add(metaValue);
             }

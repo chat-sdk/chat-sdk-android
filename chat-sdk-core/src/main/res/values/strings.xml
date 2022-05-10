@@ -127,6 +127,10 @@
     <string name="user_entity_id_not_set">User Entity ID not set</string>
     <string name="typing">Typing&#8230;</string>
 
+    <string name="downloading_to_downloads_folder">Downloading to downloads folder</string>
+    <string name="saved">Saved successfully</string>
+    <string name="save_failed">Save failed</string>
+
     <string name="image_saved">Image saved successfully</string>
     <string name="image_save_failed">Image save failed</string>
 
@@ -164,6 +168,7 @@
     <string name="online">Online</string>
     <string name="add">Add</string>
     <string name="call">Call</string>
+    <string name="save">Save</string>
 
     <string name="options">Options</string>
     <string name="info">Info</string>

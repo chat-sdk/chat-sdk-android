@@ -1,7 +1,11 @@
 package sdk.chat.message.video;
 
+import android.content.Context;
+
 import com.stfalcon.chatkit.commons.models.MessageContentType;
 
+import io.reactivex.Single;
+import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
@@ -15,9 +19,25 @@ public class VideoMessageHolder extends ImageMessageHolder implements MessageCon
         return ChatSDK.videoMessage().getImageURL(message);
     }
 
+    public String getVideoURL() {
+        return (String) message.valueForKey(Keys.MessageVideoURL);
+    }
+
     @Override
     public String getText() {
         return ChatSDK.videoMessage().toString(message);
+    }
+
+    @Override
+    public Single<String> save(Context context) {
+        return Single.create(emitter -> {
+            ChatSDK.downloadManager().downloadInBackground(getVideoURL(), "Video");
+            emitter.onSuccess(context.getString(R.string.downloading_to_downloads_folder));
+        });
+    }
+
+    public boolean canSave() {
+        return true;
     }
 
 }

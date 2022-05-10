@@ -34,6 +34,8 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
         public final static Property Deleted = new Property(6, Boolean.class, "deleted", false, "DELETED");
         public final static Property Draft = new Property(7, String.class, "draft", false, "DRAFT");
         public final static Property CanDeleteMessagesFrom = new Property(8, java.util.Date.class, "canDeleteMessagesFrom", false, "CAN_DELETE_MESSAGES_FROM");
+        public final static Property LastMessageId = new Property(9, Long.class, "lastMessageId", false, "LAST_MESSAGE_ID");
+        public final static Property LastMessageDate = new Property(10, java.util.Date.class, "lastMessageDate", false, "LAST_MESSAGE_DATE");
     }
 
     private DaoSession daoSession;
@@ -53,14 +55,23 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"THREAD\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
-                "\"ENTITY_ID\" TEXT UNIQUE ," + // 1: entityID
+                "\"ENTITY_ID\" TEXT," + // 1: entityID
                 "\"CREATION_DATE\" INTEGER," + // 2: creationDate
                 "\"TYPE\" INTEGER," + // 3: type
                 "\"CREATOR_ID\" INTEGER," + // 4: creatorId
                 "\"LOAD_MESSAGES_FROM\" INTEGER," + // 5: loadMessagesFrom
                 "\"DELETED\" INTEGER," + // 6: deleted
                 "\"DRAFT\" TEXT," + // 7: draft
-                "\"CAN_DELETE_MESSAGES_FROM\" INTEGER);"); // 8: canDeleteMessagesFrom
+                "\"CAN_DELETE_MESSAGES_FROM\" INTEGER," + // 8: canDeleteMessagesFrom
+                "\"LAST_MESSAGE_ID\" INTEGER," + // 9: lastMessageId
+                "\"LAST_MESSAGE_DATE\" INTEGER);"); // 10: lastMessageDate
+        // Add Indexes
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_THREAD_ENTITY_ID ON \"THREAD\"" +
+                " (\"ENTITY_ID\" ASC);");
+        db.execSQL("CREATE INDEX " + constraint + "IDX_THREAD_TYPE ON \"THREAD\"" +
+                " (\"TYPE\" ASC);");
+        db.execSQL("CREATE INDEX " + constraint + "IDX_THREAD_DELETED ON \"THREAD\"" +
+                " (\"DELETED\" ASC);");
     }
 
     /** Drops the underlying database table. */
@@ -117,6 +128,16 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
         if (canDeleteMessagesFrom != null) {
             stmt.bindLong(9, canDeleteMessagesFrom.getTime());
         }
+ 
+        Long lastMessageId = entity.getLastMessageId();
+        if (lastMessageId != null) {
+            stmt.bindLong(10, lastMessageId);
+        }
+ 
+        java.util.Date lastMessageDate = entity.getLastMessageDate();
+        if (lastMessageDate != null) {
+            stmt.bindLong(11, lastMessageDate.getTime());
+        }
     }
 
     @Override
@@ -167,6 +188,16 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
         if (canDeleteMessagesFrom != null) {
             stmt.bindLong(9, canDeleteMessagesFrom.getTime());
         }
+ 
+        Long lastMessageId = entity.getLastMessageId();
+        if (lastMessageId != null) {
+            stmt.bindLong(10, lastMessageId);
+        }
+ 
+        java.util.Date lastMessageDate = entity.getLastMessageDate();
+        if (lastMessageDate != null) {
+            stmt.bindLong(11, lastMessageDate.getTime());
+        }
     }
 
     @Override
@@ -191,7 +222,9 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
             cursor.isNull(offset + 5) ? null : new java.util.Date(cursor.getLong(offset + 5)), // loadMessagesFrom
             cursor.isNull(offset + 6) ? null : cursor.getShort(offset + 6) != 0, // deleted
             cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // draft
-            cursor.isNull(offset + 8) ? null : new java.util.Date(cursor.getLong(offset + 8)) // canDeleteMessagesFrom
+            cursor.isNull(offset + 8) ? null : new java.util.Date(cursor.getLong(offset + 8)), // canDeleteMessagesFrom
+            cursor.isNull(offset + 9) ? null : cursor.getLong(offset + 9), // lastMessageId
+            cursor.isNull(offset + 10) ? null : new java.util.Date(cursor.getLong(offset + 10)) // lastMessageDate
         );
         return entity;
     }
@@ -207,6 +240,8 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
         entity.setDeleted(cursor.isNull(offset + 6) ? null : cursor.getShort(offset + 6) != 0);
         entity.setDraft(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
         entity.setCanDeleteMessagesFrom(cursor.isNull(offset + 8) ? null : new java.util.Date(cursor.getLong(offset + 8)));
+        entity.setLastMessageId(cursor.isNull(offset + 9) ? null : cursor.getLong(offset + 9));
+        entity.setLastMessageDate(cursor.isNull(offset + 10) ? null : new java.util.Date(cursor.getLong(offset + 10)));
      }
     
     @Override
@@ -241,9 +276,12 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
             StringBuilder builder = new StringBuilder("SELECT ");
             SqlUtils.appendColumns(builder, "T", getAllColumns());
             builder.append(',');
-            SqlUtils.appendColumns(builder, "T0", daoSession.getUserDao().getAllColumns());
+            SqlUtils.appendColumns(builder, "T0", daoSession.getMessageDao().getAllColumns());
+            builder.append(',');
+            SqlUtils.appendColumns(builder, "T1", daoSession.getUserDao().getAllColumns());
             builder.append(" FROM THREAD T");
-            builder.append(" LEFT JOIN USER T0 ON T.\"CREATOR_ID\"=T0.\"_id\"");
+            builder.append(" LEFT JOIN MESSAGE T0 ON T.\"LAST_MESSAGE_ID\"=T0.\"_id\"");
+            builder.append(" LEFT JOIN USER T1 ON T.\"CREATOR_ID\"=T1.\"_id\"");
             builder.append(' ');
             selectDeep = builder.toString();
         }
@@ -253,6 +291,10 @@ public class ThreadDao extends AbstractDao<Thread, Long> {
     protected Thread loadCurrentDeep(Cursor cursor, boolean lock) {
         Thread entity = loadCurrent(cursor, 0, lock);
         int offset = getAllColumns().length;
+
+        Message lastMessage = loadCurrentOther(daoSession.getMessageDao(), cursor, offset);
+        entity.setLastMessage(lastMessage);
+        offset += daoSession.getMessageDao().getAllColumns().length;
 
         User creator = loadCurrentOther(daoSession.getUserDao(), cursor, offset);
         entity.setCreator(creator);

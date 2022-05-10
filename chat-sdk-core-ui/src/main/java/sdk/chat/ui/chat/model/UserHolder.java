@@ -6,17 +6,23 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.module.UIModule;
+import sdk.guru.common.DisposableMap;
 
 public class UserHolder implements IUser {
 
     protected User user;
+    protected DisposableMap dm = new DisposableMap();
 
     public UserHolder(User user) {
         this.user = user;
-    }
 
-    public UserHolder(User user, boolean hideName) {
-        this.user = user;
+//        dm.add(ChatSDK.events().sourceOnMain()
+//                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
+//                .filter(NetworkEvent.filterUserEntityID(user.getEntityID()))
+//                .subscribe(networkEvent -> {
+//
+//                }));
+
     }
 
     @Override

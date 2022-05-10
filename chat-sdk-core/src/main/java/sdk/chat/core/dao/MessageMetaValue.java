@@ -4,6 +4,7 @@ import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.ToOne;
 
 @Entity
@@ -12,6 +13,7 @@ public class MessageMetaValue implements MetaValue<String> {
     @Id
     private Long id;
 
+    @Index
     private String key;
     private String value;
     private String tag;

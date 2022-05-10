@@ -104,6 +104,10 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.MessageUpdated, message.getThread(), message);
     }
 
+    public static NetworkEvent threadMessagesUpdated(Thread thread) {
+        return new NetworkEvent(EventType.ThreadMessagesUpdated, thread);
+    }
+
     @Deprecated
     public static NetworkEvent messageUpdated(Thread thread, Message message) {
         return new NetworkEvent(EventType.MessageUpdated, thread, message);

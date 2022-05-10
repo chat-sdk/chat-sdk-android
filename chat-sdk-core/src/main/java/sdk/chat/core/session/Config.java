@@ -25,7 +25,7 @@ public class Config<T> extends BaseConfig<T> {
     public int userSearchLimit = 20;
 
     // Testing
-    public boolean debug = true;
+    public boolean debug = false;
 
     public String debugUsername = null;
     public String debugPassword = null;
@@ -83,6 +83,7 @@ public class Config<T> extends BaseConfig<T> {
     public String storageDirectory = "ChatSDK";
 
     public String defaultUserAvatarURL = null;
+    public String databaseNamePrefix = "";
 
     public boolean sendSystemMessageWhenRoleChanges = true;
 
@@ -106,6 +107,10 @@ public class Config<T> extends BaseConfig<T> {
     public boolean disablePresence = false;
 
     public boolean allowUserToRejoinGroup = true;
+
+    public boolean manualPushHandlingEnabled = false;
+
+    public boolean disablePushHandlingWhenOnline = true;
 
 //    public boolean disconnectFromServerWhenInBackground = true;
 
@@ -584,5 +589,33 @@ public class Config<T> extends BaseConfig<T> {
         this.allowUserToRejoinGroup = allowUserToRejoinGroup;
         return this;
     }
+
+    /**
+     * Allow a user to rejoin a room if they leave
+     * @param value
+     * @return
+     */
+    public Config<T> setManualPushHandlingEnabled(boolean value) {
+        this.manualPushHandlingEnabled = value;
+        return this;
+    }
+
+    /**
+     * Usually when we are online, local notifications are handled by the app via the real-time
+     * connection with Firebase. But if we disable local push handling we may want to allow
+     * remote notificcations to trigger an alert if we are in the background
+     * @param value
+     * @return
+     */
+    public Config<T> setDisablePushHandlingWhenOnline(boolean value) {
+        this.disablePushHandlingWhenOnline = value;
+        return this;
+    }
+
+    public Config<T> setDatabaseNamePrefix(String value) {
+        this.databaseNamePrefix = value;
+        return this;
+    }
+
 
 }

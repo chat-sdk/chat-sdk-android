@@ -203,7 +203,14 @@ public class NotificationBuilder {
             }
 
             if (intent != null) {
-                PendingIntent pendingIntent = PendingIntent.getActivity(context.get(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+                PendingIntent pendingIntent;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    pendingIntent = PendingIntent.getActivity(context.get(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                } else {
+                    pendingIntent = PendingIntent.getActivity(context.get(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                }
+
                 builder.setContentIntent(pendingIntent);
             }
 

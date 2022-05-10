@@ -1,6 +1,7 @@
 package sdk.chat.demo.examples.api;
 
 import android.content.Context;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -158,8 +159,16 @@ public class ApiExamples {
      */
     public void customPushNotificationHandling () {
 
-        BroadcastHandler handler = (context, intent) -> {
-            return false;
+        BroadcastHandler handler = new BroadcastHandler() {
+            @Override
+            public boolean onReceive(Context context, Intent intent) {
+                return false;
+            }
+
+            @Override
+            public boolean canHandle(Intent intent) {
+                return false;
+            }
         };
 
         // During Chat SDK initialization

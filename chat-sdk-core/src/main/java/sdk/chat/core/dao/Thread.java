@@ -3,16 +3,15 @@ package sdk.chat.core.dao;
 import androidx.annotation.Nullable;
 
 import org.greenrobot.greendao.DaoException;
-import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.JoinEntity;
 import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.OrderBy;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
-import org.greenrobot.greendao.annotation.Unique;
 import org.greenrobot.greendao.query.Query;
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.pmw.tinylog.Logger;
@@ -44,16 +43,25 @@ public class Thread extends AbstractEntity {
 
     @Id private Long id;
 
-    @Unique
+    @Index(unique = true)
     private String entityID;
 
     private Date creationDate;
+
+    @Index
     private Integer type;
     private Long creatorId;
     private Date loadMessagesFrom;
+
+    @Index
     private Boolean deleted;
     private String draft;
     private Date canDeleteMessagesFrom;
+    private Long lastMessageId;
+    private Date lastMessageDate;
+
+    @ToOne(joinProperty = "lastMessageId")
+    private Message lastMessage;
 
     @ToOne(joinProperty = "creatorId")
     private User creator;
@@ -81,6 +89,9 @@ public class Thread extends AbstractEntity {
     private transient ThreadDao myDao;
     @Generated(hash = 1767171241)
     private transient Long creator__resolvedKey;
+
+    @Generated(hash = 88977546)
+    private transient Long lastMessage__resolvedKey;
     public Thread() {
     }
 
@@ -88,8 +99,9 @@ public class Thread extends AbstractEntity {
         this.id = id;
     }
 
-    @Generated(hash = 2012841452)
-    public Thread(Long id, String entityID, Date creationDate, Integer type, Long creatorId, Date loadMessagesFrom, Boolean deleted, String draft, Date canDeleteMessagesFrom) {
+    @Generated(hash = 1156593551)
+    public Thread(Long id, String entityID, Date creationDate, Integer type, Long creatorId, Date loadMessagesFrom, Boolean deleted, String draft, Date canDeleteMessagesFrom, Long lastMessageId,
+            Date lastMessageDate) {
         this.id = id;
         this.entityID = entityID;
         this.creationDate = creationDate;
@@ -99,8 +111,8 @@ public class Thread extends AbstractEntity {
         this.deleted = deleted;
         this.draft = draft;
         this.canDeleteMessagesFrom = canDeleteMessagesFrom;
-
-
+        this.lastMessageId = lastMessageId;
+        this.lastMessageDate = lastMessageDate;
     }
 
     public void setMessages(List<Message> messages) {
@@ -109,12 +121,14 @@ public class Thread extends AbstractEntity {
 
     public List<User> getUsers() {
 
-        List<UserThreadLink> links = ChatSDK.db().getDaoCore().fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.ThreadId, getId());
+        List<UserThreadLink> links = getUserThreadLinks();
+
+//        List<UserThreadLink> links = ChatSDK.db().getDaoCore().fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.ThreadId, getId());
         if (links == null) {
             return Collections.emptyList();
         }
 
-        Set<User> users  = new HashSet<>();
+        Set<User> users = new HashSet<>();
 
         for (UserThreadLink link: links) {
             User user = link.getUser();
@@ -131,7 +145,7 @@ public class Thread extends AbstractEntity {
      * @return
      */
     public List<User> getMembers() {
-        List<UserThreadLink> links = getLinks();
+        List<UserThreadLink> links = getUserThreadLinks();
         if (links == null) {
             return Collections.emptyList();
         }
@@ -148,9 +162,9 @@ public class Thread extends AbstractEntity {
         return new ArrayList<>(users);
     }
 
-    public List<UserThreadLink> getLinks() {
-        return ChatSDK.db().getDaoCore().fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.ThreadId, getId());
-    }
+//    public List<UserThreadLink> getLinks() {
+//        return ChatSDK.db().getDaoCore().fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.ThreadId, getId());
+//    }
 
     public boolean containsUser (User user) {
         for(User u : getUsers()) {
@@ -173,13 +187,14 @@ public class Thread extends AbstractEntity {
     }
 
     public Date lastMessageAddedDate(){
-        Message lastMessage = lastMessage();
-        if (lastMessage != null) {
-            return lastMessage.getDate();
+        if (lastMessageDate == null) {
+            Message lastMessage = lastMessage();
+            if (lastMessage != null) {
+                setLastMessageDate(lastMessage.getDate());
+            }
         }
-        return null;
+        return getLastMessageDate();
     }
-
 
     public boolean addUser(User user) {
         return addUser(user, true);
@@ -289,10 +304,14 @@ public class Thread extends AbstractEntity {
     public void addMessage(Message message) {
         addMessage(message, true);
     }
-
     public void addMessage(Message message, boolean notify) {
+        addMessage(message, notify, true);
+    }
+    public void addMessage(Message message, boolean notify, boolean update) {
+
         message.setThreadId(this.getId());
         List<Message> messages = getMessages();
+
         if (!messages.contains(message)) {
             if (!messages.isEmpty()) {
                 Message previousMessage = messages.get(messages.size() - 1);
@@ -305,8 +324,15 @@ public class Thread extends AbstractEntity {
             }
             getMessages().add(message);
             message.update();
-            update();
-//            refresh();
+
+            if (lastMessage == null || lastMessage.getDate().getTime() < message.getDate().getTime()) {
+                setLastMessage(message);
+                setLastMessageDate(message.getDate());
+            }
+
+            if (update) {
+                update();
+            }
             if (notify) {
                 ChatSDK.events().source().accept(NetworkEvent.messageAdded(message));
             }
@@ -335,7 +361,9 @@ public class Thread extends AbstractEntity {
 
         if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {
             if (metaValue == null) {
-                metaValue = ChatSDK.db().create(ThreadMetaValue.class);
+                metaValue = new ThreadMetaValue();
+                ChatSDK.db().getDaoCore().createEntity(metaValue);
+
                 metaValue.setThreadId(this.getId());
                 getMetaValues().add(metaValue);
             }
@@ -462,10 +490,13 @@ public class Thread extends AbstractEntity {
     }
 
     public boolean hasUser(User user) {
-        UserThreadLink data = ChatSDK.db().getDaoCore().fetchEntityWithProperties(UserThreadLink.class,
-                        new Property[]{UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, getId(), user.getId());
+        return getUserThreadLink(user.getId()) != null;
 
-        return data != null;
+        // TODO: Thread
+//        UserThreadLink data = ChatSDK.db().getDaoCore().fetchEntityWithProperties(UserThreadLink.class,
+//                        new Property[]{UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, getId(), user.getId());
+//
+//        return data != null;
     }
 
     public int getUnreadMessagesCount() {
@@ -612,13 +643,23 @@ public class Thread extends AbstractEntity {
         this.type = type;
     }
 
+    // TODO: Thread
     public Message lastMessage () {
-        List<Message> messages = getMessagesWithOrder(DaoCore.ORDER_DESC, 1);
-        if (messages.size() > 0) {
-            return messages.get(0);
-        } else {
-            return null;
+        if (getLastMessage() == null) {
+            List<Message> messages = getMessages();
+            if (!messages.isEmpty()) {
+                setLastMessage(messages.get(0));
+                update();
+            }
+
+            //
+//            List<Message> messages = getMessagesWithOrder(DaoCore.ORDER_DESC, 1);
+//            if (messages.size() > 0) {
+//                lastMessage = messages.get(0);
+//                update();
+//            }
         }
+        return lastMessage;
     }
 
     public Long getCreatorId() {
@@ -803,7 +844,15 @@ public class Thread extends AbstractEntity {
 
     @Nullable
     public UserThreadLink getUserThreadLink(Long userId) {
-        return ChatSDK.db().getDaoCore().fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, getId(), userId);
+        List<UserThreadLink> links = getUserThreadLinks();
+        for (UserThreadLink link: links) {
+            if (link.getUserId().equals(userId)) {
+                return link;
+            }
+        }
+        return null;
+        // TODO: Thread
+//        return ChatSDK.db().getDaoCore().fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, getId(), userId);
     }
 
     public void setPermission(String userEntityID, String permission) {
@@ -812,11 +861,14 @@ public class Thread extends AbstractEntity {
 
     public void setPermission(String userEntityID, String permission, boolean notify, boolean sendSystemMessage) {
         User user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
+        setPermission(user, permission, notify, sendSystemMessage);
+    }
+    public void setPermission(User user, String permission, boolean notify, boolean sendSystemMessage) {
         if (user != null) {
             UserThreadLink link = getUserThreadLink(user.getId());
             if (link != null) {
                 if (link.setAffiliation(permission) && notify) {
-                    Logger.info("Set Affiliation " + userEntityID + " " + permission);
+                    Logger.info("Set Affiliation " + user.getEntityID() + " " + permission);
                     ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(this, user));
                     if (sendSystemMessage && user.isMe() && typeIs(ThreadType.Group)) {
                         String message = String.format(ChatSDK.getString(R.string.role_changed_to__), ChatSDK.thread().localizeRole(permission));
@@ -829,6 +881,10 @@ public class Thread extends AbstractEntity {
 
     public String getPermission(String userEntityID) {
         User user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
+        return getPermission(user);
+    }
+
+    public String getPermission(User user) {
         if (user != null) {
             UserThreadLink link = getUserThreadLink(user.getId());
             if (link != null) {
@@ -909,7 +965,7 @@ public class Thread extends AbstractEntity {
 
     public void cascadeDelete() {
         removeMessagesAndMarkDeleted();
-        List<UserThreadLink> links = new ArrayList<>(getLinks());
+        List<UserThreadLink> links = new ArrayList<>(getUserThreadLinks());
         for (UserThreadLink link: links) {
             link.cascadeDelete();
         }
@@ -929,6 +985,51 @@ public class Thread extends AbstractEntity {
         setDeleted(true);
         setLoadMessagesFrom(new Date());
         update();
+    }
+
+    public Long getLastMessageId() {
+        return this.lastMessageId;
+    }
+
+    public void setLastMessageId(Long lastMessageId) {
+        this.lastMessageId = lastMessageId;
+    }
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 1697405005)
+    public Message getLastMessage() {
+        Long __key = this.lastMessageId;
+        if (lastMessage__resolvedKey == null || !lastMessage__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            MessageDao targetDao = daoSession.getMessageDao();
+            Message lastMessageNew = targetDao.load(__key);
+            synchronized (this) {
+                lastMessage = lastMessageNew;
+                lastMessage__resolvedKey = __key;
+            }
+        }
+        return lastMessage;
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 944284900)
+    public void setLastMessage(Message lastMessage) {
+        synchronized (this) {
+            this.lastMessage = lastMessage;
+            lastMessageId = lastMessage == null ? null : lastMessage.getId();
+            lastMessage__resolvedKey = lastMessageId;
+        }
+    }
+
+    public Date getLastMessageDate() {
+        return this.lastMessageDate;
+    }
+
+    public void setLastMessageDate(Date lastMessageDate) {
+        this.lastMessageDate = lastMessageDate;
     }
 
 }

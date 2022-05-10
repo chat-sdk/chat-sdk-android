@@ -8,6 +8,7 @@ import com.bumptech.glide.Glide;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.utils.Dimen;
+import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.icons.Icons;
@@ -31,7 +32,7 @@ public class ThreadImageBuilder {
     public static void load(final ImageView imageView, final Thread thread, int size) {
         if (thread != null) {
             String url = thread.getImageUrl();
-            if (url == null && thread.typeIs(ThreadType.Private1to1) && thread.otherUser() != null) {
+            if (StringChecker.isNullOrEmpty(url) && thread.typeIs(ThreadType.Private1to1) && thread.otherUser() != null) {
                 url = thread.otherUser().getAvatarURL();
             }
             Glide.with(imageView).load(url).placeholder(defaultDrawable(thread)).dontAnimate().override(size).into(imageView);

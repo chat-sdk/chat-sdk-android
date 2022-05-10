@@ -652,12 +652,10 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     @Override
     public boolean showLocalNotifications(Thread thread) {
-        if (localNotificationHandler != null) {
+        if(ChatSDK.config().showLocalNotifications && localNotificationHandler != null) {
             return localNotificationHandler.showLocalNotification(thread);
         }
-        else {
-            return ChatSDK.config().showLocalNotifications;
-        }
+        return false;
     }
 
     @Override

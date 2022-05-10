@@ -7,9 +7,9 @@ import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.ToMany;
-import org.greenrobot.greendao.annotation.Unique;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,7 +33,7 @@ public class User extends AbstractEntity implements UserListItem {
     @Id
     private Long id;
 
-    @Unique
+    @Index(unique = true)
     private String entityID;
 
     private Date lastOnline;
@@ -164,6 +164,7 @@ public class User extends AbstractEntity implements UserListItem {
 
     public void setAvatarURL(String imageUrl, boolean notify) {
         setMetaString(Keys.AvatarURL, imageUrl, notify);
+        setMetaString(Keys.ImageUrl, imageUrl, notify);
     }
 
     public void setHeaderURL(String imageUrl) {
@@ -386,7 +387,8 @@ public class User extends AbstractEntity implements UserListItem {
 
                 if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {
                     if (metaValue == null) {
-                        metaValue = ChatSDK.db().create(UserMetaValue.class);
+                        metaValue = new UserMetaValue();
+                        ChatSDK.db().getDaoCore().createEntity(metaValue);
                         metaValue.setUserId(this.getId());
                         getMetaValues().add(metaValue);
                     }
@@ -412,15 +414,19 @@ public class User extends AbstractEntity implements UserListItem {
         return MetaValueHelper.metaValueForKey(key, getMetaValues());
     }
 
-    public boolean hasThread(Thread thread){
-        UserThreadLink data = ChatSDK.db().getDaoCore().fetchEntityWithProperties(
-                UserThreadLink.class,
-                new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId},
-                thread.getId(),
-                getId()
-        );
-
-        return data != null;
+    public boolean hasThread(Thread thread) {
+        if (thread != null) {
+            return thread.hasUser(this);
+        }
+        return false;
+//        UserThreadLink data = ChatSDK.db().getDaoCore().fetchEntityWithProperties(
+//                UserThreadLink.class,
+//                new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId},
+//                thread.getId(),
+//                getId()
+//        );
+//
+//        return data != null;
     }
 
     public String getPushChannel() {

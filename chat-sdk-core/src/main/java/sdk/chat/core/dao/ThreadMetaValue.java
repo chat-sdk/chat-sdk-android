@@ -4,6 +4,7 @@ import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.ToOne;
 
 /**
@@ -16,6 +17,7 @@ public class ThreadMetaValue implements MetaValue<Object> {
     @Id
     private Long id;
 
+    @Index
     private String key;
     private String stringValue;
     private Boolean booleanValue;
@@ -23,6 +25,7 @@ public class ThreadMetaValue implements MetaValue<Object> {
     private Long longValue;
     private Float floatValue;
 
+    @Index
     private Long threadId;
 
     @ToOne(joinProperty = "threadId")

@@ -5,6 +5,7 @@ import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.ToOne;
 
 
@@ -20,8 +21,13 @@ public class ReadReceiptUserLink {
     @Id
     private Long id;
 
+    @Index
     private Long messageId;
+
+    @Index
     private Long userId;
+
+    @Index
     private Integer status;
 
     private Date date;

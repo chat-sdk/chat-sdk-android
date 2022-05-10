@@ -25,13 +25,15 @@ public class MetaValueHelper {
                 }
             }
 
-            for (T value : values) {
-                if (value.getKey() != null && key != null) {
-                    if (value.getKey().equals(key)) {
-                        return value;
-                    }
-                }
-            }
+            return hash.get(key);
+
+//            for (T value : values) {
+//                if (value.getKey() != null && key != null) {
+//                    if (value.getKey().equals(key)) {
+//                        return value;
+//                    }
+//                }
+//            }
         }
         return null;
     }

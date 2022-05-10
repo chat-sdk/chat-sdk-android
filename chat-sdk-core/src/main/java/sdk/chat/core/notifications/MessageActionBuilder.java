@@ -3,6 +3,7 @@ package sdk.chat.core.notifications;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.Person;
@@ -55,7 +56,13 @@ public class MessageActionBuilder {
 
     public NotificationCompat.Action createReplyAction (Context context, String threadEntityID, int replyID) {
         Intent replyIntent = createReplyIntent(context, threadEntityID);
-        PendingIntent replyPendingIntent = PendingIntent.getService(context, replyID, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        PendingIntent replyPendingIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            replyPendingIntent = PendingIntent.getActivity(context, replyID, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+        } else {
+            replyPendingIntent = PendingIntent.getActivity(context, replyID, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
 
         NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(0, context.getString(R.string.reply), replyPendingIntent)
                 .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
@@ -68,7 +75,13 @@ public class MessageActionBuilder {
 
     public NotificationCompat.Action createMarkAsReadAction (Context context, String threadEntityID, int markAsReadId) {
         Intent markAsReadIntent = createMarkAsReadIntent(context, threadEntityID);
-        PendingIntent markAsReadPendingIntent = PendingIntent.getService(context, markAsReadId, markAsReadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        PendingIntent markAsReadPendingIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            markAsReadPendingIntent = PendingIntent.getService(context, markAsReadId, markAsReadIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        } else {
+            markAsReadPendingIntent = PendingIntent.getService(context, markAsReadId, markAsReadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
 
         NotificationCompat.Action markAsReadAction = new NotificationCompat.Action.Builder(0, context.getString(R.string.mark_as_read), markAsReadPendingIntent)
                 .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ)

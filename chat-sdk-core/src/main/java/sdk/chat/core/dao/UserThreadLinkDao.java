@@ -52,6 +52,11 @@ public class UserThreadLinkDao extends AbstractDao<UserThreadLink, Long> {
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"USER_ID\" INTEGER," + // 1: userId
                 "\"THREAD_ID\" INTEGER);"); // 2: threadId
+        // Add Indexes
+        db.execSQL("CREATE INDEX " + constraint + "IDX_USER_THREAD_LINK_USER_ID ON \"USER_THREAD_LINK\"" +
+                " (\"USER_ID\" ASC);");
+        db.execSQL("CREATE INDEX " + constraint + "IDX_USER_THREAD_LINK_THREAD_ID ON \"USER_THREAD_LINK\"" +
+                " (\"THREAD_ID\" ASC);");
     }
 
     /** Drops the underlying database table. */

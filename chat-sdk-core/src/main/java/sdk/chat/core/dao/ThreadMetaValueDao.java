@@ -62,6 +62,11 @@ public class ThreadMetaValueDao extends AbstractDao<ThreadMetaValue, Long> {
                 "\"LONG_VALUE\" INTEGER," + // 5: longValue
                 "\"FLOAT_VALUE\" REAL," + // 6: floatValue
                 "\"THREAD_ID\" INTEGER);"); // 7: threadId
+        // Add Indexes
+        db.execSQL("CREATE INDEX " + constraint + "IDX_THREAD_META_VALUE_KEY ON \"THREAD_META_VALUE\"" +
+                " (\"KEY\" ASC);");
+        db.execSQL("CREATE INDEX " + constraint + "IDX_THREAD_META_VALUE_THREAD_ID ON \"THREAD_META_VALUE\"" +
+                " (\"THREAD_ID\" ASC);");
     }
 
     /** Drops the underlying database table. */

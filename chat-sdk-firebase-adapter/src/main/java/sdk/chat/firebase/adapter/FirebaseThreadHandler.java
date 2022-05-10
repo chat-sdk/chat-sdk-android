@@ -209,35 +209,39 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                 }
             }
 
+            // TODO: Thread
             final Thread thread = ChatSDK.db().createEntity(Thread.class);
 
-            thread.setEntityID(entityID);
-            thread.setCreator(currentUser);
-            thread.setCreationDate(new Date());
+//            ChatSDK.db().getDaoCore().getDaoSession().runInTx(() -> {
 
-            if (name != null) {
-                thread.setName(name, false);
-            }
+                thread.setEntityID(entityID);
+                thread.setCreator(currentUser);
+                thread.setCreationDate(new Date());
 
-            if (imageURL != null) {
-                thread.setImageUrl(imageURL, false);
-            }
-
-            thread.addUsers(users);
-
-            if (meta != null) {
-                for (String key: meta.keySet()) {
-                    thread.setMetaValue(key, meta.get(key), false);
+                if (name != null) {
+                    thread.setName(name, false);
                 }
-            }
 
-            if (type != -1) {
-                thread.setType(type);
-            } else {
-                thread.setType(users.size() == 2 ? ThreadType.Private1to1 : ThreadType.PrivateGroup);
-            }
+                if (imageURL != null) {
+                    thread.setImageUrl(imageURL, false);
+                }
 
-            thread.update();
+                thread.addUsers(users);
+
+                if (meta != null) {
+                    for (String key: meta.keySet()) {
+                        thread.setMetaValue(key, meta.get(key), false);
+                    }
+                }
+
+                if (type != -1) {
+                    thread.setType(type);
+                } else {
+                    thread.setType(users.size() == 2 ? ThreadType.Private1to1 : ThreadType.PrivateGroup);
+                }
+
+                thread.update();
+//            });
 
             ThreadWrapper wrapper = FirebaseModule.config().provider.threadWrapper(thread);
 
@@ -257,7 +261,9 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     public Completable deleteThread(Thread thread) {
         return Completable.defer(() -> {
-            return FirebaseModule.config().provider.threadWrapper(thread).deleteThread();
+            return FirebaseModule.config().provider.threadWrapper(thread).deleteThread()
+                    // Added to make sure thread removed (bug report from Dcom)
+                    .andThen(super.deleteThread(thread));
         });
     }
 
@@ -465,7 +471,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     @Override
     public boolean isBanned(Thread thread, User user) {
         if (thread.containsUser(user) || thread.typeIs(ThreadType.Public)) {
-            String role = thread.getPermission(user.getEntityID());
+            String role = thread.getPermission(user);
             return Permission.isOr(role, Permission.Banned);
         }
         return false;

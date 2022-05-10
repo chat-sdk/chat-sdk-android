@@ -19,6 +19,7 @@ import materialsearchview.MaterialSearchView;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.push.PushQueueAction;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.PermissionRequestHandler;
 import sdk.chat.ui.ChatSDKUI;
@@ -38,7 +39,7 @@ public abstract class MainActivity extends BaseActivity {
             finish();
             return;
         }
-        launchFromPush(getIntent().getExtras());
+        launchFromPush();
 
     }
 
@@ -70,13 +71,25 @@ public abstract class MainActivity extends BaseActivity {
     protected abstract void search(String text);
     protected abstract MaterialSearchView searchView();
 
-    public void launchFromPush (@Nullable Bundle bundle) {
-        if (bundle != null) {
-            String threadID = bundle.getString(Keys.IntentKeyThreadEntityID);
+//    public void launchFromPush (@Nullable Bundle bundle) {
+//        if (bundle != null) {
+//            String threadID = bundle.getString(Keys.IntentKeyThreadEntityID);
+//            if (threadID != null && !threadID.isEmpty()) {
+//                ChatSDK.ui().startChatActivityForID(this, threadID, Intent.FLAG_ACTIVITY_NEW_TASK);
+//            }
+//        }
+//    }
+
+    public void launchFromPush() {
+        PushQueueAction action = ChatSDK.pushQueue().first();
+        if (action != null && action.type == PushQueueAction.Type.openThread) {
+            ChatSDK.pushQueue().pop();
+            String threadID = action.payload.get(Keys.IntentKeyThreadEntityID);
             if (threadID != null && !threadID.isEmpty()) {
                 ChatSDK.ui().startChatActivityForID(this, threadID, Intent.FLAG_ACTIVITY_NEW_TASK);
             }
         }
+
     }
 
     @Override
@@ -96,7 +109,7 @@ public abstract class MainActivity extends BaseActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        launchFromPush(intent.getExtras());
+//        launchFromPush(intent.getExtras());
     }
 
     @Override

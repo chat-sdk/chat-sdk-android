@@ -8,6 +8,7 @@ public enum EventType {
     ThreadAdded,
     ThreadRemoved,
     ThreadMetaUpdated,
+    ThreadMessagesUpdated,
     MessageAdded,
     MessageUpdated,
     MessageRemoved,

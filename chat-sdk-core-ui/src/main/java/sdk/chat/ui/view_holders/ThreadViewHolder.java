@@ -3,7 +3,12 @@ package sdk.chat.ui.view_holders;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.annotation.ColorRes;
+import androidx.core.content.ContextCompat;
+
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
+
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,6 +45,24 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
         }
 
         super.onBind(holder);
+
+        if (holder instanceof TypingThreadHolder) {
+            @ColorRes int color = UIModule.config().threadViewHolderTypingTextColor;
+            if (color != 0) {
+                tvLastMessage.setTextColor(ContextCompat.getColor(tvLastMessage.getContext(), color));
+            }
+        }
+
+        // Show the thread created date if there are no messages
+        if (tvDate.getText() == null || tvDate.length() == 0) {
+            Date date = holder.getDate();
+
+            if (this.datesFormatter != null) {
+                tvDate.setText(this.datesFormatter.format(date));
+            } else {
+                tvDate.setText(getDateString(date));
+            }
+        }
 
         bindOnlineIndicator(holder);
         bindReadStatus(holder);

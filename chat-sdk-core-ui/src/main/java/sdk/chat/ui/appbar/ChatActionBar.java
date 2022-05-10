@@ -92,6 +92,10 @@ public class ChatActionBar extends AppBarLayout {
         this.onClickListener = onClickListener;
     }
 
+    public void setTypingText(Thread thread, final String text) {
+        setSubtitleText(thread, text);
+    }
+
     public void setSubtitleText(Thread thread, final String text) {
         if (StringChecker.isNullOrEmpty(text)) {
 

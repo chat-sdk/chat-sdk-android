@@ -669,7 +669,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
     }
 
     public void deactivateThread(Thread thread) {
-        for (UserThreadLink l: thread.getLinks()) {
+        for (UserThreadLink l: thread.getUserThreadLinks()) {
             // If they are banned, they are hidden anyway
             if (!l.isBanned()) {
                 boolean updated = l.setIsActive(false);

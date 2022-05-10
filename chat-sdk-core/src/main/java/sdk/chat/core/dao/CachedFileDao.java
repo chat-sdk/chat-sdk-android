@@ -54,7 +54,7 @@ public class CachedFileDao extends AbstractDao<CachedFile, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"CACHED_FILE\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
-                "\"ENTITY_ID\" TEXT UNIQUE ," + // 1: entityID
+                "\"ENTITY_ID\" TEXT," + // 1: entityID
                 "\"IDENTIFIER\" TEXT," + // 2: identifier
                 "\"TYPE\" INTEGER," + // 3: type
                 "\"LOCAL_PATH\" TEXT," + // 4: localPath
@@ -66,6 +66,11 @@ public class CachedFileDao extends AbstractDao<CachedFile, Long> {
                 "\"FINISH_TIME\" INTEGER," + // 10: finishTime
                 "\"MIME_TYPE\" TEXT," + // 11: mimeType
                 "\"STATUS\" INTEGER);"); // 12: status
+        // Add Indexes
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_CACHED_FILE_ENTITY_ID ON \"CACHED_FILE\"" +
+                " (\"ENTITY_ID\" ASC);");
+        db.execSQL("CREATE INDEX " + constraint + "IDX_CACHED_FILE_IDENTIFIER ON \"CACHED_FILE\"" +
+                " (\"IDENTIFIER\" ASC);");
     }
 
     /** Drops the underlying database table. */

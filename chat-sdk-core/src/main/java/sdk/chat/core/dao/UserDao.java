@@ -45,9 +45,12 @@ public class UserDao extends AbstractDao<User, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"USER\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
-                "\"ENTITY_ID\" TEXT UNIQUE ," + // 1: entityID
+                "\"ENTITY_ID\" TEXT," + // 1: entityID
                 "\"LAST_ONLINE\" INTEGER," + // 2: lastOnline
                 "\"IS_ONLINE\" INTEGER);"); // 3: isOnline
+        // Add Indexes
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_USER_ENTITY_ID ON \"USER\"" +
+                " (\"ENTITY_ID\" ASC);");
     }
 
     /** Drops the underlying database table. */

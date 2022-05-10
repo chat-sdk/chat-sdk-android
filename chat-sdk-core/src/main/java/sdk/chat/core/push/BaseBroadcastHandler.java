@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import sdk.chat.core.dao.Keys;
@@ -14,21 +15,41 @@ import sdk.chat.core.utils.StringChecker;
 
 public class BaseBroadcastHandler implements BroadcastHandler {
 
-    public boolean onReceive(Context context, Intent intent) {
-
-//        android.os.Debug.waitForDebugger();
-
+    public boolean canHandle(Intent intent) {
         Bundle extras = intent.getExtras();
-
-        if(!ChatSDK.shared().isValid() || !ChatSDK.config().inboundPushHandlingEnabled || !ChatSDK.push().enabled() || extras == null) {
+        if (extras == null) {
             return false;
         }
 
         final String threadEntityID = extras.getString(Keys.PushKeyThreadEntityID);
         final String userEntityID = extras.getString(Keys.PushKeyUserEntityID);
+
+        if (StringChecker.isNullOrEmpty(threadEntityID)  || StringChecker.isNullOrEmpty(userEntityID)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean onReceive(Context context, Intent intent) {
+
+        if (!canHandle(intent)) {
+            return false;
+        }
+
+//        android.os.Debug.waitForDebugger();
+
+        Bundle extras = intent.getExtras();
+
+        final String threadEntityID = extras.getString(Keys.PushKeyThreadEntityID);
+        final String userEntityID = extras.getString(Keys.PushKeyUserEntityID);
         final String title = extras.getString(Keys.PushKeyTitle);
 
-        if (StringChecker.isNullOrEmpty(threadEntityID) || StringChecker.isNullOrEmpty(userEntityID)) {
+        if(!ChatSDK.push().enabled() && ChatSDK.config().disablePushHandlingWhenOnline) {
+            return false;
+        }
+
+        if(!ChatSDK.shared().isValid() || !ChatSDK.config().inboundPushHandlingEnabled) {
             return false;
         }
 
@@ -78,6 +99,11 @@ public class BaseBroadcastHandler implements BroadcastHandler {
         Intent appIntent = null;
         if (ChatSDK.auth() == null || !ChatSDK.auth().isAuthenticatedThisSession() || ChatSDK.config().backgroundPushTestModeEnabled) {
             appIntent = new Intent(context, ChatSDK.ui().getSplashScreenActivity());
+
+            Map<String, String> data = new HashMap<>();
+            data.put(Keys.IntentKeyThreadEntityID, threadEntityID);
+            ChatSDK.pushQueue().add(new PushQueueAction(PushQueueAction.Type.openThread, data));
+
         }
         else if (AppBackgroundMonitor.shared().inBackground() && ChatSDK.auth().isAuthenticatedThisSession()) {
             appIntent = new Intent(context, ChatSDK.ui().getChatActivity());
@@ -91,5 +117,4 @@ public class BaseBroadcastHandler implements BroadcastHandler {
             ChatSDK.ui().notificationDisplayHandler().createMessageNotification(context, appIntent, userEntityID, threadEntityID, title, body);
         }
         return true;
-    }
-}
+    }}

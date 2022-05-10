@@ -16,7 +16,6 @@ import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.pmw.tinylog.Logger;
 
-import java.lang.reflect.Constructor;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Random;
@@ -73,7 +72,7 @@ public class DaoCore {
     }
 
     public synchronized void openDB(String name) throws Exception {
-        name = Utils.md5(name);
+        name = ChatSDK.config().databaseNamePrefix + Utils.md5(name);
 
         if (!name.equals(dbName)) {
 
@@ -206,7 +205,10 @@ public class DaoCore {
             return null;
         }
 
-        getDaoSession().insertOrReplace(entity);
+        getDaoSession().insert(entity);
+
+        // TODO: Thread
+//        getDaoSession().insertOrReplace(entity);
 
         return entity;
     }
@@ -223,7 +225,7 @@ public class DaoCore {
         return entity;
     }
 
-    public <T extends CoreEntity> T updateEntity(T entity){
+    public <T extends CoreEntity> T updateEntity(T entity) {
         if (entity==null) {
             return null;
         }
@@ -232,44 +234,48 @@ public class DaoCore {
         return entity;
     }
 
-    public boolean connectUserAndThread(User user, Thread thread){
+    public boolean connectUserAndThread(User user, Thread thread) {
         Logger.debug("connectUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
         if(!thread.hasUser(user)) {
-            UserThreadLink linkData = new UserThreadLink();
-            linkData.setThreadId(thread.getId());
-            linkData.setThread(thread);
-            linkData.setUserId(user.getId());
-            linkData.setUser(user);
-            createEntity(linkData);
+            UserThreadLink link = new UserThreadLink();
+            link.setThreadId(thread.getId());
+            link.setThread(thread);
+            link.setUserId(user.getId());
+            link.setUser(user);
+            createEntity(link);
+            thread.getUserThreadLinks().add(link);
             return true;
         }
         return false;
     }
 
-    public boolean breakUserAndThread(User user, Thread thread){
+    public boolean breakUserAndThread(User user, Thread thread) {
         Logger.debug("breakUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
-        UserThreadLink linkData = fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, thread.getId(), user.getId());
-        if(linkData != null) {
-            deleteEntity(linkData);
+//        UserThreadLink linkData = fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, thread.getId(), user.getId());
+        UserThreadLink link = thread.getUserThreadLink(user.getId());
+        if(link != null) {
+            deleteEntity(link);
+            thread.getUserThreadLinks().remove(link);
             return true;
         }
         return false;
     }
 
-    public <T> T getEntityForClass(Class<T> c){
-        // Create the new entity.
-        Class<T> clazz;
-        T o = null;
-        try {
-            clazz = (Class<T>) Class.forName(c.getName());
-            Constructor<T> ctor = clazz.getConstructor();
-            o = ctor.newInstance();
-        } catch (Exception e) {
-            Logger.error(e);
-        }
-
-        return o;
-    }
+//    public <T> T getEntityForClass(Class<T> c){
+//
+//        // Create the new entity.
+//        Class<T> clazz;
+//        T o = null;
+//        try {
+//            clazz = (Class<T>) Class.forName(c.getName());
+//            Constructor<T> ctor = clazz.getConstructor();
+//            o = ctor.newInstance();
+//        } catch (Exception e) {
+//            Logger.error(e);
+//        }
+//
+//        return o;
+//    }
 
     public synchronized DaoSession getDaoSession() {
         return daoSession;

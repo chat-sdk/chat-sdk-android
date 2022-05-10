@@ -26,4 +26,8 @@ public class DocumentChange {
         return type;
     }
 
+    public boolean hasValue() {
+        return snapshot.getValue() != null;
+    }
+
 }

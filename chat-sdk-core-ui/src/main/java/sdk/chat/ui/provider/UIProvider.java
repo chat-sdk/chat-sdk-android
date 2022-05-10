@@ -9,6 +9,7 @@ public class UIProvider {
     protected Icons icons = new Icons();
     protected MenuItemProvider menuItemProvider = new MenuItemProvider();
     protected ChatOptionProvider chatOptionProvider = new ChatOptionProvider();
+    protected SaveProvider saveProvider = new SaveProvider();
 
     public Icons icons() {
         return icons;
@@ -19,6 +20,9 @@ public class UIProvider {
     }
     public ChatOptionProvider chatOptions() {
         return chatOptionProvider;
+    }
+    public SaveProvider saveProvider() {
+        return saveProvider;
     }
 
     public KeyboardOverlayOptionsFragment keyboardOverlayOptionsFragment(KeyboardOverlayHandler sender) {

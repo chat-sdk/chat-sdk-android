@@ -58,9 +58,9 @@ class ThreadUserViewHolder(parentView: ViewGroup) :
                         .dontAnimate()
                         .placeholder(UIModule.config().defaultProfilePlaceholder)
                         .override(width, height)
-                        .into(userAvatarImageView)
+                        .into(avatarImageView)
             } else {
-                userAvatarImageView.setImageResource(UIModule.config().defaultProfilePlaceholder)
+                avatarImageView.setImageResource(UIModule.config().defaultProfilePlaceholder)
             }
         }
     }

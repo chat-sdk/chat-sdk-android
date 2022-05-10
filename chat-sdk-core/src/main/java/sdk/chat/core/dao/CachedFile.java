@@ -4,7 +4,7 @@ import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Unique;
+import org.greenrobot.greendao.annotation.Index;
 
 import java.io.File;
 import java.util.Date;
@@ -27,8 +27,10 @@ public class CachedFile extends AbstractEntity {
     @Id
     private Long id;
 
-    @Unique
+    @Index(unique = true)
     private String entityID;
+
+    @Index
     private String identifier;
 
     private Integer type;

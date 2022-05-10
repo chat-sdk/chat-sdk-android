@@ -3,6 +3,7 @@ package sdk.chat.core.storage;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 
 import androidx.annotation.Nullable;
 
@@ -50,6 +51,10 @@ public class FileManager {
             dir = context.getCacheDir();
 //        }
         return subdir(dir, ChatSDK.config().storageDirectory);
+    }
+
+    public File downloadsDirectory() {
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     }
 
     public File subdir(File parent, String name) {

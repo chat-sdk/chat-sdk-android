@@ -57,7 +57,7 @@ public class MessageDao extends AbstractDao<Message, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"MESSAGE\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
-                "\"ENTITY_ID\" TEXT UNIQUE ," + // 1: entityID
+                "\"ENTITY_ID\" TEXT," + // 1: entityID
                 "\"DATE\" INTEGER," + // 2: date
                 "\"TYPE\" INTEGER," + // 3: type
                 "\"STATUS\" INTEGER," + // 4: status
@@ -66,6 +66,15 @@ public class MessageDao extends AbstractDao<Message, Long> {
                 "\"NEXT_MESSAGE_ID\" INTEGER," + // 7: nextMessageId
                 "\"PREVIOUS_MESSAGE_ID\" INTEGER," + // 8: previousMessageId
                 "\"ENCRYPTED_TEXT\" TEXT);"); // 9: encryptedText
+        // Add Indexes
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_MESSAGE_ENTITY_ID ON \"MESSAGE\"" +
+                " (\"ENTITY_ID\" ASC);");
+        db.execSQL("CREATE INDEX " + constraint + "IDX_MESSAGE_DATE ON \"MESSAGE\"" +
+                " (\"DATE\" ASC);");
+        db.execSQL("CREATE INDEX " + constraint + "IDX_MESSAGE_SENDER_ID ON \"MESSAGE\"" +
+                " (\"SENDER_ID\" ASC);");
+        db.execSQL("CREATE INDEX " + constraint + "IDX_MESSAGE_THREAD_ID ON \"MESSAGE\"" +
+                " (\"THREAD_ID\" ASC);");
     }
 
     /** Drops the underlying database table. */

@@ -25,6 +25,7 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.bookmarks.BookmarkManager;
 import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
+import org.jivesoftware.smackx.caps.EntityCapsManager;
 import org.jivesoftware.smackx.carbons.CarbonManager;
 import org.jivesoftware.smackx.chatstates.ChatStateManager;
 import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
@@ -263,6 +264,10 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
 
     public ReconnectionManager reconnectionManager() {
         return ReconnectionManager.getInstanceFor(getConnection());
+    }
+
+    public EntityCapsManager entityCapsManager() {
+        return EntityCapsManager.getInstanceFor(getConnection());
     }
 
     public ConnectionManager connectionManager() {
@@ -531,6 +536,8 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         }}).subscribe(ChatSDK.events());
 
         loadArchiveMessagesSinceLastOnline();
+
+//        entityCapsManager().
     }
 
     public void joinExistingGroupChats() {

@@ -52,6 +52,7 @@ import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.notifications.NotificationDisplayHandler;
 import sdk.chat.core.push.BroadcastHandler;
+import sdk.chat.core.push.PushQueue;
 import sdk.chat.core.rigs.DownloadManager;
 import sdk.chat.core.rigs.MessageSender;
 import sdk.chat.core.storage.FileManager;
@@ -100,6 +101,7 @@ public class ChatSDK {
     protected List<Runnable> onPermissionsRequestedListeners = new ArrayList<>();
 
     protected List<BroadcastHandler> broadcastHandlers = new ArrayList<>();
+    protected PushQueue pushQueue = new PushQueue();
 
     protected ChatSDK () {
     }
@@ -248,15 +250,19 @@ public class ChatSDK {
 
         // Local notifications
         hook().addHook(Hook.sync(data -> {
-            Object messageObject = data.get(HookEvent.Message);
-            Object threadObject = data.get(HookEvent.Thread);
-            if (messageObject instanceof Message && threadObject instanceof Thread) {
-                Message message = (Message) messageObject;
-                Thread thread = (Thread) threadObject;
+            // If we are using remote notifications even when online, we disable local notifications
+            // completely
+            if (ChatSDK.config().disablePushHandlingWhenOnline) {
+                Object messageObject = data.get(HookEvent.Message);
+                Object threadObject = data.get(HookEvent.Thread);
+                if (messageObject instanceof Message && threadObject instanceof Thread) {
+                    Message message = (Message) messageObject;
+                    Thread thread = (Thread) threadObject;
 
-                if (!thread.isMuted() && !thread.isDeleted()) {
+                    if (!thread.isMuted() && !thread.isDeleted()) {
                         if (thread.typeIs(ThreadType.Private) || ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled) {
                             if (!message.isDelivered()) {
+
                                 boolean inBackground = AppBackgroundMonitor.shared().inBackground();
                                 boolean connectedToAuto = NotificationDisplayHandler.connectedToAuto(context);
                                 if (inBackground || connectedToAuto || (ChatSDK.ui().showLocalNotifications(thread))) {
@@ -266,6 +272,8 @@ public class ChatSDK {
                         }
                     }
                 }
+            }
+
         }), HookEvent.MessageReceived);
 
         for (Runnable r: onActivateListeners) {
@@ -566,6 +574,10 @@ public class ChatSDK {
 
     public void clearBroadcastHandlers() {
         broadcastHandlers.clear();
+    }
+
+    public static PushQueue pushQueue() {
+        return shared().pushQueue;
     }
 
 }

@@ -45,7 +45,7 @@ import sdk.guru.common.RX;
 public class StorageManager {
 
     protected Map<String, CoreEntity> entityCache = new HashMap<>();
-    protected boolean entityCacheEnabled = false;
+    protected boolean entityCacheEnabled = true;
 
     protected DaoCore daoCore;
 
@@ -112,18 +112,14 @@ public class StorageManager {
     }
 
     public synchronized <T extends CoreEntity> T fetchOrCreateEntityWithEntityID(Class<T> c, String entityId){
-        Logger.debug(java.lang.Thread.currentThread().getName());
 
         T entity = fetchEntityWithEntityID(entityId, c);
 
         if (entity == null) {
-            entity = createEntity(c);
-            entity.setEntityID(entityId);
-            entity.update();
+            entity = createEntity(c, entityId);
+//            entity.setEntityID(entityId);
+//            entity.update();
 
-            if (entityCacheEnabled) {
-                entityCache.put(c.toString() + entityId, entity);
-            }
         }
 
         return entity;
@@ -133,17 +129,40 @@ public class StorageManager {
         return Single.defer(() -> Single.just(fetchOrCreateEntityWithEntityID(c, entityId))).subscribeOn(RX.db());
     }
 
-    public synchronized <T> T create(Class<T> c) {
-        T entity = daoCore.getEntityForClass(c);
-        daoCore.createEntity(entity);
-        return entity;
+//    public synchronized <T> T create(Class<T> c) {
+//        T entity = daoCore.getEntityForClass(c);
+//        daoCore.createEntity(entity);
+//        return entity;
+//    }
+    public synchronized <T extends CoreEntity> T createEntity(Class<T> c) {
+        return createEntity(c, null);
     }
 
-    public synchronized <T extends CoreEntity> T createEntity(Class<T> c) {
-        Logger.debug(java.lang.Thread.currentThread().getName());
+    public synchronized <T extends CoreEntity> T createEntity(Class<T> c, String entityID) {
+        T entity = null;
 
-        T entity = daoCore.getEntityForClass(c);
-        daoCore.createEntity(entity);
+        if (c == User.class) {
+            entity = (T) new User();
+        }
+        if (c == Thread.class) {
+            entity = (T) new Thread();
+        }
+        if (c == Message.class) {
+            entity = (T) new Message();
+        }
+        if (c == PublicKey.class) {
+            entity = (T) new PublicKey();
+        }
+        if (c == CachedFile.class) {
+            entity = (T) new CachedFile();
+        }
+        if (entityID != null) {
+            entity.setEntityID(entityID);
+        }
+
+        if(entity != null) {
+            daoCore.createEntity(entity);
+        }
 
         return entity;
     }
@@ -159,8 +178,14 @@ public class StorageManager {
 
     public synchronized <T extends CoreEntity> T fetchEntityWithEntityID(String entityID, Class<T> c) {
 
-        if (entityCacheEnabled && entityCache.containsKey(c.toString() + entityID)) {
-            return (T) entityCache.get(c.toString() + entityID);
+        T entity = null;
+
+        if (entityCacheEnabled) {
+            entity = (T) entityCache.get(c + entityID);
+        }
+
+        if (entity != null) {
+            return entity;
         }
 
         QueryBuilder<T> qb = daoCore.getDaoSession().queryBuilder(c);
@@ -181,12 +206,13 @@ public class StorageManager {
             qb.where(CachedFileDao.Properties.EntityID.eq(entityID));
         }
 
-        List<T> entities = qb.list();
-        if (!entities.isEmpty()) {
-            return entities.get(0);
+        entity = qb.unique();
+
+        if (entity != null && entityCacheEnabled) {
+            entityCache.put(c + entityID, entity);
         }
 
-        return null;
+        return entity;
     }
 
     public <T extends CoreEntity> Single<T> fetchEntityWithEntityIDAsync(String entityID, Class<T> c) {
@@ -290,9 +316,9 @@ public class StorageManager {
         return null;
     }
 
-    public Single<Thread> fetchThreadWithUsersAsync (List<User> users) {
-        return Single.defer(() -> Single.just(fetchThreadWithUsers(users)).subscribeOn(RX.db()));
-    }
+//    public Single<Thread> fetchThreadWithUsersAsync (List<User> users) {
+//        return Single.defer(() -> Single.just(fetchThreadWithUsers(users)).subscribeOn(RX.db()));
+//    }
 
     public List<Thread> allThreads() {
         Logger.debug(java.lang.Thread.currentThread().getName());
@@ -342,9 +368,7 @@ public class StorageManager {
             qb.limit(limit);
         }
 
-        List<Message> list = qb.list();
-
-        return  list;
+        return qb.list();
     }
 
     public List<CachedFile> fetchFilesWithIdentifier(String identifier) {

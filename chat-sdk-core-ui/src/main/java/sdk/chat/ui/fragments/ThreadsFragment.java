@@ -11,29 +11,26 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
+import androidx.recyclerview.widget.DiffUtil;
 
 import com.jakewharton.rxrelay2.PublishRelay;
 import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 import com.stfalcon.chatkit.utils.DateFormatter;
 
-import org.pmw.tinylog.Logger;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import butterknife.BindView;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Predicate;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
-import sdk.chat.core.events.EventBatcher;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
@@ -53,7 +50,7 @@ import sdk.guru.common.RX;
 public abstract class ThreadsFragment extends BaseFragment implements SearchSupported {
 
     protected String filter;
-    protected EventBatcher batcher;
+//    protected EventBatcher batcher;
 //    protected boolean reloadDataOnResume = true;
 
     protected DialogsListAdapter<ThreadHolder> dialogsListAdapter;
@@ -62,8 +59,13 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     protected PublishRelay<Thread> onClickPublishRelay = PublishRelay.create();
     protected PublishRelay<Thread> onLongClickPublishRelay = PublishRelay.create();
 
+    protected List<ThreadHolder> threadHolders = new Vector<>();
+
     @BindView(R2.id.dialogsList) protected DialogsList dialogsList;
     @BindView(R2.id.root) protected RelativeLayout root;
+
+    protected boolean listenersAdded = false;
+    protected boolean didLoadData = false;
 
 //    protected UpdateActionBatcher batcher = new UpdateActionBatcher(100);
 
@@ -80,8 +82,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @Override
     public void onStart() {
         super.onStart();
-        reloadData();
-        addListeners();
+//        reloadData();
+//        addListeners();
     }
 
     @Override
@@ -102,42 +104,18 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     public void addListeners() {
 
-        removeListeners();
-
-//        this.batcher = new UpdateActionBatcher(100);
-
-        // We batch updates to the threads fragment because potentially it could be updated from a lot of places
-        // Thread meta, user meta, user presence, messages, read receipts
-        // So we batch and combine updates to make it more efficient
-//        dm.add(batcher.onUpdate().observeOn(RX.main()).subscribe(threadUpdateActions -> {
-//            for (ThreadUpdateAction action : threadUpdateActions) {
-//                if (action.type == ThreadUpdateAction.Type.Reload) {
-//                    reloadData();
-//                } else {
-//                    if (action.type == ThreadUpdateAction.Type.SoftReload) {
-//                        softReloadData();
-//                    }
-//                    if (action.type == ThreadUpdateAction.Type.Add) {
-//                        addOrUpdateThread(action.thread);
-//                    } else if (action.type == ThreadUpdateAction.Type.Remove) {
-//                        removeThread(action.thread);
-//                    } else if (action.type == ThreadUpdateAction.Type.Update) {
-//                        dialogsListAdapter.updateItemById(action.holder);
-//                    } else if (action.type == ThreadUpdateAction.Type.UpdateMessage) {
-//                        updateMessage(action.message);
-//                    }
-//                }
-//            }
-//        }, throwable -> {
-//            onError(throwable);
-//        }));
+        if (listenersAdded) {
+            return;
+        }
+        listenersAdded = true;
 
         dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(
                 EventType.ThreadsUpdated,
                 EventType.ThreadAdded,
                 EventType.ThreadRemoved,
                 EventType.MessageAdded,
-                EventType.MessageRemoved
+                EventType.MessageRemoved,
+                EventType.TypingStateUpdated
         )).subscribe(networkEvent -> {
 
             if (networkEvent.typeIs(EventType.ThreadsUpdated)) {
@@ -150,7 +128,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
                     if (networkEvent.typeIs(EventType.ThreadAdded)) {
                         if (!inList) {
-                            addOrUpdateThread(thread);
+                            addThread(thread);
+//                            addOrUpdateThread(thread);
                         }
                     }
                     else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
@@ -158,9 +137,11 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                             removeThread(thread);
                         }
                     }
+                    // TODO: Thread
                     else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved)) {
                         if (inList) {
-                            sortByLastMessageDate();
+                            updateThread(thread);
+//                            sortByLastMessageDate();
                         }
                     }
 //                    else {
@@ -173,137 +154,31 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             }
         }));
 
-//        batcher = new EventBatcher(250, new EventBatcher.Listener() {
-//            @Override
-//            public void onNext(NetworkEvent networkEvent) {
-//                if (networkEvent.typeIs(EventType.ThreadsUpdated)) {
-//                    loadData();
-//                }
-//
-//                final Thread thread = networkEvent.getThread();
-//                if (thread != null) {
-//                    ThreadHolder holder = threadHolderHashMap.get(thread);
-//                    final boolean inList = holder != null;
-//
-//                    if (networkEvent.typeIs(EventType.ThreadAdded, EventType.MessageAdded) && !inList) {
-//                        addOrUpdateThread(thread);
-//                    }
-//                    else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
-//                        if (inList) {
-//                            removeThread(thread);
-//                        }
-//                    }
-//                    else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved)) {
-////                    else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.ThreadMetaUpdated)) {
-//                        if (inList) {
-//                            dm.add(holder.updateAsync().observeOn(RX.main()).subscribe(() -> {
-//                                dialogsListAdapter.updateItemById(holder);
-//                                if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved)) {
-//                                    sortByLastMessageDate();
-//                                }
-//                            }));
-//                        }
-//                    }
-////                    else if (networkEvent.typeIs(EventType.TypingStateUpdated)) {
-////                        if (inList) {
-////                            if (networkEvent.getText() != null) {
-////                                String typingText = networkEvent.getText();
-////                                typingText += getString(R.string.typing);
-////                                dialogsListAdapter.updateItemById(new TypingThreadHolder(thread, typingText));
-////                            } else {
-////                                dialogsListAdapter.updateItemById(holder);
-////                            }
-////                        }
-////                    }
-//                    else {
-//                        if (inList) {
-//                            dialogsListAdapter.updateItemById(holder);
-//                        }
-//                    }
-//                }
-////                else {
-////                    if (networkEvent.typeIs(EventType.UserPresenceUpdated, EventType.UserMetaUpdated)) {
-////                        softReloadData();
-////                    }
-////                }
-//            }
-//
-//            @Override
-//            public void batchFinished() {
-//                RX.main().scheduleDirect(() -> {
-//                    loadData();
-//                    Logger.warn("Load Load Load");
-//                });
-//            }
-//        });
-
         dm.add(ChatSDK.events().sourceOnBackground()
-                .filter(mainEventFilter())
+//                .filter(mainEventFilter())
+                .filter(NetworkEvent.filterType(EventType.Logout))
                 .observeOn(RX.main())
                 .subscribe(networkEvent -> {
 
-                    if (networkEvent.typeIs(EventType.Logout)) {
+//                    if (networkEvent.typeIs(EventType.Logout)) {
                         threadHolderHashMap.clear();
                         dialogsListAdapter.clear();
-                    } else {
-                        batcher.add(networkEvent, networkEvent.typeIs(EventType.TypingStateUpdated));
-                    }
-
-                    Logger.debug("Network Event: " + networkEvent.type);
-
-//                    final boolean inList = inList(thread);
-
-
-
-//                    // This stops a case where the thread details updated could be called before the thread is added
-//                    if (networkEvent.typeIs(EventType.ThreadAdded)) {
-//                        if (!inList) {
-//                            batcher.addAction(ThreadUpdateAction.add(thread));
-//                        }
-//                    } else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
-//                        if (inList) {
-//                            batcher.addAction(ThreadUpdateAction.remove(thread));
-//                        }
-//                    }
-//                    else if (networkEvent.typeIs(EventType.ThreadMetaUpdated, EventType.ThreadUserAdded, EventType.ThreadUserRemoved, EventType.MessageReadReceiptUpdated)) {
-//                        if (inList) {
-//                            batcher.addAction(ThreadUpdateAction.add(thread));
-//                        }
-//                    }
-//                    else if (networkEvent.typeIs(EventType.TypingStateUpdated)) {
-//                        if (inList) {
-//                            if (networkEvent.getText() != null) {
-//                                String typingText = networkEvent.getText();
-//                                typingText += getString(R.string.typing);
-//                                batcher.addAction(ThreadUpdateAction.update(thread, new TypingThreadHolder(thread, typingText)));
-//                            } else {
-//                                getOrCreateThreadHolderAsync(thread).observeOn(RX.main()).doOnSuccess(holder -> {
-//                                    batcher.addAction(ThreadUpdateAction.update(thread, holder));
-//                                }).subscribe();
-//                            }
-//                        }
-//                    }
-//                    else if (networkEvent.typeIs(EventType.UserMetaUpdated, EventType.UserPresenceUpdated)) {
-//                        batcher.addSoftReload();
-//                    } else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated)) {
-//                        final Message message = networkEvent.getMessage();
-//                        if (message != null) {
-//                            Message lastMessage = thread.lastMessage();
-//                            if (lastMessage == null || lastMessage.equals(message)) {
-//                                batcher.addAction(ThreadUpdateAction.updateMessage(message));
-//                            }
-//                        }
 //                    } else {
-//                        batcher.addReload();
+//                        batcher.add(networkEvent, networkEvent.typeIs(EventType.TypingStateUpdated));
 //                    }
+//
+//                    Logger.debug("Network Event: " + networkEvent.type);
+
+
                 }));
     }
 
     public void removeListeners() {
-        if(batcher != null) {
-            batcher.dispose();
+        listenersAdded = false;
+//        if(batcher != null) {
 //            batcher.dispose();
-        }
+//            batcher.dispose();
+//        }
         dm.dispose();
     }
 
@@ -342,10 +217,14 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
 
         // Stop the image from flashing when the list is reloaded
-        RecyclerView.ItemAnimator animator = dialogsList.getItemAnimator();
-        if (animator instanceof SimpleItemAnimator) {
-            ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
-        }
+
+        // TODO: Thread
+//        RecyclerView.ItemAnimator animator = dialogsList.getItemAnimator();
+//        if (animator instanceof SimpleItemAnimator) {
+//            ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
+//        }
+
+        dialogsList.setItemAnimator(null);
 
         dialogsListAdapter.setOnDialogViewClickListener((view, dialog) -> {
             dialog.markRead();
@@ -389,7 +268,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @Override
     public void onResume() {
         super.onResume();
-//        loadData();
+        loadData();
     }
 
     @Override
@@ -414,10 +293,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     @Override
     public void reloadData() {
-//        if (reloadDataOnResume) {
-            loadData();
-//            reloadDataOnResume = false;
-//        }
+        // TODO: Thread
+        loadData();
     }
 
     public void softReloadData() {
@@ -428,44 +305,131 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     public void loadData() {
         if (dialogsListAdapter != null) {
-            getThreads().observeOn(RX.single()).map(threads -> {
-                ArrayList<ThreadHolder> threadHolders = new ArrayList<>();
-                threads = filter(threads);
-                for (Thread thread : threads) {
-                    ThreadHolder holder = getOrCreateThreadHolder(thread);
-                    holder.update();
-                    threadHolders.add(holder);
-                }
-                return threadHolders;
-            }).observeOn(RX.main()).doOnSuccess(threadHolders -> {
-                if(dialogsListAdapter.getItemCount() != threadHolders.size()) {
-                    dialogsListAdapter.clear();
-                    dialogsListAdapter.setItems(threadHolders);
-                }
-                if (threadHolders.size() > 1) {
-                    sortByLastMessageDate();
-                }
-            }).subscribe();
+            if (!didLoadData) {
+                getThreads().map(threads -> {
+
+                    threads = filter(threads);
+
+                    for (Thread thread : threads) {
+                        ThreadHolder holder = getOrCreateThreadHolder(thread);
+                        holder.update();
+                        if (!threadHolders.contains(holder)) {
+                            threadHolders.add(holder);
+                        }
+                    }
+                    sortThreadHolders();
+                    return threadHolders;
+                }).observeOn(RX.single()).observeOn(RX.main()).doOnSuccess(threadHolders -> {
+
+                    synchronize();
+
+//                    dialogsListAdapter.clear();
+//                    dialogsListAdapter.setItems(new ArrayList<>(threadHolders));
+                    addListeners();
+                }).subscribe();
+
+                didLoadData = true;
+            } else {
+                //
+//                sortByLastMessageDate();
+                sortThreadHolders();
+                synchronize();
+
+            }
         }
     }
 
-    public synchronized void addOrUpdateThread(Thread thread) {
+    public ThreadHolder getOrCreateThreadHolder(Thread thread) {
         ThreadHolder holder = threadHolderHashMap.get(thread);
         if (holder == null) {
-            holder = getOrCreateThreadHolder(thread);
-            if (dialogsListAdapter.getItemById(holder.getId()) == null) {
-                dialogsListAdapter.addItem(holder);
-            } else {
-                dialogsListAdapter.updateItemById(holder);
-            }
-            sortByLastMessageDate();
-        } else {
-            dialogsListAdapter.updateItemById(holder);
-            sortByLastMessageDate();
+            holder = createThreadHolder(thread);
         }
+        return holder;
+    }
+
+    public void addThread(Thread thread) {
+        if (!threadHolderExists(thread)) {
+            ThreadHolder holder = createThreadHolder(thread);
+            threadHolders.add(holder);
+            sortThreadHolders();
+            synchronize();
+        }
+    }
+
+    // Synchronize the thread holders with the list
+    protected void synchronize() {
+
+        List<ThreadHolder> newHolders = new ArrayList<>(threadHolders);
+        List<ThreadHolder> oldHolders = new ArrayList<>(dialogsListAdapter.getItems());
+        ThreadHoldersDiffCallback callback = new ThreadHoldersDiffCallback(newHolders, oldHolders);
+        DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback);
+
+        dialogsListAdapter.getItems().clear();
+        dialogsListAdapter.setItems(newHolders);
+        result.dispatchUpdatesTo(dialogsListAdapter);
+
+    }
+
+    protected class UpdateThread {
+        int from = -1;
+        int to = -1;
+        boolean doUpdate() {
+            return from != -1 && to != -1 && from != to;
+        }
+    }
+
+    public void updateThread(final Thread thread) {
+        final ThreadHolder holder = threadHolderHashMap.get(thread);
+        if (holder != null) {
+            sortThreadHolders();
+
+            int from = dialogsListAdapter.getItems().indexOf(holder);
+            int to = threadHolders.indexOf(holder);
+
+            // TODO: Thread
+//            dialogsListAdapter.updateItemById(holder);
+            if (from >=0) {
+                if (to >= 0 && from != to) {
+                    dialogsListAdapter.moveItem(from, to);
+                } else {
+                    // TODO: Doesn't seem to cause update
+                    dialogsListAdapter.notifyItemChanged(from);
+                }
+            }
+        }
+
+//        if (holder != null) {
+//            Single.create((SingleOnSubscribe<UpdateThread>) emitter -> {
+//
+//                sortThreadHolders();
+//
+//                UpdateThread update = new UpdateThread();
+//
+//                update.from = dialogsListAdapter.getItems().indexOf(holder);
+//                update.to = threadHolders.indexOf(holder);
+//
+//            }).subscribeOn(RX.single()).observeOn(RX.main()).doOnSuccess(update -> {
+//
+//                dialogsListAdapter.updateItemById(holder);
+//                if (update.doUpdate()) {
+//                    dialogsListAdapter.moveItem(update.from, update.to);
+//                }
+//
+//            }).subscribe();
+
+    }
+
+    public void sortThreadHolders() {
+        Collections.sort(threadHolders, (o1, o2) -> {
+            if (!o1.getWeight().equals(o2.getWeight())) {
+                return o1.getWeight().compareTo(o2.getWeight());
+            }
+            return o2.getDate().compareTo(o1.getDate());
+        });
     }
 
     public void sortByLastMessageDate() {
+//         TODO: Thread
         dialogsListAdapter.sort((o1, o2) -> {
             if (!o1.getWeight().equals(o2.getWeight())) {
                 return o1.getWeight().compareTo(o2.getWeight());
@@ -474,29 +438,37 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         });
     }
 
-    public Single<ThreadHolder> getOrCreateThreadHolderAsync(Thread thread) {
-        return Single.create((SingleOnSubscribe<ThreadHolder>) emitter -> {
-            ThreadHolder holder = threadHolderHashMap.get(thread);
-            if (holder == null) {
-                holder = new ThreadHolder(thread);
-                threadHolderHashMap.put(thread, holder);
-            }
-            emitter.onSuccess(holder);
-        }).subscribeOn(RX.single());
-    }
+//    public Single<ThreadHolder> getOrCreateThreadHolderAsync(Thread thread) {
+//        return Single.create((SingleOnSubscribe<ThreadHolder>) emitter -> {
+//            ThreadHolder holder = threadHolderHashMap.get(thread);
+//            if (holder == null) {
+//                holder = new ThreadHolder(thread);
+//                threadHolderHashMap.put(thread, holder);
+//            }
+//            emitter.onSuccess(holder);
+//        }).subscribeOn(RX.single());
+//    }
+//
 
-    public ThreadHolder getOrCreateThreadHolder(Thread thread) {
-        ThreadHolder holder = threadHolderHashMap.get(thread);
-        if (holder == null) {
-            holder = new ThreadHolder(thread);
-            threadHolderHashMap.put(thread, holder);
-        }
+    public ThreadHolder createThreadHolder(Thread thread) {
+        ThreadHolder holder = new ThreadHolder(thread);
+        threadHolderHashMap.put(thread, holder);
         return holder;
     }
 
+    public boolean threadHolderExists(Thread thread) {
+        return threadHolderHashMap.containsKey(thread);
+    }
+
     public void removeThread(Thread thread) {
-        threadHolderHashMap.remove(thread);
-        dialogsListAdapter.deleteById(thread.getEntityID());
+        ThreadHolder holder = threadHolderHashMap.get(thread);
+        if (holder != null) {
+            threadHolderHashMap.remove(thread);
+            threadHolders.remove(holder);
+        }
+        synchronize();
+
+//        dialogsListAdapter.deleteById(thread.getEntityID());
     }
 
     protected abstract Single<List<Thread>> getThreads();

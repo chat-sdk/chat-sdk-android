@@ -1,12 +1,12 @@
 package sdk.chat.core.dao;
 
+import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Unique;
+import org.greenrobot.greendao.annotation.Index;
 
 import sdk.chat.core.base.AbstractEntity;
-import org.greenrobot.greendao.DaoException;
 
 @Entity(active = true)
 public class PublicKey extends AbstractEntity {
@@ -14,9 +14,10 @@ public class PublicKey extends AbstractEntity {
     @Id
     private Long id;
 
-    @Unique
+    @Index(unique = true)
     private String entityID;
 
+    @Index
     private String key;
     private String identifier;
 
