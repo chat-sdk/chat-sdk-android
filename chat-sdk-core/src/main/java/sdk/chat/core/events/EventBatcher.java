@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import io.reactivex.Observable;
 import sdk.guru.common.DisposableMap;
 
+@Deprecated
 public class EventBatcher {
 
     public interface Listener {

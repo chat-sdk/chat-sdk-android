@@ -16,6 +16,7 @@ import sdk.guru.common.DisposableMap;
 import sdk.chat.core.dao.Thread;
 import sdk.guru.common.RX;
 
+@Deprecated
 public class UpdateActionBatcher {
 
     DisposableMap dm = new DisposableMap();

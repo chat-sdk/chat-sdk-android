@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 
 import com.jakewharton.rxrelay2.PublishRelay;
+import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 import com.stfalcon.chatkit.utils.DateFormatter;
@@ -39,6 +40,8 @@ import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.ThreadHolder;
+import sdk.chat.ui.fragments.performance.AsyncDialogsListAdapter;
+import sdk.chat.ui.fragments.performance.ThreadHoldersDiffCallback;
 import sdk.chat.ui.interfaces.SearchSupported;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.provider.MenuItemProvider;
@@ -50,10 +53,10 @@ import sdk.guru.common.RX;
 public abstract class ThreadsFragment extends BaseFragment implements SearchSupported {
 
     protected String filter;
-//    protected EventBatcher batcher;
-//    protected boolean reloadDataOnResume = true;
 
     protected DialogsListAdapter<ThreadHolder> dialogsListAdapter;
+    protected AsyncDialogsListAdapter asyncDialogsListAdapter;
+
     protected Map<Thread, ThreadHolder> threadHolderHashMap = new HashMap<>();
 
     protected PublishRelay<Thread> onClickPublishRelay = PublishRelay.create();
@@ -66,8 +69,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     protected boolean listenersAdded = false;
     protected boolean didLoadData = false;
-
-//    protected UpdateActionBatcher batcher = new UpdateActionBatcher(100);
+    protected boolean useAsyncAdapter = true;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -97,6 +99,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
         initViews();
         hideKeyboard();
+
 
         return view;
     }
@@ -168,29 +171,18 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 .filter(NetworkEvent.filterType(EventType.Logout))
                 .observeOn(RX.main())
                 .subscribe(networkEvent -> {
-                    threadHolderHashMap.clear();
-                    threadHolders.clear();
-                    dialogsListAdapter.clear();
+                    clearData();
                 }));
     }
 
     public void removeListeners() {
         listenersAdded = false;
-//        if(batcher != null) {
-//            batcher.dispose();
-//            batcher.dispose();
-//        }
         dm.dispose();
-    }
-
-    public boolean inList(Thread thread) {
-        return thread != null && dialogsListAdapter.getItemById(thread.getEntityID()) != null;
-//        return threadHolderHashMap.containsKey(thread);
     }
 
     public void initViews() {
 
-        dialogsListAdapter = new DialogsListAdapter<>(R.layout.view_holder_thread, ThreadViewHolder.class, (imageView, url, payload) -> {
+        ImageLoader loader = (imageView, url, payload) -> {
             if (getContext() != null) {
                 int size = Dimen.from(getContext(), R.dimen.action_bar_avatar_size);
 
@@ -202,15 +194,21 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                     GlideWith.load(this, url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
                 }
             }
-        });
+        };
+
+        if (!useAsyncAdapter) {
+            dialogsListAdapter = new DialogsListAdapter<>(R.layout.view_holder_thread, ThreadViewHolder.class, loader);
+        } else {
+            asyncDialogsListAdapter = new AsyncDialogsListAdapter(R.layout.view_holder_thread, ThreadViewHolder.class, loader);
+        }
 
         if (UIModule.config().threadTimeFormat != null) {
-            dialogsListAdapter.setDatesFormatter(date -> {
+            dialogsListAdapter().setDatesFormatter(date -> {
                 return DateFormatter.format(date, UIModule.config().threadTimeFormat);
             });
         }
 
-        dialogsList.setAdapter(dialogsListAdapter);
+        dialogsList.setAdapter(dialogsListAdapter());
 
 //                Sometimes a new group is not registered
 //                Create new thread not ordered properly
@@ -227,11 +225,11 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
         dialogsList.setItemAnimator(null);
 
-        dialogsListAdapter.setOnDialogViewClickListener((view, dialog) -> {
+        dialogsListAdapter().setOnDialogViewClickListener((view, dialog) -> {
             dialog.markRead();
             startChatActivity(dialog.getId());
         });
-        dialogsListAdapter.setOnDialogLongClickListener(dialog -> {
+        dialogsListAdapter().setOnDialogLongClickListener(dialog -> {
             Thread thread = ChatSDK.db().fetchThreadWithEntityID(dialog.getId());
             if (thread != null) {
                 onLongClickPublishRelay.accept(thread);
@@ -279,33 +277,40 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     @Override
     public void clearData() {
+        threadHolders.clear();
         if (dialogsListAdapter != null) {
             dialogsListAdapter.clear();
         }
+        if (asyncDialogsListAdapter != null) {
+            asyncDialogsListAdapter.submitList(new ArrayList<>());
+        }
         threadHolderHashMap.clear();
+    }
+
+    public DialogsListAdapter<ThreadHolder> dialogsListAdapter() {
+        if (dialogsListAdapter != null) {
+            return dialogsListAdapter;
+        }
+        if (asyncDialogsListAdapter != null) {
+            return asyncDialogsListAdapter;
+        }
+        return null;
     }
 
     public void setTabVisibility(boolean isVisible) {
         super.setTabVisibility(isVisible);
         if (isVisible) {
-            softReloadData();
+            synchronize(true);
         }
     }
 
     @Override
     public void reloadData() {
-        // TODO: Thread
         loadData();
     }
 
-    public void softReloadData() {
-        if (dialogsListAdapter != null) {
-            dialogsListAdapter.notifyDataSetChanged();
-        }
-    }
-
     public void loadData() {
-        if (dialogsListAdapter != null) {
+        if (dialogsListAdapter() != null) {
             if (!didLoadData) {
                 getThreads().map(threads -> {
                     threads = filter(threads);
@@ -351,14 +356,19 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         long start = System.currentTimeMillis();
 
         List<ThreadHolder> newHolders = new ArrayList<>(threadHolders);
-        List<ThreadHolder> oldHolders = new ArrayList<>(dialogsListAdapter.getItems());
-        ThreadHoldersDiffCallback callback = new ThreadHoldersDiffCallback(newHolders, oldHolders);
-        DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback);
+        if (dialogsListAdapter != null) {
+            List<ThreadHolder> oldHolders = new ArrayList<>(dialogsListAdapter.getItems());
+            ThreadHoldersDiffCallback callback = new ThreadHoldersDiffCallback(newHolders, oldHolders);
+            DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback);
 
-        dialogsListAdapter.getItems().clear();
-        dialogsListAdapter.setItems(newHolders);
+            dialogsListAdapter.getItems().clear();
+            dialogsListAdapter.setItems(newHolders);
 
-        result.dispatchUpdatesTo(dialogsListAdapter);
+            result.dispatchUpdatesTo(dialogsListAdapter);
+        }
+        if (asyncDialogsListAdapter != null) {
+            asyncDialogsListAdapter.submitList(newHolders);
+        }
 
         long end = System.currentTimeMillis();
         long diff = end - start;
@@ -440,5 +450,4 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         super.onDestroyView();
 //        batcher.dispose();
     }
-
 }

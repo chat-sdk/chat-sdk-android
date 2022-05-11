@@ -1,4 +1,4 @@
-package sdk.chat.ui.fragments;
+package sdk.chat.ui.fragments.performance;
 
 import androidx.recyclerview.widget.DiffUtil;
 
