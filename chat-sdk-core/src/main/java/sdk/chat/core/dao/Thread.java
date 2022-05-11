@@ -209,6 +209,7 @@ public class Thread extends AbstractEntity {
             if (link != null && link.setHasLeft(false) && notify) {
                 ChatSDK.events().source().accept(NetworkEvent.threadUserAdded(this, user));
             }
+            return true;
         }
         return false;
     }
@@ -484,6 +485,9 @@ public class Thread extends AbstractEntity {
         update();
         resetMessages();
 
+        // Update the last message
+        setLastMessage(null);
+
         if(notify) {
             ChatSDK.events().source().accept(NetworkEvent.messageRemoved(message));
         }
@@ -619,7 +623,7 @@ public class Thread extends AbstractEntity {
         setMetaValue(Keys.Name, name, notify);
     }
 
-    public Date getLastMessageAddedDate () {
+    public Date getLastMessageAddedDate() {
         Message lastMessage = lastMessage();
         if(lastMessage != null && lastMessage.getDate() != null) {
             return lastMessage.getDate();

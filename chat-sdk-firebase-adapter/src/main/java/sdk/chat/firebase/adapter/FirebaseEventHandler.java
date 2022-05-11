@@ -86,8 +86,11 @@ public class FirebaseEventHandler extends AbstractEventHandler {
 
                             thread.getModel().addUser(user, false);
 
+                            ChatSDK.events().source().accept(NetworkEvent.threadAdded(thread.getModel()));
+
+                            // TODO: Performance
                             thread.on().doOnComplete(() -> {
-                                ChatSDK.events().source().accept(NetworkEvent.threadAdded(thread.getModel()));
+
                             }).subscribe();
 
                         }
@@ -126,8 +129,10 @@ public class FirebaseEventHandler extends AbstractEventHandler {
             ChildEventListener publicThreadsListener = query.addChildEventListener(new RealtimeEventListener().onChildAdded((snapshot, s, hasValue) -> {
                 final ThreadWrapper thread = FirebaseModule.config().provider.threadWrapper(snapshot.getKey());
 
+                // TODO: Performance
+                ChatSDK.events().source().accept(NetworkEvent.threadAdded(thread.getModel()));
                 thread.on().doOnComplete(() -> {
-                    ChatSDK.events().source().accept(NetworkEvent.threadAdded(thread.getModel()));
+
                 }).subscribe();
 
             }).onChildRemoved((snapshot, hasValue) -> {

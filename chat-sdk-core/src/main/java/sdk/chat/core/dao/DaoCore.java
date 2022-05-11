@@ -244,6 +244,7 @@ public class DaoCore {
             link.setUser(user);
             createEntity(link);
             thread.getUserThreadLinks().add(link);
+            thread.update();
             return true;
         }
         return false;

@@ -18,6 +18,7 @@ import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.module.ImageMessageModule;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.Device;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
@@ -135,7 +136,7 @@ public class MainApplication extends Application {
     }
 
     public void firebase() throws Exception {
-        String rootPath = "pre_99";
+        String rootPath = "pre_999";
 
 //        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
 //                .detectDiskReads()
@@ -161,7 +162,7 @@ public class MainApplication extends Application {
                 .setRemoteConfigEnabled(true)
 //                .setDatabaseEncryptionKey("test")
 
-                .setDebugUsername("2@d.co")
+                .setDebugUsername(Device.honor(this) ? "2@d.co" : "3@d.co")
                 .setDebugPassword("123456")
 
                 .build()

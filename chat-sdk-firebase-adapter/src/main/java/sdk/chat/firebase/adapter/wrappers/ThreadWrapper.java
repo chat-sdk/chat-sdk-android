@@ -74,25 +74,14 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
      **/
     public Completable on() {
         return Completable.defer(() -> {
-            Completable metaOnCompletable = metaOn().doOnComplete(() -> {
-                usersOn();
-                // TODO: Thread
-                permissionsOn();
-//                messagesOn();
-                if (ChatSDK.typingIndicator() != null) {
-                    ChatSDK.typingIndicator().typingOn(model);
-                }
-            });
 
-            // Update our permission level
-//            if (model.typeIs(ThreadType.Group)) {
+            Completable metaOnCompletable = metaOn().doOnComplete(() -> {
+                permissionsOn();
+                updateListenersForPermissions();
+            });
 
             // TODO: Thread
             return myPermission().andThen(metaOnCompletable);
-//            return metaOnCompletable;
-
-            //            }
-//            return metaOnCompletable;
         });
     }
 
@@ -112,12 +101,14 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
     public void updateListenersForPermissions() {
         if (ChatSDK.thread().roleForUser(model, ChatSDK.currentUser()).equals(Permission.Banned)) {
             messagesOff();
+            usersOff();
             if (ChatSDK.typingIndicator() != null) {
                 ChatSDK.typingIndicator().typingOff(model);
             }
             model.getUserThreadLink(ChatSDK.currentUser().getId()).setIsBanned(true);
         } else {
             messagesOn();
+            usersOn();
             if (ChatSDK.typingIndicator() != null) {
                 ChatSDK.typingIndicator().typingOn(model);
             }
@@ -200,8 +191,6 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
      *
      * @return*/
     protected void messagesAddedOn() {
-
-
 
         if (RealtimeReferenceManager.shared().isOn(messagesRef())) {
             return;
@@ -376,16 +365,18 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
             RXRealtime realtime = new RXRealtime(this);
 
-        realtime.on(ref).doOnNext(document -> {
-            if (document.hasValue() && document.getType() == EventType.Modified) {
-                Map<String, Object> map = document.getSnapshot().getValue(Generic.mapStringObject());
-                for (String key: map.keySet()) {
-                    final UserWrapper user = FirebaseModule.config().provider.userWrapper(key);
-                    user.on().subscribe();
-                    model.addUser(user.getModel());
-                }
-            }
-        }).subscribe();
+            // Why is this needed?
+            // TODO: Performance
+//        realtime.on(ref).doOnNext(document -> {
+//            if (document.hasValue()) {
+//                Map<String, Object> map = document.getSnapshot().getValue(Generic.mapStringObject());
+//                for (String key: map.keySet()) {
+//                    final UserWrapper user = FirebaseModule.config().provider.userWrapper(key);
+//                    user.on().subscribe();
+//                    model.addUser(user.getModel());
+//                }
+//            }
+//        }).subscribe();
 
             // TODO: Thread
 //            ref.addValueEventListener(new ValueEventListener() {
@@ -413,7 +404,11 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                 user.on().subscribe();
 
                 if (change.getType() == EventType.Added) {
-                    model.addUser(user.getModel());
+                    if (!model.addUser(user.getModel())) {
+                        Logger.warn("User not added:  " + model.getEntityID() + ", " + user.model.getEntityID());
+                    } else {
+                        Logger.warn("User added: " + model.getEntityID() + ", " + user.model.getEntityID());
+                    }
                 }
                 // We don't remove the current user. If we leave the thread, we still
                 // want to be a member so the thread is still associated with us

@@ -69,7 +69,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     protected boolean listenersAdded = false;
     protected boolean didLoadData = false;
-    protected boolean useAsyncAdapter = true;
+    protected boolean useAsyncAdapter = false;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -125,10 +125,12 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                         EventType.TypingStateUpdated,
                         EventType.UserMetaUpdated,
                         EventType.MessageReadReceiptUpdated,
-                        EventType.MessageUpdated))
+                        EventType.MessageUpdated,
+                        EventType.ThreadUserAdded,
+                        EventType.ThreadUserRemoved,
+                        EventType.ThreadUserUpdated))
                 .subscribe(networkEvent -> {
                     root.post(() -> {
-                        //
                         synchronize(false);
                     });
                 }));
@@ -138,7 +140,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 EventType.ThreadAdded,
                 EventType.ThreadRemoved,
                 EventType.MessageAdded,
-                EventType.MessageRemoved
+                EventType.MessageRemoved,
+                EventType.ThreadMessagesUpdated
         )).subscribe(networkEvent -> {
 
             if (networkEvent.typeIs(EventType.ThreadsUpdated)) {
@@ -156,7 +159,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                             removeThread(thread);
                         });
                     }
-                    else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved)) {
+                    else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved, EventType.ThreadMessagesUpdated)) {
                         root.post(() -> {
                             if (!addThread(thread, true, true)) {
                                 synchronize(true);
@@ -311,11 +314,11 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     public void loadData() {
         if (dialogsListAdapter() != null) {
-            if (!didLoadData) {
+//            if (!didLoadData) {
                 getThreads().map(threads -> {
                     threads = filter(threads);
 
-                    threadHolders.clear();
+//                    threadHolders.clear();
                     for (Thread thread : threads) {
                         addThread(thread, false, false);
                     }
@@ -324,10 +327,10 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                     synchronize(true);
                 }).subscribe();
 
-                didLoadData = true;
-            } else {
-                synchronize(true);
-            }
+//                didLoadData = true;
+//            } else {
+//                synchronize(true);
+//            }
         }
     }
 

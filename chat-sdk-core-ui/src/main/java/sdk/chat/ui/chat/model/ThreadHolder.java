@@ -43,14 +43,12 @@ public class ThreadHolder implements IDialog<MessageHolder> {
         update();
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageUpdated))
-                .filter(NetworkEvent.filterThreadEntityID(getId()))
-                .subscribe(networkEvent -> {
-                    updateLastMessage();
-                }));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated))
+                .filter(NetworkEvent.filterType(
+                        EventType.MessageReadReceiptUpdated,
+                        EventType.MessageUpdated,
+                        EventType.ThreadMessagesUpdated,
+                        EventType.MessageAdded,
+                        EventType.MessageRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(getId()))
                 .subscribe(networkEvent -> {
                     updateUnreadCount();
@@ -65,10 +63,13 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageRemoved))
+                .filter(NetworkEvent.filterType(
+                        EventType.ThreadUserAdded,
+                        EventType.ThreadUserRemoved,
+                        EventType.ThreadUserUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(getId()))
                 .subscribe(networkEvent -> {
-                    updateLastMessage();
+                    updateDisplayName();
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()
@@ -78,11 +79,10 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                     if (networkEvent.getText() != null) {
                         typingText = networkEvent.getText();
                         typingText += ChatSDK.getString(R.string.typing);
-                        isDirty = true;
                     } else {
                         typingText = null;
-                        isDirty = true;
                     }
+                    isDirty = true;
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()
