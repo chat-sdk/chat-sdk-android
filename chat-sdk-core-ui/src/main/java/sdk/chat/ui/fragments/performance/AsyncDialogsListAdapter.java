@@ -60,14 +60,24 @@ public class AsyncDialogsListAdapter extends DialogsListAdapter<ThreadHolder> {
         return asyncDiffer.getCurrentList().get(position);
     }
 
-    public void onBindViewHolder(ThreadHolder holder, int position) {
-        holder.setImageLoader(this.imageLoader);
-        holder.setOnDialogClickListener(this.onDialogClickListener);
-        holder.setOnDialogViewClickListener(this.onDialogViewClickListener);
-        holder.setOnLongItemClickListener(this.onLongItemClickListener);
-        holder.setOnDialogViewLongClickListener(this.onDialogViewLongClickListener);
-        holder.setDatesFormatter(this.datesFormatter);
-        holder.onBind(this.items.get(position));
+    public List<ThreadHolder> getItems() {
+        return asyncDiffer.getCurrentList();
     }
+
+
+//    @Override
+//    public ThreadHolder getItems() {
+//
+//    }
+
+//    public void onBindViewHolder(ThreadHolder holder, int position) {
+//        holder.setImageLoader(this.imageLoader);
+//        holder.setOnDialogClickListener(this.onDialogClickListener);
+//        holder.setOnDialogViewClickListener(this.onDialogViewClickListener);
+//        holder.setOnLongItemClickListener(this.onLongItemClickListener);
+//        holder.setOnDialogViewLongClickListener(this.onDialogViewLongClickListener);
+//        holder.setDatesFormatter(this.datesFormatter);
+//        holder.onBind(this.items.get(position));
+//    }
 
 }

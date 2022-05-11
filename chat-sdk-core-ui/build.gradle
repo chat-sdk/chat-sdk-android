@@ -79,7 +79,8 @@ dependencies {
     api "com.google.android.material:material:$materialVersion"
 
     api "com.github.siyamed:android-shape-imageview:$shapeImageViewVersion"
-    api "sdk.chat:chat-kit:$chatKitVersion"
+//    api "sdk.chat:chat-kit:$chatKitVersion"
+    api project(':chatkit')
 
     api "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
     api "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"

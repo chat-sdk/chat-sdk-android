@@ -1,7 +1,6 @@
 plugins {
     id 'com.android.library'
     id 'com.jfrog.artifactory' version "$jfrogVersion"
-
     id 'maven-publish'
 }
 
@@ -23,37 +22,30 @@ android {
         }
     }
 
+    lintOptions {
+        abortOnError false
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+}
 
-    lintOptions {
-        abortOnError false
-        checkReleaseBuilds false
-        lintConfig file('lint.xml')
-    }
+ext {
+    libraryName = 'ChatKit'
+    artifact = 'chat-kit'
+    libraryDescription = 'ChatKit by stfalcon-studio'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':sdk-guru-common')
-//    api project(':sdk-guru-realtime')
 
-//    implementation "com.google.firebase:firebase-firestore:$firebaseFirestoreVersion"
-    implementation "com.google.firebase:firebase-auth:$firebaseAuthVersion"
-//    implementation "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
-    implementation "com.victorrendina:rxqueue2:$rxQueueVersion"
-
-}
-
-ext {
-    libraryName = 'FireStream'
-    artifact = 'firestream'
-    libraryDescription = 'FireStream: Messaging Framework for Firebase and Firestore'
+    implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
+    implementation "com.google.android.material:material:$materialVersion"
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
 }
 
 if (project.hasProperty("mavenPublish") && mavenPublish) {
     apply from: '../bintray.gradle'
 }
-
