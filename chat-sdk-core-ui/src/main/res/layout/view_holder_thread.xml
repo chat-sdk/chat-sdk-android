@@ -24,14 +24,14 @@
             android:id="@id/dialogName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
             android:layout_marginTop="19dp"
-            android:layout_toEndOf="@id/dialogAvatar"
+            android:layout_marginEnd="16dp"
             android:layout_toStartOf="@id/dialogDate"
+            android:layout_toEndOf="@id/dialogAvatar"
             android:ellipsize="end"
             android:fontFamily="@string/font_fontFamily_medium"
             android:includeFontPadding="false"
-            android:maxLines="1"/>
+            android:maxLines="1" />
 
         <TextView
             android:id="@id/dialogDate"
@@ -52,11 +52,19 @@
             android:layout_toEndOf="@id/dialogAvatar"
             android:layout_toStartOf="@+id/dialogUnreadBubble">
 
+            <ImageView
+                android:id="@id/readStatus"
+                android:layout_width="26dp"
+                android:layout_height="13dp"
+                android:layout_marginTop="5dp"
+                android:layout_alignParentStart="true" />
+
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@id/dialogLastMessageUserAvatar"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="7dp"
+                android:layout_toEndOf="@id/readStatus"
                 app:civ_circle_background_color="?avatarBackgroundColor"
                 />
 
@@ -66,16 +74,11 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_toEndOf="@id/dialogLastMessageUserAvatar"
-                android:layout_toStartOf="@id/readStatus"
+                android:layout_alignParentEnd="true"
                 android:ellipsize="end"
                 android:gravity="top"
                 android:maxLines="2"/>
 
-            <ImageView
-                android:id="@id/readStatus"
-                android:layout_width="26dp"
-                android:layout_height="13dp"
-                android:layout_alignParentEnd="true" />
 
         </RelativeLayout>
 

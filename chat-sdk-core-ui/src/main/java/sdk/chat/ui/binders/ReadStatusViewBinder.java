@@ -13,7 +13,11 @@ import sdk.chat.ui.chat.model.MessageHolder;
 public class ReadStatusViewBinder {
 
     public void onBind(ImageView view, MessageHolder holder) {
-        if (ChatSDK.readReceipts() == null || holder == null || holder.getMessage().getMessageType().is(MessageType.System) || !holder.getUser().getUser().isMe() || holder.getReadStatus().is(ReadStatus.hide())) {
+        // Holder is last message so can be null
+        if (holder == null) {
+            return;
+        }
+        if (holder.isTyping() || ChatSDK.readReceipts() == null || holder.getMessage().getMessageType().is(MessageType.System) || !holder.getUser().isMe() || holder.getReadStatus().is(ReadStatus.hide())) {
             view.setVisibility(View.GONE);
         } else {
             ReadStatus status = holder.getReadStatus();

@@ -16,4 +16,11 @@ public class StringChecker {
         return editable == null || editable.toString().isEmpty();
     }
 
+    public static boolean areEqual(String s1, String s2) {
+        if (s1 != null && s2 != null) {
+            return s1.equals(s2);
+        }
+        return s1 == null && s2 == null;
+    }
+
 }

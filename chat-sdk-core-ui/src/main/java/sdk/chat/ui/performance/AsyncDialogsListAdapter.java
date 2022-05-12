@@ -1,4 +1,4 @@
-package sdk.chat.ui.fragments.performance;
+package sdk.chat.ui.performance;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.AsyncListDiffer;

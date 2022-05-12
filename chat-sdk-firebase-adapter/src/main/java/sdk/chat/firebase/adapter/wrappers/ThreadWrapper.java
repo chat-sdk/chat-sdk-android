@@ -560,6 +560,10 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                             model.addMessage(m, false, false);
                         }
 
+                        // Sort the messages
+                        // We need to do this because the data comes as a hash map that's not sorted
+                        model.sortMessages(true);
+
                         model.update();
 
                         ChatSDK.events().source().accept(NetworkEvent.threadMessagesUpdated(getModel()));

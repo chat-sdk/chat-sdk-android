@@ -49,7 +49,7 @@
     <item name="dialogMessageTextSize">15sp</item>
     <item name="dialogMessageTextColor">@color/gray</item>
 
-    <item name="dialogUnreadMessageTextColor">@color/primary</item>
+    <item name="dialogUnreadMessageTextColor">@color/gray</item>
     <item name="dialogUnreadBubbleTextColor">@color/white</item>
     <item name="dialogUnreadBubbleBackgroundColor">@color/primary_green</item>
     <item name="dialogUnreadBubbleBorderColor">#00000000</item>

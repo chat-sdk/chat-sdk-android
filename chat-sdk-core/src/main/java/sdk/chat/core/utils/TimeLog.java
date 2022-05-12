@@ -1,23 +1,32 @@
 package sdk.chat.core.utils;
 
+import org.pmw.tinylog.Logger;
+
 public class TimeLog {
 
-    protected static long start;
-    protected static String name;
-    protected static boolean enabled = false;
+    protected long start;
+    protected long end;
+    protected String name;
 
-    public static void startTimeLog(String theName) {
-//        if (enabled && Looper.myLooper() == null || Looper.myLooper().equals(Looper.getMainLooper())) {
-//            start = System.currentTimeMillis();
-//            name = theName;
-//        }
+    public TimeLog(String name) {
+        this(name, true);
     }
 
-    public static void endTimeLog() {
-//        if (enabled && Looper.myLooper() == null || Looper.myLooper().equals(Looper.getMainLooper())) {
-//            Logger.debug("TimeLog: " + name + ", duration: " + String.valueOf(System.currentTimeMillis() - start));
-//            start = 0;
-//        }
+    public TimeLog(String name, boolean startNow) {
+        this.name = name;
+        if (startNow) {
+            start();
+        }
+    }
+
+    public void start() {
+        start = System.currentTimeMillis();
+    }
+
+    public void end() {
+        end = System.currentTimeMillis();
+        long diff = end - start;
+        Logger.warn(name + " diff: " + diff);
     }
 
 }

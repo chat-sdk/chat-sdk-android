@@ -4,8 +4,6 @@ import android.content.Context;
 
 import com.stfalcon.chatkit.commons.models.IMessage;
 
-import org.pmw.tinylog.Logger;
-
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,36 +11,105 @@ import java.util.List;
 
 import io.reactivex.Single;
 import sdk.chat.core.dao.Message;
+import sdk.chat.core.events.EventType;
+import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.ReadStatus;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.view_holders.v2.MessageDirection;
+import sdk.guru.common.DisposableMap;
 
 public class MessageHolder implements IMessage {
 
     public Message message;
-    protected UserHolder userHolder = null;
-    protected MessageSendProgress progress = null;
+    protected Message nextMessage;
+    protected Message previousMessage;
+
+    protected UserHolder userHolder;
 
     protected boolean isGroup;
     protected boolean previousSenderEqualsSender;
     protected boolean nextSenderEqualsSender;
     protected boolean showDate;
     protected String quotedImageURL;
+    protected MessageDirection direction;
 
     protected String typingText = null;
+    protected DisposableMap dm = new DisposableMap();
+
+    protected ReadStatus readStatus = null;
+
+    protected Date date;
+    protected MessageSendStatus sendStatus = null;
+    protected Integer uploadPercentage;
+    protected Double fileSize;
+    protected boolean isReply;
+
+    protected boolean isDirty = true;
 
     public MessageHolder(Message message) {
         this.message = message;
-        update();
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageSendStatusUpdated))
+                .filter(NetworkEvent.filterMessageEntityID(getId()))
+                .subscribe(networkEvent -> {
+                    MessageSendProgress progress = networkEvent.getMessageSendProgress();
+                    updateSendStatus(progress);
+                }));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated))
+                .filter(NetworkEvent.filterMessageEntityID(getId()))
+                .subscribe(networkEvent -> {
+                    updateReadStatus();
+                }));
+
+//        dm.add(ChatSDK.events().sourceOnMain()
+//                .filter(NetworkEvent.filterType(EventType.MessageUpdated, EventType.MessageAdded, EventType.MessageRemoved))
+//                .filter(NetworkEvent.filterMessageEntityID(getId()))
+//                .subscribe(networkEvent -> {
+//                    updateNextAndPreviousMessages();
+//                }));
+
+        userHolder = ChatSDKUI.provider().holderProvider().getUserHolder(message.getSender());
+        date = message.getDate();
+
+        updateSendStatus(null);
+        updateNextAndPreviousMessages();
+        updateReadStatus();
+
+        if (message.isReply()) {
+            quotedImageURL = ChatSDK.getMessageImageURL(message);
+        }
+
+        isReply = message.isReply();
+        direction = getUser().isMe() ? MessageDirection.Outcoming : MessageDirection.Incoming;
+
     }
 
-    public void update() {
+    public void updateNextAndPreviousMessages() {
         Message nextMessage = message.getNextMessage();
         Message previousMessage = message.getPreviousMessage();
+
+        if (!isDirty) {
+            String oldNextMessageId = this.nextMessage != null ? this.nextMessage.getEntityID() : "";
+            String newNextMessageId = nextMessage != null ? nextMessage.getEntityID() : "";
+            isDirty = !oldNextMessageId.equals(newNextMessageId);
+        }
+
+        if (!isDirty) {
+            String oldPreviousMessageId = this.previousMessage != null ? this.previousMessage.getEntityID() : "";
+            String newPreviousMessageId = previousMessage != null ? previousMessage.getEntityID() : "";
+            isDirty = !oldPreviousMessageId.equals(newPreviousMessageId);
+        }
+
+        this.nextMessage = nextMessage;
+        this.previousMessage = previousMessage;
 
         previousSenderEqualsSender = previousMessage != null && message.getSender().equalsEntity(previousMessage.getSender());
         nextSenderEqualsSender = nextMessage != null && message.getSender().equalsEntity(nextMessage.getSender());
@@ -50,12 +117,41 @@ public class MessageHolder implements IMessage {
         DateFormat format = UIModule.shared().getMessageBinder().messageTimeComparisonDateFormat(ChatSDK.ctx());
         showDate = nextMessage == null || !format.format(message.getDate()).equals(format.format(nextMessage.getDate())) && nextSenderEqualsSender;
         isGroup = message.getThread().typeIs(ThreadType.Group);
-
-        if (message.isReply()) {
-            quotedImageURL = ChatSDK.getMessageImageURL(message);
-        }
     }
 
+    public void updateSendStatus(MessageSendProgress progress) {
+        MessageSendStatus status;
+
+        if (progress == null) {
+            status = message.getMessageStatus();
+
+            isDirty = this.uploadPercentage != null;
+            isDirty = this.fileSize != null;
+
+            uploadPercentage = null;
+            fileSize = null;
+
+        } else {
+            status = progress.status;
+
+            Integer uploadPercentage = Math.round(progress.uploadProgress.asFraction() * 100);
+            isDirty = uploadPercentage.equals(this.uploadPercentage);
+            this.uploadPercentage = uploadPercentage;
+
+            Double fileSize = Math.floor(progress.uploadProgress.getTotalBytes() / 1000);
+            isDirty = fileSize.equals(this.fileSize);
+            this.fileSize = fileSize;
+
+        }
+        isDirty = status == sendStatus;
+        sendStatus = status;
+    }
+
+    public void updateReadStatus() {
+        ReadStatus status = message.getReadStatus();
+        isDirty = readStatus != status;
+        readStatus = status;
+    }
 
     @Override
     public String getId() {
@@ -75,19 +171,12 @@ public class MessageHolder implements IMessage {
 
     @Override
     public UserHolder getUser() {
-        if (userHolder == null) {
-            userHolder = new UserHolder(message.getSender());
-        }
-
         return userHolder;
     }
 
     @Override
     public Date getCreatedAt() {
-        if (message == null || message.getDate() == null) {
-            Logger.debug("HERE");
-        }
-        return message.getDate();
+        return date;
     }
 
     @Override
@@ -100,40 +189,31 @@ public class MessageHolder implements IMessage {
     }
 
     public MessageSendStatus getStatus() {
-        if (progress == null) {
-            return message.getMessageStatus();
-        }
-        return progress.status;
+        return sendStatus;
     }
 
     public Integer getUploadPercentage() {
-        if (progress != null && progress.uploadProgress != null) {
-            return Math.round(progress.uploadProgress.asFraction() * 100);
-        }
-        return null;
+        return uploadPercentage;
     }
 
     public Double getFileSize() {
-        if (progress != null && progress.uploadProgress != null) {
-            return Math.floor(progress.uploadProgress.getTotalBytes() / 1000);
-        }
-        return null;
+        return fileSize;
     }
 
-    public void setProgress(MessageSendProgress progress) {
-        this.progress = progress;
-    }
+//    public void setProgress(MessageSendProgress progress) {
+//        this.progress = progress;
+//    }
 
     public ReadStatus getReadStatus() {
-        return message.getReadStatus();
+        return readStatus;
     }
 
     public MessageSendStatus getSendStatus() {
-        return message.getMessageStatus();
+        return sendStatus;
     }
 
     public boolean isReply() {
-        return message.isReply();
+        return isReply;
     }
 
     public String getQuotedText() {
@@ -157,7 +237,6 @@ public class MessageHolder implements IMessage {
 
     public String getIcon() {
         return null;
-//        return "http://flathash.com/ben";
     }
 
     public static List<Message> toMessages(List<MessageHolder> messageHolders) {
@@ -173,7 +252,7 @@ public class MessageHolder implements IMessage {
     }
 
     public MessageDirection direction() {
-        return getUser().isMe() ? MessageDirection.Outcoming : MessageDirection.Incoming;
+        return direction;
     }
 
     public Single<String> save(final Context context) {
@@ -186,6 +265,27 @@ public class MessageHolder implements IMessage {
 
     public void setTypingText(String text) {
         typingText = text;
+    }
+
+    public boolean isTyping() {
+        return typingText != null;
+    }
+
+    public boolean isDirty() {
+        return isDirty || userHolder.isDirty();
+    }
+
+    public void makeClean() {
+        isDirty = false;
+        userHolder.makeClean();
+    }
+
+    public Message previousMessage() {
+        return previousMessage;
+    }
+
+    public Message nextMessage() {
+        return nextMessage;
     }
 
 }

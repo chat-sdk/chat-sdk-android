@@ -51,7 +51,7 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
 
     public static boolean isSelectionModeEnabled;
 
-    public List<Wrapper> items;
+    public List<MessageWrapper<?>> items;
     private MessageHolders holders;
     private String senderId;
 
@@ -69,7 +69,7 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
     private DateFormatter.Formatter dateHeadersFormatter;
     private SparseArray<OnMessageViewClickListener> viewClickListenersArray = new SparseArray<>();
 
-    public List<Wrapper> getItems() {
+    public List<MessageWrapper<?>> getItems() {
         return items;
     }
 
@@ -106,10 +106,10 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
     @SuppressWarnings("unchecked")
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Wrapper wrapper = getItems().get(position);
-        holders.bind(holder, wrapper.item, wrapper.isSelected, imageLoader,
-                getMessageClickListener(wrapper),
-                getMessageLongClickListener(wrapper),
+        MessageWrapper messageWrapper = getItems().get(position);
+        holders.bind(holder, messageWrapper.item, messageWrapper.isSelected, imageLoader,
+                getMessageClickListener(messageWrapper),
+                getMessageLongClickListener(messageWrapper),
                 dateHeadersFormatter,
                 viewClickListenersArray);
     }
@@ -119,7 +119,7 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
         return getItems().size();
     }
 
-    public void setItems(List<Wrapper> items) {
+    public void setItems(List<MessageWrapper<?>> items) {
         this.items = items;
     }
 
@@ -138,7 +138,7 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
     @Override
     public int getMessagesCount() {
         int count = 0;
-        for (Wrapper item : items) {
+        for (MessageWrapper item : items) {
             if (item.item instanceof IMessage) {
                 count++;
             }
@@ -156,14 +156,16 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
      * @param message message to add.
      * @param scroll  {@code true} if need to scroll list to bottom when message added.
      */
-    public void addToStart(MESSAGE message, boolean scroll) {
+    public void addToStart(MESSAGE message, boolean scroll, boolean notify) {
         boolean isNewMessageToday = !isPreviousSameDate(0, message.getCreatedAt());
         if (isNewMessageToday) {
-            getItems().add(0, new Wrapper<>(message.getCreatedAt()));
+            getItems().add(0, new MessageWrapper<>(message.getCreatedAt()));
         }
-        Wrapper<MESSAGE> element = new Wrapper<>(message);
+        MessageWrapper<MESSAGE> element = new MessageWrapper<>(message);
         getItems().add(0, element);
-        notifyItemRangeInserted(0, isNewMessageToday ? 2 : 1);
+        if (notify) {
+            notifyItemRangeInserted(0, isNewMessageToday ? 2 : 1);
+        }
         if (layoutManager != null && scroll) {
             layoutManager.scrollToPosition(0);
         }
@@ -175,7 +177,7 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
      * @param messages messages from history.
      * @param reverse  {@code true} if need to reverse messages before adding.
      */
-    public void addToEnd(List<MESSAGE> messages, boolean reverse) {
+    public void addToEnd(List<MESSAGE> messages, boolean reverse, boolean notify) {
         if (messages.isEmpty()) return;
 
         if (reverse) Collections.reverse(messages);
@@ -185,13 +187,17 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
             Date lastItem = (Date) getItems().get(lastItemPosition).item;
             if (DateFormatter.isSameDay(messages.get(0).getCreatedAt(), lastItem)) {
                 getItems().remove(lastItemPosition);
-                notifyItemRemoved(lastItemPosition);
+                if (notify) {
+                    notifyItemRemoved(lastItemPosition);
+                }
             }
         }
 
         int oldSize = getItems().size();
         generateDateHeaders(messages);
-        notifyItemRangeInserted(oldSize, getItems().size() - oldSize);
+        if (notify) {
+            notifyItemRangeInserted(oldSize, getItems().size() - oldSize);
+        }
     }
 
     /**
@@ -212,7 +218,7 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
     public boolean update(String oldId, MESSAGE newMessage) {
         int position = getMessagePositionById(oldId);
         if (position >= 0) {
-            Wrapper<MESSAGE> element = new Wrapper<>(newMessage);
+            MessageWrapper<MESSAGE> element = new MessageWrapper<>(newMessage);
             getItems().set(position, element);
             notifyItemChanged(position);
             return true;
@@ -229,7 +235,7 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
     public void updateAndMoveToStart(MESSAGE newMessage) {
         int position = getMessagePositionById(newMessage.getId());
         if (position >= 0) {
-            Wrapper<MESSAGE> element = new Wrapper<>(newMessage);
+            MessageWrapper<MESSAGE> element = new MessageWrapper<>(newMessage);
             getItems().remove(position);
             getItems().add(0, element);
             notifyItemMoved(position, 0);
@@ -242,9 +248,9 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
      *
      * @param message message object to insert or update.
      */
-    public void upsert(MESSAGE message) {
+    public void upsert(MESSAGE message, boolean notify) {
         if (!update(message)) {
-            addToStart(message, false);
+            addToStart(message, false, notify);
         }
     }
 
@@ -254,15 +260,15 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
      *
      * @param message message object to insert or update.
      */
-    public void upsert(MESSAGE message, boolean moveToStartIfUpdate) {
+    public void upsert(MESSAGE message, boolean moveToStartIfUpdate, boolean notify) {
         if (moveToStartIfUpdate) {
             if (getMessagePositionById(message.getId()) > 0) {
                 updateAndMoveToStart(message);
             } else {
-                upsert(message);
+                upsert(message, notify);
             }
         } else {
-            upsert(message);
+            upsert(message, notify);
         }
     }
 
@@ -271,8 +277,8 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
      *
      * @param message message to delete.
      */
-    public void delete(MESSAGE message) {
-        deleteById(message.getId());
+    public void delete(MESSAGE message, boolean notify) {
+        deleteById(message.getId(), notify);
     }
 
     /**
@@ -300,11 +306,13 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
      *
      * @param id identifier of message to delete.
      */
-    public void deleteById(String id) {
+    public void deleteById(String id, boolean notify) {
         int index = getMessagePositionById(id);
         if (index >= 0) {
             getItems().remove(index);
-            notifyItemRemoved(index);
+            if (notify) {
+                notifyItemRemoved(index);
+            }
             recountDateHeaders();
         }
     }
@@ -386,9 +394,9 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
     @SuppressWarnings("unchecked")
     public ArrayList<MESSAGE> getSelectedMessages() {
         ArrayList<MESSAGE> selectedMessages = new ArrayList<>();
-        for (Wrapper wrapper : items) {
-            if (wrapper.item instanceof IMessage && wrapper.isSelected) {
-                selectedMessages.add((MESSAGE) wrapper.item);
+        for (MessageWrapper messageWrapper : items) {
+            if (messageWrapper.item instanceof IMessage && messageWrapper.isSelected) {
+                selectedMessages.add((MESSAGE) messageWrapper.item);
             }
         }
         return selectedMessages;
@@ -427,9 +435,9 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
      */
     public void unselectAllItems() {
         for (int i = 0; i < getItems().size(); i++) {
-            Wrapper wrapper = getItems().get(i);
-            if (wrapper.isSelected) {
-                wrapper.isSelected = false;
+            MessageWrapper messageWrapper = getItems().get(i);
+            if (messageWrapper.isSelected) {
+                messageWrapper.isSelected = false;
                 notifyItemChanged(i);
             }
         }
@@ -517,8 +525,8 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
         List<Integer> indicesToDelete = new ArrayList<>();
 
         for (int i = 0; i < getItems().size(); i++) {
-            Wrapper wrapper = getItems().get(i);
-            if (wrapper.item instanceof Date) {
+            MessageWrapper messageWrapper = getItems().get(i);
+            if (messageWrapper.item instanceof Date) {
                 if (i == 0) {
                     indicesToDelete.add(i);
                 } else {
@@ -539,14 +547,14 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
     public void generateDateHeaders(List<MESSAGE> messages) {
         for (int i = 0; i < messages.size(); i++) {
             MESSAGE message = messages.get(i);
-            this.getItems().add(new Wrapper<>(message));
+            this.getItems().add(new MessageWrapper<>(message));
             if (messages.size() > i + 1) {
                 MESSAGE nextMessage = messages.get(i + 1);
                 if (!DateFormatter.isSameDay(message.getCreatedAt(), nextMessage.getCreatedAt())) {
-                    this.getItems().add(new Wrapper<>(message.getCreatedAt()));
+                    this.getItems().add(new MessageWrapper<>(message.getCreatedAt()));
                 }
             } else {
-                this.getItems().add(new Wrapper<>(message.getCreatedAt()));
+                this.getItems().add(new MessageWrapper<>(message.getCreatedAt()));
             }
         }
     }
@@ -554,9 +562,9 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
     @SuppressWarnings("unchecked")
     private int getMessagePositionById(String id) {
         for (int i = 0; i < getItems().size(); i++) {
-            Wrapper wrapper = getItems().get(i);
-            if (wrapper.item instanceof IMessage) {
-                MESSAGE message = (MESSAGE) wrapper.item;
+            MessageWrapper messageWrapper = getItems().get(i);
+            if (messageWrapper.item instanceof IMessage) {
+                MESSAGE message = (MESSAGE) messageWrapper.item;
                 if (message.getId().contentEquals(id)) {
                     return i;
                 }
@@ -624,33 +632,33 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
         }
     }
 
-    private View.OnClickListener getMessageClickListener(final Wrapper<MESSAGE> wrapper) {
+    private View.OnClickListener getMessageClickListener(final MessageWrapper<MESSAGE> messageWrapper) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (selectionListener != null && isSelectionModeEnabled) {
-                    wrapper.isSelected = !wrapper.isSelected;
+                    messageWrapper.isSelected = !messageWrapper.isSelected;
 
-                    if (wrapper.isSelected) incrementSelectedItemsCount();
+                    if (messageWrapper.isSelected) incrementSelectedItemsCount();
                     else decrementSelectedItemsCount();
 
-                    MESSAGE message = (wrapper.item);
+                    MESSAGE message = (messageWrapper.item);
                     notifyItemChanged(getMessagePositionById(message.getId()));
                 } else {
-                    notifyMessageClicked(wrapper.item);
-                    notifyMessageViewClicked(view, wrapper.item);
+                    notifyMessageClicked(messageWrapper.item);
+                    notifyMessageViewClicked(view, messageWrapper.item);
                 }
             }
         };
     }
 
-    private View.OnLongClickListener getMessageLongClickListener(final Wrapper<MESSAGE> wrapper) {
+    private View.OnLongClickListener getMessageLongClickListener(final MessageWrapper<MESSAGE> messageWrapper) {
         return new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
                 if (selectionListener == null) {
-                    notifyMessageLongClicked(wrapper.item);
-                    notifyMessageViewLongClicked(view, wrapper.item);
+                    notifyMessageLongClicked(messageWrapper.item);
+                    notifyMessageViewLongClicked(view, messageWrapper.item);
                     return true;
                 } else {
                     isSelectionModeEnabled = true;
@@ -695,14 +703,6 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
     /*
      * WRAPPER
      * */
-    public class Wrapper<DATA> {
-        public DATA item;
-        public boolean isSelected;
-
-        Wrapper(DATA item) {
-            this.item = item;
-        }
-    }
 
     /*
      * LISTENERS

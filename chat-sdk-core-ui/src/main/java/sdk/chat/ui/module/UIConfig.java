@@ -75,6 +75,8 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     public @ColorRes int threadViewHolderTypingTextColor = 0;
 
+    public int maxImageSize = 300;
+
     public UIConfig(T onBuild) {
         super(onBuild);
     }

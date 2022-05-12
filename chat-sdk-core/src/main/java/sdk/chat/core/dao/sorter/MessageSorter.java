@@ -33,4 +33,13 @@ public class MessageSorter implements Comparator<Message> {
             return (order == DaoCore.ORDER_ASC ? 1 : -1 ) * m1.getDate().compareTo(m2.getDate());
         }
     }
+
+    public static MessageSorter asc() {
+        return new MessageSorter(DaoCore.ORDER_ASC);
+    }
+
+    public static MessageSorter desc() {
+        return new MessageSorter(DaoCore.ORDER_DESC);
+    }
+
 }

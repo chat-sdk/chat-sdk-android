@@ -3,17 +3,20 @@ package sdk.chat.ui.views;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DiffUtil;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.RequestManager;
 import com.stfalcon.chatkit.messages.MessageHolders;
+import com.stfalcon.chatkit.messages.MessageWrapper;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
@@ -23,29 +26,29 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import sdk.chat.core.dao.DaoCore;
+import io.reactivex.Single;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Function;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.MessageSendProgress;
-import sdk.chat.core.types.MessageSendStatus;
-import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.chat.core.utils.CurrentLocale;
-import sdk.chat.core.utils.Debug;
 import sdk.chat.core.utils.Dimen;
+import sdk.chat.core.utils.TimeLog;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.MessageHolder;
+import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.performance.MessageHoldersDiffCallback;
 import sdk.chat.ui.utils.ImageLoaderPayload;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
@@ -64,7 +67,8 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
     protected MessagesListAdapter<MessageHolder> messagesListAdapter;
 
-    protected Map<Message, MessageHolder> messageHolderHashMap = new HashMap<>();
+//    protected Map<Message, MessageHolder> messageHolderHashMap = new HashMap<>();
+
     protected List<MessageHolder> messageHolders = new ArrayList<>();
 
     protected DisposableMap dm = new DisposableMap();
@@ -208,7 +212,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 String originalMessageEntityID = message.stringForKey(Keys.Id);
                 if (originalMessageEntityID != null) {
                     Message originalMessage = ChatSDK.db().fetchEntityWithEntityID(originalMessageEntityID, Message.class);
-                    MessageHolder originalHolder = messageHolderHashMap.get(originalMessage);
+                    MessageHolder originalHolder = ChatSDKUI.provider().holderProvider().getMessageHolder(originalMessage);
                     if (originalHolder != null) {
                         int index = messageHolders.indexOf(originalHolder);
                         if (index >= 0) {
@@ -237,74 +241,45 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         listenersAdded = true;
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadMessagesUpdated))
+                .filter(NetworkEvent.filterType(
+                        EventType.ThreadMessagesUpdated,
+                        EventType.MessageSendStatusUpdated,
+                        EventType.MessageReadReceiptUpdated,
+                        EventType.UserPresenceUpdated,
+                        EventType.UserMetaUpdated))
+                .filter(NetworkEvent.filterType())
                 .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
                 .subscribe(networkEvent -> {
-                    reloadMessages();
+                    root.post(() -> {
+                        synchronize(null, true);
+                    });
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageRemoved))
-//                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageUpdated, EventType.MessageRemoved, EventType.MessageReadReceiptUpdated, EventType.MessageSendStatusUpdated))
+                .filter(NetworkEvent.filterType(EventType.MessageAdded))
                 .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
                 .subscribe(networkEvent -> {
-                    networkEvent.debug();
-                    Message message = networkEvent.getMessage();
-                    // We listed to the MessageAdded event when we receive but we listen to the message created status when we send
-                    // Because we need to wait until the message payload is set which happens after it is added to the thread
-                    if (networkEvent.typeIs(EventType.MessageAdded) || (networkEvent.typeIs(EventType.MessageSendStatusUpdated) && networkEvent.getMessageSendProgress().status == MessageSendStatus.Created)) {
-                        addMessageToStartOrUpdate(message);
-                        if (!AppBackgroundMonitor.shared().inBackground()) {
-                            message.markReadIfNecessary();
-                        }
-                    }
-                    if (networkEvent.typeIs(EventType.MessageUpdated)) {
-                        if (message.getSender().isMe()) {
-                            softUpdate(message);
-                        } else {
-                            // If this is not from us, then we need to calculate when to
-                            // how the time and name that requires a full update
-                            addMessageToStartOrUpdate(message);
-                        }
-                    }
-                    if (networkEvent.typeIs(EventType.MessageRemoved)) {
-                        removeMessage(networkEvent.getMessage());
-                    }
-                    if (networkEvent.typeIs(EventType.MessageReadReceiptUpdated) && ChatSDK.readReceipts() != null && message.getSender().isMe()) {
-                        softUpdate(message);
-                    }
-                    if (networkEvent.typeIs(EventType.MessageSendStatusUpdated)) {
-                        MessageSendProgress progress = networkEvent.getMessageSendProgress();
-                        softUpdate(message, progress);
-                    }
+                    root.post(() -> {
+                        addMessageToStart(networkEvent.getMessage());
+                    });
                 }));
 
-//        dm.add(ChatSDK.events().sourceOnMain()
-//                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated, EventType.UserMetaUpdated))
-//                .subscribe(networkEvent -> {
-//                    if (delegate.getThread().containsUser(networkEvent.getUser())) {
-//                        notifyDataSetChanged();
-//                    }
-//                }));
-    }
-
-    protected void reloadMessages() {
-        // Get the ordered messages
-        int count = Math.max(ChatSDK.config().messagesToLoadPerBatch, messagesListAdapter.getItemCount());
-        List<Message> messages = delegate.getThread().getMessagesWithOrder(DaoCore.ORDER_DESC, count);
-        List<MessageHolder> holders = getMessageHolders(messages);
-
-        messagesListAdapter.clear(true);
-        messagesListAdapter.addToEnd(holders, false);
-
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.MessageRemoved))
+                .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
+                .subscribe(networkEvent -> {
+                    root.post(() -> {
+                        removeMessage(networkEvent.getMessage());
+                    });
+                }));
     }
 
     protected int maxImageWidth() {
         // Prevent overly big messages in landscape mode
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            return Math.round(getResources().getDisplayMetrics().widthPixels);
+            return Math.min(Math.round(getResources().getDisplayMetrics().widthPixels), UIModule.config().maxImageSize);
         } else {
-            return Math.round(getResources().getDisplayMetrics().heightPixels);
+            return Math.min(Math.round(getResources().getDisplayMetrics().heightPixels), UIModule.config().maxImageSize);
         }
     }
 
@@ -313,216 +288,169 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     }
 
     public List<MessageHolder> getSelectedMessages() {
-//        return MessageHolder.toMessages(messagesListAdapter.getSelectedMessages());
         return messagesListAdapter.getSelectedMessages();
     }
 
     @Override
     public void onLoadMore(int page, int totalItemsCount) {
-        // Check if the thread was deleted. If so load messages since the last message or
-        // the deletion date, whichever is more recent
+
         Date loadMessagesFrom = delegate.getThread().getLoadMessagesFrom();
-        if (loadMessagesFrom != null) {
-            dm.add(ChatSDK.thread()
-                    .loadMoreMessagesAfter(delegate.getThread(), loadMessagesFrom, totalItemsCount != 0)
-                    .observeOn(RX.main())
-                    .subscribe(messages -> {
-                       // TODO: Check this
-                        addMessagesToEnd(messages, true);
-                    }));
-        } else {
-            Date loadFromDate = null;
-            if (totalItemsCount != 0) {
-                // This list has the newest first
-                loadFromDate = messageHolders.get(messageHolders.size() - 1).getCreatedAt();
-                dm.add(ChatSDK.thread()
-                        .loadMoreMessagesBefore(delegate.getThread(), loadFromDate, totalItemsCount != 0)
-                        .observeOn(RX.main())
-                        .subscribe(messages -> {
-                            addMessagesToEnd(messages, true);
-                        }));
-            } else {
-                List<Message> messages = new ArrayList<>(delegate.getThread().getMessages());
-//                Collections.reverse(reverse);
-                addMessagesToEnd(messages, true);
-//                addMessageToStartOrUpdate(delegate.getThread().getMessages());
-            }
 
-            // TODO: Thread
-//            if (totalItemsCount != 0) {
-//                // This list has the newest first
-//                loadFromDate = messageHolders.get(messageHolders.size() - 1).getCreatedAt();
-//            }
-//
-//            dm.add(ChatSDK.thread()
-//                    .loadMoreMessagesBefore(delegate.getThread(), loadFromDate, totalItemsCount != 0)
-//                    .observeOn(RX.main())
-//                    .subscribe(this::addMessagesToEnd));
-
+        // If there are already items in the list, load messages before oldest
+        if (messageHolders.size() > 0) {
+            loadMessagesFrom = messageHolders.get(messageHolders.size() - 1).getCreatedAt();
         }
-    }
+        dm.add(ChatSDK.thread()
+                .loadMoreMessagesBefore(delegate.getThread(), loadMessagesFrom, true)
+                .flatMap((Function<List<Message>, SingleSource<List<MessageHolder>>>) messages -> {
+                    return getMessageHoldersAsync(messages, false);
+                })
+                .observeOn(RX.main())
+                .subscribe(messages -> {
+                    synchronize(() -> {
+                        addMessageHoldersToEnd(messages, false);
+                    });
+                }));
+}
 
-//    protected void reloadMessages() {
-//        messagesListAdapter.clear();
-//        onLoadMore(0, 0);
-//    }
+    /**
+     * Start means new messages to bottom of screen
+     */
+    protected void addMessageToStart(Message message) {
 
-    public void removeMessage(Message message) {
-        MessageHolder holder = messageHolderHashMap.get(message);
+        boolean scroll = message.getSender().isMe();
 
-        if (holder != null) {
-            messagesListAdapter.delete(holder);
-            messageHolders.remove(holder);
-            messageHolderHashMap.remove(message);
+        int offset = messagesList.computeVerticalScrollOffset();
+        int extent = messagesList.computeVerticalScrollExtent();
+        int range = messagesList.computeVerticalScrollRange();
+        int distanceFromBottom = range - extent - offset;
+
+        if (distanceFromBottom < 400) {
+            scroll = true;
         }
 
-        updatePrevious(message);
-        updateNext(message);
+        MessageHolder holder = ChatSDKUI.provider().holderProvider().getMessageHolder(message);
+        messageHolders.add(0, holder);
+
+        updatePreviousMessage(holder);
+        messagesListAdapter.addToStart(holder, scroll, true);
     }
 
-    public void updatePrevious(Message message) {
-        final MessageHolder holder = previous(message);
-        if (holder != null) {
-            RX.run(holder::update, () -> {
-                messagesListAdapter.update(holder);
-            }).subscribe(ChatSDK.events());
-        }
-    }
-
-    public MessageHolder previous(Message message) {
-        Message previous = message.getPreviousMessage();
+    protected void updatePreviousMessage(MessageHolder holder) {
+        MessageHolder previous = ChatSDKUI.provider().holderProvider().getMessageHolder(holder.previousMessage());
         if (previous != null) {
-            return messageHolderHashMap.get(previous);
-        }
-        return null;
-    }
-
-    public void updateNext(Message message) {
-        MessageHolder holder = next(message);
-        if (holder != null) {
-            messagesListAdapter.update(holder);
+            previous.updateNextAndPreviousMessages();
+            if (previous.isDirty()) {
+                previous.makeClean();
+                messagesListAdapter.update(previous);
+            }
         }
     }
 
-    public MessageHolder next(Message message) {
-        Message next = message.getNextMessage();
+    protected void updateNextMessage(MessageHolder holder) {
+        MessageHolder next = ChatSDKUI.provider().holderProvider().getMessageHolder(holder.nextMessage());
         if (next != null) {
-            return messageHolderHashMap.get(next);
+            next.updateNextAndPreviousMessages();
+            if (next.isDirty()) {
+                next.makeClean();
+                messagesListAdapter.update(next);
+            }
         }
-        return null;
     }
 
-    public void addMessageToStartOrUpdate(Message message) {
-        addMessageToStartOrUpdate(message, null);
+    protected void removeMessage(Message message) {
+        MessageHolder holder = ChatSDKUI.provider().holderProvider().getMessageHolder(message);
+        messageHolders.remove(holder);
+
+        messagesListAdapter.delete(holder, true);
+
+        updateNextMessage(holder);
+        updatePreviousMessage(holder);
     }
 
-    public void addMessageToStartOrUpdate(Message message, MessageSendProgress progress) {
-        final MessageHolder holder = messageHolderHashMap.get(message);
+    /**
+     * End means historic messages to top of screen
+     */
+    protected void addMessageHoldersToEnd(List<MessageHolder> holders, boolean notify) {
 
-        if (holder == null) {
+        // Add to current holders at zero index
+        // Newest first
+        messageHolders.addAll(holders);
 
-            final MessageHolder finalHolder = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
+        // Reverse order because we are adding to end
+        messagesListAdapter.addToEnd(holders, false, notify);
+    }
 
-            messageHolders.add(0, finalHolder);
-            messageHolderHashMap.put(finalHolder.getMessage(), finalHolder);
+    protected void synchronize(Runnable modifyList) {
+        synchronize(modifyList, false);
+    }
 
-            // This means that we only scroll down if we were already at the bottom
-            // it can be annoying if you have scrolled up and then a new message
-            // comes in and scrolls the screen down
-            boolean scroll = message.getSender().isMe();
+    protected void synchronize(Runnable modifyList, boolean sort) {
 
-            int offset = messagesList.computeVerticalScrollOffset();
-            int extent = messagesList.computeVerticalScrollExtent();
-            int range = messagesList.computeVerticalScrollRange();
-            int distanceFromBottom = range - extent - offset;
+        long start = System.currentTimeMillis();
 
-            if (distanceFromBottom < 400) {
-                scroll = true;
+        if (messagesListAdapter != null) {
+            List<MessageWrapper<?>> oldHolders = new ArrayList<>(messagesListAdapter.getItems());
+
+            if (modifyList != null) {
+                modifyList.run();
             }
 
-            messagesListAdapter.addToStart(finalHolder, scroll);
+            List<MessageWrapper<?>> newHolders = new ArrayList<>(messagesListAdapter.getItems());
 
-            // Update the previous holder so that we can hide the
-            // name if necessary
-//            updatePrevious(message);
-
-        } else {
-            RX.run(() -> {
-                holder.update();
-                holder.setProgress(progress);
-            }, () -> {
-                messagesListAdapter.update(holder);
-            }).subscribe(ChatSDK.events());
-        }
-    }
-
-    public void softUpdate(Message message) {
-        softUpdate(message, null);
-    }
-
-    // Just rebinds the message
-    public void softUpdate(Message message, MessageSendProgress progress) {
-        final MessageHolder holder = messageHolderHashMap.get(message);
-        if (holder != null) {
-            if (progress != null) {
-                holder.setProgress(progress);
+            if (sort) {
+                sortMessageHolders();
             }
-            messagesListAdapter.update(holder);
+
+            MessageHoldersDiffCallback callback = new MessageHoldersDiffCallback(newHolders, oldHolders);
+            DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback);
+
+            Parcelable recyclerViewState = messagesList.getLayoutManager().onSaveInstanceState();
+
+            messagesListAdapter.getItems().clear();
+            messagesListAdapter.getItems().addAll(newHolders);
+
+            result.dispatchUpdatesTo(messagesListAdapter);
+
+            messagesList.getLayoutManager().onRestoreInstanceState(recyclerViewState);
+
         }
+
+        long end = System.currentTimeMillis();
+        long diff = end - start;
+        System.out.println("Diff: " + diff);
+
     }
 
-    public List<MessageHolder> getMessageHolders(List<Message> messages) {
+    public void sortMessageHolders() {
+        Collections.sort(messageHolders, (o1, o2) -> {
+            return o1.getCreatedAt().compareTo(o2.getCreatedAt());
+        });
+    }
+
+    public List<MessageHolder> getMessageHolders(final List<Message> messages, boolean reverse) {
+
+        // Get the holders - they will be in asc order i.e. oldest at 0
+        TimeLog log = new TimeLog("Get Holders - " + messages.size());
+
         final List<MessageHolder> holders = new ArrayList<>();
         for (Message message : messages) {
-            MessageHolder holder = messageHolderHashMap.get(message);
-            if (holder == null) {
-                holder = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
-                if (holder != null) {
-                    messageHolderHashMap.put(message, holder);
-                } else {
-                    Logger.debug("Not allowed");
-                }
-            }
+            MessageHolder holder = ChatSDKUI.provider().holderProvider().getMessageHolder(message);
             holders.add(holder);
         }
+        if (reverse) {
+            Collections.reverse(holders);
+        }
+
+        log.end();
+
         return holders;
     }
 
-    public void addMessagesToEnd(final List<Message> messages, boolean reverse) {
-        if (messages.isEmpty()) {
-            return;
-        }
-
-        // Check to see if the holders already exist
-        final List<MessageHolder> holders = new ArrayList<>();
-
-        RX.runSingle(() -> {
-
-            if (reverse) {
-                Collections.reverse(messages);
-            }
-
-            holders.addAll(getMessageHolders(messages));
-
-//            for (Message message : messages) {
-//                MessageHolder holder = messageHolderHashMap.get(message);
-//                if (holder == null) {
-//                    holder = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
-//                    if (holder != null) {
-//                        messageHolderHashMap.put(message, holder);
-//                        holders.add(holder);
-//                    } else {
-//                        Logger.debug("Not allowed");
-//                    }
-//                }
-//            }
-            Debug.messageList(messages);
-        }, ()-> {
-
-
-            messageHolders.addAll(0, holders);
-            messagesListAdapter.addToEnd(holders, false);
-        }).subscribe(ChatSDK.events());
+    public Single<List<MessageHolder>> getMessageHoldersAsync(final List<Message> messages, boolean reverse) {
+        return Single.create((SingleOnSubscribe<List<MessageHolder>>) emitter -> {
+            emitter.onSuccess(getMessageHolders(messages, reverse));
+        }).subscribeOn(RX.computation()).observeOn(RX.main());
     }
 
     public void notifyDataSetChanged() {
@@ -531,7 +459,6 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
     public void clear() {
         if (messagesListAdapter != null) {
-            messageHolderHashMap.clear();
             messageHolders.clear();
             messagesListAdapter.clear();
         }
@@ -550,51 +477,24 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
             clearFilter();
         } else {
             final ArrayList<MessageHolder> filtered = new ArrayList<>();
-            RX.run(() -> {
-                for (MessageHolder holder : messageHolders) {
-                    if (holder.getText().toLowerCase().contains(filter.trim().toLowerCase())) {
-                        filtered.add(holder);
-                    }
+            for (MessageHolder holder : messageHolders) {
+                if (holder.getText().toLowerCase().contains(filter.trim().toLowerCase())) {
+                    filtered.add(holder);
                 }
-            }, () -> {
-                messagesListAdapter.clear();
-                messagesListAdapter.addToEnd(filtered, true);
-            }).subscribe(ChatSDK.events());
+            }
+            synchronize(() -> {
+                messagesListAdapter.getItems().clear();
+                messagesListAdapter.addToEnd(filtered, false, false);
+            });
         }
     }
 
     public void clearFilter() {
-        messagesListAdapter.clear();
-        messagesListAdapter.addToEnd(messageHolders, true);
+        synchronize(() -> {
+            messagesListAdapter.getItems().clear();
+            messagesListAdapter.addToEnd(messageHolders, false, false);
+        });
     }
-
-    public void reloadMessage(Message message) {
-        MessageHolder holder = messageHolderHashMap.get(message);
-        if (holder != null) {
-            int index = messageHolders.indexOf(holder);
-            MessageHolder newHolder = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
-
-            messageHolders.remove(index);
-            messageHolders.add(index, newHolder);
-
-            // Now replace the holder...
-//            messagesListAdapter.notifyItemRemoved(index);
-//            messagesListAdapter.notifyItemChanged(index);
-            messageHolderHashMap.put(message, newHolder);
-
-//            messagesListAdapter.update(newHolder);
-
-            messagesListAdapter.clear(true);
-            messagesListAdapter.addToEnd(messageHolders, false);
-
-        }
-    }
-
-//    @Override
-//    protected void onDetachedFromWindow() {
-//        super.onDetachedFromWindow();
-//        dm.dispose();
-//    }
 
     public void removeListeners() {
         dm.dispose();

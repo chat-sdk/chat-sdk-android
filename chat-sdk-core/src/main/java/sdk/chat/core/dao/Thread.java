@@ -30,6 +30,7 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import sdk.chat.core.R;
 import sdk.chat.core.base.AbstractEntity;
+import sdk.chat.core.dao.sorter.MessageSorter;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -493,6 +494,20 @@ public class Thread extends AbstractEntity {
         }
     }
 
+    public void sortMessages(boolean asc) {
+        long split1 = System.currentTimeMillis();
+
+        if (asc) {
+            Collections.sort(getMessages(), MessageSorter.asc());
+        } else {
+            Collections.sort(getMessages(), MessageSorter.desc());
+        }
+
+        long split2 = System.currentTimeMillis();
+
+        System.out.println("Message Sort: " + (split2 - split1));
+    }
+
     public boolean hasUser(User user) {
         return getUserThreadLink(user.getId()) != null;
 
@@ -648,11 +663,13 @@ public class Thread extends AbstractEntity {
     }
 
     // TODO: Thread
-    public Message lastMessage () {
+    public Message lastMessage() {
         if (getLastMessage() == null) {
             List<Message> messages = getMessages();
+
             if (!messages.isEmpty()) {
-                setLastMessage(messages.get(0));
+                sortMessages(true);
+                setLastMessage(messages.get(messages.size() - 1));
                 update();
             }
 

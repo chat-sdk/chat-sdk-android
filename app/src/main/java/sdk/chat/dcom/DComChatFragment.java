@@ -26,7 +26,7 @@ public class DComChatFragment extends ChatFragment {
             // This can be expensive and this method can be called a lot... so make sure the reload data key is also set
             if (networkEvent.getMessage() != null && networkEvent.getData() != null && networkEvent.getData().containsKey(DCom.reloadData)) {
                 chatView.post(() -> {
-                    chatView.reloadMessage(networkEvent.getMessage());
+//                    chatView.reloadMessage(networkEvent.getMessage());
                 });
             }
         }));
