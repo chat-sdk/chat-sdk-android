@@ -47,13 +47,13 @@ public class UserHolder implements IUser {
 
     public void updateIsOnline() {
         boolean isOnline = user.getIsOnline();
-        isDirty = isOnline != this.isOnline;
+        isDirty = isDirty || isOnline != this.isOnline;
         this.isOnline = isOnline;
     }
 
     public void updateName() {
         String name = user.getName();
-        isDirty = StringChecker.areEqual(name, this.name);
+        isDirty = isDirty || StringChecker.areEqual(name, this.name);
         this.name = name;
     }
 

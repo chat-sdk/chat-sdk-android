@@ -105,7 +105,7 @@ public class BaseBroadcastHandler implements BroadcastHandler {
             ChatSDK.pushQueue().add(new PushQueueAction(PushQueueAction.Type.openThread, data));
 
         }
-        else if (AppBackgroundMonitor.shared().inBackground() && ChatSDK.auth().isAuthenticatedThisSession()) {
+        else if (ChatSDK.appBackgroundMonitor().inBackground() && ChatSDK.auth().isAuthenticatedThisSession()) {
             appIntent = new Intent(context, ChatSDK.ui().getChatActivity());
         }
         if (appIntent != null) {

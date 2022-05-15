@@ -83,6 +83,7 @@ public class ChatSDK {
     protected InterfaceAdapter interfaceAdapter;
     protected StorageManager storageManager;
     protected BaseNetworkAdapter networkAdapter;
+    protected AppBackgroundMonitor appBackgroundMonitor = new AppBackgroundMonitor();
 
     protected FileManager fileManager;
 
@@ -232,7 +233,7 @@ public class ChatSDK {
         storageManager = new StorageManager(context);
 
         // Monitor the app so if it goes into the background we know
-        AppBackgroundMonitor.shared().setEnabled(true);
+        ChatSDK.appBackgroundMonitor().setEnabled(true);
 
         RxJavaPlugins.setErrorHandler(ChatSDK.events());
 
@@ -263,7 +264,7 @@ public class ChatSDK {
                         if (thread.typeIs(ThreadType.Private) || ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled) {
                             if (!message.isDelivered()) {
 
-                                boolean inBackground = AppBackgroundMonitor.shared().inBackground();
+                                boolean inBackground = ChatSDK.appBackgroundMonitor().inBackground();
                                 boolean connectedToAuto = NotificationDisplayHandler.connectedToAuto(context);
                                 if (inBackground || connectedToAuto || (ChatSDK.ui().showLocalNotifications(thread))) {
                                     RX.onMain(() -> ChatSDK.ui().notificationDisplayHandler().createMessageNotification(message));
@@ -295,7 +296,7 @@ public class ChatSDK {
             interfaceAdapter = null;
         }
         requiredPermissions.clear();
-        AppBackgroundMonitor.shared().stop();
+        ChatSDK.appBackgroundMonitor().stop();
 
         if (builder != null) {
             for (Module module: builder.modules) {
@@ -580,5 +581,8 @@ public class ChatSDK {
         return shared().pushQueue;
     }
 
+    public static AppBackgroundMonitor appBackgroundMonitor() {
+        return shared().appBackgroundMonitor;
+    }
 }
 

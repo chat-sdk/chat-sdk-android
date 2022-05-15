@@ -81,6 +81,7 @@
     <item name="incomingTimeTextColor">@color/gray_light</item>
     <item name="incomingTimeTextStyle">italic</item>
     <item name="incomingTextSize">14sp</item>
+    <item name="incomingTimeTextSize">12sp</item>
 
     <item name="incomingTextLinkColor">@color/blue_light</item>
 
@@ -94,6 +95,7 @@
     <item name="outcomingReplyTextSize">13sp</item>
     <item name="outcomingReplyTextColor">@color/dark_gray</item>
     <item name="outcomingTextLinkColor">@color/white</item>
+    <item name="outcomingTimeTextSize">12sp</item>
 
     <item name="outcomingIconDrawable">@drawable/shape_outcoming_icon</item>
 

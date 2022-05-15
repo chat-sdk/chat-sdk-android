@@ -26,6 +26,7 @@ import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.receipts.FirebaseReadReceiptsModule;
 import sdk.chat.firebase.typing.FirebaseTypingIndicatorModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
+import sdk.chat.message.V2ImageMessageRegistration;
 import sdk.chat.message.V2TextMessageRegistration;
 import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
@@ -210,6 +211,7 @@ public class MainApplication extends Application {
                 .activateWithEmail(this, "team@sdk.chat");
 
         ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2TextMessageRegistration());
+        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2ImageMessageRegistration());
 
 //        ChatSDK.shared()
         //

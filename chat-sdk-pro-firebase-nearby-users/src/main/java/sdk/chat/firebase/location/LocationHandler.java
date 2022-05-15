@@ -37,7 +37,7 @@ public class LocationHandler {
     Disposable timerDisposable;
 
     public LocationHandler() {
-        AppBackgroundMonitor.shared().addListener(new AppBackgroundMonitor.Listener() {
+        ChatSDK.appBackgroundMonitor().addListener(new AppBackgroundMonitor.Listener() {
             @Override
             public void didStart() {
                 start();

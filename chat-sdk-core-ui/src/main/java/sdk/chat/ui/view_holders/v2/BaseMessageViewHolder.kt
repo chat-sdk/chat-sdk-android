@@ -33,7 +33,7 @@ open class BaseMessageViewHolder<T : MessageHolder?>(itemView: View?, payload: A
     var userName: TextView? = null
     var userAvatar: CircleImageView? = null
 
-    var imageOverlay: View? = null
+    var imageOverlay: ImageView? = null
 
     var text: TextView? = null
     var time: TextView? = null
@@ -55,11 +55,11 @@ open class BaseMessageViewHolder<T : MessageHolder?>(itemView: View?, payload: A
 
     }
 
-    override fun onBind(t: T) {
+    override fun onBind(holder: T) {
         bindViews()
-        bindListeners(t)
-        bindStyle(t)
-        bind(t)
+        bindListeners(holder)
+        bindStyle(holder)
+        bind(holder)
     }
 
     open fun bind(t: T) {
@@ -160,6 +160,8 @@ open class BaseMessageViewHolder<T : MessageHolder?>(itemView: View?, payload: A
         replyView = itemView.findViewById(R.id.replyView)
         replyImageView = itemView.findViewById(R.id.replyImageView)
         replyTextView = itemView.findViewById(R.id.replyTextView)
+
+        imageOverlay = itemView.findViewById(R.id.imageOverlay)
     }
 
     open fun bindListeners(t: T) {

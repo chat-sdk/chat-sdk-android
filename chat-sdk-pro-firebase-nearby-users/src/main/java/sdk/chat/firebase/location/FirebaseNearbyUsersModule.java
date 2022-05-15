@@ -83,7 +83,7 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
             }
         }), HookEvent.WillLogout);
 
-        AppBackgroundMonitor.shared().addListener(new AppBackgroundMonitor.Listener() {
+        ChatSDK.appBackgroundMonitor().addListener(new AppBackgroundMonitor.Listener() {
             @Override
             public void didStart() {
                 if (config.enabled) {

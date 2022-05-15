@@ -14,7 +14,7 @@ import sdk.chat.core.types.MessageType;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 
-public class ImageMessageHolder extends MessageHolder implements MessageContentType {
+public class ImageMessageHolder extends MessageHolder implements MessageContentType, MessageContentType.Image {
 
     public ImageMessageHolder(Message message) {
         super(message);

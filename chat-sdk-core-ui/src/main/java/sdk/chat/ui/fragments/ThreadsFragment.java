@@ -21,9 +21,7 @@ import com.stfalcon.chatkit.utils.DateFormatter;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 
 import butterknife.BindView;
@@ -57,7 +55,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     protected DialogsListAdapter<ThreadHolder> dialogsListAdapter;
     protected AsyncDialogsListAdapter asyncDialogsListAdapter;
 
-    protected Map<Thread, ThreadHolder> threadHolderHashMap = new HashMap<>();
+//    protected Map<Thread, ThreadHolder> threadHolderHashMap = new HashMap<>();
 
     protected PublishRelay<Thread> onClickPublishRelay = PublishRelay.create();
     protected PublishRelay<Thread> onLongClickPublishRelay = PublishRelay.create();
@@ -112,70 +110,64 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         listenersAdded = true;
 
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageAdded, EventType.MessageRemoved))
-                .subscribe(networkEvent -> {
-                    root.post(() -> {
-                        synchronize(true);
-                    });
-                }));
-
-        dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(
-                        EventType.ThreadMetaUpdated,
-                        EventType.TypingStateUpdated,
-                        EventType.UserMetaUpdated,
-                        EventType.MessageReadReceiptUpdated,
-                        EventType.MessageUpdated,
-                        EventType.ThreadUserAdded,
-                        EventType.ThreadUserRemoved,
-                        EventType.ThreadUserUpdated))
-                .subscribe(networkEvent -> {
-                    root.post(() -> {
-                        synchronize(false);
-                    });
-                }));
+            .filter(NetworkEvent.filterType(
+                EventType.ThreadMetaUpdated,
+                EventType.TypingStateUpdated,
+                EventType.UserMetaUpdated,
+                EventType.UserPresenceUpdated,
+                EventType.MessageReadReceiptUpdated,
+                EventType.MessageUpdated,
+                EventType.ThreadUserAdded,
+                EventType.ThreadUserRemoved,
+                EventType.ThreadUserUpdated,
+                EventType.ThreadRead
+            ))
+            .subscribe(networkEvent -> {
+                root.post(() -> {
+                    synchronize(false);
+                });
+            }));
 
         dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(
-                EventType.ThreadsUpdated,
-                EventType.ThreadAdded,
-                EventType.ThreadRemoved,
-                EventType.MessageAdded,
-                EventType.MessageRemoved,
-                EventType.ThreadMessagesUpdated
+            EventType.ThreadsUpdated
         )).subscribe(networkEvent -> {
-
-            if (networkEvent.typeIs(EventType.ThreadsUpdated)) {
-                loadData();
-            } else {
-                final Thread thread = networkEvent.getThread();
-                if (thread != null) {
-                    if (networkEvent.typeIs(EventType.ThreadAdded)) {
-                        root.post(() -> {
-                            addThread(thread, true, true);
-                        });
-                    }
-                    else if (networkEvent.typeIs(EventType.ThreadRemoved)) {
-                        root.post(() -> {
-                            removeThread(thread);
-                        });
-                    }
-                    else if (networkEvent.typeIs(EventType.MessageAdded, EventType.MessageRemoved, EventType.ThreadMessagesUpdated)) {
-                        root.post(() -> {
-                            if (!addThread(thread, true, true)) {
-                                synchronize(true);
-                            }
-                        });
-                    }
-                }
-            }
+            loadData();
         }));
 
-        dm.add(ChatSDK.events().sourceOnBackground()
-                .filter(NetworkEvent.filterType(EventType.Logout))
-                .observeOn(RX.main())
-                .subscribe(networkEvent -> {
-                    clearData();
-                }));
+        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(
+            EventType.ThreadAdded
+        )).subscribe(networkEvent -> {
+            root.post(() -> {
+                addThread(networkEvent.getThread(), true, true);
+            });
+        }));
+
+        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(
+            EventType.ThreadRemoved
+        )).subscribe(networkEvent -> {
+            root.post(() -> {
+                removeThread(networkEvent.getThread());
+            });
+        }));
+
+        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(
+            EventType.MessageAdded,
+            EventType.MessageRemoved,
+            EventType.ThreadMessagesUpdated
+        )).subscribe(networkEvent -> {
+            root.post(() -> {
+                if (!addThread(networkEvent.getThread(), true, true)) {
+                    synchronize(true);
+                }
+            });
+        }));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+            .filter(NetworkEvent.filterType(
+                EventType.Logout
+            )).subscribe(networkEvent -> {
+                clearData();
+            }));
     }
 
     public void removeListeners() {
@@ -287,7 +279,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         if (asyncDialogsListAdapter != null) {
             asyncDialogsListAdapter.submitList(new ArrayList<>());
         }
-        threadHolderHashMap.clear();
+//        threadHolderHashMap.clear();
     }
 
     public DialogsListAdapter<ThreadHolder> dialogsListAdapter() {
@@ -335,8 +327,10 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     }
 
     public boolean addThread(Thread thread, boolean sort, boolean sync) {
-        if (!threadHolderExists(thread)) {
-            ThreadHolder holder = createThreadHolder(thread);
+//        if (!threadHolderExists(thread)) {
+
+        ThreadHolder holder = getOrCreateThreadHolder(thread);
+        if (!threadHolders.contains(holder)) {
             threadHolders.add(holder);
             if (sort) {
                 sortThreadHolders();
@@ -380,7 +374,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     }
 
     public void updateThread(final Thread thread) {
-        final ThreadHolder holder = threadHolderHashMap.get(thread);
+        final ThreadHolder holder = ChatSDKUI.provider().holderProvider().getThreadHolder(thread);
+//        final ThreadHolder holder = threadHolderHashMap.get(thread);
         if (holder != null) {
             holder.update();
             synchronize(false);
@@ -397,23 +392,25 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         });
     }
 
-    public ThreadHolder createThreadHolder(Thread thread) {
-        ThreadHolder holder = new ThreadHolder(thread);
-        threadHolderHashMap.put(thread, holder);
-        return holder;
+    public ThreadHolder getOrCreateThreadHolder(Thread thread) {
+        return ChatSDKUI.provider().holderProvider().getThreadHolder(thread);
+//        ThreadHolder holder = new ThreadHolder(thread);
+//        threadHolderHashMap.put(thread, holder);
+//        return holder;
     }
 
-    public boolean threadHolderExists(Thread thread) {
-        return threadHolderHashMap.containsKey(thread);
-    }
+//    public boolean threadHolderExists(Thread thread) {
+//        return threadHolderHashMap.containsKey(thread);
+//    }
 
     public void removeThread(Thread thread) {
-        ThreadHolder holder = threadHolderHashMap.get(thread);
-        if (holder != null) {
-            threadHolderHashMap.remove(thread);
+//        ThreadHolder holder = threadHolderHashMap.get(thread);
+        ThreadHolder holder = getOrCreateThreadHolder(thread);
+//        if (holder != null) {
+//            threadHolderHashMap.remove(thread);
             threadHolders.remove(holder);
             synchronize(false);
-        }
+//        }
     }
 
     protected abstract Single<List<Thread>> getThreads();

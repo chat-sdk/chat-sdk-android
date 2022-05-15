@@ -7,6 +7,8 @@ import java.util.List;
 
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.ui.ProfileFragmentProvider;
 import sdk.chat.core.utils.ProfileOption;
@@ -43,6 +45,12 @@ public class ChatSDKUI {
 
     protected static final ChatSDKUI instance = new ChatSDKUI();
 
+    public ChatSDKUI() {
+        ChatSDK.hook().addHook(Hook.sync(data -> {
+            provider().holderProvider().clear();
+        }), HookEvent.DidLogout);
+    }
+
     protected MessageRegistrationManager messageRegistrationManager = new MessageRegistrationManager();
     protected FragmentLifecycleManager fragmentLifecycleManager = new FragmentLifecycleManager();
 
@@ -71,7 +79,6 @@ public class ChatSDKUI {
 
     public static void setChatFragmentProvider(ChatFragmentProvider provider) {
         shared().chatFragmentProvider = provider;
-
     }
 
     public static AbstractChatFragment getChatFragment(Thread thread, ChatFragment.Delegate delegate) {

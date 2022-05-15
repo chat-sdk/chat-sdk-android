@@ -125,8 +125,8 @@ public class MessageHolder implements IMessage {
         if (progress == null) {
             status = message.getMessageStatus();
 
-            isDirty = this.uploadPercentage != null;
-            isDirty = this.fileSize != null;
+            isDirty = isDirty || this.uploadPercentage != null;
+            isDirty = isDirty || this.fileSize != null;
 
             uploadPercentage = null;
             fileSize = null;
@@ -135,21 +135,21 @@ public class MessageHolder implements IMessage {
             status = progress.status;
 
             Integer uploadPercentage = Math.round(progress.uploadProgress.asFraction() * 100);
-            isDirty = uploadPercentage.equals(this.uploadPercentage);
+            isDirty = isDirty || uploadPercentage.equals(this.uploadPercentage);
             this.uploadPercentage = uploadPercentage;
 
             Double fileSize = Math.floor(progress.uploadProgress.getTotalBytes() / 1000);
-            isDirty = fileSize.equals(this.fileSize);
+            isDirty = isDirty || fileSize.equals(this.fileSize);
             this.fileSize = fileSize;
 
         }
-        isDirty = status == sendStatus;
+        isDirty = isDirty || status == sendStatus;
         sendStatus = status;
     }
 
     public void updateReadStatus() {
         ReadStatus status = message.getReadStatus();
-        isDirty = readStatus != status;
+        isDirty = isDirty || readStatus != status;
         readStatus = status;
     }
 

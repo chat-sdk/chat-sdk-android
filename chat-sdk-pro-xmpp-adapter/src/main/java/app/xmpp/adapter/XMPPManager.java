@@ -408,7 +408,7 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
             carbonManager().removeCarbonCopyReceivedListener(messageListener);
             pingManager().unregisterPingFailedListener(pingListener);
         }
-        AppBackgroundMonitor.shared().removeListener(this);
+        ChatSDK.appBackgroundMonitor().removeListener(this);
     }
 
     protected void addListeners() {
@@ -449,7 +449,7 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         roster().addRosterListener(rosterListener);
         carbonManager().addCarbonCopyReceivedListener(messageListener);
         pingManager().registerPingFailedListener(pingListener);
-        AppBackgroundMonitor.shared().addListener(this);
+        ChatSDK.appBackgroundMonitor().addListener(this);
     }
 
     public Date clientToServerTime(Date date) {

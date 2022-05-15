@@ -47,6 +47,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                         EventType.MessageReadReceiptUpdated,
                         EventType.MessageUpdated,
                         EventType.ThreadMessagesUpdated,
+                        EventType.ThreadRead,
                         EventType.MessageAdded,
                         EventType.MessageRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(getId()))
@@ -60,6 +61,13 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                 .filter(NetworkEvent.filterThreadContainsUser(thread))
                 .subscribe(networkEvent -> {
                     updateDisplayName();
+                }));
+
+        dm.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
+                .filter(NetworkEvent.filterThreadContainsUser(thread))
+                .subscribe(networkEvent -> {
+                    updateUserPresence();
                 }));
 
         dm.add(ChatSDK.events().sourceOnMain()
@@ -101,6 +109,17 @@ public class ThreadHolder implements IDialog<MessageHolder> {
         updateUnreadCount();
     }
 
+    public void updateUserPresence() {
+        boolean isDirty = false;
+        for (UserHolder user: users) {
+            user.updateIsOnline();
+            if (user.isDirty()) {
+                isDirty = true;
+            }
+        }
+        this.isDirty = this.isDirty || isDirty;
+    }
+
     public void updateUnreadCount() {
         int count = thread.getUnreadMessagesCount();
         if (!isDirty && count != unreadCount) {
@@ -116,15 +135,16 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                 newUserIds.add(user.getEntityID());
             }
         }
-        isDirty = !userIds.equals(newUserIds);
+        boolean isDirty = !userIds.equals(newUserIds);
         if (isDirty) {
             userIds = newUserIds;
             users.clear();
             for (User user: thread.getUsers()) {
                 if (!user.isMe()) {
-                    users.add(new UserHolder(user));
+                    users.add(ChatSDKUI.provider().holderProvider().getUserHolder(user));
                 }
             }
+            this.isDirty = isDirty;
         }
     }
 
@@ -158,8 +178,10 @@ public class ThreadHolder implements IDialog<MessageHolder> {
     }
 
     public void markRead() {
-        unreadCount = -1;
-        isDirty = true;
+        if (unreadCount != -1) {
+            unreadCount = -1;
+            isDirty = true;
+        }
     }
 
     @Override
@@ -202,7 +224,6 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     @Override
     public void setLastMessage(MessageHolder message) {
-        // TODO: Check
         lastMessage = message;
         unreadCount = -1;
     }
@@ -217,34 +238,6 @@ public class ThreadHolder implements IDialog<MessageHolder> {
         }
         return unreadCount == -1 ? 0 : unreadCount;
     }
-
-//    public boolean contentsIsEqual(ThreadHolder holder) {
-//        // Do some null checks
-//        if (getDialogName() != null && holder.getDialogName() != null) {
-//            if (!getDialogName().equals(holder.getDialogName())) {
-//                return false;
-//            }
-//        }
-//        if (getDialogPhoto() != null && holder.getDialogPhoto() != null) {
-//            if (!getDialogPhoto().equals(holder.getDialogPhoto())) {
-//                return false;
-//            }
-//        }
-//        if (getLastMessage() != null && holder.getLastMessage() != null) {
-//            if (!getLastMessage().equals(holder.getLastMessage())) {
-//                return false;
-//            }
-//        }
-//        if (getUnreadCount() != holder.getUnreadCount()) {
-//            return false;
-//        }
-//        Set<UserHolder> thisUsers = new HashSet<>(getUsers());
-//        Set<UserHolder> thatUsers = new HashSet<>(holder.getUsers());
-//        if (!thisUsers.equals(thatUsers)) {
-//            return false;
-//        }
-//        return true;
-//    }
 
     @Override
     public boolean equals(Object object) {

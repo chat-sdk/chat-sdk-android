@@ -16,6 +16,7 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import sdk.chat.core.base.AbstractUploadHandler;
+import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.storage.UploadStatus;
 import sdk.chat.core.types.FileUploadResult;
 import sdk.chat.core.utils.AppBackgroundMonitor;
@@ -44,7 +45,7 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
 //        }).ignoreElements().subscribe(ChatSDK.events());
 
         // Cancel tasks if the app is sent to the background
-        AppBackgroundMonitor.shared().addListener(new AppBackgroundMonitor.Listener() {
+        ChatSDK.appBackgroundMonitor().addListener(new AppBackgroundMonitor.Listener() {
             @Override
             public void didStart() {
 

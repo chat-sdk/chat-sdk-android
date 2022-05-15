@@ -13,14 +13,16 @@ public class OnlineStatusBinder {
     }
 
     public void bind(View onlineIndicator, boolean isOnline) {
-        if (ChatSDK.config().disablePresence) {
-            onlineIndicator.setVisibility(View.GONE);
-        } else {
-            onlineIndicator.setVisibility(View.VISIBLE);
-            if (isOnline) {
-                onlineIndicator.setBackgroundResource(R.drawable.shape_bubble_online);
+        if (onlineIndicator != null) {
+            if (ChatSDK.config().disablePresence) {
+                onlineIndicator.setVisibility(View.GONE);
             } else {
-                onlineIndicator.setBackgroundResource(R.drawable.shape_bubble_offline);
+                onlineIndicator.setVisibility(View.VISIBLE);
+                if (isOnline) {
+                    onlineIndicator.setBackgroundResource(R.drawable.shape_bubble_online);
+                } else {
+                    onlineIndicator.setBackgroundResource(R.drawable.shape_bubble_offline);
+                }
             }
         }
     }

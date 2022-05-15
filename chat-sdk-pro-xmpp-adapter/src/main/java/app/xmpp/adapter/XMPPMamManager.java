@@ -13,6 +13,7 @@ import java.util.List;
 import app.xmpp.adapter.enums.ConnectionStatus;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
+import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
@@ -29,7 +30,8 @@ public class XMPPMamManager implements AppBackgroundMonitor.StopListener {
 
     public XMPPMamManager(XMPPManager manager){
         this.manager = new WeakReference<>(manager);
-        AppBackgroundMonitor.shared().addListener(this);
+
+        ChatSDK.appBackgroundMonitor().addListener(this);
 
         dm.add(manager.connectionManager().connectionStatus().subscribe(connectionStatus -> {
             if (connectionStatus.equals(ConnectionStatus.Disconnected)) {

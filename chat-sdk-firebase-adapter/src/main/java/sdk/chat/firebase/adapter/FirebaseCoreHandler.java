@@ -26,7 +26,7 @@ public class FirebaseCoreHandler extends AbstractCoreHandler {
     public FirebaseCoreHandler() {
         database();
 
-        AppBackgroundMonitor.shared().addListener(new AppBackgroundMonitor.Listener() {
+        ChatSDK.appBackgroundMonitor().addListener(new AppBackgroundMonitor.Listener() {
             @Override
             public void didStart() {
                 sendAvailablePresence().subscribe();

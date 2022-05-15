@@ -128,7 +128,7 @@ public class SinchModule implements Module {
 
             if (SinchHelpers.isSinchPushPayload(data)) {
                 NotificationResult result = sinchService.client().relayRemotePushNotificationPayload(data);
-                if (result.isValid() && AppBackgroundMonitor.shared().inBackground()) {
+                if (result.isValid() && ChatSDK.appBackgroundMonitor().inBackground()) {
                     Intent appIntent = new Intent(context, IncomingCallActivity.class);
                     appIntent.putExtra(SinchService.CALL_ID, result.getCallResult().getCallId());
                     appIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

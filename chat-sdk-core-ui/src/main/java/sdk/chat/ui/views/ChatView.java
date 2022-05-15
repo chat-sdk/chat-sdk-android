@@ -141,32 +141,6 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
             } else {
                 builder = request.asDrawable().dontAnimate();
             }
-//
-//            if (payload == null) {
-//                // User avatar
-//                request.load(url)
-//                        .dontAnimate()
-//                        .placeholder(R.drawable.icn_100_profile)
-//                        .override(Dimen.from(getContext(), R.dimen.small_avatar_width), Dimen.from(getContext(), R.dimen.small_avatar_height))
-//                        .into(imageView);
-//            } else {
-//
-//                // Image message
-//                request.load(url)
-//                        .override(ilp.width, ilp.height)
-//                        .placeholder(ilp.placeholder)
-//                        .error(ilp.error)
-//                        .dontAnimate()
-//                        .override(maxImageWidth(), maxImageWidth())
-//                        .centerCrop()
-//                        .into(imageView);
-//            }
-
-//            Uri uri = Uri.parse(url);
-//            if (uri != null && uri.getScheme() != null && uri.getScheme().equals("android.resource")) {
-//                builder.load(uri).override(ilp.width, ilp.height).dontAnimate().into(imageView);
-//            } else {
-//            }
 
             if (payload == null) {
                 // User avatar
@@ -187,20 +161,9 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 builder.override(ilp.width, ilp.height)
                         .placeholder(ilp.placeholder)
                         .error(ilp.error)
-//                        .override(maxImageWidth(), maxImageWidth())
                         .centerCrop()
                         .into(imageView);
             }
-            // If this is a local image
-//            Uri uri = Uri.parse(url);
-//            if (uri != null && uri.getScheme() != null && uri.getScheme().equals("android.resource")) {
-//                builder.load(uri)
-//                        .override(ilp.width, ilp.height)
-//                        .dontAnimate()
-//                        .into(imageView);
-//            } else {
-//
-//            }
         });
 
         messagesListAdapter.setLoadMoreListener(this);
@@ -259,6 +222,9 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 .filter(NetworkEvent.filterType(EventType.MessageAdded))
                 .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
                 .subscribe(networkEvent -> {
+                    if (!ChatSDK.appBackgroundMonitor().inBackground()) {
+                        networkEvent.getMessage().markReadIfNecessary();
+                    }
                     root.post(() -> {
                         addMessageToStart(networkEvent.getMessage());
                     });

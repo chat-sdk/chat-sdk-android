@@ -8,13 +8,13 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import java.util.HashSet;
 import java.util.Set;
 
+import sdk.chat.core.session.ChatSDK;
+
 /**
  * Created by ben on 9/27/17.
  */
 
 public class AppBackgroundMonitor implements LifecycleObserver {
-
-    public static final AppBackgroundMonitor instance = new AppBackgroundMonitor();
 
     private boolean enabled = false;
     private boolean inBackground = true;
@@ -33,8 +33,12 @@ public class AppBackgroundMonitor implements LifecycleObserver {
         void didStop();
     }
 
+    @Deprecated
+    /**
+     * Use ChatSDK.appBackgroundMonitor()
+     */
     public static AppBackgroundMonitor shared () {
-        return instance;
+        return ChatSDK.appBackgroundMonitor();
     }
 
     public void setEnabled (boolean enabled) {

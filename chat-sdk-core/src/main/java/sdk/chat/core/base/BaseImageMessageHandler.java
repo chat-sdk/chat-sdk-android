@@ -31,6 +31,9 @@ public class BaseImageMessageHandler extends AbstractMessageHandler implements I
             // Get the image and set the image text dimensions
             final Bitmap image = BitmapFactory.decodeFile(imageFile.getPath(), null);
 
+            // Add a base64 preview
+
+
             message.setValueForKey(image.getWidth(), Keys.MessageImageWidth);
             message.setValueForKey(image.getHeight(), Keys.MessageImageHeight);
 

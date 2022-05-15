@@ -20,7 +20,7 @@ import sdk.guru.realtime.RealtimeEventListener;
 public class FirebaseLastOnlineHandler implements LastOnlineHandler {
 
     public FirebaseLastOnlineHandler() {
-        AppBackgroundMonitor.shared().addListener(new AppBackgroundMonitor.Listener() {
+        ChatSDK.appBackgroundMonitor().addListener(new AppBackgroundMonitor.Listener() {
             @Override
             public void didStart() {
             }

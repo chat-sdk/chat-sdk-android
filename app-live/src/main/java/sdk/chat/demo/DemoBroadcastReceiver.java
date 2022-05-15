@@ -77,7 +77,7 @@ public class DemoBroadcastReceiver extends BroadcastReceiver {
         if (ChatSDK.auth() == null || !ChatSDK.auth().isAuthenticatedThisSession() || ChatSDK.config().backgroundPushTestModeEnabled) {
             appIntent = new Intent(context, ChatSDK.ui().getSplashScreenActivity());
         }
-        else if (AppBackgroundMonitor.shared().inBackground() && ChatSDK.auth().isAuthenticatedThisSession()) {
+        else if (ChatSDK.appBackgroundMonitor().inBackground() && ChatSDK.auth().isAuthenticatedThisSession()) {
             appIntent = new Intent(context, ChatSDK.ui().getChatActivity());
         }
         if (appIntent != null) {

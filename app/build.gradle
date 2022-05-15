@@ -1,7 +1,17 @@
-apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.jakewharton.butterknife'
-apply plugin: 'com.google.firebase.crashlytics'
+plugins {
+    id 'com.android.application'
+    id 'com.jakewharton.butterknife'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
+}
+
+//apply plugin: 'com.android.application'
+//apply plugin: 'com.google.gms.google-services'
+//apply plugin: 'com.jakewharton.butterknife'
+//apply plugin: 'com.google.firebase.crashlytics'
+
 //apply plugin: 'com.google.firebase.firebase-perf'
 
 //apply plugin: 'com.google.firebase.crashlytics'
