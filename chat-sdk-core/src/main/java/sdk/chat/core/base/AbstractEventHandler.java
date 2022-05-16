@@ -14,6 +14,12 @@ import sdk.guru.common.RX;
 
 public abstract class AbstractEventHandler implements EventHandler {
 
+    final protected PublishRelay<NetworkEvent> incomingRelay = PublishRelay.create();
+    protected Disposable incomingRelayDisposable;
+
+
+    final protected PublishRelay<NetworkEvent> priorityEventSource = PublishRelay.create();
+
     final protected PublishRelay<NetworkEvent> eventSource = PublishRelay.create();
     final protected PublishRelay<Throwable> errorSource = PublishRelay.create();
 
@@ -23,22 +29,38 @@ public abstract class AbstractEventHandler implements EventHandler {
         dm.add(source().filter(NetworkEvent.filterType(EventType.Logout)).subscribe(networkEvent -> {
             dm.dispose();
         }, this));
+        incomingRelayDisposable = incomingRelay.subscribe(networkEvent -> {
+            // Pass the event first to the priority relay
+            priorityEventSource.accept(networkEvent);
+
+            // Pass to standard relay
+            eventSource.accept(networkEvent);
+        });
     }
 
     public PublishRelay<NetworkEvent> source() {
-        return eventSource;
+//        return eventSource;
+        return incomingRelay;
     }
 
-    public Observable<NetworkEvent> sourceOnMain () {
+    public Observable<NetworkEvent> sourceOnMain() {
         return source().hide().observeOn(RX.main());
     }
 
     public Observable<NetworkEvent> sourceOnBackground () {
-        return source().hide().observeOn(RX.computation());
+        return eventSource.hide().observeOn(RX.computation());
     }
 
-    public Observable<NetworkEvent> sourceOn (Scheduler scheduler) {
-        return source().hide().observeOn(scheduler);
+    public Observable<NetworkEvent> prioritySourceOnMain() {
+        return priorityEventSource.hide().observeOn(RX.main());
+    }
+
+    public Observable<NetworkEvent> prioritySourceOnBackground () {
+        return priorityEventSource.hide().observeOn(RX.computation());
+    }
+
+    public Observable<NetworkEvent> sourceOn(Scheduler scheduler) {
+        return eventSource.hide().observeOn(scheduler);
     }
 
     public Observable<Throwable> errorSourceOnMain() {

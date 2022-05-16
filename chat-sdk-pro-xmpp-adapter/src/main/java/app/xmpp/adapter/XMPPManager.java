@@ -571,7 +571,7 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
                 for(Message message: messages) {
                     // Check if message already exists
                     if (message.getBody() == null || message.getBody().isEmpty()) {
-                        Logger.debug("");
+                        Logger.debug("Message body empty");
                     }
                     XMPPMessageWrapper xmr = new XMPPMessageWrapper(message);
                     xmr.debug();

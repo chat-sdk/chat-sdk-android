@@ -161,6 +161,8 @@ public class ChatSDK {
 
         config = builder.config();
 
+        Logger.getConfiguration().level(config.logLevel).activate();
+
         downloadManager = new DownloadManager(context);
         messageSender = new MessageSender(context);
 

@@ -129,7 +129,7 @@ public class MessageWrapper  {
 
             model.setMetaValues(meta);
         } else {
-            Logger.debug("");
+            Logger.debug("Message has no meta");
 //            model.setText("");
         }
 

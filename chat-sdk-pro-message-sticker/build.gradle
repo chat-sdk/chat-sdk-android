@@ -3,7 +3,6 @@ plugins {
     id 'com.jfrog.artifactory' version "$jfrogVersion"
     id 'maven-publish'
     id 'kotlin-android'
-    id 'kotlin-android-extensions'
 }
 
 android {
@@ -30,12 +29,12 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
-    lintOptions {
+    lint {
         abortOnError false
         checkReleaseBuilds false
         lintConfig file('lint.xml')
     }
+
 
 }
 

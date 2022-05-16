@@ -19,6 +19,8 @@ import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 import com.stfalcon.chatkit.utils.DateFormatter;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -151,6 +153,11 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             EventType.ThreadMessagesUpdated
         )).subscribe(networkEvent -> {
             root.post(() -> {
+
+                if (networkEvent.typeIs(EventType.MessageAdded)) {
+                    Logger.debug("ThreadsFragment Message Added: " + networkEvent.getMessage().getText());
+                }
+
                 if (!addThread(networkEvent.getThread(), true, true)) {
                     synchronize(true);
                 }
@@ -352,17 +359,18 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
             final List<ThreadHolder> oldHolders = new ArrayList<>(dialogsListAdapter.getItems());
 
-            RX.single().scheduleDirect(() -> {
+//            RX.single().scheduleDirect(() -> {
+
                 ThreadHoldersDiffCallback callback = new ThreadHoldersDiffCallback(newHolders, oldHolders);
                 DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback);
 
-                dialogsList.post(() -> {
+//                dialogsList.post(() -> {
                     dialogsListAdapter.getItems().clear();
                     dialogsListAdapter.setItems(newHolders);
                     result.dispatchUpdatesTo(dialogsListAdapter);
-                });
+//                });
 
-            });
+//            });
 
         }
 //        if (asyncDialogsListAdapter != null) {

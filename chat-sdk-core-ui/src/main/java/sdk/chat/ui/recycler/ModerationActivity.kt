@@ -2,9 +2,9 @@ package sdk.chat.ui.recycler
 
 import android.app.Activity
 import android.os.Bundle
+import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
-import kotlinx.android.synthetic.main.activity_smart_recycler.*
 import org.pmw.tinylog.Logger
 import sdk.chat.core.dao.Keys
 import sdk.chat.core.dao.Thread
@@ -28,6 +28,7 @@ open class ModerationActivity: BaseActivity() {
     open var thread: Thread? = null
 
     open lateinit var smartRecyclerAdapter: SmartRecyclerAdapter
+    open lateinit var recyclerView: RecyclerView
 
     override fun getLayout(): Int {
         return R.layout.activity_smart_recycler
@@ -59,6 +60,8 @@ open class ModerationActivity: BaseActivity() {
             finish()
             showProfile(user)
         }
+
+        recyclerView = findViewById(R.id.recyclerView)
 
         smartRecyclerAdapter = SmartRecyclerAdapter
                 .items(items)

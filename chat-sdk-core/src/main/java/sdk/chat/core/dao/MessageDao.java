@@ -37,7 +37,10 @@ public class MessageDao extends AbstractDao<Message, Long> {
         public final static Property NextMessageId = new Property(7, Long.class, "nextMessageId", false, "NEXT_MESSAGE_ID");
         public final static Property PreviousMessageId = new Property(8, Long.class, "previousMessageId", false, "PREVIOUS_MESSAGE_ID");
         public final static Property EncryptedText = new Property(9, String.class, "encryptedText", false, "ENCRYPTED_TEXT");
-        public final static Property IsRead = new Property(10, boolean.class, "isRead", false, "IS_READ");
+        public final static Property Reply = new Property(10, String.class, "reply", false, "REPLY");
+        public final static Property PlaceholderPath = new Property(11, String.class, "placeholderPath", false, "PLACEHOLDER_PATH");
+        public final static Property FilePath = new Property(12, String.class, "filePath", false, "FILE_PATH");
+        public final static Property IsRead = new Property(13, boolean.class, "isRead", false, "IS_READ");
     }
 
     private DaoSession daoSession;
@@ -67,7 +70,10 @@ public class MessageDao extends AbstractDao<Message, Long> {
                 "\"NEXT_MESSAGE_ID\" INTEGER," + // 7: nextMessageId
                 "\"PREVIOUS_MESSAGE_ID\" INTEGER," + // 8: previousMessageId
                 "\"ENCRYPTED_TEXT\" TEXT," + // 9: encryptedText
-                "\"IS_READ\" INTEGER NOT NULL );"); // 10: isRead
+                "\"REPLY\" TEXT," + // 10: reply
+                "\"PLACEHOLDER_PATH\" TEXT," + // 11: placeholderPath
+                "\"FILE_PATH\" TEXT," + // 12: filePath
+                "\"IS_READ\" INTEGER NOT NULL );"); // 13: isRead
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_MESSAGE_ENTITY_ID ON \"MESSAGE\"" +
                 " (\"ENTITY_ID\" ASC);");
@@ -140,7 +146,22 @@ public class MessageDao extends AbstractDao<Message, Long> {
         if (encryptedText != null) {
             stmt.bindString(10, encryptedText);
         }
-        stmt.bindLong(11, entity.getIsRead() ? 1L: 0L);
+ 
+        String reply = entity.getReply();
+        if (reply != null) {
+            stmt.bindString(11, reply);
+        }
+ 
+        String placeholderPath = entity.getPlaceholderPath();
+        if (placeholderPath != null) {
+            stmt.bindString(12, placeholderPath);
+        }
+ 
+        String filePath = entity.getFilePath();
+        if (filePath != null) {
+            stmt.bindString(13, filePath);
+        }
+        stmt.bindLong(14, entity.getIsRead() ? 1L: 0L);
     }
 
     @Override
@@ -196,7 +217,22 @@ public class MessageDao extends AbstractDao<Message, Long> {
         if (encryptedText != null) {
             stmt.bindString(10, encryptedText);
         }
-        stmt.bindLong(11, entity.getIsRead() ? 1L: 0L);
+ 
+        String reply = entity.getReply();
+        if (reply != null) {
+            stmt.bindString(11, reply);
+        }
+ 
+        String placeholderPath = entity.getPlaceholderPath();
+        if (placeholderPath != null) {
+            stmt.bindString(12, placeholderPath);
+        }
+ 
+        String filePath = entity.getFilePath();
+        if (filePath != null) {
+            stmt.bindString(13, filePath);
+        }
+        stmt.bindLong(14, entity.getIsRead() ? 1L: 0L);
     }
 
     @Override
@@ -223,7 +259,10 @@ public class MessageDao extends AbstractDao<Message, Long> {
             cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7), // nextMessageId
             cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8), // previousMessageId
             cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // encryptedText
-            cursor.getShort(offset + 10) != 0 // isRead
+            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // reply
+            cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11), // placeholderPath
+            cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12), // filePath
+            cursor.getShort(offset + 13) != 0 // isRead
         );
         return entity;
     }
@@ -240,7 +279,10 @@ public class MessageDao extends AbstractDao<Message, Long> {
         entity.setNextMessageId(cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7));
         entity.setPreviousMessageId(cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8));
         entity.setEncryptedText(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
-        entity.setIsRead(cursor.getShort(offset + 10) != 0);
+        entity.setReply(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
+        entity.setPlaceholderPath(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
+        entity.setFilePath(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
+        entity.setIsRead(cursor.getShort(offset + 13) != 0);
      }
     
     @Override

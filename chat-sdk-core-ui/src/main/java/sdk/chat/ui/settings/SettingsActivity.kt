@@ -1,7 +1,7 @@
 package sdk.chat.ui.settings
 
 import android.os.Bundle
-import kotlinx.android.synthetic.main.activity_smart_recycler.*
+import androidx.recyclerview.widget.RecyclerView
 import sdk.chat.ui.ChatSDKUI
 import sdk.chat.ui.R
 import sdk.chat.ui.activities.BaseActivity
@@ -11,6 +11,7 @@ import smartadapter.viewevent.listener.OnClickEventListener
 
 open class SettingsActivity: BaseActivity() {
     open lateinit var smartRecyclerAdapter: SmartRecyclerAdapter
+    open lateinit var recyclerView: RecyclerView
 
     override fun getLayout(): Int {
         return R.layout.activity_smart_recycler
@@ -23,6 +24,8 @@ open class SettingsActivity: BaseActivity() {
 
         // Setup the items
         val items = ChatSDKUI.shared().settingsItems
+
+        recyclerView = findViewById(R.id.recyclerView)
 
         smartRecyclerAdapter = SmartRecyclerAdapter
                 .items(items)

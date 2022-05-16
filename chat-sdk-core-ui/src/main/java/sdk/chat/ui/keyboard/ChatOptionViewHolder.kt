@@ -3,15 +3,18 @@ package sdk.chat.ui.keyboard
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.content.ContextCompat
-import kotlinx.android.synthetic.main.recycler_view_holder_chat_option.view.*
-import kotlinx.android.synthetic.main.recycler_view_holder_section.view.textView
 import sdk.chat.ui.R
 import sdk.chat.ui.module.UIModule
 import smartadapter.viewholder.SmartViewHolder
 
 class ChatOptionViewHolder(parentView: ViewGroup):
     SmartViewHolder<ChatOptionModel>(parentView, R.layout.recycler_view_holder_chat_option) {
+
+    open var textView: TextView = itemView.findViewById(R.id.textView)
+    open var imageView: ImageView = itemView.findViewById(R.id.imageView)
 
     override fun bind(item: ChatOptionModel) {
         with(itemView) {

@@ -28,7 +28,19 @@ public class Device {
     }
 
     public static boolean galaxy() {
-        return named("Ben's Galaxy A21s");
+        return galaxy(ChatSDK.ctx());
+    }
+
+    public static boolean galaxy(Context context) {
+        return named(context, "Ben's Galaxy A21s");
+    }
+
+    public static boolean pixel() {
+        return pixel(ChatSDK.ctx());
+    }
+
+    public static boolean pixel(Context context) {
+        return named(context, "Pixel 6");
     }
 
     public static boolean named(Context context, String name) {

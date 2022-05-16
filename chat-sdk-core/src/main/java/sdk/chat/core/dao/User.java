@@ -380,7 +380,7 @@ public class User extends AbstractEntity implements UserListItem {
     }
 
     @Keep
-    public boolean setMetaValue(String key, String value, boolean notify) {
+    public synchronized boolean setMetaValue(String key, String value, boolean notify) {
         if (value != null) {
             synchronized (this) {
                 UserMetaValue metaValue = metaValueForKey(key);

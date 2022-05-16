@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Completable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.DaoCore;
@@ -75,13 +76,17 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
     public Completable on() {
         return Completable.defer(() -> {
 
-            Completable metaOnCompletable = metaOn().doOnComplete(() -> {
-                permissionsOn();
+//            Completable metaOnCompletable = metaOn().doOnComplete(() -> {
+//                permissionsOn();
+//                updateListenersForPermissions();
+//            });
+
+            return myPermission().doOnNext(s -> {
                 updateListenersForPermissions();
-            });
+            }).ignoreElements();
 
             // TODO: Thread
-            return myPermission().andThen(metaOnCompletable);
+//            return myPermission().andThen(metaOnCompletable);
         });
     }
 
@@ -100,6 +105,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
     public void updateListenersForPermissions() {
         if (ChatSDK.thread().roleForUser(model, ChatSDK.currentUser()).equals(Permission.Banned)) {
+            metaOff();
             messagesOff();
             usersOff();
             if (ChatSDK.typingIndicator() != null) {
@@ -107,6 +113,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             }
             model.getUserThreadLink(ChatSDK.currentUser().getId()).setIsBanned(true);
         } else {
+            metaOn().subscribe(ChatSDK.events());
             messagesOn();
             usersOn();
             if (ChatSDK.typingIndicator() != null) {
@@ -235,6 +242,11 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
             return loadMessages.observeOn(RX.db()).andThen(Completable.defer(() -> {
 
+                if (RealtimeReferenceManager.shared().isOn(messagesRef())) {
+                    Logger.warn("Messages ref already on");
+                    return Completable.complete();
+                }
+
                 Query query = messagesRef();
 
                 Date messageAddedDate = model.getLastMessageAddedDate();
@@ -255,22 +267,19 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
                 query = query.orderByChild(Keys.Date);
 
+                Logger.debug("Listen for messages: " + getModel().getEntityID());
+
                 RXRealtime realtime = new RXRealtime(this);
                 realtime.childOn(query).observeOn(RX.db()).doOnNext(change -> {
                     if (change.getType() == EventType.Added) {
-
-//                        Message m = ChatSDK.db().fetchMessageWithEntityID(change.getSnapshot().getKey());
-//                        if (m != null) {
-//                            if (m.getMessageStatus() == MessageSendStatus.WillSend) {
-//                                return;
-//                            }
-//                        }
 
                         String from = change.getSnapshot().child(Keys.From).getValue(String.class);
                         if (ChatSDK.blocking() == null || !ChatSDK.blocking().isBlocked(from)) {
                             model.setDeleted(false);
 
                             MessageWrapper message = FirebaseModule.config().provider.messageWrapper(change.getSnapshot());
+
+                            Logger.debug("MessageAdded: " + message.getModel().getText());
 
                             // Temporarily set this because it's needed later on
                             message.getModel().setThread(model);
@@ -686,18 +695,18 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             RXRealtime realtime = new RXRealtime(this);
 
             realtime.childOn(ref).map(change -> {
-                if (change.getSnapshot().exists()) {
-                    String userEntityID = change.getSnapshot().getKey();
-                    model.setPermission(userEntityID, change.getSnapshot().getValue(String.class));
-                    if (userEntityID.equals(ChatSDK.currentUserID())) {
-                        updateListenersForPermissions();
+                String userEntityID = change.getSnapshot().getKey();
+                if (!ChatSDK.currentUserID().equals(userEntityID)) {
+                    if (change.getSnapshot().exists()) {
+                        model.setPermission(userEntityID, change.getSnapshot().getValue(String.class));
                     }
-                } else {
-                    // TODO: Thread
-                    if (model.getCreator() != null && model.getCreator().isMe()) {
-                        model.setPermission(change.getSnapshot().getKey(), Permission.Owner);
-                    } else {
-                        model.setPermission(change.getSnapshot().getKey(), Permission.Member);
+                    else {
+                        // TODO: Thread
+                        if (model.getCreator() != null && model.getCreator().isMe()) {
+                            model.setPermission(change.getSnapshot().getKey(), Permission.Owner);
+                        } else {
+                            model.setPermission(change.getSnapshot().getKey(), Permission.Member);
+                        }
                     }
                 }
                 return model;
@@ -711,21 +720,45 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
      * When we first open the thread get our permission level to decide which listeners to add
      * @return
      */
-    public Completable myPermission() {
-        return Completable.defer(() -> {
-            String currentEntityID = ChatSDK.currentUserID();
-            DatabaseReference ref = FirebasePaths.threadPermissionsRef(model.getEntityID()).child(currentEntityID);
-            RXRealtime realtime = new RXRealtime(this);
-            return realtime.get(ref).flatMapCompletable(change -> {
-                if (!change.isEmpty()) {
-                    model.setPermission(ChatSDK.currentUser(), change.get().getValue(String.class), true, false);
-                } else {
-                    // If no permission is set, we set it to member
-                    model.setPermission(ChatSDK.currentUser(), Permission.Member, true, false);
-                }
-                return Completable.complete();
-            });
+    @Nullable
+    public Observable<String> myPermission() {
+//        return Completable.defer(() -> {
+
+        String currentEntityID = ChatSDK.currentUserID();
+        DatabaseReference ref = FirebasePaths.threadPermissionsRef(model.getEntityID()).child(currentEntityID);
+
+        if (RealtimeReferenceManager.shared().isOn(ref)) {
+            return Observable.error(new Throwable("Permission is already on for user"));
+        }
+
+        RXRealtime realtime = new RXRealtime(this);
+
+        Observable<String> observable = realtime.on(ref).map(change -> {
+            String permission;
+            if (change.hasValue()) {
+                permission = change.getSnapshot().getValue(String.class);
+            } else {
+                // If no permission is set, we set it to member
+                permission = Permission.Member;
+            }
+            model.setPermission(ChatSDK.currentUser(), permission, true, false);
+            return permission;
         });
+
+        realtime.addToReferenceManager();
+
+        return observable;
+
+//            return realtime.get(ref).flatMapCompletable(change -> {
+//                if (!change.isEmpty()) {
+//                    model.setPermission(ChatSDK.currentUser(), change.get().getValue(String.class), true, false);
+//                } else {
+//                    // If no permission is set, we set it to member
+//                    model.setPermission(ChatSDK.currentUser(), Permission.Member, true, false);
+//                }
+//                return Completable.complete();
+//            });
+//        });
     }
 
     public Completable leave() {

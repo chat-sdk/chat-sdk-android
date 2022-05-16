@@ -12,7 +12,6 @@ android {
 
     defaultConfig {
         minSdkVersion Integer.parseInt(project.MIN_SDK)
-
     }
 
     buildTypes {
@@ -30,16 +29,15 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
-    lintOptions {
+    lint {
         abortOnError false
-//        checkReleaseBuilds false
         lintConfig file('lint.xml')
     }
+
 }
 
 greendao {
-    schemaVersion 27
+    schemaVersion 28
     targetGenDir "src/main/java"
     daoPackage "sdk.chat.core.dao"
 }

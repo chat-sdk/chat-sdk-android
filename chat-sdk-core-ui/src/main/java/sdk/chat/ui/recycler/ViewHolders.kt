@@ -4,11 +4,10 @@ import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
-import kotlinx.android.synthetic.main.recycler_view_holder_navigation.view.*
-import kotlinx.android.synthetic.main.recycler_view_holder_radio.view.*
-import kotlinx.android.synthetic.main.recycler_view_holder_section.view.*
-import kotlinx.android.synthetic.main.recycler_view_holder_section.view.textView
-import kotlinx.android.synthetic.main.recycler_view_holder_toggle.view.*
+import android.widget.ImageView
+import android.widget.RadioButton
+import android.widget.TextView
+import com.google.android.material.switchmaterial.SwitchMaterial
 import sdk.chat.ui.ChatSDKUI
 import sdk.chat.ui.R
 import sdk.chat.ui.icons.Icons
@@ -88,36 +87,39 @@ class ToggleViewModel(val title: String, var enabled: StartingValue, val onChang
 open class RadioViewHolder(parentView: ViewGroup) :
         SmartViewHolder<RadioViewModel>(parentView, R.layout.recycler_view_holder_radio) {
 
+    open var textView:TextView  = itemView.findViewById(R.id.textView)
+    open var radioButton: RadioButton = itemView.findViewById(R.id.radioButton)
+
     override fun bind(item: RadioViewModel) {
-        with(itemView) {
-            textView.text = item.title
-            radioButton.isChecked = item.starting.get()
-        }
+        textView.text = item.title
+        radioButton.isChecked = item.starting.get()
     }
 }
 
 open class SectionViewHolder(parentView: ViewGroup) :
         SmartViewHolder<SectionViewModel>(parentView, R.layout.recycler_view_holder_section) {
 
+    open var textView:TextView  = itemView.findViewById(R.id.textView)
+    open var topBorder: View = itemView.findViewById(R.id.topBorder)
+    open var bottomBorder: View = itemView.findViewById(R.id.bottomBorder)
+
     override fun bind(item: SectionViewModel) {
-        with(itemView) {
-            if (item.paddingTop != null) {
-                itemView.setPadding(itemView.paddingLeft, item.paddingTop, itemView.paddingRight, itemView.paddingBottom)
-                itemView.requestLayout();
-            }
-            textView.text = item.title.toUpperCase(Locale.ROOT)
+        if (item.paddingTop != null) {
+            itemView.setPadding(itemView.paddingLeft, item.paddingTop, itemView.paddingRight, itemView.paddingBottom)
+            itemView.requestLayout();
+        }
+        textView.text = item.title.uppercase(Locale.ROOT)
 
-            if (item.hideTopBorder) {
-                topBorder.visibility = View.INVISIBLE
-            } else {
-                topBorder.visibility = View.VISIBLE
-            }
+        if (item.hideTopBorder) {
+            topBorder.visibility = View.INVISIBLE
+        } else {
+            topBorder.visibility = View.VISIBLE
+        }
 
-            if (item.hideBottomBorder) {
-                bottomBorder.visibility = View.INVISIBLE
-            } else {
-                bottomBorder.visibility = View.VISIBLE
-            }
+        if (item.hideBottomBorder) {
+            bottomBorder.visibility = View.INVISIBLE
+        } else {
+            bottomBorder.visibility = View.VISIBLE
         }
     }
 }
@@ -125,10 +127,11 @@ open class SectionViewHolder(parentView: ViewGroup) :
 open class NavigationViewHolder(parentView: ViewGroup) :
         SmartViewHolder<NavigationViewModel>(parentView, R.layout.recycler_view_holder_navigation) {
 
+    open var textView:TextView  = itemView.findViewById(R.id.textView)
+    open var imageView:ImageView  = itemView.findViewById(R.id.imageView)
+
     init {
-        with(itemView) {
-            imageView.setImageDrawable(Icons.get(ChatSDKUI.icons().arrowRight, R.color.gray_very_light))
-        }
+        imageView.setImageDrawable(Icons.get(ChatSDKUI.icons().arrowRight, R.color.gray_very_light))
     }
 
 //    init(par) {
@@ -136,20 +139,18 @@ open class NavigationViewHolder(parentView: ViewGroup) :
 //    }
 
     override fun bind(item: NavigationViewModel) {
-        with(itemView) {
-            textView.text = item.title
-        }
+        textView.text = item.title
     }
 }
 
 open class ButtonViewHolder(parentView: ViewGroup) :
         SmartViewHolder<ButtonViewModel>(parentView, R.layout.recycler_view_holder_button) {
 
+    open var textView:TextView  = itemView.findViewById(R.id.textView)
+
     override fun bind(item: ButtonViewModel) {
-        with(itemView) {
-            textView.text = item.title
-            textView.setTextColor(item.color)
-        }
+        textView.text = item.title
+        textView.setTextColor(item.color)
     }
 
 }
@@ -166,25 +167,21 @@ open class ToggleViewHolder(parentView: ViewGroup) :
     protected var model: ToggleViewModel? = null
 //    protected var checked = false
 
-    init {
-        with(itemView) {
-            itemView.isEnabled = false
-            switchMaterial.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { _, isChecked ->
-                // Run after animation
-                model?.change(isChecked)
+    open var textView:TextView  = itemView.findViewById(R.id.textView)
+    open var switchMaterial:SwitchMaterial  = itemView.findViewById(R.id.switchMaterial)
 
-//                if (isChecked != checked) {
-//                }
-            })
-        }
+    init {
+        itemView.isEnabled = false
+        switchMaterial.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { _, isChecked ->
+            // Run after animation
+            model?.change(isChecked)
+        })
     }
 
     override fun bind(item: ToggleViewModel) {
-        with(itemView) {
-            model = item
-            textView.text = item.title
-            switchMaterial.isChecked = item.enabled.get()
-        }
+        model = item
+        textView.text = item.title
+        switchMaterial.isChecked = item.enabled.get()
     }
 
 }

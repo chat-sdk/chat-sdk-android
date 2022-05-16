@@ -26,6 +26,7 @@ public class Config<T> extends BaseConfig<T> {
 
     // Testing
     public boolean debug = false;
+    public Level logLevel = Level.WARNING;
 
     public String debugUsername = null;
     public String debugPassword = null;
@@ -617,5 +618,9 @@ public class Config<T> extends BaseConfig<T> {
         return this;
     }
 
+    public Config<T> setLogLevel(Level value) {
+        this.logLevel = value;
+        return this;
+    }
 
 }

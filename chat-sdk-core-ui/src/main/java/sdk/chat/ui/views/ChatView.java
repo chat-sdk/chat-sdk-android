@@ -205,18 +205,30 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(
-                        EventType.ThreadMessagesUpdated,
-                        EventType.MessageSendStatusUpdated,
-                        EventType.MessageReadReceiptUpdated,
-                        EventType.UserPresenceUpdated,
-                        EventType.UserMetaUpdated))
-                .filter(NetworkEvent.filterType())
+                        EventType.ThreadMessagesUpdated
+//                        EventType.MessageSendStatusUpdated,
+//                        EventType.MessageReadReceiptUpdated
+                ))
                 .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
                 .subscribe(networkEvent -> {
-                    root.post(() -> {
+
+                    Logger.debug("ChatView: " + networkEvent.debugText());
+
+                    messagesList.post(() -> {
                         synchronize(null, true);
                     });
                 }));
+
+//        dm.add(ChatSDK.events().sourceOnMain()
+//                .filter(NetworkEvent.filterType(
+//                        EventType.UserPresenceUpdated,
+//                        EventType.UserMetaUpdated))
+//                .filter(NetworkEvent.filterThreadContainsUser(delegate.getThread()))
+//                .subscribe(networkEvent -> {
+//                    messagesList.post(() -> {
+//                        synchronize(null, true);
+//                    });
+//                }));
 
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.MessageAdded))
@@ -225,7 +237,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                     if (!ChatSDK.appBackgroundMonitor().inBackground()) {
                         networkEvent.getMessage().markReadIfNecessary();
                     }
-                    root.post(() -> {
+                    messagesList.post(() -> {
                         addMessageToStart(networkEvent.getMessage());
                     });
                 }));
@@ -234,7 +246,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 .filter(NetworkEvent.filterType(EventType.MessageRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
                 .subscribe(networkEvent -> {
-                    root.post(() -> {
+                    messagesList.post(() -> {
                         removeMessage(networkEvent.getMessage());
                     });
                 }));
@@ -284,6 +296,8 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
      */
     protected void addMessageToStart(Message message) {
 
+        Logger.debug("Add Message to start" + message.getText());
+
         boolean scroll = message.getSender().isMe();
 
         int offset = messagesList.computeVerticalScrollOffset();
@@ -299,6 +313,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         messageHolders.add(0, holder);
 
         updatePreviousMessage(holder);
+        holder.updateReadStatus();
         messagesListAdapter.addToStart(holder, scroll, true);
     }
 
@@ -364,7 +379,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
             final List<MessageWrapper<?>> newHolders = new ArrayList<>(messagesListAdapter.getItems());
 
-            RX.single().scheduleDirect(() -> {
+//            RX.single().scheduleDirect(() -> {
                 if (sort) {
                     sortMessageHolders();
                 }
@@ -372,7 +387,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 MessageHoldersDiffCallback callback = new MessageHoldersDiffCallback(newHolders, oldHolders);
                 DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback);
 
-                messagesList.post(() -> {
+//                messagesList.post(() -> {
                     Parcelable recyclerViewState = messagesList.getLayoutManager().onSaveInstanceState();
 
                     messagesListAdapter.getItems().clear();
@@ -381,8 +396,8 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                     result.dispatchUpdatesTo(messagesListAdapter);
 
                     messagesList.getLayoutManager().onRestoreInstanceState(recyclerViewState);
-                });
-            });
+//                });
+//            });
 
         }
 

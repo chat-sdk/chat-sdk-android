@@ -4,6 +4,8 @@ import android.content.Context;
 
 import com.stfalcon.chatkit.commons.models.IMessage;
 
+import org.pmw.tinylog.Logger;
+
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,7 +56,7 @@ public class MessageHolder implements IMessage {
     public MessageHolder(Message message) {
         this.message = message;
 
-        dm.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.MessageSendStatusUpdated))
                 .filter(NetworkEvent.filterMessageEntityID(getId()))
                 .subscribe(networkEvent -> {
@@ -62,11 +64,16 @@ public class MessageHolder implements IMessage {
                     updateSendStatus(progress);
                 }));
 
-        dm.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated))
-                .filter(NetworkEvent.filterMessageEntityID(getId()))
+//                .filter(NetworkEvent.filterMessageEntityID(getId()))
                 .subscribe(networkEvent -> {
-                    updateReadStatus();
+                    if (networkEvent.getMessage().getEntityID().equals(getId())) {
+                        Logger.debug("MessageHolder: " + networkEvent.debugText());
+
+                        updateReadStatus();
+
+                    }
                 }));
 
 //        dm.add(ChatSDK.events().sourceOnMain()

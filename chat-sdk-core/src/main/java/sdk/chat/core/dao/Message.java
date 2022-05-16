@@ -56,6 +56,10 @@ public class Message extends AbstractEntity {
     private Long nextMessageId;
     private Long previousMessageId;
     private String encryptedText;
+    private String reply;
+
+    private String placeholderPath;
+    private String filePath;
 
     @Index
     private boolean isRead;
@@ -86,9 +90,10 @@ public class Message extends AbstractEntity {
     @Generated(hash = 859287859)
     private transient MessageDao myDao;
 
-    @Generated(hash = 1510725654)
+    @Generated(hash = 1947120727)
     public Message(Long id, String entityID, Date date, Integer type, Integer status, Long senderId, Long threadId,
-            Long nextMessageId, Long previousMessageId, String encryptedText, boolean isRead) {
+            Long nextMessageId, Long previousMessageId, String encryptedText, String reply, String placeholderPath,
+            String filePath, boolean isRead) {
         this.id = id;
         this.entityID = entityID;
         this.date = date;
@@ -99,6 +104,9 @@ public class Message extends AbstractEntity {
         this.nextMessageId = nextMessageId;
         this.previousMessageId = previousMessageId;
         this.encryptedText = encryptedText;
+        this.reply = reply;
+        this.placeholderPath = placeholderPath;
+        this.filePath = filePath;
         this.isRead = isRead;
     }
 
@@ -205,7 +213,14 @@ public class Message extends AbstractEntity {
         setMetaValue(key, value, false, "");
     }
 
-    public void setMetaValue(String key, Object value, boolean isLocal, String tag) {
+    public synchronized void setMetaValue(String key, Object value, boolean isLocal, String tag) {
+        if (key.equals(Keys.Reply)) {
+            if (value instanceof String) {
+                setReply((String) value);
+            } else {
+                setReply(null);
+            }
+        }
         MessageMetaValue metaValue = (MessageMetaValue) metaValue(key);
         if (metaValue == null) {
             metaValue = new MessageMetaValue();
@@ -284,9 +299,10 @@ public class Message extends AbstractEntity {
     public boolean setUserReadStatus(User user, ReadStatus status, Date date, boolean notify) {
         ReadReceiptUserLink link = linkForUser(user);
 
-        Logger.debug("UPDATE READ RECEIPTS");
-
-        if (!user.isMe()) {
+        if (sender.isMe()) {
+            isRead = true;
+        }
+        else if (user.isMe()) {
             if (status.is(ReadStatus.read())) {
                 isRead = true;
             } else {
@@ -723,6 +739,12 @@ public class Message extends AbstractEntity {
         String reply = getReply();
         if (reply != null && !reply.isEmpty()) {
             return true;
+        } else {
+            Object replyObject = valueForKey(Keys.Reply);
+            if (replyObject instanceof String) {
+                this.reply = (String) replyObject;
+                return true;
+            }
         }
         return false;
     }
@@ -736,11 +758,13 @@ public class Message extends AbstractEntity {
     }
 
     public String getReply() {
-        Object replyObject = valueForKey(Keys.Reply);
-        if (replyObject instanceof String) {
-            return (String) replyObject;
-        }
-        return null;
+//        if (reply == null) {
+//            Object replyObject = valueForKey(Keys.Reply);
+//            if (replyObject instanceof String) {
+//                reply = (String) replyObject;
+//            }
+//        }
+        return reply;
     }
 
     public String getImageURL() {
@@ -825,6 +849,9 @@ public class Message extends AbstractEntity {
     }
 
     public void setIsRead(boolean isRead, boolean notify, boolean update) {
+        if (this.isRead == isRead) {
+            return;
+        }
         this.isRead = isRead;
         if (update) {
             update();
@@ -836,6 +863,26 @@ public class Message extends AbstractEntity {
 
     public void setIsRead(boolean isRead) {
         this.isRead = isRead;
+    }
+
+    public void setReply(String reply) {
+        this.reply = reply;
+    }
+
+    public String getPlaceholderPath() {
+        return this.placeholderPath;
+    }
+
+    public void setPlaceholderPath(String placeholderPath) {
+        this.placeholderPath = placeholderPath;
+    }
+
+    public String getFilePath() {
+        return this.filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 
 }

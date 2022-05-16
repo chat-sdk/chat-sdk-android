@@ -207,12 +207,12 @@ public class UserThreadLink {
     }
 
     @Keep
-    public UserThreadLinkMetaValue metaValueForKey (String key) {
+    public UserThreadLinkMetaValue metaValueForKey(String key) {
         return MetaValueHelper.metaValueForKey(key, getMetaValues());
     }
 
     @Keep
-    public boolean setMetaValue (String key, String value) {
+    public synchronized boolean setMetaValue(String key, String value) {
         UserThreadLinkMetaValue metaValue = metaValueForKey(key);
 
         if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {

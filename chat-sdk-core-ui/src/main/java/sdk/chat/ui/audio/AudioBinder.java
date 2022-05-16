@@ -129,10 +129,10 @@ public class AudioBinder {
             AudioManager audioManager = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
             audioManager.requestAudioFocus(focusChange -> {
                 if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-                    Logger.debug("");
+                    Logger.debug("Gained focus");
                 }
                 if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-                    Logger.debug("");
+                    Logger.debug("Lost focus");
                 }
             }, AudioManager.MODE_NORMAL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
 

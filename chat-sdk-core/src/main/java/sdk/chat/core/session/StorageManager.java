@@ -253,7 +253,7 @@ public class StorageManager {
         Long currentUserId = ChatSDK.currentUser().getId();
 
         QueryBuilder<Message> qb = daoCore.getDaoSession().queryBuilder(Message.class);
-        qb.where(MessageDao.Properties.ThreadId.eq(threadId), MessageDao.Properties.SenderId.notEq(currentUserId), MessageDao.Properties.IsRead.eq(true));
+        qb.where(MessageDao.Properties.ThreadId.eq(threadId), MessageDao.Properties.SenderId.notEq(currentUserId), MessageDao.Properties.IsRead.eq(false));
         return qb.list();
 
 //        Join<Message, ReadReceiptUserLink> join = qb.where(qb.and(MessageDao.Properties.ThreadId.eq(threadId), MessageDao.Properties.SenderId.notEq(currentUserId)))

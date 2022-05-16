@@ -19,6 +19,7 @@ public class MessageMetaValue implements MetaValue<String> {
     private String tag;
     private boolean isLocal;
 
+    @Index
     private Long messageId;
 
     @ToOne(joinProperty = "messageId")

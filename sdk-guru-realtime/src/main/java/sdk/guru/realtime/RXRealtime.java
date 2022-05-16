@@ -215,4 +215,8 @@ public class RXRealtime implements Action, Consumer<Throwable> {
         }
     }
 
+    public boolean isOn() {
+        return RealtimeReferenceManager.shared().isOn(ref);
+    }
+
 }

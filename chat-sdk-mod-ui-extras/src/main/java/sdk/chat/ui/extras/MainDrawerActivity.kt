@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.mikepenz.materialdrawer.holder.ImageHolder
@@ -21,10 +22,10 @@ import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader
 import com.mikepenz.materialdrawer.util.DrawerImageLoader
 import com.mikepenz.materialdrawer.util.updateName
 import com.mikepenz.materialdrawer.widget.AccountHeaderView
+import com.mikepenz.materialdrawer.widget.MaterialDrawerSliderView
 import io.reactivex.Single
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
-import kotlinx.android.synthetic.main.activity_main_drawer.*
 import materialsearchview.MaterialSearchView
 import sdk.chat.core.events.EventType
 import sdk.chat.core.events.NetworkEvent
@@ -55,11 +56,19 @@ open class MainDrawerActivity : MainActivity() {
     open lateinit var privateThreadItem: PrimaryDrawerItem
     open lateinit var publicThreadItem: PrimaryDrawerItem
 
+    open lateinit var slider: MaterialDrawerSliderView
+    open lateinit var root: DrawerLayout
+    open lateinit var searchView: MaterialSearchView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(layout)
 
         initViews()
+
+        slider = findViewById(R.id.slider)
+        root = findViewById(R.id.root)
+        searchView = findViewById(R.id.searchView)
 
         dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated, EventType.MessageAdded)).subscribe(Consumer {
             // Refresh the read count

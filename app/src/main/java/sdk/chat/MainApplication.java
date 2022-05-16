@@ -6,6 +6,7 @@ import android.os.StrictMode;
 import com.thedeanda.lorem.Lorem;
 import com.thedeanda.lorem.LoremIpsum;
 
+import org.pmw.tinylog.Level;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
@@ -25,7 +26,6 @@ import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.receipts.FirebaseReadReceiptsModule;
-import sdk.chat.firebase.typing.FirebaseTypingIndicatorModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.V2ImageMessageRegistration;
 import sdk.chat.message.V2TextMessageRegistration;
@@ -86,8 +86,6 @@ public class MainApplication extends Application {
 
 
 
-
-
         try {
             firebase();
 
@@ -140,6 +138,17 @@ public class MainApplication extends Application {
     public void firebase() throws Exception {
         String rootPath = "pre_999";
 
+        String username = "1@d.co";
+        if (Device.honor(this)) {
+            username = "2@d.co";
+        }
+        if (Device.pixel(this)) {
+            username = "3@d.co";
+        }
+        if (Device.galaxy(this)) {
+            username = "4@d.co";
+        }
+
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                 .detectDiskReads()
                 .detectDiskWrites()
@@ -156,6 +165,7 @@ public class MainApplication extends Application {
                 .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
                 .setAnonymousLoginEnabled(false)
                 .setReuseDeleted1to1Threads(false)
+                .setLogLevel(Level.DEBUG)
 //                .setMessagesToLoadPerBatch(5)
 
                 .setRemoteConfigEnabled(false)
@@ -164,7 +174,7 @@ public class MainApplication extends Application {
                 .setRemoteConfigEnabled(true)
 //                .setDatabaseEncryptionKey("test")
 
-                .setDebugUsername(Device.honor(this) ? "2@d.co" : "3@d.co")
+                .setDebugUsername(username)
                 .setDebugPassword("123456")
 
                 .build()
@@ -198,7 +208,7 @@ public class MainApplication extends Application {
                 .addModule(FirebaseBlockingModule.shared())
                 .addModule(FirebaseLastOnlineModule.shared())
                 .addModule(FirebaseReadReceiptsModule.shared())
-                .addModule(FirebaseTypingIndicatorModule.shared())
+//                .addModule(FirebaseTypingIndicatorModule.shared())
 
 //    .addModule(SinchModule.builder()
 //            .setApplicationKey("90c5e8c0-7a3d-4bd5-8d8f-075e5c24cd1f")

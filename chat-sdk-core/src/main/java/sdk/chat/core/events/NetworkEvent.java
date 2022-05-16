@@ -410,6 +410,10 @@ public class NetworkEvent {
     }
 
     public void debug() {
+        Logger.warn(text);
+    }
+
+    public String debugText() {
         String text = "Event: " + type.toString();
         if (user != null) {
             text += ", " + user.getEntityID() + " - " + user.getName();
@@ -420,7 +424,7 @@ public class NetworkEvent {
         if (message != null) {
             text += ", " + message.getEntityID() + " - " + message.getText();
         }
-        Logger.warn(text);
+        return text;
     }
 
     public Message getMessage() {

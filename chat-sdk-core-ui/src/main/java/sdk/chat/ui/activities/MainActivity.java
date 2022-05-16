@@ -157,7 +157,7 @@ public abstract class MainActivity extends BaseActivity {
 
     }
 
-    public boolean showLocalNotificationsForTab (Fragment fragment, Thread thread) {
+    public boolean showLocalNotificationsForTab(Fragment fragment, Thread thread) {
         // Don't show notifications on the threads tabs
         if (thread.typeIs(ThreadType.Private)) {
             Class privateThreadsFragmentClass = ChatSDK.ui().privateThreadsFragment().getClass();

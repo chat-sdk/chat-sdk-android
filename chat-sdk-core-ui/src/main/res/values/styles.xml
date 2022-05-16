@@ -8,7 +8,7 @@
     <item name="android:windowFullscreen">false</item>
 
 <!--         default, shortEdges, or never -->
-    <item name="android:windowLayoutInDisplayCutoutMode">never</item>
+    <item name="android:windowLayoutInDisplayCutoutMode">default</item>
 
     <item name="colorPrimary">@color/primary</item>
     <item name="colorPrimaryDark">@color/primary_dark</item>
@@ -111,7 +111,7 @@
 
     <item name="outcomingTimeTextColor">@color/gray_light</item>
     <item name="outcomingTimeTextStyle">italic</item>
-    <item name="outcomingTextSize">14sp</item>
+    <item name="outcomingTextSize">12sp</item>
 
     <item name="chatViewDividerColor">@color/gray_light</item>
     <item name="chatViewMessageInputBackgroundColor">@color/white</item>

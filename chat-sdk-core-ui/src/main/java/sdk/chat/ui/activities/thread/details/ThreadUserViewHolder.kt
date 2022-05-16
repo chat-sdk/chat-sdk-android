@@ -2,8 +2,10 @@ package sdk.chat.ui.activities.thread.details
 
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.RelativeLayout
+import android.widget.TextView
 import com.bumptech.glide.Glide
-import kotlinx.android.synthetic.main.recycler_view_holder_thread_user.view.*
 import sdk.chat.core.defines.Availability
 import sdk.chat.core.interfaces.ThreadType
 import sdk.chat.core.session.ChatSDK
@@ -17,8 +19,18 @@ import smartadapter.viewholder.SmartViewHolder
 class ThreadUserViewHolder(parentView: ViewGroup) :
         SmartViewHolder<ThreadUser>(parentView, R.layout.recycler_view_holder_thread_user) {
 
+//    open lateinit var itemView: View
+
+    open var root: RelativeLayout = itemView.findViewById(R.id.root)
+    open var nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
+    open var statusTextView: TextView = itemView.findViewById(R.id.statusTextView)
+    open var onlineIndicator: View = itemView.findViewById(R.id.onlineIndicator)
+    open var avatarImageView: ImageView = itemView.findViewById(R.id.avatarImageView)
+    open var availabilityImageView: ImageView = itemView.findViewById(R.id.availabilityImageView)
+
     override fun bind(item: ThreadUser) {
-        with(itemView) {
+
+//        with(itemView) {
             val user = item.user
             val thread = item.thread
 
@@ -62,18 +74,18 @@ class ThreadUserViewHolder(parentView: ViewGroup) :
             } else {
                 avatarImageView.setImageResource(UIModule.config().defaultProfilePlaceholder)
             }
-        }
+//        }
     }
 
     fun setAvailability(availability: String?) {
-        with(itemView) {
+//        with(itemView) {
             if (availability == null) {
                 availabilityImageView.visibility = View.INVISIBLE
             } else {
                 availabilityImageView.visibility = View.VISIBLE
                 availabilityImageView.setImageResource(AvailabilityHelper.imageResourceIdForAvailability(availability))
             }
-        }
+//        }
     }
 
 }

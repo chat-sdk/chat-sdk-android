@@ -5,7 +5,6 @@ plugins {
     id 'maven-publish'
     id 'com.jakewharton.butterknife'
     id 'kotlin-android'
-    id 'kotlin-android-extensions'
 }
 
 android {
@@ -36,12 +35,12 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
-
-    lintOptions {
+    lint {
         abortOnError false
         checkReleaseBuilds false
         lintConfig file('lint.xml')
     }
+
 }
 
 rootProject.allprojects {

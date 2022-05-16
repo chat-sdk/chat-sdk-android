@@ -1,7 +1,7 @@
 package sdk.chat.ui.performance;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -13,9 +13,15 @@ import sdk.chat.ui.chat.model.UserHolder;
 
 public class HolderProvider {
 
-    Map<User, UserHolder> userHolders = new HashMap<>();
-    Map<Message, MessageHolder> messageHolders = new HashMap<>();
-    Map<Thread, ThreadHolder> threadHolders = new HashMap<>();
+    // TODO: Maybe make this a ConcurrentHashMap?
+
+//    Map<User, UserHolder> userHolders = new HashMap<>();
+//    Map<Message, MessageHolder> messageHolders = new HashMap<>();
+//    Map<Thread, ThreadHolder> threadHolders = new HashMap<>();
+
+    Map<User, UserHolder> userHolders = new ConcurrentHashMap<>();
+    Map<Message, MessageHolder> messageHolders = new ConcurrentHashMap<>();
+    Map<Thread, ThreadHolder> threadHolders = new ConcurrentHashMap<>();
 
     public UserHolder getUserHolder(User user) {
         if (user == null) {

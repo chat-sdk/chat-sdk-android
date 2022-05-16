@@ -16,8 +16,13 @@ import sdk.chat.core.events.NetworkEvent;
 public interface EventHandler extends Consumer<Throwable>, CompletableObserver {
 
     PublishRelay<NetworkEvent> source();
+
     Observable<NetworkEvent> sourceOnMain();
     Observable<NetworkEvent> sourceOnBackground();
+
+    Observable<NetworkEvent> prioritySourceOnMain();
+    Observable<NetworkEvent> prioritySourceOnBackground();
+
     Observable<Throwable> errorSourceOnMain();
 
     void impl_currentUserOn(String userEntityID);

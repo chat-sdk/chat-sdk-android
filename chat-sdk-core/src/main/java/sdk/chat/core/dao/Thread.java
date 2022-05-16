@@ -359,7 +359,7 @@ public class Thread extends AbstractEntity {
     }
 
     @Keep
-    public void setMetaValue(String key, Object value, boolean notify) {
+    public synchronized void setMetaValue(String key, Object value, boolean notify) {
         ThreadMetaValue metaValue = metaValueForKey(key);
 
         if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {

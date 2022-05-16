@@ -38,6 +38,11 @@
 
     </LinearLayout>
 
+<!--    <sdk.chat.ui.views.message.OutgoingTimeView-->
+<!--        android:id="@+id/messageTimeGroup"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content" />-->
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -58,6 +63,8 @@
             android:id="@+id/readStatus"
             android:layout_width="24dp"
             android:layout_height="12dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
             android:layout_gravity="center_vertical" />
 
     </LinearLayout>

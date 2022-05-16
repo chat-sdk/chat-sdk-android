@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.stfalcon.chatkit.commons.models.IDialog;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -135,7 +137,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                 newUserIds.add(user.getEntityID());
             }
         }
-        boolean isDirty = !userIds.equals(newUserIds);
+        isDirty = !userIds.equals(newUserIds);
         if (isDirty) {
             userIds = newUserIds;
             users.clear();
@@ -144,7 +146,6 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                     users.add(ChatSDKUI.provider().holderProvider().getUserHolder(user));
                 }
             }
-            this.isDirty = isDirty;
         }
     }
 
@@ -166,10 +167,13 @@ public class ThreadHolder implements IDialog<MessageHolder> {
         }
 
         if (message != null) {
-            lastMessage = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
+            lastMessage = ChatSDKUI.provider().holderProvider().getMessageHolder(message);
+//            lastMessage = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
         } else {
             lastMessage = null;
         }
+
+        Logger.debug("ThreadHolder update last message: " + (lastMessage != null ? lastMessage.getText() : "null") + ", isDirty: " + isDirty);
     }
 
     @Override

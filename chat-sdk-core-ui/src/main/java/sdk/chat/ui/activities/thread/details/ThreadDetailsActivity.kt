@@ -7,19 +7,17 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
-import kotlinx.android.synthetic.main.activity_thread_details.*
-import kotlinx.android.synthetic.main.fragment_profile.appbar
-import kotlinx.android.synthetic.main.fragment_profile.avatarImageView
-import kotlinx.android.synthetic.main.fragment_profile.headerImageView
-import kotlinx.android.synthetic.main.fragment_profile.onlineIndicator
 import sdk.chat.core.dao.Keys
 import sdk.chat.core.dao.Thread
 import sdk.chat.core.dao.User
@@ -63,7 +61,15 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
     open lateinit var joinButton: ButtonViewModel
 
     open var items: MutableList<Any> = ArrayList()
-    open lateinit var resultLauncher: ActivityResultLauncher<Intent>;
+    open lateinit var resultLauncher: ActivityResultLauncher<Intent>
+
+    open lateinit var appbar: AppBarLayout
+    open lateinit var avatarImageView: ImageView
+    open lateinit var onlineIndicator: View
+    open lateinit var recyclerView: RecyclerView
+    open lateinit var addUsersFab: FloatingActionButton
+    open lateinit var refreshFab: FloatingActionButton
+    open lateinit var headerImageView: ImageView
 
     @LayoutRes
     override fun getLayout(): Int {
@@ -97,6 +103,14 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
                 }
             }
         }
+
+        appbar = findViewById(R.id.appbar)
+        avatarImageView = findViewById(R.id.avatarImageView)
+        onlineIndicator = findViewById(R.id.onlineIndicator)
+        recyclerView = findViewById(R.id.recyclerView)
+        addUsersFab = findViewById(R.id.addUsersFab)
+        refreshFab = findViewById(R.id.refreshFab)
+        headerImageView = findViewById(R.id.headerImageView)
 
         initViews()
     }
