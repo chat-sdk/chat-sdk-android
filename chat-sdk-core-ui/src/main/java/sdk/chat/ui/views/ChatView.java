@@ -356,29 +356,33 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         long start = System.currentTimeMillis();
 
         if (messagesListAdapter != null) {
-            List<MessageWrapper<?>> oldHolders = new ArrayList<>(messagesListAdapter.getItems());
+            final List<MessageWrapper<?>> oldHolders = new ArrayList<>(messagesListAdapter.getItems());
 
             if (modifyList != null) {
                 modifyList.run();
             }
 
-            List<MessageWrapper<?>> newHolders = new ArrayList<>(messagesListAdapter.getItems());
+            final List<MessageWrapper<?>> newHolders = new ArrayList<>(messagesListAdapter.getItems());
 
-            if (sort) {
-                sortMessageHolders();
-            }
+            RX.single().scheduleDirect(() -> {
+                if (sort) {
+                    sortMessageHolders();
+                }
 
-            MessageHoldersDiffCallback callback = new MessageHoldersDiffCallback(newHolders, oldHolders);
-            DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback);
+                MessageHoldersDiffCallback callback = new MessageHoldersDiffCallback(newHolders, oldHolders);
+                DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback);
 
-            Parcelable recyclerViewState = messagesList.getLayoutManager().onSaveInstanceState();
+                messagesList.post(() -> {
+                    Parcelable recyclerViewState = messagesList.getLayoutManager().onSaveInstanceState();
 
-            messagesListAdapter.getItems().clear();
-            messagesListAdapter.getItems().addAll(newHolders);
+                    messagesListAdapter.getItems().clear();
+                    messagesListAdapter.getItems().addAll(newHolders);
 
-            result.dispatchUpdatesTo(messagesListAdapter);
+                    result.dispatchUpdatesTo(messagesListAdapter);
 
-            messagesList.getLayoutManager().onRestoreInstanceState(recyclerViewState);
+                    messagesList.getLayoutManager().onRestoreInstanceState(recyclerViewState);
+                });
+            });
 
         }
 

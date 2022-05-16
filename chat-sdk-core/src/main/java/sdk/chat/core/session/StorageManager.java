@@ -4,7 +4,6 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import org.greenrobot.greendao.query.Join;
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.pmw.tinylog.Logger;
 
@@ -34,7 +33,6 @@ import sdk.chat.core.dao.UserDao;
 import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.dao.UserThreadLinkDao;
 import sdk.chat.core.interfaces.CoreEntity;
-import sdk.chat.core.types.ReadStatus;
 import sdk.guru.common.Optional;
 import sdk.guru.common.RX;
 
@@ -255,14 +253,17 @@ public class StorageManager {
         Long currentUserId = ChatSDK.currentUser().getId();
 
         QueryBuilder<Message> qb = daoCore.getDaoSession().queryBuilder(Message.class);
-        Join<Message, ReadReceiptUserLink> join = qb.where(qb.and(MessageDao.Properties.ThreadId.eq(threadId), MessageDao.Properties.SenderId.notEq(currentUserId)))
-                .join(ReadReceiptUserLink.class, ReadReceiptUserLinkDao.Properties.MessageId);
+        qb.where(MessageDao.Properties.ThreadId.eq(threadId), MessageDao.Properties.SenderId.notEq(currentUserId), MessageDao.Properties.IsRead.eq(true));
+        return qb.list();
 
-        join.where(join.and(ReadReceiptUserLinkDao.Properties.UserId.eq(currentUserId), ReadReceiptUserLinkDao.Properties.Status.notEq(ReadStatus.Read)));
+//        Join<Message, ReadReceiptUserLink> join = qb.where(qb.and(MessageDao.Properties.ThreadId.eq(threadId), MessageDao.Properties.SenderId.notEq(currentUserId)))
+//                .join(ReadReceiptUserLink.class, ReadReceiptUserLinkDao.Properties.MessageId);
+//
+//        join.where(join.and(ReadReceiptUserLinkDao.Properties.UserId.eq(currentUserId), ReadReceiptUserLinkDao.Properties.Status.notEq(ReadStatus.Read)));
+//
+//        List<Message> list = qb.list();
 
-        List<Message> list = qb.list();
-
-        return list;
+//        return list;
     }
 
     public Single<List<Message>> fetchUnreadMessagesForThreadAsync(Long threadId) {

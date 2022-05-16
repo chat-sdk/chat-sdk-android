@@ -106,6 +106,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         message.setEntityID(UUID.randomUUID().toString());
         message.setType(type);
         message.setMessageStatus(MessageSendStatus.None, false);
+        message.setIsRead(true);
 
         if (!thread.typeIs(ThreadType.Public)) {
             for (User user: thread.getUsers()) {

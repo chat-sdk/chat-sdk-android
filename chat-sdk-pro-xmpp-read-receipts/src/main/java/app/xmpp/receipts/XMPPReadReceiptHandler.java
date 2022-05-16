@@ -25,6 +25,8 @@ public class XMPPReadReceiptHandler implements ReadReceiptHandler {
             } finally {
                 message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new Date());
             }
+        } else {
+            message.setIsRead(true, true, true);
         }
     }
 

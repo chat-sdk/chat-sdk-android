@@ -92,6 +92,9 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
 
     public void markRead(Message message) {
         RX.computation().scheduleDirect(() -> {
+            if (!message.getSender().isMe()) {
+                message.setIsRead(true, true, true);
+            }
             if(shouldMarkReadReceipt(message)) {
                 FirebaseModule.config().provider.messageWrapper(message).setReadStatus(ReadStatus.read()).subscribe(ChatSDK.events());
             }

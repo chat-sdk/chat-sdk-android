@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sdk.chat.core.interfaces.CoreEntity;
+import sdk.guru.common.RX;
 
 public abstract class AbstractEntity implements CoreEntity {
 
@@ -26,6 +27,10 @@ public abstract class AbstractEntity implements CoreEntity {
             ids.add(c.getEntityID());
         }
         return ids;
+    }
+
+    public void updateAsync() {
+        RX.db().scheduleDirect(this::update);
     }
 
 }

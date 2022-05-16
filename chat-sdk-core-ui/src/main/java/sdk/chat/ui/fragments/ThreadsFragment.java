@@ -38,10 +38,9 @@ import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.ThreadHolder;
-import sdk.chat.ui.performance.AsyncDialogsListAdapter;
-import sdk.chat.ui.performance.ThreadHoldersDiffCallback;
 import sdk.chat.ui.interfaces.SearchSupported;
 import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.performance.ThreadHoldersDiffCallback;
 import sdk.chat.ui.provider.MenuItemProvider;
 import sdk.chat.ui.utils.GlideWith;
 import sdk.chat.ui.utils.ThreadImageBuilder;
@@ -53,9 +52,6 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     protected String filter;
 
     protected DialogsListAdapter<ThreadHolder> dialogsListAdapter;
-    protected AsyncDialogsListAdapter asyncDialogsListAdapter;
-
-//    protected Map<Thread, ThreadHolder> threadHolderHashMap = new HashMap<>();
 
     protected PublishRelay<Thread> onClickPublishRelay = PublishRelay.create();
     protected PublishRelay<Thread> onLongClickPublishRelay = PublishRelay.create();
@@ -67,7 +63,6 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     protected boolean listenersAdded = false;
     protected boolean didLoadData = false;
-    protected boolean useAsyncAdapter = false;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -191,11 +186,11 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             }
         };
 
-        if (!useAsyncAdapter) {
+//        if (!useAsyncAdapter) {
             dialogsListAdapter = new DialogsListAdapter<>(R.layout.view_holder_thread, ThreadViewHolder.class, loader);
-        } else {
-            asyncDialogsListAdapter = new AsyncDialogsListAdapter(R.layout.view_holder_thread, ThreadViewHolder.class, loader);
-        }
+//        } else {
+//            asyncDialogsListAdapter = new AsyncDialogsListAdapter(R.layout.view_holder_thread, ThreadViewHolder.class, loader);
+//        }
 
         if (UIModule.config().threadTimeFormat != null) {
             dialogsListAdapter().setDatesFormatter(date -> {
@@ -276,9 +271,9 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         if (dialogsListAdapter != null) {
             dialogsListAdapter.clear();
         }
-        if (asyncDialogsListAdapter != null) {
-            asyncDialogsListAdapter.submitList(new ArrayList<>());
-        }
+//        if (asyncDialogsListAdapter != null) {
+//            asyncDialogsListAdapter.submitList(new ArrayList<>());
+//        }
 //        threadHolderHashMap.clear();
     }
 
@@ -286,9 +281,9 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         if (dialogsListAdapter != null) {
             return dialogsListAdapter;
         }
-        if (asyncDialogsListAdapter != null) {
-            return asyncDialogsListAdapter;
-        }
+//        if (asyncDialogsListAdapter != null) {
+//            return asyncDialogsListAdapter;
+//        }
         return null;
     }
 
@@ -354,18 +349,25 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
         List<ThreadHolder> newHolders = new ArrayList<>(threadHolders);
         if (dialogsListAdapter != null) {
-            List<ThreadHolder> oldHolders = new ArrayList<>(dialogsListAdapter.getItems());
-            ThreadHoldersDiffCallback callback = new ThreadHoldersDiffCallback(newHolders, oldHolders);
-            DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback);
 
-            dialogsListAdapter.getItems().clear();
-            dialogsListAdapter.setItems(newHolders);
+            final List<ThreadHolder> oldHolders = new ArrayList<>(dialogsListAdapter.getItems());
 
-            result.dispatchUpdatesTo(dialogsListAdapter);
+            RX.single().scheduleDirect(() -> {
+                ThreadHoldersDiffCallback callback = new ThreadHoldersDiffCallback(newHolders, oldHolders);
+                DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback);
+
+                dialogsList.post(() -> {
+                    dialogsListAdapter.getItems().clear();
+                    dialogsListAdapter.setItems(newHolders);
+                    result.dispatchUpdatesTo(dialogsListAdapter);
+                });
+
+            });
+
         }
-        if (asyncDialogsListAdapter != null) {
-            asyncDialogsListAdapter.submitList(newHolders);
-        }
+//        if (asyncDialogsListAdapter != null) {
+//            asyncDialogsListAdapter.submitList(newHolders);
+//        }
 
         long end = System.currentTimeMillis();
         long diff = end - start;

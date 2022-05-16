@@ -43,6 +43,7 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import io.reactivex.CompletableObserver;
+import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import sdk.chat.core.session.ChatSDK;
@@ -52,6 +53,7 @@ import sdk.chat.ui.R;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.AlertUtils;
 import sdk.guru.common.DisposableMap;
+import sdk.guru.common.RX;
 
 public abstract class BaseActivity extends FragmentActivity implements Consumer<Throwable>, CompletableObserver {
 
@@ -99,9 +101,11 @@ public abstract class BaseActivity extends FragmentActivity implements Consumer<
 //        updateExtras(getIntent().getExtras());
 
         // Setting the default task description.
-        if (getTaskDescriptionBitmap() != null) {
-            setTaskDescription(getTaskDescriptionBitmap(), getTaskDescriptionLabel(), getTaskDescriptionColor());
-        }
+        dm.add(getTaskDescriptionBitmap().subscribeOn(RX.computation()).subscribe(bitmap -> {
+            setTaskDescription(bitmap, getTaskDescriptionLabel(), getTaskDescriptionColor());
+        }, throwable -> {
+            // No Problem!
+        }));
     }
 
     protected void initViews() {
@@ -138,11 +142,16 @@ public abstract class BaseActivity extends FragmentActivity implements Consumer<
     /**
      * @return the bitmap that will be used for the screen overview also called the recents apps.
      **/
-    protected Bitmap getTaskDescriptionBitmap(){
-        if (ChatSDK.config() != null) {
-            return BitmapFactory.decodeResource(getResources(), ChatSDK.config().logoDrawableResourceID);
-        }
-        return null;
+    protected Single<Bitmap> getTaskDescriptionBitmap() {
+        return Single.create(emitter -> {
+            if (ChatSDK.config() != null) {
+                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), ChatSDK.config().logoDrawableResourceID);
+                if (bitmap != null) {
+                    emitter.onSuccess(bitmap);
+                }
+            }
+            emitter.onError(new Throwable());
+        });
     }
 
     protected int getTaskDescriptionColor(){

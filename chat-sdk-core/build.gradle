@@ -39,7 +39,7 @@ android {
 }
 
 greendao {
-    schemaVersion 26
+    schemaVersion 27
     targetGenDir "src/main/java"
     daoPackage "sdk.chat.core.dao"
 }

@@ -1,6 +1,7 @@
 package sdk.chat;
 
 import android.app.Application;
+import android.os.StrictMode;
 
 import com.thedeanda.lorem.Lorem;
 import com.thedeanda.lorem.LoremIpsum;
@@ -139,12 +140,12 @@ public class MainApplication extends Application {
     public void firebase() throws Exception {
         String rootPath = "pre_999";
 
-//        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-//                .detectDiskReads()
-//                .detectDiskWrites()
-//                .detectNetwork()
-//                .penaltyLog()
-//                .build());
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                .detectDiskReads()
+                .detectDiskWrites()
+                .detectNetwork()
+                .penaltyLog()
+                .build());
 
 //        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
 //                .detectAll()

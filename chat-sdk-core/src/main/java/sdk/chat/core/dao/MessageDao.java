@@ -37,6 +37,7 @@ public class MessageDao extends AbstractDao<Message, Long> {
         public final static Property NextMessageId = new Property(7, Long.class, "nextMessageId", false, "NEXT_MESSAGE_ID");
         public final static Property PreviousMessageId = new Property(8, Long.class, "previousMessageId", false, "PREVIOUS_MESSAGE_ID");
         public final static Property EncryptedText = new Property(9, String.class, "encryptedText", false, "ENCRYPTED_TEXT");
+        public final static Property IsRead = new Property(10, boolean.class, "isRead", false, "IS_READ");
     }
 
     private DaoSession daoSession;
@@ -65,7 +66,8 @@ public class MessageDao extends AbstractDao<Message, Long> {
                 "\"THREAD_ID\" INTEGER," + // 6: threadId
                 "\"NEXT_MESSAGE_ID\" INTEGER," + // 7: nextMessageId
                 "\"PREVIOUS_MESSAGE_ID\" INTEGER," + // 8: previousMessageId
-                "\"ENCRYPTED_TEXT\" TEXT);"); // 9: encryptedText
+                "\"ENCRYPTED_TEXT\" TEXT," + // 9: encryptedText
+                "\"IS_READ\" INTEGER NOT NULL );"); // 10: isRead
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_MESSAGE_ENTITY_ID ON \"MESSAGE\"" +
                 " (\"ENTITY_ID\" ASC);");
@@ -75,6 +77,8 @@ public class MessageDao extends AbstractDao<Message, Long> {
                 " (\"SENDER_ID\" ASC);");
         db.execSQL("CREATE INDEX " + constraint + "IDX_MESSAGE_THREAD_ID ON \"MESSAGE\"" +
                 " (\"THREAD_ID\" ASC);");
+        db.execSQL("CREATE INDEX " + constraint + "IDX_MESSAGE_IS_READ ON \"MESSAGE\"" +
+                " (\"IS_READ\" ASC);");
     }
 
     /** Drops the underlying database table. */
@@ -136,6 +140,7 @@ public class MessageDao extends AbstractDao<Message, Long> {
         if (encryptedText != null) {
             stmt.bindString(10, encryptedText);
         }
+        stmt.bindLong(11, entity.getIsRead() ? 1L: 0L);
     }
 
     @Override
@@ -191,6 +196,7 @@ public class MessageDao extends AbstractDao<Message, Long> {
         if (encryptedText != null) {
             stmt.bindString(10, encryptedText);
         }
+        stmt.bindLong(11, entity.getIsRead() ? 1L: 0L);
     }
 
     @Override
@@ -216,7 +222,8 @@ public class MessageDao extends AbstractDao<Message, Long> {
             cursor.isNull(offset + 6) ? null : cursor.getLong(offset + 6), // threadId
             cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7), // nextMessageId
             cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8), // previousMessageId
-            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9) // encryptedText
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // encryptedText
+            cursor.getShort(offset + 10) != 0 // isRead
         );
         return entity;
     }
@@ -233,6 +240,7 @@ public class MessageDao extends AbstractDao<Message, Long> {
         entity.setNextMessageId(cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7));
         entity.setPreviousMessageId(cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8));
         entity.setEncryptedText(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setIsRead(cursor.getShort(offset + 10) != 0);
      }
     
     @Override

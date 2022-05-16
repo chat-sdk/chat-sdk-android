@@ -57,6 +57,9 @@ public class Message extends AbstractEntity {
     private Long previousMessageId;
     private String encryptedText;
 
+    @Index
+    private boolean isRead;
+
     @ToMany(referencedJoinProperty = "messageId")
     private List<ReadReceiptUserLink> readReceiptLinks;
 
@@ -83,9 +86,9 @@ public class Message extends AbstractEntity {
     @Generated(hash = 859287859)
     private transient MessageDao myDao;
 
-    @Generated(hash = 1026695031)
+    @Generated(hash = 1510725654)
     public Message(Long id, String entityID, Date date, Integer type, Integer status, Long senderId, Long threadId,
-                   Long nextMessageId, Long previousMessageId, String encryptedText) {
+            Long nextMessageId, Long previousMessageId, String encryptedText, boolean isRead) {
         this.id = id;
         this.entityID = entityID;
         this.date = date;
@@ -96,6 +99,7 @@ public class Message extends AbstractEntity {
         this.nextMessageId = nextMessageId;
         this.previousMessageId = previousMessageId;
         this.encryptedText = encryptedText;
+        this.isRead = isRead;
     }
 
     @Generated(hash = 637306882)
@@ -115,19 +119,16 @@ public class Message extends AbstractEntity {
     private transient Long previousMessage__resolvedKey;
 
     public boolean isRead() {
-        if (sender != null && sender.isMe()) {
+        if (getIsRead()) {
             return true;
         } else {
             ReadStatus status = readStatusForUser(ChatSDK.currentUser());
             if (status != null && status.is(ReadStatus.read())) {
+                setIsRead(true);
                 return true;
             }
         }
         return false;
-    }
-
-    public Single<Boolean> isReadAsync() {
-        return MessageAsync.isRead(this);
     }
 
     public void markReadIfNecessary() {
@@ -284,6 +285,15 @@ public class Message extends AbstractEntity {
         ReadReceiptUserLink link = linkForUser(user);
 
         Logger.debug("UPDATE READ RECEIPTS");
+
+        if (!user.isMe()) {
+            if (status.is(ReadStatus.read())) {
+                isRead = true;
+            } else {
+                isRead = false;
+            }
+            update();
+        }
 
         if (link == null || link.getStatus() < status.getValue()) {
             if(link == null) {
@@ -808,6 +818,24 @@ public class Message extends AbstractEntity {
             }
         }
         return false;
+    }
+
+    public boolean getIsRead() {
+        return this.isRead;
+    }
+
+    public void setIsRead(boolean isRead, boolean notify, boolean update) {
+        this.isRead = isRead;
+        if (update) {
+            update();
+        }
+        if (notify) {
+            ChatSDK.events().source().accept(NetworkEvent.messageUpdated(this));
+        }
+    }
+
+    public void setIsRead(boolean isRead) {
+        this.isRead = isRead;
     }
 
 }

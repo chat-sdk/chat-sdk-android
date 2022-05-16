@@ -19,17 +19,19 @@ package com.stfalcon.chatkit.messages;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.core.view.ViewCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Space;
 import android.widget.TextView;
+
+import androidx.core.view.ViewCompat;
 
 import com.stfalcon.chatkit.R;
 
@@ -224,7 +226,9 @@ public class MessageInput extends RelativeLayout
     }
 
     public void init(Context context) {
-        inflate(context, R.layout.view_message_input, this);
+        // Causes some dropped frames... but it's the system
+        LayoutInflater.from(context).inflate(R.layout.view_message_input, this);
+//        inflate(context, R.layout.view_message_input, this);
 
         messageInput = findViewById(R.id.messageInput);
         messageSendButton = findViewById(R.id.messageSendButton);
