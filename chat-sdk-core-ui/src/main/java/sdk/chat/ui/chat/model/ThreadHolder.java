@@ -44,7 +44,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
         creationDate = thread.getCreationDate();
         update();
 
-        dm.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnMain()
                 .filter(NetworkEvent.filterType(
                         EventType.MessageReadReceiptUpdated,
                         EventType.MessageUpdated,
@@ -58,21 +58,21 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                     updateLastMessage();
                 }));
 
-        dm.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
                 .filter(NetworkEvent.filterThreadContainsUser(thread))
                 .subscribe(networkEvent -> {
                     updateDisplayName();
                 }));
 
-        dm.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
                 .filter(NetworkEvent.filterThreadContainsUser(thread))
                 .subscribe(networkEvent -> {
                     updateUserPresence();
                 }));
 
-        dm.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnMain()
                 .filter(NetworkEvent.filterType(
                         EventType.ThreadUserAdded,
                         EventType.ThreadUserRemoved,
@@ -82,7 +82,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                     updateDisplayName();
                 }));
 
-        dm.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.TypingStateUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(getId()))
                 .subscribe(networkEvent -> {
@@ -95,7 +95,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                     isDirty = true;
                 }));
 
-        dm.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(getId()))
                 .subscribe(networkEvent -> {
@@ -105,10 +105,11 @@ public class ThreadHolder implements IDialog<MessageHolder> {
     }
 
     public void update() {
+        updateUsers();
         updateLastMessage();
         updateDisplayName();
-        updateUsers();
         updateUnreadCount();
+        updateUserPresence();
     }
 
     public void updateUserPresence() {

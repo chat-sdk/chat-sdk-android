@@ -87,12 +87,12 @@ public class ChatFragmentKeyboardOverlayHelper {
     }
 
     public void showOverlay(AbstractKeyboardOverlayFragment fragment) {
+        setCurrentOverlay(fragment);
         if (!keyboardAwareView().isKeyboardOpen()) {
             showKeyboardOverlay();
         } else {
             hideKeyboardAndShowKeyboardOverlay();
         }
-        setCurrentOverlay(fragment);
     }
 
     public void toggle() {

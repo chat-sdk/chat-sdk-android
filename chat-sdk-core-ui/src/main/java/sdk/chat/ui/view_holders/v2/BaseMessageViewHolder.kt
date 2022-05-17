@@ -171,19 +171,25 @@ open class BaseMessageViewHolder<T : MessageHolder?>(itemView: View?, payload: A
                 .filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated, EventType.MessageSendStatusUpdated))
                 .filter(NetworkEvent.filterMessageEntityID(t.id))
                 .subscribe {
-                    bindReadStatus(t)
+                    itemView.post {
+                        bindReadStatus(t)
+                    }
                 })
             dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated, EventType.UserMetaUpdated))
                 .filter(NetworkEvent.filterUserEntityID(t.user.id))
                 .subscribe {
-                    bindUser(t)
+                    itemView.post {
+                        bindUser(t)
+                    }
             })
             dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.MessageUpdated))
                 .filter(NetworkEvent.filterMessageEntityID(t.id))
                 .subscribe {
-                    bind(t)
+                    itemView.post {
+                        bind(t)
+                    }
                 })
         }
     }

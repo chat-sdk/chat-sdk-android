@@ -38,7 +38,7 @@
                 app:layout_collapseMode="parallax" />
 
             <!-- As our statusBar is transparent below and content is moved behind our toolbar has to include the padding on top so we use this area -->
-            <android.widget.Toolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
@@ -47,7 +47,7 @@
                 android:titleTextColor="?actionBarTextColor"
                 >
 
-            </android.widget.Toolbar>
+            </androidx.appcompat.widget.Toolbar>
 
             <RelativeLayout
                 android:layout_width="match_parent"

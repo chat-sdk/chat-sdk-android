@@ -25,13 +25,13 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.Toolbar;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.fragment.app.FragmentActivity;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
@@ -55,7 +55,7 @@ import sdk.chat.ui.utils.AlertUtils;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
 
-public abstract class BaseActivity extends FragmentActivity implements Consumer<Throwable>, CompletableObserver {
+public abstract class BaseActivity extends AppCompatActivity implements Consumer<Throwable>, CompletableObserver {
 
     // This is a list of extras that are passed to the login view
 //    protected Map<String, Object> extras = new HashMap<>();
@@ -85,11 +85,9 @@ public abstract class BaseActivity extends FragmentActivity implements Consumer<
             setTheme(UIModule.config().theme);
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-            getWindow().setEnterTransition(new Explode());
-            getWindow().setExitTransition(new Explode());
-        }
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        getWindow().setEnterTransition(new Explode());
+        getWindow().setExitTransition(new Explode());
 
         if (getLayout() != 0) {
             setContentView(getLayout());
@@ -111,7 +109,7 @@ public abstract class BaseActivity extends FragmentActivity implements Consumer<
     protected void initViews() {
         Toolbar toolbar = getToolbar();
         if (toolbar != null) {
-            setActionBar(toolbar);
+            setSupportActionBar(toolbar);
         }
     }
 

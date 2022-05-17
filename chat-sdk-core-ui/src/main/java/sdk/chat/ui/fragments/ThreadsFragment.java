@@ -25,8 +25,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 
 import butterknife.BindView;
+import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Predicate;
@@ -64,7 +67,6 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @BindView(R2.id.root) protected RelativeLayout root;
 
     protected boolean listenersAdded = false;
-    protected boolean didLoadData = false;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -264,7 +266,13 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @Override
     public void onResume() {
         super.onResume();
-        loadData();
+        if (threadHolders.isEmpty()) {
+            dm.add(loadInitialData().subscribe(() -> {
+                addListeners();
+            }));
+        } else {
+            loadData();
+        }
     }
 
     @Override
@@ -328,6 +336,23 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         }
     }
 
+    public Completable loadInitialData() {
+        return Completable.defer((Callable<CompletableSource>) () -> {
+            if (dialogsListAdapter() != null) {
+                return getThreads().map(threads -> {
+                    for (Thread thread : threads) {
+                        addThread(thread, false, false);
+                    }
+                    return threadHolders;
+                }).observeOn(RX.single()).observeOn(RX.main()).doOnSuccess(threadHolders -> {
+                    synchronize(true);
+                }).ignoreElement();
+            } else {
+                return Completable.complete();
+            }
+        });
+    }
+
     public boolean addThread(Thread thread, boolean sort, boolean sync) {
 //        if (!threadHolderExists(thread)) {
 
@@ -385,12 +410,10 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     public void updateThread(final Thread thread) {
         final ThreadHolder holder = ChatSDKUI.provider().holderProvider().getThreadHolder(thread);
-//        final ThreadHolder holder = threadHolderHashMap.get(thread);
         if (holder != null) {
             holder.update();
             synchronize(false);
         }
-
     }
 
     public void sortThreadHolders() {
@@ -404,23 +427,12 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     public ThreadHolder getOrCreateThreadHolder(Thread thread) {
         return ChatSDKUI.provider().holderProvider().getThreadHolder(thread);
-//        ThreadHolder holder = new ThreadHolder(thread);
-//        threadHolderHashMap.put(thread, holder);
-//        return holder;
     }
 
-//    public boolean threadHolderExists(Thread thread) {
-//        return threadHolderHashMap.containsKey(thread);
-//    }
-
     public void removeThread(Thread thread) {
-//        ThreadHolder holder = threadHolderHashMap.get(thread);
         ThreadHolder holder = getOrCreateThreadHolder(thread);
-//        if (holder != null) {
-//            threadHolderHashMap.remove(thread);
-            threadHolders.remove(holder);
-            synchronize(false);
-//        }
+        threadHolders.remove(holder);
+        synchronize(false);
     }
 
     protected abstract Single<List<Thread>> getThreads();

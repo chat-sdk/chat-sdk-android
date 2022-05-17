@@ -13,9 +13,12 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
+
     <application
         android:requestLegacyExternalStorage="true"
         android:hardwareAccelerated="true">
+
+        <meta-data android:name="android.max_aspect" android:value="2.6" />
 
         <activity android:name=".activities.LoginActivity" />
 

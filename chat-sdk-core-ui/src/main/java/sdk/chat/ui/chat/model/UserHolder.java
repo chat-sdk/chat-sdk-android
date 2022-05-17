@@ -23,7 +23,7 @@ public class UserHolder implements IUser {
     public UserHolder(User user) {
         this.user = user;
 
-        dm.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnMain()
                 .filter(NetworkEvent.filterType(
                         EventType.UserPresenceUpdated
                 ))
@@ -32,7 +32,7 @@ public class UserHolder implements IUser {
                     updateIsOnline();
                 }));
 
-        dm.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnMain()
                 .filter(NetworkEvent.filterType(
                         EventType.UserMetaUpdated
                 ))
