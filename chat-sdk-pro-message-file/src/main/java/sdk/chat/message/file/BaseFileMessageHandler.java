@@ -1,11 +1,7 @@
 package sdk.chat.message.file;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.net.Uri;
-import android.webkit.MimeTypeMap;
 
 import com.shockwave.pdfium.PdfDocument;
 import com.shockwave.pdfium.PdfiumCore;
@@ -22,6 +18,7 @@ import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.handlers.FileMessageHandler;
+import sdk.chat.core.manager.MessagePayload;
 import sdk.chat.core.rigs.BitmapUploadable;
 import sdk.chat.core.rigs.FileUploadable;
 import sdk.chat.core.rigs.MessageSendRig;
@@ -73,16 +70,6 @@ public class BaseFileMessageHandler extends AbstractMessageHandler implements Fi
         return rig.run();
     }
 
-    @Override
-    public String textRepresentation(Message message) {
-        return message.stringForKey(Keys.MessageFileURL);
-    }
-
-    @Override
-    public String toString(Message message) {
-        return ChatSDK.getString(R.string.file_message);
-    }
-
     protected Bitmap pdfPreview(File file) throws Exception {
         Context context = ChatSDK.shared().context();
 
@@ -105,7 +92,7 @@ public class BaseFileMessageHandler extends AbstractMessageHandler implements Fi
         return bitmap;
     }
 
-    protected byte[] fileToBytes (File file) throws Exception {
+    protected byte[] fileToBytes(File file) throws Exception {
         int size = (int) file.length();
         byte[] bytes = new byte[size];
         BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
@@ -115,49 +102,13 @@ public class BaseFileMessageHandler extends AbstractMessageHandler implements Fi
     }
 
     @Override
-    public String getImageURL(Message message) {
-        if (message.getMessageType().is(MessageType.File) || message.getReplyType().is(MessageType.File)) {
-            String imageURL = message.getImageURL();
-            if (imageURL != null && !imageURL.isEmpty()) {
-                return imageURL;
-            } else {
-                Context context = ChatSDK.ctx();
-                Resources resources = context.getResources();
-
-                final String mimeType = message.stringForKey(Keys.MessageMimeType);
-                String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
-
-                int resID = context.getResources().getIdentifier("file_type_" + extension, "drawable", context.getPackageName());
-                resID = resID > 0 ? resID : R.drawable.file;
-
-                Uri uri = new Uri.Builder()
-                        .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
-                        .authority(resources.getResourcePackageName(resID))
-                        .appendPath(resources.getResourceTypeName(resID))
-                        .appendPath(resources.getResourceEntryName(resID))
-                        .build();
-
-                return uri.toString();
-            }
-        }
-        return null;
+    public MessagePayload payloadFor(Message message) {
+        return new FileMessagePayload(message);
     }
 
     @Override
-    public List<String> remoteURLs(Message message) {
-        List<String> urls = super.remoteURLs(message);
-        if (!message.typeIs(MessageType.File)) {
-            return urls;
-        }
-        String imageURL = message.stringForKey(Keys.MessageImageURL);
-        if (imageURL != null) {
-            urls.add(imageURL);
-        }
-        String fileURL = message.stringForKey(Keys.MessageFileURL);
-        if (fileURL != null) {
-            urls.add(fileURL);
-        }
-        return urls;
+    public boolean isFor(MessageType type) {
+        return type.equals(MessageType.File);
     }
 
 }

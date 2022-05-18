@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import sdk.chat.core.base.BaseLocationMessageHandler;
 import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;

@@ -2,16 +2,18 @@ package sdk.chat.core.base;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Base64;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
+import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
+import sdk.chat.core.manager.Base64ImageMessagePayload;
+import sdk.chat.core.manager.MessagePayload;
 import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.core.utils.Base64ImageUtils;
 
 public class Base64ImageMessageHandler extends BaseImageMessageHandler {
 
@@ -26,13 +28,8 @@ public class Base64ImageMessageHandler extends BaseImageMessageHandler {
             final Bitmap image = BitmapFactory.decodeFile(imageFile.getPath(), null);
 
             int height = Math.round((float) image.getHeight() * (float) this.width / (float) image.getWidth());
-            Bitmap scaled = Bitmap.createScaledBitmap(image, width, height, false);
 
-            // Convert to JPEG
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            scaled.compress(Bitmap.CompressFormat.JPEG, this.jpegQuality, out);
-
-            String encoded = Base64.encodeToString(out.toByteArray(), Base64.DEFAULT);
+            String encoded = Base64ImageUtils.toBase64(image, width, jpegQuality);
 
             message.setValueForKey(encoded, Keys.MessageImageData);
             message.setValueForKey(this.width, Keys.MessageImageWidth);
@@ -40,6 +37,19 @@ public class Base64ImageMessageHandler extends BaseImageMessageHandler {
 
         });
         return rig.run();
+    }
+
+    @Override
+    public MessagePayload payloadFor(Message message) {
+        if (message.typeIs(MessageType.Image)) {
+            return new Base64ImageMessagePayload(message);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isFor(MessageType type) {
+        return type != null && type.is(MessageType.Base64Image);
     }
 
 }

@@ -290,7 +290,9 @@ public class MessageWrapper  {
                     DatabaseReference ref = FirebasePaths.threadMessagesReadRef(model.getThread().getEntityID(), model.getEntityID()).child(currentUser.getEntityID());
                     RXRealtime realtime = new RXRealtime();
                     Completable completable = realtime.set(ref, map);
-                    realtime.addToReferenceManager();
+
+                    // TODO: Is this needed?
+//                    realtime.addToReferenceManager();
 
                     return completable;
 

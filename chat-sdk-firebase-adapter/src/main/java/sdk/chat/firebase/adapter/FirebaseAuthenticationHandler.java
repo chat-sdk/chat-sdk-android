@@ -140,7 +140,6 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                     }
                     emitter.onComplete();
                 }).ignoreElements().subscribe(ChatSDK.events());
-                realtime.addToReferenceManager();
             } else {
                 emitter.onComplete();
             }

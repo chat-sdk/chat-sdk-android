@@ -7,11 +7,9 @@
     <item name= "android:windowIsTranslucent">true</item>
 
 <!--    Important for keyboard overlay -->
-<!--    <item name="android:windowFullscreen">false</item>-->
+    <item name="android:windowFullscreen">false</item>
 
-<!--         default, shortEdges, or never -->
-<!--    <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o">shortEdges</item>-->
-    <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+    <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryDark</item>
 
     <item name="colorPrimary">@color/primary</item>
     <item name="colorPrimaryDark">@color/primary_dark</item>

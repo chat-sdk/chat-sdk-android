@@ -34,6 +34,7 @@ public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> e
         super.onBind(message);
         if (image != null && imageLoader != null) {
             String url = message.getImageUrl();
+            // TODO:
             imageLoader.loadImage(image, url, getPayloadForImageLoader(message));
         }
 
@@ -55,7 +56,7 @@ public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> e
      * @param message Message with image
      */
     protected Object getPayloadForImageLoader(T message) {
-        return new ImageLoaderPayload(message.placeholder());
+        return new ImageLoaderPayload(message.defaultPlaceholder());
     }
 
 }

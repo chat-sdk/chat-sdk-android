@@ -25,6 +25,7 @@ import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.image.ImageUtils;
+import sdk.chat.core.manager.MessagePayload;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
 import sdk.guru.common.RX;
@@ -111,7 +112,11 @@ public class NotificationBuilder {
     }
 
     public NotificationBuilder addTitleAndTextForMessage(Message message) {
-        String text = ChatSDK.getMessageText(message);
+        MessagePayload payload = ChatSDK.getMessagePayload(message);
+        String text = "";
+        if (payload != null) {
+            text = payload.getText();
+        }
         return setTitle(message.getSender().getName()).setText(text);
     }
 

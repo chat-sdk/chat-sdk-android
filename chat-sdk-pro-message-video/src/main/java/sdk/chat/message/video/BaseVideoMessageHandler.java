@@ -7,7 +7,6 @@ import android.provider.MediaStore;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 import io.reactivex.Completable;
 import sdk.chat.core.base.AbstractMessageHandler;
@@ -16,6 +15,7 @@ import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.handlers.VideoMessageHandler;
 import sdk.chat.core.image.ImageUtils;
+import sdk.chat.core.manager.MessagePayload;
 import sdk.chat.core.rigs.FileUploadable;
 import sdk.chat.core.rigs.JPEGUploadable;
 import sdk.chat.core.rigs.MessageSendRig;
@@ -73,37 +73,14 @@ public class BaseVideoMessageHandler extends AbstractMessageHandler implements V
     }
 
     @Override
-    public String textRepresentation(Message message) {
-        return message.stringForKey(Keys.MessageVideoURL);
+    public MessagePayload payloadFor(Message message) {
+        return new VideoMessagePayload(message);
     }
 
     @Override
-    public String toString(Message message) {
-        return ChatSDK.getString(R.string.video_message);
+    public boolean isFor(MessageType type) {
+        return type != null && type.is(MessageType.Video);
     }
 
-    @Override
-    public String getImageURL(Message message) {
-        if (message.getMessageType().is(MessageType.Video) || message.getReplyType().is(MessageType.Video)) {
-            return message.getImageURL();
-        }
-        return null;
-    }
 
-    @Override
-    public List<String> remoteURLs(Message message) {
-        List<String> urls = super.remoteURLs(message);
-        if (!message.typeIs(MessageType.File)) {
-            return urls;
-        }
-        String imageURL = message.stringForKey(Keys.MessageImageURL);
-        if (imageURL != null) {
-            urls.add(imageURL);
-        }
-        String videoURL = message.stringForKey(Keys.MessageVideoURL);
-        if (videoURL != null) {
-            urls.add(videoURL);
-        }
-        return urls;
-    }
 }

@@ -56,7 +56,7 @@ public class StorageManager {
     }
 
     public List<Thread> fetchThreadsForCurrentUser() {
-        Logger.debug(java.lang.Thread.currentThread().getName());
+//        Logger.debug(java.lang.Thread.currentThread().getName());
 
         List<Thread> threads = new ArrayList<>();
 
@@ -81,7 +81,7 @@ public class StorageManager {
     }
 
     public ReadReceiptUserLink readReceipt(Long messageId, Long userId) {
-        Logger.debug(java.lang.Thread.currentThread().getName());
+        // Logger.debug(java.lang.Thread.currentThread().getName());
 
         QueryBuilder<ReadReceiptUserLink> queryBuilder = daoCore.getDaoSession().queryBuilder(ReadReceiptUserLink.class);
         queryBuilder.where(ReadReceiptUserLinkDao.Properties.UserId.eq(userId)).where(ReadReceiptUserLinkDao.Properties.MessageId.eq(messageId));
@@ -248,7 +248,7 @@ public class StorageManager {
     }
 
     public List<Message> fetchUnreadMessagesForThread(Long threadId) {
-        Logger.debug(java.lang.Thread.currentThread().getName());
+        // Logger.debug(java.lang.Thread.currentThread().getName());
 
         Long currentUserId = ChatSDK.currentUser().getId();
 
@@ -306,7 +306,7 @@ public class StorageManager {
     }
 
     public Thread fetchThreadWithUsers (List<User> users) {
-        Logger.debug(java.lang.Thread.currentThread().getName());
+        // Logger.debug(java.lang.Thread.currentThread().getName());
         Set<User> set = new HashSet<>(users);
         for(Thread t : allThreads()) {
             Set<User> compareTo = new HashSet<>(t.getUsers());
@@ -322,7 +322,7 @@ public class StorageManager {
 //    }
 
     public List<Thread> allThreads() {
-        Logger.debug(java.lang.Thread.currentThread().getName());
+        // Logger.debug(java.lang.Thread.currentThread().getName());
 
         List<UserThreadLink> links =  ChatSDK.db().getDaoCore().fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.UserId, ChatSDK.currentUser().getId());
         ArrayList<Thread> threads = new ArrayList<>();
@@ -339,7 +339,7 @@ public class StorageManager {
 
 
     public List<Message> fetchMessagesForThreadWithID (long threadID, @Nullable Date from, @Nullable Date to, int limit) {
-        Logger.debug(java.lang.Thread.currentThread().getName());
+        // Logger.debug(java.lang.Thread.currentThread().getName());
 
         // If we have a zero date, treat it as null
         if (to != null && to.equals(new Date(0))) {
@@ -379,7 +379,7 @@ public class StorageManager {
     }
 
     public List<Message> fetchMessagesWithFailedDecryption() {
-        Logger.debug(java.lang.Thread.currentThread().getName());
+        // Logger.debug(java.lang.Thread.currentThread().getName());
 
 //        QueryBuilder<Thread> qb = daoSession.queryBuilder(Thread.class);
 //        qb.where(ThreadDao.Properties.UserAccountID.eq(ChatSDK.currentUserID()))

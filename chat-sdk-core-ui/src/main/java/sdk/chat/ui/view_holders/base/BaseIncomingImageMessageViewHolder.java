@@ -58,7 +58,7 @@ public class BaseIncomingImageMessageViewHolder<T extends ImageMessageHolder> ex
      * @param message Message with image
      */
     protected Object getPayloadForImageLoader(T message) {
-        return new ImageLoaderPayload(message.placeholder());
+        return new ImageLoaderPayload(message.defaultPlaceholder());
     }
 
 //    private void init() {

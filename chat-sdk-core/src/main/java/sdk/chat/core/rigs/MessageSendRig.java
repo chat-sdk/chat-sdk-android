@@ -15,7 +15,7 @@ import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.storage.UploadStatus;
+import sdk.chat.core.storage.TransferStatus;
 import sdk.chat.core.types.FileUploadResult;
 import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
@@ -23,8 +23,6 @@ import sdk.chat.core.types.MessageType;
 import sdk.guru.common.RX;
 
 public class MessageSendRig {
-
-    public static String linkedFileKey = "linked-file";
 
     public interface MessageDidUploadUpdateAction {
         void update (Message message, FileUploadResult result);
@@ -71,7 +69,7 @@ public class MessageSendRig {
                     Uploadable uploadable = file.getUploadable();
                     if (uploadable != null) {
                         uploadables.add(uploadable);
-                        file.setUploadStatus(UploadStatus.WillStart);
+                        file.setTransferStatus(TransferStatus.WillStart);
                         file.update();
                     }
                 }
@@ -191,7 +189,7 @@ public class MessageSendRig {
 //                    toUpload.add(item);
 //                }
                 if (!file.completeAndValid()) {
-                    file.setUploadStatus(UploadStatus.WillStart);
+                    file.setTransferStatus(TransferStatus.WillStart);
                     toUpload.add(item);
                 }
             }

@@ -4,6 +4,8 @@ package sdk.chat.core.dao;
 
 // KEEP INCLUDES - put your token includes here
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 
 import androidx.annotation.NonNull;
@@ -29,11 +31,12 @@ import sdk.chat.core.base.AbstractEntity;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.storage.UploadStatus;
+import sdk.chat.core.storage.TransferStatus;
 import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.types.ReadStatus;
+import sdk.chat.core.utils.Base64ImageUtils;
 
 @Entity
 public class Message extends AbstractEntity {
@@ -821,20 +824,20 @@ public class Message extends AbstractEntity {
                 // Check if the task is active...
                 List<CachedFile> files = ChatSDK.uploadManager().getFiles(getEntityID());
                 for (CachedFile file: files) {
-                    UploadStatus fileUploadStatus = file.getUploadStatus();
-                    if (fileUploadStatus == UploadStatus.Complete || fileUploadStatus == UploadStatus.WillStart) {
+                    TransferStatus fileTransferStatus = file.getTransferStatus();
+                    if (fileTransferStatus == TransferStatus.Complete || fileTransferStatus == TransferStatus.WillStart) {
                         file.setFinishTime(new Date());
                         continue;
                     }
-                    else if (fileUploadStatus == UploadStatus.Failed) {
+                    else if (fileTransferStatus == TransferStatus.Failed) {
                         return true;
                     } else {
                         double age = file.ageInSeconds();
                         if (age < 10) {
                             continue;
                         }
-                        UploadStatus us = ChatSDK.upload().uploadStatus(file.getEntityID());
-                        if (us != UploadStatus.InProgress && us != UploadStatus.WillStart) {
+                        TransferStatus us = ChatSDK.upload().uploadStatus(file.getEntityID());
+                        if (us != TransferStatus.InProgress && us != TransferStatus.WillStart) {
                             return true;
                         }
                     }
@@ -883,6 +886,20 @@ public class Message extends AbstractEntity {
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
+    }
+
+    public Bitmap getPlaceholder() {
+        Bitmap bitmap = null;
+        if (getPlaceholderPath() != null) {
+            bitmap = BitmapFactory.decodeFile(getPlaceholderPath());
+        }
+        if (bitmap == null) {
+            String base64 = stringForKey(Keys.MessageImagePreview);
+            if (base64 != null) {
+                bitmap = Base64ImageUtils.fromBase64(base64);
+            }
+        }
+        return bitmap;
     }
 
 }

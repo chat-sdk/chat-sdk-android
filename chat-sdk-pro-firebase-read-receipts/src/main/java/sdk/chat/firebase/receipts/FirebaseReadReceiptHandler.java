@@ -159,7 +159,7 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
                     }
                 }
             }).ignoreElements().subscribe(ChatSDK.events());
-            realtime.addToReferenceManager();
+//            realtime.addToReferenceManager();
 
         }
      }

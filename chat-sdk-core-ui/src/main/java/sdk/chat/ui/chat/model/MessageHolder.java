@@ -16,6 +16,7 @@ import sdk.chat.core.dao.Message;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.manager.MessagePayload;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
@@ -28,6 +29,8 @@ import sdk.guru.common.DisposableMap;
 public class MessageHolder implements IMessage {
 
     public Message message;
+    protected MessagePayload payload;
+
     protected Message nextMessage;
     protected Message previousMessage;
 
@@ -55,6 +58,7 @@ public class MessageHolder implements IMessage {
 
     public MessageHolder(Message message) {
         this.message = message;
+        this.payload = ChatSDK.getMessagePayload(message);
 
         dm.add(ChatSDK.events().prioritySourceOnMain()
                 .filter(NetworkEvent.filterType(EventType.MessageSendStatusUpdated))
@@ -90,8 +94,8 @@ public class MessageHolder implements IMessage {
         updateNextAndPreviousMessages();
         updateReadStatus();
 
-        if (message.isReply()) {
-            quotedImageURL = ChatSDK.getMessageImageURL(message);
+        if (payload.replyPayload() != null) {
+            quotedImageURL = payload.replyPayload().imageURL();
         }
 
         isReply = message.isReply();
@@ -169,11 +173,15 @@ public class MessageHolder implements IMessage {
     public String getText() {
         if (typingText != null) {
             return typingText;
+        } else {
+            return payload.getText();
         }
-        if (isReply()) {
-            return message.getReply();
-        }
-        return message.getText();
+//        else if (message.isReply()) {
+//            return message.getReply();
+//        } else if (payload != null) {
+//            return payload.getText();
+//        }
+//        return null;
     }
 
     @Override
@@ -224,14 +232,15 @@ public class MessageHolder implements IMessage {
     }
 
     public String getQuotedText() {
-        return message.getText();
+        if (payload.replyPayload() != null) {
+            return payload.replyPayload().getText();
+        }
+        return null;
+//        return message.getText();
     }
 
     public String getQuotedImageUrl() {
-        if (isReply()) {
-            return quotedImageURL;
-        }
-        return null;
+        return quotedImageURL;
     }
 
     public boolean showNames() {

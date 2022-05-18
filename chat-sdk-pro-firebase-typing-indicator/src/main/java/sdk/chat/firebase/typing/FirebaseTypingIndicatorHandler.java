@@ -58,7 +58,7 @@ public class FirebaseTypingIndicatorHandler implements TypingIndicatorHandler {
                 ChatSDK.events().source().accept(networkEvent);
 
             }).ignoreElements().subscribe(ChatSDK.events());
-            realtime.addToReferenceManager();
+//            realtime.addToReferenceManager();
         }
 
     }

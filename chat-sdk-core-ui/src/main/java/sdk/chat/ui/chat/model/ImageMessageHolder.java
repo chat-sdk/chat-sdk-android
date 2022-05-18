@@ -1,6 +1,8 @@
 package sdk.chat.ui.chat.model;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import androidx.annotation.Nullable;
 
@@ -20,21 +22,10 @@ public class ImageMessageHolder extends MessageHolder implements MessageContentT
         super(message);
     }
 
-    @Override
-    public String getText() {
-        if (message.getMessageType().is(MessageType.Image)) {
-            return ChatSDK.imageMessage().toString(message);
-        }
-        if (message.getMessageType().is(MessageType.Location)) {
-            return ChatSDK.locationMessage().toString(message);
-        }
-        return super.getText();
-    }
-
     @Nullable
     public String getImageUrl() {
-        if (message.getMessageType().is(MessageType.Image, MessageType.Location, MessageType.Video)) {
-            return message.getImageURL();
+        if (payload != null) {
+            return payload.imageURL();
         }
         return null;
     }
@@ -55,7 +46,21 @@ public class ImageMessageHolder extends MessageHolder implements MessageContentT
         return null;
     }
 
-    public int placeholder() {
+    @Nullable
+    public Bitmap placeholder() {
+        Bitmap bitmap = message.getPlaceholder();
+        if (bitmap == null) {
+            bitmap = BitmapFactory.decodeResource(ChatSDK.ctx().getResources(), R.drawable.icn_200_location_message_placeholder);
+        }
+//
+//        if (message.typeIs(MessageType.Location)) {
+//            return R.drawable.icn_200_location_message_placeholder;
+//        }
+//        return R.drawable.icn_200_image_message_placeholder;
+        return bitmap;
+    }
+
+    public int defaultPlaceholder() {
         if (message.typeIs(MessageType.Location)) {
             return R.drawable.icn_200_location_message_placeholder;
         }
@@ -71,4 +76,5 @@ public class ImageMessageHolder extends MessageHolder implements MessageContentT
     public Single<String> save(Context context) {
         return ChatSDKUI.provider().saveProvider().saveImage(context, getImageUrl());
     }
+
 }

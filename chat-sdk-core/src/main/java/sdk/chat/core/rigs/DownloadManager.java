@@ -14,12 +14,17 @@ import com.androidnetworking.interfaces.DownloadListener;
 import com.androidnetworking.interfaces.DownloadProgressListener;
 
 import java.io.File;
+import java.util.List;
 import java.util.UUID;
 
+import io.reactivex.Single;
+import sdk.chat.core.dao.CachedFile;
+import sdk.chat.core.dao.Message;
 import sdk.chat.core.storage.FileManager;
+import sdk.chat.core.storage.TransferManager;
 
 
-public class DownloadManager {
+public class DownloadManager extends TransferManager {
 
     protected Context context;
     protected FileManager fileManager;
@@ -60,4 +65,35 @@ public class DownloadManager {
         manager.enqueue(request);
 
     }
+
+    public Single<CachedFile> download(Message message, String remoteURL) {
+        return Single.create(emitter -> {
+            List<CachedFile> cachedFiles = getFiles(message.getEntityID());
+            CachedFile cf = null;
+            for (CachedFile file: cachedFiles) {
+                if (file.getRemotePath() != null && file.getRemotePath().equals(remoteURL)) {
+                    cf = file;
+                    break;
+                }
+            }
+            // This is our file
+            if (cf == null) {
+
+
+//                AndroidNetworking.download(url, toDir.getPath(), name)
+//                        .setTag(token)
+//                        .setPriority(Priority.MEDIUM)
+//                        .build()
+//                        .setDownloadProgressListener(progressListener)
+//                        .startDownload(completion);
+
+            }
+
+
+            emitter.onSuccess(cf);
+
+
+        });
+    }
+
 }

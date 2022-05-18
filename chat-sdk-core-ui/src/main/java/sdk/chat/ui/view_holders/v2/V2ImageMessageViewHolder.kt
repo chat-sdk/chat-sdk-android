@@ -11,12 +11,22 @@ import sdk.chat.ui.utils.ImageLoaderPayload
 
 class V2ImageMessageViewHolder(itemView: View?, payload: Any?): BaseMessageViewHolder<ImageMessageHolder>(itemView, payload) {
 
-    var image: ImageView? = null
-    var imageOverlayContainer: LinearLayout? = null
+    var image: ImageView? = itemView?.findViewById(R.id.image)
+    var imageOverlayContainer: LinearLayout? = itemView?.findViewById(R.id.imageOverlayContainer)
 
     override fun onBind(holder: ImageMessageHolder) {
         super.onBind(holder)
+
+        // Check to see if we have a placeholder
+        val placeholder = holder.placeholder()
+        if (placeholder != null) {
+            image?.setImageBitmap(placeholder)
+        } else {
+
+        }
+
         if (image != null && imageLoader != null) {
+            // TODO:
             imageLoader.loadImage(image, holder.imageUrl, getPayloadForImageLoader(holder))
         }
 
@@ -37,11 +47,11 @@ class V2ImageMessageViewHolder(itemView: View?, payload: Any?): BaseMessageViewH
 //        UIModule.shared().timeBinder.bind(time, holder)
     }
 
-    override fun bindViews() {
-        super.bindViews()
-        image = itemView.findViewById(R.id.image)
-        imageOverlayContainer = itemView.findViewById(R.id.imageOverlayContainer)
-    }
+//    override fun bindViews() {
+//        super.bindViews()
+//        image = itemView.findViewById(R.id.image)
+//        imageOverlayContainer = itemView.findViewById(R.id.imageOverlayContainer)
+//    }
 
     /**
      * Override this method to have ability to pass custom data in ImageLoader for loading image(not avatar).
@@ -49,7 +59,7 @@ class V2ImageMessageViewHolder(itemView: View?, payload: Any?): BaseMessageViewH
      * @param message Message with image
      */
     fun getPayloadForImageLoader(message: ImageMessageHolder): Any? {
-        return ImageLoaderPayload(message.placeholder())
+        return ImageLoaderPayload(message.defaultPlaceholder())
     }
 
 }

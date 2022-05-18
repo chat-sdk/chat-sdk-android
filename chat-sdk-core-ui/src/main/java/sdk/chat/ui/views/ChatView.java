@@ -104,6 +104,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         final MessageHolders holders = new MessageHolders();
         ChatSDKUI.shared().getMessageRegistrationManager().onBindMessageHolders(getContext(), holders);
 
+
         messagesListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, (imageView, url, payload) -> {
 
             ImageLoaderPayload ilp;

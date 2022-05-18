@@ -1,14 +1,13 @@
 package sdk.chat.core.storage;
 
 import java.util.Date;
-import java.util.List;
 
 import sdk.chat.core.dao.CachedFile;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.rigs.Uploadable;
 import sdk.chat.core.session.ChatSDK;
 
-public class UploadManager {
+public class UploadManager extends TransferManager {
 
     public CachedFile add(Uploadable uploadable, Message message) {
         // See if this uploadable already exists
@@ -20,7 +19,7 @@ public class UploadManager {
             file.setIdentifier(message.getEntityID());
             file.setMimeType(uploadable.mimeType);
             file.setName(uploadable.name);
-            file.setUploadStatus(UploadStatus.WillStart);
+            file.setTransferStatus(TransferStatus.WillStart);
             file.setFileType(CachedFile.Type.Upload);
             file.setMessageKey(uploadable.messageKey);
             file.setReportProgress(uploadable.reportProgress);
@@ -31,22 +30,14 @@ public class UploadManager {
         return null;
     }
 
-    public CachedFile getFile(String hash) {
-        return ChatSDK.db().fetchEntityWithEntityID(hash, CachedFile.class);
-    }
-
-    public boolean setStatus(String hash, UploadStatus status) {
+    public boolean setStatus(String hash, TransferStatus status) {
         CachedFile file = getFile(hash);
         if (file != null) {
-            file.setUploadStatus(status);
+            file.setTransferStatus(status);
             file.update();
             return true;
         }
         return false;
-    }
-
-    public List<CachedFile> getFiles(String identifier) {
-        return ChatSDK.db().fetchFilesWithIdentifier(identifier);
     }
 
 }

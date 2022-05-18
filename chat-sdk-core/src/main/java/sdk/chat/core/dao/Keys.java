@@ -66,6 +66,7 @@ public class Keys {
     public static final String MessageMimeType = "mime-type";
     public static final String MessageFileURL = "file-url";
     public static final String MessageEncryptedPayloadKey = "encrypted-message";
+    public static final String MessageImagePreview = "image-preview";
 
     // CoreUser details
     public static final String Location = "location";

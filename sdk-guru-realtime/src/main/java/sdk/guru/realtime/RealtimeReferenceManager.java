@@ -4,11 +4,13 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
+import org.pmw.tinylog.Logger;
+
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by benjaminsmiley-andrews on 18/05/2017.
@@ -43,7 +45,7 @@ public class RealtimeReferenceManager {
     }
 
     protected static RealtimeReferenceManager instance;
-    protected Map<String, List<Value>> references = new HashMap<>();
+    protected Map<String, List<Value>> references = new ConcurrentHashMap<>();
 
     public static RealtimeReferenceManager shared() {
         if (instance == null) {
@@ -53,24 +55,31 @@ public class RealtimeReferenceManager {
     }
 
     public void addRef(Query ref, ChildEventListener l) {
-        listForRef(ref).add(new Value(ref, l));
+        if (ref != null) {
+            listForRef(ref).add(new Value(ref, l));
+        }
     }
 
     public void addRef(Query ref, ValueEventListener l) {
-        listForRef(ref).add(new Value(ref, l));
+        if (ref != null) {
+            listForRef(ref).add(new Value(ref, l));
+        }
     }
 
     protected List<Value> listForRef(Query ref) {
         List<Value> list = references.get(ref.getRef().toString());
         if (list == null) {
-            list = new ArrayList<>();
+            list = new Vector<>();
             references.put(ref.getRef().toString(), list);
         }
         return list;
     }
 
     public boolean isOn(Query ref) {
-        return references.containsKey(ref.getRef().toString());
+        if (ref != null) {
+            return references.containsKey(ref.getRef().toString());
+        }
+        return false;
     }
 
     public void removeListeners (Query ref) {

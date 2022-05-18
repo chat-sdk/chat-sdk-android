@@ -4,9 +4,8 @@ import com.stfalcon.chatkit.commons.models.MessageContentType;
 
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.core.utils.CurrentLocale;
+import sdk.chat.ui.chat.model.MessageHolder;
 
 public class AudioMessageHolder extends MessageHolder implements MessageContentType {
 
@@ -16,11 +15,6 @@ public class AudioMessageHolder extends MessageHolder implements MessageContentT
 
     public String audioURL() {
         return message.stringForKey(Keys.MessageAudioURL);
-    }
-
-    @Override
-    public String getText() {
-        return ChatSDK.audioMessage().toString(message);
     }
 
     public String getTotalTime() {

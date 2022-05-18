@@ -1,13 +1,14 @@
-package sdk.chat.core.base;
+package sdk.chat.message.location;
 
 import android.location.Location;
 
 import io.reactivex.Completable;
-import sdk.chat.core.R;
+import sdk.chat.core.base.AbstractMessageHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.handlers.LocationMessageHandler;
+import sdk.chat.core.manager.MessagePayload;
 import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
@@ -36,21 +37,13 @@ public class BaseLocationMessageHandler extends AbstractMessageHandler implement
     }
 
     @Override
-    public String textRepresentation(Message message) {
-        return String.format(ChatSDK.config().locationURLRepresentation, message.doubleForKey(Keys.MessageLatitude), message.doubleForKey(Keys.MessageLongitude));
+    public MessagePayload payloadFor(Message message) {
+        return new LocationMessagePayload(message);
     }
 
     @Override
-    public String toString(Message message) {
-        return ChatSDK.getString(R.string.location_message);
-    }
-
-    @Override
-    public String getImageURL(Message message) {
-        if (message.getMessageType().is(MessageType.Location) || message.getReplyType().is(MessageType.Location)) {
-            return message.getImageURL();
-        }
-        return null;
+    public boolean isFor(MessageType type) {
+        return type != null && type.is(MessageType.Location);
     }
 
 }

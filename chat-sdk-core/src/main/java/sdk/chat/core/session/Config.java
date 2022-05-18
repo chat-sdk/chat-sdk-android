@@ -623,4 +623,22 @@ public class Config<T> extends BaseConfig<T> {
         return this;
     }
 
+    public boolean sendBase64ImagePreview = true;
+    public Config<T> setSendBase64ImagePreview(boolean value) {
+        this.sendBase64ImagePreview = value;
+        return this;
+    }
+
+    public int imagePreviewMaxSize = 80;
+    public Config<T> setImagePreviewMaxSize(int value) {
+        this.imagePreviewMaxSize = value;
+        return this;
+    }
+
+    public int imagePreviewQuality = 100;
+    public Config<T> setImagePreviewQuality(int value) {
+        this.imagePreviewQuality = value;
+        return this;
+    }
+
 }

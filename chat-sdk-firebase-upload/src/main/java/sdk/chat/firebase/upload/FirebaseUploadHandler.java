@@ -17,7 +17,7 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import sdk.chat.core.base.AbstractUploadHandler;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.storage.UploadStatus;
+import sdk.chat.core.storage.TransferStatus;
 import sdk.chat.core.types.FileUploadResult;
 import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.chat.firebase.adapter.FirebaseCoreHandler;
@@ -78,7 +78,7 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
 
             uploadTask.addOnProgressListener(taskSnapshot -> {
                 result.progress.set(taskSnapshot.getTotalByteCount(), taskSnapshot.getBytesTransferred());
-                result.status = UploadStatus.InProgress;
+                result.status = TransferStatus.InProgress;
 
                 double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                 Logger.debug("Progress: " + progress);
@@ -90,7 +90,7 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
                     result.mimeType = mimeType;
                     result.url = uri.toString();
                     result.progress.set(taskSnapshot.getTotalByteCount(), taskSnapshot.getTotalByteCount());
-                    result.status = UploadStatus.Complete;
+                    result.status = TransferStatus.Complete;
 
                     e.onNext(result);
 
@@ -100,14 +100,14 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
 
             }).addOnFailureListener(err -> {
                 //
-                result.status = UploadStatus.Failed;
+                result.status = TransferStatus.Failed;
                 e.onNext(result);
 
                 removeTask(uploadTask);
 
                 e.onError(err);
             }).addOnCanceledListener(() -> {
-                result.status = UploadStatus.Failed;
+                result.status = TransferStatus.Failed;
                 e.onNext(result);
                 removeTask(uploadTask);
                 e.onError(new Exception("Upload Failed"));
@@ -153,20 +153,20 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
         tasks.clear();
     }
 
-    public UploadStatus uploadStatus(String identifier) {
+    public TransferStatus uploadStatus(String identifier) {
         UploadTask task = taskMap.get(identifier);
         if (task != null) {
             if (task.isInProgress()) {
-                return UploadStatus.InProgress;
+                return TransferStatus.InProgress;
             }
             if (task.isComplete()) {
-                return UploadStatus.Complete;
+                return TransferStatus.Complete;
             }
             if (task.isCanceled()) {
-                return UploadStatus.Failed;
+                return TransferStatus.Failed;
             }
         }
-        return UploadStatus.None;
+        return TransferStatus.None;
     }
 
     public static FirebaseStorage storage () {

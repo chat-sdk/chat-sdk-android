@@ -45,10 +45,17 @@ public class SplashScreenActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        startNextActivity();
+        if (ChatSDK.shared().isActive()) {
+            startNextActivity();
+        } else {
+            ChatSDK.shared().addOnActivateListener(() -> {
+                startNextActivity();
+            });
+        }
     }
 
     protected void startNextActivity() {
+
         stopProgressBar();
         if (ChatSDK.auth() != null) {
             if (ChatSDK.auth().isAuthenticatedThisSession()) {

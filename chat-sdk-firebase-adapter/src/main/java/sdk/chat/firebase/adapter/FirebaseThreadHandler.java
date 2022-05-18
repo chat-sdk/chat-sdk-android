@@ -15,6 +15,7 @@ import io.reactivex.CompletableObserver;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import sdk.chat.core.base.AbstractThreadHandler;
+import sdk.chat.core.dao.CachedFile;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -278,10 +279,23 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return Completable.defer(() -> {
             if (message.getSender().isMe() && message.getMessageStatus().equals(MessageSendStatus.Sent) && !message.getMessageType().is(MessageType.System)) {
                 // If possible delete the files associated with this message
-                List<String> paths = ChatSDK.getRemoteFilePaths(message);
-                for (String path: paths) {
-                    ChatSDK.upload().deleteFile(path).subscribe();
+
+                List<CachedFile> files = ChatSDK.db().fetchFilesWithIdentifier(message.getEntityID());
+                for (CachedFile file: files) {
+                    if (file.getRemotePath() != null) {
+                        ChatSDK.upload().deleteFile(file.getRemotePath()).subscribe();
+                    }
+                    ChatSDK.db().delete(file);
                 }
+
+                // TODO: Can we do this with cached files?
+//                MessagePayload payload = ChatSDK.getMessagePayload(message);
+//                if (payload != null) {
+//                    List<String> paths = payload.remoteURLs();
+//                    for (String path: paths) {
+//                        ChatSDK.upload().deleteFile(path).subscribe();
+//                    }
+//                }
 
                 return FirebaseModule.config().provider.messageWrapper(message).delete();
             }

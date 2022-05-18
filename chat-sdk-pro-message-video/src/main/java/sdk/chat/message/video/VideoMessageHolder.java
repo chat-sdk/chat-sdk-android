@@ -11,21 +11,20 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
 
 public class VideoMessageHolder extends ImageMessageHolder implements MessageContentType {
+
     public VideoMessageHolder(Message message) {
         super(message);
     }
 
     public String getImageUrl() {
-        return ChatSDK.videoMessage().getImageURL(message);
+        if (payload != null) {
+            return payload.imageURL();
+        }
+        return null;
     }
 
     public String getVideoURL() {
         return (String) message.valueForKey(Keys.MessageVideoURL);
-    }
-
-    @Override
-    public String getText() {
-        return ChatSDK.videoMessage().toString(message);
     }
 
     @Override

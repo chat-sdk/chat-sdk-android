@@ -47,8 +47,8 @@ public class RXRealtime implements Action, Consumer<Throwable> {
     }
 
     public Observable<DocumentChange> on(Query ref) {
+        this.ref = ref;
         return Observable.create((ObservableOnSubscribe<DocumentChange>) emitter -> {
-            RXRealtime.this.ref = ref;
             valueListener = ref.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -68,6 +68,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
                     }
                 }
             });
+            addToReferenceManager();
         }).doOnDispose(this).subscribeOn(RX.io()).observeOn(RX.db());
     }
 
@@ -94,6 +95,7 @@ public class RXRealtime implements Action, Consumer<Throwable> {
                     errorListener.onError(ref, error);
                 }
             }));
+            addToReferenceManager();
         }).doOnDispose(this).subscribeOn(RX.io()).observeOn(RX.db());
     }
 

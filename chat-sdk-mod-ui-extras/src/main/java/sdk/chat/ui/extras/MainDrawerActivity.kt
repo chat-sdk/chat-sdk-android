@@ -109,7 +109,7 @@ open class MainDrawerActivity : MainActivity() {
         })
 
         // Handle Toolbar
-        setActionBar(toolbar)
+        setSupportActionBar(toolbar)
         actionBar?.setDisplayHomeAsUpEnabled(true)
         actionBar?.setHomeButtonEnabled(true)
 

@@ -14,6 +14,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Completable;
 import io.reactivex.plugins.RxJavaPlugins;
 import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.chat.core.dao.Message;
@@ -49,6 +50,8 @@ import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.interfaces.IKeyStorage;
 import sdk.chat.core.interfaces.InterfaceAdapter;
 import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.manager.MessagePayload;
+import sdk.chat.core.manager.TextMessagePayload;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.notifications.NotificationDisplayHandler;
 import sdk.chat.core.push.BroadcastHandler;
@@ -57,10 +60,10 @@ import sdk.chat.core.rigs.DownloadManager;
 import sdk.chat.core.rigs.MessageSender;
 import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.storage.UploadManager;
+import sdk.chat.core.types.MessageType;
 import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.chat.core.utils.ConnectionStateMonitor;
 import sdk.chat.core.utils.KeyStorage;
-import sdk.chat.core.utils.StringChecker;
 import sdk.guru.common.RX;
 
 
@@ -146,8 +149,20 @@ public class ChatSDK {
         activate(context, "Email:" + email);
     }
 
+    public Completable activateWithEmailAsync(Context context, @Nullable String email) {
+        return activateAsync(context, "Email:" + email);
+    }
+
+
     public void activateWithGithubSponsors(Context context, @Nullable String githubSponsorsId) throws Exception {
         activate(context, "Github:" + githubSponsorsId);
+    }
+
+    public Completable activateAsync(Context context, @Nullable String identifier) {
+        return Completable.create(emitter -> {
+            activate(context, identifier);
+            emitter.onComplete();
+        }).subscribeOn(RX.computation());
     }
 
     public void activate(Context context, @Nullable String identifier) throws Exception {
@@ -462,43 +477,16 @@ public class ChatSDK {
         return shared().storageManager;
     }
 
-    public static String getMessageImageURL(Message message) {
-        String imageURL = message.getImageURL();
-
-        if(StringChecker.isNullOrEmpty(imageURL)) {
-            for (MessageHandler handler: getMessageHandlers()) {
-                imageURL = handler.getImageURL(message);
-                if (imageURL != null) {
-                    break;
-                }
-            }
-        }
-        return imageURL;
-    }
-
-    public static String getMessageText(Message message) {
-        String text = message.isReply() ? message.getReply() : message.getText();
-
-        if(StringChecker.isNullOrEmpty(text)) {
-            for (MessageHandler handler: getMessageHandlers()) {
-                text = handler.toString(message);
-                if (!StringChecker.isNullOrEmpty(text)) {
-                    break;
-                }
-            }
-        }
-        return text;
-    }
-
-    public static List<String> getRemoteFilePaths(Message message) {
-        List<String> paths = new ArrayList<>();
-
-        for (MessageHandler handler: getMessageHandlers()) {
-            paths.addAll(handler.remoteURLs(message));
-        }
-
-        return paths;
-    }
+//    @Deprecated
+//    public static String getMessageImageURL(Message message) {
+//        return messageHandlerManager().getMessageImageURL(message);
+//
+//    }
+//
+//    @Deprecated
+//    public static String getMessageText(Message message) {
+//        return messageHandlerManager().getMessageText(message);
+//    }
 
     public static List<MessageHandler> getMessageHandlers() {
         List<MessageHandler> handlers = new ArrayList<>();
@@ -508,6 +496,47 @@ public class ChatSDK {
             }
         }
         return handlers;
+    }
+
+    public static MessageHandler getMessageHandler(MessageType type) {
+        for (MessageHandler handler: getMessageHandlers()) {
+            if (handler.isFor(type)) {
+                return handler;
+            }
+        }
+        return null;
+    }
+//    @Deprecated
+//    public static List<String> getRemoteFilePaths(Message message) {
+//        return messageHandlerManager().getRemoteFilePaths(message);
+//    }
+
+    public static MessagePayload getMessagePayload(Message message) {
+
+        if (message.typeIs(MessageType.Text)) {
+
+            // Is this a reply?
+            MessagePayload reply = null;
+            if (message.isReply()) {
+                MessageType replyType = message.getReplyType();
+                if (replyType != null && replyType.is(MessageType.Text)) {
+                    reply = new TextMessagePayload(message);
+                } else {
+                    MessageHandler handler = getMessageHandler(message.getReplyType());
+                    if (handler != null) {
+                        reply = handler.payloadFor(message);
+                    }
+                }
+            }
+
+            return new TextMessagePayload(message, reply);
+        } else {
+            MessageHandler handler = getMessageHandler(message.getMessageType());
+            if (handler != null) {
+                return handler.payloadFor(message);
+            }
+        }
+        return null;
     }
 
     public List<String> getRequiredPermissions() {

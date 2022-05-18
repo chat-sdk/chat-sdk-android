@@ -1,7 +1,6 @@
 package sdk.chat;
 
 import android.app.Application;
-import android.os.StrictMode;
 
 import com.thedeanda.lorem.Lorem;
 import com.thedeanda.lorem.LoremIpsum;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Completable;
-import io.reactivex.disposables.Disposable;
 import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
@@ -149,12 +147,12 @@ public class MainApplication extends Application {
             username = "4@d.co";
         }
 
-        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                .detectDiskReads()
-                .detectDiskWrites()
-                .detectNetwork()
-                .penaltyLog()
-                .build());
+//        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+//                .detectDiskReads()
+//                .detectDiskWrites()
+//                .detectNetwork()
+//                .penaltyLog()
+//                .build());
 
 //        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
 //                .detectAll()
@@ -223,19 +221,6 @@ public class MainApplication extends Application {
 
         ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2TextMessageRegistration());
         ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2ImageMessageRegistration());
-
-//        ChatSDK.shared()
-        //
-        // User, Thread, Message
-        Disposable d = ChatSDK.events().sourceOnMain()
-                .subscribe(networkEvent -> {
-                    networkEvent.debug();
-        });
-        d.dispose();
-
-        ChatSDK.hook().addHook(Hook.sync(data -> {
-
-        }), HookEvent.ContactWasAdded);
 
 
     }

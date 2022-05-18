@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 import sdk.chat.core.base.AbstractEntity;
 import sdk.chat.core.rigs.FileUploadable;
 import sdk.chat.core.rigs.Uploadable;
-import sdk.chat.core.storage.UploadStatus;
+import sdk.chat.core.storage.TransferStatus;
 
 @Entity(active = true)
 public class CachedFile extends AbstractEntity {
@@ -161,19 +161,19 @@ public class CachedFile extends AbstractEntity {
         return entityID;
     }
 
-    public void setUploadStatus(UploadStatus status) {
+    public void setTransferStatus(TransferStatus status) {
         this.setStatus(status.ordinal());
     }
 
-    public UploadStatus getUploadStatus() {
+    public TransferStatus getTransferStatus() {
         if (getStatus() != null) {
-            return UploadStatus.values()[getStatus()];
+            return TransferStatus.values()[getStatus()];
         }
-        return UploadStatus.None;
+        return TransferStatus.None;
     }
 
     public boolean completeAndValid() {
-        return getUploadStatus() == UploadStatus.Complete && getRemotePath() != null && !getRemotePath().isEmpty();
+        return getTransferStatus() == TransferStatus.Complete && getRemotePath() != null && !getRemotePath().isEmpty();
     }
 
     public void setFileType(Type type) {
@@ -242,5 +242,6 @@ public class CachedFile extends AbstractEntity {
         long age = new Date().getTime() - getFinishTime().getTime();
         return TimeUnit.MILLISECONDS.toSeconds(age);
     }
+
 
 }

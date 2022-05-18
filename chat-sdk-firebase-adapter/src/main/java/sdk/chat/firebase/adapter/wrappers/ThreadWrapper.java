@@ -104,6 +104,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
     }
 
     public void updateListenersForPermissions() {
+        Logger.debug("updateListeners for thread: " + model.getEntityID());
         if (ChatSDK.thread().roleForUser(model, ChatSDK.currentUser()).equals(Permission.Banned)) {
             metaOff();
             messagesOff();
@@ -131,9 +132,9 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
     protected void messageRemovedOn() {
         RXRealtime realtime = new RXRealtime(this);
 
-        Query query = FirebasePaths.threadMessagesRef(model.getEntityID());
+        Query query = messagesRef();
 
-        if (!RealtimeReferenceManager.shared().isOn(query)) {
+//        if (!RealtimeReferenceManager.shared().isOn(query)) {
 
             if (ChatSDK.config().messageDeletionListenerLimit < 0) {
                 model.setCanDeleteMessagesFrom(new Date(0));
@@ -172,10 +173,11 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                         removeMessage(message);
                     }
                 }
-            }).ignoreElements().subscribe(ChatSDK.events());
-
-            realtime.addToReferenceManager();
-        }
+            }).ignoreElements().doOnComplete(() -> {
+                Logger.debug("Wrapper isOn: " + RealtimeReferenceManager.shared().isOn(messagesRef()));
+                Logger.debug("");
+            }).subscribe(ChatSDK.events());
+//        }
     }
 
     public void messagesOn() {
@@ -199,9 +201,9 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
      * @return*/
     protected void messagesAddedOn() {
 
-        if (RealtimeReferenceManager.shared().isOn(messagesRef())) {
-            return;
-        }
+//        if (RealtimeReferenceManager.shared().isOn(messagesRef())) {
+//            return;
+//        }
 
         // Disable local notifications during setup
         boolean localPushEnabled = ChatSDK.config().showLocalNotifications;
@@ -242,10 +244,10 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
             return loadMessages.observeOn(RX.db()).andThen(Completable.defer(() -> {
 
-                if (RealtimeReferenceManager.shared().isOn(messagesRef())) {
-                    Logger.warn("Messages ref already on");
-                    return Completable.complete();
-                }
+//                if (RealtimeReferenceManager.shared().isOn(messagesRef())) {
+//                    Logger.warn("Messages ref already on " + messagesRef());
+//                    return Completable.complete();
+//                }
 
                 Query query = messagesRef();
 
@@ -301,7 +303,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                     Logger.debug(throwable);
                 }).ignoreElements().subscribe(ChatSDK.events());
 
-                realtime.addToReferenceManager();
+//                realtime.addToReferenceManager();
 
                 return Completable.complete();
             }).subscribeOn(RX.db()));
@@ -340,7 +342,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                     emitter.onComplete();
                 }).ignoreElements().subscribe(ChatSDK.events());
 
-                realtime.addToReferenceManager();
+//                realtime.addToReferenceManager();
             }
         }).subscribeOn(RX.io());
     }
@@ -466,7 +468,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 //                return Completable.complete();
 //            }).subscribe(ChatSDK.events());
 
-            realtime.addToReferenceManager();
+//            realtime.addToReferenceManager();
         }
     }
 
@@ -712,7 +714,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                 return model;
             }).ignoreElements().subscribe(ChatSDK.events());
 
-            realtime.addToReferenceManager();
+//            realtime.addToReferenceManager();
         }
     }
 
@@ -745,7 +747,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
             return permission;
         });
 
-        realtime.addToReferenceManager();
+//        realtime.addToReferenceManager();
 
         return observable;
 

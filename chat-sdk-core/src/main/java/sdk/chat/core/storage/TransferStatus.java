@@ -1,6 +1,6 @@
 package sdk.chat.core.storage;
 
-public enum UploadStatus {
+public enum TransferStatus {
     None,
     WillStart,
     InProgress,
