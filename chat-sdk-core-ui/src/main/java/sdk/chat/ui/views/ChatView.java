@@ -2,7 +2,6 @@ package sdk.chat.ui.views;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -12,9 +11,6 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestBuilder;
-import com.bumptech.glide.RequestManager;
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessageWrapper;
 import com.stfalcon.chatkit.messages.MessagesList;
@@ -40,8 +36,8 @@ import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.Progress;
 import sdk.chat.core.utils.CurrentLocale;
-import sdk.chat.core.utils.Dimen;
 import sdk.chat.core.utils.TimeLog;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
@@ -49,7 +45,7 @@ import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.performance.MessageHoldersDiffCallback;
-import sdk.chat.ui.utils.ImageLoaderPayload;
+import sdk.chat.ui.utils.ToastHelper;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
 
@@ -76,6 +72,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     protected final PrettyTime prettyTime = new PrettyTime(CurrentLocale.get());
 
     protected Delegate delegate;
+    protected boolean loadMoreEnabled = true;
 
     public ChatView(Context context) {
         super(context);
@@ -105,67 +102,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         ChatSDKUI.shared().getMessageRegistrationManager().onBindMessageHolders(getContext(), holders);
 
 
-        messagesListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, (imageView, url, payload) -> {
-
-            ImageLoaderPayload ilp;
-            if (payload instanceof ImageLoaderPayload) {
-                ilp = (ImageLoaderPayload) payload;
-            } else {
-                ilp = new ImageLoaderPayload();
-            }
-
-            if (ilp.ar > 0) {
-                ilp.width = maxImageWidth();
-                ilp.height = Math.round(ilp.width / ilp.ar);
-            } else {
-                ilp.width = Math.max(ilp.width, maxImageWidth());
-                ilp.height = Math.max(ilp.height, maxImageWidth());
-            }
-
-            if (ilp.placeholder == 0) {
-                ilp.placeholder = R.drawable.icn_200_image_message_placeholder;
-            }
-            if (ilp.error == 0) {
-                ilp.error = R.drawable.icn_200_image_message_placeholder;
-//                ilp.error = R.drawable.icn_200_image_message_loading;
-            }
-
-            if (url == null) {
-                Logger.debug("Stop here");
-                return;
-            }
-
-            RequestManager request = Glide.with(this);
-            RequestBuilder<?> builder;
-            if (ilp.isAnimated) {
-                builder = request.asGif();
-            } else {
-                builder = request.asDrawable().dontAnimate();
-            }
-
-            if (payload == null) {
-                // User avatar
-                builder.load(url)
-                        .placeholder(R.drawable.icn_100_profile)
-                        .override(Dimen.from(getContext(), R.dimen.small_avatar_width), Dimen.from(getContext(), R.dimen.small_avatar_height))
-                        .into(imageView);
-            } else {
-
-                // If this is a local image
-                Uri uri = Uri.parse(url);
-                if (uri != null && uri.getScheme() != null && uri.getScheme().equals("android.resource")) {
-                    builder = builder.load(uri);
-                } else {
-                    builder = builder.load(url);
-                }
-
-                builder.override(ilp.width, ilp.height)
-                        .placeholder(ilp.placeholder)
-                        .error(ilp.error)
-                        .centerCrop()
-                        .into(imageView);
-            }
-        });
+        messagesListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, null);
 
         messagesListAdapter.setLoadMoreListener(this);
         messagesListAdapter.setDateHeadersFormatter(date -> prettyTime.format(date));
@@ -204,7 +141,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         }
         listenersAdded = true;
 
-        dm.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().sourceOnSingle()
                 .filter(NetworkEvent.filterType(
                         EventType.ThreadMessagesUpdated
 //                        EventType.MessageSendStatusUpdated,
@@ -231,7 +168,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 //                    });
 //                }));
 
-        dm.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().sourceOnSingle()
                 .filter(NetworkEvent.filterType(EventType.MessageAdded))
                 .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
                 .subscribe(networkEvent -> {
@@ -243,7 +180,19 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                     });
                 }));
 
-        dm.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().sourceOnSingle()
+                .filter(NetworkEvent.filterType(EventType.MessageProgressUpdated))
+                .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
+                .subscribe(networkEvent -> {
+                    Progress progress = networkEvent.getProgress();
+                    if (progress != null && progress.error != null) {
+                        messagesList.post(() -> {
+                            ToastHelper.show(getContext(), progress.error.getLocalizedMessage());
+                        });
+                    }
+                }));
+
+        dm.add(ChatSDK.events().sourceOnSingle()
                 .filter(NetworkEvent.filterType(EventType.MessageRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
                 .subscribe(networkEvent -> {
@@ -272,6 +221,14 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
     @Override
     public void onLoadMore(int page, int totalItemsCount) {
+        // There is an issue with Firebase whereby the message date is
+        // initially just estimated. When the message is added, the scrollview
+        // scrolls and that triggers the on-load-more which then does a database query
+        // while that is running the message date has been updated to a later date
+        // so a duplicate message comes back...
+        if (!loadMoreEnabled) {
+            return;
+        }
 
         Date loadMessagesFrom = delegate.getThread().getLoadMessagesFrom();
 
@@ -279,6 +236,11 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         if (messageHolders.size() > 0) {
             loadMessagesFrom = messageHolders.get(messageHolders.size() - 1).getCreatedAt();
         }
+
+        if (loadMessagesFrom != null) {
+            Logger.debug("Load messages from: " + loadMessagesFrom.getTime());
+        }
+
         dm.add(ChatSDK.thread()
                 .loadMoreMessagesBefore(delegate.getThread(), loadMessagesFrom, true)
                 .flatMap((Function<List<Message>, SingleSource<List<MessageHolder>>>) messages -> {
@@ -297,7 +259,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
      */
     protected void addMessageToStart(Message message) {
 
-        Logger.debug("Add Message to start" + message.getText());
+        Logger.debug("Add Message to start " + message.getText());
 
         boolean scroll = message.getSender().isMe();
 
@@ -315,7 +277,10 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
         updatePreviousMessage(holder);
         holder.updateReadStatus();
+
+        loadMoreEnabled = false;
         messagesListAdapter.addToStart(holder, scroll, true);
+        messagesList.post(() -> loadMoreEnabled = true);
     }
 
     protected void updatePreviousMessage(MessageHolder holder) {
@@ -343,8 +308,9 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     protected void removeMessage(Message message) {
         MessageHolder holder = ChatSDKUI.provider().holderProvider().getMessageHolder(message);
         messageHolders.remove(holder);
-
         messagesListAdapter.delete(holder, true);
+
+        ChatSDKUI.provider().holderProvider().removeMessageHolder(message);
 
         updateNextMessage(holder);
         updatePreviousMessage(holder);
@@ -357,10 +323,18 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
         // Add to current holders at zero index
         // Newest first
-        messageHolders.addAll(holders);
+        List<MessageHolder> toAdd = new ArrayList<>();
+        for (MessageHolder holder: holders) {
+            if (!messageHolders.contains(holder)) {
+                messageHolders.add(holder);
+                toAdd.add(holder);
+            } else {
+                Logger.error("We have a duplicate");
+            }
+        }
 
         // Reverse order because we are adding to end
-        messagesListAdapter.addToEnd(holders, false, notify);
+        messagesListAdapter.addToEnd(toAdd, false, notify);
     }
 
     protected void synchronize(Runnable modifyList) {

@@ -2,6 +2,8 @@
 <resources>
     <dimen name="action_bar_avatar_size">32dp</dimen>
 
+    <dimen name="thread_image_size">32dp</dimen>
+
     <dimen name="small_icon_width">48dp</dimen>
     <dimen name="small_icon_height">48dp</dimen>
 

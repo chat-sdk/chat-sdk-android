@@ -11,7 +11,11 @@ import org.greenrobot.greendao.annotation.ToOne;
  * Created by ben on 5/17/18.
  */
 
-@Entity
+@Entity(
+        indexes = {
+                @Index(value = "userId,key", unique = true)
+        }
+)
 public class UserMetaValue implements MetaValue<String> {
 
     @Id

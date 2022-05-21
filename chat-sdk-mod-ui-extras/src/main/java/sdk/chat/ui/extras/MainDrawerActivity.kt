@@ -110,17 +110,17 @@ open class MainDrawerActivity : MainActivity() {
 
         // Handle Toolbar
         setSupportActionBar(toolbar)
-        actionBar?.setDisplayHomeAsUpEnabled(true)
-        actionBar?.setHomeButtonEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeButtonEnabled(true)
 
-        actionBar!!.setHomeAsUpIndicator(
+        supportActionBar!!.setHomeAsUpIndicator(
             Icons.get(
                 this,
                 ChatSDKUI.icons().drawer,
                 ChatSDKUI.icons().actionBarIconColor
             )
         )
-        actionBar!!.setDisplayHomeAsUpEnabled(true)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
         buildHeader(false, savedInstanceState)
 

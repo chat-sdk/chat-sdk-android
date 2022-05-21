@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import app.xmpp.adapter.R;
@@ -254,7 +255,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                     .setType(message.getType())
                     .setEntityID(message.getEntityID());
 
-            Map<String, Object> meta = null;
+            Map<String, String> meta = null;
             if (ChatSDK.encryption() != null) {
                 meta = ChatSDK.encryption().encrypt(message);
             }
@@ -351,6 +352,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     public boolean muteEnabled(Thread thread) {
         return false;
     }
+
 
     @Override
     public boolean canDestroy(Thread thread) {
@@ -533,6 +535,11 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
             return thread.getUserThreadLink(user.getId()).isActive();
         }
         return false;
+    }
+
+    @Override
+    public String generateNewMessageID(Thread thread) {
+        return UUID.randomUUID().toString();
     }
 
 }

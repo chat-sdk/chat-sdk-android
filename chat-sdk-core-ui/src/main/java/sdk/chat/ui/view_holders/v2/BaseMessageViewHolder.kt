@@ -10,38 +10,42 @@ import androidx.core.view.ViewCompat
 import com.stfalcon.chatkit.messages.MessageHolders
 import com.stfalcon.chatkit.messages.MessagesListStyle
 import de.hdodenhof.circleimageview.CircleImageView
+import io.reactivex.functions.Consumer
 import sdk.chat.core.events.EventType
 import sdk.chat.core.events.NetworkEvent
 import sdk.chat.core.session.ChatSDK
+import sdk.chat.ui.ChatSDKUI
 import sdk.chat.ui.R
 import sdk.chat.ui.chat.model.MessageHolder
 import sdk.chat.ui.module.UIModule
 import sdk.chat.ui.utils.DrawableUtil
 import sdk.chat.ui.view_holders.base.BaseIncomingTextMessageViewHolder
 import sdk.guru.common.DisposableMap
+import sdk.guru.common.RX
 import java.text.DateFormat
 
-open class BaseMessageViewHolder<T : MessageHolder?>(itemView: View?, payload: Any?) :
-    MessageHolders.BaseMessageViewHolder<T>(itemView, payload), MessageHolders.DefaultMessageViewHolder {
+open class BaseMessageViewHolder<T : MessageHolder>(itemView: View, payload: Any?) :
+    MessageHolders.BaseMessageViewHolder<T>(itemView, payload), MessageHolders.DefaultMessageViewHolder,
+    Consumer<Throwable> {
 
     var style: MessagesListStyle? = null;
 
-    var bubble: ViewGroup? = null
+    var bubble: ViewGroup? = itemView.findViewById(R.id.bubble)
 
-    var messageIcon: ImageView? = null
-    var onlineIndicator: View? = null
-    var userName: TextView? = null
-    var userAvatar: CircleImageView? = null
+    var messageIcon: ImageView? = itemView.findViewById(R.id.messageIcon)
+    var onlineIndicator: View? = itemView.findViewById(R.id.onlineIndicator)
+    var userName: TextView? = itemView.findViewById(R.id.userName)
+    var userAvatar: CircleImageView? = itemView.findViewById(R.id.messageUserAvatar)
 
-    var imageOverlay: ImageView? = null
+    var imageOverlay: ImageView? = itemView.findViewById(R.id.imageOverlay)
 
-    var text: TextView? = null
-    var time: TextView? = null
+    var text: TextView? = itemView.findViewById(R.id.messageText)
+    var time: TextView? = itemView.findViewById(R.id.messageTime)
 
-    var readStatus: ImageView? = null
-    var replyView: View? = null
-    var replyImageView: ImageView? = null
-    var replyTextView: TextView? = null
+    var readStatus: ImageView? = itemView.findViewById(R.id.readStatus)
+    var replyView: View? = itemView.findViewById(R.id.replyView)
+    var replyImageView: ImageView? = itemView.findViewById(R.id.replyImageView)
+    var replyTextView: TextView? = itemView.findViewById(R.id.replyTextView)
 
     var format: DateFormat? = null
 
@@ -49,14 +53,13 @@ open class BaseMessageViewHolder<T : MessageHolder?>(itemView: View?, payload: A
 
     init {
 
-        itemView?.let {
+        itemView.let {
             format = UIModule.shared().messageBinder.messageTimeComparisonDateFormat(it.context)
         }
 
     }
 
     override fun onBind(holder: T) {
-        bindViews()
         bindListeners(holder)
         bindStyle(holder)
         bind(holder)
@@ -72,126 +75,104 @@ open class BaseMessageViewHolder<T : MessageHolder?>(itemView: View?, payload: A
             it.autoLinkMask = Linkify.ALL
         }
 
-        t?.let {
-            if (replyView != null && replyTextView != null && replyImageView != null) {
-                UIModule.shared().replyViewBinder.onBind(
-                    replyView,
-                    replyTextView,
-                    replyImageView,
-                    it,
-                    imageLoader
-                )
-            }
-
-            if (onlineIndicator != null) {
-                UIModule.shared().onlineStatusBinder.bind(onlineIndicator, it)
-            }
-
-            if (time != null) {
-                UIModule.shared().timeBinder.bind(time, it)
-
-                // Hide the time if it's the same as the next message
-                if (!it.showDate()) {
-                    time?.visibility = View.GONE
-                } else {
-                    time?.visibility = View.VISIBLE
-                }
-
-            }
-
-            bindUser(t)
-
-            if (messageIcon != null) {
-                UIModule.shared().iconBinder.bind(messageIcon, it, imageLoader)
-            }
-
-            bindReadStatus(t)
-
+        if (replyView != null && replyTextView != null && replyImageView != null) {
+            UIModule.shared().replyViewBinder.onBind(
+                replyView,
+                replyTextView,
+                replyImageView,
+                t)
         }
+
+        time?.let {
+            UIModule.shared().timeBinder.bind(it, t)
+
+            // Hide the time if it's the same as the next message
+            it.visibility = if (t.showDate()) View.VISIBLE else View.INVISIBLE
+        }
+
+        messageIcon?.let {
+            UIModule.shared().iconBinder.bind(it, t)
+        }
+
+        bindReadStatus(t)
+        bindProgress(t)
+        bindSendStatus(t)
+        bindUser(t)
     }
 
     open fun bindUser(t: T) {
-        t?.let {
-            if (userAvatar != null) {
-                val pl = payload as? BaseIncomingTextMessageViewHolder.Payload
-                if(pl != null) {
-                    userAvatar?.setOnClickListener { _ ->
-                        if (pl.avatarClickListener != null && UIModule.config().startProfileActivityOnChatViewIconClick) {
-                            pl.avatarClickListener.onAvatarClick(it.message.sender)
-                        }
+        userAvatar?.let {
+            val pl = payload as? BaseIncomingTextMessageViewHolder.Payload
+            if(pl != null) {
+                it.setOnClickListener { _ ->
+                    if (pl.avatarClickListener != null && UIModule.config().startProfileActivityOnChatViewIconClick) {
+                        pl.avatarClickListener.onAvatarClick(t.message.sender)
                     }
                 }
-
-                val isAvatarExists = imageLoader != null && it.user
-                    .avatar != null && it.user.avatar.isNotEmpty()
-
-                userAvatar?.visibility = if (isAvatarExists) View.VISIBLE else View.GONE
-                if (isAvatarExists) {
-                    imageLoader.loadImage(userAvatar, it.user.avatar, null)
-                }
             }
 
-            if (userName != null) {
-                UIModule.shared().nameBinder.bind(userName, it)
+            val isAvatarExists = imageLoader != null && t.user
+                .avatar != null && t.user.avatar.isNotEmpty()
+
+            it.visibility = if (isAvatarExists) View.VISIBLE else View.GONE
+            if (isAvatarExists) {
+                ChatSDKUI.provider().imageLoader().loadAvatar(it, t.user.avatar)
             }
+        }
+
+        onlineIndicator?.let {
+            UIModule.shared().onlineStatusBinder.bind(it, t)
+        }
+
+        userName?.let {
+            UIModule.shared().nameBinder.bind(it, t)
         }
     }
 
     open fun bindReadStatus(t: T) {
-        t?.let {
-            if (readStatus != null) {
-                UIModule.shared().readStatusViewBinder.onBind(readStatus, it)
-            }
+        readStatus?.let {
+            UIModule.shared().readStatusViewBinder.onBind(it, t)
         }
     }
 
-    open fun bindViews() {
-        bubble = itemView.findViewById(R.id.bubble)
+    open fun bindSendStatus(t: T) {
+    }
 
-        messageIcon = itemView.findViewById(R.id.messageIcon)
-        onlineIndicator = itemView.findViewById(R.id.onlineIndicator)
-        userName = itemView.findViewById(R.id.userName)
-        userAvatar = itemView.findViewById(R.id.messageUserAvatar)
+    open fun bindProgress(t: T) {
 
-        text = itemView.findViewById(R.id.messageText)
-        time = itemView.findViewById(R.id.messageTime)
-
-        readStatus = itemView.findViewById(R.id.readStatus)
-        replyView = itemView.findViewById(R.id.replyView)
-        replyImageView = itemView.findViewById(R.id.replyImageView)
-        replyTextView = itemView.findViewById(R.id.replyTextView)
-
-        imageOverlay = itemView.findViewById(R.id.imageOverlay)
     }
 
     open fun bindListeners(t: T) {
         dm.dispose()
-        t?.let {
-            dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated, EventType.MessageSendStatusUpdated))
-                .filter(NetworkEvent.filterMessageEntityID(t.id))
-                .subscribe {
-                    itemView.post {
-                        bindReadStatus(t)
-                    }
-                })
-            dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated, EventType.UserMetaUpdated))
-                .filter(NetworkEvent.filterUserEntityID(t.user.id))
-                .subscribe {
-                    itemView.post {
-                        bindUser(t)
-                    }
+        dm.add(ChatSDK.events().sourceOnSingle()
+            .filter(NetworkEvent.filterType(EventType.MessageSendStatusUpdated, EventType.MessageReadReceiptUpdated))
+            .filter(NetworkEvent.filterMessageEntityID(t.id))
+            .doOnError(this)
+            .subscribe {
+                RX.main().scheduleDirect {
+                    bindReadStatus(t)
+                    bindSendStatus(t)
+                }
             })
-            dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.MessageUpdated))
-                .filter(NetworkEvent.filterMessageEntityID(t.id))
-                .subscribe {
-                    itemView.post {
-                        bind(t)
-                    }
-                })
-        }
+
+        dm.add(ChatSDK.events().sourceOnSingle()
+            .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated, EventType.UserMetaUpdated))
+            .filter(NetworkEvent.filterUserEntityID(t.user.id))
+            .doOnError(this)
+            .subscribe {
+                RX.main().scheduleDirect {
+                    bindUser(t)
+                }
+        })
+        dm.add(ChatSDK.events().sourceOnSingle()
+            .filter(NetworkEvent.filterType(EventType.MessageUpdated))
+            .filter(NetworkEvent.filterMessageEntityID(t.id))
+            .doOnError(this)
+            .subscribe {
+                RX.main().scheduleDirect {
+                    bind(t)
+                }
+            })
     }
 
     override fun applyStyle(style: MessagesListStyle) {
@@ -200,12 +181,10 @@ open class BaseMessageViewHolder<T : MessageHolder?>(itemView: View?, payload: A
 
     open fun bindStyle(t: T) {
         style?.let {
-            if (t != null) {
-                if (t.direction() == MessageDirection.Incoming) {
-                    applyIncomingStyle(it)
-                } else {
-                    applyOutcomingStyle(it)
-                }
+            if (t.direction() == MessageDirection.Incoming) {
+                applyIncomingStyle(it)
+            } else {
+                applyOutcomingStyle(it)
             }
         }
     }
@@ -297,5 +276,9 @@ open class BaseMessageViewHolder<T : MessageHolder?>(itemView: View?, payload: A
         imageOverlay?.let {
             ViewCompat.setBackground(it, style.getOutcomingImageOverlayDrawable())
         }
+    }
+
+    override fun accept(t: Throwable?) {
+        t?.printStackTrace()
     }
 }

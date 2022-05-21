@@ -93,7 +93,7 @@ public class DummyData {
         message.setSender(sender);
 
         message.setEntityID(UUID.randomUUID().toString());
-        message.setMessageStatus(MessageSendStatus.Created, false);
+        message.setMessageStatus(MessageSendStatus.Initial, false);
         message.setDate(new Date());
         message.setType(MessageType.Text);
 

@@ -39,20 +39,20 @@ public class MessageBinder {
         textView.setText(status);
     }
 
-    public String format(Context context, MessageSendStatus status, Integer percentage, Double fileSize) {
+    public String format(Context context, MessageSendStatus status, float percentage, float fileSize) {
         switch (status) {
-            case Created:
+            case Initial:
                 return context.getString(R.string.created);
-            case Compressing:
-                return context.getString(R.string.compressing);
-            case WillUpload:
-                return context.getString(R.string.will_upload);
+//            case Compressing:
+//                return context.getString(R.string.compressing);
+//            case WillUpload:
+//                return context.getString(R.string.will_upload);
             case Uploading:
                 return getUploadingText(context, percentage, fileSize);
-            case DidUpload:
-                return context.getString(R.string.did_upload);
-            case WillSend:
-                return context.getString(R.string.will_send);
+//            case DidUpload:
+//                return context.getString(R.string.did_upload);
+//            case WillSend:
+//                return context.getString(R.string.will_send);
             case Sent:
                 return ""; // context.getString(R.string.sent);
             case Failed:
@@ -63,7 +63,7 @@ public class MessageBinder {
         }
     }
 
-    public String getFileSize(Double kb) {
+    public String getFileSize(float kb) {
         // Depending on the size change the unit
         if (kb < 1000) {
             return String.format("%.0fKB", kb);
@@ -73,14 +73,14 @@ public class MessageBinder {
         }
     }
 
-    public String getUploadingText(Context context, Integer percentage, Double fileSize) {
+    public String getUploadingText(Context context, float percentage, float fileSize) {
         String output = "";
-        if (percentage != null) {
+        if (percentage >= 0) {
             output = percentage + "%";
         } else {
             output = String.format(context.getString(R.string.uploading__), "");
         }
-        if (UIModule.config().showFileSizeDuringUpload && fileSize != null) {
+        if (UIModule.config().showFileSizeDuringUpload && fileSize >= 0) {
             output += " " + getFileSize(fileSize);
         }
         return output;

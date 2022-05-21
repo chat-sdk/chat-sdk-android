@@ -57,7 +57,7 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
     public void onBind(T message) {
         super.onBind(message);
 
-        UIModule.shared().getReplyViewBinder().onBind(replyView, replyTextView, replyImageView, message, imageLoader);
+        UIModule.shared().getReplyViewBinder().onBind(replyView, replyTextView, replyImageView, message);
         UIModule.shared().getOnlineStatusBinder().bind(onlineIndicator, message);
         UIModule.shared().getTimeBinder().bind(time, message);
 
@@ -71,7 +71,7 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
 
         UIModule.shared().getNameBinder().bind(userName, message);
 
-        UIModule.shared().getIconBinder().bind(messageIcon, message, imageLoader);
+        UIModule.shared().getIconBinder().bind(messageIcon, message);
 
         if(text != null) {
             text.setAutoLinkMask(Linkify.ALL);

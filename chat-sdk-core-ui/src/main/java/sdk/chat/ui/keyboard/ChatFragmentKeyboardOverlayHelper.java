@@ -43,20 +43,22 @@ public class ChatFragmentKeyboardOverlayHelper {
             }
 
             // We want the bottom margin to be just the height of the input + reply view
-            setChatViewBottomMargin(bottomMargin());
+//            setChatViewBottomMargin(bottomMargin());
+            updateChatViewBottomMargin();
 
         };
 
         keyboardAwareView().keyboardHidden = () -> {
 
-            int bottomMargin = bottomMargin();
+//            int bottomMargin = bottomMargin();
 
             if (keyboardOverlayActive) {
                 keyboardOverlay().setVisibility(View.VISIBLE);
-                bottomMargin += keyboardAwareView().getKeyboardHeight();
+//                bottomMargin += keyboardAwareView().getKeyboardHeight();
             }
 
-            setChatViewBottomMargin(bottomMargin);
+            updateChatViewBottomMargin();
+//            setChatViewBottomMargin(bottomMargin);
         };
 
         keyboardAwareView().heightUpdater = height -> {
@@ -175,7 +177,9 @@ public class ChatFragmentKeyboardOverlayHelper {
 
         setKeyboardOverlayHeight(height);
         setKeyboardOverlayVisible();
-        setChatViewBottomMargin(bottomMargin() + height);
+
+        updateChatViewBottomMargin();
+//        setChatViewBottomMargin(bottomMargin() + height);
     }
 
     public void setKeyboardOverlayHeight(int height) {
@@ -194,13 +198,18 @@ public class ChatFragmentKeyboardOverlayHelper {
 
     // Internal convenience methods
 
-    protected void setChatViewBottomMargin(int margin) {
-        cf().setChatViewBottomMargin(margin);
+//    protected void setChatViewBottomMargin(int margin) {
+//        cf().setChatViewBottomMargin(margin);
+//    }
+
+    protected void updateChatViewBottomMargin() {
+//        cf().setChatViewBottomMargin(margin);
+        cf().updateChatViewMargins(false);
     }
 
-    protected int bottomMargin() {
-        return cf().bottomMargin();
-    }
+//    protected int bottomMargin() {
+//        return cf().bottomMargin();
+//    }
 
     protected KeyboardAwareFrameLayout keyboardAwareView() {
         return cf().getKeyboardAwareView();

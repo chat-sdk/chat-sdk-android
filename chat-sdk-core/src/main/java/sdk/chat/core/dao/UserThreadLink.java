@@ -12,13 +12,18 @@ import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
+import org.pmw.tinylog.Logger;
 
 import java.util.List;
 
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.Affiliation;
 
-@Entity
+@Entity(
+    indexes = {
+            @Index(value = "userId,threadId", unique = true)
+    }
+)
 public class UserThreadLink {
 
     @Id private Long id;
@@ -212,27 +217,26 @@ public class UserThreadLink {
     }
 
     @Keep
-    public synchronized boolean setMetaValue(String key, String value) {
+    public boolean setMetaValue(String key, String value) {
         UserThreadLinkMetaValue metaValue = metaValueForKey(key);
-
-        if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {
-            if (metaValue == null) {
-                metaValue = new UserThreadLinkMetaValue();
-                ChatSDK.db().getDaoCore().createEntity(metaValue);
-
-//                metaValue = ChatSDK.db().create(UserThreadLinkMetaValue.class);
-                metaValue.setUserThreadLinkId(this.getId());
-                getMetaValues().add(metaValue);
-            }
-
-            metaValue.setValue(value);
+        if (metaValue == null) {
+            metaValue = new UserThreadLinkMetaValue();
+            metaValue.setUserThreadLinkId(getId());
             metaValue.setKey(key);
-            metaValue.update();
-            update();
-
-            return true;
+            try {
+                ChatSDK.db().getDaoCore().createEntity(metaValue);
+                resetMetaValues();
+            } catch (Exception e) {
+                Logger.info("Duplicate user thread link meta not created");
+                return false;
+            }
         }
-        return false;
+        if (MetaValueHelper.isEqual(metaValue, value)) {
+            return false;
+        }
+        metaValue.setValue(value);
+        metaValue.update();
+        return true;
     }
 
     @Keep

@@ -25,7 +25,6 @@ import sdk.chat.core.events.EventType
 import sdk.chat.core.events.NetworkEvent
 import sdk.chat.core.interfaces.ThreadType
 import sdk.chat.core.session.ChatSDK
-import sdk.chat.core.utils.Dimen
 import sdk.chat.core.utils.Strings
 import sdk.chat.ui.ChatSDKUI
 import sdk.chat.ui.R
@@ -34,7 +33,6 @@ import sdk.chat.ui.fragments.ProfileViewOffsetChangeListener
 import sdk.chat.ui.icons.Icons
 import sdk.chat.ui.module.UIModule
 import sdk.chat.ui.recycler.*
-import sdk.chat.ui.utils.ThreadImageBuilder
 import sdk.chat.ui.utils.ToastHelper
 import sdk.chat.ui.utils.UserSorter
 import sdk.guru.common.RX
@@ -270,7 +268,7 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
         actionBar?.setHomeButtonEnabled(true)
 
         avatarImageView.setOnClickListener { v: View? -> zoomImageFromThumbnail(avatarImageView, thread.imageUrl) }
-        ThreadImageBuilder.load(avatarImageView, thread, Dimen.from(this, R.dimen.large_avatar_width))
+        ChatSDKUI.provider().imageLoader().loadThread(avatarImageView, thread, R.dimen.large_avatar_width)
     }
 
     open fun reloadButtons() {

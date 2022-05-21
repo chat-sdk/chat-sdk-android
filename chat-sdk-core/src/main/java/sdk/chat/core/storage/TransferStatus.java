@@ -1,9 +1,9 @@
 package sdk.chat.core.storage;
 
 public enum TransferStatus {
-    None,
-    WillStart,
+    Initial,
     InProgress,
     Failed,
     Complete,
+    None,
 }

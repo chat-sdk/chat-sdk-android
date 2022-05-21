@@ -641,4 +641,22 @@ public class Config<T> extends BaseConfig<T> {
         return this;
     }
 
+    public float imageMessageMaxWidthDp = 300;
+    public Config<T> setImageMessageMaxWidthDp(float value) {
+        this.imageMessageMaxWidthDp = value;
+        return this;
+    }
+
+    public float imageMessageMinAR = 0.7f;
+    public Config<T> setImageMessageMinAR(float value) {
+        this.imageMessageMinAR = value;
+        return this;
+    }
+
+    public float imageMessageMaxAR = 1.5f;
+    public Config<T> setImageMessageMaxAR(float value) {
+        this.imageMessageMaxAR = value;
+        return this;
+    }
+
 }

@@ -14,6 +14,7 @@ import sdk.chat.core.base.AbstractEntity;
 import sdk.chat.core.rigs.FileUploadable;
 import sdk.chat.core.rigs.Uploadable;
 import sdk.chat.core.storage.TransferStatus;
+import sdk.chat.core.utils.StringChecker;
 
 @Entity(active = true)
 public class CachedFile extends AbstractEntity {
@@ -173,7 +174,7 @@ public class CachedFile extends AbstractEntity {
     }
 
     public boolean completeAndValid() {
-        return getTransferStatus() == TransferStatus.Complete && getRemotePath() != null && !getRemotePath().isEmpty();
+        return getTransferStatus() == TransferStatus.Complete && !StringChecker.isNullOrEmpty(getRemotePath());
     }
 
     public void setFileType(Type type) {

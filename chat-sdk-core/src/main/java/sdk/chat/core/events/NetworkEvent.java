@@ -16,7 +16,8 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.MessageSendProgress;
+import sdk.chat.core.types.MessageSendStatus;
+import sdk.chat.core.types.Progress;
 
 /**
  * Created by benjaminsmiley-andrews on 16/05/2017.
@@ -31,8 +32,11 @@ public class NetworkEvent {
     protected String text;
     protected Map<String, Object> data;
     protected boolean isOnline = false;
+    protected MessageSendStatus messageSendstatus;
+    protected Progress progress;
 
-    public static String MessageSendProgress = "MessageSendProgress";
+//    public static String MessageSendProgress = "MessageSendProgress";
+//    public static String Progress = "Progress";
     public static String MessageId = "MessageId";
     public static String Error = "Error";
     public Location location;
@@ -50,14 +54,24 @@ public class NetworkEvent {
     }
 
     public NetworkEvent(EventType type, Thread thread, Message message, User user) {
-        this(type, thread, message, user, null);
-    }
-
-    public NetworkEvent(EventType type, Thread thread, Message message, User user, Map<String, Object> data) {
         this.type = type;
         this.thread = thread;
         this.message = message;
         this.user = user;
+    }
+
+    public NetworkEvent(EventType type, Thread thread, Message message, User user, MessageSendStatus status) {
+        this(type, thread, message, user);
+        this.messageSendstatus = status;
+    }
+
+    public NetworkEvent(EventType type, Thread thread, Message message, User user, Progress progress) {
+        this(type, thread, message, user);
+        this.progress = progress;
+    }
+
+    public NetworkEvent(EventType type, Thread thread, Message message, User user, Map<String, Object> data) {
+        this(type, thread, message, user);
         this.data = data;
     }
 
@@ -65,10 +79,12 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.ThreadAdded, thread);
     }
 
-    public static NetworkEvent messageSendStatusChanged(MessageSendProgress progress) {
-        HashMap<String, Object> data = new HashMap<>();
-        data.put(MessageSendProgress, progress);
-        return new NetworkEvent(EventType.MessageSendStatusUpdated, progress.message.getThread(), progress.message, progress.message.getSender(), data);
+    public static NetworkEvent messageSendStatusChanged(Message message) {
+        return new NetworkEvent(EventType.MessageSendStatusUpdated, message.getThread(), message, message.getSender(), message.getMessageStatus());
+    }
+
+    public static NetworkEvent messageProgressUpdated(Message message, Progress progress) {
+        return new NetworkEvent(EventType.MessageProgressUpdated, message.getThread(), message, message.getSender(), progress);
     }
 
     public static NetworkEvent threadsUpdated() {
@@ -173,6 +189,10 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.MessageReadReceiptUpdated, message.getThread(), message);
     }
 
+    public static NetworkEvent messageDateUpdated(Message message) {
+        return new NetworkEvent(EventType.MessageDateUpdated, message.getThread(), message);
+    }
+
     public static NetworkEvent networkStateChanged(boolean isOnline) {
         NetworkEvent event = new NetworkEvent(EventType.NetworkStateChanged);
         event.isOnline = isOnline;
@@ -270,6 +290,8 @@ public class NetworkEvent {
     public static Predicate<NetworkEvent> filterMessageEntityID(final String entityID) {
         return networkEvent -> {
             if(networkEvent.getMessage() != null) {
+//                Logger.debug("TT Filter: " + entityID + " , Message: " + networkEvent.getMessage().getEntityID());
+
                 if (networkEvent.getMessage().equalsEntityID(entityID)) {
                     return true;
                 }
@@ -393,12 +415,12 @@ public class NetworkEvent {
 //        );
 //    }
 
-    public MessageSendProgress getMessageSendProgress() {
-        if (data != null && data.containsKey(MessageSendProgress)) {
-            return (MessageSendProgress) data.get(MessageSendProgress);
-        }
-        return null;
-    }
+//    public MessageSendProgress getMessageSendProgress() {
+//        if (data != null && data.containsKey(MessageSendProgress)) {
+//            return (MessageSendProgress) data.get(MessageSendProgress);
+//        }
+//        return null;
+//    }
 
     public boolean typeIs(EventType... types) {
         for (EventType type: types) {
@@ -486,5 +508,13 @@ public class NetworkEvent {
 
     public void setData(Map<String, Object> data) {
         this.data = data;
+    }
+
+    public MessageSendStatus getMessageSendStatus() {
+        return messageSendstatus;
+    }
+
+    public Progress getProgress() {
+        return progress;
     }
 }

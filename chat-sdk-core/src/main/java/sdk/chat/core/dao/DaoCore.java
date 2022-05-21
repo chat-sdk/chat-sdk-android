@@ -235,28 +235,35 @@ public class DaoCore {
     }
 
     public boolean connectUserAndThread(User user, Thread thread) {
-        Logger.debug("connectUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
-        if(!thread.hasUser(user)) {
-            UserThreadLink link = new UserThreadLink();
-            link.setThreadId(thread.getId());
-            link.setThread(thread);
-            link.setUserId(user.getId());
-            link.setUser(user);
+        Logger.debug("connectUserAndThread, Name: "+ user.getName() +", ThreadID: " + thread.getEntityID());
+
+        UserThreadLink link = new UserThreadLink();
+
+        link.setThreadId(thread.getId());
+        link.setUserId(user.getId());
+
+        try {
             createEntity(link);
-            thread.getUserThreadLinks().add(link);
-            thread.update();
+            thread.resetUserThreadLinks();
+            thread.resetUsers();
+            user.resetThreads();
             return true;
+        } catch (Exception e) {
+            Logger.info("User already in thread");
+            return false;
         }
-        return false;
     }
 
-    public boolean breakUserAndThread(User user, Thread thread) {
-        Logger.debug("breakUserAndThread, CoreUser ID: %s, Name: %s, ThreadID: %s",  + user.getId(), user.getName(), thread.getId());
+    public synchronized boolean breakUserAndThread(User user, Thread thread) {
+        Logger.debug("breakUserAndThread, CoreUser ID: "+ user.getId() +" , Name: "+ user.getName() +", ThreadID: " + thread.getId());
 //        UserThreadLink linkData = fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, thread.getId(), user.getId());
         UserThreadLink link = thread.getUserThreadLink(user.getId());
         if(link != null) {
             deleteEntity(link);
-            thread.getUserThreadLinks().remove(link);
+//            thread.getUserThreadLinks().remove(link);
+            thread.resetUserThreadLinks();
+            thread.resetUsers();
+            user.resetThreads();
             return true;
         }
         return false;

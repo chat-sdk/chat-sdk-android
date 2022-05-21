@@ -65,6 +65,7 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         migrations.add(new MigrationV26());
         migrations.add(new MigrationV27());
         migrations.add(new MigrationV28());
+        migrations.add(new MigrationV29());
 
         // Sorting just to be safe, in case other people add migrations in the wrong order.
         Comparator<Migration> migrationComparator = (m1, m2) -> m1.getVersion().compareTo(m2.getVersion());
@@ -429,4 +430,46 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
             db.execSQL("ALTER TABLE " + MessageDao.TABLENAME + " ADD COLUMN " + MessageDao.Properties.FilePath.columnName + " TEXT");
         }
     }
+
+    private static class MigrationV29 implements Migration {
+        @Override
+        public Integer getVersion() {
+            return 29;
+        }
+
+        @Override
+        public void runMigration(Database db) {
+            String constraint = "IF NOT EXISTS ";
+
+            // Thread User Link
+            db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_USER_THREAD_LINK_USER_ID_THREAD_ID ON \"USER_THREAD_LINK\"" +
+                    " (\"USER_ID\" ASC,\"THREAD_ID\" ASC);");
+
+            // Read receipt link
+            db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_READ_RECEIPT_USER_LINK_MESSAGE_ID_USER_ID ON \"READ_RECEIPT_USER_LINK\"" +
+                    " (\"MESSAGE_ID\" ASC,\"USER_ID\" ASC);");
+
+            // Message meta
+            db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_MESSAGE_META_VALUE_MESSAGE_ID_KEY ON \"MESSAGE_META_VALUE\"" +
+                    " (\"MESSAGE_ID\" ASC,\"KEY\" ASC);");
+
+            // Thread meta
+            db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_THREAD_META_VALUE_THREAD_ID_KEY ON \"THREAD_META_VALUE\"" +
+                    " (\"THREAD_ID\" ASC,\"KEY\" ASC);");
+
+            // User meta
+            db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_USER_META_VALUE_USER_ID_KEY ON \"USER_META_VALUE\"" +
+                    " (\"USER_ID\" ASC,\"KEY\" ASC);");
+
+            // User thread link meta
+            db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_USER_THREAD_LINK_META_VALUE_USER_THREAD_LINK_ID_KEY ON \"USER_THREAD_LINK_META_VALUE\"" +
+                    " (\"USER_THREAD_LINK_ID\" ASC,\"KEY\" ASC);");
+
+            // Contact link
+            db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_CONTACT_LINK_LINK_OWNER_USER_DAO_ID_USER_ID ON \"CONTACT_LINK\"" +
+                    " (\"LINK_OWNER_USER_DAO_ID\" ASC,\"USER_ID\" ASC);");
+
+        }
+    }
+
 }

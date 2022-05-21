@@ -57,6 +57,8 @@ public class UserThreadLinkDao extends AbstractDao<UserThreadLink, Long> {
                 " (\"USER_ID\" ASC);");
         db.execSQL("CREATE INDEX " + constraint + "IDX_USER_THREAD_LINK_THREAD_ID ON \"USER_THREAD_LINK\"" +
                 " (\"THREAD_ID\" ASC);");
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_USER_THREAD_LINK_USER_ID_THREAD_ID ON \"USER_THREAD_LINK\"" +
+                " (\"USER_ID\" ASC,\"THREAD_ID\" ASC);");
     }
 
     /** Drops the underlying database table. */
@@ -163,8 +165,7 @@ public class UserThreadLinkDao extends AbstractDao<UserThreadLink, Long> {
         synchronized (this) {
             if (thread_UserThreadLinksQuery == null) {
                 QueryBuilder<UserThreadLink> queryBuilder = queryBuilder();
-                queryBuilder.join(UserThreadLink.class, UserThreadLinkDao.Properties.UserId)
-                    .where(UserThreadLinkDao.Properties.ThreadId.eq(threadId));
+                queryBuilder.where(Properties.ThreadId.eq(null));
                 thread_UserThreadLinksQuery = queryBuilder.build();
             }
         }

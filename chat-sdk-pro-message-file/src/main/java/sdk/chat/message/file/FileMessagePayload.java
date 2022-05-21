@@ -6,10 +6,6 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.webkit.MimeTypeMap;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.manager.AbstractMessagePayload;
@@ -57,26 +53,26 @@ public class FileMessagePayload extends AbstractMessagePayload {
         return null;
     }
 
-    @Override
-    public List<String> remoteURLs() {
-        List<String> urls = new ArrayList<>();
-        String imageURL = message.stringForKey(Keys.MessageImageURL);
-        if (imageURL != null) {
-            urls.add(imageURL);
-        }
-        String fileURL = message.stringForKey(Keys.MessageFileURL);
-        if (fileURL != null) {
-            urls.add(fileURL);
-        }
-        return urls;
-    }
+//    @Override
+//    public List<String> remoteURLs() {
+//        List<String> urls = new ArrayList<>();
+//        String imageURL = message.stringForKey(Keys.MessageImageURL);
+//        if (imageURL != null) {
+//            urls.add(imageURL);
+//        }
+//        String fileURL = message.stringForKey(Keys.MessageFileURL);
+//        if (fileURL != null) {
+//            urls.add(fileURL);
+//        }
+//        return urls;
+//    }
 
-    @Override
-    public Completable downloadMessageContent() {
-        return Completable.create(emitter -> {
-            // TODO:
-        });
-    }
+//    @Override
+//    public Completable downloadMessageContent() {
+//        return Completable.create(emitter -> {
+//            // TODO:
+//        });
+//    }
 
     @Override
     public String toString() {

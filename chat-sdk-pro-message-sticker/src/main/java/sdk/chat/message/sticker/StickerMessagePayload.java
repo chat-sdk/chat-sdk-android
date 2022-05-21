@@ -7,10 +7,6 @@ import android.net.Uri;
 
 import org.pmw.tinylog.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.manager.AbstractMessagePayload;
@@ -62,29 +58,25 @@ public class StickerMessagePayload extends AbstractMessagePayload {
         return null;
     }
 
-    @Override
-    public List<String> remoteURLs() {
-        List<String> urls = new ArrayList<>();
-        // TODO: We need to support remote URLs and local URLs
-        String url = message.stringForKey(Keys.MessageImageURL);
-        if (url != null) {
-            urls.add(url);
-        }
-        return urls;
-    }
+//    @Override
+//    public List<String> remoteURLs() {
+//        List<String> urls = new ArrayList<>();
+//        // TODO: We need to support remote URLs and local URLs
+//        String url = message.stringForKey(Keys.MessageImageURL);
+//        if (url != null) {
+//            urls.add(url);
+//        }
+//        return urls;
+//    }
+//
+//    @Override
+//    public Completable downloadMessageContent() {
+//        return Completable.create(emitter -> {
+//            // TODO:
+//        });
+//    }
 
     @Override
-    public Completable downloadMessageContent() {
-        return Completable.create(emitter -> {
-            // TODO:
-        });
-    }
-
-    @Override
-    public String previewText() {
-        String text = super.toString();
-        if (StringChecker.isNullOrEmpty(text)) {
-            text = ChatSDK.getString(R.string.sticker_message);
-        }
-        return text;
+    public String lastMessageText() {
+        return ChatSDK.getString(R.string.sticker_message);
     }}

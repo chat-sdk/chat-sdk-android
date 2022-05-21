@@ -41,7 +41,6 @@ import sdk.chat.ui.chat.MediaSelector;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ImagePickerUploader;
-import sdk.chat.ui.utils.ThreadImageBuilder;
 import sdk.guru.common.RX;
 
 /**
@@ -163,9 +162,10 @@ public class EditThreadActivity extends BaseActivity {
         }
 
         if (threadImageURL != null) {
-            ThreadImageBuilder.load(threadImageView, threadImageURL);
+            ChatSDKUI.provider().imageLoader().loadThread(threadImageView, threadImageURL, thread.typeIs(ThreadType.Group), R.dimen.large_icon_width);
+
         } else {
-            ThreadImageBuilder.load(threadImageView, thread);
+            ChatSDKUI.provider().imageLoader().loadThread(threadImageView, thread, R.dimen.large_icon_width);
         }
 
         updateSaveButtonState();

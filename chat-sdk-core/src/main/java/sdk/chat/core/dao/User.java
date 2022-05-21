@@ -8,8 +8,10 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
+import org.greenrobot.greendao.annotation.JoinEntity;
 import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.ToMany;
+import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,7 +43,18 @@ public class User extends AbstractEntity implements UserListItem {
 
     @ToMany(referencedJoinProperty = "userId")
     private List<UserMetaValue> metaValues;
-    
+
+    @ToMany(referencedJoinProperty = "linkOwnerUserDaoId")
+    private List<ContactLink> contactLinks;
+
+    @ToMany
+    @JoinEntity(
+            entity = UserThreadLink.class,
+            sourceProperty = "userId",
+            targetProperty = "threadId"
+    )
+    private List<Thread> threads;
+
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
@@ -96,15 +109,20 @@ public class User extends AbstractEntity implements UserListItem {
 
             if (!contacts.contains(user)) {
                 ContactLink contactLink = new ContactLink();
+
                 contactLink.setConnectionType(type);
                 // Set link owner
-                contactLink.setLinkOwnerUser(this);
-                contactLink.setLinkOwnerUserDaoId(this.getId());
+                contactLink.setLinkOwnerUserDaoId(getId());
                 // Set contact
-                contactLink.setUser(user);
                 contactLink.setUserId(user.getId());
                 // insert contact link entity into DB
-                daoSession.insertOrReplace(contactLink);
+                try {
+                    ChatSDK.db().getDaoCore().createEntity(contactLink);
+                    resetContactLinks();
+                } catch (Exception e) {
+                    Logger.info("Duplicate contact link not created");
+                    return;
+                }
 
                 if (notify) {
                     ChatSDK.events().source().accept(NetworkEvent.contactAdded(user));
@@ -380,53 +398,34 @@ public class User extends AbstractEntity implements UserListItem {
     }
 
     @Keep
-    public synchronized boolean setMetaValue(String key, String value, boolean notify) {
-        if (value != null) {
-            synchronized (this) {
-                UserMetaValue metaValue = metaValueForKey(key);
-
-                if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {
-                    if (metaValue == null) {
-                        metaValue = new UserMetaValue();
-                        ChatSDK.db().getDaoCore().createEntity(metaValue);
-                        metaValue.setUserId(this.getId());
-                        getMetaValues().add(metaValue);
-                    }
-
-                    metaValue.setValue(value);
-                    metaValue.setKey(key);
-
-                    metaValue.update();
-                    update();
-
-                    if (notify) {
-                        ChatSDK.events().source().accept(NetworkEvent.userMetaUpdated(this));
-                    }
-                    return true;
-                }
+    public boolean setMetaValue(String key, String value, boolean notify) {
+        UserMetaValue metaValue = metaValueForKey(key);
+        if (metaValue == null) {
+            metaValue = new UserMetaValue();
+            metaValue.setUserId(getId());
+            metaValue.setKey(key);
+            try {
+                ChatSDK.db().getDaoCore().createEntity(metaValue);
+                resetMetaValues();
+            } catch (Exception e) {
+                Logger.info("Duplicate user meta not created");
+                return false;
             }
         }
-        return false;
+        if (MetaValueHelper.isEqual(metaValue, value)) {
+            return false;
+        }
+        metaValue.setValue(value);
+        metaValue.update();
+        if (notify) {
+            ChatSDK.events().source().accept(NetworkEvent.userMetaUpdated(this));
+        }
+        return true;
     }
 
     @Keep
     public UserMetaValue metaValueForKey(String key) {
         return MetaValueHelper.metaValueForKey(key, getMetaValues());
-    }
-
-    public boolean hasThread(Thread thread) {
-        if (thread != null) {
-            return thread.hasUser(this);
-        }
-        return false;
-//        UserThreadLink data = ChatSDK.db().getDaoCore().fetchEntityWithProperties(
-//                UserThreadLink.class,
-//                new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId},
-//                thread.getId(),
-//                getId()
-//        );
-//
-//        return data != null;
     }
 
     public String getPushChannel() {
@@ -444,7 +443,6 @@ public class User extends AbstractEntity implements UserListItem {
     public Long getId() {
         return this.id;
     }
-
 
     public void setId(Long id) {
         this.id = id;
@@ -569,6 +567,62 @@ public class User extends AbstractEntity implements UserListItem {
             value.delete();
         }
         delete();
+    }
+
+    /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 1867553480)
+    public List<ContactLink> getContactLinks() {
+        if (contactLinks == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            ContactLinkDao targetDao = daoSession.getContactLinkDao();
+            List<ContactLink> contactLinksNew = targetDao._queryUser_ContactLinks(id);
+            synchronized (this) {
+                if (contactLinks == null) {
+                    contactLinks = contactLinksNew;
+                }
+            }
+        }
+        return contactLinks;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 402918037)
+    public synchronized void resetContactLinks() {
+        contactLinks = null;
+    }
+
+    /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 799628800)
+    public List<Thread> getThreads() {
+        if (threads == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            ThreadDao targetDao = daoSession.getThreadDao();
+            List<Thread> threadsNew = targetDao._queryUser_Threads(id);
+            synchronized (this) {
+                if (threads == null) {
+                    threads = threadsNew;
+                }
+            }
+        }
+        return threads;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 1164718580)
+    public synchronized void resetThreads() {
+        threads = null;
     }
 
 }

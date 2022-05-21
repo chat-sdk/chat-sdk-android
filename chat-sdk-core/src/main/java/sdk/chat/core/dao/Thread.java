@@ -3,6 +3,7 @@ package sdk.chat.core.dao;
 import androidx.annotation.Nullable;
 
 import org.greenrobot.greendao.DaoException;
+import org.greenrobot.greendao.Property;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
@@ -68,13 +69,16 @@ public class Thread extends AbstractEntity {
     @ToOne(joinProperty = "creatorId")
     private User creator;
 
+    @ToMany(referencedJoinProperty = "threadId")
+    private List<UserThreadLink> userThreadLinks;
+
     @ToMany
     @JoinEntity(
             entity = UserThreadLink.class,
             sourceProperty = "threadId",
             targetProperty = "userId"
     )
-    private List<UserThreadLink> userThreadLinks;
+    private List<User> users;
 
     @ToMany(referencedJoinProperty = "threadId")
     private List<ThreadMetaValue> metaValues;
@@ -121,26 +125,26 @@ public class Thread extends AbstractEntity {
         this.messages = messages;
     }
 
-    public List<User> getUsers() {
-
-        List<UserThreadLink> links = getUserThreadLinks();
-
-//        List<UserThreadLink> links = ChatSDK.db().getDaoCore().fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.ThreadId, getId());
-        if (links == null) {
-            return Collections.emptyList();
-        }
-
-        Set<User> users = new HashSet<>();
-
-        for (UserThreadLink link: links) {
-            User user = link.getUser();
-            if (user != null) {
-                users.add(user);
-            }
-        }
-
-        return new ArrayList<>(users);
-    }
+//    public List<User> getUsers() {
+//
+//        List<UserThreadLink> links = getUserThreadLinks();
+//
+////        List<UserThreadLink> links = ChatSDK.db().getDaoCore().fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.ThreadId, getId());
+//        if (links == null) {
+//            return Collections.emptyList();
+//        }
+//
+//        Set<User> users = new HashSet<>();
+//
+//        for (UserThreadLink link: links) {
+//            User user = link.getUser();
+//            if (user != null) {
+//                users.add(user);
+//            }
+//        }
+//
+//        return new ArrayList<>(users);
+//    }
 
     /**
      * Return a list of users who haven't left the group and are not banned
@@ -168,7 +172,7 @@ public class Thread extends AbstractEntity {
 //        return ChatSDK.db().getDaoCore().fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.ThreadId, getId());
 //    }
 
-    public boolean containsUser (User user) {
+    public boolean containsUser(User user) {
         for(User u : getUsers()) {
             if (u.equalsEntity(user)) {
                 return true;
@@ -359,27 +363,29 @@ public class Thread extends AbstractEntity {
     }
 
     @Keep
-    public synchronized void setMetaValue(String key, Object value, boolean notify) {
+    public boolean setMetaValue(String key, Object value, boolean notify) {
         ThreadMetaValue metaValue = metaValueForKey(key);
-
-        if (metaValue == null || metaValue.getValue() == null || !metaValue.getValue().equals(value)) {
-            if (metaValue == null) {
-                metaValue = new ThreadMetaValue();
-                ChatSDK.db().getDaoCore().createEntity(metaValue);
-
-                metaValue.setThreadId(this.getId());
-                getMetaValues().add(metaValue);
-            }
-
-            metaValue.setValue(value);
+        if (metaValue == null) {
+            metaValue = new ThreadMetaValue();
+            metaValue.setThreadId(getId());
             metaValue.setKey(key);
-            metaValue.update();
-            update();
-
-            if (notify) {
-                ChatSDK.events().source().accept(NetworkEvent.threadMetaUpdated(this));
+            try {
+                ChatSDK.db().getDaoCore().createEntity(metaValue);
+                resetMetaValues();
+            } catch (Exception e) {
+                Logger.info("Duplicate thread meta not created");
+                return false;
             }
         }
+        if (MetaValueHelper.isEqual(metaValue, value)) {
+            return false;
+        }
+        metaValue.setValue(value);
+        metaValue.update();
+        if (notify) {
+            ChatSDK.events().source().accept(NetworkEvent.threadMetaUpdated(this));
+        }
+        return true;
     }
 
     @Keep
@@ -509,14 +515,14 @@ public class Thread extends AbstractEntity {
         System.out.println("Message Sort: " + (split2 - split1));
     }
 
-    public boolean hasUser(User user) {
-        return getUserThreadLink(user.getId()) != null;
+    public synchronized boolean hasUser(User user) {
+//        return getUserThreadLink(user.getId()) != null;
 
         // TODO: Thread
-//        UserThreadLink data = ChatSDK.db().getDaoCore().fetchEntityWithProperties(UserThreadLink.class,
-//                        new Property[]{UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, getId(), user.getId());
+        UserThreadLink data = ChatSDK.db().getDaoCore().fetchEntityWithProperties(UserThreadLink.class,
+                        new Property[]{UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, getId(), user.getId());
 //
-//        return data != null;
+        return data != null;
     }
 
     public int getUnreadMessagesCount() {
@@ -608,7 +614,7 @@ public class Thread extends AbstractEntity {
         return null;
     }
 
-    public String getDisplayName () {
+    public String getDisplayName() {
         // Either get the name or return the names of the participants
         if(!StringChecker.isNullOrEmpty(getName())) {
             return getName();
@@ -935,9 +941,7 @@ public class Thread extends AbstractEntity {
     public void setDraft(String draft) {
         this.draft = draft;
         // TODO: Test
-        RX.db().scheduleDirect(() -> {
-            update();
-        });
+        RX.db().scheduleDirect(this::update);
 
     }
 
@@ -1056,6 +1060,34 @@ public class Thread extends AbstractEntity {
 
     public void setLastMessageDate(Date lastMessageDate) {
         this.lastMessageDate = lastMessageDate;
+    }
+
+    /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 782419558)
+    public List<User> getUsers() {
+        if (users == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            UserDao targetDao = daoSession.getUserDao();
+            List<User> usersNew = targetDao._queryThread_Users(id);
+            synchronized (this) {
+                if (users == null) {
+                    users = usersNew;
+                }
+            }
+        }
+        return users;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 1027274768)
+    public synchronized void resetUsers() {
+        users = null;
     }
 
 }

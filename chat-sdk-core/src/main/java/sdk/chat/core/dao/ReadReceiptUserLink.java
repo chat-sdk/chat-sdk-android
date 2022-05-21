@@ -15,7 +15,11 @@ import java.util.Date;
  * Created by ben on 10/5/17.
  */
 
-@Entity
+@Entity(
+        indexes = {
+                @Index(value = "messageId,userId", unique = true)
+        }
+)
 public class ReadReceiptUserLink {
 
     @Id

@@ -58,7 +58,7 @@ public class MessageWrapper  {
     protected Map<String, Object> serialize() {
         Map<String, Object> values = new HashMap<>();
 
-        Map<String, Object> meta = null;
+        Map<String, String> meta = null;
 
         // We are going to encrypt the message here
         if (ChatSDK.encryption() != null) {
@@ -124,6 +124,7 @@ public class MessageWrapper  {
                 }
             }
             if (meta == null) {
+//                meta = snapshot.child(Keys.Meta).getValue(Generic.mapStringObject());
                 meta = snapshot.child(Keys.Meta).getValue(Generic.mapStringObject());
             }
 
@@ -139,7 +140,10 @@ public class MessageWrapper  {
 
         if (snapshot.hasChild(Keys.Date)) {
             Long date = snapshot.child(Keys.Date).getValue(Long.class);
-            model.setDate(new Date(date));
+            if (date != null) {
+                model.setDate(new Date(date));
+                ChatSDK.events().source().accept(NetworkEvent.messageDateUpdated(model));
+            }
         } else {
             Logger.debug("No Date");
         }

@@ -41,10 +41,10 @@ public class BaseOutcomingTextMessageViewHolder<T extends MessageHolder>
     public void onBind(T message) {
         super.onBind(message);
 
-        UIModule.shared().getReplyViewBinder().onBind(replyView, replyTextView, replyImageView, message, imageLoader);
+        UIModule.shared().getReplyViewBinder().onBind(replyView, replyTextView, replyImageView, message);
         UIModule.shared().getReadStatusViewBinder().onBind(readStatus, message);
         UIModule.shared().getMessageBinder().onBindSendStatus(time, message);
-        UIModule.shared().getIconBinder().bind(messageIcon, message, imageLoader);
+        UIModule.shared().getIconBinder().bind(messageIcon, message);
 //        UIModule.shared().getTimeBinder().bind(time, message);
 
         if(text != null) {

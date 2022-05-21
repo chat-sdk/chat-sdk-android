@@ -38,6 +38,12 @@ public interface IMessage {
     String getText();
 
     /**
+     * Get the preview for the threads screen
+     * @return
+     */
+    String getPreview();
+
+    /**
      * Returns message author. See the {@link IUser} for more details
      *
      * @return the message author

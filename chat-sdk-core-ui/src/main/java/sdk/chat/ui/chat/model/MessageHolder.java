@@ -1,10 +1,11 @@
 package sdk.chat.ui.chat.model;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+
+import androidx.annotation.DrawableRes;
 
 import com.stfalcon.chatkit.commons.models.IMessage;
-
-import org.pmw.tinylog.Logger;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -12,21 +13,24 @@ import java.util.Date;
 import java.util.List;
 
 import io.reactivex.Single;
+import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.core.manager.ImageMessagePayload;
 import sdk.chat.core.manager.MessagePayload;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
+import sdk.chat.core.types.Progress;
 import sdk.chat.core.types.ReadStatus;
 import sdk.chat.ui.ChatSDKUI;
+import sdk.chat.ui.R;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.view_holders.v2.MessageDirection;
 import sdk.guru.common.DisposableMap;
 
-public class MessageHolder implements IMessage {
+public class MessageHolder implements IMessage, Consumer<Throwable> {
 
     public Message message;
     protected MessagePayload payload;
@@ -41,6 +45,7 @@ public class MessageHolder implements IMessage {
     protected boolean nextSenderEqualsSender;
     protected boolean showDate;
     protected String quotedImageURL;
+    protected Drawable quotedImagePlaceholder;
     protected MessageDirection direction;
 
     protected String typingText = null;
@@ -48,10 +53,10 @@ public class MessageHolder implements IMessage {
 
     protected ReadStatus readStatus = null;
 
-    protected Date date;
+//    protected Date date;
     protected MessageSendStatus sendStatus = null;
-    protected Integer uploadPercentage;
-    protected Double fileSize;
+    protected float uploadPercentage = -1;
+    protected float fileSize = -1;
     protected boolean isReply;
 
     protected boolean isDirty = true;
@@ -60,42 +65,41 @@ public class MessageHolder implements IMessage {
         this.message = message;
         this.payload = ChatSDK.getMessagePayload(message);
 
-        dm.add(ChatSDK.events().prioritySourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnSingle()
+                .filter(NetworkEvent.filterType(EventType.MessageProgressUpdated))
+                .filter(NetworkEvent.filterMessageEntityID(getId()))
+                .subscribe(networkEvent -> {
+                    Progress progress = networkEvent.getProgress();
+                    updateProgress(progress);
+                }, this));
+
+        dm.add(ChatSDK.events().prioritySourceOnSingle()
                 .filter(NetworkEvent.filterType(EventType.MessageSendStatusUpdated))
                 .filter(NetworkEvent.filterMessageEntityID(getId()))
                 .subscribe(networkEvent -> {
-                    MessageSendProgress progress = networkEvent.getMessageSendProgress();
-                    updateSendStatus(progress);
-                }));
+                    MessageSendStatus status = networkEvent.getMessageSendStatus();
+                    updateSendStatus(status);
+                }, this));
 
-        dm.add(ChatSDK.events().prioritySourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnSingle()
                 .filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated))
-//                .filter(NetworkEvent.filterMessageEntityID(getId()))
+                .filter(NetworkEvent.filterMessageEntityID(getId()))
                 .subscribe(networkEvent -> {
-                    if (networkEvent.getMessage().getEntityID().equals(getId())) {
-                        Logger.debug("MessageHolder: " + networkEvent.debugText());
-
-                        updateReadStatus();
-
-                    }
-                }));
-
-//        dm.add(ChatSDK.events().sourceOnMain()
-//                .filter(NetworkEvent.filterType(EventType.MessageUpdated, EventType.MessageAdded, EventType.MessageRemoved))
-//                .filter(NetworkEvent.filterMessageEntityID(getId()))
-//                .subscribe(networkEvent -> {
-//                    updateNextAndPreviousMessages();
-//                }));
+                    updateReadStatus();
+                }, this));
 
         userHolder = ChatSDKUI.provider().holderProvider().getUserHolder(message.getSender());
-        date = message.getDate();
 
-        updateSendStatus(null);
+        updateSendStatus(message.getMessageStatus());
+        updateProgress(null);
         updateNextAndPreviousMessages();
         updateReadStatus();
 
-        if (payload.replyPayload() != null) {
-            quotedImageURL = payload.replyPayload().imageURL();
+        MessagePayload replyPayload = payload.replyPayload();
+        if (replyPayload instanceof ImageMessagePayload) {
+            ImageMessagePayload ip = (ImageMessagePayload) replyPayload;
+            quotedImageURL = ip.imageURL();
+            quotedImagePlaceholder = ip.getPlaceholder();
         }
 
         isReply = message.isReply();
@@ -126,36 +130,35 @@ public class MessageHolder implements IMessage {
         nextSenderEqualsSender = nextMessage != null && message.getSender().equalsEntity(nextMessage.getSender());
 
         DateFormat format = UIModule.shared().getMessageBinder().messageTimeComparisonDateFormat(ChatSDK.ctx());
-        showDate = nextMessage == null || !format.format(message.getDate()).equals(format.format(nextMessage.getDate())) && nextSenderEqualsSender;
+        showDate = nextMessage == null || !(format.format(message.getDate()).equals(format.format(nextMessage.getDate())) && nextSenderEqualsSender);
         isGroup = message.getThread().typeIs(ThreadType.Group);
     }
 
-    public void updateSendStatus(MessageSendProgress progress) {
-        MessageSendStatus status;
+    public void updateSendStatus(MessageSendStatus status) {
+        isDirty = isDirty || status != sendStatus;
+        sendStatus = status;
+    }
 
+    public void updateProgress(Progress progress) {
         if (progress == null) {
-            status = message.getMessageStatus();
 
-            isDirty = isDirty || this.uploadPercentage != null;
-            isDirty = isDirty || this.fileSize != null;
+            isDirty = isDirty || this.uploadPercentage >= 0;
+            isDirty = isDirty || this.fileSize >= 0;
 
-            uploadPercentage = null;
-            fileSize = null;
+            uploadPercentage = -1;
+            fileSize = -1;
 
         } else {
-            status = progress.status;
 
-            Integer uploadPercentage = Math.round(progress.uploadProgress.asFraction() * 100);
-            isDirty = isDirty || uploadPercentage.equals(this.uploadPercentage);
+            float uploadPercentage = Math.round(progress.asFraction() * 100);
+            isDirty = isDirty || uploadPercentage == this.uploadPercentage;
             this.uploadPercentage = uploadPercentage;
 
-            Double fileSize = Math.floor(progress.uploadProgress.getTotalBytes() / 1000);
-            isDirty = isDirty || fileSize.equals(this.fileSize);
+            float fileSize = (float) Math.floor(progress.getTotalBytes() / 1000f);
+            isDirty = isDirty || fileSize == this.fileSize;
             this.fileSize = fileSize;
 
         }
-        isDirty = isDirty || status == sendStatus;
-        sendStatus = status;
     }
 
     public void updateReadStatus() {
@@ -171,17 +174,20 @@ public class MessageHolder implements IMessage {
 
     @Override
     public String getText() {
+//        if (typingText != null) {
+//            return typingText;
+//        } else {
+            return payload.getText();
+//        }
+    }
+
+    @Override
+    public String getPreview() {
         if (typingText != null) {
             return typingText;
         } else {
-            return payload.getText();
+            return payload.lastMessageText();
         }
-//        else if (message.isReply()) {
-//            return message.getReply();
-//        } else if (payload != null) {
-//            return payload.getText();
-//        }
-//        return null;
     }
 
     @Override
@@ -191,7 +197,7 @@ public class MessageHolder implements IMessage {
 
     @Override
     public Date getCreatedAt() {
-        return date;
+        return message.getDate();
     }
 
     @Override
@@ -207,11 +213,11 @@ public class MessageHolder implements IMessage {
         return sendStatus;
     }
 
-    public Integer getUploadPercentage() {
+    public float getUploadPercentage() {
         return uploadPercentage;
     }
 
-    public Double getFileSize() {
+    public float getFileSize() {
         return fileSize;
     }
 
@@ -241,6 +247,10 @@ public class MessageHolder implements IMessage {
 
     public String getQuotedImageUrl() {
         return quotedImageURL;
+    }
+
+    public Drawable getQuotedPlaceholder() {
+        return quotedImagePlaceholder;
     }
 
     public boolean showNames() {
@@ -304,4 +314,12 @@ public class MessageHolder implements IMessage {
         return nextMessage;
     }
 
+    @Override
+    public void accept(Throwable throwable) throws Exception {
+        throwable.printStackTrace();
+    }
+
+    public @DrawableRes int defaultPlaceholder() {
+        return R.drawable.icn_100_profile;
+    }
 }

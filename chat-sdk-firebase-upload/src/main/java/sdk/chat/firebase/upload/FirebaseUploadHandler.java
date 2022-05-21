@@ -6,11 +6,11 @@ import com.google.firebase.storage.UploadTask;
 
 import org.pmw.tinylog.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -28,8 +28,9 @@ import sdk.guru.common.RX;
  */
 public class FirebaseUploadHandler extends AbstractUploadHandler {
 
-    public List<UploadTask> tasks = new ArrayList<>();
-    public Map<String, UploadTask> taskMap = new HashMap<>();
+    public List<UploadTask> tasks = new Vector<>();
+    public Map<String, UploadTask> taskMap = new ConcurrentHashMap<>();
+//    public Map<String, Boolean> queue = new ConcurrentHashMap<>();
 
     public FirebaseUploadHandler() {
 
@@ -165,6 +166,7 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
             if (task.isCanceled()) {
                 return TransferStatus.Failed;
             }
+            return TransferStatus.Initial;
         }
         return TransferStatus.None;
     }

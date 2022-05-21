@@ -6,9 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.appbar.AppBarLayout;
 
@@ -32,7 +32,6 @@ import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
-import sdk.chat.ui.utils.ThreadImageBuilder;
 import sdk.guru.common.RX;
 
 public class ChatActionBar extends AppBarLayout {
@@ -83,7 +82,8 @@ public class ChatActionBar extends AppBarLayout {
 //        setTitle(displayName);
         titleTextView.setText(displayName);
 
-        ThreadImageBuilder.load(imageView, thread);
+        ChatSDKUI.provider().imageLoader().loadThread(imageView, thread, R.dimen.action_bar_avatar_size);
+
         setSubtitleText(thread, null);
 
     }

@@ -34,6 +34,7 @@ import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
+import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.dao.sorter.MessageSorter;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.hook.HookEvent;
@@ -163,7 +164,8 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
                     Message message = ChatSDK.db().fetchMessageWithEntityID(change.getSnapshot().getKey());
                     if (message != null) {
-                        if (message.getMessageStatus() == MessageSendStatus.WillSend) {
+                        // TODO: Check this - was will send
+                        if (message.getMessageStatus() == MessageSendStatus.Initial) {
                             return;
                         }
                     }
@@ -415,10 +417,19 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                 user.on().subscribe();
 
                 if (change.getType() == EventType.Added) {
-                    if (!model.addUser(user.getModel())) {
-                        Logger.warn("User not added:  " + model.getEntityID() + ", " + user.model.getEntityID());
+                    Logger.debug("XX Add User:  " + user.model.getName() + ", to thread: " + model.getEntityID());
+
+                    if (model.addUser(user.getModel())) {
+                        Logger.debug("XX Success");
                     } else {
-                        Logger.warn("User added: " + model.getEntityID() + ", " + user.model.getEntityID());
+                        Logger.debug("XX Failure");
+                    }
+//                    Logger.warn("User link count:" + model.getUserThreadLinks().size());
+//                    for (User u: model.getUsers()) {
+//                        Logger.warn("--- User " + u.getName());
+//                    }
+                    for (UserThreadLink u: model.getUserThreadLinks()) {
+                        Logger.debug("XX --- User " + u.getUser().getName());
                     }
                 }
                 // We don't remove the current user. If we leave the thread, we still

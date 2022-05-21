@@ -43,12 +43,19 @@ public abstract class AbstractEventHandler implements EventHandler {
         return incomingRelay;
     }
 
+    @Override
     public Observable<NetworkEvent> sourceOnMain() {
         return source().hide().observeOn(RX.main());
     }
 
+    @Override
     public Observable<NetworkEvent> sourceOnBackground () {
         return eventSource.hide().observeOn(RX.computation());
+    }
+
+    @Override
+    public Observable<NetworkEvent> sourceOnSingle() {
+        return eventSource.hide().observeOn(RX.single());
     }
 
     public Observable<NetworkEvent> prioritySourceOnMain() {
@@ -57,6 +64,11 @@ public abstract class AbstractEventHandler implements EventHandler {
 
     public Observable<NetworkEvent> prioritySourceOnBackground () {
         return priorityEventSource.hide().observeOn(RX.computation());
+    }
+
+    @Override
+    public Observable<NetworkEvent> prioritySourceOnSingle() {
+        return priorityEventSource.hide().observeOn(RX.single());
     }
 
     public Observable<NetworkEvent> sourceOn(Scheduler scheduler) {

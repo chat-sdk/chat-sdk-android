@@ -114,7 +114,7 @@ public interface ThreadHandler {
     Completable mute(Thread thread);
     Completable unmute(Thread thread);
 
-    Message newMessage(int type, Thread thread);
+    Message newMessage(int type, Thread thread, boolean notify);
 
     boolean canDestroy(Thread thread);
     Completable destroy(Thread thread);
@@ -151,5 +151,6 @@ public interface ThreadHandler {
     boolean isBanned(Thread thread, User user);
 
     boolean isActive(Thread thread, User user);
+    String generateNewMessageID(Thread thread);
 }
 

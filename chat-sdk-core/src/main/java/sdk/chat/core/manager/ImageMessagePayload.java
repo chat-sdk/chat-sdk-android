@@ -1,22 +1,25 @@
 package sdk.chat.core.manager;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.media.ThumbnailUtils;
 
-import io.reactivex.Completable;
 import sdk.chat.core.R;
-import sdk.chat.core.dao.CachedFile;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.storage.TransferStatus;
-import sdk.chat.core.utils.StringChecker;
+import sdk.chat.core.utils.Base64ImageUtils;
+import sdk.chat.core.utils.ImageMessageUtil;
+import sdk.chat.core.utils.Size;
 
 public class ImageMessagePayload extends AbstractMessagePayload {
 
+    protected Size size;
+
     public ImageMessagePayload(Message message) {
         super(message);
+        this.size = getSize();
     }
 
     @Override
@@ -26,59 +29,60 @@ public class ImageMessagePayload extends AbstractMessagePayload {
 
     @Override
     public String imageURL() {
-//        if (message.getMessageType().is(MessageType.Image) || message.getReplyType().is(MessageType.Image)) {
-//            return message.getImageURL();
-//        }
         return message.getImageURL();
     }
 
+//    @Override
+//    public List<String> remoteURLs() {
+//        List<String> urls = new ArrayList<>();
+//        String url = message.stringForKey(Keys.MessageImageURL);
+//        if (url != null) {
+//            urls.add(url);
+//        }
+//        return urls;
+//    }
+
     @Override
-    public List<String> remoteURLs() {
-        List<String> urls = new ArrayList<>();
-        String url = message.stringForKey(Keys.MessageImageURL);
-        if (url != null) {
-            urls.add(url);
+    public String lastMessageText() {
+        return ChatSDK.getString(R.string.image_message);
+    }
+
+    @Override
+    public Drawable getPlaceholder() {
+        Bitmap bitmap = null;
+        String base64 = message.stringForKey(Keys.MessageImagePreview);
+        if (base64 != null) {
+            bitmap = Base64ImageUtils.fromBase64(base64);
         }
-        return urls;
-    }
-
-    @Override
-    public Completable downloadMessageContent() {
-        return Completable.create(emitter -> {
-            // In this case we only download the placeholder
-            if (message.getPlaceholderPath() == null) {
-                // Check to see if the image remote path exists
-                String remoteURL = message.stringForKey(Keys.MessageImageURL);
-
-                if (remoteURL != null) {
-                    ChatSDK.downloadManager().download(message, remoteURL);
-                }
-
-                // Make a new file
-                CachedFile cf = ChatSDK.db().createEntity(CachedFile.class);
-
-                cf.setIdentifier(message.getEntityID());
-                cf.setTransferStatus(TransferStatus.WillStart);
-                cf.setFileType(CachedFile.Type.Download);
-
-                cf.setMessageKey(Keys.MessageImageURL);
-                cf.setReportProgress(true);
-                cf.setStartTime(new Date());
-                cf.update();
-                //
-            } else {
-                emitter.onComplete();
-            }
-        });
-    }
-
-    @Override
-    public String previewText() {
-        String text = super.toString();
-        if (StringChecker.isNullOrEmpty(text)) {
-            text = ChatSDK.getString(R.string.image_message);
+        if (bitmap != null) {
+//            bitmap = Bitmap.createScaledBitmap(bitmap, Math.round(size.width), Math.round(size.height), true);
+            bitmap = ThumbnailUtils.extractThumbnail(bitmap, size.widthInt(), size.heightInt());
         }
-        return text;
+        return new BitmapDrawable(ChatSDK.ctx().getResources(), bitmap);
     }
+
+    protected Integer width() {
+        Object width = message.valueForKey(Keys.MessageImageWidth);
+        if (width instanceof Integer) {
+            return (Integer) width;
+        }
+        return null;
+    }
+
+    protected Integer height() {
+        Object height = message.valueForKey(Keys.MessageImageHeight);
+        if (height instanceof Integer) {
+            return (Integer) height;
+        }
+        return null;
+    }
+
+    public Size getSize() {
+        if (size == null) {
+            size = ImageMessageUtil.getImageMessageSize(width(), height());
+        }
+        return size;
+    }
+
 
 }

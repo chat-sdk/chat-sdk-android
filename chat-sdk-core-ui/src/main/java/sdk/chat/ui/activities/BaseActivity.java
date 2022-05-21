@@ -147,8 +147,9 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
                 if (bitmap != null) {
                     emitter.onSuccess(bitmap);
                 }
+            } else {
+                emitter.onError(new Throwable());
             }
-            emitter.onError(new Throwable());
         });
     }
 

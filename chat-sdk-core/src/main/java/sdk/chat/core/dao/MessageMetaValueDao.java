@@ -63,6 +63,8 @@ public class MessageMetaValueDao extends AbstractDao<MessageMetaValue, Long> {
                 " (\"KEY\" ASC);");
         db.execSQL("CREATE INDEX " + constraint + "IDX_MESSAGE_META_VALUE_MESSAGE_ID ON \"MESSAGE_META_VALUE\"" +
                 " (\"MESSAGE_ID\" ASC);");
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_MESSAGE_META_VALUE_MESSAGE_ID_KEY ON \"MESSAGE_META_VALUE\"" +
+                " (\"MESSAGE_ID\" ASC,\"KEY\" ASC);");
     }
 
     /** Drops the underlying database table. */

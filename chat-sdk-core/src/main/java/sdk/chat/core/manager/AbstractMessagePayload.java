@@ -1,9 +1,7 @@
 package sdk.chat.core.manager;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.graphics.drawable.Drawable;
 
-import io.reactivex.Completable;
 import sdk.chat.core.dao.Message;
 
 public abstract class AbstractMessagePayload implements MessagePayload {
@@ -21,7 +19,7 @@ public abstract class AbstractMessagePayload implements MessagePayload {
     }
 
     @Override
-    public String previewText() {
+    public String lastMessageText() {
         return getText();
     }
 
@@ -34,18 +32,12 @@ public abstract class AbstractMessagePayload implements MessagePayload {
     }
 
     @Override
-    public List<String> remoteURLs() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public Completable downloadMessageContent() {
-        return Completable.complete();
-    }
-
-    @Override
     public MessagePayload replyPayload() {
         return reply;
     }
 
+    @Override
+    public Drawable getPlaceholder() {
+        return null;
+    }
 }

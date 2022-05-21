@@ -1,8 +1,6 @@
 package sdk.chat.core.manager;
 
-import java.util.List;
-
-import io.reactivex.Completable;
+import android.graphics.drawable.Drawable;
 
 public interface MessagePayload {
 
@@ -13,12 +11,9 @@ public interface MessagePayload {
      * This is what is shown on the threads screen
      * @return
      */
-    String previewText();
+    String lastMessageText();
 
-    @Deprecated
-    // TODO: DO this with cached files
-    List<String> remoteURLs();
-    Completable downloadMessageContent();
     MessagePayload replyPayload();
+    Drawable getPlaceholder();
 
 }

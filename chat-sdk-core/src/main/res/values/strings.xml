@@ -33,8 +33,13 @@
 
     <string name="new_chat">New Chat</string>
     <string name="add_user_by_id">Add User by ID</string>
+    <string name="__percent" formatted="false">%.0f%%</string>
+
 
     <string name="settings">⚙️ Settings</string>
+
+    <string name="__kb">%.0f KB</string>
+    <string name="__mb">%.0f MB</string>
 
     <string name="you_were_removed_from_the_thread">You were removed</string>
     <string name="you_were_added_to_the_thread">You were added</string>

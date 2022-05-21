@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Completable;
+import io.reactivex.disposables.Disposable;
 import sdk.chat.contact.ContactBookModule;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
@@ -27,6 +28,7 @@ import sdk.chat.firebase.receipts.FirebaseReadReceiptsModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.V2ImageMessageRegistration;
 import sdk.chat.message.V2TextMessageRegistration;
+import sdk.chat.message.V2VideoMessageRegistration;
 import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.location.LocationMessageModule;
@@ -83,7 +85,6 @@ public class MainApplication extends Application {
 //        System.out.println("Done");
 
 
-
         try {
             firebase();
 
@@ -127,6 +128,11 @@ public class MainApplication extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        Disposable d3 = ChatSDK.events().errorSourceOnMain().subscribe(throwable -> {
+            //
+            throwable.printStackTrace();
+        });
     }
 
     public void logTime() {
@@ -221,6 +227,7 @@ public class MainApplication extends Application {
 
         ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2TextMessageRegistration());
         ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2ImageMessageRegistration());
+        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2VideoMessageRegistration());
 
 
     }

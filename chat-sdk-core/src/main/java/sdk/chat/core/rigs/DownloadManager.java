@@ -10,18 +10,20 @@ import android.webkit.MimeTypeMap;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
-import com.androidnetworking.interfaces.DownloadListener;
-import com.androidnetworking.interfaces.DownloadProgressListener;
+import com.androidnetworking.error.ANError;
+
+import org.pmw.tinylog.Logger;
 
 import java.io.File;
-import java.util.List;
-import java.util.UUID;
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import io.reactivex.Single;
 import sdk.chat.core.dao.CachedFile;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.storage.TransferManager;
+import sdk.chat.core.storage.TransferStatus;
 
 
 public class DownloadManager extends TransferManager {
@@ -29,25 +31,36 @@ public class DownloadManager extends TransferManager {
     protected Context context;
     protected FileManager fileManager;
 
+    protected Map<String, MessageDownloadListener> listeners = new ConcurrentHashMap<>();
+
     public DownloadManager(Context context) {
         this.context = context;
         fileManager = new FileManager(context);
     }
 
-    public String download(String url, File toDir, String name, DownloadProgressListener progressListener, DownloadListener completion) {
+    public void download(Message message, String key, String url, String name) throws IOException {
 
         // Make a new file
-        File file = fileManager.downloadsDirectory();
+        File dir = fileManager.downloadsDirectory();
+        File file = new File(dir, name);
+        if (!file.exists()) {
+            if (!file.createNewFile()) {
+                Logger.info("File not created");
+            }
+        }
 
-        String token = UUID.randomUUID().toString();
-        AndroidNetworking.download(url, toDir.getPath(), name)
-                .setTag(token)
+        // Make a new cached file
+        CachedFile cf = add(file, message.getEntityID(), key, url, CachedFile.Type.Download, true);
+
+        MessageDownloadListener listener = new MessageDownloadListener(message, cf);
+
+        AndroidNetworking.download(url, dir.getPath(), file.getName())
+                .setTag(message.getEntityID())
                 .setPriority(Priority.MEDIUM)
                 .build()
-                .setDownloadProgressListener(progressListener)
-                .startDownload(completion);
+                .setDownloadProgressListener(listener)
+                .startDownload(listener);
 
-        return token;
     }
 
     public void downloadInBackground(String url, String name) {
@@ -66,34 +79,20 @@ public class DownloadManager extends TransferManager {
 
     }
 
-    public Single<CachedFile> download(Message message, String remoteURL) {
-        return Single.create(emitter -> {
-            List<CachedFile> cachedFiles = getFiles(message.getEntityID());
-            CachedFile cf = null;
-            for (CachedFile file: cachedFiles) {
-                if (file.getRemotePath() != null && file.getRemotePath().equals(remoteURL)) {
-                    cf = file;
-                    break;
-                }
-            }
-            // This is our file
-            if (cf == null) {
+    public TransferStatus getDownloadStatus(Message message) {
+        MessageDownloadListener listener = listeners.get(message.getEntityID());
+        if (listener != null) {
+            return listener.getStatus();
+        }
+        return TransferStatus.None;
+    }
 
-
-//                AndroidNetworking.download(url, toDir.getPath(), name)
-//                        .setTag(token)
-//                        .setPriority(Priority.MEDIUM)
-//                        .build()
-//                        .setDownloadProgressListener(progressListener)
-//                        .startDownload(completion);
-
-            }
-
-
-            emitter.onSuccess(cf);
-
-
-        });
+    public ANError getDownloadError(Message message) {
+        MessageDownloadListener listener = listeners.get(message.getEntityID());
+        if (listener != null) {
+            return listener.getError();
+        }
+        return null;
     }
 
 }

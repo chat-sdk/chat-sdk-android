@@ -8,6 +8,19 @@ public class Progress {
 
     public long transferredBytes;
     public long totalBytes;
+    public Throwable error;
+
+    public Progress() {
+    }
+
+    public Progress(Throwable error) {
+        this.error = error;
+    }
+
+    public Progress(long transferredBytes, long totalBytes) {
+        this.transferredBytes = transferredBytes;
+        this.totalBytes = totalBytes;
+    }
 
     public float asFraction() {
         return (float) transferredBytes / (float) totalBytes;

@@ -19,7 +19,7 @@ public class UploadManager extends TransferManager {
             file.setIdentifier(message.getEntityID());
             file.setMimeType(uploadable.mimeType);
             file.setName(uploadable.name);
-            file.setTransferStatus(TransferStatus.WillStart);
+            file.setTransferStatus(TransferStatus.Initial);
             file.setFileType(CachedFile.Type.Upload);
             file.setMessageKey(uploadable.messageKey);
             file.setReportProgress(uploadable.reportProgress);

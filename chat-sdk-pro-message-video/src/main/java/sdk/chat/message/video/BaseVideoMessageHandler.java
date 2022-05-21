@@ -1,7 +1,6 @@
-package sdk.chat.message.video;
+ package sdk.chat.message.video;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.provider.MediaStore;
 
@@ -22,6 +21,7 @@ import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.rigs.Uploadable;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.core.utils.Base64ImageUtils;
 
 /**
  * Created by ben on 10/6/17.
@@ -42,32 +42,38 @@ public class BaseVideoMessageHandler extends AbstractMessageHandler implements V
             if (videoFile.length() > VideoMessageModule.shared().config.maxFileSizeInBytes()) {
                 return Completable.error(new Throwable(String.format(ChatSDK.getString(R.string.file_too_large_max_size__), VideoMessageModule.shared().config.maxFileSizeInMB)));
             } else {
-                Bitmap preview = ThumbnailUtils.createVideoThumbnail(videoFile.getPath(),
+
+                // Generate thumbnail
+                final Bitmap placeholder = ThumbnailUtils.createVideoThumbnail(videoFile.getPath(),
                         MediaStore.Images.Thumbnails.MINI_KIND);
 
-                if (preview == null) {
-                    preview = BitmapFactory.decodeResource(ChatSDK.shared().context().getResources(), R.drawable.icn_200_image_message_placeholder);
-                }
-                final Bitmap thumb = preview;
+                final File placeholderFile = ImageUtils.saveBitmapToFile(placeholder);
 
-                final File thumbFile = ImageUtils.saveBitmapToFile(thumb);
+                // Make uploadables
+                Uploadable videoUploadable = new FileUploadable(videoFile, videoName, videoMimeType, Keys.MessageVideoURL);
+                Uploadable placeholderUploadable = new JPEGUploadable(placeholderFile, imageName, Keys.MessageImageURL).setReportProgress(false);
 
                 ArrayList<Uploadable> uploadables = new ArrayList<>();
-                uploadables.add(new FileUploadable(videoFile, videoName, videoMimeType, Keys.MessageVideoURL));
-                uploadables.add(new JPEGUploadable(thumbFile, imageName, Keys.MessageImageURL).setReportProgress(false));
+                uploadables.add(videoUploadable);
+                uploadables.add(placeholderUploadable);
 
                 return new MessageSendRig(new MessageType(MessageType.Video), thread, message -> {
-                    message.setValueForKey(thumb.getWidth(), Keys.MessageImageWidth);
-                    message.setValueForKey(thumb.getHeight(), Keys.MessageImageHeight);
+
+                    message.setValueForKey(placeholder.getWidth(), Keys.MessageImageWidth);
+                    message.setValueForKey(placeholder.getHeight(), Keys.MessageImageHeight);
                     message.setText(ChatSDK.getString(R.string.video_message));
-                }).setUploadables(uploadables, (message, result) -> {
-//                    if(result.mimeType.equals(imageMimeType)) {
-//                        message.setValueForKey(result.url, Keys.MessageImageURL);
-//                    }
-//                    if(result.mimeType.equals(videoMimeType)) {
-//                        message.setValueForKey(result.url, Keys.MessageVideoURL);
-//                    }
-                }).run();
+                    message.setValueForKey(videoFile.length(), Keys.MessageSize);
+
+                    message.setFilePath(videoFile.getPath());
+                    message.setPlaceholderPath(placeholderFile.getPath());
+
+                    // Add a base64 preview
+                    if (ChatSDK.config().sendBase64ImagePreview) {
+                        String base64 = Base64ImageUtils.toBase64(placeholder, ChatSDK.config().imagePreviewMaxSize, ChatSDK.config().imagePreviewQuality);
+                        message.setValueForKey(base64, Keys.MessageImagePreview);
+                    }
+
+                }).setUploadables(uploadables, null).run();
             }
         });
     }

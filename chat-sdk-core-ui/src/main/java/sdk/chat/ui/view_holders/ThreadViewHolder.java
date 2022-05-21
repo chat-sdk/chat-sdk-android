@@ -13,6 +13,8 @@ import java.util.Date;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import sdk.chat.core.interfaces.ThreadType;
+import sdk.chat.ui.ChatSDKUI;
+import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.ThreadHolder;
 import sdk.chat.ui.chat.model.TypingThreadHolder;
@@ -40,6 +42,8 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
         }
 
         super.onBind(holder);
+
+        ChatSDKUI.provider().imageLoader().loadThread(ivAvatar, holder.getDialogPhoto(), holder.getThread().typeIs(ThreadType.Group), R.dimen.thread_image_size);
 
         if (holder instanceof TypingThreadHolder) {
             @ColorRes int color = UIModule.config().threadViewHolderTypingTextColor;

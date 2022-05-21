@@ -643,13 +643,8 @@ public class MessageHolders {
 
     @SuppressWarnings("unchecked")
     private short getContentViewType(IMessage message) {
-        if (message instanceof MessageContentType.Image
-                && ((MessageContentType.Image) message).getImageUrl() != null) {
-            return VIEW_TYPE_IMAGE_MESSAGE;
-        }
 
         // other default types will be here
-
         if (message instanceof MessageContentType) {
             for (int i = 0; i < customContentTypes.size(); i++) {
                 ContentTypeConfig config = customContentTypes.get(i);
@@ -659,6 +654,11 @@ public class MessageHolders {
                 boolean hasContent = contentChecker.hasContentFor(message, config.type);
                 if (hasContent) return config.type;
             }
+        }
+
+        if (message instanceof MessageContentType.Image
+                && ((MessageContentType.Image) message).getImageUrl() != null) {
+            return VIEW_TYPE_IMAGE_MESSAGE;
         }
 
         return VIEW_TYPE_TEXT_MESSAGE;

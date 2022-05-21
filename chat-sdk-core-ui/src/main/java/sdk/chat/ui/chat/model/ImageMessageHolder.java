@@ -1,18 +1,20 @@
 package sdk.chat.ui.chat.model;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 
 import com.stfalcon.chatkit.commons.models.MessageContentType;
 
 import io.reactivex.Single;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
+import sdk.chat.core.manager.ImageMessagePayload;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.core.utils.Size;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 
@@ -47,17 +49,15 @@ public class ImageMessageHolder extends MessageHolder implements MessageContentT
     }
 
     @Nullable
-    public Bitmap placeholder() {
-        Bitmap bitmap = message.getPlaceholder();
-        if (bitmap == null) {
-            bitmap = BitmapFactory.decodeResource(ChatSDK.ctx().getResources(), R.drawable.icn_200_location_message_placeholder);
+    public Drawable placeholder() {
+        Drawable drawable = null;
+        if (payload != null) {
+            drawable = payload.getPlaceholder();
         }
-//
-//        if (message.typeIs(MessageType.Location)) {
-//            return R.drawable.icn_200_location_message_placeholder;
-//        }
-//        return R.drawable.icn_200_image_message_placeholder;
-        return bitmap;
+        if (drawable == null) {
+            drawable = AppCompatResources.getDrawable(ChatSDK.ctx(), defaultPlaceholder());
+        }
+        return drawable;
     }
 
     public int defaultPlaceholder() {
@@ -75,6 +75,21 @@ public class ImageMessageHolder extends MessageHolder implements MessageContentT
     @Override
     public Single<String> save(Context context) {
         return ChatSDKUI.provider().saveProvider().saveImage(context, getImageUrl());
+    }
+
+    public ImageMessagePayload getPayload() {
+        if (payload instanceof ImageMessagePayload) {
+            return (ImageMessagePayload) payload;
+        }
+        return null;
+    }
+
+    public Size getSize() {
+        ImageMessagePayload payload = getPayload();
+        if (payload != null) {
+            return payload.getSize();
+        }
+        return new Size(0, 0);
     }
 
 }

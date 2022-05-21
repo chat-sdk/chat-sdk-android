@@ -154,7 +154,7 @@ public class EjabberdUploadHandler extends AbstractUploadHandler {
 
     }
 
-    public Single<File> download (String url, String fileName) {
+    public Single<File> download(String url, String fileName) {
         return Single.create((SingleOnSubscribe<File>) emitter -> {
             File directory = ChatSDK.shared().context().getFilesDir();
 

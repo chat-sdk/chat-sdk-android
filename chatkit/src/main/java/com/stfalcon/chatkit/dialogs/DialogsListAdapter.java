@@ -16,17 +16,21 @@
 
 package com.stfalcon.chatkit.dialogs;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
-import androidx.annotation.LayoutRes;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.stfalcon.chatkit.R;
 import com.stfalcon.chatkit.commons.ImageLoader;
@@ -42,9 +46,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 
 /**
  * Adapter for {@link DialogsList}
@@ -697,7 +698,7 @@ public class DialogsListAdapter<DIALOG extends IDialog>
 
             //Set Last message text
             if (dialog.getLastMessage() != null) {
-                tvLastMessage.setText(dialog.getLastMessage().getText());
+                tvLastMessage.setText(dialog.getLastMessage().getPreview());
             } else {
                 tvLastMessage.setText(null);
             }

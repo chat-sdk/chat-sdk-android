@@ -55,6 +55,7 @@ public class ChatActivity extends BaseActivity implements ChatFragment.Delegate 
     @Override
     public void onResume() {
         super.onResume();
+
     }
 
     @Override

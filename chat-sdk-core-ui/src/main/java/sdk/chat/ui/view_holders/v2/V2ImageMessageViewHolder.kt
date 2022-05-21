@@ -1,33 +1,42 @@
 package sdk.chat.ui.view_holders.v2
 
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
+import com.mikhaellopez.circularprogressbar.CircularProgressBar
+import org.pmw.tinylog.Logger
+import sdk.chat.core.events.EventType
+import sdk.chat.core.events.NetworkEvent
+import sdk.chat.core.manager.DownloadablePayload
+import sdk.chat.core.session.ChatSDK
+import sdk.chat.core.types.MessageSendStatus
 import sdk.chat.ui.ChatSDKUI
 import sdk.chat.ui.R
 import sdk.chat.ui.chat.model.ImageMessageHolder
 import sdk.chat.ui.icons.Icons
-import sdk.chat.ui.utils.ImageLoaderPayload
+import sdk.guru.common.RX
 
-class V2ImageMessageViewHolder(itemView: View?, payload: Any?): BaseMessageViewHolder<ImageMessageHolder>(itemView, payload) {
+open class V2ImageMessageViewHolder<T: ImageMessageHolder>(itemView: View, payload: Any?): BaseMessageViewHolder<T>(itemView, payload) {
 
-    var image: ImageView? = itemView?.findViewById(R.id.image)
-    var imageOverlayContainer: LinearLayout? = itemView?.findViewById(R.id.imageOverlayContainer)
+    var image: ImageView? = itemView.findViewById(R.id.image)
+    var imageOverlayContainer: LinearLayout? = itemView.findViewById(R.id.imageOverlayContainer)
+    var bubbleOverlay: View? = itemView.findViewById(R.id.bubbleOverlay)
+    var actionButton: Button? = itemView.findViewById(R.id.actionButton)
+    var progressBar: CircularProgressBar? = itemView.findViewById(R.id.circularProgressBar)
+    var progressText: TextView? = itemView.findViewById(R.id.progressText)
 
-    override fun onBind(holder: ImageMessageHolder) {
+    override fun onBind(holder: T) {
         super.onBind(holder)
 
-        // Check to see if we have a placeholder
-        val placeholder = holder.placeholder()
-        if (placeholder != null) {
-            image?.setImageBitmap(placeholder)
-        } else {
+        actionButton?.setOnClickListener(View.OnClickListener {
+            actionButtonPressed(holder)
+        })
 
-        }
-
-        if (image != null && imageLoader != null) {
-            // TODO:
-            imageLoader.loadImage(image, holder.imageUrl, getPayloadForImageLoader(holder))
+        image.let {
+            Logger.debug("ImageSize: " + holder.size.width + ", " + holder.size.height)
+            ChatSDKUI.provider().imageLoader().load(image, holder.imageUrl, holder.placeholder(), holder.size)
         }
 
         imageOverlay?.setImageDrawable(
@@ -38,28 +47,105 @@ class V2ImageMessageViewHolder(itemView: View?, payload: Any?): BaseMessageViewH
             )
         )
 
-        if (imageOverlayContainer != null) {
-            imageOverlayContainer!!.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
-        }
+        imageOverlayContainer?.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
 
-//        UIModule.shared().onlineStatusBinder.bind(onlineIndicator, holder.user.isOnline)
-//        UIModule.shared().nameBinder.bind(userName, holder)
-//        UIModule.shared().timeBinder.bind(time, holder)
+        bind(holder)
     }
 
-//    override fun bindViews() {
-//        super.bindViews()
-//        image = itemView.findViewById(R.id.image)
-//        imageOverlayContainer = itemView.findViewById(R.id.imageOverlayContainer)
-//    }
+    override fun bindListeners(t: T) {
+        super.bindListeners(t)
 
-    /**
-     * Override this method to have ability to pass custom data in ImageLoader for loading image(not avatar).
-     *
-     * @param message Message with image
-     */
-    fun getPayloadForImageLoader(message: ImageMessageHolder): Any? {
-        return ImageLoaderPayload(message.defaultPlaceholder())
+        dm.add(ChatSDK.events().sourceOnSingle()
+            .filter(NetworkEvent.filterType(EventType.MessageProgressUpdated))
+            .filter(NetworkEvent.filterMessageEntityID(t.id))
+            .doOnError(this)
+            .subscribe {
+                RX.main().scheduleDirect {
+                    bindProgress(t)
+                }
+            })
+    }
+
+    override fun bindProgress(t: T) {
+        super.bindProgress(t)
+
+        val transferInProgress = t.uploadPercentage > 0 && t.uploadPercentage <= 100
+
+        progressBar?.let {
+            it.visibility =  if(transferInProgress) View.VISIBLE else View.INVISIBLE
+            it.progress = t.uploadPercentage
+        }
+
+        progressText?.let {
+            it.visibility =  if (transferInProgress) View.VISIBLE else View.INVISIBLE
+            it.text = String.format(ChatSDK.getString(R.string.__percent), t.uploadPercentage)
+        }
+
+        if (transferInProgress) {
+            actionButton?.visibility = View.INVISIBLE
+        }
+
+    }
+
+    override fun bindSendStatus(t: T) {
+        super.bindSendStatus(t)
+
+        var showOverlay = false
+
+        val sendStatus = t.sendStatus
+        val payload = t.payload
+
+        actionButton?.visibility = View.INVISIBLE
+
+        // It is uploading
+        if (sendStatus == MessageSendStatus.Uploading) {
+            showOverlay = true
+        }
+        else if (sendStatus == MessageSendStatus.Sent || sendStatus == MessageSendStatus.None) {
+            if (payload is DownloadablePayload) {
+                if (payload.canDownload()) {
+                    // Show Overlay and download button
+                    showOverlay = true
+
+                    progressBar?.visibility = View.VISIBLE
+                    actionButton?.visibility = View.VISIBLE
+                    if (payload.size() != null) {
+                        progressText?.visibility = View.VISIBLE
+
+                        var size = payload.size() / 1000f
+                        if (size < 1000) {
+                            progressText?.text = String.format(ChatSDK.getString(R.string.__kb), size)
+                        } else {
+                            size /= 1000f
+                            progressText?.text = String.format(ChatSDK.getString(R.string.__mb), size)
+                        }
+                    }
+                }
+            }
+        }
+
+        if (showOverlay) {
+            bubbleOverlay?.visibility = View.VISIBLE
+        } else {
+            bubbleOverlay?.visibility = View.INVISIBLE
+            progressBar?.visibility = View.INVISIBLE
+            progressText?.visibility = View.INVISIBLE
+            actionButton?.visibility = View.INVISIBLE
+        }
+    }
+
+    open fun actionButtonPressed(holder: ImageMessageHolder) {
+        val payload = holder.payload
+        if (payload is DownloadablePayload) {
+            if (payload.canDownload()) {
+                progressBar?.progress = 1f
+                dm.add(payload.startDownload().subscribe({
+                   actionButton?.visibility = View.INVISIBLE
+                }, {
+
+                }))
+            }
+        }
     }
 
 }

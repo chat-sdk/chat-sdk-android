@@ -61,6 +61,8 @@ public class UserThreadLinkMetaValueDao extends AbstractDao<UserThreadLinkMetaVa
                 " (\"VALUE\" ASC);");
         db.execSQL("CREATE INDEX " + constraint + "IDX_USER_THREAD_LINK_META_VALUE_USER_THREAD_LINK_ID ON \"USER_THREAD_LINK_META_VALUE\"" +
                 " (\"USER_THREAD_LINK_ID\" ASC);");
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_USER_THREAD_LINK_META_VALUE_USER_THREAD_LINK_ID_KEY ON \"USER_THREAD_LINK_META_VALUE\"" +
+                " (\"USER_THREAD_LINK_ID\" ASC,\"KEY\" ASC);");
     }
 
     /** Drops the underlying database table. */

@@ -5,14 +5,14 @@ package sdk.chat.core.types;
  */
 
 public enum MessageSendStatus {
-    None,
-    Created,
-    Compressing,
-    WillUpload,
+    Initial,
+//    Compressing,
     Uploading,
-    UploadFailed,
-    DidUpload,
-    WillSend,
+//    UploadFailed,
+//    DidUpload,
+//    WillSend,
     Sent,
     Failed,
+    None,
+//    Incoming,
 }

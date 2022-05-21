@@ -19,9 +19,11 @@ public interface EventHandler extends Consumer<Throwable>, CompletableObserver {
 
     Observable<NetworkEvent> sourceOnMain();
     Observable<NetworkEvent> sourceOnBackground();
+    Observable<NetworkEvent> sourceOnSingle();
 
     Observable<NetworkEvent> prioritySourceOnMain();
     Observable<NetworkEvent> prioritySourceOnBackground();
+    Observable<NetworkEvent> prioritySourceOnSingle();
 
     Observable<Throwable> errorSourceOnMain();
 

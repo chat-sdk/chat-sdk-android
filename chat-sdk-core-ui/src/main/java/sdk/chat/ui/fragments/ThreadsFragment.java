@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 
 import com.jakewharton.rxrelay2.PublishRelay;
-import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 import com.stfalcon.chatkit.utils.DateFormatter;
@@ -38,7 +37,6 @@ import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.utils.Dimen;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
@@ -47,8 +45,6 @@ import sdk.chat.ui.interfaces.SearchSupported;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.performance.ThreadHoldersDiffCallback;
 import sdk.chat.ui.provider.MenuItemProvider;
-import sdk.chat.ui.utils.GlideWith;
-import sdk.chat.ui.utils.ThreadImageBuilder;
 import sdk.chat.ui.view_holders.ThreadViewHolder;
 import sdk.guru.common.RX;
 
@@ -108,7 +104,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         }
         listenersAdded = true;
 
-        dm.add(ChatSDK.events().sourceOnMain()
+        dm.add(ChatSDK.events().sourceOnSingle()
             .filter(NetworkEvent.filterType(
                 EventType.ThreadMetaUpdated,
                 EventType.TypingStateUpdated,
@@ -127,13 +123,13 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 });
             }));
 
-        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(
+        dm.add(ChatSDK.events().sourceOnSingle().filter(NetworkEvent.filterType(
             EventType.ThreadsUpdated
         )).subscribe(networkEvent -> {
             loadData();
         }));
 
-        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(
+        dm.add(ChatSDK.events().sourceOnSingle().filter(NetworkEvent.filterType(
             EventType.ThreadAdded
         )).subscribe(networkEvent -> {
             root.post(() -> {
@@ -141,7 +137,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             });
         }));
 
-        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(
+        dm.add(ChatSDK.events().sourceOnSingle().filter(NetworkEvent.filterType(
             EventType.ThreadRemoved
         )).subscribe(networkEvent -> {
             root.post(() -> {
@@ -149,7 +145,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             });
         }));
 
-        dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(
+        dm.add(ChatSDK.events().sourceOnSingle().filter(NetworkEvent.filterType(
             EventType.MessageAdded,
             EventType.MessageRemoved,
             EventType.ThreadMessagesUpdated
@@ -181,22 +177,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     public void initViews() {
 
-        ImageLoader loader = (imageView, url, payload) -> {
-            if (getContext() != null) {
-                int size = Dimen.from(getContext(), R.dimen.action_bar_avatar_size);
-
-                if (payload instanceof ThreadHolder) {
-                    ThreadHolder threadHolder = (ThreadHolder) payload;
-                    ThreadImageBuilder.load(imageView, threadHolder.getThread());
-                } else {
-                    int placeholder = UIModule.config().defaultProfilePlaceholder;
-                    GlideWith.load(this, url).dontAnimate().override(size).placeholder(placeholder).into(imageView);
-                }
-            }
-        };
-
 //        if (!useAsyncAdapter) {
-            dialogsListAdapter = new DialogsListAdapter<>(R.layout.view_holder_thread, ThreadViewHolder.class, loader);
+            dialogsListAdapter = new DialogsListAdapter<>(R.layout.view_holder_thread, ThreadViewHolder.class, null);
 //        } else {
 //            asyncDialogsListAdapter = new AsyncDialogsListAdapter(R.layout.view_holder_thread, ThreadViewHolder.class, loader);
 //        }

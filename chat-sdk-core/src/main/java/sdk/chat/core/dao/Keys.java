@@ -61,6 +61,7 @@ public class Keys {
     public static final String MessageImageHeight = "image-height";
     public static final String MessageVideoURL = "video-url";
     public static final String MessageAudioURL = "audio-url";
+    public static final String MessageSize = "size";
     public static final String MessageAudioLength = "audio-length";
     public static final String MessageStickerName = "sticker";
     public static final String MessageMimeType = "mime-type";

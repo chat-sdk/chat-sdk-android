@@ -5,6 +5,7 @@ package sdk.chat.core.dao;
 // KEEP INCLUDES - put your token includes here
 
 import org.greenrobot.greendao.DaoException;
+import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
@@ -13,7 +14,11 @@ import org.greenrobot.greendao.annotation.ToOne;
 
 import sdk.chat.core.types.ConnectionType;
 
-@org.greenrobot.greendao.annotation.Entity
+@Entity(
+        indexes = {
+                @Index(value = "linkOwnerUserDaoId,userId", unique = true)
+        }
+)
 public class ContactLink {
 
     @Id

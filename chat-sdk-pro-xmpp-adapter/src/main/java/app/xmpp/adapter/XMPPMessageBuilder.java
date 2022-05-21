@@ -10,6 +10,7 @@ import org.jivesoftware.smackx.receipts.DeliveryReceiptRequest;
 import org.jxmpp.jid.BareJid;
 
 import java.util.Map;
+import java.util.Objects;
 
 import app.xmpp.adapter.defines.XMPPDefines;
 import app.xmpp.adapter.utils.PublicKeyExtras;
@@ -31,10 +32,10 @@ public class XMPPMessageBuilder {
 
     StandardExtensionElement.Builder extensionBuilder = StandardExtensionElement.builder(XMPPDefines.Extras, XMPPDefines.MessageNamespace);
 
-    public XMPPMessageBuilder setValues(Map<String, Object> values) {
+    public XMPPMessageBuilder setValues(Map<String, String> values) {
         // If this is an encrypted message, encrypt it
         for(String key : values.keySet()) {
-            extensionBuilder.addElement(key, values.get(key).toString());
+            extensionBuilder.addElement(key, Objects.requireNonNull(values.get(key)));
         }
         return this;
     }

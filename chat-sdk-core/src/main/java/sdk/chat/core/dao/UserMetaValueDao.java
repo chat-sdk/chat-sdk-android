@@ -59,6 +59,8 @@ public class UserMetaValueDao extends AbstractDao<UserMetaValue, Long> {
                 " (\"KEY\" ASC);");
         db.execSQL("CREATE INDEX " + constraint + "IDX_USER_META_VALUE_USER_ID ON \"USER_META_VALUE\"" +
                 " (\"USER_ID\" ASC);");
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_USER_META_VALUE_USER_ID_KEY ON \"USER_META_VALUE\"" +
+                " (\"USER_ID\" ASC,\"KEY\" ASC);");
     }
 
     /** Drops the underlying database table. */

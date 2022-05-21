@@ -17,7 +17,9 @@ import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.guru.common.DisposableMap;
@@ -27,6 +29,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
     protected Thread thread;
 
     protected List<UserHolder> users = new ArrayList<>();
+    protected User otherUser = null;
     protected Set<String> userIds = new HashSet<>();
 
     protected MessageHolder lastMessage = null;
@@ -44,7 +47,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
         creationDate = thread.getCreationDate();
         update();
 
-        dm.add(ChatSDK.events().prioritySourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnSingle()
                 .filter(NetworkEvent.filterType(
                         EventType.MessageReadReceiptUpdated,
                         EventType.MessageUpdated,
@@ -58,21 +61,21 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                     updateLastMessage();
                 }));
 
-        dm.add(ChatSDK.events().prioritySourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnSingle()
                 .filter(NetworkEvent.filterType(EventType.UserMetaUpdated))
                 .filter(NetworkEvent.filterThreadContainsUser(thread))
                 .subscribe(networkEvent -> {
                     updateDisplayName();
                 }));
 
-        dm.add(ChatSDK.events().prioritySourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnSingle()
                 .filter(NetworkEvent.filterType(EventType.UserPresenceUpdated))
                 .filter(NetworkEvent.filterThreadContainsUser(thread))
                 .subscribe(networkEvent -> {
                     updateUserPresence();
                 }));
 
-        dm.add(ChatSDK.events().prioritySourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnSingle()
                 .filter(NetworkEvent.filterType(
                         EventType.ThreadUserAdded,
                         EventType.ThreadUserRemoved,
@@ -82,7 +85,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                     updateDisplayName();
                 }));
 
-        dm.add(ChatSDK.events().prioritySourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnSingle()
                 .filter(NetworkEvent.filterType(EventType.TypingStateUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(getId()))
                 .subscribe(networkEvent -> {
@@ -95,7 +98,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                     isDirty = true;
                 }));
 
-        dm.add(ChatSDK.events().prioritySourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnSingle()
                 .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated))
                 .filter(NetworkEvent.filterThreadEntityID(getId()))
                 .subscribe(networkEvent -> {
@@ -148,6 +151,10 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                 }
             }
         }
+
+        if (isDirty) {
+            otherUser = thread.otherUser();
+        }
     }
 
     public void updateDisplayName() {
@@ -191,16 +198,13 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     @Override
     public String getDialogPhoto() {
-        return null;
-//
-//        String url = thread.getImageUrl();
-//        if (url == null) {
-//            if (getUsers().size() == 1) {
-//                url = getUsers().get(0).getAvatar();
-//            }
-//        }
-//
-//        return url;
+        String url = thread.getImageUrl();
+        if (StringChecker.isNullOrEmpty(url) && thread.typeIs(ThreadType.Private)) {
+            if (otherUser != null) {
+                url = otherUser.getAvatarURL();
+            }
+        }
+        return url;
     }
 
     @Override

@@ -14,12 +14,10 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.LayoutRes;
+import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentContainerView;
 
 import com.stfalcon.chatkit.messages.MessageInput;
@@ -153,13 +151,13 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     public void hideTextInput() {
         input.setVisibility(View.GONE);
         divider.setVisibility(View.GONE);
-        updateChatViewMargins();
+        updateChatViewMargins(true);
     }
 
     public void showTextInput() {
         input.setVisibility(View.VISIBLE);
         divider.setVisibility(View.VISIBLE);
-        updateChatViewMargins();
+        updateChatViewMargins(true);
     }
 
     public void hideReplyView() {
@@ -169,19 +167,29 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         chatView.clearSelection();
         replyView.hide();
         updateOptionsButton();
-        updateChatViewMargins();
+        updateChatViewMargins(true);
     }
 
-    public void updateChatViewMargins() {
-        input.post(() -> {
-
+    public void updateChatViewMargins(boolean post) {
+        Runnable runnable = () -> {
             int bottomMargin = bottomMargin();
+
+            if (koh.keyboardOverlayVisible()) {
+                bottomMargin += getKeyboardAwareView().getKeyboardHeight();
+            }
 
             // TODO: Margins
             CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) chatView.getLayoutParams();
             params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, bottomMargin);
             chatView.setLayoutParams(params);
-        });
+        };
+
+        if (post) {
+            input.post(runnable);
+        } else {
+            runnable.run();
+        }
+
     }
 
     public int bottomMargin() {
@@ -203,7 +211,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         }
         replyView.show(title, imageURL, text);
 
-        updateChatViewMargins();
+        updateChatViewMargins(true);
     }
 
     protected void initViews() {
@@ -398,10 +406,9 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
         // Put it here in the case that they closed the app with this screen open
         thread.markReadAsync().subscribe();
+
         showOrHideTextInputView();
 
-        WindowInsetsCompat compat = ViewCompat.getRootWindowInsets(root);
-        System.out.println("");
 
     }
 

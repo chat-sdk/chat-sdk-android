@@ -11,6 +11,9 @@ import java.util.List;
 
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
+import sdk.chat.core.manager.DownloadablePayload;
+import sdk.chat.core.manager.MessagePayload;
+import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.chat.model.MessageHolder;
@@ -51,6 +54,16 @@ public class VideoMessageRegistration extends DefaultMessageRegistration {
     public boolean onClick(Activity activity, View rootView, Message message) {
         if (!super.onClick(activity, rootView, message)) {
             if (message.getMessageType().is(MessageType.Video)) {
+
+                MessagePayload payload = ChatSDK.getMessagePayload(message);
+                if (payload instanceof DownloadablePayload) {
+                    DownloadablePayload dp = (DownloadablePayload) payload;
+                    if (dp.canDownload()) {
+                        dp.startDownload().subscribe();
+                        return true;
+                    }
+                }
+
                 String videoURL = (String) message.valueForKey(Keys.MessageVideoURL);
                 if(videoURL != null) {
                     Intent intent = new Intent(activity, VideoMessageModule.config().getVideoPlayerActivity());

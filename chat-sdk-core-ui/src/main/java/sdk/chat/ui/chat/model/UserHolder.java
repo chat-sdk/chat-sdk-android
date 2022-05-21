@@ -5,7 +5,6 @@ import com.stfalcon.chatkit.commons.models.IUser;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
-import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.module.UIModule;
@@ -23,7 +22,7 @@ public class UserHolder implements IUser {
     public UserHolder(User user) {
         this.user = user;
 
-        dm.add(ChatSDK.events().prioritySourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnSingle()
                 .filter(NetworkEvent.filterType(
                         EventType.UserPresenceUpdated
                 ))
@@ -32,7 +31,7 @@ public class UserHolder implements IUser {
                     updateIsOnline();
                 }));
 
-        dm.add(ChatSDK.events().prioritySourceOnMain()
+        dm.add(ChatSDK.events().prioritySourceOnSingle()
                 .filter(NetworkEvent.filterType(
                         EventType.UserMetaUpdated
                 ))
@@ -72,12 +71,7 @@ public class UserHolder implements IUser {
         if (!UIModule.config().showAvatarInChatView) {
             return null;
         }
-        String url = user.getAvatarURL();
-        if (url == null) {
-            url =  ImageUtils.uriForResourceId(ChatSDK.ctx(), UIModule.config().defaultProfilePlaceholder).toString();
-        }
-
-        return url;
+        return user.getAvatarURL();
     }
 
     @Override

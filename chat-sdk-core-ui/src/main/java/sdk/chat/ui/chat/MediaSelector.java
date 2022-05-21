@@ -180,6 +180,7 @@ public class MediaSelector {
                                 .setMaxHeight(width)
                                 .setMaxWidth(height)
                                 .compressToFile(imageFile);
+
                         files.add(compressed);
                     } else {
                         files.add(imageFile);

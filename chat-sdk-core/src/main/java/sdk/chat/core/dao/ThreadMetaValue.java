@@ -11,7 +11,11 @@ import org.greenrobot.greendao.annotation.ToOne;
  * Created by ben on 5/16/18.
  */
 
-@Entity
+@Entity(
+        indexes = {
+                @Index(value = "threadId,key", unique = true)
+        }
+)
 public class ThreadMetaValue implements MetaValue<Object> {
 
     @Id

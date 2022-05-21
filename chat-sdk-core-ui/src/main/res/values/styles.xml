@@ -60,6 +60,10 @@
 
     <!-- Message theme -->
 
+    <item name="bubbleOverlayBackgroundColor">@color/gray_dark_75</item>
+    <item name="messageTransferProgressBarBackgroundColor">@color/white</item>
+    <item name="messageTransferProgressBarForegroundColor">@color/primary</item>
+
     <item name="incomingReplyDrawable">@drawable/shape_incoming_reply</item>
     <item name="incomingReplyImageDrawable">@drawable/shape_incoming_reply_image</item>
     <item name="incomingReplyDividerColor">?replyDividerColor</item>
@@ -77,6 +81,7 @@
     <item name="incomingDefaultBubbleSelectedColor">@color/primary_green</item>
     <item name="incomingDefaultBubblePressedColor">@color/gray_very_light</item>
     <item name="incomingBubbleDrawable">@drawable/shape_incoming_message_bubble</item>
+    <item name="incomingBubbleOverlayDrawable">@drawable/shape_incoming_message_bubble_overlay</item>
 
     <item name="incomingBubblePaddingTop">9dp</item>
     <item name="incomingBubblePaddingBottom">9dp</item>
@@ -107,6 +112,7 @@
     <item name="outcomingDefaultBubbleSelectedColor">@color/primary_green</item>
     <item name="outcomingDefaultBubblePressedColor">@color/primary</item>
     <item name="outcomingBubbleDrawable">@drawable/shape_outcoming_message_bubble</item>
+    <item name="outcomingBubbleOverlayDrawable">@drawable/shape_outcoming_message_bubble_overlay</item>
 
     <item name="outcomingBubblePaddingTop">9dp</item>
     <item name="outcomingBubblePaddingBottom">9dp</item>

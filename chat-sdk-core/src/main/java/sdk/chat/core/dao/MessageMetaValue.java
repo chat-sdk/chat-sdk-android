@@ -7,7 +7,11 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.ToOne;
 
-@Entity
+@Entity(
+        indexes = {
+                @Index(value = "messageId,key", unique = true)
+        }
+)
 public class MessageMetaValue implements MetaValue<String> {
 
     @Id

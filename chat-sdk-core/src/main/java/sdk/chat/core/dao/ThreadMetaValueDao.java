@@ -67,6 +67,8 @@ public class ThreadMetaValueDao extends AbstractDao<ThreadMetaValue, Long> {
                 " (\"KEY\" ASC);");
         db.execSQL("CREATE INDEX " + constraint + "IDX_THREAD_META_VALUE_THREAD_ID ON \"THREAD_META_VALUE\"" +
                 " (\"THREAD_ID\" ASC);");
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_THREAD_META_VALUE_THREAD_ID_KEY ON \"THREAD_META_VALUE\"" +
+                " (\"THREAD_ID\" ASC,\"KEY\" ASC);");
     }
 
     /** Drops the underlying database table. */

@@ -4,8 +4,6 @@ package sdk.chat.core.dao;
 
 // KEEP INCLUDES - put your token includes here
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 
 import androidx.annotation.NonNull;
@@ -32,11 +30,9 @@ import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.storage.TransferStatus;
-import sdk.chat.core.types.MessageSendProgress;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.types.ReadStatus;
-import sdk.chat.core.utils.Base64ImageUtils;
 
 @Entity
 public class Message extends AbstractEntity {
@@ -192,12 +188,12 @@ public class Message extends AbstractEntity {
         return this.date;
     }
 
-    public Map<String, Object> getMetaValuesAsMap() {
+    public Map<String, String> getMetaValuesAsMap() {
         return getMetaValuesAsMap(false);
     }
 
-    public Map<String, Object> getMetaValuesAsMap(boolean includeLocal) {
-        Map<String, Object> values = new HashMap<>();
+    public Map<String, String> getMetaValuesAsMap(boolean includeLocal) {
+        Map<String, String> values = new HashMap<>();
         for (MessageMetaValue v : getMetaValues()) {
             if (!v.getIsLocal() || includeLocal)
                 values.put(v.getKey(), v.getValue());
@@ -205,18 +201,19 @@ public class Message extends AbstractEntity {
         return values;
     }
 
-    public void setMetaValues(@Nullable Map<String, Object> json) {
+    public <T extends Object> void setMetaValues(@Nullable Map<String, T> json) {
         if (json != null) {
             for (String key : json.keySet()) {
                 setMetaValue(key, json.get(key));
             }
         }
     }
-    public void setMetaValue(String key, Object value) {
-        setMetaValue(key, value, false, "");
+
+    public <T extends Object> boolean setMetaValue(String key, T value) {
+        return setMetaValue(key, value, false, "");
     }
 
-    public synchronized void setMetaValue(String key, Object value, boolean isLocal, String tag) {
+    public <T extends Object> boolean setMetaValue(String key, T value, boolean isLocal, String tag) {
         if (key.equals(Keys.Reply)) {
             if (value instanceof String) {
                 setReply((String) value);
@@ -227,18 +224,26 @@ public class Message extends AbstractEntity {
         MessageMetaValue metaValue = (MessageMetaValue) metaValue(key);
         if (metaValue == null) {
             metaValue = new MessageMetaValue();
-            ChatSDK.db().getDaoCore().createEntity(metaValue);
-
-//            metaValue = ChatSDK.db().create(MessageMetaValue.class);
-            metaValue.setMessageId(this.getId());
-            getMetaValues().add(metaValue);
+            metaValue.setMessageId(getId());
+            metaValue.setKey(key);
+            try {
+                ChatSDK.db().getDaoCore().createEntity(metaValue);
+                resetMetaValues();
+            } catch (Exception e) {
+                Logger.info("Duplicate message meta not created");
+                return false;
+            }
         }
-        metaValue.setValue(MetaValueHelper.toString(value));
-        metaValue.setKey(key);
+        // Get the string value of the object
+        String valueString = MetaValueHelper.toString(value);
+        if (MetaValueHelper.isEqual(metaValue, valueString)) {
+            return false;
+        }
+        metaValue.setValue(valueString);
         metaValue.setTag(tag);
         metaValue.setIsLocal(isLocal);
         metaValue.update();
-//        this.update();
+        return true;
     }
 
     protected MetaValue<String> metaValue(String key) {
@@ -315,24 +320,21 @@ public class Message extends AbstractEntity {
         }
 
         if (link == null || link.getStatus() < status.getValue()) {
-            if(link == null) {
-                Logger.debug("CREATE LINK - uid: " + user.getId() + " mid: " + this.getId());
-
+            if (link == null) {
                 link = new ReadReceiptUserLink();
-                ChatSDK.db().getDaoCore().createEntity(link);
-
-//                link = ChatSDK.db().create(ReadReceiptUserLink.class);
                 link.setMessageId(getId());
-                link.setUser(user);
                 link.setUserId(user.getId());
-                getReadReceiptLinks().add(link);
+                try {
+                    ChatSDK.db().getDaoCore().createEntity(link);
+                    resetReadReceiptLinks();
+                } catch (Exception e) {
+                    Logger.info("Read receipt already exists");
+                    return false;
+                }
             }
-
             link.setStatus(status.getValue());
             link.setDate(date);
-
             link.update();
-
             if (notify) {
                 ChatSDK.events().source().accept(NetworkEvent.messageReadReceiptUpdated(this));
             }
@@ -350,7 +352,7 @@ public class Message extends AbstractEntity {
         return location;
     }
 
-    public void setValueForKey (Object payload, String key) {
+    public <T extends  Object> void setValueForKey(T payload, String key) {
         setMetaValue(key, payload);
     }
 
@@ -391,6 +393,7 @@ public class Message extends AbstractEntity {
     public Integer getStatus() {
         return this.status;
     }
+
     public MessageSendStatus getMessageStatus() {
         if(this.status != null) {
             return MessageSendStatus.values()[this.status];
@@ -411,7 +414,7 @@ public class Message extends AbstractEntity {
             this.status = status.ordinal();
             this.update();
             if (notify) {
-                ChatSDK.events().source().accept(NetworkEvent.messageSendStatusChanged(new MessageSendProgress(this)));
+                ChatSDK.events().source().accept(NetworkEvent.messageSendStatusChanged(this));
             }
         }
     }
@@ -799,14 +802,10 @@ public class Message extends AbstractEntity {
 
         MessageSendStatus status = getMessageStatus();
 
-        if (status == MessageSendStatus.Failed || status == MessageSendStatus.UploadFailed) {
+        if (status == MessageSendStatus.Failed) {
             return true;
         }
-        if (uploadFailed()) {
-            return true;
-        }
-
-        return false;
+        return uploadFailed();
     }
 
     /**
@@ -816,7 +815,7 @@ public class Message extends AbstractEntity {
      */
     public boolean uploadFailed() {
         MessageSendStatus status = getMessageStatus();
-        if (status == MessageSendStatus.UploadFailed) {
+        if (status == MessageSendStatus.Failed) {
             return true;
         }
         else if(status == MessageSendStatus.Uploading) {
@@ -825,19 +824,18 @@ public class Message extends AbstractEntity {
                 List<CachedFile> files = ChatSDK.uploadManager().getFiles(getEntityID());
                 for (CachedFile file: files) {
                     TransferStatus fileTransferStatus = file.getTransferStatus();
-                    if (fileTransferStatus == TransferStatus.Complete || fileTransferStatus == TransferStatus.WillStart) {
-                        file.setFinishTime(new Date());
+                    if (fileTransferStatus == TransferStatus.Complete) {
                         continue;
                     }
-                    else if (fileTransferStatus == TransferStatus.Failed) {
+                    if (fileTransferStatus == TransferStatus.Failed) {
                         return true;
                     } else {
-                        double age = file.ageInSeconds();
-                        if (age < 10) {
-                            continue;
-                        }
+//                        double age = file.ageInSeconds();
+//                        if (age < 10) {
+//                            continue;
+//                        }
                         TransferStatus us = ChatSDK.upload().uploadStatus(file.getEntityID());
-                        if (us != TransferStatus.InProgress && us != TransferStatus.WillStart) {
+                        if (us == TransferStatus.None || us == TransferStatus.Failed) {
                             return true;
                         }
                     }
@@ -886,20 +884,6 @@ public class Message extends AbstractEntity {
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
-    }
-
-    public Bitmap getPlaceholder() {
-        Bitmap bitmap = null;
-        if (getPlaceholderPath() != null) {
-            bitmap = BitmapFactory.decodeFile(getPlaceholderPath());
-        }
-        if (bitmap == null) {
-            String base64 = stringForKey(Keys.MessageImagePreview);
-            if (base64 != null) {
-                bitmap = Base64ImageUtils.fromBase64(base64);
-            }
-        }
-        return bitmap;
     }
 
 }

@@ -1,9 +1,9 @@
 plugins {
     id 'com.android.library'
     id 'com.jfrog.artifactory' version "$jfrogVersion"
-
     id 'maven-publish'
     id 'com.jakewharton.butterknife'
+    id 'kotlin-android'
 }
 
 android {

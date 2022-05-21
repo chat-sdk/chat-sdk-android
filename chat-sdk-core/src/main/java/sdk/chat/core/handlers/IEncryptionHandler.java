@@ -8,8 +8,8 @@ import sdk.chat.core.dao.Thread;
 
 public interface IEncryptionHandler {
 
-    Map<String, Object> encrypt(Message message);
-    Map<String, Object> encryptMeta(Thread thread, Map<String, Object> meta);
+    Map<String, String> encrypt(Message message);
+    Map<String, String> encryptMeta(Thread thread, Map<String, String> meta);
 
     Map<String, Object> decrypt(String message) throws Exception;
 

@@ -11,9 +11,9 @@ import java.util.List;
 
 public class MetaValueHelper {
 
-    public static <T extends MetaValue<?>> T metaValueForKey (String key, List<T> values) {
+    public static <V extends  Object, T extends MetaValue<V>> T metaValueForKey(String key, List<T> values) {
 
-        if (values != null) {
+        if (values != null && key != null) {
 
             // Check for duplicates
             HashMap<String, T> hash = new HashMap<>();
@@ -36,6 +36,10 @@ public class MetaValueHelper {
 //            }
         }
         return null;
+    }
+
+    public static <V extends Object, T extends MetaValue<V>> boolean isEqual(T metaValue, V value) {
+        return metaValue != null && metaValue.getValue() != null && metaValue.getValue().equals(value);
     }
 
     public static String toString(Object value) {

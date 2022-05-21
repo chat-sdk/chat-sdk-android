@@ -1,9 +1,5 @@
 package sdk.chat.core.manager;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import io.reactivex.Completable;
 import sdk.chat.core.dao.Message;
 
 public class Base64ImageMessagePayload extends ImageMessagePayload {
@@ -21,13 +17,4 @@ public class Base64ImageMessagePayload extends ImageMessagePayload {
         return null;
     }
 
-    @Override
-    public List<String> remoteURLs() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public Completable downloadMessageContent() {
-        return Completable.complete();
-    }
 }

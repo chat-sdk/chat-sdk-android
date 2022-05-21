@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -99,13 +98,14 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return createThread(name, users, ThreadType.PrivateGroup, entityID, imageURL, meta);
     }
 
-    public Message newMessage(int type, Thread thread) {
+    public Message newMessage(int type, Thread thread, boolean notify) {
         Message message = ChatSDK.db().createEntity(Message.class);
         message.setSender(ChatSDK.currentUser());
         message.setDate(new Date());
-        message.setEntityID(UUID.randomUUID().toString());
+
+        message.setEntityID(generateNewMessageID(thread));
         message.setType(type);
-        message.setMessageStatus(MessageSendStatus.None, false);
+        message.setMessageStatus(MessageSendStatus.Initial, false);
         message.setIsRead(true);
 
         if (!thread.typeIs(ThreadType.Public)) {
@@ -121,13 +121,13 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         }
 
         // TODO: Message Flow
-        thread.addMessage(message, true);
+        thread.addMessage(message, notify);
 
         return message;
     }
 
-    public Message newMessage(MessageType type, Thread thread) {
-        return newMessage(type.ordinal(), thread);
+    public Message newMessage(MessageType type, Thread thread, boolean notify) {
+        return newMessage(type.ordinal(), thread, notify);
     }
 
     /**
@@ -137,7 +137,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable forwardMessage(Thread thread, Message message) {
         return Completable.defer(() -> {
-            Message newMessage = newMessage(message.getType(), thread);
+            Message newMessage = newMessage(message.getType(), thread, false);
             newMessage.setMetaValues(message.getMetaValuesAsMap());
             return new MessageSendRig(newMessage, thread).run();
         }).subscribeOn(RX.db());
@@ -314,7 +314,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable replyToMessage(Thread thread, Message message, String reply) {
         return Completable.defer(() -> {
-            Message newMessage = newMessage(MessageType.Text, thread);
+            Message newMessage = newMessage(MessageType.Text, thread, false);
             // If this is already a reply, then don't copy the meta data
             if (message.isReply()) {
                 newMessage.setText(message.getReply());

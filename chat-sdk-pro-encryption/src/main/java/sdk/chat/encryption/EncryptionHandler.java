@@ -57,12 +57,12 @@ public abstract class EncryptionHandler implements IEncryptionHandler {
     }
 
     @Override
-    public Map<String, Object> encrypt(final Message message) {
+    public Map<String, String> encrypt(final Message message) {
         return encryptMeta(message.getThread(), message.getMetaValuesAsMap());
     }
 
     @Override
-    public Map<String, Object> encryptMeta(Thread thread, Map<String, Object> meta) {
+    public Map<String, String> encryptMeta(Thread thread, Map<String, String> meta) {
         // Get the list of keys
         List<VirgilPublicKey> keys = extractKeysSync(thread);
 
@@ -74,7 +74,7 @@ public abstract class EncryptionHandler implements IEncryptionHandler {
                 byte[] encryptedMessage = virgilCrypto.encrypt(metaData, keys);
                 String encryptedMessageString = Base64.encode(encryptedMessage);
 
-                Map<String, Object> newMessageMeta = new HashMap<>();
+                Map<String, String> newMessageMeta = new HashMap<>();
                 newMessageMeta.put(Keys.MessageEncryptedPayloadKey, encryptedMessageString);
                 newMessageMeta.put(Keys.MessageText, ChatSDK.shared().context().getString(R.string.encrypted_message));
 
@@ -87,7 +87,7 @@ public abstract class EncryptionHandler implements IEncryptionHandler {
         return null;
     }
 
-    protected byte [] mapToBytes(Map<String, Object> map) throws IOException {
+    protected <T extends Object> byte [] mapToBytes(Map<String, T> map) throws IOException {
         Gson gson = new Gson();
         String json = gson.toJson(map);
         return json.getBytes("UTF-8");

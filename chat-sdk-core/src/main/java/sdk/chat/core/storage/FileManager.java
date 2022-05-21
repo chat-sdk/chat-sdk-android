@@ -54,7 +54,8 @@ public class FileManager {
     }
 
     public File downloadsDirectory() {
-        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        return ChatSDK.ctx().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+//        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     }
 
     public File subdir(File parent, String name) {
