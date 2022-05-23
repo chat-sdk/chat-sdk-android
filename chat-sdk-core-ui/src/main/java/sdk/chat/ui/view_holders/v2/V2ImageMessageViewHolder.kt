@@ -1,7 +1,7 @@
 package sdk.chat.ui.view_holders.v2
 
 import android.view.View
-import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -23,7 +23,7 @@ open class V2ImageMessageViewHolder<T: ImageMessageHolder>(itemView: View, paylo
     var image: ImageView? = itemView.findViewById(R.id.image)
     var imageOverlayContainer: LinearLayout? = itemView.findViewById(R.id.imageOverlayContainer)
     var bubbleOverlay: View? = itemView.findViewById(R.id.bubbleOverlay)
-    var actionButton: Button? = itemView.findViewById(R.id.actionButton)
+    var actionButton: ImageButton? = itemView.findViewById(R.id.actionButton)
     var progressBar: CircularProgressBar? = itemView.findViewById(R.id.circularProgressBar)
     var progressText: TextView? = itemView.findViewById(R.id.progressText)
 

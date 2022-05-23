@@ -59,7 +59,8 @@ public abstract class BaseFragment extends Fragment implements Consumer<Throwabl
             // clone the inflater using the ContextThemeWrapper
             localInflater = inflater.cloneInContext(contextThemeWrapper);
         }
-        rootView = localInflater.inflate(getLayout(), container, false);
+        rootView = inflate(localInflater, container);
+//        rootView = localInflater.inflate(getLayout(), container, false);
 
         ButterKnife.bind(this, rootView);
 
@@ -77,6 +78,10 @@ public abstract class BaseFragment extends Fragment implements Consumer<Throwabl
         });
 
         return rootView;
+    }
+
+    public View inflate(@NonNull LayoutInflater inflater, ViewGroup container) {
+        return inflater.inflate(getLayout(), container, false);
     }
 
     @Override

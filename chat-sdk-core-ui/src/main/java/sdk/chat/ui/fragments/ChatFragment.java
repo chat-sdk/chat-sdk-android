@@ -132,6 +132,11 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         return rootView;
     }
 
+    public View inflate(@NonNull LayoutInflater inflater, ViewGroup container) {
+
+        return inflater.inflate(getLayout(), container, false);
+    }
+
     public void setChatViewBottomMargin(int margin) {
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) chatView.getLayoutParams();
         params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, margin);

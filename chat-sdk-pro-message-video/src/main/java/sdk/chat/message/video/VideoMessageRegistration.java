@@ -64,7 +64,8 @@ public class VideoMessageRegistration extends DefaultMessageRegistration {
                     }
                 }
 
-                String videoURL = (String) message.valueForKey(Keys.MessageVideoURL);
+//                String videoURL = (String) message.valueForKey(Keys.MessageVideoURL);
+                String videoURL = message.getFilePath();
                 if(videoURL != null) {
                     Intent intent = new Intent(activity, VideoMessageModule.config().getVideoPlayerActivity());
                     intent.putExtra(Keys.IntentKeyFilePath, videoURL);
