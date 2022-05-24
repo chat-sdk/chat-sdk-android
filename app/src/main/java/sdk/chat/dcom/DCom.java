@@ -7,6 +7,7 @@ import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.ChatSDKUI;
+import sdk.chat.ui.fragments.ChatFragment;
 
 public class DCom {
 
@@ -29,7 +30,11 @@ public class DCom {
     }
 
     public void setup() {
-        ChatSDKUI.setChatFragmentProvider(DComChatFragment::new);
+        ChatSDKUI.setChatFragmentProvider((thread) -> {
+            ChatFragment fragment = new DComChatFragment();
+            fragment.setThread(thread);
+            return fragment;
+        });
         ChatSDK.ui().setPrivateThreadsFragment(new DComPrivateThreadsFragment());
     }
 }

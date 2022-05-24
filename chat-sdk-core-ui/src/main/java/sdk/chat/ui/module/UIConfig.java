@@ -401,4 +401,10 @@ public class UIConfig<T> extends BaseConfig<T> {
         return this;
     }
 
+    public boolean canSelectMultipleImages = true;
+    public UIConfig<T> setCanSelectMultipleImages(boolean value) {
+        this.canSelectMultipleImages = value;
+        return this;
+    }
+
 }

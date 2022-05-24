@@ -25,6 +25,7 @@ import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.receipts.FirebaseReadReceiptsModule;
+import sdk.chat.firebase.typing.FirebaseTypingIndicatorModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.V2ImageMessageRegistration;
 import sdk.chat.message.V2TextMessageRegistration;
@@ -212,7 +213,7 @@ public class MainApplication extends Application {
                 .addModule(FirebaseBlockingModule.shared())
                 .addModule(FirebaseLastOnlineModule.shared())
                 .addModule(FirebaseReadReceiptsModule.shared())
-//                .addModule(FirebaseTypingIndicatorModule.shared())
+                .addModule(FirebaseTypingIndicatorModule.shared())
 
 //    .addModule(SinchModule.builder()
 //            .setApplicationKey("90c5e8c0-7a3d-4bd5-8d8f-075e5c24cd1f")

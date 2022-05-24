@@ -36,7 +36,9 @@ public class UIProvider {
     }
 
     public KeyboardOverlayOptionsFragment keyboardOverlayOptionsFragment(KeyboardOverlayHandler sender) {
-        return new KeyboardOverlayOptionsFragment(sender);
+        KeyboardOverlayOptionsFragment fragment = new KeyboardOverlayOptionsFragment();
+        fragment.setHandler(sender);
+        return fragment;
     }
 
 }

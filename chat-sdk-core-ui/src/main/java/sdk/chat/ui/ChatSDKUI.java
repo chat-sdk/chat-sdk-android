@@ -40,7 +40,7 @@ import sdk.chat.ui.utils.FragmentLifecycleManager;
 public class ChatSDKUI {
 
     public interface ChatFragmentProvider {
-        AbstractChatFragment provider(Thread thread, ChatFragment.Delegate delegate);
+        AbstractChatFragment provide(Thread thread);
     }
 
     protected static final ChatSDKUI instance = new ChatSDKUI();
@@ -57,7 +57,9 @@ public class ChatSDKUI {
     protected List<SmartViewModel> settingsItems = new ArrayList<>();
     protected ProfileOption settingsProfileOption;
 
-    protected ChatFragmentProvider chatFragmentProvider = ChatFragment::new;
+    protected ChatFragmentProvider chatFragmentProvider = (thread) -> {
+        return new ChatFragment(thread);
+    };
 
     public static ChatSDKUI shared() {
         return instance;
@@ -81,8 +83,8 @@ public class ChatSDKUI {
         shared().chatFragmentProvider = provider;
     }
 
-    public static AbstractChatFragment getChatFragment(Thread thread, ChatFragment.Delegate delegate) {
-        return shared().chatFragmentProvider.provider(thread, delegate);
+    public static AbstractChatFragment getChatFragment(Thread thread) {
+        return shared().chatFragmentProvider.provide(thread);
     }
 
     public static void setLoginActivity(Class<? extends LoginActivity> loginActivity) {

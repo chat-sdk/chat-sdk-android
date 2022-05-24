@@ -14,6 +14,7 @@ import sdk.chat.message.sticker.StickerMessageRegistration;
 import sdk.chat.message.sticker.integration.BaseStickerMessageHandler;
 import sdk.chat.message.sticker.integration.StickerChatOption;
 import sdk.chat.message.sticker.provider.PListStickerPackProvider;
+import sdk.chat.message.sticker.provider.StickerModuleProvider;
 import sdk.chat.message.sticker.provider.StickerPackProvider;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.guru.common.BaseConfig;
@@ -78,7 +79,7 @@ public class StickerMessageModule extends AbstractModule {
         public @RawRes int plist = R.raw.default_stickers;
 
         public boolean loadStickersFromPlist = true;
-        public StickerPackProvider stickerPackProvider;
+        public StickerModuleProvider provider = new StickerModuleProvider();
 
         public Config(T onBuild) {
             super(onBuild);
@@ -114,8 +115,15 @@ public class StickerMessageModule extends AbstractModule {
             return this;
         }
 
+        public StickerPackProvider stickerPackProvider;
         public Config<T> setStickerPackProvider(StickerPackProvider stickerPackProvider) {
             this.stickerPackProvider = stickerPackProvider;
+            return this;
+        }
+
+        public StickerModuleProvider stickerModuleProvider = new StickerModuleProvider();
+        public Config<T> setStickerModuleProvider(StickerModuleProvider provider) {
+            this.stickerModuleProvider = provider;
             return this;
         }
 

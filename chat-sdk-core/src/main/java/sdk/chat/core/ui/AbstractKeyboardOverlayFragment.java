@@ -13,8 +13,11 @@ public abstract class AbstractKeyboardOverlayFragment extends Fragment {
     @NonNull
     protected WeakReference<KeyboardOverlayHandler> keyboardOverlayHandler;
 
-    public AbstractKeyboardOverlayFragment(@NonNull KeyboardOverlayHandler keyboardOverlayHandler) {
-        this.keyboardOverlayHandler = new WeakReference<>(keyboardOverlayHandler);
+    public AbstractKeyboardOverlayFragment() {
+    }
+
+    public void setHandler(@NonNull KeyboardOverlayHandler handler) {
+        keyboardOverlayHandler = new WeakReference<>(handler);
     }
 
     public abstract void setViewSize(Integer width, Integer height, Context context);

@@ -19,7 +19,7 @@ public class MediaChatOption extends BaseChatOption {
 
     public MediaChatOption(@StringRes int title, @DrawableRes int image, final MediaType type, MediaSelector.CropType cropType) {
         super(title, image, null);
-        action = (activity, thread) -> new MediaSelector().startActivity(activity, type, cropType).flatMapCompletable(files -> {
+        action = (activity, thread) -> new MediaSelector().startActivity(activity, type, cropType, true).flatMapCompletable(files -> {
             ArrayList<Completable> completables = new ArrayList<>();
             for (File file: files) {
                 if (type.is(MediaType.Photo)) {

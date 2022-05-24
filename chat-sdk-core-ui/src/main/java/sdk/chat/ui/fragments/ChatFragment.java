@@ -16,7 +16,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import androidx.annotation.LayoutRes;
-import androidx.appcompat.widget.Toolbar;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.FragmentContainerView;
 
@@ -25,12 +26,10 @@ import com.stfalcon.chatkit.messages.MessageInput;
 import org.pmw.tinylog.Logger;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import butterknife.BindView;
 import io.reactivex.Completable;
 import io.reactivex.annotations.NonNull;
 import materialsearchview.MaterialSearchView;
@@ -55,7 +54,6 @@ import sdk.chat.core.utils.PermissionRequestHandler;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.appbar.ChatActionBar;
 import sdk.chat.ui.audio.AudioBinder;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
@@ -73,11 +71,6 @@ import sdk.guru.common.RX;
 
 public class ChatFragment extends AbstractChatFragment implements ChatView.Delegate, TextInputDelegate, ChatOptionsDelegate, KeyboardOverlayHandler {
 
-    public interface Delegate {
-        void invalidateOptionsMenu();
-        void setSupportActionBar(Toolbar toolbar);
-    }
-
     protected View rootView;
 
     protected Thread thread;
@@ -92,36 +85,45 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
     protected static boolean enableTrace = false;
 
-    @BindView(R2.id.chatActionBar) protected ChatActionBar chatActionBar;
-    @BindView(R2.id.chatView) protected ChatView chatView;
-    @BindView(R2.id.divider) protected View divider;
-    @BindView(R2.id.replyView) protected ReplyView replyView;
-    @BindView(R2.id.input) protected MessageInput input;
-    @BindView(R2.id.listContainer) protected CoordinatorLayout listContainer;
-    @BindView(R2.id.searchView) protected MaterialSearchView searchView;
-    @BindView(R2.id.root) protected KeyboardAwareFrameLayout root;
-    @BindView(R2.id.messageInputLinearLayout) protected LinearLayout messageInputLinearLayout;
-    @BindView(R2.id.keyboardOverlay) protected FragmentContainerView keyboardOverlay;
+    protected ChatActionBar chatActionBar;
+    protected ChatView chatView;
+    protected View divider;
+    protected ReplyView replyView;
+    protected MessageInput input;
+    protected CoordinatorLayout listContainer;
+    protected MaterialSearchView searchView;
+    protected KeyboardAwareFrameLayout root;
+    protected LinearLayout messageInputLinearLayout;
+    protected FragmentContainerView keyboardOverlay;
 
     protected AudioBinder audioBinder = null;
     protected DisposableMap dm = new DisposableMap();
-    protected WeakReference<Delegate> delegate;
 
     protected ChatFragmentKeyboardOverlayHelper koh;
 
-    public ChatFragment(Thread thread, Delegate delegate) {
+    public ChatFragment() {
+        super();
+    }
+
+    public ChatFragment(Thread thread) {
+        super();
+        setThread(thread);
+    }
+
+    public void setThread(Thread thread) {
         this.thread = thread;
-        this.delegate = new WeakReference<>(delegate);
+        Bundle bundle = new Bundle();
+        bundle.putString(Keys.IntentKeyThreadEntityID, thread.getEntityID());
+        setArguments(bundle);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = super.onCreateView(inflater, container, savedInstanceState);
 
-//        rootView = inflater.inflate(getLayout(), container, false);
-//        ButterKnife.bind(this, rootView);
+        restoreState(savedInstanceState);
+        setHasOptionsMenu(true);
 
-        // HERE
         initViews();
 
         koh = new ChatFragmentKeyboardOverlayHelper(this);
@@ -133,15 +135,14 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     }
 
     public View inflate(@NonNull LayoutInflater inflater, ViewGroup container) {
-
         return inflater.inflate(getLayout(), container, false);
     }
 
-    public void setChatViewBottomMargin(int margin) {
-        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) chatView.getLayoutParams();
-        params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, margin);
-        chatView.setLayoutParams(params);
-    }
+//    public void setChatViewBottomMargin(int margin) {
+//        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) chatView.getLayoutParams();
+//        params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, margin);
+//        chatView.setLayoutParams(params);
+//    }
 
     protected @LayoutRes
     int getLayout() {
@@ -221,6 +222,17 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
     protected void initViews() {
 
+        chatActionBar = rootView.findViewById(R.id.chatActionBar);
+        chatView = rootView.findViewById(R.id.chatView);
+        divider = rootView.findViewById(R.id.divider);
+        replyView = rootView.findViewById(R.id.replyView);
+        input = rootView.findViewById(R.id.input);
+        listContainer = rootView.findViewById(R.id.listContainer);
+        searchView = rootView.findViewById(R.id.searchView);
+        root = rootView.findViewById(R.id.root);
+        messageInputLinearLayout = rootView.findViewById(R.id.messageInputLinearLayout);
+        keyboardOverlay = rootView.findViewById(R.id.keyboardOverlay);
+
         chatView.setDelegate(this);
 
         chatActionBar.onSearchClicked(v -> {
@@ -233,7 +245,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
         if (UIModule.config().messageSelectionEnabled) {
             chatView.enableSelectionMode(count -> {
-                delegate.get().invalidateOptionsMenu();
+                invalidateOptionsMenu();
                 updateOptionsButton();
             });
         }
@@ -262,7 +274,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
             chatActionBar.setEnabled(false);
             openThreadDetailsActivity();
         });
-        delegate.get().setSupportActionBar(chatActionBar.getToolbar());
+
         chatActionBar.reload(thread);
 
         setChatState(TypingIndicatorHandler.State.active);
@@ -274,7 +286,6 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         addListeners();
 
 
-        delegate.get().invalidateOptionsMenu();
     }
 
     protected void addListeners() {
@@ -313,7 +324,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         dm.add(ChatSDK.events().sourceOnMain()
                 .filter(NetworkEvent.filterRoleUpdated(thread, ChatSDK.currentUser()))
                 .subscribe(networkEvent -> {
-                    delegate.get().invalidateOptionsMenu();
+                    invalidateOptionsMenu();
                     showOrHideTextInputView();
                 }));
 
@@ -340,6 +351,13 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     @Override
     public void onStart() {
         super.onStart();
+
+        invalidateOptionsMenu();
+        Activity activity = getActivity();
+        if (activity instanceof AppCompatActivity) {
+            ((AppCompatActivity) activity).setSupportActionBar(chatActionBar.getToolbar());
+        }
+
     }
 
     public void showOrHideTextInputView() {
@@ -837,4 +855,40 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     public FragmentContainerView getKeyboardOverlay() {
         return keyboardOverlay;
     }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putCharSequence(Keys.IntentKeyThreadEntityID, thread.getEntityID());
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        restoreState(savedInstanceState);
+    }
+
+    public void restoreState(@Nullable Bundle savedInstanceState) {
+        String threadEntityID = null;
+        if (savedInstanceState != null) {
+            threadEntityID = savedInstanceState.getString(Keys.IntentKeyThreadEntityID);
+        }
+        if (threadEntityID == null) {
+            Bundle args = getArguments();
+            if (args != null) {
+                threadEntityID = args.getString(Keys.IntentKeyThreadEntityID);
+            }
+        }
+        if (threadEntityID != null && thread == null) {
+            thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
+        }
+    }
+
+    protected void invalidateOptionsMenu() {
+        Activity activity = getActivity();
+        if (activity != null) {
+            activity.invalidateOptionsMenu();
+        }
+    }
+
 }

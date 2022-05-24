@@ -6,17 +6,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import io.reactivex.annotations.NonNull;
-import sdk.chat.core.dao.Thread;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.fragments.ChatFragment;
 
 public class DComChatFragment extends ChatFragment {
-
-    public DComChatFragment(Thread thread, Delegate delegate) {
-        super(thread, delegate);
-    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

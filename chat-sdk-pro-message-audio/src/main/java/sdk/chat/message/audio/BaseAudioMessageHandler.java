@@ -59,7 +59,10 @@ public class BaseAudioMessageHandler extends AbstractMessageHandler implements A
 
     @Override
     public AbstractKeyboardOverlayFragment getOverlay(KeyboardOverlayHandler handler) {
-        return new RecordAudioKeyboardOverlayFragment(handler);
+        AbstractKeyboardOverlayFragment fragment = new RecordAudioKeyboardOverlayFragment();
+        fragment.setHandler(handler);
+        return fragment;
+
     }
 
     public Single<File> compressAudio(Context context, File audioFile) {

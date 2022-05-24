@@ -23,6 +23,7 @@
         <activity android:name=".activities.LoginActivity" />
 
         <activity android:name=".activities.SplashScreenActivity"
+            android:configChanges="orientation|screenSize"
             android:screenOrientation="fullSensor"
             />
 
@@ -57,9 +58,9 @@
             />
 
         <activity android:name=".activities.MainAppBarActivity"
-            android:configChanges="orientation|screenSize"
             android:screenOrientation="fullSensor"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
+<!--        android:configChanges="orientation|screenSize"-->
 
         <activity android:name=".activities.AddUsersToThreadActivity"
             android:windowSoftInputMode="stateHidden" />
@@ -68,9 +69,9 @@
             android:windowSoftInputMode="stateHidden" />
 
         <activity android:name=".activities.ChatActivity"
+            android:screenOrientation="fullSensor"
             android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustResize">
-        </activity>
+            android:windowSoftInputMode="adjustResize" />
 
         <!--Crop image-->
         <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"

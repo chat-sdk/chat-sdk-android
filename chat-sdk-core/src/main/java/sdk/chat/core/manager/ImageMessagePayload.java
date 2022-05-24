@@ -1,6 +1,7 @@
 package sdk.chat.core.manager;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
@@ -50,12 +51,16 @@ public class ImageMessagePayload extends AbstractMessagePayload {
     @Override
     public Drawable getPlaceholder() {
         Bitmap bitmap = null;
-        String base64 = message.stringForKey(Keys.MessageImagePreview);
-        if (base64 != null) {
-            bitmap = Base64ImageUtils.fromBase64(base64);
+        if (message.getPlaceholderPath() != null) {
+            bitmap = BitmapFactory.decodeFile(message.getPlaceholderPath());
+        }
+        if (bitmap == null) {
+            String base64 = message.stringForKey(Keys.MessageImagePreview);
+            if (base64 != null) {
+                bitmap = Base64ImageUtils.fromBase64(base64);
+            }
         }
         if (bitmap != null) {
-//            bitmap = Bitmap.createScaledBitmap(bitmap, Math.round(size.width), Math.round(size.height), true);
             bitmap = ThumbnailUtils.extractThumbnail(bitmap, size.widthInt(), size.heightInt());
         }
         return new BitmapDrawable(ChatSDK.ctx().getResources(), bitmap);
@@ -79,7 +84,11 @@ public class ImageMessagePayload extends AbstractMessagePayload {
 
     public Size getSize() {
         if (size == null) {
-            size = ImageMessageUtil.getImageMessageSize(width(), height());
+            Integer width = width();
+            Integer height = height();
+            if (width != null && height != null) {
+                size = ImageMessageUtil.getImageMessageSize(width, height);
+            }
         }
         return size;
     }

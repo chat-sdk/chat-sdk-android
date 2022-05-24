@@ -28,28 +28,28 @@ open class BaseMessageViewHolder<T : MessageHolder>(itemView: View, payload: Any
     MessageHolders.BaseMessageViewHolder<T>(itemView, payload), MessageHolders.DefaultMessageViewHolder,
     Consumer<Throwable> {
 
-    var style: MessagesListStyle? = null;
+    open var style: MessagesListStyle? = null;
 
-    var bubble: ViewGroup? = itemView.findViewById(R.id.bubble)
+    open var bubble: ViewGroup? = itemView.findViewById(R.id.bubble)
 
-    var messageIcon: ImageView? = itemView.findViewById(R.id.messageIcon)
-    var onlineIndicator: View? = itemView.findViewById(R.id.onlineIndicator)
-    var userName: TextView? = itemView.findViewById(R.id.userName)
-    var userAvatar: CircleImageView? = itemView.findViewById(R.id.messageUserAvatar)
+    open var messageIcon: ImageView? = itemView.findViewById(R.id.messageIcon)
+    open var onlineIndicator: View? = itemView.findViewById(R.id.onlineIndicator)
+    open var userName: TextView? = itemView.findViewById(R.id.userName)
+    open var userAvatar: CircleImageView? = itemView.findViewById(R.id.messageUserAvatar)
 
-    var imageOverlay: ImageView? = itemView.findViewById(R.id.imageOverlay)
+    open var imageOverlay: ImageView? = itemView.findViewById(R.id.imageOverlay)
 
-    var text: TextView? = itemView.findViewById(R.id.messageText)
-    var time: TextView? = itemView.findViewById(R.id.messageTime)
+    open var text: TextView? = itemView.findViewById(R.id.messageText)
+    open var time: TextView? = itemView.findViewById(R.id.messageTime)
 
-    var readStatus: ImageView? = itemView.findViewById(R.id.readStatus)
-    var replyView: View? = itemView.findViewById(R.id.replyView)
-    var replyImageView: ImageView? = itemView.findViewById(R.id.replyImageView)
-    var replyTextView: TextView? = itemView.findViewById(R.id.replyTextView)
+    open var readStatus: ImageView? = itemView.findViewById(R.id.readStatus)
+    open var replyView: View? = itemView.findViewById(R.id.replyView)
+    open var replyImageView: ImageView? = itemView.findViewById(R.id.replyImageView)
+    open var replyTextView: TextView? = itemView.findViewById(R.id.replyTextView)
 
-    var format: DateFormat? = null
+    open var format: DateFormat? = null
 
-    val dm = DisposableMap()
+    open val dm = DisposableMap()
 
     init {
 

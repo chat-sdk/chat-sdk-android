@@ -71,7 +71,8 @@ public class Config<T> extends BaseConfig<T> {
     public int messageDeletionListenerLimit = -1;
 
     public int imageMaxWidth = 1920;
-    public int imageMaxHeight = 2560;
+    public int imageMaxHeight = 1920;
+
     public int imageMaxThumbnailDimension = 400;
     public int replyThumbnailSize = 60 * 3;
 

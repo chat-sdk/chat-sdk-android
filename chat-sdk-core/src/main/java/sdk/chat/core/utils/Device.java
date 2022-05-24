@@ -1,6 +1,7 @@
 package sdk.chat.core.utils;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.provider.Settings;
 
 import sdk.chat.core.session.ChatSDK;
@@ -54,6 +55,17 @@ public class Device {
 
     public static String name() {
         return Settings.Secure.getString(ChatSDK.ctx().getContentResolver(), "bluetooth_name");
+    }
+
+    public static boolean isPortrait(Context context) {
+        if (context == null) {
+            context = ChatSDK.ctx();
+        }
+        return context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+    }
+
+    public static boolean isPortrait() {
+        return isPortrait(null);
     }
 
 }

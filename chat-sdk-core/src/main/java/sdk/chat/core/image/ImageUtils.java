@@ -7,9 +7,11 @@
 
 package sdk.chat.core.image;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -19,6 +21,7 @@ import android.graphics.Paint;
 import android.media.ExifInterface;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.provider.MediaStore;
 
 import androidx.annotation.DrawableRes;
 
@@ -29,6 +32,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -48,9 +53,9 @@ public class ImageUtils {
     public static File saveBitmapToFile(Bitmap bitmap) {
         FileManager fm = ChatSDK.shared().fileManager();
         File dir = fm.imageCache();
-        File outFile = fm.newDatedFile(dir, "image", "png");
+        File outFile = fm.newDatedFile(dir, "image", "jpg");
         try (FileOutputStream out = new FileOutputStream(outFile)) {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -75,8 +80,6 @@ public class ImageUtils {
                     break;
 
                 case ExifInterface.ORIENTATION_ROTATE_90:
-                    rotate = 90;
-                    break;
                 case ExifInterface.ORIENTATION_ROTATE_270:
                     rotate = 90;
                     break;
@@ -225,6 +228,72 @@ public class ImageUtils {
                 return Maybe.empty();
             }
         }).firstElement().toSingle();
+    }
+
+    public static File imageUriToFile(Uri uri, Activity activity, String column) {
+        File imageFile = fileFromURI(uri, activity, MediaStore.Images.Media.DATA);
+        Bitmap image = BitmapFactory.decodeFile(imageFile.getPath());
+        int rotation = ImageUtils.getCameraPhotoOrientation(imageFile.getPath());
+        if (rotation != 0 && rotation%360 != 0) {
+            Bitmap rotated = ImageUtils.rotate(image, (float) rotation);
+            imageFile = ImageUtils.saveBitmapToFile(rotated);
+        }
+        return imageFile;
+    }
+
+    public static File fileFromURI(Uri uri, Activity activity, String column) {
+        File file = null;
+        if (uri.getPath() != null) {
+            file = new File(uri.getPath());
+        }
+        if (file != null && file.length() > 0) {
+            return file;
+        }
+        // Try with an input stream
+        try {
+            InputStream input = ChatSDK.ctx().getContentResolver().openInputStream(uri);
+            try {
+
+                FileManager fm = new FileManager(ChatSDK.ctx());
+                file = fm.newFile(fm.imageStorage(), uri.getLastPathSegment());
+
+                OutputStream output = new FileOutputStream(file);
+                byte[] buffer = new byte[4 * 1024]; // or other buffer size
+                int read;
+
+                while ((read = input.read(buffer)) != -1) {
+                    output.write(buffer, 0, read);
+                }
+
+                output.flush();
+
+                return file;
+            }
+            finally {
+                if (input != null) {
+                    input.close();
+                }
+            }
+        } catch (Exception e) {
+            if (file != null) {
+                file.delete();
+            }
+        }
+
+        // Try to get it another way for this kind of URL
+        // content://media/external ...
+        String [] filePathColumn = { column };
+        Cursor cursor = activity.getContentResolver().query(uri, filePathColumn,null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            int col = cursor.getColumnIndex(filePathColumn[0]);
+            if (col >= 0) {
+                String fileURI = cursor.getString(col);
+                return new File(fileURI);
+            }
+        }
+
+        return null;
     }
 }
 

@@ -14,7 +14,7 @@ import sdk.chat.ui.fragments.AbstractChatFragment;
 import sdk.chat.ui.fragments.ChatFragment;
 import sdk.chat.ui.module.UIModule;
 
-public class ChatActivity extends BaseActivity implements ChatFragment.Delegate {
+public class ChatActivity extends BaseActivity {
 
     protected Thread thread;
     protected AbstractChatFragment chatFragment;
@@ -26,9 +26,12 @@ public class ChatActivity extends BaseActivity implements ChatFragment.Delegate 
         updateThread(savedInstanceState);
         initViews();
 
-        chatFragment = ChatSDKUI.getChatFragment(thread, this);
-
-        getSupportFragmentManager().beginTransaction().add(R.id.chatViewWrapper, chatFragment).commit();
+        if (savedInstanceState == null) {
+            chatFragment = ChatSDKUI.getChatFragment(thread);
+            getSupportFragmentManager().beginTransaction().add(R.id.chatViewWrapper, chatFragment).commit();
+        } else {
+            chatFragment = (ChatFragment) getSupportFragmentManager().findFragmentById(R.id.chatViewWrapper);
+        }
 
     }
 

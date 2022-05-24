@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.functions.Consumer
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.core.ui.AbstractKeyboardOverlayFragment
-import sdk.chat.core.ui.KeyboardOverlayHandler
 import sdk.chat.core.ui.Sendable
 import sdk.chat.message.sticker.R
 import sdk.chat.message.sticker.StickerPack
@@ -21,7 +20,7 @@ import sdk.chat.ui.keyboard.KeyboardOverlayOptionsFragment
 import smartadapter.SmartRecyclerAdapter
 import smartadapter.viewevent.listener.OnClickEventListener
 
-class KeyboardOverlayStickerFragment(keyboardOverlayHandler: KeyboardOverlayHandler): AbstractKeyboardOverlayFragment(keyboardOverlayHandler) {
+class KeyboardOverlayStickerFragment(): AbstractKeyboardOverlayFragment() {
 
     open lateinit var stickerRecyclerAdapter: SmartRecyclerAdapter
     open lateinit var stickerRecyclerView: RecyclerView

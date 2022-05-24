@@ -27,9 +27,9 @@ android {
         }
     }
 
-    buildFeatures {
-        viewBinding true
-    }
+//    buildFeatures {
+//        viewBinding true
+//    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -54,8 +54,8 @@ rootProject.allprojects {
         maven { url "https://jitpack.io" }
 //        maven { url "https://dl.bintray.com/manneohlund/maven" }
 
-        maven { url "https://chatsdk.jfrog.io/artifactory/release/chatkit" }
-        maven { url "https://chatsdk.jfrog.io/artifactory/release/matisse" }
+//        maven { url "https://chatsdk.jfrog.io/artifactory/release/chatkit" }
+//        maven { url "https://chatsdk.jfrog.io/artifactory/release/matisse" }
         maven { url "https://chatsdk.jfrog.io/artifactory/release/material-search-view" }
         maven { url "https://chatsdk.jfrog.io/artifactory/release/android-image-cropper" }
         maven { url "https://chatsdk.jfrog.io/artifactory/release/android-audio-recorder" }
@@ -65,6 +65,8 @@ rootProject.allprojects {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(':chat-sdk-core')
+    implementation project(':vendor-matisse')
+    api project(':vendor-chatkit')
 
     api "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     implementation "org.ocpsoft.prettytime:prettytime:$rootProject.ext.prettyTimeVersion"
@@ -83,7 +85,6 @@ dependencies {
 
     api "com.github.siyamed:android-shape-imageview:$shapeImageViewVersion"
 //    api "sdk.chat:chat-kit:$chatKitVersion"
-    api project(':chatkit')
 
     api "com.mikepenz:google-material-typeface:$iconicsGoogleMaterialIconsVersion"
     api "com.mikepenz:fontawesome-typeface:$iconicsFontAwesomeTypefaceVersion"
@@ -92,8 +93,6 @@ dependencies {
     api "com.mikepenz:iconics-views:$iconicsVersion"
 
     api "de.hdodenhof:circleimageview:$circleImageViewVersion"
-
-    implementation "sdk.chat:matisse:$matisseVersion"
 
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"

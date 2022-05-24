@@ -24,8 +24,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
@@ -41,7 +39,6 @@ import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.core.utils.TimeLog;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.performance.MessageHoldersDiffCallback;
@@ -51,8 +48,8 @@ import sdk.guru.common.RX;
 
 public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoadMoreListener {
 
-    @BindView(R2.id.messagesList) protected MessagesList messagesList;
-    @BindView(R2.id.root) protected LinearLayout root;
+    protected MessagesList messagesList;
+    protected LinearLayout root;
     protected boolean listenersAdded = false;
 
     public interface Delegate {
@@ -62,8 +59,6 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     }
 
     protected MessagesListAdapter<MessageHolder> messagesListAdapter;
-
-//    protected Map<Message, MessageHolder> messageHolderHashMap = new HashMap<>();
 
     protected List<MessageHolder> messageHolders = new ArrayList<>();
 
@@ -96,7 +91,10 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
     public void initViews() {
         LayoutInflater.from(getContext()).inflate(getLayout(), this);
-        ButterKnife.bind(this);
+//        ButterKnife.bind(this);
+
+        messagesList = findViewById(R.id.messagesList);
+        root = findViewById(R.id.root);
 
         final MessageHolders holders = new MessageHolders();
         ChatSDKUI.shared().getMessageRegistrationManager().onBindMessageHolders(getContext(), holders);

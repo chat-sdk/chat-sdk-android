@@ -10,13 +10,12 @@ import androidx.recyclerview.widget.RecyclerView
 import sdk.chat.core.interfaces.ChatOption
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.core.ui.AbstractKeyboardOverlayFragment
-import sdk.chat.core.ui.KeyboardOverlayHandler
 import sdk.chat.core.ui.Sendable
 import sdk.chat.ui.R
 import smartadapter.SmartRecyclerAdapter
 import smartadapter.viewevent.listener.OnClickEventListener
 
-class KeyboardOverlayOptionsFragment(keyboardOverlayHandler: KeyboardOverlayHandler): AbstractKeyboardOverlayFragment(keyboardOverlayHandler) {
+class KeyboardOverlayOptionsFragment(): AbstractKeyboardOverlayFragment() {
 
     interface OptionExecutor {
         fun execute(option: ChatOption)
@@ -97,8 +96,10 @@ class KeyboardOverlayOptionsFragment(keyboardOverlayHandler: KeyboardOverlayHand
                 itemWidth = null
                 itemHeight = screenWidth / 3 + 30
             } else {
-                itemHeight = null
-                itemWidth = screenHeight / 2
+                itemHeight = (screenHeight - 70) / 2
+                itemWidth = (screenHeight - 70) / 2 - 40
+//                itemHeight = null;
+//                itemWidth = screenHeight / 2
             }
 
             if (::smartRecyclerAdapter.isInitialized) {

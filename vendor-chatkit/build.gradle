@@ -34,7 +34,7 @@ android {
 
 ext {
     libraryName = 'ChatKit'
-    artifact = 'chat-kit'
+    artifact = 'vendor-chat-kit'
     libraryDescription = 'ChatKit by stfalcon-studio'
 }
 

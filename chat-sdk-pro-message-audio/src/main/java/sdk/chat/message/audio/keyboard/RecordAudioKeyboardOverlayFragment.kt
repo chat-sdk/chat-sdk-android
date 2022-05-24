@@ -20,7 +20,6 @@ import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.core.ui.AbstractKeyboardOverlayFragment
-import sdk.chat.core.ui.KeyboardOverlayHandler
 import sdk.chat.core.ui.Sendable
 import sdk.chat.core.utils.PermissionRequestHandler
 import sdk.chat.message.audio.AudioMessageModule
@@ -29,7 +28,7 @@ import java.io.File
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class RecordAudioKeyboardOverlayFragment(keyboardOverlayHandler: KeyboardOverlayHandler): AbstractKeyboardOverlayFragment(keyboardOverlayHandler), TouchAwareConstraintLayout.TouchListener {
+class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), TouchAwareConstraintLayout.TouchListener {
 
     enum class RecordButtonMode {
         normal,
