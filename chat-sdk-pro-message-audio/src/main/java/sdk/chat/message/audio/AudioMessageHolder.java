@@ -14,7 +14,12 @@ public class AudioMessageHolder extends MessageHolder implements MessageContentT
     }
 
     public String audioURL() {
-        return message.stringForKey(Keys.MessageAudioURL);
+        if (AudioMessageModule.config().preferStreamAudio) {
+            return message.stringForKey(Keys.MessageAudioURL);
+        }
+        else {
+            return message.getFilePath();
+        }
     }
 
     public String getTotalTime() {

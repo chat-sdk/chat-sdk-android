@@ -184,19 +184,14 @@ public class MessageSendRig {
             for (Uploadable item : uploadables) {
                 CachedFile file = ChatSDK.uploadManager().add(item, message);
 
+                // TODO:  If the file is already uploaded, we can use the existing path
                 if (file.getRemotePath() != null) {
                     Logger.debug("Good, we've uploaded it before");
-                }
-
-                // TODO:  If the file is already uploaded, we can use the existing path
-
-//                if (file.completeAndValid()) {
 //                    message.setValueForKey(file.getRemotePath(), item.messageKey);
-//                } else {
-//                    file.setUploadStatus(UploadStatus.WillStart);
-//                    toUpload.add(item);
-//                }
+//                    continue;
+                }
                 if (!file.completeAndValid()) {
+                    file.setTransferStatus(TransferStatus.Initial);
                     toUpload.add(item);
                 }
             }
@@ -216,6 +211,8 @@ public class MessageSendRig {
 
                     message.setMessageStatus(MessageSendStatus.Uploading, item.reportProgress);
                     if (item.reportProgress) {
+                        Logger.info("Progress - Upload Manager - " + result.progress.asFraction());
+
                         ChatSDK.events().source().accept(NetworkEvent.messageProgressUpdated(message, result.progress));
                     }
 

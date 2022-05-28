@@ -91,15 +91,16 @@ public class AudioPlayer {
     }
 
     public void stop() {
-        if (isPlaying()) {
-            pause();
-        }
+//        if (isPlaying()) {
+//            pause();
+//        }
+        pause();
         if (player.getCurrentPosition() > 0.5) {
             seekTo(0);
         }
     }
 
-    public void pause () {
+    public void pause() {
         player.setPlayWhenReady(false);
         if (playingDisposable != null) {
             playingDisposable.dispose();

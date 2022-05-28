@@ -20,6 +20,7 @@ import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.module.ImageMessageModule;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Device;
+import sdk.chat.custom.CustomProvider;
 import sdk.chat.firbase.online.FirebaseLastOnlineModule;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.blocking.FirebaseBlockingModule;
@@ -27,17 +28,17 @@ import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.receipts.FirebaseReadReceiptsModule;
 import sdk.chat.firebase.typing.FirebaseTypingIndicatorModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
-import sdk.chat.message.V2ImageMessageRegistration;
-import sdk.chat.message.V2TextMessageRegistration;
-import sdk.chat.message.V2VideoMessageRegistration;
 import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.location.LocationMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
+import sdk.chat.message.video.VideoMessageRegistration;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
+import sdk.chat.ui.view_holders.v2.V2ImageMessageRegistration;
+import sdk.chat.ui.view_holders.v2.V2TextMessageRegistration;
 
 /**
  * Created by Ben Smiley on 6/8/2014.
@@ -171,6 +172,7 @@ public class MainApplication extends Application {
                 .setAnonymousLoginEnabled(false)
                 .setReuseDeleted1to1Threads(false)
                 .setLogLevel(Level.DEBUG)
+                .addProvider(new CustomProvider())
 //                .setMessagesToLoadPerBatch(5)
 
                 .setRemoteConfigEnabled(false)
@@ -228,7 +230,7 @@ public class MainApplication extends Application {
 
         ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2TextMessageRegistration());
         ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2ImageMessageRegistration());
-        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2VideoMessageRegistration());
+        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new VideoMessageRegistration());
 
 
     }

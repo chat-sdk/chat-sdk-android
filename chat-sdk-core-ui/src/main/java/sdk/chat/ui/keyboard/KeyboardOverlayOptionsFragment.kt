@@ -15,9 +15,9 @@ import sdk.chat.ui.R
 import smartadapter.SmartRecyclerAdapter
 import smartadapter.viewevent.listener.OnClickEventListener
 
-class KeyboardOverlayOptionsFragment(): AbstractKeyboardOverlayFragment() {
+open class KeyboardOverlayOptionsFragment(): AbstractKeyboardOverlayFragment() {
 
-    interface OptionExecutor {
+    open interface OptionExecutor {
         fun execute(option: ChatOption)
     }
 
@@ -26,13 +26,13 @@ class KeyboardOverlayOptionsFragment(): AbstractKeyboardOverlayFragment() {
     open lateinit var rootView: View
     open var optionExecutor: OptionExecutor? = null
 
-    var screenWidth: Int = 0
-    var screenHeight: Int = 0
+    open var screenWidth: Int = 0
+    open var screenHeight: Int = 0
 
-    var itemHeight: Int? = null
-    var itemWidth: Int? = null
+    open var itemHeight: Int? = null
+    open var itemWidth: Int? = null
 
-    fun getLayout(): Int {
+    open fun getLayout(): Int {
         return R.layout.fragment_smart_recycler
     }
 
@@ -65,13 +65,6 @@ class KeyboardOverlayOptionsFragment(): AbstractKeyboardOverlayFragment() {
             recyclerView.layoutManager = GridLayoutManager(context, 2, RecyclerView.HORIZONTAL, false)
         }
 
-
-//        recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
-
-        // Depending on the orientation
-
-
-
         return rootView
     }
 
@@ -81,7 +74,6 @@ class KeyboardOverlayOptionsFragment(): AbstractKeyboardOverlayFragment() {
 
     override fun onResume() {
         super.onResume()
-//        itemHeight = rootView.measuredWidth / 3 + 50
     }
 
     override fun onAttach(context: Context) {
@@ -89,7 +81,7 @@ class KeyboardOverlayOptionsFragment(): AbstractKeyboardOverlayFragment() {
         updateViewLayout()
     }
 
-    fun updateViewLayout() {
+    open fun updateViewLayout() {
         if (::smartRecyclerAdapter.isInitialized) {
 
             if (isPortrait) {
@@ -117,7 +109,7 @@ class KeyboardOverlayOptionsFragment(): AbstractKeyboardOverlayFragment() {
 //        }
     }
 
-    fun items(): MutableList<Any> {
+    open fun items(): MutableList<Any> {
         var items = arrayListOf<Any>()
 
         // Get the items
@@ -131,7 +123,7 @@ class KeyboardOverlayOptionsFragment(): AbstractKeyboardOverlayFragment() {
         return items
     }
 
-    fun executeOption(option: ChatOption) {
+    open fun executeOption(option: ChatOption) {
         if (option.hasOverlay()) {
             keyboardOverlayHandler.get()?.showOverlay(option.getOverlay(keyboardOverlayHandler.get()))
         } else {

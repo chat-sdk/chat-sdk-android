@@ -186,7 +186,10 @@ public class MessageInput extends RelativeLayout
     public void init(Context context, AttributeSet attrs) {
         init(context);
         MessageInputStyle style = MessageInputStyle.parse(context, attrs);
+        applyStyle(style);
+    }
 
+    public void applyStyle(MessageInputStyle style) {
         this.messageInput.setMaxLines(style.getInputMaxLines());
         this.messageInput.setHint(style.getInputHint());
         this.messageInput.setText(style.getInputText());
@@ -224,6 +227,7 @@ public class MessageInput extends RelativeLayout
         }
         this.delayTypingStatusMillis = style.getDelayTypingStatus();
     }
+
 
     public void init(Context context) {
         // Causes some dropped frames... but it's the system

@@ -13,9 +13,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import sdk.chat.core.session.ChatSDK;
 import sdk.chat.message.sticker.R;
 import sdk.chat.message.sticker.StickerPack;
-import sdk.chat.message.sticker.module.StickerMessageModule;
+import sdk.chat.message.sticker.provider.StickerPackProvider;
 import sdk.chat.ui.fragments.BaseFragment;
 
 /**
@@ -65,9 +66,9 @@ public class StickerMessageFragment extends BaseFragment {
         selectStickerRecyclerView.setAdapter(selectStickerListAdapter);
 
         try {
-            dm.add(StickerMessageModule.config().stickerPackProvider.getPacks().subscribe(stickerPacks -> {
-                this.stickerPacks = stickerPacks;
-                loadItems();
+            dm.add(ChatSDK.feather().instance(StickerPackProvider.class).getPacks().subscribe(stickerPacks -> {
+               this.stickerPacks = stickerPacks;
+               loadItems();
             }));
         }
         catch (Exception e) {

@@ -45,6 +45,8 @@ dependencies {
     api "com.jakewharton.rxrelay2:rxrelay:$rxRelayVersion"
     api "org.tinylog:tinylog:$tinyLogVersion"
 
+//    api "org.codejargon.feather:feather:1.0"
+
 }
 
 

@@ -192,7 +192,7 @@ public class MediaSelector {
 
             Matisse.from(activity)
                     .choose(MimeType.ofVideo())
-                    .showSingleMediaType(false)
+                    .showSingleMediaType(true)
                     .captureStrategy(new CaptureStrategy(false, activity.getPackageName() + ".contentprovider", "movies", true))
                     .theme(R.style.Matisse_Zhihu)
                     .capture(true)

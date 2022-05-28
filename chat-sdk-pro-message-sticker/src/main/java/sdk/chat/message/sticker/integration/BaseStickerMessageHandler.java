@@ -8,11 +8,12 @@ import sdk.chat.core.dao.Thread;
 import sdk.chat.core.handlers.StickerMessageHandler;
 import sdk.chat.core.manager.MessagePayload;
 import sdk.chat.core.rigs.MessageSendRig;
+import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.ui.AbstractKeyboardOverlayFragment;
 import sdk.chat.core.ui.KeyboardOverlayHandler;
 import sdk.chat.message.sticker.StickerMessagePayload;
-import sdk.chat.message.sticker.module.StickerMessageModule;
+import sdk.chat.message.sticker.keyboard.KeyboardOverlayStickerFragment;
 
 /**
  * Created by ben on 10/11/17.
@@ -29,7 +30,9 @@ public class BaseStickerMessageHandler extends AbstractMessageHandler implements
 
     @Override
     public AbstractKeyboardOverlayFragment keyboardOverlay(KeyboardOverlayHandler sender) {
-        return StickerMessageModule.config().stickerModuleProvider.keyboardOverlay(sender);
+        AbstractKeyboardOverlayFragment fragment = ChatSDK.feather().instance(KeyboardOverlayStickerFragment.class);
+        fragment.setHandler(sender);
+        return fragment;
     }
 
     @Override

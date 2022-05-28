@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.RawRes;
 
+import feather.Provides;
 import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.module.AbstractModule;
 import sdk.chat.core.session.ChatSDK;
@@ -14,7 +15,6 @@ import sdk.chat.message.sticker.StickerMessageRegistration;
 import sdk.chat.message.sticker.integration.BaseStickerMessageHandler;
 import sdk.chat.message.sticker.integration.StickerChatOption;
 import sdk.chat.message.sticker.provider.PListStickerPackProvider;
-import sdk.chat.message.sticker.provider.StickerModuleProvider;
 import sdk.chat.message.sticker.provider.StickerPackProvider;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.guru.common.BaseConfig;
@@ -44,14 +44,6 @@ public class StickerMessageModule extends AbstractModule {
 
         ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new StickerMessageRegistration());
 
-        if (config.loadStickersFromPlist) {
-            try {
-                if (config.stickerPackProvider == null) {
-                    config.stickerPackProvider = new PListStickerPackProvider(context, config.plist);
-                }
-            } catch (Exception e) {}
-        }
-
     }
 
     @Override
@@ -74,12 +66,11 @@ public class StickerMessageModule extends AbstractModule {
 
     public static class Config<T> extends BaseConfig<T> {
 
-        public int maxSize = 200;
+        public int maxSize = 170;
 
         public @RawRes int plist = R.raw.default_stickers;
 
         public boolean loadStickersFromPlist = true;
-        public StickerModuleProvider provider = new StickerModuleProvider();
 
         public Config(T onBuild) {
             super(onBuild);
@@ -115,18 +106,6 @@ public class StickerMessageModule extends AbstractModule {
             return this;
         }
 
-        public StickerPackProvider stickerPackProvider;
-        public Config<T> setStickerPackProvider(StickerPackProvider stickerPackProvider) {
-            this.stickerPackProvider = stickerPackProvider;
-            return this;
-        }
-
-        public StickerModuleProvider stickerModuleProvider = new StickerModuleProvider();
-        public Config<T> setStickerModuleProvider(StickerModuleProvider provider) {
-            this.stickerModuleProvider = provider;
-            return this;
-        }
-
     }
 
     public Config<StickerMessageModule> config = new Config<>(this);
@@ -140,5 +119,10 @@ public class StickerMessageModule extends AbstractModule {
         config = new Config<>(this);
     }
 
+
+    @Provides
+    public StickerPackProvider getStickerPack() {
+        return new PListStickerPackProvider();
+    }
 
 }

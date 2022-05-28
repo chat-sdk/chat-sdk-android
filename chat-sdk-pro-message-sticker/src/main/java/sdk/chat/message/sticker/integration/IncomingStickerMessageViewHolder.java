@@ -2,23 +2,26 @@ package sdk.chat.message.sticker.integration;
 
 import android.view.View;
 
-import sdk.chat.message.sticker.R;
-import sdk.chat.message.sticker.module.StickerMessageModule;
-import sdk.chat.ui.utils.ImageLoaderPayload;
-import sdk.chat.ui.view_holders.base.BaseIncomingImageMessageViewHolder;
+import androidx.annotation.NonNull;
 
-public class IncomingStickerMessageViewHolder extends BaseIncomingImageMessageViewHolder<StickerMessageHolder> {
-    public IncomingStickerMessageViewHolder(View itemView, Object payload) {
-        super(itemView, payload);
+import sdk.chat.ui.ChatSDKUI;
+import sdk.chat.ui.view_holders.v2.MessageDirection;
+import sdk.chat.ui.view_holders.v2.V2ImageMessageViewHolder;
+
+public class IncomingStickerMessageViewHolder extends V2ImageMessageViewHolder<StickerMessageHolder> {
+    public IncomingStickerMessageViewHolder(View itemView) {
+        super(itemView, MessageDirection.Incoming);
     }
 
     @Override
-    protected Object getPayloadForImageLoader(StickerMessageHolder message) {
-        return new ImageLoaderPayload(StickerMessageModule.config().maxSize,
-                StickerMessageModule.config().maxSize,
-                R.drawable.icn_200_image_message_placeholder,
-                message.getUser().getUser().isMe() ? R.drawable.icn_200_image_message_placeholder: 0
-                , message.getText().contains(".gif"));
+    public void loadImage(@NonNull StickerMessageHolder holder) {
+        ChatSDKUI.provider().imageLoader().load(
+                getImage(),
+                holder.getImageUrl(),
+                holder.placeholder(),
+                holder.getSize(),
+                holder.getText().contains(".gif")
+        );
     }
 
 }

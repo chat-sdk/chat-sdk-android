@@ -85,7 +85,7 @@ public class CustomiseInterfaceExample extends BaseExample {
             ChatSDK.ui().setPrivateThreadsFragment(new APrivateThreadsFragment());
 
             // Add an extra tab
-            ChatSDK.ui().setTab("Title", Icons.get(context, ChatSDKUI.icons().search, R.color.gray), new APrivateThreadsFragment(), 0);
+            ChatSDK.ui().setTab("Title", ChatSDKUI.icons().get(context, ChatSDKUI.icons().search, R.color.gray), new APrivateThreadsFragment(), 0);
 
             // Remove a tab
             ChatSDK.ui().removeTab(0);

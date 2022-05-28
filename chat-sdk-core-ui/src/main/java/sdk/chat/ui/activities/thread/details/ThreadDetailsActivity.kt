@@ -30,7 +30,6 @@ import sdk.chat.ui.ChatSDKUI
 import sdk.chat.ui.R
 import sdk.chat.ui.activities.ImagePreviewActivity
 import sdk.chat.ui.fragments.ProfileViewOffsetChangeListener
-import sdk.chat.ui.icons.Icons
 import sdk.chat.ui.module.UIModule
 import sdk.chat.ui.recycler.*
 import sdk.chat.ui.utils.ToastHelper
@@ -273,13 +272,13 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
 
     open fun reloadButtons() {
         if (ChatSDK.thread().canAddUsersToThread(thread)) {
-            addUsersFab.setImageDrawable(Icons.get(this, ChatSDKUI.icons().add, R.color.white))
+            addUsersFab.setImageDrawable(ChatSDKUI.icons().get(this, ChatSDKUI.icons().add, R.color.white))
             addUsersFab.visibility = View.VISIBLE
         } else {
             addUsersFab.visibility = View.INVISIBLE
         }
         if (ChatSDK.thread().canRefreshRoles(thread)) {
-            refreshFab.setImageDrawable(Icons.get(this, ChatSDKUI.icons().refresh, R.color.white))
+            refreshFab.setImageDrawable(ChatSDKUI.icons().get(this, ChatSDKUI.icons().refresh, R.color.white))
             refreshFab.visibility = View.VISIBLE
         } else {
             refreshFab.visibility = View.INVISIBLE

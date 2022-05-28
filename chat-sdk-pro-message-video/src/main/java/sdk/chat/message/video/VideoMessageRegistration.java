@@ -15,6 +15,7 @@ import sdk.chat.core.manager.DownloadablePayload;
 import sdk.chat.core.manager.MessagePayload;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.message.video.v2.V2Video;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.custom.DefaultMessageRegistration;
@@ -35,10 +36,10 @@ public class VideoMessageRegistration extends DefaultMessageRegistration {
     public void onBindMessageHolders(Context ctx, MessageHolders holders) {
         holders.registerContentType(
                 (byte) MessageType.Video,
-                IncomingVideoMessageViewHolder.class,
-                R.layout.view_holder_incoming_video_message,
-                OutcomingVideoMessageViewHolder.class,
-                R.layout.view_holder_outcoming_video_message,
+                V2Video.IncomingMessageViewHolder.class,
+                R.layout.view_holder_incoming_image_message,
+                V2Video.OutcomingMessageViewHolder.class,
+                R.layout.view_holder_outcoming_image_message,
                 ChatSDKUI.shared().getMessageRegistrationManager());
     }
 

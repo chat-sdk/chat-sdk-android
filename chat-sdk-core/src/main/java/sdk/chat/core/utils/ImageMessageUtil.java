@@ -29,7 +29,7 @@ public class ImageMessageUtil {
 
         float ar = 1;
         if (width > 0 && height > 0) {
-            ar = (float) width / (float) height;
+            ar = width / height;
             ar = Math.max(ar, ChatSDK.config().imageMessageMinAR);
             ar = Math.min(ar, ChatSDK.config().imageMessageMaxAR);
         }

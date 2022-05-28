@@ -17,8 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Single;
+import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.message.sticker.StickerPack;
+import sdk.chat.message.sticker.module.StickerMessageModule;
 
 public class PListStickerPackProvider implements StickerPackProvider {
 
@@ -29,23 +31,23 @@ public class PListStickerPackProvider implements StickerPackProvider {
 
     protected List<StickerPack> stickerPacks;
 
-    public PListStickerPackProvider(Context context, @RawRes int plist) {
-        this.context = context;
-        this.plist = plist;
+    public PListStickerPackProvider() {
+        this.context = ChatSDK.ctx();
+        this.plist = StickerMessageModule.config().plist;
     }
 
-    public static String resourceName (Context context, String name) {
+    public String resourceName(Context context, String name) {
         name = name.replace(".png", "").replace(".gif", "");
         return context.getPackageName() + ":" + FolderName + "/" + name;
     }
 
-    public static int resourceId (Context context, String name) {
+    public int resourceId (String name) {
         return context.getResources().getIdentifier(resourceName(context, name), null, null);
     }
 
-    public static String imageURI(Context context, String name) {
+    public String imageURI(Context context, String name) {
         Resources resources = context.getResources();
-        int resID = resourceId(context, name);
+        int resID = resourceId(name);
         Uri uri = new Uri.Builder()
                 .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
                 .authority(resources.getResourcePackageName(resID))
@@ -125,5 +127,25 @@ public class PListStickerPackProvider implements StickerPackProvider {
             emitter.onSuccess(stickerPacks);
 
         });
+    }
+
+    @Override
+    public String imageURL(String name) {
+        Resources resources = context.getResources();
+
+        // Do this because otherwise we get a crash because the message
+        // holder tries to update before it's ready
+        if (!StringChecker.isNullOrEmpty(name)) {
+            int resID = resourceId(name);
+            Uri uri = new Uri.Builder()
+                    .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                    .authority(resources.getResourcePackageName(resID))
+                    .appendPath(resources.getResourceTypeName(resID))
+                    .appendPath(resources.getResourceEntryName(resID))
+                    .build();
+
+            return uri.toString();
+        }
+        return null;
     }
 }

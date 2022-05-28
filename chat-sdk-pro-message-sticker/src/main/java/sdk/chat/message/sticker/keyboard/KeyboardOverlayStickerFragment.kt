@@ -15,12 +15,12 @@ import sdk.chat.core.ui.AbstractKeyboardOverlayFragment
 import sdk.chat.core.ui.Sendable
 import sdk.chat.message.sticker.R
 import sdk.chat.message.sticker.StickerPack
-import sdk.chat.message.sticker.module.StickerMessageModule
+import sdk.chat.message.sticker.provider.StickerPackProvider
 import sdk.chat.ui.keyboard.KeyboardOverlayOptionsFragment
 import smartadapter.SmartRecyclerAdapter
 import smartadapter.viewevent.listener.OnClickEventListener
 
-class KeyboardOverlayStickerFragment(): AbstractKeyboardOverlayFragment() {
+open class KeyboardOverlayStickerFragment(): AbstractKeyboardOverlayFragment() {
 
     open lateinit var stickerRecyclerAdapter: SmartRecyclerAdapter
     open lateinit var stickerRecyclerView: RecyclerView
@@ -31,16 +31,18 @@ class KeyboardOverlayStickerFragment(): AbstractKeyboardOverlayFragment() {
     open lateinit var rootView: View
     open var optionExecutor: KeyboardOverlayOptionsFragment.OptionExecutor? = null
 
-    var stickerPacks: List<StickerPack>? = null
+    open var stickerPacks: List<StickerPack>? = null
 
-    var width = 0
-    var height = 0
+    open var width = 0
+    open var height = 0
 
-    var packWidth = 50
-    var stickerSize = 0f
-    var currentPack: StickerPack? = null
+    open var packWidth = 50
+    open var stickerSize = 0f
+    open var currentPack: StickerPack? = null
 
-    fun getLayout(): Int {
+    open var provider: StickerPackProvider = ChatSDK.feather().instance(StickerPackProvider::class.java)
+
+    open fun getLayout(): Int {
         return R.layout.fragment_sticker_smart_recycler
     }
 
@@ -85,13 +87,13 @@ class KeyboardOverlayStickerFragment(): AbstractKeyboardOverlayFragment() {
         packRecyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
         stickerRecyclerView.layoutManager = GridLayoutManager(context, 2, RecyclerView.HORIZONTAL, false)
 
-        val d = StickerMessageModule.config().stickerPackProvider.packs.subscribe(Consumer {
+        val d = provider.packs?.subscribe(Consumer {
             stickerPacks = it
             currentPack = it[0]
             reload()
         })
 
-        StickerMessageModule.config().stickerPackProvider.preload()
+        provider.preload()
 
         return rootView
     }
@@ -107,16 +109,16 @@ class KeyboardOverlayStickerFragment(): AbstractKeyboardOverlayFragment() {
         }
     }
 
-    fun reload() {
+    open fun reload() {
         packRecyclerAdapter.setItems(packs())
         reloadStickers()
     }
 
-    fun reloadStickers() {
+    open fun reloadStickers() {
         stickerRecyclerAdapter.setItems(stickers())
     }
 
-    fun packs(): MutableList<Any> {
+    open fun packs(): MutableList<Any> {
 
         var items = arrayListOf<Any>()
 
@@ -129,7 +131,7 @@ class KeyboardOverlayStickerFragment(): AbstractKeyboardOverlayFragment() {
         return items
     }
 
-    fun stickers(): MutableList<Any> {
+    open fun stickers(): MutableList<Any> {
         var items = arrayListOf<Any>()
 
         currentPack?.let {
@@ -140,7 +142,7 @@ class KeyboardOverlayStickerFragment(): AbstractKeyboardOverlayFragment() {
         return items
     }
 
-    fun packWidth(context: Context): Int {
+    open fun packWidth(context: Context): Int {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70f, context.resources.displayMetrics).toInt()
     }
 

@@ -66,6 +66,12 @@ public class AudioMessageModule extends AbstractModule {
 //            return this;
 //        }
 
+        public boolean preferStreamAudio = false;
+        public Config<T> setPreferStreamAudio(boolean value) {
+            this.preferStreamAudio = value;
+            return this;
+        }
+
     }
 
     public static Config config() {

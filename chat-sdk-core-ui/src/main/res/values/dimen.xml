@@ -13,8 +13,8 @@
     <dimen name="message_image_width">300dp</dimen>
     <dimen name="message_image_height">300dp</dimen>
 
-    <dimen name="small_avatar_width">@dimen/small_icon_width</dimen>
-    <dimen name="small_avatar_height">@dimen/small_icon_height</dimen>
+    <dimen name="small_avatar_width">38dp</dimen>
+    <dimen name="small_avatar_height">38dp</dimen>
 
     <dimen name="large_avatar_width">@dimen/large_icon_width</dimen>
     <dimen name="large_avatar_height">@dimen/large_icon_height</dimen>

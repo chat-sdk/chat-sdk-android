@@ -14,6 +14,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import feather.Feather;
 import io.reactivex.Completable;
 import io.reactivex.plugins.RxJavaPlugins;
 import sdk.chat.core.base.BaseNetworkAdapter;
@@ -106,6 +107,8 @@ public class ChatSDK {
 
     protected List<BroadcastHandler> broadcastHandlers = new ArrayList<>();
     protected PushQueue pushQueue = new PushQueue();
+
+    protected Feather feather = Feather.with();
 
     protected ChatSDK () {
     }
@@ -231,6 +234,13 @@ public class ChatSDK {
                 throw new Exception("To use premium modules you must include either your email, Patreon ID or Github Sponsors ID");
             }
         }
+
+        // Make a list of providers
+        List<Object> providers = new ArrayList<>();
+        providers.addAll(config.providers);
+        providers.addAll(builder.modules);
+
+        feather = Feather.with(providers);
 
         if (networkAdapter != null) {
             setNetworkAdapter(networkAdapter.getConstructor().newInstance());
@@ -506,10 +516,6 @@ public class ChatSDK {
         }
         return null;
     }
-//    @Deprecated
-//    public static List<String> getRemoteFilePaths(Message message) {
-//        return messageHandlerManager().getRemoteFilePaths(message);
-//    }
 
     public static MessagePayload getMessagePayload(Message message) {
 
@@ -614,6 +620,10 @@ public class ChatSDK {
 
     public static AppBackgroundMonitor appBackgroundMonitor() {
         return shared().appBackgroundMonitor;
+    }
+
+    public static Feather feather() {
+        return shared().feather;
     }
 }
 

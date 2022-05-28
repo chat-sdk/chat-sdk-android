@@ -101,7 +101,7 @@ public abstract class SelectContactActivity extends BaseActivity {
             fab.setEnabled(false);
             doneButtonPressed(adapter.getSelectedUsers());
         });
-        fab.setImageDrawable(Icons.get(this, ChatSDKUI.icons().check, R.color.fab_icon_color));
+        fab.setImageDrawable(ChatSDKUI.icons().get(this, ChatSDKUI.icons().check, R.color.fab_icon_color));
     }
 
     protected void initList() {

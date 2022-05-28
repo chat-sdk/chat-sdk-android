@@ -16,6 +16,7 @@ import java.util.List;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.message.file.v2.V2File;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.custom.DefaultMessageRegistration;
@@ -36,9 +37,9 @@ public class FileMessageRegistration extends DefaultMessageRegistration {
     public void onBindMessageHolders(Context ctx, MessageHolders holders) {
         holders.registerContentType(
                 (byte) MessageType.File,
-                IncomingFileMessageViewHolder.class,
+                V2File.IncomingMessageViewHolder.class,
                 R.layout.view_holder_incoming_text_message,
-                OutcomingFileMessageViewHolder.class,
+                V2File.OutcomingMessageViewHolder.class,
                 R.layout.view_holder_outcoming_text_message,
                 ChatSDKUI.shared().getMessageRegistrationManager());
     }

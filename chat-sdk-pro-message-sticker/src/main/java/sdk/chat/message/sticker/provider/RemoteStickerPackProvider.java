@@ -22,4 +22,10 @@ public class RemoteStickerPackProvider implements StickerPackProvider {
 
             emitter.onSuccess(stickerPacks);
         });
-    }}
+    }
+
+    @Override
+    public String imageURL(String name) {
+        return null;
+    }
+}

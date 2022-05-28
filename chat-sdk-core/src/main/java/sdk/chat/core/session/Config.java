@@ -5,7 +5,9 @@ import android.graphics.Color;
 import org.pmw.tinylog.Level;
 import org.pmw.tinylog.Logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -657,6 +659,12 @@ public class Config<T> extends BaseConfig<T> {
     public float imageMessageMaxAR = 1.5f;
     public Config<T> setImageMessageMaxAR(float value) {
         this.imageMessageMaxAR = value;
+        return this;
+    }
+
+    public List<Object> providers = new ArrayList<>();
+    public Config<T> addProvider(Object value) {
+        this.providers.add(value);
         return this;
     }
 

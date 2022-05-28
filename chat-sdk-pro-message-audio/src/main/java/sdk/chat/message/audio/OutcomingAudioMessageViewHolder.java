@@ -2,15 +2,16 @@ package sdk.chat.message.audio;
 
 import android.view.View;
 
-import butterknife.BindView;
-import sdk.chat.ui.view_holders.base.BaseOutcomingTextMessageViewHolder;
+import sdk.chat.ui.view_holders.v2.BaseMessageViewHolder;
+import sdk.chat.ui.view_holders.v2.MessageDirection;
 
-public class OutcomingAudioMessageViewHolder extends BaseOutcomingTextMessageViewHolder<AudioMessageHolder> {
+public class OutcomingAudioMessageViewHolder extends BaseMessageViewHolder<AudioMessageHolder> {
 
-    @BindView(R2.id.audioPlayerView) protected AudioPlayerView audioPlayerView;
+    protected AudioPlayerView audioPlayerView;
 
-    public OutcomingAudioMessageViewHolder(View itemView, Object payload) {
-        super(itemView, payload);
+    public OutcomingAudioMessageViewHolder(View itemView) {
+        super(itemView, MessageDirection.Outcoming);
+        audioPlayerView = itemView.findViewById(R.id.audioPlayerView);
     }
 
     @Override

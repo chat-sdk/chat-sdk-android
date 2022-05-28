@@ -5,6 +5,7 @@ import android.view.View;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.view_holders.base.BaseOutcomingTextMessageViewHolder;
 
+@Deprecated
 public class OutcomingTextMessageViewHolder extends BaseOutcomingTextMessageViewHolder<MessageHolder> {
     public OutcomingTextMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);

@@ -1,4 +1,4 @@
-package sdk.chat.message;
+package sdk.chat.ui.view_holders.v2;
 
 import android.content.Context;
 

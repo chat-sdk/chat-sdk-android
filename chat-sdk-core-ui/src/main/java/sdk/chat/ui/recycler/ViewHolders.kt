@@ -10,7 +10,6 @@ import android.widget.TextView
 import com.google.android.material.switchmaterial.SwitchMaterial
 import sdk.chat.ui.ChatSDKUI
 import sdk.chat.ui.R
-import sdk.chat.ui.icons.Icons
 import smartadapter.viewholder.SmartViewHolder
 import java.util.*
 
@@ -131,7 +130,7 @@ open class NavigationViewHolder(parentView: ViewGroup) :
     open var imageView:ImageView  = itemView.findViewById(R.id.imageView)
 
     init {
-        imageView.setImageDrawable(Icons.get(ChatSDKUI.icons().arrowRight, R.color.gray_very_light))
+        imageView.setImageDrawable(ChatSDKUI.icons().get(ChatSDKUI.icons().arrowRight, R.color.gray_very_light))
     }
 
 //    init(par) {

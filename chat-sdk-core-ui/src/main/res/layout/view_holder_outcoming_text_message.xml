@@ -1,32 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="4dp"
     android:layout_marginStart="16dp"
+    android:layout_marginTop="4dp"
     android:layout_marginEnd="16dp"
-    android:layout_marginTop="4dp">
+    android:layout_marginBottom="4dp">
 
     <LinearLayout
         android:id="@id/bubble"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
         android:layout_marginStart="40dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/replyView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="?outcomingReplyDrawable"
-            android:paddingEnd="2dp"
-            android:paddingStart="6dp"
-            android:paddingBottom="2dp"
-            android:paddingTop="2dp"
             android:layout_marginBottom="6dp"
+            android:background="?outcomingReplyDrawable"
+            android:orientation="horizontal"
+            android:paddingStart="6dp"
+            android:paddingTop="2dp"
+            android:paddingEnd="2dp"
+            android:paddingBottom="2dp"
             android:visibility="gone">
 
             <ImageView
@@ -35,20 +38,18 @@
                 android:layout_height="@dimen/reply_image_height"
                 android:layout_marginStart="2dp"
                 android:layout_marginTop="2dp"
-                android:layout_marginBottom="2dp"
-                />
+                android:layout_marginBottom="2dp" />
 
             <TextView
                 android:id="@+id/replyTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:textSize="?outcomingReplyTextSize"
-                android:textColor="?outcomingReplyTextColor"
+                android:layout_marginStart="2dp"
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:padding="2dp"
-                android:layout_marginStart="2dp"
-                />
+                android:textColor="?outcomingReplyTextColor"
+                android:textSize="?outcomingReplyTextSize" />
 
         </LinearLayout>
 
@@ -67,31 +68,43 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="center_vertical">
+                android:layout_gravity="center_vertical"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@id/messageText"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:gravity="center_vertical"
                     android:autoLink="all"
+                    android:gravity="center_vertical"
                     android:linksClickable="true"
-                    android:textColorLink="?outcomingTextLinkColor"
-                    />
+                    android:textColorLink="?outcomingTextLinkColor" />
 
             </LinearLayout>
         </LinearLayout>
-
     </LinearLayout>
+
+    <sdk.chat.ui.views.ProgressView
+        android:id="@+id/progressView"
+
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        app:layout_constraintHeight="true"
+        app:layout_constraintWidth="true"
+
+        app:layout_constraintStart_toStartOf="@id/bubble"
+        app:layout_constraintTop_toTopOf="@id/bubble"
+        app:layout_constraintBottom_toBottomOf="@id/bubble"
+        android:visibility="gone"
+        />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/bubble"
-        android:layout_alignParentEnd="true"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bubble">
 
         <TextView
             android:id="@id/messageTime"
@@ -99,16 +112,15 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginEnd="2dp"
-            android:maxLines="1"
-            />
+            android:maxLines="1" />
 
         <ImageView
             android:id="@+id/readStatus"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="2dp"
             android:layout_width="24dp"
             android:layout_height="12dp"
-            android:layout_gravity="center_vertical" />
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp" />
 
     </LinearLayout>
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

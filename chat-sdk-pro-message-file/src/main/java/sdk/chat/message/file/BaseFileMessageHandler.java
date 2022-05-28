@@ -57,16 +57,11 @@ public class BaseFileMessageHandler extends AbstractMessageHandler implements Fi
             // First pass back an empty result so that we add the cell to the table view
             message.setValueForKey(fileName, Keys.MessageText);
             message.setValueForKey(mimeType, Keys.MessageMimeType);
-        }).setUploadables(uploadables, (message, result) -> {
+            message.setValueForKey(file.length(), Keys.MessageSize);
+            message.setFilePath(file.getPath());
+            message.update();
 
-//            if(result.mimeType.equals(imageMimeType)) {
-//                message.setValueForKey(result.url, Keys.MessageImageURL);
-//            }
-//            if(result.mimeType.equals(mimeType)) {
-//                message.setValueForKey(result.url, Keys.MessageFileURL);
-//            }
-
-        });
+        }).setUploadables(uploadables, null);
         return rig.run();
     }
 
@@ -76,11 +71,6 @@ public class BaseFileMessageHandler extends AbstractMessageHandler implements Fi
         int pageNumber = 0;
         PdfiumCore pdfiumCore = new PdfiumCore(context);
 
-        //http://www.programcreek.com/java-api-examples/index.php?api=android.os.ParcelFileDescriptor
-//        ParcelFileDescriptor fd = context.getContentResolver().openFileDescriptor(pdfUri, "r");
-//        context.getContentResolver().openFileDescr
-//
-//        PdfDocument pdfDocument = pdfiumCore.newDocument(fd);
         PdfDocument pdf = pdfiumCore.newDocument(fileToBytes(file));
         pdfiumCore.openPage(pdf, pageNumber);
         int width = pdfiumCore.getPageWidthPoint(pdf, pageNumber);
@@ -108,7 +98,7 @@ public class BaseFileMessageHandler extends AbstractMessageHandler implements Fi
 
     @Override
     public boolean isFor(MessageType type) {
-        return type.equals(MessageType.File);
+        return type != null && type.is(MessageType.File);
     }
 
 }

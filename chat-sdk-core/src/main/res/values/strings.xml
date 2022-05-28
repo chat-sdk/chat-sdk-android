@@ -35,6 +35,7 @@
     <string name="add_user_by_id">Add User by ID</string>
     <string name="__percent" formatted="false">%.0f%%</string>
 
+    <string name="download_failed">Download failed</string>
 
     <string name="settings">⚙️ Settings</string>
 

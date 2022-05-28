@@ -114,7 +114,7 @@ open class MainDrawerActivity : MainActivity() {
         supportActionBar?.setHomeButtonEnabled(true)
 
         supportActionBar!!.setHomeAsUpIndicator(
-            Icons.get(
+            ChatSDKUI.icons().get(
                 this,
                 ChatSDKUI.icons().drawer,
                 ChatSDKUI.icons().actionBarIconColor
@@ -124,11 +124,11 @@ open class MainDrawerActivity : MainActivity() {
 
         buildHeader(false, savedInstanceState)
 
-        val logoutItem = PrimaryDrawerItem().withName(R.string.logout).withIcon(Icons.get(this, ChatSDKUI.icons().logout, R.color.logout_button_color))
+        val logoutItem = PrimaryDrawerItem().withName(R.string.logout).withIcon(ChatSDKUI.icons().get(this, ChatSDKUI.icons().logout, R.color.logout_button_color))
         logoutItem.name = StringHolder(R.string.logout)
         logoutItem.isSelectable = false
 
-        val profileItem = PrimaryDrawerItem().withName(R.string.profile).withIcon(Icons.get(this, ChatSDKUI.icons().user, R.color.profile_icon_color))
+        val profileItem = PrimaryDrawerItem().withName(R.string.profile).withIcon(ChatSDKUI.icons().get(this, ChatSDKUI.icons().user, R.color.profile_icon_color))
         profileItem.isSelectable = false
 
         slider.apply {
@@ -244,7 +244,7 @@ open class MainDrawerActivity : MainActivity() {
                     //don't ask but google uses 14dp for the add account icon in gmail but 20dp for the normal icons (like manage account)
 //                    ProfileSettingDrawerItem().apply {
 //                        name = StringHolder(R.string.logout)
-//                        icon = ImageHolder(Icons.get(this, ChatSDKUI.icons().logout, R.color.logout_button_color))
+//                        icon = ImageHolder(ChatSDKUI.icons().get(this, ChatSDKUI.icons().logout, R.color.logout_button_color))
 //                    }
             )
             selectionListEnabledForSingleProfile = false

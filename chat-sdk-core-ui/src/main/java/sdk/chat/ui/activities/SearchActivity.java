@@ -284,7 +284,7 @@ public class SearchActivity extends BaseActivity {
     }
 
     public void refreshDoneButton() {
-        fab.setImageDrawable(Icons.get(this, ChatSDKUI.icons().check, R.color.white));
+        fab.setImageDrawable(ChatSDKUI.icons().get(this, ChatSDKUI.icons().check, R.color.white));
         fab.setVisibility(adapter.getSelectedCount() > 0 ? View.VISIBLE : View.INVISIBLE);
     }
 

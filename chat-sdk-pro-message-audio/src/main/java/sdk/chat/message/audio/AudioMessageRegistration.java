@@ -10,6 +10,7 @@ import java.util.List;
 
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.message.audio.v2.V2Audio;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.custom.DefaultMessageRegistration;
@@ -29,9 +30,9 @@ public class AudioMessageRegistration extends DefaultMessageRegistration {
     public void onBindMessageHolders(Context ctx, MessageHolders holders) {
         holders.registerContentType(
                 (byte) MessageType.Audio,
-                IncomingAudioMessageViewHolder.class,
+                V2Audio.IncomingMessageViewHolder.class,
                 R.layout.view_holder_incoming_audio_message,
-                OutcomingAudioMessageViewHolder.class,
+                V2Audio.OutcomingMessageViewHolder.class,
                 R.layout.view_holder_outcoming_audio_message, ChatSDKUI.shared().getMessageRegistrationManager());
     }
 

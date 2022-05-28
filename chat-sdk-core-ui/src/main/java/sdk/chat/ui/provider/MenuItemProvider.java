@@ -23,7 +23,7 @@ public class MenuItemProvider {
         MenuItem item = menu.findItem(addItemId);
         if (item == null) {
             item = menu.add(Menu.NONE, addItemId, order, R.string.add)
-                    .setIcon(Icons.get(context, ChatSDKUI.icons().add, ChatSDKUI.icons().actionBarIconColor));
+                    .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().add, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
 
@@ -34,7 +34,7 @@ public class MenuItemProvider {
         MenuItem item = menu.findItem(searchItemId);
         if (item == null) {
             item = menu.add(Menu.NONE, searchItemId, order, R.string.search)
-                    .setIcon(Icons.get(context, ChatSDKUI.icons().search, ChatSDKUI.icons().actionBarIconColor));
+                    .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().search, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         return item;
@@ -44,7 +44,7 @@ public class MenuItemProvider {
         MenuItem item = menu.findItem(copyItemId);
         if (item == null) {
             item = menu.add(Menu.NONE, copyItemId, order, R.string.copy)
-                    .setIcon(Icons.get(context, ChatSDKUI.icons().copy, ChatSDKUI.icons().actionBarIconColor));
+                    .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().copy, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         return item;
@@ -54,7 +54,7 @@ public class MenuItemProvider {
         MenuItem item = menu.findItem(deleteItemId);
         if (item == null) {
             item = menu.add(Menu.NONE, deleteItemId, order, R.string.delete)
-                    .setIcon(Icons.get(context, ChatSDKUI.icons().delete, ChatSDKUI.icons().actionBarIconColor));
+                    .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().delete, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         return item;
@@ -64,7 +64,7 @@ public class MenuItemProvider {
         MenuItem item = menu.findItem(forwardItemId);
         if (item == null) {
             item = menu.add(Menu.NONE, forwardItemId, order, R.string.forward_message)
-                    .setIcon(Icons.get(context, ChatSDKUI.icons().forward, ChatSDKUI.icons().actionBarIconColor));
+                    .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().forward, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         return item;
@@ -74,7 +74,7 @@ public class MenuItemProvider {
         MenuItem item = menu.findItem(replyItemId);
         if (item == null) {
             item = menu.add(Menu.NONE, replyItemId, order, R.string.reply)
-                    .setIcon(Icons.get(context, ChatSDKUI.icons().reply, ChatSDKUI.icons().actionBarIconColor));
+                    .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().reply, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         return item;
@@ -84,7 +84,7 @@ public class MenuItemProvider {
         MenuItem item = menu.findItem(callItemId);
         if (item == null) {
             item = menu.add(Menu.NONE, callItemId, order, R.string.call)
-                    .setIcon(Icons.get(context, ChatSDKUI.icons().call, ChatSDKUI.icons().actionBarIconColor));
+                    .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().call, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         return item;
@@ -94,7 +94,7 @@ public class MenuItemProvider {
         MenuItem item = menu.findItem(saveItemId);
         if (item == null) {
             item = menu.add(Menu.NONE, saveItemId, order, R.string.save)
-                    .setIcon(Icons.get(context, ChatSDKUI.icons().save, ChatSDKUI.icons().actionBarIconColor));
+                    .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().save, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         return item;

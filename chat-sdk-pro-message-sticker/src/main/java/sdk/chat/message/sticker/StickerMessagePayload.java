@@ -1,24 +1,22 @@
 package sdk.chat.message.sticker;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.res.Resources;
-import android.net.Uri;
-
-import org.pmw.tinylog.Logger;
-
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.manager.AbstractMessagePayload;
+import sdk.chat.core.manager.ImageMessagePayload;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
-import sdk.chat.core.utils.StringChecker;
-import sdk.chat.message.sticker.provider.PListStickerPackProvider;
+import sdk.chat.core.utils.ImageMessageUtil;
+import sdk.chat.core.utils.Size;
+import sdk.chat.message.sticker.module.StickerMessageModule;
+import sdk.chat.message.sticker.provider.StickerPackProvider;
 
-public class StickerMessagePayload extends AbstractMessagePayload {
+public class StickerMessagePayload extends ImageMessagePayload {
+
+    public StickerPackProvider provider;
 
     public StickerMessagePayload(Message message) {
         super(message);
+        this.provider = ChatSDK.feather().instance(StickerPackProvider.class);
     }
 
     @Override
@@ -34,47 +32,17 @@ public class StickerMessagePayload extends AbstractMessagePayload {
     @Override
     public String imageURL() {
         if (message.getMessageType().is(MessageType.Sticker)  || message.getReplyType().is(MessageType.Sticker)) {
-            Context context = ChatSDK.ctx();
-            Resources resources = context.getResources();
             String stickerName = (String) message.valueForKey(Keys.MessageStickerName);
-
-            Logger.debug("Sticker:" + System.identityHashCode(message) + ", " + message.getMetaValuesAsMap() + ", " + stickerName);
-
-            // Do this because otherwise we get a crash because the message
-            // holder tries to update before it's ready
-            if (!StringChecker.isNullOrEmpty(stickerName)) {
-                int resID = PListStickerPackProvider.resourceId(context, stickerName);
-
-                Uri uri = new Uri.Builder()
-                        .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
-                        .authority(resources.getResourcePackageName(resID))
-                        .appendPath(resources.getResourceTypeName(resID))
-                        .appendPath(resources.getResourceEntryName(resID))
-                        .build();
-
-                return uri.toString();
-            }
+            return provider.imageURL(stickerName);
         }
         return null;
     }
 
-//    @Override
-//    public List<String> remoteURLs() {
-//        List<String> urls = new ArrayList<>();
-//        // TODO: We need to support remote URLs and local URLs
-//        String url = message.stringForKey(Keys.MessageImageURL);
-//        if (url != null) {
-//            urls.add(url);
-//        }
-//        return urls;
-//    }
-//
-//    @Override
-//    public Completable downloadMessageContent() {
-//        return Completable.create(emitter -> {
-//            // TODO:
-//        });
-//    }
+    @Override
+    public Size getSize() {
+        return new Size(ImageMessageUtil.pxToDp(StickerMessageModule.config().maxSize));
+    }
+
 
     @Override
     public String lastMessageText() {

@@ -1,5 +1,6 @@
 package sdk.chat.ui.module;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StyleRes;
@@ -406,5 +407,19 @@ public class UIConfig<T> extends BaseConfig<T> {
         this.canSelectMultipleImages = value;
         return this;
     }
+
+    public boolean showMessageProgressText = true;
+    public UIConfig<T> setShowMessageProgressText(boolean showMessageProgressText) {
+        this.showMessageProgressText = showMessageProgressText;
+        return this;
+    }
+
+    public @ColorInt
+    int windowBackgroundColor = 0;
+    public UIConfig<T> setWindowBackgroundColor(@ColorInt int value) {
+        windowBackgroundColor = value;
+        return this;
+    }
+
 
 }

@@ -16,6 +16,7 @@ import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ImageLoaderPayload;
 
+@Deprecated
 public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> extends MessageHolders.BaseOutcomingMessageViewHolder<T>  {
 
     @BindView(R2.id.readStatus) protected ImageView readStatus;
@@ -38,7 +39,7 @@ public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> e
             imageLoader.loadImage(image, url, getPayloadForImageLoader(message));
         }
 
-        imageOverlay.setImageDrawable(Icons.get(imageOverlay.getContext(), ChatSDKUI.icons().check, R.color.white));
+        imageOverlay.setImageDrawable(ChatSDKUI.icons().get(imageOverlay.getContext(), ChatSDKUI.icons().check, R.color.white));
 
         if (imageOverlayContainer != null) {
             imageOverlayContainer.setVisibility(isSelected() ? View.VISIBLE : View.INVISIBLE);

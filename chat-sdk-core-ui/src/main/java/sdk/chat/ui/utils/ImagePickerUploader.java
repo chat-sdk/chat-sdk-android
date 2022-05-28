@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Single;
-import io.reactivex.functions.Consumer;
 import sdk.chat.core.image.ImageUploadResult;
 import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.utils.PermissionRequestHandler;
@@ -42,7 +41,7 @@ public class ImagePickerUploader {
                 .andThen(mediaSelector.startChooseMediaActivity(activity, MimeType.ofImage(), cropType, false));
     }
 
-    public Single<List<ImageUploadResult>> uploadImageFiles (List<File> files) {
+    public Single<List<ImageUploadResult>> uploadImageFiles(List<File> files) {
         return Single.defer(() -> {
             ArrayList<ImageUploadResult> results = new ArrayList<>();
             ArrayList<Single<ImageUploadResult>> singles = new ArrayList<>();

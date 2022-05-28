@@ -41,6 +41,8 @@ public class VideoMessageModule extends AbstractModule {
         ChatSDK.ui().addChatOption(new MediaChatOption(R.string.choose_video, R.drawable.icn_100_video, MediaType.chooseVideo()));
         
         ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new VideoMessageRegistration());
+
+
     }
 
     public static class Config<T> extends BaseConfig<T> {

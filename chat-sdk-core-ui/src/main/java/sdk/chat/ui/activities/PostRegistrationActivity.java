@@ -70,7 +70,7 @@ public class PostRegistrationActivity extends BaseActivity {
             }, this));
         });
 
-        doneFab.setImageDrawable(Icons.get(this, ChatSDKUI.icons().check, ChatSDKUI.icons().actionBarIconColor));
+        doneFab.setImageDrawable(ChatSDKUI.icons().get(this, ChatSDKUI.icons().check, ChatSDKUI.icons().actionBarIconColor));
         doneFab.setOnClickListener(v -> {
             doneFab.setEnabled(false);
             next();
@@ -138,24 +138,24 @@ public class PostRegistrationActivity extends BaseActivity {
 
         nameEditView.setText(name);
         nameEditView.setNextFocusDown(R.id.locationEditView);
-        nameEditView.setIcon(Icons.get(this, ChatSDKUI.icons().user, R.color.edit_profile_icon_color));
+        nameEditView.setIcon(ChatSDKUI.icons().get(this, ChatSDKUI.icons().user, R.color.edit_profile_icon_color));
         nameEditView.setHint(R.string.name_hint_required);
         nameEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
         locationEditView.setText(location);
         locationEditView.setNextFocusDown(R.id.phoneEditView);
-        locationEditView.setIcon(Icons.get(this, ChatSDKUI.icons().location, R.color.edit_profile_icon_color));
+        locationEditView.setIcon(ChatSDKUI.icons().get(this, ChatSDKUI.icons().location, R.color.edit_profile_icon_color));
         locationEditView.setHint(R.string.location_hint);
         locationEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
         phoneEditView.setText(phoneNumber);
         phoneEditView.setNextFocusDown(R.id.emailEditView);
-        phoneEditView.setIcon(Icons.get(this, ChatSDKUI.icons().phone, R.color.edit_profile_icon_color));
+        phoneEditView.setIcon(ChatSDKUI.icons().get(this, ChatSDKUI.icons().phone, R.color.edit_profile_icon_color));
         phoneEditView.setHint(R.string.phone_number_hint);
         phoneEditView.setInputType(InputType.TYPE_CLASS_PHONE);
 
         emailEditView.setText(email);
-        emailEditView.setIcon(Icons.get(this, ChatSDKUI.icons().email, R.color.edit_profile_icon_color));
+        emailEditView.setIcon(ChatSDKUI.icons().get(this, ChatSDKUI.icons().email, R.color.edit_profile_icon_color));
         emailEditView.setHint(R.string.email_hint);
         emailEditView.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
     }

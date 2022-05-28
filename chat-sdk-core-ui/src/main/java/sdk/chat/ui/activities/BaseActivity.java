@@ -16,9 +16,13 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.transition.Explode;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,6 +66,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
 
     protected DisposableMap dm = new DisposableMap();
 
+    protected Drawable windowBackground = null;
+
     protected AlertUtils alert;
 
     public BaseActivity() {
@@ -104,6 +110,64 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         }, throwable -> {
             // No Problem!
         }));
+    }
+
+
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
+        if(windowBackground == null && UIModule.config().windowBackgroundColor != 0) {
+            // Screen size
+            DisplayMetrics metrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+            Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
+            Bitmap bmp = Bitmap.createBitmap(metrics.widthPixels, metrics.heightPixels, conf); // this creates a MUTABLE bitmap
+            Canvas canvas = new Canvas(bmp);
+            canvas.drawColor(UIModule.config().windowBackgroundColor);
+
+            windowBackground = new BitmapDrawable(getResources(), bmp);
+            getWindow().setBackgroundDrawable(windowBackground);
+
+        }
+
+//        View decor = getWindow().getDecorView();
+//
+//        WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(decor);
+//        if (insets != null) {
+//            DisplayCutoutCompat cut = insets.getDisplayCutout();
+//
+//            if (cut == null) {
+//                return;
+//            }
+//
+//            // Screen size
+//            DisplayMetrics metrics = new DisplayMetrics();
+//            getWindowManager().getDefaultDisplay().getMetrics(metrics);
+//
+//            // Work out the safe area
+//            Rect safe = new Rect(
+//                    cut.getSafeInsetLeft(),
+//                    cut.getSafeInsetTop(),
+//                    metrics.widthPixels - cut.getSafeInsetRight(),
+//                    metrics.heightPixels - cut.getSafeInsetBottom()
+//            );
+//
+//            Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
+//            Bitmap bmp = Bitmap.createBitmap(metrics.widthPixels, metrics.heightPixels, conf); // this creates a MUTABLE bitmap
+//            Canvas canvas = new Canvas(bmp);
+//            canvas.drawColor(Color.BLACK);
+//
+//            Paint p = new Paint();
+//            p.setStyle(Paint.Style.FILL_AND_STROKE);
+//            p.setColor(Color.WHITE);
+//
+//            canvas.drawRect(safe, p);
+//
+//            getWindow().setBackgroundDrawable(new BitmapDrawable(getResources(), bmp));
+//
+//        }
     }
 
     protected void initViews() {

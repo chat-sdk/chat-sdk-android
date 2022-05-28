@@ -6,14 +6,17 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.webkit.MimeTypeMap;
 
+import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.manager.AbstractMessagePayload;
+import sdk.chat.core.manager.DownloadablePayload;
+import sdk.chat.core.manager.TextMessagePayload;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.storage.TransferStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.utils.StringChecker;
 
-public class FileMessagePayload extends AbstractMessagePayload {
+public class FileMessagePayload extends TextMessagePayload implements DownloadablePayload {
 
     public FileMessagePayload(Message message) {
         super(message);
@@ -21,6 +24,19 @@ public class FileMessagePayload extends AbstractMessagePayload {
 
     @Override
     public String getText() {
+        String name = message.getText();
+        if (StringChecker.isNullOrEmpty(name)) {
+            name = ChatSDK.getString(R.string.file_message);
+        }
+        return name;
+    }
+
+    @Override
+    public String lastMessageText() {
+        return getText();
+    }
+
+    public String fileURL() {
         return message.stringForKey(Keys.MessageFileURL);
     }
 
@@ -53,33 +69,37 @@ public class FileMessagePayload extends AbstractMessagePayload {
         return null;
     }
 
-//    @Override
-//    public List<String> remoteURLs() {
-//        List<String> urls = new ArrayList<>();
-//        String imageURL = message.stringForKey(Keys.MessageImageURL);
-//        if (imageURL != null) {
-//            urls.add(imageURL);
-//        }
-//        String fileURL = message.stringForKey(Keys.MessageFileURL);
-//        if (fileURL != null) {
-//            urls.add(fileURL);
-//        }
-//        return urls;
-//    }
-
-//    @Override
-//    public Completable downloadMessageContent() {
-//        return Completable.create(emitter -> {
-//            // TODO:
-//        });
-//    }
+    @Override
+    public TransferStatus downloadStatus() {
+        if (message.getFilePath() != null) {
+            return TransferStatus.Complete;
+        }
+        return ChatSDK.downloadManager().getDownloadStatus(message);
+    }
 
     @Override
-    public String toString() {
-        String text = super.toString();
-        if (StringChecker.isNullOrEmpty(text)) {
-            text = ChatSDK.getString(R.string.file_message);
+    public boolean canDownload() {
+        return downloadStatus() == TransferStatus.None && fileURL() != null;
+    }
+
+    @Override
+    public Completable startDownload() {
+        return Completable.create(emitter -> {
+            if (canDownload()) {
+                ChatSDK.downloadManager().download(message, Keys.MessageFileURL, fileURL(), "File_" + message.getEntityID());
+                emitter.onComplete();
+            } else {
+                emitter.onError(new Throwable(ChatSDK.getString(R.string.download_failed)));
+            }
+        });
+    }
+
+    @Override
+    public Integer size() {
+        Object size = message.valueForKey(Keys.MessageSize);
+        if (size instanceof Integer) {
+            return (Integer) size;
         }
-        return text;
+        return null;
     }
 }

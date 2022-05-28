@@ -113,7 +113,7 @@ public class EditThreadActivity extends BaseActivity {
             fab.setEnabled(false);
             didClickOnSaveButton();
         });
-        fab.setImageDrawable(Icons.get(this, ChatSDKUI.icons().check, R.color.fab_icon_color));
+        fab.setImageDrawable(ChatSDKUI.icons().get(this, ChatSDKUI.icons().check, R.color.fab_icon_color));
 
         if (UIModule.config().customizeGroupImageEnabled && ChatSDK.upload() != null) {
             threadImageView.setOnClickListener(view -> {

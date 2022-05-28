@@ -40,6 +40,11 @@ public class ImageLoaderUtil {
         load(imageView, url, UIModule.config().defaultProfilePlaceholder, new Size(size));
     }
 
+    public void loadSmallAvatar(ImageView imageView, String url) {
+        int size = Dimen.from(imageView.getContext(), R.dimen.small_avatar_height);
+        load(imageView, url, UIModule.config().defaultProfilePlaceholder, new Size(size));
+    }
+
     public void loadThread(ImageView imageView, String url, boolean isGroup, @DimenRes int sizeRes) {
         int size = Dimen.from(imageView.getContext(), sizeRes);
         Drawable placeholder = ResourcesCompat.getDrawable(imageView.getResources(), UIModule.config().defaultProfilePlaceholder, null);
@@ -78,14 +83,15 @@ public class ImageLoaderUtil {
         load(imageView, url, R.drawable.icn_200_image_message_placeholder, new Size(size));
     }
 
-    protected void load(ImageView imageView, String url, @DrawableRes int placeholder, Size size, boolean isAnimated) {
+    public void load(ImageView imageView, String url, @DrawableRes int placeholder, Size size, boolean isAnimated) {
         load(imageView, url, ResourcesCompat.getDrawable(ChatSDK.ctx().getResources(), placeholder, null), size, isAnimated);
     }
 
-    protected void load(ImageView imageView, String url, Drawable placeholder, Size size, boolean isAnimated) {
+    public void load(ImageView imageView, String url, Drawable placeholder, Size size, boolean isAnimated) {
 
         if (url == null) {
             Logger.debug("Stop here");
+            imageView.setImageDrawable(placeholder);
             return;
         }
 

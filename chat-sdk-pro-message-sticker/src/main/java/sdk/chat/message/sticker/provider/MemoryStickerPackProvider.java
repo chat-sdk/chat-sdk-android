@@ -22,4 +22,9 @@ public class MemoryStickerPackProvider implements StickerPackProvider {
     public Single<List<StickerPack>> getPacks() {
         return Single.just(packs);
     }
+
+    @Override
+    public String imageURL(String name) {
+        return null;
+    }
 }

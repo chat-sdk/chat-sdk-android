@@ -23,6 +23,7 @@ import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.DrawableUtil;
 
+@Deprecated
 public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
         extends MessageHolders.IncomingTextMessageViewHolder<T>  {
 

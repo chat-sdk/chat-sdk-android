@@ -6,6 +6,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.core.content.ContextCompat;
 
@@ -47,20 +48,21 @@ public class Icons {
         delete = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_delete);
         forward = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_forward);
         reply = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_reply);
-        add = context.getResources().getDrawable(R.drawable.icn_18_plus);
+        add = ContextCompat.getDrawable(context, R.drawable.icn_18_plus);
         microphone = new IconicsDrawable(context, FontAwesome.Icon.faw_microphone);
         cancel = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_cancel);
         play = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_play_arrow);
         pause = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_pause);
-        send = context.getResources().getDrawable(R.drawable.ic_send);
+        send = ContextCompat.getDrawable(context, R.drawable.ic_send);
         options = new IconicsDrawable(context, FontAwesome.Icon.faw_ellipsis_h);
         drawer = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_list);
         refresh = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_sync);
         arrowRight = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_keyboard_arrow_right);
-        user_100 = context.getResources().getDrawable(R.drawable.icn_100_user);
-        group_100 = context.getResources().getDrawable(R.drawable.icn_100_group);
+        user_100 = ContextCompat.getDrawable(context, R.drawable.icn_100_user);
+        group_100 = ContextCompat.getDrawable(context, R.drawable.icn_100_group);
 
         call = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_call);
+        download_arrow = ContextCompat.getDrawable(context, R.drawable.icn_60_download);
 
     }
 
@@ -96,47 +98,60 @@ public class Icons {
     public Drawable group_100;
     public Drawable user_100;
     public IconicsDrawable call;
+    public Drawable download_arrow;
 
-    @Deprecated
-    public static Drawable get(IconicsDrawable icon, @ColorRes int colorRes) {
+    public Drawable get(IconicsDrawable icon, @ColorRes int colorRes) {
         return get(icon, colorRes, 0, 0);
     }
 
-    @Deprecated
-    public static Drawable get(Context context, IconicsDrawable icon, @ColorRes int colorRes) {
+//    public Drawable getWithColor(IconicsDrawable icon, @ColorInt int colorInt) {
+//        return getWithColor(icon, colorInt);
+//    }
+
+//    public Drawable getWithColor(Drawable icon, @ColorInt int colorInt) {
+//        return getWithColor(icon, colorInt);
+//    }
+
+    public Drawable get(Context context, IconicsDrawable icon, @ColorRes int colorRes) {
         return get(context, icon, colorRes, 0, 0);
     }
 
-    @Deprecated
-    public static Drawable get(Drawable icon, @ColorRes int colorRes) {
+//    public Drawable getWithColor(Context context, IconicsDrawable icon, @ColorInt int colorInt) {
+//        return getWithColor(context, icon, colorInt, 0, 0);
+//    }
+
+    public Drawable get(Drawable icon, @ColorRes int colorRes) {
         return get(context(), icon, colorRes);
     }
 
-    @Deprecated
-    public static Drawable get(Context context, Drawable icon, @ColorRes int colorRes) {
+    public Drawable get(Context context, Drawable icon, @ColorRes int colorRes) {
         if (colorRes != 0) {
             icon.setColorFilter(ContextCompat.getColor(context, colorRes), PorterDuff.Mode.MULTIPLY);
         }
         return icon;
     }
 
-    @Deprecated
-    public static Drawable get(IconicsDrawable icon, int colorRes, int width, int height) {
+    public Drawable get(IconicsDrawable icon, int colorRes, int width, int height) {
         return get(context(), icon, colorRes, width, height);
     }
 
-    @Deprecated
-    public static Drawable getLarge(IconicsDrawable icon, int colorRes) {
+    public Drawable getWithColor(IconicsDrawable icon, @ColorInt int colorInt, int width, int height) {
+        return getWithColor(context(), icon, colorInt, width, height);
+    }
+
+    public Drawable getLarge(IconicsDrawable icon, int colorRes) {
         return get(context(), icon, colorRes, Dimen.from(R.dimen.large_icon_width), Dimen.from(R.dimen.large_icon_height));
     }
 
-    @Deprecated
-    public static Drawable get(Context context, IconicsDrawable drawable, int colorRes, int width, int height) {
-
+    public Drawable get(Context context, IconicsDrawable drawable, @ColorRes int colorRes, int width, int height) {
+        @ColorInt int color = 0;
         if (colorRes != 0) {
-            int color = ContextCompat.getColor(context, colorRes);
-            drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_OVER));
+            color = ContextCompat.getColor(context, colorRes);
         }
+        return getWithColor(context, drawable, color, width, height);
+    }
+
+    public Drawable getWithColor(Context context, IconicsDrawable drawable, @ColorInt int colorInt, int width, int height) {
 
         if (width > 0) {
             drawable.setSizeXPx(width);
@@ -145,7 +160,26 @@ public class Icons {
             drawable.setSizeYPx(height);
         }
 
-        return new BitmapDrawable(context.getResources(), drawable.toBitmap());
+        return getWithColor(context, drawable, colorInt);
+    }
+
+    public Drawable getWithColor(Context context, Drawable drawable, @ColorInt int colorInt) {
+
+        if (colorInt != 0) {
+            if (drawable instanceof IconicsDrawable) {
+                drawable.setColorFilter(new PorterDuffColorFilter(colorInt, PorterDuff.Mode.SRC_OVER));
+            } else {
+                drawable.setColorFilter(colorInt, PorterDuff.Mode.MULTIPLY);
+            }
+        }
+
+        if (drawable instanceof IconicsDrawable) {
+            return new BitmapDrawable(context.getResources(), ((IconicsDrawable) drawable).toBitmap());
+        } else if (drawable instanceof BitmapDrawable) {
+            return new BitmapDrawable(context.getResources(), ((BitmapDrawable) drawable).getBitmap());
+        } else {
+            return drawable;
+        }
     }
 
     public static Context context() {

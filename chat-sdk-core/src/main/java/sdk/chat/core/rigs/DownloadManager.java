@@ -53,6 +53,7 @@ public class DownloadManager extends TransferManager {
         CachedFile cf = add(file, message.getEntityID(), key, url, CachedFile.Type.Download, true);
 
         MessageDownloadListener listener = new MessageDownloadListener(message, cf);
+        listeners.put(message.getEntityID(), listener);
 
         AndroidNetworking.download(url, dir.getPath(), file.getName())
                 .setTag(message.getEntityID())

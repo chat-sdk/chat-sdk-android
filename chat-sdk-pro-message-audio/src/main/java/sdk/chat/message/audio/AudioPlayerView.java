@@ -4,27 +4,24 @@ import static com.google.android.exoplayer2.Player.STATE_ENDED;
 import static com.google.android.exoplayer2.Player.STATE_READY;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import androidx.annotation.ColorRes;
-import androidx.core.content.ContextCompat;
+import androidx.annotation.ColorInt;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.graphics.ColorUtils;
 
 import com.google.android.exoplayer2.Player;
 
-import org.pmw.tinylog.Logger;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import sdk.chat.core.audio.AudioPlayer;
 import sdk.chat.ui.ChatSDKUI;
-import sdk.chat.ui.icons.Icons;
 import sdk.guru.common.DisposableMap;
 
 /**
@@ -33,11 +30,11 @@ import sdk.guru.common.DisposableMap;
 
 public class AudioPlayerView extends LinearLayout {
 
-    @BindView(R2.id.playButton) ImageButton playButton;
-    @BindView(R2.id.seekBar) SeekBar seekBar;
-    @BindView(R2.id.currentTimeTextView) TextView currentTimeTextView;
-    @BindView(R2.id.totalTimeTextView) TextView totalTimeTextView;
-    @BindView(R2.id.bubble) RelativeLayout bubble;
+    protected ImageButton playButton;
+    protected SeekBar seekBar;
+    protected TextView currentTimeTextView;
+    protected TextView totalTimeTextView;
+    protected ConstraintLayout container;
 
     protected AudioPlayer player;
     protected DisposableMap dm = new DisposableMap();
@@ -46,16 +43,16 @@ public class AudioPlayerView extends LinearLayout {
     protected String source;
     protected String totalTime;
 
-    @ColorRes
-    public int buttonColor = R.color.gray_light;
+    @ColorInt
+    public int buttonColor = 0;
 
-    @ColorRes
+    @ColorInt
     public int sliderThumbColor = 0;
 
-    @ColorRes
+    @ColorInt
     public int sliderTrackColor = 0;
 
-    @ColorRes
+    @ColorInt
     public int textColor = 0;
 
     public AudioPlayerView(Context context, AttributeSet attrs, int defStyle) {
@@ -75,9 +72,13 @@ public class AudioPlayerView extends LinearLayout {
 
     private void initView() {
         LayoutInflater.from(getContext()).inflate(R.layout.view_audio_player, this);
-        ButterKnife.bind(this);
 
-        Logger.debug("New AudioPlayerView");
+        playButton = findViewById(R.id.playButton);
+        seekBar = findViewById(R.id.seekBar);
+        currentTimeTextView = findViewById(R.id.currentTimeTextView);
+        totalTimeTextView = findViewById(R.id.totalTimeTextView);
+        container = findViewById(R.id.container);
+
 
         playButton.setOnClickListener(view -> {
             if (player == null) {
@@ -95,11 +96,11 @@ public class AudioPlayerView extends LinearLayout {
     }
 
     public void bind(String source, String totalTime) {
-        if (!source.equals(this.source)) {
+        if (source != null && !source.equals(this.source)) {
             this.source = source;
             this.player = null;
-            this.totalTime = totalTime;
         }
+        this.totalTime = totalTime;
         updatePlayPauseButton();
         updateTime();
     }
@@ -174,11 +175,19 @@ public class AudioPlayerView extends LinearLayout {
                 seekBar.setEnabled(ready);
             }
             if (player != null && player.isPlaying()) {
-                playButton.setImageDrawable(Icons.get(getContext(), ChatSDKUI.icons().pause, buttonColor));
+                playButton.setImageDrawable(pauseButtonDrawable());
             } else {
-                playButton.setImageDrawable(Icons.get(getContext(), ChatSDKUI.icons().play, buttonColor));
+                playButton.setImageDrawable(playButtonDrawable());
             }
         }
+    }
+
+    public Drawable playButtonDrawable() {
+        return ChatSDKUI.icons().getWithColor(getContext(), ChatSDKUI.icons().play, buttonColor);
+    }
+
+    public Drawable pauseButtonDrawable() {
+        return ChatSDKUI.icons().getWithColor(getContext(), ChatSDKUI.icons().pause, buttonColor);
     }
 
     public void play() {
@@ -188,8 +197,10 @@ public class AudioPlayerView extends LinearLayout {
 
     public void stop() {
         player.stop();
-        seekBar.setProgress(0);
-        updatePlayPauseButton();
+        seekBar.post(() -> {
+            seekBar.setProgress(0);
+            updatePlayPauseButton();
+        });
     }
 
     public void pause() {
@@ -210,16 +221,16 @@ public class AudioPlayerView extends LinearLayout {
         }
 
         if (sliderTrackColor != 0) {
-            seekBar.getProgressDrawable().setColorFilter(ContextCompat.getColor(getContext(), sliderTrackColor), PorterDuff.Mode.SRC_ATOP);
+            seekBar.getProgressDrawable().setColorFilter(sliderTrackColor, PorterDuff.Mode.SRC_ATOP);
         }
 
         if (sliderThumbColor != 0) {
-            seekBar.getThumb().setColorFilter(ContextCompat.getColor(getContext(), sliderThumbColor), PorterDuff.Mode.SRC_ATOP);
+            seekBar.getThumb().setColorFilter(sliderThumbColor, PorterDuff.Mode.SRC_ATOP);
         }
 
         if (textColor != 0) {
-            currentTimeTextView.setTextColor(ContextCompat.getColor(getContext(), textColor));
-            totalTimeTextView.setTextColor(ContextCompat.getColor(getContext(), textColor));
+            currentTimeTextView.setTextColor(textColor);
+            totalTimeTextView.setTextColor(textColor);
         }
 
     }
@@ -240,6 +251,30 @@ public class AudioPlayerView extends LinearLayout {
             player.dispose();
         }
         player = null;
+    }
+
+    public void setEnabled(boolean enabled) {
+        post(() -> {
+            seekBar.setEnabled(enabled);
+            if (enabled) {
+                playButton.setVisibility(VISIBLE);
+            } else {
+                playButton.setVisibility(INVISIBLE);
+            }
+            updatePlayPauseButton();
+        });
+    }
+
+    public void setTintColor(@ColorInt int color, @ColorInt int bubbleColor) {
+        buttonColor = ColorUtils.blendARGB(Color.WHITE, color, 0.7f);
+        textColor = ColorUtils.blendARGB(Color.WHITE, color, 0.8f);
+        sliderThumbColor = ColorUtils.blendARGB(Color.WHITE, color, 0.6f);
+
+        // Make the track color an 80% transparency version of the tint color
+        sliderTrackColor = ColorUtils.blendARGB(Color.WHITE, bubbleColor, 0.6f);
+
+        playButton.setImageDrawable(playButtonDrawable());
+
     }
 
 }

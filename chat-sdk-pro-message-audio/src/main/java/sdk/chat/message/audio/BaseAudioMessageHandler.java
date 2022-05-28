@@ -40,13 +40,11 @@ public class BaseAudioMessageHandler extends AbstractMessageHandler implements A
             return new MessageSendRig(new MessageType(MessageType.Audio), thread, message -> {
                 message.setText(ChatSDK.getString(R.string.audio_message));
                 message.setValueForKey(duration, Keys.MessageAudioLength);
+                message.setValueForKey(file.length(), Keys.MessageSize);
+                message.setFilePath(file.getPath());
                 message.update();
 
-            }).setUploadable(new FileUploadable(file1, "recording", mimeType, Keys.MessageAudioURL), (message, result) -> {
-//                message.setValueForKey(result.url, Keys.MessageAudioURL);
-//                message.setValueForKey(duration, Keys.MessageAudioLength);
-//                message.update();
-            }).run();
+            }).setUploadable(new FileUploadable(file1, "recording", mimeType, Keys.MessageAudioURL), null).run();
         }).doOnError(throwable -> {
 
         });
@@ -59,10 +57,9 @@ public class BaseAudioMessageHandler extends AbstractMessageHandler implements A
 
     @Override
     public AbstractKeyboardOverlayFragment getOverlay(KeyboardOverlayHandler handler) {
-        AbstractKeyboardOverlayFragment fragment = new RecordAudioKeyboardOverlayFragment();
+        AbstractKeyboardOverlayFragment fragment = ChatSDK.feather().instance(RecordAudioKeyboardOverlayFragment.class);
         fragment.setHandler(handler);
         return fragment;
-
     }
 
     public Single<File> compressAudio(Context context, File audioFile) {

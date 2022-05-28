@@ -20,10 +20,11 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.util.AttributeSet;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.core.graphics.drawable.DrawableCompat;
-import android.util.AttributeSet;
 
 import com.stfalcon.chatkit.R;
 import com.stfalcon.chatkit.commons.Style;
@@ -32,7 +33,7 @@ import com.stfalcon.chatkit.commons.Style;
  * Style for MessageInputStyle customization by xml attributes
  */
 @SuppressWarnings("WeakerAccess")
-class MessageInputStyle extends Style {
+public class MessageInputStyle extends Style {
 
     private static final int DEFAULT_MAX_LINES = 5;
     private static final int DEFAULT_DELAY_TYPING_STATUS = 1500;
@@ -85,7 +86,7 @@ class MessageInputStyle extends Style {
 
     private int delayTypingStatus;
 
-    static MessageInputStyle parse(Context context, AttributeSet attrs) {
+    public static MessageInputStyle parse(Context context, AttributeSet attrs) {
         MessageInputStyle style = new MessageInputStyle(context, attrs);
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.MessageInput);
 

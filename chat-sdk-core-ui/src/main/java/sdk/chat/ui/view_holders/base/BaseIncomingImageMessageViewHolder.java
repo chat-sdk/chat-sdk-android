@@ -13,10 +13,10 @@ import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ImageLoaderPayload;
 
+@Deprecated
 public class BaseIncomingImageMessageViewHolder<T extends ImageMessageHolder> extends MessageHolders.BaseIncomingMessageViewHolder<T>  {
 
     @BindView(R2.id.image) protected ImageView image;
@@ -38,7 +38,7 @@ public class BaseIncomingImageMessageViewHolder<T extends ImageMessageHolder> ex
             imageLoader.loadImage(image, message.getImageUrl(), getPayloadForImageLoader(message));
         }
 
-        imageOverlay.setImageDrawable(Icons.get(imageOverlay.getContext(), ChatSDKUI.icons().check, R.color.white));
+        imageOverlay.setImageDrawable(ChatSDKUI.icons().get(imageOverlay.getContext(), ChatSDKUI.icons().check, R.color.white));
 
         if (imageOverlayContainer != null) {
             imageOverlayContainer.setVisibility(isSelected() ? View.VISIBLE : View.INVISIBLE);

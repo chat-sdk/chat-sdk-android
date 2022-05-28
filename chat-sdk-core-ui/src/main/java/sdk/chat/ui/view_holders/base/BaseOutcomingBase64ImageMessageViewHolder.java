@@ -35,7 +35,7 @@ public class BaseOutcomingBase64ImageMessageViewHolder <T extends Base64ImageMes
 
         image.setImageBitmap(message.image());
 
-        imageOverlay.setImageDrawable(Icons.get(imageOverlay.getContext(), ChatSDKUI.icons().check, R.color.white));
+        imageOverlay.setImageDrawable(ChatSDKUI.icons().get(imageOverlay.getContext(), ChatSDKUI.icons().check, R.color.white));
 
         if (imageOverlayContainer != null) {
             imageOverlayContainer.setVisibility(isSelected() ? View.VISIBLE : View.INVISIBLE);

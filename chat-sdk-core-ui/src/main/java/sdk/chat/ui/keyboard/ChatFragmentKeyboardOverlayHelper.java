@@ -9,8 +9,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import java.lang.ref.WeakReference;
 
+import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.ui.AbstractKeyboardOverlayFragment;
-import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.fragments.ChatFragment;
 
@@ -66,10 +66,10 @@ public class ChatFragmentKeyboardOverlayHelper {
         };
     }
 
-    public void setCurrentOverlay(AbstractKeyboardOverlayFragment overlay) {
+    public boolean setCurrentOverlay(AbstractKeyboardOverlayFragment overlay) {
 
         if (overlay == currentKeyboardOverlayFragment) {
-            return;
+            return false;
         }
 
         // Add the keyboard overlay fragment
@@ -86,18 +86,22 @@ public class ChatFragmentKeyboardOverlayHelper {
                     cf().getContext());
 
         }
+        return true;
     }
 
     public void showOverlay(AbstractKeyboardOverlayFragment fragment) {
-        setCurrentOverlay(fragment);
-        if (!keyboardAwareView().isKeyboardOpen()) {
-            showKeyboardOverlay();
-        } else {
-            hideKeyboardAndShowKeyboardOverlay();
+        if (setCurrentOverlay(fragment)) {
+            if (!keyboardAwareView().isKeyboardOpen()) {
+                showKeyboardOverlay();
+            } else {
+                hideKeyboardAndShowKeyboardOverlay();
+            }
         }
     }
 
     public void toggle() {
+
+        boolean overlayDidChange = showOptionsKeyboardOverlay();
 
         currentOverlay().setViewSize(
                 keyboardAwareView().getMeasuredWidth(),
@@ -107,7 +111,9 @@ public class ChatFragmentKeyboardOverlayHelper {
         // If the keyboard is hidden and the options overlay is not visible
         if (!keyboardAwareView().isKeyboardOpen()) {
             if (keyboardOverlayVisible()) {
-                back();
+                if (!overlayDidChange) {
+                    back();
+                }
             } else {
                 showKeyboardOverlay();
             }
@@ -132,12 +138,21 @@ public class ChatFragmentKeyboardOverlayHelper {
         return false;
     }
 
-    public void showOptionsKeyboardOverlay() {
-        if (currentKeyboardOverlayFragment == null) {
-            optionsKeyboardOverlayFragment = ChatSDKUI.provider().keyboardOverlayOptionsFragment(cf());
+//    public void showOptionsKeyboardOverlay() {
+//        if (currentKeyboardOverlayFragment == null) {
+//            optionsKeyboardOverlayFragment = ChatSDKUI.provider().keyboardOverlayProvider().keyboardOverlayOptionsFragment(cf());
+//        }
+//        setCurrentOverlay(optionsKeyboardOverlayFragment);
+//    }
+
+    public boolean showOptionsKeyboardOverlay() {
+        if (optionsKeyboardOverlayFragment == null) {
+            optionsKeyboardOverlayFragment = ChatSDK.feather().instance(KeyboardOverlayOptionsFragment.class);
+            optionsKeyboardOverlayFragment.setHandler(cf());
         }
-        setCurrentOverlay(optionsKeyboardOverlayFragment);
+        return setCurrentOverlay(optionsKeyboardOverlayFragment);
     }
+
 
     public void setKeyboardOverlayActive(boolean active) {
         keyboardOverlayActive = active;

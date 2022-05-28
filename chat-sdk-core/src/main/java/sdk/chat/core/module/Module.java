@@ -22,4 +22,5 @@ public interface Module {
     boolean isPremium();
 
     void stop();
+
 }

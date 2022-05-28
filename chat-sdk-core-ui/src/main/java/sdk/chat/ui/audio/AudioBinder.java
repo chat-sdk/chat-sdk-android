@@ -30,7 +30,6 @@ import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import sdk.chat.core.utils.PermissionRequestHandler;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.interfaces.TextInputDelegate;
 import sdk.chat.ui.utils.ToastHelper;
 import sdk.guru.common.DisposableMap;
@@ -171,7 +170,7 @@ public class AudioBinder {
     }
 
     protected void startRecordingMode() {
-        messageInput.getButton().setImageDrawable(Icons.get(activity, ChatSDKUI.icons().microphone, R.color.white));
+        messageInput.getButton().setImageDrawable(ChatSDKUI.icons().get(activity, ChatSDKUI.icons().microphone, R.color.white));
         messageInput.getButton().setEnabled(true);
         audioModeEnabled = true;
     }

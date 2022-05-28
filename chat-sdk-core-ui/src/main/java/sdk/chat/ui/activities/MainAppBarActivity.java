@@ -119,7 +119,7 @@ public class MainAppBarActivity extends MainActivity {
     public void onStart() {
         super.onStart();
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setHomeAsUpIndicator(Icons.get(this, ChatSDKUI.icons().user, ChatSDKUI.icons().actionBarIconColor));
+            getSupportActionBar().setHomeAsUpIndicator(ChatSDKUI.icons().get(this, ChatSDKUI.icons().user, ChatSDKUI.icons().actionBarIconColor));
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }

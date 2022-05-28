@@ -1,29 +1,29 @@
  package sdk.chat.message.video;
 
-import android.graphics.Bitmap;
-import android.media.ThumbnailUtils;
-import android.provider.MediaStore;
+ import android.graphics.Bitmap;
+ import android.media.ThumbnailUtils;
+ import android.provider.MediaStore;
 
-import java.io.File;
-import java.util.ArrayList;
+ import java.io.File;
+ import java.util.ArrayList;
 
-import io.reactivex.Completable;
-import sdk.chat.core.base.AbstractMessageHandler;
-import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
-import sdk.chat.core.handlers.VideoMessageHandler;
-import sdk.chat.core.image.ImageUtils;
-import sdk.chat.core.manager.MessagePayload;
-import sdk.chat.core.rigs.FileUploadable;
-import sdk.chat.core.rigs.JPEGUploadable;
-import sdk.chat.core.rigs.MessageSendRig;
-import sdk.chat.core.rigs.Uploadable;
-import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.MessageType;
-import sdk.chat.core.utils.Base64ImageUtils;
+ import io.reactivex.Completable;
+ import sdk.chat.core.base.AbstractMessageHandler;
+ import sdk.chat.core.dao.Keys;
+ import sdk.chat.core.dao.Message;
+ import sdk.chat.core.dao.Thread;
+ import sdk.chat.core.handlers.VideoMessageHandler;
+ import sdk.chat.core.image.ImageUtils;
+ import sdk.chat.core.manager.MessagePayload;
+ import sdk.chat.core.rigs.FileUploadable;
+ import sdk.chat.core.rigs.JPEGUploadable;
+ import sdk.chat.core.rigs.MessageSendRig;
+ import sdk.chat.core.rigs.Uploadable;
+ import sdk.chat.core.session.ChatSDK;
+ import sdk.chat.core.types.MessageType;
+ import sdk.chat.core.utils.Base64ImageUtils;
 
-/**
+ /**
  * Created by ben on 10/6/17.
  */
 
@@ -88,5 +88,4 @@ public class BaseVideoMessageHandler extends AbstractMessageHandler implements V
         return type != null && type.is(MessageType.Video);
     }
 
-
-}
+ }

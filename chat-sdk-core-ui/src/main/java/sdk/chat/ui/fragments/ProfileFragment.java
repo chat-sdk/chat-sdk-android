@@ -223,7 +223,7 @@ public class ProfileFragment extends BaseFragment {
             optionsFab.setVisibility(View.INVISIBLE);
         } else {
             optionsFab.setVisibility(View.VISIBLE);
-            optionsFab.setImageDrawable(Icons.get(getContext(), ChatSDKUI.icons().options, R.color.white));
+            optionsFab.setImageDrawable(ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().options, R.color.white));
             optionsFab.setOnClickListener(v -> {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -244,14 +244,14 @@ public class ProfileFragment extends BaseFragment {
         }
 
         if (isCurrentUser) {
-            editFab.setImageDrawable(Icons.get(getContext(), ChatSDKUI.icons().edit, R.color.white));
+            editFab.setImageDrawable(ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().edit, R.color.white));
             editFab.setOnClickListener(v -> {
                 editFab.setEnabled(false);
                 showEditProfileScreen();
             });
             onlineIndicator.setVisibility(View.GONE);
         } else {
-            editFab.setImageDrawable(Icons.get(getContext(), ChatSDKUI.icons().chat, R.color.white));
+            editFab.setImageDrawable(ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().chat, R.color.white));
             editFab.setOnClickListener(v -> {
                 startChat();
             });
@@ -284,13 +284,13 @@ public class ProfileFragment extends BaseFragment {
         buttonsLinearLayout.removeAllViews();
 
         if (!StringChecker.isNullOrEmpty(user.getLocation())) {
-            iconLinearLayout.addView(IconItemView.create(getContext(), user.getLocation(), Icons.get(getContext(), ChatSDKUI.icons().location, R.color.profile_icon_color)));
+            iconLinearLayout.addView(IconItemView.create(getContext(), user.getLocation(), ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().location, R.color.profile_icon_color)));
         }
         if (!StringChecker.isNullOrEmpty(user.getPhoneNumber())) {
-            iconLinearLayout.addView(IconItemView.create(getContext(), user.getPhoneNumber(), Icons.get(getContext(), ChatSDKUI.icons().phone, R.color.profile_icon_color)));
+            iconLinearLayout.addView(IconItemView.create(getContext(), user.getPhoneNumber(), ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().phone, R.color.profile_icon_color)));
         }
         if (!StringChecker.isNullOrEmpty(user.getEmail())) {
-            iconLinearLayout.addView(IconItemView.create(getContext(), user.getEmail(), Icons.get(getContext(), ChatSDKUI.icons().email, R.color.profile_icon_color)));
+            iconLinearLayout.addView(IconItemView.create(getContext(), user.getEmail(), ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().email, R.color.profile_icon_color)));
         }
 
         String availability = getUser().getAvailability();
@@ -313,7 +313,7 @@ public class ProfileFragment extends BaseFragment {
                 buttonsLinearLayout.addView(SwitchItemView.create(
                         getContext(),
                         R.string.blocked,
-                        Icons.get(getContext(), ChatSDKUI.icons().block, R.color.blocked_primary_icon_color),
+                        ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().block, R.color.blocked_primary_icon_color),
                         isBlocked,
                         R.color.blocked_primary_icon_color, R.color.blocked_secondary_icon_color, (buttonView, isChecked) -> {
                             toggleBlocked();
@@ -325,7 +325,7 @@ public class ProfileFragment extends BaseFragment {
             buttonsLinearLayout.addView(SwitchItemView.create(
                     getContext(),
                     R.string.contact,
-                    Icons.get(getContext(), ChatSDKUI.icons().contact, R.color.contacts_primary_color),
+                    ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().contact, R.color.contacts_primary_color),
                     isContact,
                     R.color.contacts_primary_color, R.color.contacts_secondary_color, (buttonView, isChecked) -> {
                         toggleContact();

@@ -33,6 +33,7 @@ import sdk.guru.common.DisposableMap;
 public class MessageHolder implements IMessage, Consumer<Throwable> {
 
     public Message message;
+
     protected MessagePayload payload;
 
     protected Message nextMessage;
@@ -55,7 +56,7 @@ public class MessageHolder implements IMessage, Consumer<Throwable> {
 
 //    protected Date date;
     protected MessageSendStatus sendStatus = null;
-    protected float uploadPercentage = -1;
+    protected float transferPercentage = -1;
     protected float fileSize = -1;
     protected boolean isReply;
 
@@ -142,17 +143,17 @@ public class MessageHolder implements IMessage, Consumer<Throwable> {
     public void updateProgress(Progress progress) {
         if (progress == null) {
 
-            isDirty = isDirty || this.uploadPercentage >= 0;
+            isDirty = isDirty || this.transferPercentage >= 0;
             isDirty = isDirty || this.fileSize >= 0;
 
-            uploadPercentage = -1;
+            transferPercentage = -1;
             fileSize = -1;
 
         } else {
 
             float uploadPercentage = Math.round(progress.asFraction() * 100);
-            isDirty = isDirty || uploadPercentage == this.uploadPercentage;
-            this.uploadPercentage = uploadPercentage;
+            isDirty = isDirty || uploadPercentage == this.transferPercentage;
+            this.transferPercentage = uploadPercentage;
 
             float fileSize = (float) Math.floor(progress.getTotalBytes() / 1000f);
             isDirty = isDirty || fileSize == this.fileSize;
@@ -213,8 +214,8 @@ public class MessageHolder implements IMessage, Consumer<Throwable> {
         return sendStatus;
     }
 
-    public float getUploadPercentage() {
-        return uploadPercentage;
+    public float getTransferPercentage() {
+        return transferPercentage;
     }
 
     public float getFileSize() {
@@ -322,4 +323,9 @@ public class MessageHolder implements IMessage, Consumer<Throwable> {
     public @DrawableRes int defaultPlaceholder() {
         return R.drawable.icn_100_profile;
     }
+
+    public MessagePayload getPayload() {
+        return payload;
+    }
+
 }

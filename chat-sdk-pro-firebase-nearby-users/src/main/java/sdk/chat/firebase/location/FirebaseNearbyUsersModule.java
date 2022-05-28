@@ -247,7 +247,7 @@ public class FirebaseNearbyUsersModule extends AbstractModule {
     }
 
     public static Tab nearbyUsersTab() {
-        return new Tab(R.string.nearby_users, Icons.get(ChatSDKUI.icons().location, ChatSDKUI.icons().tabIconColor), nearbyUsersFragment());
+        return new Tab(R.string.nearby_users, ChatSDKUI.icons().get(ChatSDKUI.icons().location, ChatSDKUI.icons().tabIconColor), nearbyUsersFragment());
     }
 
     public static Fragment nearbyUsersFragment() {

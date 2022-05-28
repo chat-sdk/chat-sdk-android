@@ -42,7 +42,7 @@ public class VideoMessagePayload extends ImageMessagePayload implements Download
                 ChatSDK.downloadManager().download(message, Keys.MessageVideoURL, videoURL(), "Video_" + message.getEntityID());
                 emitter.onComplete();
             } else {
-                emitter.onError(new Throwable(ChatSDK.getString(R.string.exo_download_failed)));
+                emitter.onError(new Throwable(ChatSDK.getString(R.string.download_failed)));
             }
         });
     }

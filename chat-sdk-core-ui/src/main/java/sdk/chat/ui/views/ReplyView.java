@@ -19,7 +19,6 @@ import butterknife.ButterKnife;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
-import sdk.chat.ui.icons.Icons;
 
 public class ReplyView extends ConstraintLayout {
 
@@ -48,7 +47,7 @@ public class ReplyView extends ConstraintLayout {
         LayoutInflater.from(getContext()).inflate(R.layout.view_chat_reply, this, true);
         ButterKnife.bind(this);
 
-        cancelButton.setImageDrawable(Icons.get(getContext(), ChatSDKUI.icons().cancel, R.color.gray_light));
+        cancelButton.setImageDrawable(ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().cancel, R.color.gray_light));
         hide();
     }
 

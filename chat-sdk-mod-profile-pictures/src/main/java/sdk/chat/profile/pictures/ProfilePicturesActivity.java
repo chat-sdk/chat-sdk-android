@@ -219,7 +219,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
         addMenuItem = ChatSDKUI.provider().menuItems().addAddItem(this, menu, 0);
 
         //        getMenuInflater().inflate(R.menu.add_menu, menu);
-//        addMenuItem = menu.findItem(R.id.action_add).setIcon(Icons.get(this, ChatSDKUI.icons().add, ChatSDKUI.icons().actionBarIconColor));
+//        addMenuItem = menu.findItem(R.id.action_add).setIcon(ChatSDKUI.icons().get(this, ChatSDKUI.icons().add, ChatSDKUI.icons().actionBarIconColor));
         addMenuItem.setVisible(shouldShowAddButton(ChatSDK.profilePictures().fromUser(getUser())));
 
         return super.onCreateOptionsMenu(menu);

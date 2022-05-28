@@ -33,6 +33,8 @@ public class TouchAwareConstraintLayout extends ConstraintLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
+
+//        Logger.info("Touch " + ev.getAction());
         /*
          * This method JUST determines whether we want to intercept the motion.
          * If we return true, onTouchEvent will be called and we do the actual

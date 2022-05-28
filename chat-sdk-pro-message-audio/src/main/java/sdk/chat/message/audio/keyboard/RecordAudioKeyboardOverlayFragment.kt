@@ -28,7 +28,7 @@ import java.io.File
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), TouchAwareConstraintLayout.TouchListener {
+open class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), TouchAwareConstraintLayout.TouchListener {
 
     enum class RecordButtonMode {
         normal,
@@ -47,14 +47,14 @@ class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), T
     open lateinit var infoTextView: TextView
 
 
-    val audioRecorder = AudioRecorder.getInstance()
-    var timer: Timer? = null
-    var isRecording = false
-    var permissionGranted = false
+    open val audioRecorder = AudioRecorder.getInstance()
+    open var timer: Timer? = null
+    open var isRecording = false
+    open var permissionGranted = false
 
-    var isLocked = false
-    var recordMode: RecordButtonMode = RecordButtonMode.permission
-    var audioFile: File? = null
+    open var isLocked = false
+    open var recordMode: RecordButtonMode = RecordButtonMode.permission
+    open var audioFile: File? = null
 
     override fun setViewSize(width: Int?, height: Int?, context: Context) {
 
@@ -103,19 +103,18 @@ class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), T
         return rootView
     }
 
-    fun lock() {
+    open fun lock() {
         setLockButtonSelected(true)
         sendButton.visibility = View.VISIBLE
         cancelButton.visibility = View.VISIBLE
     }
 
-    fun newAudioFile(): File {
+    open fun newAudioFile(): File {
         val fm = ChatSDK.shared().fileManager()
         return fm.newDatedFile(fm.audioStorage(), "voice_message", "wav")
     }
 
-    fun startRecording() {
-
+    open fun startRecording() {
         setRecordButtonMode(RecordButtonMode.selected)
         audioFile = newAudioFile();
 
@@ -138,9 +137,10 @@ class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), T
         } else {
             reset()
         }
+
     }
 
-    fun send() {
+    open fun send() {
         val duration = audioRecorder.progress().toLong()
         stopRecording()
         // Get the audio
@@ -156,7 +156,7 @@ class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), T
         reset()
     }
 
-    fun audioDuration(): Long? {
+    open fun audioDuration(): Long? {
         val mmr = MediaMetadataRetriever()
         mmr.setDataSource(audioFile?.absolutePath)
         val durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
@@ -167,14 +167,14 @@ class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), T
         return null
     }
 
-    fun stopRecording() {
+    open fun stopRecording() {
         isRecording = false
         audioRecorder.stopRecord()
         stopTimer()
         recordImageView.setImageResource(R.drawable.mic_button)
     }
 
-    private fun startTimer() {
+    open fun startTimer() {
         stopTimer()
         timer = Timer()
         timer?.scheduleAtFixedRate(object : TimerTask() {
@@ -184,7 +184,7 @@ class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), T
         }, 0, 1000)
     }
 
-    fun reset() {
+    open fun reset() {
         stopTimer()
         updateRecordButtonForPermissions()
 //        if (audioPermissionGranted()) {
@@ -204,7 +204,7 @@ class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), T
 
     }
 
-    private fun stopTimer() {
+    open fun stopTimer() {
         timer?.let {
             it.cancel()
             it.purge()
@@ -214,7 +214,7 @@ class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), T
         }
     }
 
-    private fun updateTimer() {
+    open fun updateTimer() {
         rootView.post {
             if (isRecording) {
                 timeTextView.text = Util.formatSeconds(audioRecorder.progress())
@@ -224,14 +224,14 @@ class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), T
         }
     }
 
-    fun audioPermissionGranted(): Boolean {
+    open fun audioPermissionGranted(): Boolean {
         if (!permissionGranted) {
             permissionGranted = PermissionRequestHandler.recordAudioGranted()
         }
         return permissionGranted
     }
 
-    fun requestAudioPermission() {
+    open fun requestAudioPermission() {
         keyboardOverlayHandler.get()?.activity.let {
             PermissionRequestHandler.requestRecordAudio(it).doOnComplete(Action {
                 updateRecordButtonForPermissions()
@@ -241,7 +241,7 @@ class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), T
         }
     }
 
-    fun updateRecordButtonForPermissions() {
+    open fun updateRecordButtonForPermissions() {
 
         recordImageView.visibility = View.VISIBLE
         infoTextView.visibility = View.VISIBLE
@@ -257,7 +257,7 @@ class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), T
         }
     }
 
-    fun isInside(x: Float, y: Float, view: View): Boolean {
+    open fun isInside(x: Float, y: Float, view: View): Boolean {
         val rect = Rect()
         view.getHitRect(rect)
         return rect.contains(x.toInt(), y.toInt())
@@ -291,11 +291,11 @@ class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), T
         reset()
     }
 
-    fun inLock(x: Float, y: Float): Boolean {
+    open fun inLock(x: Float, y: Float): Boolean {
         return isInside(x, y, lockImageView)
     }
 
-    fun inRecord(x: Float, y: Float): Boolean {
+    open fun inRecord(x: Float, y: Float): Boolean {
         return isInside(x, y, recordImageView)
     }
 
@@ -305,7 +305,7 @@ class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), T
         }
     }
 
-    fun setRecordButtonMode(mode: RecordButtonMode) {
+    open fun setRecordButtonMode(mode: RecordButtonMode) {
         rootView.post {
             if (mode == RecordButtonMode.permission) {
                 recordImageView.setImageResource(R.drawable.mic_permission)
@@ -320,7 +320,7 @@ class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), T
         }
     }
 
-    fun setLockButtonSelected(selected: Boolean) {
+    open fun setLockButtonSelected(selected: Boolean) {
         lockImageView.context?.let {
 
             val color = ContextCompat.getColor(it, if (selected) R.color.red else R.color.gray_1)

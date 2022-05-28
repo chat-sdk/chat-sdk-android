@@ -3,6 +3,8 @@ package sdk.chat.core.rigs;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.DownloadProgressListener;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.Date;
 
 import sdk.chat.core.dao.CachedFile;
@@ -51,6 +53,9 @@ public class MessageDownloadListener implements DownloadProgressListener, com.an
         status = TransferStatus.InProgress;
         cachedFile.setTransferStatus(TransferStatus.InProgress);
         cachedFile.update();
+
+        Logger.info("Progress - Download Manager - " + transferred);
+
         ChatSDK.events().source().accept(NetworkEvent.messageProgressUpdated(message, new Progress(transferred, total)));
         ChatSDK.events().source().accept(NetworkEvent.messageSendStatusChanged(message));
     }

@@ -58,7 +58,6 @@ import sdk.chat.ui.custom.MessageRegistrationManager;
 import sdk.chat.ui.fragments.ContactsFragment;
 import sdk.chat.ui.fragments.PrivateThreadsFragment;
 import sdk.chat.ui.fragments.PublicThreadsFragment;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.recycler.ModerationActivity;
 import sdk.chat.ui.settings.SettingsActivity;
@@ -171,7 +170,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab privateThreadsTab() {
         if (privateThreadsTab == null) {
-            privateThreadsTab = new Tab(String.format(context.get().getString(R.string.conversations__), ""), Icons.get(context.get(), ChatSDKUI.icons().chat, ChatSDKUI.icons().tabIconColor), privateThreadsFragment());
+            privateThreadsTab = new Tab(String.format(context.get().getString(R.string.conversations__), ""), ChatSDKUI.icons().get(context.get(), ChatSDKUI.icons().chat, ChatSDKUI.icons().tabIconColor), privateThreadsFragment());
         }
         return privateThreadsTab;
     }
@@ -179,7 +178,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab publicThreadsTab() {
         if (publicThreadsTab == null) {
-            publicThreadsTab = new Tab(context.get().getString(R.string.chat_rooms), Icons.get(context.get(), ChatSDKUI.icons().publicChat, ChatSDKUI.icons().tabIconColor), publicThreadsFragment());
+            publicThreadsTab = new Tab(context.get().getString(R.string.chat_rooms), ChatSDKUI.icons().get(context.get(), ChatSDKUI.icons().publicChat, ChatSDKUI.icons().tabIconColor), publicThreadsFragment());
         }
         return publicThreadsTab;
     }
@@ -187,7 +186,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab contactsTab() {
         if (contactsTab == null) {
-            contactsTab = new Tab(context.get().getString(R.string.contacts), Icons.get(context.get(), ChatSDKUI.icons().contact, ChatSDKUI.icons().tabIconColor), contactsFragment());
+            contactsTab = new Tab(context.get().getString(R.string.contacts), ChatSDKUI.icons().get(context.get(), ChatSDKUI.icons().contact, ChatSDKUI.icons().tabIconColor), contactsFragment());
         }
         return contactsTab;
     }
