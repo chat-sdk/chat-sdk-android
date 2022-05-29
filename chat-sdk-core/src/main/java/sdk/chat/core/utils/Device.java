@@ -2,7 +2,6 @@ package sdk.chat.core.utils;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.provider.Settings;
 
 import sdk.chat.core.session.ChatSDK;
 
@@ -45,16 +44,16 @@ public class Device {
     }
 
     public static boolean named(Context context, String name) {
-        String deviceName = name(context);
+        String deviceName = name(cntext);
         return deviceName != null && deviceName.equals(name);
     }
 
-    public static String name(Context context) {
-        return Settings.Secure.getString(context.getContentResolver(), "bluetooth_name");
-    }
+//    public static String name(Context context) {
+//        return Settings.Secure.getString(context.getContentResolver(), "bluetooth_name");
+//    }
 
     public static String name() {
-        return Settings.Secure.getString(ChatSDK.ctx().getContentResolver(), "bluetooth_name");
+        return android.os.Build.MODEL;
     }
 
     public static boolean isPortrait(Context context) {

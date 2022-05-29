@@ -49,20 +49,14 @@ dependencies {
     api project(':chat-sdk-core-ui')
     implementation project(":sdk-guru-licensing")
 
-//    implementation "com.github.chat-sdk:AndroidAudioRecorder:$androidAudioRecorderVersion"
     implementation "sdk.chat:android-audio-recorder:$androidAudioRecorderVersion"
-
-//    implementation "com.github.adrielcafe:AndroidAudioRecorder:$androidAudioRecorderVersion"
-//    implementation "com.github.adrielcafe:AndroidAudioConverter:$androidAudioConverterVersion"
 
     implementation "com.google.android.exoplayer:exoplayer:$exoplayerVersion"
 
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
 
-    implementation 'com.github.piasy:rxandroidaudio:1.7.0'
-
-//    implementation "com.mikepenz:iconics-views:$iconicsVersion"
+    api 'com.github.piasy:rxandroidaudio:1.7.0'
 
 }
 

@@ -1,7 +1,10 @@
 package sdk.chat.ui.chat.options;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+
+import androidx.appcompat.app.AlertDialog;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
 
@@ -25,7 +28,8 @@ public class DialogChatOptionsHandler extends AbstractChatOptionsHandler {
 
     @Override
     public boolean show(Activity activity) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+//        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
 
         final List<ChatOption> options = ChatSDK.ui().getChatOptions();
 

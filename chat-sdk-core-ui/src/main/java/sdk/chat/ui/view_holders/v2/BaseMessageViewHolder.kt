@@ -16,12 +16,12 @@ import sdk.chat.core.events.EventType
 import sdk.chat.core.events.NetworkEvent
 import sdk.chat.core.manager.DownloadablePayload
 import sdk.chat.core.session.ChatSDK
+import sdk.chat.core.utils.StringChecker
 import sdk.chat.ui.ChatSDKUI
 import sdk.chat.ui.R
 import sdk.chat.ui.chat.model.MessageHolder
 import sdk.chat.ui.module.UIModule
 import sdk.chat.ui.utils.DrawableUtil
-import sdk.chat.ui.view_holders.base.BaseIncomingTextMessageViewHolder
 import sdk.chat.ui.views.ProgressView
 import sdk.guru.common.DisposableMap
 import sdk.guru.common.RX
@@ -114,17 +114,24 @@ open class BaseMessageViewHolder<T : MessageHolder>(itemView: View, direction: M
 
     open fun bindUser(t: T) {
         userAvatar?.let {
-            val pl = payload as? BaseIncomingTextMessageViewHolder.Payload
-            if(pl != null) {
+
+            // TODO:
+//            val pl = payload as? BaseIncomingTextMessageViewHolder.Payload
+//            if(pl != null) {
+//                it.setOnClickListener { _ ->
+//                    if (pl.avatarClickListener != null && UIModule.config().startProfileActivityOnChatViewIconClick) {
+//                        pl.avatarClickListener.onAvatarClick(t.message.sender)
+//                    }
+//                }
+//            }
+
+            if (UIModule.config().startProfileActivityOnChatViewIconClick) {
                 it.setOnClickListener { _ ->
-                    if (pl.avatarClickListener != null && UIModule.config().startProfileActivityOnChatViewIconClick) {
-                        pl.avatarClickListener.onAvatarClick(t.message.sender)
-                    }
+                    ChatSDK.ui().startProfileActivity(itemView.context, t.user.id)
                 }
             }
 
-            val isAvatarExists = imageLoader != null && t.user
-                .avatar != null && t.user.avatar.isNotEmpty()
+            val isAvatarExists = !StringChecker.isNullOrEmpty(t.user.avatar)
 
             it.visibility = if (isAvatarExists) View.VISIBLE else View.GONE
             if (isAvatarExists) {
@@ -150,6 +157,16 @@ open class BaseMessageViewHolder<T : MessageHolder>(itemView: View, direction: M
     open fun bindSendStatus(holder: T): Boolean {
         val showOverlay = progressView?.bindSendStatus(holder.sendStatus, holder.payload) ?: false
         bubbleOverlay?.visibility = if(showOverlay) View.VISIBLE else View.INVISIBLE
+
+        // If we are showing overlay, hide icon
+        messageIcon?.let {
+            if (showOverlay) {
+                it.visibility = View.INVISIBLE
+            } else {
+                UIModule.shared().iconBinder.bind(it, holder)
+            }
+        }
+
         return showOverlay
     }
 

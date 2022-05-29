@@ -11,6 +11,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.module.UIModule;
@@ -21,8 +24,11 @@ public class KeyboardAwareFrameLayout extends FrameLayout {
         void setHeight(int height);
     }
 
-    public Runnable keyboardShown;
-    public Runnable keyboardHidden;
+    public List<Runnable> keyboardShownListeners = new ArrayList<>();
+    public List<Runnable> keyboardHiddenListeners = new ArrayList<>();
+
+//    public Runnable keyboardShown;
+//    public Runnable keyboardHidden;
     public HeightUpdater heightUpdater;
 
     public int keyboardHeight = 0;
@@ -63,12 +69,16 @@ public class KeyboardAwareFrameLayout extends FrameLayout {
                     setKeyboardHeight(ime.bottom - nav.bottom);
                     heightUpdater.setHeight(keyboardHeight);
                 }
-                if (keyboardShown != null && !keyboardOpen) {
-                    keyboardShown.run();
+                if (!keyboardOpen) {
+                    for (Runnable r: keyboardShownListeners) {
+                        r.run();
+                    }
                 }
             } else {
-                if (keyboardHidden != null && keyboardOpen) {
-                    keyboardHidden.run();
+                if (keyboardOpen) {
+                    for (Runnable r: keyboardHiddenListeners) {
+                        r.run();
+                    }
                 }
             }
 
@@ -113,7 +123,7 @@ public class KeyboardAwareFrameLayout extends FrameLayout {
                 if (isPortrait()) {
                     return (int) Math.ceil(getMeasuredHeight() * 0.4);
                 } else {
-                    return (int) Math.ceil(getMeasuredHeight() - 50);
+                    return (int) Math.ceil(getMeasuredHeight() * 0.5);
                 }
             }
         }

@@ -34,7 +34,7 @@ public class ChatFragmentKeyboardOverlayHelper {
 
     protected void setupKeyboardListeners() {
 
-        keyboardAwareView().keyboardShown = () -> {
+        keyboardAwareView().keyboardShownListeners.add(() -> {
 
             if (!keyboardOverlayActive || keyboardOverlayVisible()) {
                 setKeyboardOverlayGone();
@@ -46,9 +46,9 @@ public class ChatFragmentKeyboardOverlayHelper {
 //            setChatViewBottomMargin(bottomMargin());
             updateChatViewBottomMargin();
 
-        };
+        });
 
-        keyboardAwareView().keyboardHidden = () -> {
+        keyboardAwareView().keyboardHiddenListeners.add(() -> {
 
 //            int bottomMargin = bottomMargin();
 
@@ -59,7 +59,7 @@ public class ChatFragmentKeyboardOverlayHelper {
 
             updateChatViewBottomMargin();
 //            setChatViewBottomMargin(bottomMargin);
-        };
+        });
 
         keyboardAwareView().heightUpdater = height -> {
             setKeyboardOverlayHeight(height);
@@ -75,10 +75,18 @@ public class ChatFragmentKeyboardOverlayHelper {
         // Add the keyboard overlay fragment
         if (activity() != null) {
 
+            if (currentKeyboardOverlayFragment != null && currentKeyboardOverlayFragment.getView() != null) {
+                currentKeyboardOverlayFragment.getView().setVisibility(View.INVISIBLE);
+            }
+
             FragmentTransaction transaction = activity().getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.keyboardOverlay, overlay).addToBackStack(null).commit();
 
             currentKeyboardOverlayFragment = overlay;
+
+            if (currentKeyboardOverlayFragment.getView() != null) {
+                currentKeyboardOverlayFragment.getView().setVisibility(View.VISIBLE);
+            }
 
             currentKeyboardOverlayFragment.setViewSize(
                     keyboardAwareView().getMeasuredWidth(),

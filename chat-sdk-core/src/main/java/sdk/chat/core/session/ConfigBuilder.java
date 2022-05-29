@@ -1,16 +1,15 @@
 package sdk.chat.core.session;
 
 
-
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import sdk.chat.core.base.BaseNetworkAdapter;
-import sdk.chat.core.module.Module;
 import sdk.chat.core.interfaces.InterfaceAdapter;
+import sdk.chat.core.module.Module;
 import sdk.guru.common.BaseConfig;
 
 public class ConfigBuilder<T> extends BaseConfig<T> {
@@ -26,13 +25,17 @@ public class ConfigBuilder<T> extends BaseConfig<T> {
         super(onBuild);
     }
 
-    public ConfigBuilder<T> setNetworkAdapter (@NonNull Class<? extends BaseNetworkAdapter> networkAdapterClass) {
-        this.networkAdapter = networkAdapterClass;
+    public ConfigBuilder<T> setNetworkAdapter (@Nullable Class<? extends BaseNetworkAdapter> networkAdapterClass) {
+        if (networkAdapterClass != null) {
+            this.networkAdapter = networkAdapterClass;
+        }
         return this;
     }
 
-    public ConfigBuilder<T> setInterfaceAdapter (@NonNull Class<? extends InterfaceAdapter> interfaceAdapterClass) {
-        this.interfaceAdapter = interfaceAdapterClass;
+    public ConfigBuilder<T> setInterfaceAdapter (@Nullable Class<? extends InterfaceAdapter> interfaceAdapterClass) {
+        if (interfaceAdapterClass != null) {
+            this.interfaceAdapter = interfaceAdapterClass;
+        }
         return this;
     }
 

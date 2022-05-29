@@ -3,8 +3,6 @@ package sdk.chat.core.rigs;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.DownloadProgressListener;
 
-import org.pmw.tinylog.Logger;
-
 import java.util.Date;
 
 import sdk.chat.core.dao.CachedFile;
@@ -21,6 +19,9 @@ public class MessageDownloadListener implements DownloadProgressListener, com.an
     protected TransferStatus status = TransferStatus.None;
     protected ANError error;
 
+    protected Progress lastProgress = null;
+    protected TransferStatus lastStatus = null;
+
     public MessageDownloadListener(Message message, CachedFile cachedFile) {
         this.message = message;
         this.cachedFile = cachedFile;
@@ -31,33 +32,37 @@ public class MessageDownloadListener implements DownloadProgressListener, com.an
         message.setFilePath(cachedFile.getLocalPath());
         message.update();
 
-        cachedFile.setTransferStatus(TransferStatus.Complete);
         cachedFile.setFinishTime(new Date());
-        cachedFile.update();
 
-        status = TransferStatus.Complete;
-        ChatSDK.events().source().accept(NetworkEvent.messageSendStatusChanged(message));
+        updateStatus(TransferStatus.Complete);
     }
 
     @Override
     public void onError(ANError anError) {
-        cachedFile.setTransferStatus(TransferStatus.Failed);
-        cachedFile.update();
+        updateStatus(TransferStatus.Failed);
         error = anError;
-        status = TransferStatus.Failed;
         ChatSDK.events().source().accept(NetworkEvent.messageProgressUpdated(message, new Progress(error)));
     }
 
     @Override
     public void onProgress(long transferred, long total) {
-        status = TransferStatus.InProgress;
-        cachedFile.setTransferStatus(TransferStatus.InProgress);
-        cachedFile.update();
+        updateStatus(TransferStatus.InProgress);
 
-        Logger.info("Progress - Download Manager - " + transferred);
+        Progress progress = new Progress(transferred, total);
+        if (lastProgress == null || progress.asPercentage() - lastProgress.asPercentage() > 5) {
+            ChatSDK.events().source().accept(NetworkEvent.messageProgressUpdated(message, new Progress(transferred, total)));
+            lastProgress = progress;
+        }
 
-        ChatSDK.events().source().accept(NetworkEvent.messageProgressUpdated(message, new Progress(transferred, total)));
-        ChatSDK.events().source().accept(NetworkEvent.messageSendStatusChanged(message));
+    }
+
+    public void updateStatus(TransferStatus value) {
+        if (status != value) {
+            status = value;
+            cachedFile.setTransferStatus(status);
+            cachedFile.update();
+            ChatSDK.events().source().accept(NetworkEvent.messageSendStatusChanged(message));
+        }
     }
 
     public TransferStatus getStatus() {

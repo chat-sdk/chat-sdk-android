@@ -79,6 +79,8 @@ public class AudioPlayerView extends LinearLayout {
         totalTimeTextView = findViewById(R.id.totalTimeTextView);
         container = findViewById(R.id.container);
 
+        // We will use the current time box to display both total and current time
+        totalTimeTextView.setVisibility(INVISIBLE);
 
         playButton.setOnClickListener(view -> {
             if (player == null) {
@@ -211,13 +213,17 @@ public class AudioPlayerView extends LinearLayout {
     public void updateTime() {
         if (player == null) {
             setTotalTime(totalTime);
-            setCurrentTime("0:00");
+//            setCurrentTime("0:00");
         } else {
             if (player.isReady()) {
                 setTotalTime(player.duration());
                 seekBar.setMax(player.durationMillis().intValue());
             }
-            setCurrentTime(player.position());
+            if (player.getCurrentPosition() == 0) {
+                setTotalTime(totalTime);
+            } else {
+                setCurrentTime(player.position());
+            }
         }
 
         if (sliderTrackColor != 0) {
@@ -236,7 +242,8 @@ public class AudioPlayerView extends LinearLayout {
     }
 
     public void setTotalTime(String totalTime) {
-        totalTimeTextView.setText(totalTime);
+//        totalTimeTextView.setText(totalTime);
+        currentTimeTextView.setText(totalTime);
     }
 
     public void setCurrentTime(String currentTime) {

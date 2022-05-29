@@ -121,8 +121,8 @@ public class MessageSendRig {
         return Completable.defer(() -> {
             if (message == null) {
                 createMessage();
+                ChatSDK.events().source().accept(NetworkEvent.messageAdded(message));
             }
-            ChatSDK.events().source().accept(NetworkEvent.messageAdded(message));
             message.setMessageStatus(MessageSendStatus.Initial, true);
             if (uploadables.isEmpty()) {
                 return send();

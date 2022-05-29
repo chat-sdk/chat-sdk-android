@@ -22,6 +22,10 @@ public class Progress {
         this.totalBytes = totalBytes;
     }
 
+    public float asPercentage() {
+        return asFraction() * 100f;
+    }
+
     public float asFraction() {
         return (float) transferredBytes / (float) totalBytes;
     }

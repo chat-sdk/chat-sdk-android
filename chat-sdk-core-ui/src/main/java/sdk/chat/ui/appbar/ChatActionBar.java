@@ -30,7 +30,6 @@ import sdk.chat.core.utils.Strings;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
 import sdk.guru.common.RX;
 
@@ -156,6 +155,8 @@ public class ChatActionBar extends AppBarLayout {
     }
 
     public void showSearchIcon() {
-        searchImageView.setVisibility(View.VISIBLE);
+        if (UIModule.config().messageSearchEnabled) {
+            searchImageView.setVisibility(View.VISIBLE);
+        }
     }
 }

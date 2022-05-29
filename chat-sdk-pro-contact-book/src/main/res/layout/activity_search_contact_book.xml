@@ -2,7 +2,9 @@
 <RelativeLayout android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="?activityBackgroundColor"
+    >
 
     <include
         layout="@layout/app_bar_default"/>

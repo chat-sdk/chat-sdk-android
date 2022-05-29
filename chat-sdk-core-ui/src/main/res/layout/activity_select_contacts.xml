@@ -8,6 +8,7 @@
     android:orientation="vertical"
     android:animateLayoutChanges="true"
     android:fitsSystemWindows="true"
+    android:background="?activityBackgroundColor"
     >
 
     <LinearLayout

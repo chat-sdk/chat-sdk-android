@@ -130,6 +130,11 @@ public class ChatSDK {
         return shared().builder.setNetworkAdapter(networkAdapterClass).setInterfaceAdapter(interfaceAdapterClass);
     }
 
+    public static ConfigBuilder<ChatSDK> configure() {
+        shared().builder = new ConfigBuilder<>(shared());
+        return shared().builder;
+    }
+
     /**
      * Configure and let modules provide the interface and network adapters. We will loop over the modules and see if they provide each adapter,
      * the first that does will be used and any subsequent provider will be ignored.

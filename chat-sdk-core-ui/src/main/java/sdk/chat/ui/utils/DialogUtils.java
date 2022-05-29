@@ -7,16 +7,18 @@
 
 package sdk.chat.ui.utils;
 
-import android.app.AlertDialog;
 import android.content.Context;
 
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class DialogUtils {
 
     public static void showToastDialog(Context context, @StringRes int title, @StringRes int message, @StringRes int positive, @StringRes int negative, Runnable positiveAction, Runnable negativeAction) {
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
 
         if (title != 0) {
             builder.setTitle(title);

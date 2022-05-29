@@ -42,7 +42,7 @@ public class TouchAwareConstraintLayout extends ConstraintLayout {
          */
         if (listener != null) {
             final int action = ev.getAction();
-            float x = ev.getRawX();
+            float x = ev.getX();
             float y = ev.getY();
 
             if (action == MotionEvent.ACTION_DOWN) {

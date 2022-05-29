@@ -22,6 +22,7 @@
 <!--    <item name="android:windowActivityTransitions">true</item>-->
 <!--    <item name="android:windowEnterTransition">@transition/explode</item>-->
 <!--    <item name="android:windowExitTransition">@transition/explode</item>-->
+    <item name="activityBackgroundColor">@color/activity_background</item>
 
     <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
 

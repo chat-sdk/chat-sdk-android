@@ -126,6 +126,10 @@ public class AudioPlayer {
         return toSeconds(player.getCurrentPosition());
     }
 
+    public long getCurrentPosition() {
+        return player.getCurrentPosition();
+    }
+
     public static String toSeconds (long millis) {
         long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
         long minuteSeconds = TimeUnit.MINUTES.toSeconds(minutes);

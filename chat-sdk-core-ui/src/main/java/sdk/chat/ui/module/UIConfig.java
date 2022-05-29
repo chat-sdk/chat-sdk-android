@@ -421,5 +421,11 @@ public class UIConfig<T> extends BaseConfig<T> {
         return this;
     }
 
+    public boolean messageSearchEnabled = true;
+    public UIConfig<T> setMessageSearchEnabled(boolean value) {
+        messageSearchEnabled = value;
+        return this;
+    }
+
 
 }

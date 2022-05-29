@@ -17,7 +17,7 @@ public class ReadStatusViewBinder {
         if (holder == null) {
             return;
         }
-        if (holder.isTyping() || ChatSDK.readReceipts() == null || holder.getMessage().getMessageType().is(MessageType.System) || !holder.getUser().isMe() || holder.getReadStatus().is(ReadStatus.hide())) {
+        if (holder.isTyping() || holder.getMessage().getMessageType().is(MessageType.System) || !holder.getUser().isMe() || holder.getReadStatus().is(ReadStatus.hide())) {
             view.setVisibility(View.GONE);
         } else {
             ReadStatus status = holder.getReadStatus();
@@ -30,7 +30,7 @@ public class ReadStatusViewBinder {
                 resource = R.drawable.icn_30_sending;
             } else if (holder.canResend()) {
                 resource = R.drawable.icn_30_failed;
-            } else {
+            } else if (ChatSDK.readReceipts() != null) {
                 if (sendStatus == MessageSendStatus.Sent) {
                     resource = R.drawable.icn_30_sent;
                 }

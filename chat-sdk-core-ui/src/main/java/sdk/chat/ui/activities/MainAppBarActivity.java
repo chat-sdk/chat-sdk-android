@@ -4,10 +4,10 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
-import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -25,7 +25,6 @@ import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.PagerAdapterTabs;
 import sdk.chat.ui.fragments.BaseFragment;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.interfaces.SearchSupported;
 
 public class MainAppBarActivity extends MainActivity {
@@ -118,6 +117,10 @@ public class MainAppBarActivity extends MainActivity {
     @Override
     public void onStart() {
         super.onStart();
+        doOnStart();
+    }
+
+    public void doOnStart() {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setHomeAsUpIndicator(ChatSDKUI.icons().get(this, ChatSDKUI.icons().user, ChatSDKUI.icons().actionBarIconColor));
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);

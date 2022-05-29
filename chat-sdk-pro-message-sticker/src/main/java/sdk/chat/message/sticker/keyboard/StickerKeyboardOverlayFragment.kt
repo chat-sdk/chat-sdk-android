@@ -20,7 +20,7 @@ import sdk.chat.ui.keyboard.KeyboardOverlayOptionsFragment
 import smartadapter.SmartRecyclerAdapter
 import smartadapter.viewevent.listener.OnClickEventListener
 
-open class KeyboardOverlayStickerFragment(): AbstractKeyboardOverlayFragment() {
+open class StickerKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment() {
 
     open lateinit var stickerRecyclerAdapter: SmartRecyclerAdapter
     open lateinit var stickerRecyclerView: RecyclerView
