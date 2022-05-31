@@ -145,13 +145,13 @@ public class MainApplication extends Application {
         String rootPath = "pre_999";
 
         String username = "1@d.co";
-        if (Device.honor(this)) {
+        if (Device.honor()) {
             username = "2@d.co";
         }
-        if (Device.pixel(this)) {
+        if (Device.pixel()) {
             username = "3@d.co";
         }
-        if (Device.galaxy(this)) {
+        if (Device.galaxy()) {
             username = "4@d.co";
         }
 

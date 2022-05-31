@@ -14,10 +14,10 @@ public class Testing {
     }
 
     public static Config myOpenFire(Context context, Config config) {
-        if (Device.honor(context)) {
+        if (Device.honor()) {
             config.setDebugUsername("1b");
             config.setDebugPassword("123");
-        } else if (Device.nexus(context)) {
+        } else if (Device.nexus()) {
             config.setDebugUsername("2b");
             config.setDebugPassword("123");
         } else {
@@ -32,7 +32,7 @@ public class Testing {
     }
 
     public static Config rameshEJabberd(Context context, Config config) {
-        if (Device.honor(context)) {
+        if (Device.honor()) {
             config.setDebugUsername("chatsdkaccount1");
             config.setDebugPassword("sEcureXMpp123!#$");
         } else {

@@ -8,49 +8,25 @@ import sdk.chat.core.session.ChatSDK;
 public class Device {
 
     public static boolean honor() {
-        return honor(ChatSDK.ctx());
-    }
-
-    public static boolean honor(Context context) {
-        return named(context, "Chairman Mao");
+        return named("Chairman Mao");
     }
 
     public static boolean nexus() {
-        return nexus(ChatSDK.ctx());
-    }
-
-    public static boolean nexus(Context context) {
-        return named(context, "Nexus 5");
-    }
-
-    public static boolean named(String name) {
-        return named(ChatSDK.ctx(), name);
+        return named("Nexus 5");
     }
 
     public static boolean galaxy() {
-        return galaxy(ChatSDK.ctx());
-    }
-
-    public static boolean galaxy(Context context) {
-        return named(context, "Ben's Galaxy A21s");
+        return named("Ben's Galaxy A21s");
     }
 
     public static boolean pixel() {
-        return pixel(ChatSDK.ctx());
+        return named("Pixel 6");
     }
 
-    public static boolean pixel(Context context) {
-        return named(context, "Pixel 6");
-    }
-
-    public static boolean named(Context context, String name) {
-        String deviceName = name(cntext);
+    public static boolean named(String name) {
+        String deviceName = name();
         return deviceName != null && deviceName.equals(name);
     }
-
-//    public static String name(Context context) {
-//        return Settings.Secure.getString(context.getContentResolver(), "bluetooth_name");
-//    }
 
     public static String name() {
         return android.os.Build.MODEL;
