@@ -75,7 +75,7 @@ public class XMPPConfigureFragment extends BaseFragment {
             resourceTextInput.setText(resource);
         } else {
             if (getContext() != null) {
-                resourceTextInput.setText(Device.name(getContext()));
+                resourceTextInput.setText(Device.name());
             }
         }
 

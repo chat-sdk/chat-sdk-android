@@ -2,10 +2,9 @@ package app.xmpp.adapter.utils;
 
 import android.content.Context;
 
-import sdk.chat.core.session.ChatSDK;
+import app.xmpp.adapter.module.XMPPModule;
 import sdk.chat.core.utils.Device;
 import sdk.chat.core.utils.StringChecker;
-import app.xmpp.adapter.module.XMPPModule;
 
 public class XMPPServer {
     public String address;
@@ -29,7 +28,7 @@ public class XMPPServer {
         this.domain = domain;
         this.port = port;
         if(resource == null) {
-            resource = Device.name(ChatSDK.ctx());
+            resource = Device.name();
         }
         this.resource = resource;
     }
@@ -58,7 +57,7 @@ public class XMPPServer {
     }
 
     public XMPPServer defaultServer(Context context) {
-        return new XMPPServer(null, 5222, Device.name(context));
+        return new XMPPServer(null, 5222, Device.name());
     }
 
     public boolean isValid() {
