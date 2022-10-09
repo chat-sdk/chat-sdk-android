@@ -33,11 +33,12 @@ android {
         abortOnError false
         lintConfig file('lint.xml')
     }
+    namespace 'sdk.chat.core'
 
 }
 
 greendao {
-    schemaVersion 29
+    schemaVersion 30
     targetGenDir "src/main/java"
     daoPackage "sdk.chat.core.dao"
 }
@@ -62,7 +63,9 @@ dependencies {
     api "com.github.amitshekhariitbhu.Fast-Android-Networking:android-networking:$androidNetworkingVersion"
 
     // Needed to surpress error with GreenDao
-    implementation "net.zetetic:android-database-sqlcipher:$androidDatabaseSQLCipher"
+    if (project.hasProperty("daoEncrypted")) {
+        implementation "net.zetetic:android-database-sqlcipher:$androidDatabaseSQLCipher"
+    }
 
     // Dependencies that are also used by other Chat SDK libraries
     api "org.greenrobot:greendao:$greenDaoVersion"
@@ -79,6 +82,9 @@ dependencies {
     implementation "com.github.bumptech.glide:glide:$glideVersion"
 
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
+
+    implementation "androidx.activity:activity-ktx:1.4.0"
+    implementation "androidx.fragment:fragment-ktx:1.4.1"
 }
 
 ext {

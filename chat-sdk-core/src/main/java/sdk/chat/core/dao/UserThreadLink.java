@@ -235,7 +235,7 @@ public class UserThreadLink {
             return false;
         }
         metaValue.setValue(value);
-        metaValue.update();
+        ChatSDK.db().update(metaValue);
         return true;
     }
 

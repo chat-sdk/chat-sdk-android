@@ -205,7 +205,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
                 if(jointThread != null) {
                     jointThread.setDeleted(false);
-                    jointThread.update();
+                    ChatSDK.db().update(jointThread);
                     return Single.just(jointThread);
                 }
             }
@@ -241,7 +241,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
                     thread.setType(users.size() == 2 ? ThreadType.Private1to1 : ThreadType.PrivateGroup);
                 }
 
-                thread.update();
+                ChatSDK.db().update(thread);
 //            });
 
             ThreadWrapper wrapper = FirebaseModule.config().provider.threadWrapper(thread);
@@ -500,7 +500,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     @Override
     public Message newMessage(int type, Thread thread, boolean notify) {
         Message message = super.newMessage(type, thread, notify);
-        message.update();
+        ChatSDK.db().update(message);
         return message;
     }
 

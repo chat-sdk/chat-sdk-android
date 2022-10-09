@@ -16,7 +16,7 @@ import org.greenrobot.greendao.annotation.ToOne;
                 @Index(value = "userId,key", unique = true)
         }
 )
-public class UserMetaValue implements MetaValue<String> {
+public class UserMetaValue implements MetaValue<String>, Updatable {
 
     @Id
     private Long id;

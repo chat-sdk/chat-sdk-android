@@ -62,8 +62,9 @@ public class ImageMessagePayload extends AbstractMessagePayload {
         }
         if (bitmap != null) {
             bitmap = ThumbnailUtils.extractThumbnail(bitmap, size.widthInt(), size.heightInt());
+            return new BitmapDrawable(ChatSDK.ctx().getResources(), bitmap);
         }
-        return new BitmapDrawable(ChatSDK.ctx().getResources(), bitmap);
+        return null;
     }
 
     protected Integer width() {

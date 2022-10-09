@@ -1,7 +1,9 @@
 package sdk.chat.core.interfaces;
 
 import android.app.Activity;
+import android.content.Intent;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
 
@@ -18,7 +20,7 @@ public interface ChatOption {
 
     @StringRes int getTitle();
     @DrawableRes int getImage();
-    Completable execute(Activity activity, Thread thread);
+    Completable execute(Activity activity, ActivityResultLauncher<Intent> launcher, Thread thread);
 
     AbstractKeyboardOverlayFragment getOverlay(KeyboardOverlayHandler sender);
     boolean hasOverlay();

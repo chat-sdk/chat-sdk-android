@@ -2,6 +2,7 @@ package sdk.chat.ui.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Debug;
 import android.view.LayoutInflater;
@@ -15,17 +16,21 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.FragmentContainerView;
 
+import com.lassi.common.utils.KeyUtils;
 import com.stfalcon.chatkit.messages.MessageInput;
 
 import org.pmw.tinylog.Logger;
 
 import java.io.File;
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -54,6 +59,7 @@ import sdk.chat.core.utils.PermissionRequestHandler;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
+import sdk.chat.ui.activities.preview.ChatPreviewActivity;
 import sdk.chat.ui.appbar.ChatActionBar;
 import sdk.chat.ui.audio.AudioBinder;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
@@ -96,6 +102,8 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     protected LinearLayout messageInputLinearLayout;
     protected FragmentContainerView keyboardOverlay;
 
+    protected ActivityResultLauncher<Intent> launcher;
+
     protected AudioBinder audioBinder = null;
     protected DisposableMap dm = new DisposableMap();
 
@@ -126,10 +134,27 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
         initViews();
 
+
         koh = new ChatFragmentKeyboardOverlayHelper(this);
         koh.showOptionsKeyboardOverlay();
 
         input.getInputEditText().setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
+
+        launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                Intent data = result.getData();
+                if (data != null && getActivity() != null) {
+                    Serializable media = data.getSerializableExtra(KeyUtils.SELECTED_MEDIA);
+                    if (media != null) {
+                        // Pass these extras to the chat preview activity
+                        Intent intent = new Intent(getActivity(), ChatPreviewActivity.class);
+                        intent.putExtra(KeyUtils.SELECTED_MEDIA, media);
+                        intent.putExtra(Keys.IntentKeyThreadEntityID, thread.getEntityID());
+                        getActivity().startActivity(intent);
+                    }
+                }
+            }
+        });
 
         return rootView;
     }
@@ -524,6 +549,10 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
                     menu.removeItem(MenuItemProvider.replyItemId);
                 }
 
+                if (!UIModule.config().messageDownloadEnabled) {
+                    menu.removeItem(MenuItemProvider.saveItemId);
+                }
+
                 if (chatView.getSelectedMessages().size() != 1) {
                     menu.removeItem(MenuItemProvider.replyItemId);
                     menu.removeItem(MenuItemProvider.saveItemId);
@@ -759,7 +788,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     @Override
     public void executeChatOption(ChatOption option) {
         if (getActivity() != null) {
-            handleMessageSend(option.execute(getActivity(), thread));
+            handleMessageSend(option.execute(getActivity(), launcher, thread));
         }
     }
 
@@ -783,13 +812,19 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     }
 
     public boolean onBackPressed() {
+        if (!chatView.getSelectedMessages().isEmpty()) {
+            chatView.clearSelection();
+            return true;
+        }
         // If the keyboard overlay is showing, we go back to the keyboard
         return koh.back();
     }
 
     @Override
     public void send(Sendable sendable) {
-        handleMessageSend(sendable.send(getActivity(), getThread()));
+        if (getActivity() != null) {
+            handleMessageSend(sendable.send(getActivity(), launcher, getThread()));
+        }
     }
 
     @Override
@@ -882,6 +917,25 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         if (threadEntityID != null && thread == null) {
             thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
         }
+    }
+
+    public boolean isOverlayVisible() {
+        return koh.keyboardOverlayVisible();
+    }
+
+    public boolean isOverlayOrKeyboardVisible() {
+        return isOverlayVisible() || getKeyboardAwareView().isKeyboardOpen();
+    }
+
+    public boolean isOverlayVisible(String key) {
+        if (key == null) {
+            return false;
+        }
+        return isOverlayVisible() && key.equals(currentOverlayKey());
+    }
+
+    public String currentOverlayKey() {
+        return koh.currentOverlay() != null ? koh.currentOverlay().key() : null;
     }
 
     protected void invalidateOptionsMenu() {

@@ -16,7 +16,6 @@ import java.text.DateFormat;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import sdk.chat.core.dao.User;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.MessageHolder;
@@ -63,12 +62,12 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
         UIModule.shared().getTimeBinder().bind(time, message);
 
         //We can set onClick listener on view from payload
-        final Payload payload = (Payload) this.payload;
-        userAvatar.setOnClickListener(view -> {
-            if (payload != null && payload.avatarClickListener != null && UIModule.config().startProfileActivityOnChatViewIconClick) {
-                payload.avatarClickListener.onAvatarClick(message.getMessage().getSender());
-            }
-        });
+//        final Payload payload = (Payload) this.payload;
+//        userAvatar.setOnClickListener(view -> {
+//            if (payload != null && payload.avatarClickListener != null && UIModule.config().startProfileActivityOnChatViewIconClick) {
+//                payload.avatarClickListener.onAvatarClick(message.getMessage().getSender());
+//            }
+//        });
 
         UIModule.shared().getNameBinder().bind(userName, message);
 
@@ -98,14 +97,6 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
 
 
 
-    }
-
-    public static class Payload {
-        public OnAvatarClickListener avatarClickListener;
-    }
-
-    public interface OnAvatarClickListener {
-        void onAvatarClick(User user);
     }
 
 }

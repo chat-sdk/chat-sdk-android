@@ -42,7 +42,9 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="30dp"
             android:layout_marginEnd="8dp"
+            android:background="@null"
             android:ems="10"
+            android:textAlignment="center"
             android:gravity="center"
             android:hint="@string/email"
             android:inputType="textEmailAddress"
@@ -69,6 +71,7 @@
             android:layout_marginEnd="8dp"
             android:ems="10"
             android:gravity="center"
+            android:textAlignment="center"
             android:hint="@string/password"
             android:inputType="textPassword" />
 

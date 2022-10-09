@@ -98,7 +98,7 @@ public class ChatActionBar extends AppBarLayout {
     public void setSubtitleText(Thread thread, final String text) {
         if (StringChecker.isNullOrEmpty(text)) {
 
-            final String defaultText = getContext().getString(R.string.tap_here_for_contact_info);
+            final String defaultText = getDefaultText();
 
             ChatSDK.events().disposeOnLogout(Single.defer((Callable<SingleSource<String>>) () -> {
                 if (thread.typeIs(ThreadType.Private1to1)) {
@@ -130,6 +130,10 @@ public class ChatActionBar extends AppBarLayout {
         } else {
             subtitleTextView.setText(text);
         }
+    }
+
+    public String getDefaultText() {
+        return getContext().getString(R.string.tap_here_for_contact_info);
     }
 
     public void hideText() {

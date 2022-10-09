@@ -12,8 +12,10 @@ public class UploadManager extends TransferManager {
     public CachedFile add(Uploadable uploadable, Message message) {
         // See if this uploadable already exists
         String hash = uploadable.hash();
+
         if (hash != null) {
-            CachedFile file = ChatSDK.db().fetchOrCreateEntityWithEntityID(CachedFile.class, hash);
+//            CachedFile file = ChatSDK.db().fetchOrCreateEntityWithEntityID(CachedFile.class, hash);
+            CachedFile file = ChatSDK.db().fetchOrCreateCachedFileWithHash(hash, message.getEntityID());
             String path = uploadable.cache();
             file.setLocalPath(path);
             file.setIdentifier(message.getEntityID());
@@ -24,17 +26,18 @@ public class UploadManager extends TransferManager {
             file.setMessageKey(uploadable.messageKey);
             file.setReportProgress(uploadable.reportProgress);
             file.setStartTime(new Date());
-            file.update();
+            ChatSDK.db().update(file);
+
             return file;
         }
         return null;
     }
 
-    public boolean setStatus(String hash, TransferStatus status) {
-        CachedFile file = getFile(hash);
+    public boolean setStatus(String hash, TransferStatus status, String messageEntityID) {
+        CachedFile file = getFile(hash, messageEntityID);
         if (file != null) {
             file.setTransferStatus(status);
-            file.update();
+            ChatSDK.db().update(file);
             return true;
         }
         return false;

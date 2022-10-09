@@ -3,6 +3,7 @@ package com.stfalcon.chatkit.messages;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
+
 import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
 import android.util.SparseArray;
@@ -568,13 +569,23 @@ public class MessageHolders {
                         final View.OnClickListener onMessageClickListener,
                         final View.OnLongClickListener onMessageLongClickListener,
                         final DateFormatter.Formatter dateHeadersFormatter,
-                        final SparseArray<MessagesListAdapter.OnMessageViewClickListener> clickListenersArray) {
+                        final SparseArray<MessagesListAdapter.OnMessageViewClickListener> clickListenersArray,
+                        final MessagesListAdapter.UserClickListener userClickListener) {
 
         if (item instanceof IMessage) {
-            ((MessageHolders.BaseMessageViewHolder) holder).isSelected = isSelected;
-            ((MessageHolders.BaseMessageViewHolder) holder).imageLoader = imageLoader;
-            holder.itemView.setOnLongClickListener(onMessageLongClickListener);
-            holder.itemView.setOnClickListener(onMessageClickListener);
+
+            if (holder instanceof MessageHolders.BaseMessageViewHolder) {
+                MessageHolders.BaseMessageViewHolder h = (MessageHolders.BaseMessageViewHolder) holder;
+                h.isSelected = isSelected;
+                h.imageLoader = imageLoader;
+                h.setOnClickListener(onMessageClickListener);
+                h.setOnLongClickListener(onMessageLongClickListener);
+                h.setAvatarClickListener(userClickListener);
+
+            } else {
+                holder.itemView.setOnLongClickListener(onMessageLongClickListener);
+                holder.itemView.setOnClickListener(onMessageClickListener);
+            }
 
             for (int i = 0; i < clickListenersArray.size(); i++) {
                 final int key = clickListenersArray.keyAt(i);
@@ -737,6 +748,19 @@ public class MessageHolders {
                 }
             });
         }
+
+        public void setOnClickListener(View.OnClickListener l) {
+            itemView.setOnClickListener(l);
+        }
+
+        public void setOnLongClickListener(View.OnLongClickListener l) {
+            itemView.setOnLongClickListener(l);
+        }
+
+        public void setAvatarClickListener(MessagesListAdapter.UserClickListener l) {
+
+        }
+
     }
 
     /**
@@ -786,7 +810,7 @@ public class MessageHolders {
                 text.setTextColor(style.getIncomingTextColor());
                 text.setTextSize(TypedValue.COMPLEX_UNIT_PX, style.getIncomingTextSize());
                 text.setTypeface(text.getTypeface(), style.getIncomingTextStyle());
-                text.setAutoLinkMask(style.getTextAutoLinkMask());
+//                text.setAutoLinkMask(style.getTextAutoLinkMask());
                 text.setLinkTextColor(style.getIncomingTextLinkColor());
                 configureLinksBehavior(text);
             }
@@ -845,7 +869,7 @@ public class MessageHolders {
                 text.setTextColor(style.getOutcomingTextColor());
                 text.setTextSize(TypedValue.COMPLEX_UNIT_PX, style.getOutcomingTextSize());
                 text.setTypeface(text.getTypeface(), style.getOutcomingTextStyle());
-                text.setAutoLinkMask(style.getTextAutoLinkMask());
+//                text.setAutoLinkMask(style.getTextAutoLinkMask());
                 text.setLinkTextColor(style.getOutcomingTextLinkColor());
                 configureLinksBehavior(text);
             }

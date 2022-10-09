@@ -166,7 +166,7 @@ public class MessageWrapper  {
             }).ignoreElement().subscribe(ChatSDK.events());
         }
 
-        model.update();
+        ChatSDK.db().update(model);
     }
 
     public Single<Boolean> updateReadReceipts(Map<String, Map<String, Long>> map) {
@@ -215,7 +215,8 @@ public class MessageWrapper  {
             // Getting the text ref. Will be created if not exist.
             final DatabaseReference ref = ref();
             model.setEntityID(ref.getKey());
-            model.update();
+            ChatSDK.db().update(model);
+
 
             ref.setValue(serialize(), ServerValue.TIMESTAMP, (firebaseError, firebase) -> {
                 if (firebaseError == null) {

@@ -28,14 +28,22 @@ public class XMPPTypingIndicatorManager {
     public void handleMessage (Message message, User user) {
         handleMessage(null, message, user);
     }
+
     public void handleMessage (ChatState state, Message message, User user) {
+        handleMessage(state, message, user, null);
+    }
+
+    public void handleMessage (ChatState state, Message message, User user, Thread thread) {
 
         if (state == null) {
             ChatStateExtension extension = (ChatStateExtension) message.getExtension(ChatStateExtension.NAMESPACE);
             state = extension.getChatState();
         }
 
-        Thread thread = ChatSDK.db().fetchThreadWithEntityID(message.getFrom().asBareJid().toString());
+        if (thread == null) {
+            thread = ChatSDK.db().fetchThreadWithEntityID(message.getFrom().asBareJid().toString());
+        }
+
         // Make sure we don't get a notification before the first message has been sent
         if(user != null && !user.equals(ChatSDK.currentUser()) && thread != null) {
             setTyping(thread, user, state.equals(ChatState.composing));

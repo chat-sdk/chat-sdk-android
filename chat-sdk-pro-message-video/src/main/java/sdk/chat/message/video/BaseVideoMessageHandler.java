@@ -1,5 +1,7 @@
  package sdk.chat.message.video;
 
+ import android.app.Activity;
+ import android.content.Intent;
  import android.graphics.Bitmap;
  import android.media.ThumbnailUtils;
  import android.provider.MediaStore;
@@ -22,6 +24,7 @@
  import sdk.chat.core.session.ChatSDK;
  import sdk.chat.core.types.MessageType;
  import sdk.chat.core.utils.Base64ImageUtils;
+ import sdk.guru.common.RX;
 
  /**
  * Created by ben on 10/6/17.
@@ -44,8 +47,10 @@ public class BaseVideoMessageHandler extends AbstractMessageHandler implements V
             } else {
 
                 // Generate thumbnail
-                final Bitmap placeholder = ThumbnailUtils.createVideoThumbnail(videoFile.getPath(),
-                        MediaStore.Images.Thumbnails.MINI_KIND);
+//                final Bitmap placeholder = ThumbnailUtils.createVideoThumbnail(videoFile.getPath(),
+//                        MediaStore.Images.Thumbnails.MINI_KIND);
+
+                final Bitmap placeholder = ThumbnailUtils.createVideoThumbnail(videoFile.getPath(), MediaStore.Video.Thumbnails.FULL_SCREEN_KIND);
 
                 final File placeholderFile = ImageUtils.saveBitmapToFile(placeholder);
 
@@ -75,10 +80,19 @@ public class BaseVideoMessageHandler extends AbstractMessageHandler implements V
 
                 }).setUploadables(uploadables, null).run();
             }
-        });
+        }).subscribeOn(RX.computation());
     }
 
-    @Override
+     @Override
+     public void startPlayVideoActivity(Activity activity, String videoURL) {
+         if(videoURL != null) {
+             Intent intent = new Intent(activity, VideoMessageModule.config().getVideoPlayerActivity());
+             intent.putExtra(Keys.IntentKeyFilePath, videoURL);
+             activity.startActivity(intent);
+         }
+     }
+
+     @Override
     public MessagePayload payloadFor(Message message) {
         return new VideoMessagePayload(message);
     }

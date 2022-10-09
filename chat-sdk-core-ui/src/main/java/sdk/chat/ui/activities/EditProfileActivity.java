@@ -292,7 +292,7 @@ public class EditProfileActivity extends BaseActivity {
 
         if (changed) {
 
-            currentUser.update();
+            ChatSDK.db().update(currentUser);
 
             showOrUpdateProgressDialog(getString(R.string.alert_save_contact));
             dm.add(ChatSDK.core().pushUser()

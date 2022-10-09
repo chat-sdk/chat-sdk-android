@@ -3,8 +3,15 @@ package sdk.chat.message.file;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.webkit.MimeTypeMap;
+
+import androidx.core.content.ContextCompat;
 
 import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
@@ -14,6 +21,7 @@ import sdk.chat.core.manager.TextMessagePayload;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.storage.TransferStatus;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.core.utils.Base64ImageUtils;
 import sdk.chat.core.utils.StringChecker;
 
 public class FileMessagePayload extends TextMessagePayload implements DownloadablePayload {
@@ -47,13 +55,14 @@ public class FileMessagePayload extends TextMessagePayload implements Downloadab
             if (imageURL != null && !imageURL.isEmpty()) {
                 return imageURL;
             } else {
+
                 Context context = ChatSDK.ctx();
                 Resources resources = context.getResources();
 
                 final String mimeType = message.stringForKey(Keys.MessageMimeType);
                 String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
 
-                int resID = context.getResources().getIdentifier("file_type_" + extension, "drawable", context.getPackageName());
+                int resID = resources.getIdentifier("file_type_" + extension, "drawable", context.getPackageName());
                 resID = resID > 0 ? resID : R.drawable.file;
 
                 Uri uri = new Uri.Builder()
@@ -67,6 +76,19 @@ public class FileMessagePayload extends TextMessagePayload implements Downloadab
             }
         }
         return null;
+    }
+
+    @Override
+    public Drawable getPlaceholder() {
+        Context context = ChatSDK.ctx();
+
+        final String mimeType = message.stringForKey(Keys.MessageMimeType);
+        String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+
+        int resID = context.getResources().getIdentifier("file_type_" + extension, "drawable", context.getPackageName());
+        resID = resID > 0 ? resID : R.drawable.file;
+
+        return ContextCompat.getDrawable(context, resID);
     }
 
     @Override

@@ -33,10 +33,10 @@ public class CreateThreadActivity extends SelectContactActivity {
 
     @Override
     protected void doneButtonPressed(List<UserListItem> users) {
-        if (adapter.getSelectedCount() == 0) {
-            showSnackbar(getString(R.string.select_at_least_one_user));
-            return;
-        }
+//        if (adapter.getSelectedCount() == 0 && multiSelectEnabled) {
+//            showSnackbar(getString(R.string.select_at_least_one_user));
+//            return;
+//        }
 
         // If there are more than 2 users then show a dialog to enter the name
         if(users.size() > 1) {

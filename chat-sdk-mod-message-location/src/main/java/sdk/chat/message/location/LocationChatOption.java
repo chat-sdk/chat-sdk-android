@@ -12,7 +12,7 @@ import sdk.chat.ui.chat.options.BaseChatOption;
 
 public class LocationChatOption extends BaseChatOption {
     public LocationChatOption(@StringRes int title, @DrawableRes int image) {
-        super(title, image, (activity, thread) -> {
+        super(title, image, (activity, launcher, thread) -> {
             return new LocationSelector().startChooseLocationActivity(activity).flatMapCompletable(result -> ChatSDK.locationMessage().sendMessageWithLocation(result.snapshotPath, result.latLng, thread));
         });
     }

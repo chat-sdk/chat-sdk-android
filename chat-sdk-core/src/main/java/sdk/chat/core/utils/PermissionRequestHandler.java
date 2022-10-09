@@ -75,7 +75,7 @@ public class PermissionRequestHandler {
 
     public static Completable requestImageMessage(Activity activity) {
 //        return requestPermissions(activity, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA);
-        return requestPermissions(activity, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA);
+        return requestPermissions(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA);
     }
 
     public static Completable requestCameraAccess(Activity activity) {

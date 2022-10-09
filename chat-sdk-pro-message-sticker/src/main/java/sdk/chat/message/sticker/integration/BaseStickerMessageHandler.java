@@ -12,6 +12,7 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.ui.AbstractKeyboardOverlayFragment;
 import sdk.chat.core.ui.KeyboardOverlayHandler;
+import sdk.chat.core.utils.StringChecker;
 import sdk.chat.message.sticker.StickerMessagePayload;
 import sdk.chat.message.sticker.keyboard.StickerKeyboardOverlayFragment;
 
@@ -20,14 +21,22 @@ import sdk.chat.message.sticker.keyboard.StickerKeyboardOverlayFragment;
  */
 
 public class BaseStickerMessageHandler extends AbstractMessageHandler implements StickerMessageHandler {
+
     @Override
-    public Completable sendMessageWithSticker(final String stickerImageName, final Thread thread) {
-        return new MessageSendRig(new MessageType(MessageType.Sticker), thread, message -> {
-            message.setText(stickerImageName);
-            message.setValueForKey(stickerImageName, Keys.MessageStickerName);
-        }).run();
+    public Completable sendMessageWithSticker(final String name, final Thread thread) {
+        return sendMessageWithSticker(name, null, thread);
     }
 
+    @Override
+    public Completable sendMessageWithSticker(final String name, final String url, final Thread thread) {
+        return new MessageSendRig(new MessageType(MessageType.Sticker), thread, message -> {
+            message.setText(name);
+            message.setValueForKey(name, Keys.MessageStickerName);
+            if (!StringChecker.isNullOrEmpty(url)) {
+                message.setImageURL(url);
+            }
+        }).run();
+    }
     @Override
     public AbstractKeyboardOverlayFragment keyboardOverlay(KeyboardOverlayHandler sender) {
         AbstractKeyboardOverlayFragment fragment = ChatSDK.feather().instance(StickerKeyboardOverlayFragment.class);

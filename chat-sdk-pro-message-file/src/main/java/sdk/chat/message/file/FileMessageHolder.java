@@ -38,4 +38,9 @@ public class FileMessageHolder extends MessageHolder implements MessageContentTy
     public boolean canSave() {
         return true;
     }
+
+    public boolean enableLinkify() {
+        return false;
+    }
+
 }

@@ -6,9 +6,8 @@ import android.os.StrictMode;
 import org.jivesoftware.smack.util.TLSUtils;
 import org.pmw.tinylog.Logger;
 
-import java.lang.reflect.Field;
-
 import app.xmpp.adapter.module.XMPPModule;
+import app.xmpp.receipts.XMPPReadReceiptsModule;
 import sdk.chat.app.xmpp.utils.SecureKeyStore;
 import sdk.chat.core.module.ImageMessageModule;
 import sdk.chat.core.session.ChatSDK;
@@ -51,7 +50,7 @@ public class MainApplication extends Application {
                     // Configure the library
                     .setGoogleMaps("AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE")
                     .setAnonymousLoginEnabled(false)
-                    .setDebugModeEnabled(false)
+                    .setDebugModeEnabled(true)
                     .setThreadDestructionEnabled(false)
                     .setClientPushEnabled(true)
                     .setAllowUserToRejoinGroup(true)
@@ -68,16 +67,11 @@ public class MainApplication extends Application {
                     .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
-//                            .setXMPP("we-connect-dev.com", "we-connect-dev.com")
-                            .setXMPP("xmpp.app", "xmpp.app")
 //                            .setXMPP("75.119.138.93", "xmpp.app")
-//                            .setXMPP("91.196.232.99", "localhost", 10045, "Android")
-//                            .setXMPP("wavea.cc", "localhost", 10045, "Android")
-                            .setSecurityMode("required")
+                            .setXMPP("45.125.64.211", "securephone.es")
+                            .setSecurityMode("ifpossible")
                             .setAllowServerConfiguration(false)
-//                            .setSecurityMode("required")
-//                            .setSecurityMode("ifpossible")
-//                            .setSecurityMode("ifpossible")
+
                             .setPingInterval(5)
 
                             .setDebugEnabled(true)
@@ -100,9 +94,10 @@ public class MainApplication extends Application {
                             .setResetPasswordEnabled(false)
                             .setPublicRoomCreationEnabled(true)
                             .setPublicRoomsEnabled(false)
+                            .setGroupsEnabled(true)
                             .build())
 
-//                    .addModule(XMPPReadReceiptsModule.shared())
+                    .addModule(XMPPReadReceiptsModule.shared())
                     .addModule(ExtrasModule.builder()
                             .setQrCodesEnabled(true)
                             .setDrawerEnabled(false)
@@ -133,16 +128,18 @@ public class MainApplication extends Application {
             }
         });
 
-        // Use encrypted shared preferences
-        try {
-            Field field = ChatSDK.class.getDeclaredField("keyStorage");
-            field.setAccessible(true);
-            field.set(ChatSDK.shared(), new SecureKeyStore(this));
-            System.out.println("Ok");
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        // Use encrypted shared preferences
+//        try {
+//            Field field = ChatSDK.class.getDeclaredField("keyStorage");
+//            field.setAccessible(true);
+//            field.set(ChatSDK.shared(), new SecureKeyStore(this));
+//            System.out.println("Ok");
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
 
     }

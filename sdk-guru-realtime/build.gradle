@@ -33,6 +33,7 @@ android {
         checkReleaseBuilds false
         lintConfig file('lint.xml')
     }
+    namespace 'sdk.guru.realtime'
 
 
 }
@@ -40,7 +41,9 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api project(':sdk-guru-common')
-    api "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
+
+    api platform("com.google.firebase:firebase-bom:$firebaseBOM")
+    api "com.google.firebase:firebase-database"
 }
 
 ext {

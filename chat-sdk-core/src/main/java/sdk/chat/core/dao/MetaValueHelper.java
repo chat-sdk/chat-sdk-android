@@ -58,8 +58,10 @@ public class MetaValueHelper {
         else if (value instanceof Float) {
             return Float.toString((Float) value);
         }
-        else {
+        else if (value != null) {
             return value.toString();
+        } else {
+            return "";
         }
     }
 

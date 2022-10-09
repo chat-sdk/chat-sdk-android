@@ -2,10 +2,10 @@ package sdk.chat.core.session;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.lifecycle.ProcessLifecycleOwner;
 
 import org.pmw.tinylog.Logger;
 
@@ -109,6 +109,7 @@ public class ChatSDK {
     protected PushQueue pushQueue = new PushQueue();
 
     protected Feather feather = Feather.with();
+    protected List<MessageHandler> messageHandlers = new ArrayList<>();
 
     protected ChatSDK () {
     }
@@ -179,12 +180,18 @@ public class ChatSDK {
             throw new Exception("Chat SDK is already active. It is not recommended to call activate twice. If you must do this, make sure to call stop() first.");
         }
 
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(appBackgroundMonitor);
+
         setContext(context);
         keyStorage = new KeyStorage(context);
 
         config = builder.config();
 
-        Logger.getConfiguration().level(config.logLevel).activate();
+        RX.db().scheduleDirect(() -> {
+            Logger.getConfiguration().level(config.logLevel).activate();
+            Logger.debug("Test");
+            Logger.debug("A");
+        });
 
         downloadManager = new DownloadManager(context);
         messageSender = new MessageSender(context);
@@ -276,10 +283,8 @@ public class ChatSDK {
             Logger.info("Module " + module.getName() + " activated successfully");
         }
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            connectionStateMonitor = new ConnectionStateMonitor();
-            connectionStateMonitor.enable(context);
-        }
+        connectionStateMonitor = new ConnectionStateMonitor();
+        connectionStateMonitor.enable(context);
 
         // Local notifications
         hook().addHook(Hook.sync(data -> {
@@ -510,6 +515,9 @@ public class ChatSDK {
                 handlers.add(module.getMessageHandler());
             }
         }
+        for (MessageHandler handler: shared().messageHandlers) {
+            handlers.add(handler);
+        }
         return handlers;
     }
 
@@ -630,5 +638,22 @@ public class ChatSDK {
     public static Feather feather() {
         return shared().feather;
     }
+
+    public static AppBackgroundMonitor backgroundMonitor() {
+        return shared().appBackgroundMonitor;
+    }
+
+    public static ConnectionStateMonitor connectionStateMonitor() {
+        return shared().connectionStateMonitor;
+    }
+
+    public static void addMessageHandler(MessageHandler handler) {
+        shared().messageHandlers.add(handler);
+    }
+
+    public static void removeMessageHandler(MessageHandler handler) {
+        shared().messageHandlers.remove(handler);
+    }
+
 }
 

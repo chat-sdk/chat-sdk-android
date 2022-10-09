@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sdk.chat.core.dao.Message;
+import sdk.chat.core.dao.User;
 import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.R;
@@ -17,16 +18,6 @@ import sdk.chat.ui.view_holders.base.BaseIncomingTextMessageViewHolder;
 
 public abstract class DefaultMessageRegistration implements MessageRegistration {
 
-    protected BaseIncomingTextMessageViewHolder.Payload getAvatarClickPayload(Context context) {
-        BaseIncomingTextMessageViewHolder.Payload holderPayload = new BaseIncomingTextMessageViewHolder.Payload();
-
-        holderPayload.avatarClickListener = user -> {
-            ChatSDK.ui().startProfileActivity(context, user.getEntityID());
-        };
-
-        return holderPayload;
-    }
-
     @Override
     public MessageHolder onNewMessageHolder(Message message) {
         return new MessageHolder(message);
@@ -34,6 +25,8 @@ public abstract class DefaultMessageRegistration implements MessageRegistration 
 
     @Override
     public boolean onClick(Activity activity, View rootView, Message message) {
+        // Check if we are inside avatar
+
         if (message.canResend()) {
             DialogUtils.showToastDialog(activity, R.string.message_send_failed, R.string.try_to_resend_the_message, R.string.send, R.string.cancel, () -> {
                 MessageSendRig.create(message).run().subscribe(ChatSDK.events());

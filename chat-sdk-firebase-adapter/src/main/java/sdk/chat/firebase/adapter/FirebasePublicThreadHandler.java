@@ -44,8 +44,7 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
             thread.setName(name);
             thread.setEntityID(entityID);
             thread.setImageUrl(imageURL);
-
-            thread.update();
+            ChatSDK.db().update(thread);
 
             if (meta != null) {
                 thread.updateValues(meta);
@@ -56,7 +55,8 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
                         thread.cascadeDelete();
                     })
                     .andThen((SingleSource<Thread>) observer -> {
-                        thread.update();
+                        ChatSDK.db().update(thread);
+
                         // Add the thread to the list of public threads
                         DatabaseReference publicThreadRef = FirebasePaths.publicThreadsRef()
                                 .child(thread.getEntityID());

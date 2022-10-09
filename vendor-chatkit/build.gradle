@@ -30,6 +30,7 @@ android {
     lint {
         abortOnError false
     }
+    namespace 'com.stfalcon.chatkit'
 }
 
 ext {

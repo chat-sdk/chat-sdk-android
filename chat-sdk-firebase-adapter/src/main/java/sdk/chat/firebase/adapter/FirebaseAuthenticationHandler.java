@@ -125,6 +125,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
         return FirebaseAuth.getInstance().getCurrentUser() != null;
     }
 
+
     public Completable retrieveRemoteConfig() {
         return Completable.create(emitter -> {
             if (ChatSDK.config().remoteConfigEnabled) {

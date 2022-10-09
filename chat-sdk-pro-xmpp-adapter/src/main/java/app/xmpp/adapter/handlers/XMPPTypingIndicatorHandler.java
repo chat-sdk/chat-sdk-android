@@ -59,7 +59,11 @@ public class XMPPTypingIndicatorHandler implements TypingIndicatorHandler {
                     // Issue here when we type
                     ChatManager chatManager = XMPPManager.shared().chatManager();
                     Chat chat = chatManager.chatWith(JidCreate.entityBareFrom(thread.getEntityID()));
-                    XMPPManager.shared().chatStateManager().setCurrentState(xmppState, chat);
+                    try {
+                        XMPPManager.shared().chatStateManager().setCurrentState(xmppState, chat);
+                    } catch (Exception ex) {
+                        e.onComplete();
+                    }
                 }
                 else if (thread.typeIs(ThreadType.Group)) {
                     MultiUserChat chat = XMPPManager.shared().mucManager.chatForThreadID(thread.getEntityID());
@@ -67,7 +71,11 @@ public class XMPPTypingIndicatorHandler implements TypingIndicatorHandler {
                         Message message = new Message();
                         ChatStateExtension extension = new ChatStateExtension(xmppState);
                         message.addExtension(extension);
-                        chat.sendMessage(message);
+                        try {
+                            chat.sendMessage(message);
+                        } catch (Exception ex) {
+                            e.onComplete();
+                        }
                     }
                 }
             }

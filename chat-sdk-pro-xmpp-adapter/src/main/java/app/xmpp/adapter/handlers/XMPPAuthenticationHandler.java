@@ -56,8 +56,24 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
     public Completable authenticate(final AccountDetails details) {
         return Completable.defer(() -> {
 
-            String database = details.username + XMPPManager.getCurrentServer(ChatSDK.ctx()).domain;
-            ChatSDK.db().openDatabase(database);
+//            String database = details.username + XMPPManager.getCurrentServer(ChatSDK.ctx()).domain;
+//            ChatSDK.db().openDatabase(database);
+
+            // Get the JID
+            Jid jid = JidCreate.bareFrom(details.username);
+
+            String domain = "";
+            String user = "";
+
+            if (jid.getDomain() != null && jid.getLocalpartOrNull() != null) {
+                domain = jid.getDomain().toString();
+                user = jid.getLocalpartOrNull().toString();
+            } else {
+                domain = XMPPManager.getCurrentServer(ChatSDK.ctx()).domain;
+                user = details.username;
+            }
+
+            ChatSDK.db().openDatabase(user + domain);
 
             if (isAuthenticatedThisSession() || isAuthenticated()) {
 //                return Completable.error(ChatSDK.getException(R.string.already_authenticated));
@@ -148,12 +164,13 @@ public class XMPPAuthenticationHandler extends AbstractAuthenticationHandler {
     @Override
     public Completable logout() {
         return Completable.create(emitter -> {
+
+            ChatSDK.events().source().accept(NetworkEvent.logout());
+
             XMPPManager.shared().logout();
 
             clearCurrentUserEntityID();
             ChatSDK.shared().getKeyStorage().clear();
-
-            ChatSDK.events().source().accept(NetworkEvent.logout());
 
             ChatSDK.db().closeDatabase();
 

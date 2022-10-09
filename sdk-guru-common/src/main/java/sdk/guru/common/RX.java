@@ -1,16 +1,41 @@
 package sdk.guru.common;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import io.reactivex.Completable;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.internal.schedulers.SingleScheduler;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.schedulers.Schedulers;
 
 public class RX {
 
     protected static ExecutorService firebaseExecutorService;
+
+    // Used for network tasks where the order matters i.e. login then send message
+    protected static final Scheduler ioSingle = RxJavaPlugins.initSingleScheduler(new SingleIOTask());
+
+
+    public static final class IOSingleHolder {
+        static final Scheduler DEFAULT = new SingleScheduler();
+    }
+
+    public static final class SingleIOTask implements Callable<Scheduler> {
+        @Override
+        public Scheduler call() throws Exception {
+            return IOSingleHolder.DEFAULT;
+        }
+    }
+
+    @NonNull
+    public static Scheduler ioSingle() {
+        return RxJavaPlugins.onSingleScheduler(ioSingle);
+    }
+
 
     public static Scheduler single() {
         return Schedulers.single();
@@ -19,6 +44,7 @@ public class RX {
     public static Scheduler io() {
         return Schedulers.io();
     }
+
 
     public static Scheduler computation() {
         return Schedulers.computation();

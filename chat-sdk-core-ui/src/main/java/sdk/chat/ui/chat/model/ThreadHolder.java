@@ -52,6 +52,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                         EventType.MessageReadReceiptUpdated,
                         EventType.MessageUpdated,
                         EventType.ThreadMessagesUpdated,
+                        EventType.ThreadsUpdated,
                         EventType.ThreadRead,
                         EventType.MessageAdded,
                         EventType.MessageRemoved))
@@ -59,6 +60,12 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                 .subscribe(networkEvent -> {
                     updateUnreadCount();
                     updateLastMessage();
+                }));
+
+        dm.add(ChatSDK.events().prioritySourceOnSingle()
+                .filter(NetworkEvent.filterType(EventType.ThreadsUpdated))
+                .subscribe(networkEvent -> {
+                    update();
                 }));
 
         dm.add(ChatSDK.events().prioritySourceOnSingle()

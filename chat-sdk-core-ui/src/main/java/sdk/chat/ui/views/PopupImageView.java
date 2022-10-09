@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
@@ -37,7 +38,9 @@ public class PopupImageView extends RelativeLayout {
     @BindView(R2.id.fab) protected FloatingActionButton fab;
     @BindView(R2.id.popupView) protected RelativeLayout popupView;
 
-    DisposableMap dm = new DisposableMap();
+    protected DisposableMap dm = new DisposableMap();
+
+    protected Runnable onDismiss;
 
     public PopupImageView(Context context) {
         super(context);
@@ -54,10 +57,15 @@ public class PopupImageView extends RelativeLayout {
         initViews();
     }
 
+    @LayoutRes
+    public int getLayout() {
+        return R.layout.view_popup_image;
+    }
+
     public void initViews() {
         LayoutInflater inflater = LayoutInflater.from(getContext());
 
-        inflater.inflate(R.layout.view_popup_image, this);
+        inflater.inflate(getLayout(), this);
         ButterKnife.bind(this);
 
         fab.setImageDrawable(ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().save, R.color.fab_icon_color));
@@ -100,4 +108,7 @@ public class PopupImageView extends RelativeLayout {
         dm.dispose();
     }
 
+    public void setOnDismiss(Runnable onDismiss) {
+        this.onDismiss = onDismiss;
+    }
 }

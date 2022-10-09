@@ -20,4 +20,9 @@ public abstract class AbstractCoreHandler implements CoreHandler {
         return ChatSDK.auth().currentUser();
     }
 
+    @Override
+    public void addBackgroundDisconnectExemption() {
+
+    }
+
 }

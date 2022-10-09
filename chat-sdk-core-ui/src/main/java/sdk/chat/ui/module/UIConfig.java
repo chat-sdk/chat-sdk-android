@@ -1,11 +1,14 @@
 package sdk.chat.ui.module;
 
+import android.text.format.DateFormat;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StyleRes;
 
 import sdk.chat.core.interfaces.InterfaceAdapter;
+import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.BaseInterfaceAdapter;
 import sdk.chat.ui.R;
 import sdk.chat.ui.chat.MediaSelector;
@@ -46,8 +49,12 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean requestPermissionsOnStartup = true;
     public boolean showNamesInGroupChatView = true;
     public boolean showAvatarInChatView = true;
-    public String messageTimeFormat = "HH:mm";
-    public String threadTimeFormat = "HH:mm dd/MM";
+
+    protected String messageTimeFormat12 = "K:mm";
+    protected String messageTimeFormat24 = "HH:mm";
+    protected String threadTimeFormat12 = "K:mm dd/MM";
+    protected String threadTimeFormat24 = "HH:mm dd/MM";
+
     public boolean goToMainActivityOnChatActivityBackPressed = true;
 
     public boolean showFileSizeDuringUpload = false;
@@ -56,6 +63,7 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     public boolean messageForwardingEnabled = true;
     public boolean messageReplyEnabled = true;
+
 
     public int keyboardOverlayHeight = 550;
 
@@ -75,6 +83,8 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean keyboardOverlayEnabled = true;
 
     public @ColorRes int threadViewHolderTypingTextColor = 0;
+
+    public int smallAvatarHeight = 0;
 
     public int maxImageSize = 600;
 
@@ -199,18 +209,31 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     /**
      * Date format used for Chat Activity
-     * default is yyyy-MM-dd HH:mm:ss
+     * for 12 hour preference
      * @param format
      * @return
      *
      * MM/dd/yyyy HH:mm
      *
      */
-    public UIConfig<T> setThreadTimeFormat(String format) {
-        this.threadTimeFormat = format;
+    public UIConfig<T> setThreadTimeFormat12(String format) {
+        this.threadTimeFormat12 = format;
         return this;
     }
 
+    /**
+     * Date format used for Chat Activity
+     * for 24 hour preference
+     * @param format
+     * @return
+     *
+     * MM/dd/yyyy HH:mm
+     *
+     */
+    public UIConfig<T> setThreadTimeFormat24(String format) {
+        this.threadTimeFormat24 = format;
+        return this;
+    }
     /**
      * Default profile image resource
      * @param res
@@ -321,11 +344,21 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     /**
      * Show local notifications or not
+     * @param format i.e. K:mm
+     * @return
+     */
+    public UIConfig<T> setMessageTimeFormat12(String format) {
+        this.messageTimeFormat12 = format;
+        return this;
+    }
+
+    /**
+     * Show local notifications or not
      * @param format i.e. HH:mm
      * @return
      */
-    public UIConfig<T> setMessageTimeFormat(String format) {
-        this.messageTimeFormat = format;
+    public UIConfig<T> setMessageTimeFormat24(String format) {
+        this.messageTimeFormat24 = format;
         return this;
     }
 
@@ -427,5 +460,33 @@ public class UIConfig<T> extends BaseConfig<T> {
         return this;
     }
 
+    public boolean messageDownloadEnabled = true;
+    public UIConfig<T> setMessageDownloadEnabled(boolean value) {
+        messageDownloadEnabled = value;
+        return this;
+    }
+
+    public String getMessageTimeFormat() {
+        if (DateFormat.is24HourFormat(ChatSDK.ctx())) {
+            return messageTimeFormat24;
+        } else {
+            return messageTimeFormat12;
+        }
+    }
+
+    public String getThreadTimeFormat() {
+        if (DateFormat.is24HourFormat(ChatSDK.ctx())) {
+            return threadTimeFormat24;
+        } else {
+            return threadTimeFormat12;
+        }
+    }
+
+    // Only sets the resolution of the image to load, the actual size is set by overriding
+    // <item name="incomingAvatarWidth"></item> in theme
+    public UIConfig<T> setSmallAvatarHeight(int value) {
+        smallAvatarHeight = value;
+        return this;
+    }
 
 }

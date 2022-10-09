@@ -35,4 +35,6 @@ public abstract class AbstractKeyboardOverlayFragment extends Fragment {
         super.onAttach(context);
     }
 
+    public abstract String key();
+
 }

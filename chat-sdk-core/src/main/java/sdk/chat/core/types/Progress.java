@@ -27,6 +27,9 @@ public class Progress {
     }
 
     public float asFraction() {
+        if (totalBytes == 0) {
+            return 0;
+        }
         return (float) transferredBytes / (float) totalBytes;
     }
 

@@ -40,7 +40,6 @@ public class UsersListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     protected final PublishRelay<UserListItem> onLongClickRelay = PublishRelay.create();
     protected final PublishRelay<List<UserListItem>> onToggleRelay = PublishRelay.create();
 
-
     public interface SubtitleProvider {
         String subtitle(UserListItem user);
     }

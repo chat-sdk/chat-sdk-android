@@ -12,7 +12,7 @@ import org.greenrobot.greendao.annotation.ToOne;
                 @Index(value = "userThreadLinkId,key", unique = true)
         }
 )
-public class UserThreadLinkMetaValue implements MetaValue<String> {
+public class UserThreadLinkMetaValue implements MetaValue<String>, Updatable {
 
     @Id private Long id;
 

@@ -12,7 +12,7 @@ import org.greenrobot.greendao.annotation.ToOne;
                 @Index(value = "messageId,key", unique = true)
         }
 )
-public class MessageMetaValue implements MetaValue<String> {
+public class MessageMetaValue implements MetaValue<String>, Updatable {
 
     @Id
     private Long id;

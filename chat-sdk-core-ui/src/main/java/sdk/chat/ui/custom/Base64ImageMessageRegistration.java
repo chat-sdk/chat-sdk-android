@@ -39,10 +39,8 @@ public class Base64ImageMessageRegistration extends DefaultMessageRegistration {
         holders.registerContentType(
                 (byte) MessageType.Base64Image,
                 IncomingBase64ImageMessageViewHolder.class,
-                getAvatarClickPayload(context),
                 R.layout.view_holder_incoming_image_message,
                 OutcomingBase64ImageMessageViewHolder.class,
-                getAvatarClickPayload(context),
                 R.layout.view_holder_outcoming_image_message,
                 ChatSDKUI.shared().getMessageRegistrationManager());
     }

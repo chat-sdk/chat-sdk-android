@@ -2,14 +2,12 @@ package sdk.chat.message.video;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.view.View;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
 import java.util.List;
 
-import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.manager.DownloadablePayload;
 import sdk.chat.core.manager.MessagePayload;
@@ -67,11 +65,13 @@ public class VideoMessageRegistration extends DefaultMessageRegistration {
 
 //                String videoURL = (String) message.valueForKey(Keys.MessageVideoURL);
                 String videoURL = message.getFilePath();
-                if(videoURL != null) {
-                    Intent intent = new Intent(activity, VideoMessageModule.config().getVideoPlayerActivity());
-                    intent.putExtra(Keys.IntentKeyFilePath, videoURL);
-                    activity.startActivity(intent);
-                }
+                ChatSDK.videoMessage().startPlayVideoActivity(activity, videoURL);
+
+//                if(videoURL != null) {
+//                    Intent intent = new Intent(activity, VideoMessageModule.config().getVideoPlayerActivity());
+//                    intent.putExtra(Keys.IntentKeyFilePath, videoURL);
+//                    activity.startActivity(intent);
+//                }
                 return true;
             }
         }

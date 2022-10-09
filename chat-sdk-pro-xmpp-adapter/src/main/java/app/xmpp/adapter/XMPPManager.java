@@ -6,6 +6,7 @@ import android.os.StrictMode;
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ReconnectionManager;
+import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.chat2.ChatManager;
@@ -32,6 +33,7 @@ import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.iqlast.LastActivityManager;
 import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jivesoftware.smackx.mam.MamManager;
+import org.jivesoftware.smackx.offline.OfflineMessageManager;
 import org.jivesoftware.smackx.ping.PingManager;
 import org.jivesoftware.smackx.ping.android.ServerPingWithAlarmManager;
 import org.jivesoftware.smackx.receipts.DeliveryReceipt;
@@ -54,15 +56,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import app.xmpp.adapter.enums.ConnectionStatus;
 import app.xmpp.adapter.listeners.XMPPChatStateListener;
 import app.xmpp.adapter.listeners.XMPPMessageListener;
-import app.xmpp.adapter.listeners.XMPPPingListener;
 import app.xmpp.adapter.listeners.XMPPReceiptReceivedListener;
 import app.xmpp.adapter.listeners.XMPPReconnectionListener;
 import app.xmpp.adapter.listeners.XMPPRosterListener;
+import app.xmpp.adapter.message.queue.OutgoingStanzaQueue;
 import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.adapter.utils.PresenceHelper;
 import app.xmpp.adapter.utils.PublicKeyExtras;
@@ -70,14 +74,14 @@ import app.xmpp.adapter.utils.ServerKeyStorage;
 import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import app.xmpp.adapter.utils.XMPPServer;
 import io.reactivex.Completable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.annotations.Nullable;
-import sdk.chat.core.events.NetworkEvent;
+import io.reactivex.disposables.Disposable;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.utils.AppBackgroundMonitor;
-import sdk.chat.core.utils.StringChecker;
+import sdk.chat.core.types.AccountDetails;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
 
@@ -85,7 +89,7 @@ import sdk.guru.common.RX;
  * Created by benjaminsmiley-andrews on 03/07/2017.
  */
 
-public class XMPPManager implements AppBackgroundMonitor.Listener {
+public class XMPPManager {
 
     public static String xmppDidSetupStream = "xmppDidSetupStream";
     public static String xmppRosterItemAdded = "xmppRosterItemAdded";
@@ -108,8 +112,8 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
     protected XMPPChatStateListener chatStateListener;
     public XMPPReceiptReceivedListener receiptReceivedListener;
     protected XMPPReconnectionListener reconnectionListener;
-    protected XMPPPingListener pingListener;
-//    protected OutgoingStanzaQueue outgoingStanzaQueue = new OutgoingStanzaQueue();
+    //    protected XMPPPingListener pingListener;
+    protected OutgoingStanzaQueue outgoingStanzaQueue = new OutgoingStanzaQueue();
 
     // Managers
     public XMPPUserManager userManager;
@@ -129,6 +133,10 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
     protected DisposableMap dm = new DisposableMap();
 
     protected XMPPServer server;
+    protected int replyTimeout = 15000;
+
+    protected Disposable reconnectDisposable;
+
 
 //    protected Jid jid;
 //    protected String password;
@@ -137,12 +145,15 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         return server.domain;
     }
 
+    protected int reconnectionFailureCount = 0;
+
     protected XMPPManager() {
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         rosterListener = new XMPPRosterListener(this);
+//        pingListener = new XMPPPingListener(this);
 
         messageListener = new XMPPMessageListener();
         chatStateListener = new XMPPChatStateListener();
@@ -154,6 +165,8 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         userManager = new XMPPUserManager(this);
         typingIndicatorManager = new XMPPTypingIndicatorManager();
         mamManager = new XMPPMamManager(this);
+
+        ChatSDK.backgroundMonitor().addListener(connectionManager);
 
         // We accept all roster invitations
         Roster.setDefaultSubscriptionMode(XMPPModule.shared().config.subscriptionMode);
@@ -167,24 +180,8 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         ProviderManager.addExtensionProvider(DeliveryReceipt.ELEMENT, DeliveryReceipt.NAMESPACE, new DeliveryReceipt.Provider());
         ProviderManager.addExtensionProvider(DeliveryReceiptRequest.ELEMENT, DeliveryReceipt.NAMESPACE, new DeliveryReceiptRequest.Provider());
 
-        PingManager.setDefaultPingInterval(XMPPModule.config().pingInterval);
-
-
         // Enable reconnection
         ReconnectionManager.setEnabledPerDefault(true);
-
-        // Be careful using this because there can be a race condition
-        // between this and the login method
-        dm.add(connectionManager.connectionStatus().subscribe(connectionStatus -> {
-            if (ChatSDK.currentUser() != null) {
-                if (connectionStatus == ConnectionStatus.Authenticated) {
-                    ChatSDK.currentUser().setIsOnline(true);
-                }
-                if (connectionStatus == ConnectionStatus.Disconnected) {
-                    ChatSDK.currentUser().setIsOnline(false);
-                }
-            }
-        }, throwable -> ChatSDK.events().onError(throwable)));
 
         getRosterListener().getPresenceEvents().flatMapSingle(presence -> {
             return userManager.updateUserFromVCard(presence.getFrom()).doOnSuccess(user -> PresenceHelper.updateUserFromPresence(user, presence));
@@ -270,6 +267,10 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         return EntityCapsManager.getInstanceFor(getConnection());
     }
 
+    public OfflineMessageManager offlineMessageManager() {
+        return OfflineMessageManager.getInstanceFor(getConnection());
+    }
+
     public ConnectionManager connectionManager() {
         return connectionManager;
     }
@@ -298,33 +299,163 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         return connection;
     }
 
-    @Override
-    public void didStart() {
-        if (getConnection() != null && !getConnection().isConnected()) {
-            try {
-                if (!getConnection().isConnected()) {
-                    getConnection().connect();
-                }
-                if (!getConnection().isAuthenticated()) {
+//    public void connectivity() {
+//        ConnectivityManager cm = (ConnectivityManager) ChatSDK.ctx().getSystemService(Context.CONNECTIVITY_SERVICE);
+//        if (cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isAvailable() && cm.getActiveNetworkInfo().isConnected()) {
+//
+//        } else {
+//
+//        }
+//    }
+
+    public void reconnect() {
+
+        if (reconnectDisposable != null) {
+            reconnectDisposable.dispose();
+        }
+
+        reconnectDisposable = Observable.interval(0, 100, TimeUnit.SECONDS).observeOn(RX.ioSingle()).subscribe(aLong -> {
+            if (reconnectDisposable != null) {
+                reconnectDisposable.dispose();
+            }
+
+            if (getConnection() != null) {
+
+                reconnectionManager().abortPossiblyRunningReconnection();
+
+                try {
+
+                    try {
+                        if (!getTCPConnection().isSmResumptionPossible()) {
+                            Logger.debug("SM not possible");
+                        }
+                        getConnection().connect();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                     getConnection().login();
                     joinExistingGroupChats();
+                    sendAvailablePresence();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+            }
+
+        });
+    }
+
+//    public void setupNewStreamAndConnect() {
+//        connection.disconnect();
+//        dm.add(login().doOnError(throwable -> {
+//            resetConnectionTimer();
+//        }).subscribe());
+//    }
+
+//    public void resetConnectionTimer() {
+//        if (reconnectDisposable == null) {
+//            reconnectDisposable = Observable.interval(5, TimeUnit.SECONDS).subscribe(aLong -> {
+//                reconnectDisposable.dispose();
+//                reconnectDisposable = null;
+//
+//                getConnection().instantShutdown();
+//                reconnect();
+//            });
+//        }
+//    }
+
+//    public void reconnect() {
+//        if (getConnection() != null) {
+//            RX.ioSingle().scheduleDirect(() -> {
+//                try {
+//                    if (!getTCPConnection().isSmResumptionPossible()) {
+//                        Logger.debug("SM not possible");
+//                        setupNewStreamAndConnect();
+//                        return;
+//                    }
+//                    if (!getConnection().isConnected()) {
+//                        getConnection().connect();
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                try {
+//                    if (!getConnection().isAuthenticated()) {
+//
+//                        getConnection().login();
+//                        sendAvailablePresence();
+//                        joinExistingGroupChats();
+//                        loadArchiveMessagesSinceLastOnline(true);
+//
+//                        try {
+//                            List<Message> messages = offlineMessageManager().getMessages();
+//                            Logger.debug("Incoming: Offline messages: " + messages.size());
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+////                        reconnectionFailureCount = 0;
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//
+//                    if (e.getMessage() != null && e.getMessage().contains("done=true smResumptionPossible=false")) {
+//                        Logger.debug("SM resumption not possible");
+//                    }
+//
+//                    resetConnectionTimer();
+//
+//                }
+//            });
+//        }
+//    }
+
+//    public void hardReconnect() {
+//        if (ChatSDK.auth().cachedCredentialsAvailable()) {
+//            getConnection().instantShutdown();
+//            AccountDetails details = ChatSDK.auth().cachedAccountDetails();
+//            login(details.username, details.password).subscribe();
+//        }
+//    }
+
+    public void disconnect() {
+        //        getConnection().instantShutdown();
+
+        if (getConnection() != null && getConnection().isConnected()) {
+            RX.ioSingle().scheduleDirect(() -> {
+                try {
+                    sendUnavailablePresence();
+                    getConnection().disconnect();
+//                    getConnection().disconnect(new Presence(Presence.Type.unavailable));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+    }
+
+    public void hardReconnect() {
+        RX.ioSingle().scheduleDirect(() -> {
+            try {
+                getConnection().instantShutdown();
+
+                reconnect();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
+        });
     }
 
-    @Override
-    public void didStop() {
-        if (getConnection() != null && getConnection().isConnected()) {
-            try {
-                getConnection().disconnect(new Presence(Presence.Type.unavailable));
-            } catch (Exception e) {
-
-            }
-        }
-    }
+//    public void restartConnection() {
+//        try {
+//            getConnection().instantShutdown();
+////            getConnection().disconnect(new Presence(Presence.Type.unavailable));
+//            reconnect();
+//        } catch (Exception e) {
+//
+//        }
+//    }
 
     public boolean isConnectedAndAuthenticated() {
         return isConnected() && connection.isAuthenticated();
@@ -334,15 +465,50 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         return openConnection(server, null, null);
     }
 
-    public Single<XMPPConnection> openConnection(final XMPPServer server, @Nullable final String jid, @Nullable final String password){
+    public Single<XMPPConnection> openConnection(final XMPPServer server, @Nullable final String username, @Nullable final String password){
         return Single.create((SingleOnSubscribe<XMPPConnection>) e -> {
 
             if(isConnected()) {
                 connection.disconnect();
             }
 
-            XMPPTCPConnectionConfiguration config = configureConnection(server, null, null);
+            // Added
+//            final Map<String, String> registeredSASLMechanisms = SASLAuthentication.getRegisterdSASLMechanisms();
+//            for(String mechanism:registeredSASLMechanisms.values())
+//            {
+////                SASLAuthentication.blacklistSASLMechanism(mechanism);
+//                SASLAuthentication.unBlacklistSASLMechanism(mechanism);
+//            }
+//            SASLAuthentication.unBlacklistSASLMechanism(SASLPlainMechanism.NAME);
+
+            Map<String, String> sasl = SASLAuthentication.getRegisterdSASLMechanisms();
+
+
+            String userPart = username;
+
+            // Check user alias to see if it contains a domain or resource
+            DomainBareJid domain = JidCreate.domainBareFrom(server.domain);
+            Resourcepart resource = Resourcepart.from(server.resource);
+
+            // Also check to see if this information is contained in the user jid
+            if (username != null) {
+                Jid jid = JidCreate.bareFrom(username);
+                if (jid.getDomain() != null) {
+                    domain = JidCreate.domainBareFrom(jid.getDomain());
+                }
+                if (jid.getResourceOrNull() != null) {
+                    resource = jid.getResourceOrNull();
+                }
+                if (jid.hasLocalpart()) {
+                    userPart = jid.getLocalpartOrNull().toString();
+                }
+            }
+
+            this.server = server;
+
+            XMPPTCPConnectionConfiguration config = configureConnection(domain, resource);
             connection = new XMPPTCPConnection(config);
+            connection.setReplyTimeout(replyTimeout);
 
             connection.addAsyncStanzaListener(packet -> {
                 ////
@@ -366,9 +532,8 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
 
             try {
                 connection.connect();
-
-                if (jid != null && password != null) {
-                    connection.login(jid, password);
+                if (userPart != null && password != null) {
+                    connection.login(userPart, password);
                     ChatSDK.auth().setCurrentUserEntityID(connection.getUser().asEntityBareJidString());
                 }
 
@@ -399,6 +564,8 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
     protected void removeListeners() {
         if (getConnection() != null) {
             getConnection().removeConnectionListener(connectionManager);
+            pingManager().unregisterPingFailedListener(connectionManager);
+
             chatManager().removeIncomingListener(messageListener);
             chatManager().removeOutgoingListener(messageListener);
             chatStateManager().removeChatStateListener(chatStateListener);
@@ -406,9 +573,11 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
             deliveryReceiptManager().removeReceiptReceivedListener(receiptReceivedListener);
             roster().removeRosterListener(rosterListener);
             carbonManager().removeCarbonCopyReceivedListener(messageListener);
-            pingManager().unregisterPingFailedListener(pingListener);
+
+//            getConnection().addAsyncStanzaListener(outgoingStanzaQueue, outgoingStanzaQueue);
+            getConnection().removeConnectionListener(outgoingStanzaQueue);
+
         }
-        ChatSDK.appBackgroundMonitor().removeListener(this);
     }
 
     protected void addListeners() {
@@ -448,8 +617,10 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         deliveryReceiptManager().addReceiptReceivedListener(receiptReceivedListener);
         roster().addRosterListener(rosterListener);
         carbonManager().addCarbonCopyReceivedListener(messageListener);
-        pingManager().registerPingFailedListener(pingListener);
-        ChatSDK.appBackgroundMonitor().addListener(this);
+//        pingManager().registerPingFailedListener(connectionManager);
+
+        getConnection().addConnectionListener(outgoingStanzaQueue);
+
     }
 
     public Date clientToServerTime(Date date) {
@@ -491,10 +662,32 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         userManager.loadContactsFromRoster().subscribe(ChatSDK.events());
 
         reconnectionManager().setReconnectionPolicy(ReconnectionManager.ReconnectionPolicy.FIXED_DELAY);
-        reconnectionManager().setFixedDelay(5);
+        reconnectionManager().setFixedDelay(3);
         reconnectionManager().enableAutomaticReconnection();
 
         serverPingWithAlarmManager().setEnabled(true);
+
+        // Be careful using this because there can be a race condition
+        // between this and the login method
+        dm.add(connectionManager.connectionStatus().subscribe(connectionStatus -> {
+            if (ChatSDK.currentUser() != null) {
+                if (connectionStatus == ConnectionStatus.Connected) {
+
+                }
+                if (connectionStatus == ConnectionStatus.Reconnecting) {
+
+                }
+                if (connectionStatus == ConnectionStatus.Error) {
+
+                }
+                if (connectionStatus == ConnectionStatus.Authenticated) {
+                    ChatSDK.currentUser().setIsOnline(true);
+                }
+                if (connectionStatus == ConnectionStatus.Disconnected) {
+                    ChatSDK.currentUser().setIsOnline(false);
+                }
+            }
+        }, throwable -> ChatSDK.events().onError(throwable)));
 
         if (ChatSDK.readReceipts() != null) {
             deliveryReceiptManager().setAutoReceiptMode(DeliveryReceiptManager.AutoReceiptMode.always);
@@ -535,7 +728,8 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
             put(HookEvent.User, ChatSDK.currentUser());
         }}).subscribe(ChatSDK.events());
 
-        loadArchiveMessagesSinceLastOnline();
+        // TODO:
+        loadArchiveMessagesSinceLastOnline(XMPPModule.config().notifyForNewMamMessages);
 
 //        entityCapsManager().
     }
@@ -555,35 +749,45 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         }
     }
 
-    public void loadArchiveMessagesSinceLastOnline() {
+    public void loadArchiveMessagesSinceLastOnline(boolean notify) {
         // Load since the last time we were online
         Date date = null;
         if (ChatSDK.currentUserID() != null) {
             date = connectionManager.getLastOnline(ChatSDK.currentUserID());
         }
-        loadArchiveMessages(date);
+        loadArchiveMessages(date, notify);
     }
 
-    public void loadArchiveMessages(Date date) {
-        dm.add(mamManager.getMessageArchive(ChatSDK.currentUserID(), date, XMPPModule.config().messageHistoryDownloadLimit).subscribe((messages, throwable) -> {
-            if (throwable == null) {
-                List<XMPPMessageWrapper> wrappers = new ArrayList<>();
-                for(Message message: messages) {
-                    // Check if message already exists
-                    if (message.getBody() == null || message.getBody().isEmpty()) {
-                        Logger.debug("Message body empty");
+    public void loadArchiveMessages(Date date, boolean notify) {
+        dm.add(mamManager.getMessageArchive(ChatSDK.currentUserID(), date, XMPPModule.config().messageHistoryDownloadLimit)
+                .observeOn(RX.computation())
+                .subscribe((messages, throwable) -> {
+                    if (throwable == null) {
+                        List<XMPPMessageWrapper> wrappers = new ArrayList<>();
+                        for(Message message: messages) {
+                            // Check if message already exists
+                            if (message.getBody() == null || message.getBody().isEmpty()) {
+                                Logger.debug("Message body empty");
+                            }
+                            XMPPMessageWrapper xmr = new XMPPMessageWrapper(message);
+                            xmr.debug();
+
+                            // If the message has been deleted, don't add it
+                            wrappers.add(xmr);
+                        }
+
+                        // If the messages are not empty
+                        if (wrappers.size() > 0) {
+                            XMPPMessageWrapper xmr = wrappers.get(wrappers.size() - 1);
+                            connectionManager.updateLastOnline(ChatSDK.currentUserID(), xmr.date(), 1);
+                        }
+
+                        messageListener.parse(wrappers, notify);
                     }
-                    XMPPMessageWrapper xmr = new XMPPMessageWrapper(message);
-                    xmr.debug();
-
-                    wrappers.add(xmr);
-                }
-                messageListener.parse(wrappers);
-            }
-        }));
+                }));
     }
 
-    private XMPPTCPConnectionConfiguration configureConnection(XMPPServer server, String userAlias, String password) throws Exception {
+    private XMPPTCPConnectionConfiguration configureConnection(DomainBareJid domain, Resourcepart resource) throws Exception {
 
         boolean compressionEnabled = XMPPModule.shared().config.compressionEnabled;
         String securityModeString = XMPPModule.shared().config.securityMode;
@@ -592,30 +796,30 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
 
         InetAddress hostAddress = InetAddress.getByName(server.address);
 
-        Resourcepart resource = Resourcepart.from(server.resource);
-        DomainBareJid domain = JidCreate.domainBareFrom(server.domain);
-
-        this.server = server;
-
         XMPPTCPConnectionConfiguration.Builder builder = XMPPTCPConnectionConfiguration.builder()
-                .setUsernameAndPassword(userAlias, password)
                 .setXmppDomain(domain)
                 .setSecurityMode(securityMode)
                 .setHostAddress(hostAddress)
                 .setPort(server.port)
                 .setResource(resource)
                 .setSendPresence(true)
+                .allowEmptyOrNullUsernames()
                 .setCompressionEnabled(compressionEnabled);
 
         if (XMPPModule.config().connectionConfigProvider != null) {
             XMPPModule.config().connectionConfigProvider.config(builder);
         }
 
-        if(StringChecker.isNullOrEmpty(userAlias) && StringChecker.isNullOrEmpty(password)) {
-            builder.allowEmptyOrNullUsernames();
-        }
+//        if(StringChecker.isNullOrEmpty(userAlias) && StringChecker.isNullOrEmpty(password)) {
+//            builder.allowEmptyOrNullUsernames();
+//        }
 
         return builder.build();
+    }
+
+    public Completable login() {
+        AccountDetails details = ChatSDK.auth().cachedAccountDetails();
+        return login(details.username, details.password);
     }
 
     public Completable login(final String userJID, final String password){
@@ -643,7 +847,7 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         return XMPPModule.config().debugEnabled;
     }
 
-    public Completable register(final String username, final String password){
+    public Completable register(final String username, final String password) {
         return Completable.defer(() -> {
             XMPPServer server = getCurrentServer(ChatSDK.ctx());
             if (server == null) {
@@ -721,15 +925,20 @@ public class XMPPManager implements AppBackgroundMonitor.Listener {
         sendStanza(presence);
     }
 
-    public void sendStanza(Stanza stanza) {
+    public Exception sendStanza(Stanza stanza) {
         try {
-            if (!getConnection().isConnected()) {
-                ChatSDK.events().source().accept(NetworkEvent.messageSendFailed(stanza.getStanzaId(), new Exception("Stream not connected")));
+            if (getConnection().isConnected() && getConnection().isAuthenticated()) {
+                connectionManager.notifyMessageSent();
+                getConnection().sendStanza(stanza);
+            } else {
+                XMPPManager.shared().outgoingStanzaQueue.add(stanza);
             }
-            getConnection().sendStanza(stanza);
+            return null;
         } catch (Exception e) {
-            ChatSDK.events().source().accept(NetworkEvent.messageSendFailed(stanza.getStanzaId(), e));
+            XMPPManager.shared().outgoingStanzaQueue.add(stanza);
+//            ChatSDK.events().source().accept(NetworkEvent.messageSendFailed(stanza.getStanzaId(), e));
             e.printStackTrace();
+            return null;
         }
     }
 

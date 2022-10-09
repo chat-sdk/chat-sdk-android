@@ -1,7 +1,9 @@
 package sdk.chat.ui.chat.options;
 
 import android.app.Activity;
+import android.content.Intent;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
 
@@ -40,15 +42,15 @@ public class BaseChatOption implements ChatOption {
     }
 
     @Override
-    public Completable execute(Activity activity, Thread thread) {
+    public Completable execute(Activity activity, ActivityResultLauncher<Intent> launcher, Thread thread) {
         if(action != null) {
-            return action.execute(activity, thread);
+            return action.execute(activity, launcher, thread);
         }
         return Completable.complete();
     }
 
     public interface Action {
-        Completable execute(Activity activity, Thread thread);
+        Completable execute(Activity activity, ActivityResultLauncher<Intent> launcher, Thread thread);
     }
 
     protected void dispose () {

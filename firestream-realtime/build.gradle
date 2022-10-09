@@ -33,6 +33,7 @@ android {
         checkReleaseBuilds false
         lintConfig file('lint.xml')
     }
+    namespace 'firestream.chat.realtime'
 
 }
 

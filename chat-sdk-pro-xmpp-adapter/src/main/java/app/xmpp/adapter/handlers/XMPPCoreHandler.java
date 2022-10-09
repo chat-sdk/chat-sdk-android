@@ -83,4 +83,10 @@ public class XMPPCoreHandler extends AbstractCoreHandler {
 
         return user;
     }
+
+    @Override
+    public void addBackgroundDisconnectExemption() {
+        XMPPManager.shared().connectionManager().addDisconnectionExemption();
+    }
+
 }

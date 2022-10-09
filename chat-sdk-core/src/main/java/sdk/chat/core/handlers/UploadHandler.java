@@ -2,6 +2,8 @@ package sdk.chat.core.handlers;
 
 import android.graphics.Bitmap;
 
+import java.io.File;
+
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import sdk.chat.core.storage.TransferStatus;

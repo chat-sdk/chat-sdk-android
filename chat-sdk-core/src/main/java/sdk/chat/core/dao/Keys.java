@@ -84,6 +84,10 @@ public class Keys {
     public static final String IntentKeyImagePath = "image-path";
     public static final String IntentKeyRestartActivity = "restart-activity";
 
+//    public static final String IntentKeyPreviewActivityType = "preview-activity-type";
+//    public static final String IntentKeyPreviewActivityTypeVideo = "preview-activity-type-video";
+//    public static final String IntentKeyPreviewActivityTypeImage = "preview-activity-type-image";
+
     // For push notifications
     public static final String PushKeyUserEntityID = "chat_sdk_user_entity_id";
     public static final String PushKeyThreadEntityID = "chat_sdk_thread_entity_id";

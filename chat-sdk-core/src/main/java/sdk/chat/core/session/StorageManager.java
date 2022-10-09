@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -28,6 +29,7 @@ import sdk.chat.core.dao.ReadReceiptUserLink;
 import sdk.chat.core.dao.ReadReceiptUserLinkDao;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.ThreadDao;
+import sdk.chat.core.dao.Updatable;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.dao.UserDao;
 import sdk.chat.core.dao.UserThreadLink;
@@ -109,7 +111,7 @@ public class StorageManager {
         return fetchOrCreateEntityWithEntityID(Message.class, entityId);
     }
 
-    public synchronized <T extends CoreEntity> T fetchOrCreateEntityWithEntityID(Class<T> c, String entityId){
+    public synchronized <T extends CoreEntity> T fetchOrCreateEntityWithEntityID(Class<T> c, String entityId) {
 
         T entity = fetchEntityWithEntityID(entityId, c);
 
@@ -121,6 +123,31 @@ public class StorageManager {
         }
 
         return entity;
+    }
+
+    public synchronized CachedFile fetchCachedFileWithHash(String hash, String messageId) {
+        QueryBuilder<CachedFile> qb = daoCore.getDaoSession().queryBuilder(CachedFile.class);
+        qb.where(CachedFileDao.Properties.Hash.eq(hash));
+        qb.where(CachedFileDao.Properties.Identifier.eq(messageId));
+
+        try {
+            return qb.unique();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public synchronized CachedFile fetchOrCreateCachedFileWithHash(String hash, String messageId) {
+        CachedFile cachedFile = fetchCachedFileWithHash(hash, messageId);
+        if (cachedFile == null) {
+            cachedFile = new CachedFile();
+            cachedFile.setEntityID(UUID.randomUUID().toString());
+            cachedFile.setHash(hash);
+            cachedFile.setIdentifier(messageId);
+            daoCore.createEntity(cachedFile);
+        }
+        return cachedFile;
+
     }
 
     public <T extends CoreEntity> Single<T> fetchOrCreateEntityWithEntityIDAsync(Class<T> c, String entityId) {
@@ -175,6 +202,9 @@ public class StorageManager {
     }
 
     public synchronized <T extends CoreEntity> T fetchEntityWithEntityID(String entityID, Class<T> c) {
+        if (entityID == null) {
+            return null;
+        }
 
         T entity = null;
 
@@ -204,7 +234,18 @@ public class StorageManager {
             qb.where(CachedFileDao.Properties.EntityID.eq(entityID));
         }
 
-        entity = qb.unique();
+        try {
+//            List<T> entities = qb.list();
+//            if (entities.isEmpty()) {
+//                return null;
+//            } else {
+//                entity = entities.get(0);
+//            }
+            entity = qb.unique();
+        } catch (Exception e) {
+            Logger.warn("Message doesn't exist");
+            return null;
+        }
 
         if (entity != null && entityCacheEnabled) {
             entityCache.put(c + entityID, entity);
@@ -461,12 +502,40 @@ public class StorageManager {
 
     public void closeDatabase() {
         daoCore.closeDB();
+        entityCache.clear();
     }
 
     public boolean isDatabaseOpen() {
         return daoCore != null && daoCore.getDaoSession() != null;
     }
 
+    public void update(Updatable updatable) {
+        update(updatable, null);
+    }
+
+    public void update(Updatable updatable, Runnable then) {
+        update(updatable, then, true);
+    }
+
+    public void update(Updatable updatable, boolean async) {
+        update(updatable, null, true);
+    }
+
+    public void update(Updatable updatable, Runnable then, boolean async) {
+        if (entityCacheEnabled && async) {
+            RX.single().scheduleDirect(() -> {
+                updatable.update();
+                if (then != null) {
+                    then.run();
+                }
+            });
+        } else {
+            updatable.update();
+            if (then != null) {
+                then.run();
+            }
+        }
+    }
 }
 
 

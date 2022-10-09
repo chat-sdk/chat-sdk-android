@@ -7,6 +7,8 @@ import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
 
+import sdk.chat.core.image.ImageUtils;
+
 public class Base64ImageUtils {
 
     /**
@@ -17,10 +19,9 @@ public class Base64ImageUtils {
     public static String toBase64(Bitmap bitmap, int width, int jpegQuality) {
 
         int height = Math.round((float) bitmap.getHeight() * (float) width / (float) bitmap.getWidth());
-        Bitmap scaled = ThumbnailUtils.extractThumbnail(bitmap, width, height);
+        Bitmap scaled = ThumbnailUtils.extractThumbnail(bitmap, width, height, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+        scaled = scaled.copy(Bitmap.Config.RGB_565, false);
 
-//        Bitmap scaled = Bitmap.createScaledBitmap(bitmap, width, height, false);
-//
         // Convert to JPEG
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         scaled.compress(Bitmap.CompressFormat.JPEG, jpegQuality, out);

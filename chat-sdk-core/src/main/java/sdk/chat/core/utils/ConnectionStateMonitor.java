@@ -4,18 +4,21 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import com.bumptech.glide.manager.ConnectivityMonitor;
+
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class ConnectionStateMonitor extends ConnectivityManager.NetworkCallback {
 
     final NetworkRequest networkRequest;
+    protected ConnectivityManager connectivityManager;
 
     public ConnectionStateMonitor() {
 
@@ -26,7 +29,7 @@ public class ConnectionStateMonitor extends ConnectivityManager.NetworkCallback 
     }
 
     public void enable(Context context) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         connectivityManager.registerNetworkCallback(networkRequest, this);
     }
 
@@ -44,6 +47,16 @@ public class ConnectionStateMonitor extends ConnectivityManager.NetworkCallback 
         if (ChatSDK.events() != null) {
             ChatSDK.events().source().accept(NetworkEvent.networkStateChanged(false));
         }
+    }
+
+    public boolean isOnline() {
+        if (connectivityManager != null) {
+            NetworkInfo info = connectivityManager.getActiveNetworkInfo();
+            if (info != null) {
+                return info.isConnected();
+            }
+        }
+        return false;
     }
 
 }

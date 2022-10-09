@@ -42,7 +42,7 @@ public class BaseAudioMessageHandler extends AbstractMessageHandler implements A
                 message.setValueForKey(duration, Keys.MessageAudioLength);
                 message.setValueForKey(file.length(), Keys.MessageSize);
                 message.setFilePath(file.getPath());
-                message.update();
+                ChatSDK.db().update(message);
 
             }).setUploadable(new FileUploadable(file1, "recording", mimeType, Keys.MessageAudioURL), null).run();
         }).doOnError(throwable -> {

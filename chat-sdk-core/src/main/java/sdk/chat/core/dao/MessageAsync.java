@@ -32,9 +32,9 @@ public class MessageAsync {
         }).ignoreElement().subscribe(ChatSDK.events());
     }
 
-    public static void markDelivered(Message message) {
+    public static void markDelivered(Message message, final boolean notify) {
         RX.onBackground(() -> {
-            message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.delivered(), new Date());
+            message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.delivered(), new Date(), notify);
         });
     }
 

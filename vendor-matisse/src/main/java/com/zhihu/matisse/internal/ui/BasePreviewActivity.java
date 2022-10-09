@@ -45,6 +45,10 @@ import com.zhihu.matisse.internal.utils.PhotoMetadataUtils;
 import com.zhihu.matisse.internal.utils.Platform;
 import com.zhihu.matisse.listener.OnFragmentInteractionListener;
 
+import feather.Feather;
+import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.ui.ThemeProvider;
+
 public abstract class BasePreviewActivity extends AppCompatActivity implements View.OnClickListener,
         ViewPager.OnPageChangeListener, OnFragmentInteractionListener {
 
@@ -112,6 +116,11 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
         mButtonBack.setOnClickListener(this);
         mButtonApply.setOnClickListener(this);
         mSendButton.setOnClickListener(this);
+
+        ThemeProvider provider = ChatSDK.feather().instance(ThemeProvider.class);
+        if (provider != null) {
+            provider.applyTheme(mSendButton, "matisse-send-button");
+        }
 
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.addOnPageChangeListener(this);

@@ -12,4 +12,21 @@
         <attr name="android:textColorHint" />
         <attr name="android:inputType" />
     </declare-styleable>
+
+    <declare-styleable name="ShaderImageView">
+        <attr name="siSquare" format="boolean" />
+        <attr name="siBorderColor" format="color" />
+        <attr name="siBorderWidth" format="dimension" />
+        <attr name="siBorderAlpha" format="float" />
+        <attr name="siForeground" format="integer|reference" />
+        <!-- Rounded Image View -->
+        <attr name="siRadius" format="dimension" />
+        <!--BubbleImageView-->
+        <attr name="siTriangleHeight" format="dimension"/>
+        <!--PorterImageView-->
+        <attr name="siShape" format="integer|reference" />
+        <!--ShaderImageView-->
+        <attr name="siStrokeMiter" format="dimension" />
+    </declare-styleable>
+
 </resources>

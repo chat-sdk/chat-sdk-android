@@ -11,8 +11,8 @@ public class V2ImageMessageRegistration  extends ImageMessageRegistration {
 
     @Override
     public void onBindMessageHolders(Context context, MessageHolders holders) {
-        holders.setIncomingImageConfig(V2.IncomingImageMessageViewHolder.class, sdk.chat.ui.R.layout.view_holder_incoming_image_message, getAvatarClickPayload(context))
-                .setOutcomingImageConfig(V2.OutcomingImageMessageViewHolder.class, sdk.chat.ui.R.layout.view_holder_outcoming_image_message, getAvatarClickPayload(context));
+        holders.setIncomingImageConfig(V2.IncomingImageMessageViewHolder.class, sdk.chat.ui.R.layout.view_holder_incoming_image_message)
+                .setOutcomingImageConfig(V2.OutcomingImageMessageViewHolder.class, sdk.chat.ui.R.layout.view_holder_outcoming_image_message);
     }
 
 }

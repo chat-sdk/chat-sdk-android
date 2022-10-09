@@ -47,9 +47,12 @@ public class XMPPMamManager implements AppBackgroundMonitor.StopListener {
                     List<Message> messages = new ArrayList<>();
                     if(manager.get().mamManager().isSupported()) {
 
+                        Date serverDate = manager.get().clientToServerTime(since);
+
                         MamManager.MamQueryArgs args = MamManager.MamQueryArgs.builder()
-                                .limitResultsSince(since)
+                                .limitResultsSince(serverDate)
                                 .setResultPageSizeTo(max)
+                                .queryLastPage()
                                 .build();
 
                         MamManager.MamQuery query = manager.get().mamManager().queryArchive(args);

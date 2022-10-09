@@ -312,39 +312,90 @@ public class Thread extends AbstractEntity {
         addMessage(message, true);
     }
     public void addMessage(Message message, boolean notify) {
-        addMessage(message, notify, true);
+        addMessage(message, notify, true, true);
     }
-    public void addMessage(Message message, boolean notify, boolean update) {
-
-        message.setThreadId(this.getId());
-        List<Message> messages = getMessages();
-
-        if (!messages.contains(message)) {
-            if (!messages.isEmpty()) {
-                Message previousMessage = messages.get(messages.size() - 1);
-                previousMessage.setNextMessage(message);
-                previousMessage.update();
-                message.setPreviousMessage(previousMessage);
-                if (notify) {
-                    ChatSDK.events().source().accept(NetworkEvent.messageUpdated(previousMessage));
+    public void addMessage(final Message message, final boolean notify, final boolean update, boolean async) {
+        if (async) {
+            RX.single().scheduleDirect(new Runnable() {
+                @Override
+                public void run() {
+                    doAddMessage(message, notify, update);
                 }
-            }
-            getMessages().add(message);
-            message.update();
+            });
+        } else {
+            doAddMessage(message, notify, update);
+        }
 
-            if (lastMessage == null || lastMessage.getDate().getTime() < message.getDate().getTime()) {
-                setLastMessage(message);
-                setLastMessageDate(message.getDate());
-            }
+//                if (!messages.contains(message)) {
+//                    if (!messages.isEmpty()) {
+//                        Message previousMessage = messages.get(messages.size() - 1);
+//                        previousMessage.setNextMessageId(message.getId());
+//                        ChatSDK.db().update(previousMessage, false);
+//
+//                        Logger.debug("Add Message to Thread: " + messages.size() + " " + previousMessage.getText() + " -> " + message.getText());
+//
+//                        message.setPreviousMessageId(previousMessage.getId());
+//
+//                        if (notify) {
+//                            ChatSDK.events().source().accept(NetworkEvent.messageUpdated(previousMessage));
+//                        }
+//                    }
+//
+//                    ChatSDK.db().update(message, false);
+//
+//                    if (lastMessage == null || lastMessage.getDate().getTime() < message.getDate().getTime()) {
+//                        setLastMessageId(message.getId());
+//                        setLastMessageDate(message.getDate());
+//                    }
+//
+//                    if (update) {
+//                        ChatSDK.db().update(Thread.this, false);
+//                    }
+//                    if (notify) {
+//                        ChatSDK.events().source().accept(NetworkEvent.messageAdded(message));
+//                    }
+//                }
+    }
 
-            if (update) {
-                update();
-            }
+    public void doAddMessage(final Message message, final boolean notify, final boolean update) {
+
+        message.setThreadId(getId());
+
+        if (lastMessageId != null) {
+            message.setPreviousMessageId(lastMessageId);
+        }
+        ChatSDK.db().update(message, false);
+
+        Message previousMessage = getLastMessage();
+        if (previousMessage != null) {
+
+            previousMessage.setNextMessageId(message.getId());
+            ChatSDK.db().update(previousMessage, false);
+
             if (notify) {
-                ChatSDK.events().source().accept(NetworkEvent.messageAdded(message));
+                ChatSDK.events().source().accept(NetworkEvent.messageUpdated(previousMessage));
             }
         }
+
+        if (lastMessage == null || lastMessage.getDate().getTime() < message.getDate().getTime()) {
+            setLastMessageId(message.getId());
+            setLastMessageDate(message.getDate());
+        }
+
+        resetMessages();
+
+//        List<Message> messages = getMessages();
+//        List<Message> all = getMessagesWithOrder(DaoCore.ORDER_ASC);
+
+        if (update) {
+            ChatSDK.db().update(Thread.this, false);
+        }
+        if (notify) {
+            ChatSDK.events().source().accept(NetworkEvent.messageAdded(message));
+        }
+
     }
+
 
     public void setMetaValue(String key, Object value) {
         setMetaValue(key, value, true);
@@ -381,7 +432,7 @@ public class Thread extends AbstractEntity {
             return false;
         }
         metaValue.setValue(value);
-        metaValue.update();
+        ChatSDK.db().update(metaValue);
         if (notify) {
             ChatSDK.events().source().accept(NetworkEvent.threadMetaUpdated(this));
         }
@@ -433,7 +484,7 @@ public class Thread extends AbstractEntity {
             metaValues.remove(metaValue);
             metaValue.delete();
             resetMetaValues();
-            update();
+            ChatSDK.db().update(this);
         }
 
     }
@@ -472,14 +523,14 @@ public class Thread extends AbstractEntity {
             }
             if (previousMessage != null) {
                 previousMessage.setNextMessage(nextMessage);
-                previousMessage.update();
+                ChatSDK.db().update(previousMessage);
                 if (notify) {
                     ChatSDK.events().source().accept(NetworkEvent.messageUpdated(previousMessage));
                 }
             }
             if (nextMessage != null) {
                 nextMessage.setPreviousMessage(previousMessage);
-                nextMessage.update();
+                ChatSDK.db().update(nextMessage);
                 if (notify) {
                     ChatSDK.events().source().accept(NetworkEvent.messageUpdated(nextMessage));
                 }
@@ -490,7 +541,7 @@ public class Thread extends AbstractEntity {
 
         message.cascadeDelete();
 
-        update();
+        ChatSDK.db().update(this);
         resetMessages();
 
         // Update the last message
@@ -595,7 +646,7 @@ public class Thread extends AbstractEntity {
     public void setDeleted(boolean deleted, boolean notify) {
         if (this.deleted == null || this.deleted != deleted) {
             this.deleted = deleted;
-            update();
+            ChatSDK.db().update(this);
             if (notify) {
                 if (deleted) {
                     ChatSDK.events().source().accept(NetworkEvent.threadRemoved(this));
@@ -677,7 +728,7 @@ public class Thread extends AbstractEntity {
             if (!messages.isEmpty()) {
                 sortMessages(true);
                 setLastMessage(messages.get(messages.size() - 1));
-                update();
+                ChatSDK.db().update(this);
             }
 
             //
@@ -967,7 +1018,7 @@ public class Thread extends AbstractEntity {
 
     public void setCanDeleteMessagesFrom(Date canDeleteMessagesFrom) {
         this.canDeleteMessagesFrom = canDeleteMessagesFrom;
-        update();
+        ChatSDK.db().update(this);
     }
 
     @Keep
@@ -1014,7 +1065,7 @@ public class Thread extends AbstractEntity {
         }
         setDeleted(true);
         setLoadMessagesFrom(new Date());
-        update();
+        ChatSDK.db().update(this);
     }
 
     public Long getLastMessageId() {

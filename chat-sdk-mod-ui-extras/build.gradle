@@ -37,6 +37,7 @@ android {
         checkReleaseBuilds false
         lintConfig file('lint.xml')
     }
+    namespace 'sdk.chat.ui.extras'
 
 }
 

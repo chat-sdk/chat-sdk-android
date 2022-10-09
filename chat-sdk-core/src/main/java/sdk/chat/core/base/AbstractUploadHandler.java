@@ -2,6 +2,8 @@ package sdk.chat.core.base;
 
 import android.graphics.Bitmap;
 
+import java.io.File;
+
 import io.reactivex.Observable;
 import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.handlers.UploadHandler;
@@ -26,5 +28,7 @@ public abstract class AbstractUploadHandler implements UploadHandler {
     public Observable<FileUploadResult> uploadFile(final byte[] data, final String name, final String mimeType) {
         return uploadFile(data, name, mimeType, null);
     }
+
+
 
 }

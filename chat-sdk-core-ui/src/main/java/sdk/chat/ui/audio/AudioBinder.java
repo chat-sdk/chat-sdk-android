@@ -117,7 +117,7 @@ public class AudioBinder {
                         String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
                         int millSecond = Integer.parseInt(durationStr);
 
-                        delegate.sendAudio(audioFile, "audio/wav", TimeUnit.MILLISECONDS.toSeconds(millSecond));
+                        delegate.sendAudio(audioFile, "audio/mp4", TimeUnit.MILLISECONDS.toSeconds(millSecond));
                         dm.dispose();
                     }
                 }

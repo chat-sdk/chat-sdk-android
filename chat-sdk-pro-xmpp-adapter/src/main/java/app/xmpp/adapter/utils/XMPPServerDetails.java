@@ -8,11 +8,11 @@ import sdk.chat.core.utils.StringChecker;
 
 public class XMPPServerDetails {
 
-    String user;
+    protected String user;
 
-    String address = null;
-    int port = 0;
-    String resource = null;
+    protected String address = null;
+    protected int port = 0;
+    protected String resource = null;
 
     // We expect the user in the form:
     // user@domain:port/resource
@@ -81,5 +81,6 @@ public class XMPPServerDetails {
         }
         return server;
     }
+
 
 }

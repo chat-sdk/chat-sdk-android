@@ -31,6 +31,10 @@ import kotlin.math.roundToInt
 
 open class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment(), TouchAwareConstraintLayout.TouchListener {
 
+    companion object {
+        const val key = "record"
+    }
+
     enum class RecordButtonMode {
         normal,
         selected,
@@ -148,8 +152,8 @@ open class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment
         val theAudioFile = audioFile
 
         if (duration > AudioMessageModule.config().minimumAudioRecordingLength) {
-            keyboardOverlayHandler.get()?.send(Sendable { activity, thread ->
-                ChatSDK.audioMessage().sendMessage(activity, theAudioFile, "audio/wav", duration, thread)
+            keyboardOverlayHandler.get()?.send(Sendable { activity, _, thread ->
+                ChatSDK.audioMessage().sendMessage(activity, theAudioFile, "audio/mp4", duration, thread)
             })
         }
 
@@ -356,5 +360,8 @@ open class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment
         }
     }
 
+    override fun key(): String {
+        return key
+    }
 
 }

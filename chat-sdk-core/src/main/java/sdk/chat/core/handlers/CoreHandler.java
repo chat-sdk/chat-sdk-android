@@ -68,4 +68,11 @@ import io.reactivex.Single;
     */
     User getUserNowForEntityID(String entityID);
 
+   /**
+    * In some cases, we want to disconnect the client when it enters the background.
+    * But for example, if we are sending an image message, the app will enter the
+    * background so we want to be able to add an exemption
+    */
+   void addBackgroundDisconnectExemption();
+
 }

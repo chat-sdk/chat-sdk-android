@@ -71,7 +71,7 @@ public class AlertUtils implements Consumer<Throwable> {
     }
 
     public void showToast(String text){
-        if (!text.isEmpty()) {
+        if (text != null && !text.isEmpty()) {
             ToastHelper.show(provider.getContext(), text);
         }
     }

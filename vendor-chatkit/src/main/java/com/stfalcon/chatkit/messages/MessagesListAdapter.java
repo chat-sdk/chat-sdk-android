@@ -49,11 +49,18 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
         extends RecyclerView.Adapter<ViewHolder>
         implements RecyclerScrollMoreListener.OnLoadMoreListener {
 
+    public static interface UserClickListener {
+        void onClick(String userID);
+    }
+
     public static boolean isSelectionModeEnabled;
 
     public List<MessageWrapper<?>> items;
     private MessageHolders holders;
     private String senderId;
+
+
+    protected UserClickListener userClickListener = null;
 
     private int selectedItemsCount;
     private SelectionListener selectionListener;
@@ -111,7 +118,8 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
                 getMessageClickListener(messageWrapper),
                 getMessageLongClickListener(messageWrapper),
                 dateHeadersFormatter,
-                viewClickListenersArray);
+                viewClickListenersArray,
+                userClickListener);
     }
 
     @Override
@@ -126,6 +134,10 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
     @Override
     public int getItemViewType(int position) {
         return holders.getViewType(getItems().get(position).item, senderId);
+    }
+
+    public void setUserClickListener(UserClickListener userClickListener) {
+        this.userClickListener = userClickListener;
     }
 
     @Override

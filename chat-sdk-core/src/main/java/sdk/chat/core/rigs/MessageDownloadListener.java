@@ -30,7 +30,7 @@ public class MessageDownloadListener implements DownloadProgressListener, com.an
     @Override
     public void onDownloadComplete() {
         message.setFilePath(cachedFile.getLocalPath());
-        message.update();
+        ChatSDK.db().update(message);
 
         cachedFile.setFinishTime(new Date());
 
@@ -60,7 +60,7 @@ public class MessageDownloadListener implements DownloadProgressListener, com.an
         if (status != value) {
             status = value;
             cachedFile.setTransferStatus(status);
-            cachedFile.update();
+            ChatSDK.db().update(cachedFile);
             ChatSDK.events().source().accept(NetworkEvent.messageSendStatusChanged(message));
         }
     }

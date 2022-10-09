@@ -79,6 +79,10 @@ public class ChatSDKUI {
         this.provider = provider;
     }
 
+    public UIProvider getProvider() {
+        return provider;
+    }
+
     public static void setChatFragmentProvider(ChatFragmentProvider provider) {
         shared().chatFragmentProvider = provider;
     }

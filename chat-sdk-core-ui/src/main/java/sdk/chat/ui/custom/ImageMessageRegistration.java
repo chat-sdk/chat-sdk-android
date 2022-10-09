@@ -19,8 +19,7 @@ import sdk.chat.ui.chat.ImageMessageOnClickHandler;
 import sdk.chat.ui.chat.LocationMessageOnClickHandler;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.view_holders.IncomingImageMessageViewHolder;
-import sdk.chat.ui.view_holders.OutcomingImageMessageViewHolder;
+import sdk.chat.ui.view_holders.v2.outer.V2;
 
 public class ImageMessageRegistration extends DefaultMessageRegistration {
 
@@ -38,11 +37,9 @@ public class ImageMessageRegistration extends DefaultMessageRegistration {
     public void onBindMessageHolders(Context context, MessageHolders holders) {
         holders.registerContentType(
                 (byte) MessageType.Image,
-                IncomingImageMessageViewHolder.class,
-                getAvatarClickPayload(context),
+                V2.IncomingImageMessageViewHolder.class,
                 R.layout.view_holder_incoming_image_message,
-                OutcomingImageMessageViewHolder.class,
-                getAvatarClickPayload(context),
+                V2.OutcomingImageMessageViewHolder.class,
                 R.layout.view_holder_outcoming_image_message,
                 ChatSDKUI.shared().getMessageRegistrationManager());
     }

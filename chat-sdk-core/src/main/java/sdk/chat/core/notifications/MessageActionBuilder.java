@@ -73,7 +73,7 @@ public class MessageActionBuilder {
         return replyAction;
     }
 
-    public NotificationCompat.Action createMarkAsReadAction (Context context, String threadEntityID, int markAsReadId) {
+    public NotificationCompat.Action createMarkAsReadAction(Context context, String threadEntityID, int markAsReadId) {
         Intent markAsReadIntent = createMarkAsReadIntent(context, threadEntityID);
 
         PendingIntent markAsReadPendingIntent;
@@ -91,7 +91,7 @@ public class MessageActionBuilder {
         return markAsReadAction;
     }
 
-    public NotificationCompat.MessagingStyle createMessagingStyle (Thread thread) {
+    public NotificationCompat.MessagingStyle createMessagingStyle(Thread thread) {
 
         User user = ChatSDK.currentUser();
 

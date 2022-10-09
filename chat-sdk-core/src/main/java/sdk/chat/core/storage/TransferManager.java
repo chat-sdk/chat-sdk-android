@@ -12,8 +12,9 @@ import sdk.chat.core.session.ChatSDK;
 
 public class TransferManager {
 
-    public CachedFile getFile(String hash) {
-        return ChatSDK.db().fetchEntityWithEntityID(hash, CachedFile.class);
+    public CachedFile getFile(String hash, String messageEntityID) {
+        return ChatSDK.db().fetchCachedFileWithHash(hash, messageEntityID);
+//        return ChatSDK.db().fetchEntityWithEntityID(hash, CachedFile.class);
     }
 
     public List<CachedFile> getFiles(String identifier) {
@@ -24,7 +25,7 @@ public class TransferManager {
         // See if this uploadable already exists
         String hash = TransferManager.hash(file);
         if (hash != null) {
-            CachedFile cf = ChatSDK.db().fetchOrCreateEntityWithEntityID(CachedFile.class, hash);
+            CachedFile cf = ChatSDK.db().fetchOrCreateCachedFileWithHash(hash, identifier);
             cf.setLocalPath(file.getPath());
             cf.setRemotePath(remotePath);
             cf.setIdentifier(identifier);
@@ -34,7 +35,7 @@ public class TransferManager {
             cf.setMessageKey(key);
             cf.setReportProgress(reportProgress);
             cf.setStartTime(new Date());
-            cf.update();
+            ChatSDK.db().update(cf);
             return cf;
         }
         return null;

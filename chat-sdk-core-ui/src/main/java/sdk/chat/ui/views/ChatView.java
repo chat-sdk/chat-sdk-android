@@ -16,9 +16,9 @@ import com.stfalcon.chatkit.messages.MessageWrapper;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
-import org.ocpsoft.prettytime.PrettyTime;
 import org.pmw.tinylog.Logger;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -42,6 +42,7 @@ import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.performance.MessageHoldersDiffCallback;
+import sdk.chat.ui.provider.ChatDateProvider;
 import sdk.chat.ui.utils.ToastHelper;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
@@ -64,7 +65,6 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
     protected DisposableMap dm = new DisposableMap();
 
-    protected final PrettyTime prettyTime = new PrettyTime(CurrentLocale.get());
 
     protected Delegate delegate;
     protected boolean loadMoreEnabled = true;
@@ -103,7 +103,16 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         messagesListAdapter = new MessagesListAdapter<>(ChatSDK.currentUserID(), holders, null);
 
         messagesListAdapter.setLoadMoreListener(this);
-        messagesListAdapter.setDateHeadersFormatter(date -> prettyTime.format(date));
+
+        messagesListAdapter.setDateHeadersFormatter(date -> {
+            ChatDateProvider provider = ChatSDK.feather().instance(ChatDateProvider.class);
+            if (provider != null) {
+                return provider.from(date);
+            } else {
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy", CurrentLocale.get());
+                return formatter.format(date);
+            }
+        });
 
         messagesListAdapter.setOnMessageClickListener(holder -> {
             Message message = holder.getMessage();
@@ -129,6 +138,10 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         });
         messagesList.setAdapter(messagesListAdapter);
 
+        messagesListAdapter.setUserClickListener(userID -> {
+            ChatSDK.ui().startProfileActivity(getContext(), userID);
+        });
+
         onLoadMore(0, 0);
 
     }
@@ -148,12 +161,21 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
                 .subscribe(networkEvent -> {
 
+                    Message message = networkEvent.getMessage();
+                    if (message != null) {
+                        MessageHolder holder = ChatSDKUI.provider().holderProvider().getMessageHolder(message);
+                        if (holder != null && !messageHolders.contains(holder)) {
+                            Logger.debug("Missing");
+                        }
+                    }
+
                     Logger.debug("ChatView: " + networkEvent.debugText());
 
                     messagesList.post(() -> {
                         synchronize(null, true);
                     });
                 }));
+
 
 //        dm.add(ChatSDK.events().sourceOnMain()
 //                .filter(NetworkEvent.filterType(
@@ -170,9 +192,13 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 .filter(NetworkEvent.filterType(EventType.MessageAdded))
                 .filter(NetworkEvent.filterThreadEntityID(delegate.getThread().getEntityID()))
                 .subscribe(networkEvent -> {
+
                     if (!ChatSDK.appBackgroundMonitor().inBackground()) {
                         networkEvent.getMessage().markReadIfNecessary();
                     }
+
+                    dm.add(delegate.getThread().markReadAsync().subscribe());
+
                     messagesList.post(() -> {
                         addMessageToStart(networkEvent.getMessage());
                     });
@@ -271,14 +297,20 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
         }
 
         MessageHolder holder = ChatSDKUI.provider().holderProvider().getMessageHolder(message);
-        messageHolders.add(0, holder);
+        if (!messageHolders.contains(holder)) {
 
-        updatePreviousMessage(holder);
-        holder.updateReadStatus();
+            messageHolders.add(0, holder);
 
-        loadMoreEnabled = false;
-        messagesListAdapter.addToStart(holder, scroll, true);
-        messagesList.post(() -> loadMoreEnabled = true);
+            updatePreviousMessage(holder);
+            holder.updateReadStatus();
+
+            loadMoreEnabled = false;
+            messagesListAdapter.addToStart(holder, scroll, true);
+            messagesList.post(() -> loadMoreEnabled = true);
+        } else {
+            Logger.debug("Exists already");
+        }
+
     }
 
     protected void updatePreviousMessage(MessageHolder holder) {
@@ -290,6 +322,10 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                 messagesListAdapter.update(previous);
             }
         }
+    }
+
+    public void update(MessageHolder holder) {
+        messagesListAdapter.update(holder);
     }
 
     protected void updateNextMessage(MessageHolder holder) {
@@ -457,5 +493,9 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     public void removeListeners() {
         dm.dispose();
         listenersAdded = false;
+    }
+
+    public MessagesList getMessagesList() {
+        return messagesList;
     }
 }

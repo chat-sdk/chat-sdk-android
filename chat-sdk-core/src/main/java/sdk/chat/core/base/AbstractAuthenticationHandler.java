@@ -5,6 +5,7 @@ import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.handlers.AuthenticationHandler;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.types.AccountDetails;
 
 /**
  * Created by benjaminsmiley-andrews on 03/05/2017.
@@ -93,4 +94,10 @@ public abstract class AbstractAuthenticationHandler implements AuthenticationHan
         isAuthenticatedThisSession = false;
         loggingOut = null;
     }
+
+    @Override
+    public AccountDetails cachedAccountDetails() {
+        return null;
+    }
+
 }

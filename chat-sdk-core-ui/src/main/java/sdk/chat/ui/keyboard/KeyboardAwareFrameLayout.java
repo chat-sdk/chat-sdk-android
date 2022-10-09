@@ -2,7 +2,10 @@ package sdk.chat.ui.keyboard;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Rect;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -11,7 +14,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import org.pmw.tinylog.Logger;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import sdk.chat.core.dao.Keys;
@@ -123,9 +129,15 @@ public class KeyboardAwareFrameLayout extends FrameLayout {
                 if (isPortrait()) {
                     return (int) Math.ceil(getMeasuredHeight() * 0.4);
                 } else {
-                    return (int) Math.ceil(getMeasuredHeight() * 0.5);
+                    return (int) Math.ceil(getMeasuredHeight() * 0.6);
                 }
             }
         }
     }
+
+    @Override
+    public void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+    }
+
 }

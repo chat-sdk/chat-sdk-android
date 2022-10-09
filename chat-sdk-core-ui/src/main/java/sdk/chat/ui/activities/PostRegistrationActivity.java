@@ -28,7 +28,6 @@ import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.MediaSelector;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ImagePickerUploader;
 import sdk.chat.ui.utils.UserImageBuilder;
@@ -104,7 +103,7 @@ public class PostRegistrationActivity extends BaseActivity {
             currentUser.setAvatarURL(avatarImageURL, null, false);
         }
 
-        currentUser.update();
+        ChatSDK.db().update(currentUser);
 
         View v = getCurrentFocus();
         if (v instanceof EditText) {

@@ -1,5 +1,6 @@
 
 afterEvaluate {
+    artifactoryPublish.dependsOn('build')
     publishing {
         publications {
             release(MavenPublication) {

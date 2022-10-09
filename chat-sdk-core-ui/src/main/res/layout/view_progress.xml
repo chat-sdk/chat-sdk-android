@@ -36,7 +36,6 @@
         app:layout_constraintWidth_default="spread"
         app:layout_constrainedHeight="true"
 
-        android:text="50%"
         android:textColor="@color/white"
         android:textSize="@dimen/_10sdp"
         android:textAlignment="center"

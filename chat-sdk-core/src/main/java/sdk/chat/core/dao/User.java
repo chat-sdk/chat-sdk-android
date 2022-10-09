@@ -416,7 +416,7 @@ public class User extends AbstractEntity implements UserListItem {
             return false;
         }
         metaValue.setValue(value);
-        metaValue.update();
+        ChatSDK.db().update(metaValue);
         if (notify) {
             ChatSDK.events().source().accept(NetworkEvent.userMetaUpdated(this));
         }
@@ -545,7 +545,7 @@ public class User extends AbstractEntity implements UserListItem {
     public void setIsOnline(Boolean isOnline, boolean notify) {
         if (this.isOnline != isOnline) {
             this.isOnline = isOnline;
-            update();
+            ChatSDK.db().update(this);
             if (notify) {
                 ChatSDK.events().source().accept(NetworkEvent.userPresenceUpdated(this));
             }

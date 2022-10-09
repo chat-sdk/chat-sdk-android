@@ -7,8 +7,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
@@ -72,7 +74,8 @@ public class MessageSendRig {
                     if (uploadable != null) {
                         uploadables.add(uploadable);
                         file.setTransferStatus(TransferStatus.Initial);
-                        file.update();
+                        file.setStartTime(new Date());
+                        ChatSDK.db().update(file);
                     }
                 }
             }
@@ -96,7 +99,7 @@ public class MessageSendRig {
         return this.setUploadables(Arrays.asList(uploadables), messageDidUploadUpdateAction);
     }
 
-    public MessageSendRig setUploadables (List<Uploadable> uploadables, MessageDidUploadUpdateAction messageDidUploadUpdateAction) {
+    public MessageSendRig setUploadables(List<Uploadable> uploadables, MessageDidUploadUpdateAction messageDidUploadUpdateAction) {
         this.uploadables.addAll(uploadables);
         this.messageDidUploadUpdateAction = messageDidUploadUpdateAction;
         return this;
@@ -121,9 +124,11 @@ public class MessageSendRig {
         return Completable.defer(() -> {
             if (message == null) {
                 createMessage();
-                ChatSDK.events().source().accept(NetworkEvent.messageAdded(message));
             }
             message.setMessageStatus(MessageSendStatus.Initial, true);
+
+            Logger.debug("ImageSend: Add Message");
+
             if (uploadables.isEmpty()) {
                 return send();
             } else {
@@ -145,9 +150,17 @@ public class MessageSendRig {
     }
 
     protected Message createMessage() {
+
+        Logger.debug("ImageSend: Create Message");
+
         message = ChatSDK.thread().newMessage(messageType.value(), thread, false);
         if (messageDidCreateUpdateAction != null) {
             messageDidCreateUpdateAction.update(message);
+        }
+        ChatSDK.db().update(message, false);
+        ChatSDK.events().source().accept(NetworkEvent.messageAdded(message));
+        if (message.getPreviousMessage() != null) {
+            ChatSDK.events().source().accept(NetworkEvent.messageUpdated(message.getPreviousMessage()));
         }
         return message;
     }
@@ -175,7 +188,8 @@ public class MessageSendRig {
     }
 
     protected Completable uploadFiles() {
-        return Single.create((SingleOnSubscribe<List<Completable>>) emitter -> {
+        return Completable.defer((Callable<CompletableSource>) () -> {
+
             ArrayList<Completable> completables = new ArrayList<>();
 
             List<Uploadable> toUpload = new ArrayList<>();
@@ -201,18 +215,23 @@ public class MessageSendRig {
             for (Uploadable item : toUpload) {
                 completables.add(ChatSDK.upload().uploadFile(item.getBytes(), item.name, item.mimeType, item.hash()).flatMapMaybe(result -> {
 
-                    CachedFile cf = ChatSDK.uploadManager().getFile(item.hash());
-                    if (cf != null) {
-                        cf.setTransferStatus(result.status);
-                        cf.update();
+                    String hash = item.hash();
+                    CachedFile cf = null;
+                    if (hash != null) {
+                        cf = ChatSDK.uploadManager().getFile(hash, message.getEntityID());
+                        if (cf != null) {
+                            cf.setTransferStatus(result.status);
+                            ChatSDK.db().update(cf);
+                        }
+                    } else {
+                        Logger.debug("");
                     }
 
-                    ChatSDK.uploadManager().setStatus(item.hash(), result.status);
+                    ChatSDK.uploadManager().setStatus(item.hash(), result.status, message.getEntityID());
 
                     message.setMessageStatus(MessageSendStatus.Uploading, item.reportProgress);
                     if (item.reportProgress) {
-                        Logger.info("Progress - Upload Manager - " + result.progress.asFraction());
-
+                        Logger.info("Progress - Upload Manager - " + result.progress.asFraction() + " - Message: " + message.getEntityID() + " ID: " + hash);
                         ChatSDK.events().source().accept(NetworkEvent.messageProgressUpdated(message, result.progress));
                     }
 
@@ -232,7 +251,7 @@ public class MessageSendRig {
                         if (cf != null) {
                             cf.setRemotePath(result.url);
                             cf.setFinishTime(new Date());
-                            cf.update();
+                            ChatSDK.db().update(cf);
                         }
 
                         return Maybe.just(message);
@@ -243,8 +262,86 @@ public class MessageSendRig {
                     message.setMessageStatus(MessageSendStatus.Failed);
                 }).firstElement().ignoreElement());
             }
-            emitter.onSuccess(completables);
-        }).subscribeOn(RX.quick()).flatMapCompletable(Completable::merge);
+
+            return Completable.merge(completables);
+
+        }).subscribeOn(RX.io());
+
+//        return Single.create((SingleOnSubscribe<List<Completable>>) emitter -> {
+//            ArrayList<Completable> completables = new ArrayList<>();
+//
+//            List<Uploadable> toUpload = new ArrayList<>();
+//
+//            // Add the files to the upload manager
+//            for (Uploadable item : uploadables) {
+//                CachedFile file = ChatSDK.uploadManager().add(item, message);
+//
+//                // TODO:  If the file is already uploaded, we can use the existing path
+//                if (file.getRemotePath() != null) {
+//                    Logger.debug("Good, we've uploaded it before");
+////                    message.setValueForKey(file.getRemotePath(), item.messageKey);
+////                    continue;
+//                }
+//                if (!file.completeAndValid()) {
+//                    file.setTransferStatus(TransferStatus.Initial);
+//                    toUpload.add(item);
+//                }
+//            }
+//
+//            message.setMessageStatus(MessageSendStatus.Uploading);
+//
+//            for (Uploadable item : toUpload) {
+//                completables.add(ChatSDK.upload().uploadFile(item.getBytes(), item.name, item.mimeType, item.hash()).flatMapMaybe(result -> {
+//
+//                    String hash = item.hash();
+//                    CachedFile cf = null;
+//                    if (hash != null) {
+//                        cf = ChatSDK.uploadManager().getFile(hash, message.getEntityID());
+//                        if (cf != null) {
+//                            cf.setTransferStatus(result.status);
+//                            ChatSDK.db().update(cf);
+//                        }
+//                    } else {
+//                        Logger.debug("");
+//                    }
+//
+//                    ChatSDK.uploadManager().setStatus(item.hash(), result.status, message.getEntityID());
+//
+//                    message.setMessageStatus(MessageSendStatus.Uploading, item.reportProgress);
+//                    if (item.reportProgress) {
+//                        Logger.info("Progress - Upload Manager - " + result.progress.asFraction());
+//                        ChatSDK.events().source().accept(NetworkEvent.messageProgressUpdated(message, result.progress));
+//                    }
+//
+//                    // Success
+//                    if (result.urlValid()) {
+//
+//                        if (messageDidUploadUpdateAction != null) {
+//                            messageDidUploadUpdateAction.update(message, result);
+//                        }
+//
+//                        message.setValueForKey(result.url, item.messageKey);
+//
+//                        for (String key : result.meta.keySet()) {
+//                            message.setValueForKey(result.meta.get(key), key);
+//                        }
+//
+//                        if (cf != null) {
+//                            cf.setRemotePath(result.url);
+//                            cf.setFinishTime(new Date());
+//                            ChatSDK.db().update(cf);
+//                        }
+//
+//                        return Maybe.just(message);
+//                    } else {
+//                        return Maybe.empty();
+//                    }
+//                }).doOnError(throwable -> {
+//                    message.setMessageStatus(MessageSendStatus.Failed);
+//                }).firstElement().ignoreElement());
+//            }
+//            emitter.onSuccess(completables);
+//        }).subscribeOn(RX.quick()).flatMapCompletable(Completable::concat);
     }
 
     public void finalize() {

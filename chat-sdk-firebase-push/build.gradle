@@ -34,6 +34,7 @@ android {
         checkReleaseBuilds false
         lintConfig file('lint.xml')
     }
+    namespace 'sdk.chat.firebase.push'
 
 }
 
@@ -44,8 +45,8 @@ dependencies {
     implementation project(':chat-sdk-core-ui')
     implementation project(':chat-sdk-firebase-adapter')
 
-    implementation "com.google.firebase:firebase-messaging:$firebaseMessagingVersion"
-    implementation "com.google.firebase:firebase-functions:$firebaseFunctionsVersion"
+    implementation "com.google.firebase:firebase-messaging"
+    implementation "com.google.firebase:firebase-functions"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
 }
 

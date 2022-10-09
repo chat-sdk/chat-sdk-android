@@ -28,7 +28,6 @@ import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.push.AbstractPushHandler;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.types.ReadStatus;
 import sdk.guru.common.RX;
@@ -78,7 +77,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                 thread.setEntityID(users.get(0).getEntityID());
                 thread.setType(ThreadType.Private1to1);
                 thread.addUsers(users);
-                thread.update();
+                ChatSDK.db().update(thread);
 
 
                 return Single.just(thread);
@@ -265,9 +264,9 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
             builder.setValues(meta);
 
             if (meta.containsKey(Keys.MessageEncryptedPayloadKey)) {
-                Object body = meta.get(Keys.MessageText);
-                if (body instanceof String) {
-                    builder.setBody((String) body);
+                String body = meta.get(Keys.MessageText);
+                if (body != null) {
+                    builder.setBody(body);
                 }
             } else {
                 if(message.getMessageType().is(MessageType.Location)) {
@@ -280,61 +279,47 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                 }
             }
 
+            Exception sendError = null;
 
             if(message.getThread().typeIs(ThreadType.Private1to1)) {
-//                ChatManager chatManager = XMPPManager.shared().chatManager();
-//                Chat chat = chatManager.chatWith(JidCreate.entityBareFrom(message.getThread().getEntityID()));
-
-                // Unlock the resource using reflection
-//                Class<?> chatClass = chat.getClass();
-//                Method unlockMethod = chatClass.getDeclaredMethod("unlockResource");
-//                if (unlockMethod != null) {
-//                    unlockMethod.setAccessible(true);
-//                    unlockMethod.invoke(chat);
-//                }
 
                 builder.setAsChatType();
                 builder.setTo(JidCreate.entityBareFrom(message.getThread().getEntityID()));
 
-
-                XMPPManager.shared().sendStanza(builder.build());
-//                chat.send(builder.build());
+                sendError = XMPPManager.shared().sendStanza(builder.build());
             }
             else if (message.getThread().typeIs(ThreadType.Group)) {
-//                MultiUserChat chat = XMPPManager.shared().mucManager.chatForThreadID(message.getThread().getEntityID());
-//                if(chat != null) {
-                    builder.setAsGroupChatType();
-                    builder.setTo(JidCreate.entityBareFrom(message.getThread().getEntityID()));
+                builder.setAsGroupChatType();
+                builder.setTo(JidCreate.entityBareFrom(message.getThread().getEntityID()));
 
-                    if (ChatSDK.readReceipts() != null) {
-                        builder.addDeliveryReceiptRequest();
-                    }
-
-                    XMPPManager.shared().sendStanza(builder.build());
-//                    chat.sendMessage(builder.build());
-//                }
-//                else {
-//                    emitter.onError(new Throwable("Unable send message to group chat"));
-//                }
-            }
-
-            if (ChatSDK.push() != null && ChatSDK.config().clientPushEnabled && message.getThread().typeIs(ThreadType.Private)) {
-                Map<String, Object> data = ChatSDK.push().pushDataForMessage(message);
-                if (data != null) {
-                    // Fix a bug with the default implementation
-                    // In XMPP 1-to-1 threads have the ID of the other user. So we need to put our
-                    // ID as the thread ID
-                    Object senderId = data.get(AbstractPushHandler.SenderId);
-                    if (message.getThread().typeIs(ThreadType.Private1to1) && senderId != null) {
-                        data.put(AbstractPushHandler.ThreadId, senderId);
-                    }
-                    ChatSDK.push().sendPushNotification(data);
+                if (ChatSDK.readReceipts() != null) {
+                    builder.addDeliveryReceiptRequest();
                 }
+
+                sendError = XMPPManager.shared().sendStanza(builder.build());
+            } else {
+                emitter.onComplete();
             }
 
-            message.setMessageStatus(MessageSendStatus.Sent);
+            if (sendError != null) {
+                emitter.onError(sendError);
+            } else {
+                if (ChatSDK.push() != null && ChatSDK.config().clientPushEnabled && message.getThread().typeIs(ThreadType.Private)) {
+                    Map<String, Object> data = ChatSDK.push().pushDataForMessage(message);
+                    if (data != null) {
+                        // Fix a bug with the default implementation
+                        // In XMPP 1-to-1 threads have the ID of the other user. So we need to put our
+                        // ID as the thread ID
+                        Object senderId = data.get(AbstractPushHandler.SenderId);
+                        if (message.getThread().typeIs(ThreadType.Private1to1) && senderId != null) {
+                            data.put(AbstractPushHandler.ThreadId, senderId);
+                        }
+                        ChatSDK.push().sendPushNotification(data);
+                    }
+                }
+                emitter.onComplete();
+            }
 
-            emitter.onComplete();
         }).doOnComplete(() -> message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new Date())).subscribeOn(RX.io());
     }
 

@@ -1,13 +1,17 @@
 package sdk.chat.message.file;
 
+import static android.app.Activity.RESULT_OK;
+import static sdk.chat.message.file.FileMessageModule.CHOOSE_FILE;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+
+import androidx.annotation.DrawableRes;
+import androidx.annotation.StringRes;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,21 +25,17 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import sdk.chat.ui.chat.options.BaseChatOption;
 
-import static android.app.Activity.RESULT_OK;
-import static sdk.chat.message.file.FileMessageModule.CHOOSE_FILE;
-
-import androidx.annotation.DrawableRes;
-import androidx.annotation.StringRes;
-
 /**
  * Created by Pepe on 01/05/18.
  */
 
 public class FileChatOption extends BaseChatOption {
 
+    public boolean filePicked;
+
     public FileChatOption(@StringRes int title, @DrawableRes int image) {
         super(title, image, null);
-        action = (activity, thread) -> Completable.create(emitter -> {
+        action = (activity, launcher, thread) -> Completable.create(emitter -> {
             dispose();
            dm.add(selectFileWithDefaultPicker(activity, thread).subscribe(emitter::onComplete, emitter::onError));
         });
@@ -43,8 +43,18 @@ public class FileChatOption extends BaseChatOption {
 
     protected Completable selectFileWithDefaultPicker(Activity activity, Thread thread) {
         return Completable.create(emitter -> {
+
+            filePicked = false;
+
             // Listen for the context result which is when the sticker context finishes
             dm.add(ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
+
+                // Stop the possibility to pick two files
+                if (filePicked) {
+                    return;
+                }
+                filePicked = true;
+
                 // If the result is ok, connect the message send observable to the returned Observable
                 if (activityResult.requestCode == CHOOSE_FILE && activityResult.resultCode == RESULT_OK) {
                     // Get filePath and fileName
@@ -66,23 +76,19 @@ public class FileChatOption extends BaseChatOption {
 
             // Create and show the file chooser
 //                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            Intent intent;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            } else {
-                intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-            }
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
 
             intent.setType("*/*" );
 
             final Intent chooser = Intent.createChooser(intent, activity.getString(R.string.choose_a_file));
 
+            ChatSDK.core().addBackgroundDisconnectExemption();
             activity.startActivityForResult(chooser, CHOOSE_FILE);
         });
     }
 
-    protected String getFileName(Uri uri) {
+    protected static String getFileName(Uri uri) {
         // Get the Uri of the selected file
         String uriString = uri.toString();
         File myFile = new File(uriString);
@@ -94,16 +100,22 @@ public class FileChatOption extends BaseChatOption {
             try {
                 cursor = ChatSDK.ctx().getContentResolver().query(uri, null, null, null, null);
                 if (cursor != null && cursor.moveToFirst()) {
-                    displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                    int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (index >= 0) {
+                        displayName = cursor.getString(index);
+                    }
                 }
             } finally {
-                cursor.close();
+                if (cursor != null) {
+                    cursor.close();
+                }
             }
         } else if (uriString.startsWith("file://")) {
             displayName = myFile.getName();
         }
         return displayName;
     }
+
 
     protected File fileFromURI (Uri uri, Activity activity, String name) throws IOException {
 

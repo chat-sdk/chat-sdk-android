@@ -22,7 +22,8 @@ public class CachedFile extends AbstractEntity {
     public enum Type {
         None,
         Upload,
-        Download
+        Download,
+        Gallery,
     }
 
     @Id
@@ -33,6 +34,9 @@ public class CachedFile extends AbstractEntity {
 
     @Index
     private String identifier;
+
+    @Index
+    private String hash;
 
     private Integer type;
     private String localPath;
@@ -53,13 +57,14 @@ public class CachedFile extends AbstractEntity {
     /** Used for active entity operations. */
     @Generated(hash = 1018577903)
     private transient CachedFileDao myDao;
-    @Generated(hash = 141902122)
-    public CachedFile(Long id, String entityID, String identifier, Integer type, String localPath, String remotePath,
-            String name, String messageKey, boolean reportProgress, Date startTime, Date finishTime, String mimeType,
-            Integer status) {
+    @Generated(hash = 1086823652)
+    public CachedFile(Long id, String entityID, String identifier, String hash, Integer type, String localPath,
+            String remotePath, String name, String messageKey, boolean reportProgress, Date startTime, Date finishTime,
+            String mimeType, Integer status) {
         this.id = id;
         this.entityID = entityID;
         this.identifier = identifier;
+        this.hash = hash;
         this.type = type;
         this.localPath = localPath;
         this.remotePath = remotePath;
@@ -237,11 +242,17 @@ public class CachedFile extends AbstractEntity {
     }
 
     public long ageInSeconds() {
-        if (getFinishTime() == null) {
+        if (getStartTime() == null) {
             return 0;
         }
-        long age = new Date().getTime() - getFinishTime().getTime();
+        long age = new Date().getTime() - getStartTime().getTime();
         return TimeUnit.MILLISECONDS.toSeconds(age);
+    }
+    public String getHash() {
+        return this.hash;
+    }
+    public void setHash(String hash) {
+        this.hash = hash;
     }
 
 

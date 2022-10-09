@@ -1,5 +1,7 @@
 package sdk.chat.core.utils;
 
+import static sdk.chat.core.utils.Device.dpToPx;
+
 import android.content.res.Resources;
 import android.util.TypedValue;
 
@@ -11,21 +13,13 @@ public class ImageMessageUtil {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
 
-    public static float pxToDp(float dp) {
-        Resources r = ChatSDK.ctx().getResources();
-        return TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                dp,
-                r.getDisplayMetrics());
-    }
-
     public static Size getImageMessageSize(int width, int height) {
         return getImageMessageSize((float) width, (float) height);
     }
 
     public static Size getImageMessageSize(float width, float height) {
         // Work out the dimensions
-        float w = Math.min(getScreenWidth() * 0.8f, pxToDp(ChatSDK.config().imageMessageMaxWidthDp));
+        float w = Math.min(getScreenWidth() * 0.8f, dpToPx(ChatSDK.config().imageMessageMaxWidthDp));
 
         float ar = 1;
         if (width > 0 && height > 0) {

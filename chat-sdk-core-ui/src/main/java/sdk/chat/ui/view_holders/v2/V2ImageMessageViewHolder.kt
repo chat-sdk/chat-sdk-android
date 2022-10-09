@@ -16,9 +16,7 @@ open class V2ImageMessageViewHolder<T: ImageMessageHolder>(itemView: View, direc
     override fun onBind(holder: T) {
         super.onBind(holder)
 
-        image.let {
-            loadImage(holder)
-        }
+        loadImage(holder)
 
         imageOverlay?.let {
             it.setImageDrawable(
@@ -32,7 +30,7 @@ open class V2ImageMessageViewHolder<T: ImageMessageHolder>(itemView: View, direc
 
         imageOverlayContainer?.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
 
-        bind(holder)
+//        bind(holder)
     }
 
     open fun loadImage(holder: T) {

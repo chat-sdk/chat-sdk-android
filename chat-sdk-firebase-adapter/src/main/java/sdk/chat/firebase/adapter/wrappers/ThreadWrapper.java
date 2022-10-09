@@ -579,14 +579,15 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                         Collections.sort(messages, new MessageSorter(DaoCore.ORDER_ASC));
 
                         for (Message m: messages) {
-                            model.addMessage(m, false, false);
+                            model.addMessage(m, false, false, true);
                         }
 
                         // Sort the messages
                         // We need to do this because the data comes as a hash map that's not sorted
                         model.sortMessages(true);
 
-                        model.update();
+                        ChatSDK.db().update(model);
+
 
                         ChatSDK.events().source().accept(NetworkEvent.threadMessagesUpdated(getModel()));
 //                        ChatSDK.events().source().accept(NetworkEvent.messageAdded(model.lastMessage()));
@@ -653,7 +654,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         }
         model.setMetaValues(meta, false);
 
-        model.update();
+        ChatSDK.db().update(model);
         ChatSDK.events().source().accept(NetworkEvent.threadMetaUpdated(model));
     }
 
@@ -674,7 +675,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
                 // If the thread ID is null, create a new random ID
                 if (model.getEntityID() == null || model.getEntityID().length() == 0) {
                     model.setEntityID(FirebasePaths.threadRef().push().getKey());
-                    model.update();
+                    ChatSDK.db().update(model);
                 }
 
                 DatabaseReference metaRef = FirebasePaths.threadMetaRef(model.getEntityID());

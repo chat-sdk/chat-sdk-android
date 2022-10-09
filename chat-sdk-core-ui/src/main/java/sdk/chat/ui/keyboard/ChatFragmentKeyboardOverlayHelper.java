@@ -8,6 +8,8 @@ import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentTransaction;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.ui.AbstractKeyboardOverlayFragment;
@@ -16,12 +18,20 @@ import sdk.chat.ui.fragments.ChatFragment;
 
 public class ChatFragmentKeyboardOverlayHelper {
 
-    WeakReference<ChatFragment> chatFragment;
+     public interface Listener {
+         void willShowOverlay(String key);
+         void didShowOverlay(String key);
+         void didHideOverlay(String key);
+     }
+
+    protected WeakReference<ChatFragment> chatFragment;
 
     protected boolean keyboardOverlayActive = false;
 
     protected KeyboardOverlayOptionsFragment optionsKeyboardOverlayFragment;
     protected AbstractKeyboardOverlayFragment currentKeyboardOverlayFragment;
+
+    protected List<Listener> listeners = new ArrayList<>();
 
     public ChatFragmentKeyboardOverlayHelper(ChatFragment fragment) {
         chatFragment = new WeakReference<>(fragment);
@@ -53,7 +63,8 @@ public class ChatFragmentKeyboardOverlayHelper {
 //            int bottomMargin = bottomMargin();
 
             if (keyboardOverlayActive) {
-                keyboardOverlay().setVisibility(View.VISIBLE);
+                setKeyboardOverlayVisible();
+//                keyboardOverlay().setVisibility(View.VISIBLE);
 //                bottomMargin += keyboardAwareView().getKeyboardHeight();
             }
 
@@ -99,6 +110,11 @@ public class ChatFragmentKeyboardOverlayHelper {
 
     public void showOverlay(AbstractKeyboardOverlayFragment fragment) {
         if (setCurrentOverlay(fragment)) {
+
+            for (Listener l: listeners) {
+                l.willShowOverlay(fragment.key());
+            }
+
             if (!keyboardAwareView().isKeyboardOpen()) {
                 showKeyboardOverlay();
             } else {
@@ -173,10 +189,21 @@ public class ChatFragmentKeyboardOverlayHelper {
     public void setKeyboardOverlayGone() {
         keyboardOverlayActive = false;
         keyboardOverlay().setVisibility(View.GONE);
+        for (Listener l: listeners) {
+            l.didHideOverlay(currentOverlayKey());
+        }
     }
 
     public void setKeyboardOverlayVisible() {
         keyboardOverlay().setVisibility(View.VISIBLE);
+        for (Listener l: listeners) {
+            l.didShowOverlay(currentOverlayKey());
+        }
+    }
+
+    public void hideKeyboardOverlay() {
+        setKeyboardOverlayGone();
+        updateChatViewBottomMargin();
     }
 
     public boolean keyboardOverlayVisible() {
@@ -246,4 +273,17 @@ public class ChatFragmentKeyboardOverlayHelper {
         return cf().getActivity();
     }
 
+    public void addListener(Listener listener) {
+        if (!listeners.contains(listener)) {
+            listeners.add(listener);
+        }
+    }
+
+    public void removeListener(Listener listener) {
+        listeners.remove(listener);
+    }
+
+    public String currentOverlayKey() {
+        return currentOverlay() != null ? currentOverlay().key() : null;
+    }
 }

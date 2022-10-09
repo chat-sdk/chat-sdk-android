@@ -119,7 +119,7 @@ public class UserWrapper {
         if (!StringChecker.isNullOrEmpty(profileURL)) {
             model.setAvatarURL(profileURL);
         }
-        model.update();
+        ChatSDK.db().update(model);
 
 
         if (StringChecker.isNullOrEmpty(model.getAvailability())) {

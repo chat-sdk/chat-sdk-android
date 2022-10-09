@@ -30,13 +30,16 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    lintOptions {
+    lint {
         abortOnError false
     }
+    namespace 'com.zhihu.matisse'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    api project(':chat-sdk-core')
 
     implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
 
@@ -46,6 +49,9 @@ dependencies {
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
+
+
+
 }
 
 ext {

@@ -130,7 +130,7 @@ public class AudioPlayer {
         return player.getCurrentPosition();
     }
 
-    public static String toSeconds (long millis) {
+    public static String toSeconds(long millis) {
         long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
         long minuteSeconds = TimeUnit.MINUTES.toSeconds(minutes);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);

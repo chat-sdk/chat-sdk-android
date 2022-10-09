@@ -16,11 +16,14 @@ import sdk.chat.core.ui.Sendable
 import sdk.chat.message.sticker.R
 import sdk.chat.message.sticker.StickerPack
 import sdk.chat.message.sticker.provider.StickerPackProvider
-import sdk.chat.ui.keyboard.KeyboardOverlayOptionsFragment
 import smartadapter.SmartRecyclerAdapter
 import smartadapter.viewevent.listener.OnClickEventListener
 
 open class StickerKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment() {
+
+    companion object {
+        const val key = "sticker"
+    }
 
     open lateinit var stickerRecyclerAdapter: SmartRecyclerAdapter
     open lateinit var stickerRecyclerView: RecyclerView
@@ -29,7 +32,7 @@ open class StickerKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment() {
     open lateinit var packRecyclerView: RecyclerView
 
     open lateinit var rootView: View
-    open var optionExecutor: KeyboardOverlayOptionsFragment.OptionExecutor? = null
+//    open var optionExecutor: KeyboardOverlayOptionsFragment.OptionExecutor? = null
 
     open var stickerPacks: List<StickerPack>? = null
 
@@ -64,9 +67,9 @@ open class StickerKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment() {
             .add(OnClickEventListener {
                 var model = stickerRecyclerAdapter.getItem(it.position)
                 if (model is StickerModel) {
-                    keyboardOverlayHandler.get()?.send(Sendable { _, thread ->
+                    keyboardOverlayHandler.get()?.send(Sendable { _, _, thread ->
                         ChatSDK.stickerMessage()
-                            .sendMessageWithSticker(model.sticker.imageName, thread)
+                            .sendMessageWithSticker(model.sticker.imageName, model.sticker.imageURL, thread)
                     })
                 }
             })
@@ -78,7 +81,15 @@ open class StickerKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment() {
             .add(OnClickEventListener {
                 var model = packRecyclerAdapter.getItem(it.position)
                 if (model is StickerPackModel) {
+                    for (m in packRecyclerAdapter.getItems()) {
+                        if (m is StickerPackModel) {
+                            m.selected = false
+                        }
+                    }
+                    model.selected = true
                     currentPack = model.pack
+                    packRecyclerAdapter.notifyDataSetChanged()
+//                    packRecyclerAdapter.notifyItemChanged(it.position)
                     reloadStickers()
                 }
             })
@@ -118,14 +129,18 @@ open class StickerKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment() {
         stickerRecyclerAdapter.setItems(stickers())
     }
 
-    open fun packs(): MutableList<Any> {
+    open fun packs(): MutableList<StickerPackModel> {
 
-        var items = arrayListOf<Any>()
+        var items = arrayListOf<StickerPackModel>()
 
         stickerPacks?.let {
             for (pack in it) {
                 items.add(StickerPackModel(pack, packWidth))
             }
+        }
+
+        if (items.size > 0) {
+            items.get(0).selected = true
         }
 
         return items
@@ -144,6 +159,10 @@ open class StickerKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment() {
 
     open fun packWidth(context: Context): Int {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70f, context.resources.displayMetrics).toInt()
+    }
+
+    override fun key(): String {
+        return key
     }
 
 }

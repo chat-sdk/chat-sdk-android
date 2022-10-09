@@ -40,6 +40,7 @@ import androidx.fragment.app.Fragment;
 
 import com.zhihu.matisse.R;
 import com.zhihu.matisse.internal.entity.Album;
+import com.zhihu.matisse.internal.entity.IncapableCause;
 import com.zhihu.matisse.internal.entity.Item;
 import com.zhihu.matisse.internal.entity.SelectionSpec;
 import com.zhihu.matisse.internal.model.AlbumCollection;
@@ -58,7 +59,9 @@ import com.zhihu.matisse.internal.utils.PathUtils;
 import com.zhihu.matisse.internal.utils.PhotoMetadataUtils;
 import com.zhihu.matisse.internal.utils.SingleMediaScanner;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Main Activity to display albums and media content (images/videos) in each album
@@ -253,21 +256,35 @@ public class MatisseActivity extends AppCompatActivity implements
             result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, selected);
             result.putStringArrayListExtra(EXTRA_RESULT_SELECTION_PATH, selectedPath);
             setResult(RESULT_OK, result);
+
+
+
+
+//            Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+//            scanIntent.setData(contentUri);
+//            sendBroadcast(scanIntent);
+
+
+
+            // Reload view
+//            mAlbumsAdapter.getCursor().moveToPosition(0);
+//            Album album = Album.valueOf(mAlbumsAdapter.getCursor());
+//            if (album.isAll() && SelectionSpec.getInstance().capture) {
+//                album.addCaptureCount();
+//            }
+//            onAlbumSelected(album);
+
+
 //            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
 //                MatisseActivity.this.revokeUriPermission(contentUri,
 //                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-            new SingleMediaScanner(this.getApplicationContext(), path, () -> {
-                //
-                Log.i("SingleMediaScanner", "scan finish!");
-            });
+//            new SingleMediaScanner(this.getApplicationContext(), path, () -> {
+//                //
+//                Log.i("SingleMediaScanner", "scan finish!");
+//            });
 
-            // Show the preview activity
-//            Intent intent = new Intent(SelectedPreviewActivity.class);
-
-            showPreview();
-
-//            finish();
+            finish();
         }
     }
 

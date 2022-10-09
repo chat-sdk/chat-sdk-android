@@ -20,7 +20,7 @@ public class MessageBinder {
 
     public void onBindSendStatus(TextView textView, MessageHolder holder) {
 
-        if (UIModule.config().messageTimeFormat != null) {
+        if (UIModule.config().getMessageTimeFormat() != null) {
             UIModule.shared().getTimeBinder().bind(textView, holder);
 //            DateFormat format = new SimpleDateFormat(UIModule.config().messageTimeFormat, CurrentLocale.get());
 //            textView.setText(format.format(holder.getCreatedAt()));

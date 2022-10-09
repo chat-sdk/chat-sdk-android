@@ -29,6 +29,7 @@ import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
+import sdk.chat.firebase.adapter.FirebasePaths;
 import sdk.guru.common.RX;
 
 public class FirestreamThreadHandler extends AbstractThreadHandler {
@@ -500,6 +501,10 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         return false;
     }
 
+    @Override
+    public String generateNewMessageID(Thread thread) {
+        return FirebasePaths.threadMessagesRef(thread.getEntityID()).push().getKey();
+    }
 
     @Override
     public boolean hasVoice(Thread thread, User user) {

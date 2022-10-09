@@ -12,13 +12,12 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.demo.R;
 import sdk.chat.demo.examples.activities.AChatActivity;
 import sdk.chat.demo.examples.activities.APrivateThreadsFragment;
-import sdk.chat.demo.examples.activities.MessageTestChatOption;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.profile.pictures.ProfilePicturesModule;
+import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.extras.ExtrasModule;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
 
 public class CustomiseInterfaceExample extends BaseExample {
@@ -84,15 +83,8 @@ public class CustomiseInterfaceExample extends BaseExample {
             // All fragments can be overridden
             ChatSDK.ui().setPrivateThreadsFragment(new APrivateThreadsFragment());
 
-            // Add an extra tab
-            ChatSDK.ui().setTab("Title", ChatSDKUI.icons().get(context, ChatSDKUI.icons().search, R.color.gray), new APrivateThreadsFragment(), 0);
-
             // Remove a tab
             ChatSDK.ui().removeTab(0);
-
-            // Define custom chat options that are displayed
-            // in the chat activity when the options button is pressed
-            ChatSDK.ui().addChatOption(new MessageTestChatOption("Title", null));
 
             // Define when notifications are shown
             ChatSDK.ui().setLocalNotificationHandler(thread -> {

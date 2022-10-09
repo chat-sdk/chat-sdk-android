@@ -12,15 +12,14 @@ import sdk.chat.core.dao.Message;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.MessageHolder;
-import sdk.chat.ui.view_holders.IncomingTextMessageViewHolder;
-import sdk.chat.ui.view_holders.OutcomingTextMessageViewHolder;
+import sdk.chat.ui.view_holders.v2.outer.V2;
 
 public class TextMessageRegistration extends DefaultMessageRegistration {
 
     @Override
     public void onBindMessageHolders(Context context, MessageHolders holders) {
-        holders.setIncomingTextConfig(IncomingTextMessageViewHolder.class, R.layout.view_holder_incoming_text_message, getAvatarClickPayload(context))
-                .setOutcomingTextConfig(OutcomingTextMessageViewHolder.class, R.layout.view_holder_outcoming_text_message, getAvatarClickPayload(context));
+        holders.setIncomingTextConfig(V2.IncomingMessageViewHolder.class, R.layout.view_holder_incoming_text_message)
+                .setOutcomingTextConfig(V2.OutcomingMessageViewHolder.class, R.layout.view_holder_outcoming_text_message);
     }
 
     @Override

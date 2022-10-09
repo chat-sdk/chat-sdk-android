@@ -31,7 +31,7 @@ public class StickerChatOption extends BaseChatOption {
 
     public StickerChatOption(@StringRes int title, @DrawableRes int image) {
         super(title, image, null);
-        action = (activity, thread) -> Single.create((SingleOnSubscribe<String>) emitter -> {
+        action = (activity, launcher, thread) -> Single.create((SingleOnSubscribe<String>) emitter -> {
 
             disposableList.dispose();
             // Listen for the context result which is when the sticker context

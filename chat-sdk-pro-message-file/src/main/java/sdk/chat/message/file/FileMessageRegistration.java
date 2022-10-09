@@ -15,6 +15,7 @@ import java.util.List;
 
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
+import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.message.file.v2.V2File;
 import sdk.chat.ui.ChatSDKUI;
@@ -63,10 +64,12 @@ public class FileMessageRegistration extends DefaultMessageRegistration {
                 try {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setDataAndType(Uri.parse(uri.toString()), mimeType);
+                    ChatSDK.core().addBackgroundDisconnectExemption();
                     activity.startActivity(intent);
                     return true;
                 } catch (ActivityNotFoundException e) {
                     Logger.debug(e);
+                    ChatSDK.core().addBackgroundDisconnectExemption();
                     activity.startActivity(Intent.createChooser(new Intent(Intent.ACTION_VIEW, uri), activity.getText(R.string.open_with)));
                 }
             }

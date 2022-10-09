@@ -34,6 +34,7 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.types.ReadStatus;
+import sdk.chat.core.utils.StringChecker;
 
 
 public class XMPPMessageListener implements IncomingChatMessageListener, OutgoingChatMessageListener, MessageListener, CarbonCopyReceivedListener {
@@ -42,7 +43,10 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
     public void newIncomingMessage(EntityBareJid fromJID, Message message, Chat chat) {
         // Get the thread here before we parse the message. If the thread is null,
         // it will be created when we parse the message
-         XMPPMessageWrapper xmr = new XMPPMessageWrapper(message);
+
+        Logger.debug("Incoming: " + message.getBody());
+
+        XMPPMessageWrapper xmr = new XMPPMessageWrapper(message);
         if (xmr.isSilent()) {
             return;
         }
@@ -94,9 +98,7 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
         }
     }
 
-    public void parse(final List<XMPPMessageWrapper> messageWrappers) {
-
-//        Map<String, List<XMPPMessageWrapper>> threadMessageMap = new HashMap<>();
+    public void parse(final List<XMPPMessageWrapper> messageWrappers, boolean notify) {
 
         for (XMPPMessageWrapper xmr : messageWrappers) {
             if (xmr.isSilent()) {
@@ -106,7 +108,7 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
             // if we joined before, the room should be bookmarked
             String messageId = xmr.getMessage().getStanzaId();
 
-            // The message already exists or there is no mesasge id
+            // The message already exists or there is no message id
             if (messageId == null || ChatSDK.db().fetchEntityWithEntityID(messageId, sdk.chat.core.dao.Message.class) != null) {
                 continue;
             }
@@ -119,28 +121,14 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
 //
 //            messages.add(xmr);
 
-            addMessageToThread(xmr, false);
+            Logger.debug("Incoming: Parse: " + xmr.body());
+
+            addMessageToThread(xmr, notify);
         }
 
-        ChatSDK.events().source().accept(NetworkEvent.threadsUpdated());
-
-//    }
-
-
-//        for (String threadID: threadMessageMap.keySet()) {
-//            // First message
-//            List<XMPPMessageWrapper> messages = threadMessageMap.get(threadID);
-//            if (messages != null) {
-//                Thread thread = messages.get(0).getThread();
-//                for (XMPPMessageWrapper message: messages) {
-//                    String from = message.from();
-//                    if (from != null) {
-//                        addMessageToThread(thread, message, false);
-//                    }
-//                }
-//            }
-//        }
-
+        if (!notify) {
+            ChatSDK.events().source().accept(NetworkEvent.threadsUpdated());
+        }
 
     }
 
@@ -150,6 +138,10 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
 
     public sdk.chat.core.dao.Message addMessageToThread(Thread thread, final XMPPMessageWrapper xmr, boolean notify) {
         if (xmr.isSilent()) {
+            return null;
+        }
+
+        if (xmr.getMessage().getStanzaId() == null) {
             return null;
         }
 
@@ -163,21 +155,34 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
             return null;
         }
 
+//        // Here we can update the last online time
+//        String bare = ChatSDK.currentUserID();
+//        if (bare != null) {
+//            // Why do we add 1000?
+//            Date date = new Date(xmr.rawDate().getTime() + 1000);
+//
+//            ConnectionManager manager = XMPPManager.shared().connectionManager();
+//            if (finalThread.typeIs(ThreadType.Group)) {
+//                manager.updateLastOnline(bare, thread.getEntityID(), date);
+//            } else if(XMPPManager.shared().xmppMamManager().isLoaded()) {
+//                manager.updateLastOnline(bare, date);
+//            }
+//        }
         // Here we can update the last online time
         String bare = ChatSDK.currentUserID();
         if (bare != null) {
-            // Why do we add 1000?
-            Date date = new Date(xmr.rawDate().getTime() + 1000);
+            Date date = new Date(xmr.date().getTime());
 
+            // Add an offset of 1 to avoid duplicate messages from MAM
             ConnectionManager manager = XMPPManager.shared().connectionManager();
             if (finalThread.typeIs(ThreadType.Group)) {
-                manager.updateLastOnline(bare, thread.getEntityID(), date);
+                manager.updateLastOnline(bare, finalThread.getEntityID(), date, 1);
             } else if(XMPPManager.shared().xmppMamManager().isLoaded()) {
-                manager.updateLastOnline(bare, date);
+                manager.updateLastOnline(bare, date, 1);
             }
         }
 
-        sdk.chat.core.dao.Message message = buildMessage(xmr);
+        sdk.chat.core.dao.Message message = buildMessage(xmr, notify);
 
         ChatSDK.hook().executeHook(HookEvent.MessageReceived, new HashMap<String, Object>() {{
             put(HookEvent.Message, message);
@@ -190,22 +195,26 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
         }
 
         finalThread.addMessage(message, notify);
-        updateReadReceipts(message, xmr);
+        updateReadReceipts(message, xmr, notify);
 
         return message;
     }
 
-    public sdk.chat.core.dao.Message buildMessage(final XMPPMessageWrapper xmr) {
+    public sdk.chat.core.dao.Message buildMessage(final XMPPMessageWrapper xmr, boolean notify) {
 
         // Check to see if the message exists already...
         sdk.chat.core.dao.Message message = ChatSDK.db().fetchMessageWithEntityID(xmr.getMessage().getStanzaId());
         boolean exists = message != null;
         if (!exists) {
+//            message = new sdk.chat.core.dao.Message();
+//            message.setEntityID(xmr.getMessage().getStanzaId());
             message = ChatSDK.db().fetchOrCreateMessageWithEntityID(xmr.getMessage().getStanzaId());
         }
 
         // If there is a difference between the server and local time...
         message.setDate(xmr.date());
+
+//        ChatSDK.db().insertOrReplaceEntity(message);
 
         // Is there a delay sending it?
         StandardExtensionElement delayExtension = xmr.delayExtra();
@@ -219,8 +228,6 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
                 } catch (Exception e) {}
             }
         }
-
-        message.setMessageStatus(MessageSendStatus.Sent);
 
         StandardExtensionElement extras = xmr.extras();
         if (extras != null) {
@@ -265,6 +272,12 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
 //                } else {
 //                    Logger.debug("No Body");
 //                }
+
+                String body = xmr.body();
+
+                if (!StringChecker.isNullOrEmpty(body) && StringChecker.isNullOrEmpty(message.getText())) {
+                    message.setText(body);
+                }
             }
 
         } else {
@@ -278,23 +291,28 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
         User user = xmr.user();
 
         message.setSender(user);
-        message.update();
+
+        ChatSDK.db().update(message, false);
+
+        message.setMessageStatus(MessageSendStatus.None, notify);
 
         // Handle the public keys
-        PublicKeyExtras.handle(user.getEntityID(), xmr.getMessage());
+        if (user != null) {
+            PublicKeyExtras.handle(user.getEntityID(), xmr.getMessage());
+        }
 
         return message;
     }
 
-    public void updateReadReceipts(sdk.chat.core.dao.Message message, XMPPMessageWrapper xmr) {
+    public void updateReadReceipts(sdk.chat.core.dao.Message message, XMPPMessageWrapper xmr, boolean notify) {
         // As soon as the message is received, we can set it as read
         if (message.getSender().isMe()) {
-            message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new Date());
+            message.setUserReadStatus(ChatSDK.currentUser(), ReadStatus.read(), new Date(), notify);
         } else {
             if (xmr.isGroupChat() && ChatSDK.readReceipts() != null) {
                 ChatSDK.readReceipts().markDelivered(message);
             }
-            message.markDelivered();
+            message.markDelivered(notify);
         }
     }
 
@@ -305,8 +323,23 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
         if (xmr.deliveryReceipt() != null) {
             XMPPManager.shared().receiptReceivedListener.onReceiptReceived(carbonCopy.getFrom(), carbonCopy.getTo(), xmr.deliveryReceipt().getId(), carbonCopy);
         } else {
-            addMessageToThread(xmr, true);
+            if (carbonCopy.getStanzaId() != null) {
+                addMessageToThread(xmr, true);
+            }
         }
+
+        ChatStateExtension chatState = xmr.chatStateExtension();
+        if (chatState != null) {
+            // TODO: Check if group messages ever come through here
+            // Because it's a carbon, the to field is actually the thread...
+            String from = carbonCopy.getTo().asBareJid().toString();
+
+            User user = ChatSDK.db().fetchUserWithEntityID(from);
+            Thread thread = ChatSDK.db().fetchEntityWithEntityID(from, Thread.class);
+//            User user = xmr.user();
+            XMPPManager.shared().typingIndicatorManager.handleMessage(null, carbonCopy, user, thread);
+        }
+
         Logger.debug("Carbon received");
     }
 

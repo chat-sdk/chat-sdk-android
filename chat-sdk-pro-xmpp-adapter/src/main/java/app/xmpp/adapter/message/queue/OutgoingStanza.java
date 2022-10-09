@@ -5,6 +5,7 @@ import org.jivesoftware.smack.packet.StandardExtensionElement;
 import org.jivesoftware.smack.packet.Stanza;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import app.xmpp.adapter.defines.XMPPDefines;
 
@@ -12,11 +13,12 @@ public class OutgoingStanza {
 
     public static String Delay = "delay";
     public static String DelayXMLNS = "co:chatsdk:delay";
+    public static Long delay = TimeUnit.SECONDS.toMillis(10);
 
     public Stanza stanza;
     public Date date = new Date();
     public boolean sent = false;
-    public double delay = 10.0;
+    public Long due = delay;
 
     public OutgoingStanza(Stanza stanza) {
         this.stanza = stanza;
@@ -35,17 +37,24 @@ public class OutgoingStanza {
     }
 
     public boolean isDue() {
-        return -delay() > delay;
+        return timeInQueue() > due;
     }
 
-    public Long delay() {
-        return date.getTime() - new Date().getTime();
+    public Long timeInQueue() {
+        return new Date().getTime() - date.getTime();
+    }
+
+    public Long getDelay() {
+        return -timeInQueue();
     }
 
     public void willTrySend() {
+
+        due = timeInQueue() + delay;
+
         stanza.removeExtension(XMPPDefines.Extras, XMPPDefines.DelayNamespace);
         ExtensionElement extension = StandardExtensionElement.builder(XMPPDefines.Extras, XMPPDefines.DelayNamespace)
-                .addElement(Delay, delay().toString())
+                .addElement(Delay, getDelay().toString())
                 .build();
         stanza.addExtension(extension);
     }

@@ -11,11 +11,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -35,7 +36,6 @@ import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.provider.MenuItemProvider;
 
 /**
@@ -146,7 +146,11 @@ public abstract class SelectContactActivity extends BaseActivity {
             }));
         } else {
             dm.add(adapter.onClickObservable().subscribe(item -> {
-                refreshDoneButtonVisibility();
+                if (!multiSelectEnabled) {
+                    doneButtonPressed(Arrays.asList(item));
+                } else {
+                    refreshDoneButtonVisibility();
+                }
             }));
         }
     }

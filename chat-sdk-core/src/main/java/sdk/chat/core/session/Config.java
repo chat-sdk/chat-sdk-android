@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import sdk.chat.core.R;
 import sdk.guru.common.BaseConfig;
+import sdk.guru.common.RX;
 
 /**
  * Created by ben on 10/17/17.
@@ -151,9 +152,6 @@ public class Config<T> extends BaseConfig<T> {
 
     public Config<T> setDebugModeEnabled(boolean debug) {
         this.debug = debug;
-        if (debug) {
-            Logger.getConfiguration().level(Level.DEBUG).activate();
-        }
         return this;
     }
 
@@ -632,7 +630,7 @@ public class Config<T> extends BaseConfig<T> {
         return this;
     }
 
-    public int imagePreviewMaxSize = 80;
+    public int imagePreviewMaxSize = 35;
     public Config<T> setImagePreviewMaxSize(int value) {
         this.imagePreviewMaxSize = value;
         return this;

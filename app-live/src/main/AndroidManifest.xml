@@ -1,6 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="sdk.chat.demo.live">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!--        android:icon="@drawable/ic_launcher"-->
 

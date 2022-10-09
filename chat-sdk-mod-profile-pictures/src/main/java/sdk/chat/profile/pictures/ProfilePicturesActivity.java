@@ -18,17 +18,14 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.image.ImageUploadResult;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.PermissionRequestHandler;
 import sdk.chat.ui.ChatSDKUI;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.activities.ImagePreviewActivity;
 import sdk.chat.ui.chat.MediaSelector;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.provider.MenuItemProvider;
 import sdk.chat.ui.utils.ImagePickerUploader;
@@ -52,9 +49,9 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
     protected boolean hideButton = false;
     protected String limitWarning = null;
 
-    @BindView(R2.id.imageView) protected ImageView imageView;
-    @BindView(R2.id.gridLayout) protected GridLayout gridLayout;
-    @BindView(R2.id.root) protected LinearLayout root;
+    protected ImageView imageView;
+    protected GridLayout gridLayout;
+    protected LinearLayout root;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -74,6 +71,10 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
                 return;
             }
         }
+
+        gridLayout = findViewById(R.id.gridLayout);
+        imageView = findViewById(R.id.imageView);
+        root = findViewById(R.id.root);
 
         gridPadding = getIntent().getIntExtra(BaseProfilePicturesHandler.KeyGridPadding, gridPadding);
         pictureMargin = getIntent().getIntExtra(BaseProfilePicturesHandler.KeyPictureMargin, maxPictures);

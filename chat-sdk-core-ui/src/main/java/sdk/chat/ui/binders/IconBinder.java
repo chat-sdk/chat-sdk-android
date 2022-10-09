@@ -1,5 +1,6 @@
 package sdk.chat.ui.binders;
 
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -10,7 +11,7 @@ public class IconBinder {
     public void bind(ImageView messageIcon, MessageHolder message) {
         if (messageIcon != null && message.getIcon() != null) {
             messageIcon.setVisibility(View.VISIBLE);
-            ChatSDKUI.provider().imageLoader().loadIcon(messageIcon, message.getIcon());
+            ChatSDKUI.provider().imageLoader().loadIcon(messageIcon, message.getIcon(), message.getPayload().getPlaceholder());
         } else if (messageIcon != null) {
             messageIcon.setVisibility(View.GONE);
         }

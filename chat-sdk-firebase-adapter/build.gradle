@@ -34,6 +34,7 @@ android {
         checkReleaseBuilds false
         lintConfig file('lint.xml')
     }
+    namespace 'sdk.chat.firebase.adapter'
 
 }
 
@@ -44,7 +45,7 @@ dependencies {
     api project(':sdk-guru-realtime')
 
 //    api "com.google.firebase:firebase-core:$firebaseCoreVersion"
-    api "com.google.firebase:firebase-auth:$firebaseAuthVersion"
+    api "com.google.firebase:firebase-auth"
 
 }
 

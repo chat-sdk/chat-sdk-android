@@ -99,7 +99,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     }
 
     public Message newMessage(int type, Thread thread, boolean notify) {
-        Message message = ChatSDK.db().createEntity(Message.class);
+        Message message = new Message();
         message.setSender(ChatSDK.currentUser());
         message.setDate(new Date());
 
@@ -107,6 +107,8 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         message.setType(type);
         message.setMessageStatus(MessageSendStatus.Initial, false);
         message.setIsRead(true);
+
+        ChatSDK.db().insertOrReplaceEntity(message);
 
         if (!thread.typeIs(ThreadType.Public)) {
             for (User user: thread.getUsers()) {
@@ -121,7 +123,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         }
 
         // TODO: Message Flow
-        thread.addMessage(message, notify);
+        thread.addMessage(message, notify, true, false);
 
         return message;
     }

@@ -225,4 +225,14 @@
 
     </declare-styleable>
 
+    <attr name="incomingMessageBubbleTopLeftCornerRadius" format="reference|dimension" />
+    <attr name="incomingMessageBubbleTopRightCornerRadius" format="reference|dimension" />
+    <attr name="incomingMessageBubbleBottomLeftCornerRadius" format="reference|dimension" />
+    <attr name="incomingMessageBubbleBottomRightCornerRadius" format="reference|dimension" />
+
+    <attr name="outcomingMessageBubbleTopLeftCornerRadius" format="reference|dimension" />
+    <attr name="outcomingMessageBubbleTopRightCornerRadius" format="reference|dimension" />
+    <attr name="outcomingMessageBubbleBottomLeftCornerRadius" format="reference|dimension" />
+    <attr name="outcomingMessageBubbleBottomRightCornerRadius" format="reference|dimension" />
+
 </resources>

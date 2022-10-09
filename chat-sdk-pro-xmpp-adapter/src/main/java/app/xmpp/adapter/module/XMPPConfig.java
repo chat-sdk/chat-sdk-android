@@ -22,14 +22,14 @@ public class XMPPConfig<T> extends BaseConfig<T> {
     public String hostAddress;
     public int port = 5222;
     public String resource = null;
-//    public boolean xmppSslEnabled;
+    //    public boolean xmppSslEnabled;
 //    public boolean xmppAcceptAllCertificates;
 //    public boolean xmppDisableHostNameVerification;
 //    public boolean xmppAllowClientSideAuthentication;
     public boolean compressionEnabled = true;
     public String securityMode = "disabled";
     public int mucMessageHistoryDownloadLimit = 20;
-    public int messageHistoryDownloadLimit = 100;
+    public int messageHistoryDownloadLimit = 200;
     public boolean debugEnabled = false;
     public int pingInterval = 15;
     public boolean streamManagementEnabled = true;
@@ -50,6 +50,7 @@ public class XMPPConfig<T> extends BaseConfig<T> {
 
     public boolean allowServerConfiguration = true;
 
+    public boolean notifyForNewMamMessages = false;
 
     public boolean sendSystemMessageForRoleChange = true;
     public boolean sendSystemMessageForAffiliationChange = false;
@@ -271,6 +272,11 @@ public class XMPPConfig<T> extends BaseConfig<T> {
 
     public XMPPConfig<T> setReciprocalPresenceRequest(boolean value) {
         this.reciprocalPresenceRequests = value;
+        return this;
+    }
+
+    public XMPPConfig<T> setNotifyForNewMamMessages(boolean value) {
+        this.notifyForNewMamMessages = value;
         return this;
     }
 }

@@ -159,8 +159,8 @@ public class Message extends AbstractEntity {
         }
     }
 
-    public void markDelivered() {
-        MessageAsync.markDelivered(this);
+    public void markDelivered(boolean notify) {
+        MessageAsync.markDelivered(this, notify);
     }
 
     @Override
@@ -242,7 +242,7 @@ public class Message extends AbstractEntity {
         metaValue.setValue(valueString);
         metaValue.setTag(tag);
         metaValue.setIsLocal(isLocal);
-        metaValue.update();
+        ChatSDK.db().update(metaValue);
         return true;
     }
 
@@ -316,7 +316,7 @@ public class Message extends AbstractEntity {
             } else {
                 isRead = false;
             }
-            update();
+            ChatSDK.db().update(this);
         }
 
         if (link == null || link.getStatus() < status.getValue()) {
@@ -334,7 +334,7 @@ public class Message extends AbstractEntity {
             }
             link.setStatus(status.getValue());
             link.setDate(date);
-            link.update();
+            ChatSDK.db().update(link);
             if (notify) {
                 ChatSDK.events().source().accept(NetworkEvent.messageReadReceiptUpdated(this));
             }
@@ -409,19 +409,22 @@ public class Message extends AbstractEntity {
         setMessageStatus(status, true);
     }
 
-    public void setMessageStatus(@NonNull MessageSendStatus status, boolean notify) {
+    public void setMessageStatus(@NonNull final MessageSendStatus status, final boolean notify) {
         if (this.status == null ||  this.status != status.ordinal()) {
             this.status = status.ordinal();
-            this.update();
-            if (notify) {
-                ChatSDK.events().source().accept(NetworkEvent.messageSendStatusChanged(this));
-            }
+            ChatSDK.db().update(this, new Runnable() {
+                @Override
+                public void run() {
+                    if (notify) {
+                        ChatSDK.events().source().accept(NetworkEvent.messageSendStatusChanged(Message.this));
+                    }
+                }
+            });
         }
     }
     public void setStatus(Integer status) {
         this.status = status;
     }
-
 
     public Long getThreadId() {
         return this.threadId;
@@ -830,12 +833,15 @@ public class Message extends AbstractEntity {
                     if (fileTransferStatus == TransferStatus.Failed) {
                         return true;
                     } else {
-//                        double age = file.ageInSeconds();
-//                        if (age < 10) {
-//                            continue;
-//                        }
-                        TransferStatus us = ChatSDK.upload().uploadStatus(file.getEntityID());
-                        if (us == TransferStatus.None || us == TransferStatus.Failed) {
+                        double age = file.ageInSeconds();
+                        if (fileTransferStatus == TransferStatus.Initial && age < 10) {
+                            continue;
+                        }
+                        TransferStatus us = ChatSDK.upload().uploadStatus(file.getHash());
+                        if (age > 10 && us == TransferStatus.None) {
+                            return true;
+                        }
+                        if (us == TransferStatus.Failed) {
                             return true;
                         }
                     }
@@ -855,7 +861,7 @@ public class Message extends AbstractEntity {
         }
         this.isRead = isRead;
         if (update) {
-            update();
+            ChatSDK.db().update(this);
         }
         if (notify) {
             ChatSDK.events().source().accept(NetworkEvent.messageUpdated(this));
@@ -886,4 +892,10 @@ public class Message extends AbstractEntity {
         this.filePath = filePath;
     }
 
+    public boolean isLastMessage() {
+        if (thread != null) {
+            return getId().equals(thread.getLastMessageId());
+        }
+        return false;
+    }
 }

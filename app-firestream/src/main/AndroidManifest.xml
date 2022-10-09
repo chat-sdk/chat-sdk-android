@@ -1,6 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="sdk.chat.demo.firestream">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:allowBackup="false"

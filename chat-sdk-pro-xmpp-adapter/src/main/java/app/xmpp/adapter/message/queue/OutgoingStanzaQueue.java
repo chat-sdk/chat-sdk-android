@@ -10,7 +10,9 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import app.xmpp.adapter.defines.XMPPDefines;
@@ -19,20 +21,37 @@ import io.reactivex.disposables.Disposable;
 import sdk.chat.core.session.ChatSDK;
 
 // Seems not to be needed
-@Deprecated
 public class OutgoingStanzaQueue implements ConnectionListener, StanzaListener, StanzaFilter {
 
     protected List<OutgoingStanza> stanzaQueue = new ArrayList<>();
+    protected Map<String, OutgoingStanza> sending = new HashMap<>();
 
     protected WeakReference<XMPPTCPConnection> connection;
     protected boolean enabled = false;
+    protected boolean running = false;
 
     protected Disposable timerDisposable;
 
     public OutgoingStanzaQueue() {
+//        timerDisposable = Observable.interval(3, TimeUnit.SECONDS).subscribe(aLong -> {
+//            send();
+//        });
+    }
+
+    public void pause() {
+        if (timerDisposable != null) {
+            timerDisposable.dispose();
+            timerDisposable = null;
+        }
+        running = false;
+    }
+
+    public void start() {
+        pause();
         timerDisposable = Observable.interval(3, TimeUnit.SECONDS).subscribe(aLong -> {
             send();
         });
+        running = true;
     }
 
     public void clear() {
@@ -51,33 +70,49 @@ public class OutgoingStanzaQueue implements ConnectionListener, StanzaListener, 
         for (OutgoingStanza stanza: stanzaQueue) {
             if (stanza.elementID().equals(elementID)) {
                 stanza.markSent();
+                sending.remove(elementID);
             }
         }
     }
 
     public void send() {
-        for (OutgoingStanza stanza: stanzaQueue) {
-            if (!stanza.isSent() && stanza.isDue()) {
-                stanza.willTrySend();
-                try {
-                    connection.get().sendStanza(stanza.stanza);
-                } catch (Exception e) {
-                    ChatSDK.events().onError(e);
+        if (getConnection() != null && getConnection().isAuthenticated()) {
+            for (OutgoingStanza stanza: stanzaQueue) {
+                if (!stanza.isSent() && stanza.isDue()) {
+                    stanza.willTrySend();
+                    try {
+
+                        try {
+                            getConnection().addStanzaIdAcknowledgedListener(stanza.stanza.getStanzaId(), ack -> {
+                                handleAck(ack.getStanzaId());
+                            });
+                        } catch (Exception e) {
+                            ChatSDK.events().onError(e);
+                        }
+
+                        connection.get().sendStanza(stanza.stanza);
+                        sending.put(stanza.elementID(), stanza);
+                    } catch (Exception e) {
+
+                        ChatSDK.events().onError(e);
+                    }
                 }
             }
+            clear();
         }
-        clear();
     }
 
-    public void add(Stanza stanza) {
+    public boolean add(Stanza stanza) {
         if (isEnabled() && accept(stanza)) {
             for (OutgoingStanza os: stanzaQueue) {
                 if (stanza.getStanzaId().equals(os.elementID())) {
-                    return;
+                    return false;
                 }
-                stanzaQueue.add(new OutgoingStanza(stanza));
             }
+            stanzaQueue.add(new OutgoingStanza(stanza));
+            return true;
         }
+        return false;
     }
 
     @Override
@@ -90,31 +125,37 @@ public class OutgoingStanzaQueue implements ConnectionListener, StanzaListener, 
 
     @Override
     public void authenticated(XMPPConnection connection, boolean resumed) {
-        if (this.connection.get().isSmEnabled()) {
+        if (connection instanceof XMPPTCPConnection && ((XMPPTCPConnection) connection).isSmEnabled()) {
             connection.removeStanzaSendingListener(this);
             connection.addStanzaSendingListener(this, this);
             enabled = true;
+            start();
         }
     }
 
     @Override
     public void connectionClosed() {
+        pause();
     }
 
     @Override
     public void connectionClosedOnError(Exception e) {
+        pause();
     }
 
     @Override
     public void processStanza(Stanza packet) {
-        try {
-            connection.get().addStanzaIdAcknowledgedListener(packet.getStanzaId(), ack -> {
-                handleAck(ack.getStanzaId());
-            });
-        } catch (Exception e) {
-            ChatSDK.events().onError(e);
+        if (add(packet)) {
+//            try {
+//                if (getConnection() != null) {
+//                    getConnection().addStanzaIdAcknowledgedListener(packet.getStanzaId(), ack -> {
+//                        handleAck(ack.getStanzaId());
+//                    });
+//                }
+//            } catch (Exception e) {
+//                ChatSDK.events().onError(e);
+//            }
         }
-        add(packet);
     }
 
     public boolean isEnabled() {
@@ -127,6 +168,14 @@ public class OutgoingStanzaQueue implements ConnectionListener, StanzaListener, 
         if (stanza instanceof Message) {
             Message message = (Message) stanza;
 
+            if (stanza.getStanzaId() == null) {
+                return false;
+            }
+
+            if (sending.containsKey(stanza.getStanzaId())) {
+                return false;
+            }
+
             boolean hasNoRetryExtension = stanza.getExtension(XMPPDefines.Extras, XMPPDefines.NoRetryNamespace) != null;
             if (hasNoRetryExtension) {
                 return false;
@@ -138,5 +187,12 @@ public class OutgoingStanzaQueue implements ConnectionListener, StanzaListener, 
             return isReadExtension || hasBody;
         }
         return false;
+    }
+
+    public XMPPTCPConnection getConnection() {
+        if (connection != null) {
+            return connection.get();
+        }
+        return null;
     }
 }

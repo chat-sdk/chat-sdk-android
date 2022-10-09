@@ -11,5 +11,6 @@ import sdk.chat.core.ui.KeyboardOverlayHandler;
 
 public interface StickerMessageHandler extends MessageHandler {
     Completable sendMessageWithSticker(String stickerImageName, final Thread thread);
+    Completable sendMessageWithSticker(final String name, final String url, final Thread thread);
     AbstractKeyboardOverlayFragment keyboardOverlay(KeyboardOverlayHandler sender);
 }

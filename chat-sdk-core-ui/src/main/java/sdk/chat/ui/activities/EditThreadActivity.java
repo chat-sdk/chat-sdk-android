@@ -38,7 +38,6 @@ import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.MediaSelector;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ImagePickerUploader;
 import sdk.guru.common.RX;
@@ -161,11 +160,14 @@ public class EditThreadActivity extends BaseActivity {
             nameTextInput.setText(name);
         }
 
-        if (threadImageURL != null) {
-            ChatSDKUI.provider().imageLoader().loadThread(threadImageView, threadImageURL, thread.typeIs(ThreadType.Group), R.dimen.large_icon_width);
-
+        if (thread == null) {
+            ChatSDKUI.provider().imageLoader().loadThread(threadImageView, threadImageURL, users.size() > 1, R.dimen.large_icon_width);
         } else {
-            ChatSDKUI.provider().imageLoader().loadThread(threadImageView, thread, R.dimen.large_icon_width);
+            if (threadImageURL != null) {
+                ChatSDKUI.provider().imageLoader().loadThread(threadImageView, threadImageURL, thread.typeIs(ThreadType.Group), R.dimen.large_icon_width);
+            } else {
+                ChatSDKUI.provider().imageLoader().loadThread(threadImageView, thread, R.dimen.large_icon_width);
+            }
         }
 
         updateSaveButtonState();
@@ -211,7 +213,7 @@ public class EditThreadActivity extends BaseActivity {
             if (threadImageURL != null) {
                 thread.setImageUrl(threadImageURL);
             }
-            thread.update();
+            ChatSDK.db().update(thread);
             dm.add(ChatSDK.thread().pushThreadMeta(thread).subscribe(() -> {
                 Intent intent = new Intent();
                 intent.putExtra(Keys.IntentKeyRestartActivity, true);

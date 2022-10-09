@@ -26,6 +26,7 @@ public interface AuthenticationHandler {
     Boolean isAuthenticated();
     Boolean isAuthenticating();
     Boolean cachedCredentialsAvailable();
+    AccountDetails cachedAccountDetails();
 
     void cancel();
 

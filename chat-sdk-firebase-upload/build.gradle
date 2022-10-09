@@ -34,6 +34,7 @@ android {
         checkReleaseBuilds false
         lintConfig file('lint.xml')
     }
+    namespace 'sdk.chat.firebase.upload'
 
 }
 
@@ -42,7 +43,7 @@ dependencies {
     implementation project(':chat-sdk-core')
 
     implementation project(':chat-sdk-firebase-adapter')
-    implementation "com.google.firebase:firebase-storage:$firebaseStorageVersion"
+    implementation "com.google.firebase:firebase-storage"
 }
 
 ext {

@@ -48,7 +48,7 @@ public class Item implements Parcelable {
     public final long size;
     public final long duration; // only for video, in ms
 
-    private Item(long id, String mimeType, long size, long duration) {
+    public Item(long id, String mimeType, long size, long duration) {
         this.id = id;
         this.mimeType = mimeType;
         Uri contentUri;
@@ -80,6 +80,7 @@ public class Item implements Parcelable {
                 cursor.getLong(cursor.getColumnIndex(MediaStore.MediaColumns.SIZE)),
                 cursor.getLong(cursor.getColumnIndex("duration")));
     }
+
 
     @Override
     public int describeContents() {

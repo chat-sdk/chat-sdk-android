@@ -48,7 +48,8 @@ public class ThreadDeleter {
                 thread.removeMessage(m, false);
                 m.cascadeDelete();
             }
-            thread.update();
+            ChatSDK.db().update(thread);
+
             emitter.onComplete();
         }).subscribeOn(RX.io());
     }
@@ -62,7 +63,8 @@ public class ThreadDeleter {
                     .child(currentUser.getEntityID());
 
             thread.setDeleted(true);
-            thread.update();
+            ChatSDK.db().update(thread);
+
 
             HashMap<String, Object> value = new HashMap<>();
             value.put(Keys.Name, currentUser.getName());

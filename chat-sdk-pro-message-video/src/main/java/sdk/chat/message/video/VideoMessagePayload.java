@@ -9,6 +9,7 @@ import android.media.ThumbnailUtils;
 import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
+import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.manager.DownloadablePayload;
 import sdk.chat.core.manager.ImageMessagePayload;
 import sdk.chat.core.session.ChatSDK;
@@ -82,8 +83,7 @@ public class VideoMessagePayload extends ImageMessagePayload implements Download
             }
         }
         if (bitmap != null) {
-            bitmap = ThumbnailUtils.extractThumbnail(bitmap, size.widthInt(), size.heightInt());
-//            bitmap = Bitmap.createScaledBitmap(bitmap, Math.round(size.width), Math.round(size.height), true);
+            bitmap = ThumbnailUtils.extractThumbnail(bitmap, size.widthInt(), size.heightInt(), ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
         }
         return new BitmapDrawable(ChatSDK.ctx().getResources(), bitmap);
     }

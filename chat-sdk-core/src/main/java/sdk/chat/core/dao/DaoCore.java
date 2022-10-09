@@ -57,11 +57,11 @@ public class DaoCore {
 
     public void closeDB() {
         if (db != null) {
-            db.close();
+//            db.close();
             db = null;
         }
         if (edb != null) {
-            edb.close();
+//            edb.close();
             edb = null;
         }
         daoMaster = null;
@@ -72,9 +72,15 @@ public class DaoCore {
     }
 
     public synchronized void openDB(String name) throws Exception {
+        if (db != null || edb != null) {
+            closeDB();
+        }
+
         name = ChatSDK.config().databaseNamePrefix + Utils.md5(name);
 
-        if (!name.equals(dbName)) {
+//        if (!name.equals(dbName)) {
+
+
 
             if (ChatSDK.config().debug) {
                 helper = new DaoMaster.DevOpenHelper(context, name, null);
@@ -83,16 +89,7 @@ public class DaoCore {
                 helper = new DatabaseUpgradeHelper(context, name);
             }
 
-            if (db != null || edb != null) {
-                closeDB();
-            }
-
             if (ChatSDK.config().databaseEncryptionKey != null) {
-
-//                edb =
-
-//                SqlCipherEncryptedHelper helper;
-                net.sqlcipher.database.SQLiteOpenHelper db;
 
                 edb = helper.getEncryptedWritableDb(ChatSDK.config().databaseEncryptionKey);
                 daoMaster = new DaoMaster(edb);
@@ -108,7 +105,7 @@ public class DaoCore {
             }
             dbName = name;
             Logger.info("Database: " + name + " setup correctly");
-        }
+//        }
 
     }
 

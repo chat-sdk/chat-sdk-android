@@ -165,6 +165,16 @@
     <item name="chatOptionBackgroundCornerRadius">@dimen/_10sdp</item>
     <item name="chatOptionTextColor">@color/gray_1</item>
 
+    <item name="incomingMessageBubbleTopLeftCornerRadius">0dp</item>
+    <item name="incomingMessageBubbleTopRightCornerRadius">@dimen/message_bubble_corners_radius</item>
+    <item name="incomingMessageBubbleBottomLeftCornerRadius">@dimen/message_bubble_corners_radius</item>
+    <item name="incomingMessageBubbleBottomRightCornerRadius">@dimen/message_bubble_corners_radius</item>
+
+    <item name="outcomingMessageBubbleBottomRightCornerRadius">0dp</item>
+    <item name="outcomingMessageBubbleTopLeftCornerRadius">@dimen/message_bubble_corners_radius</item>
+    <item name="outcomingMessageBubbleTopRightCornerRadius">@dimen/message_bubble_corners_radius</item>
+    <item name="outcomingMessageBubbleBottomLeftCornerRadius">@dimen/message_bubble_corners_radius</item>
+
 
 </style>
 
@@ -203,6 +213,7 @@
 <style name="LightTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
     <item name="boxStrokeColor">@color/light_input_box_stroke</item>
     <item name="boxStrokeWidth">1dp</item>
+    <item name="android:textAlignment">center</item>
 </style>
 
     <style name="ChatSDKTheme.NoActionBar">

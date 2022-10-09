@@ -60,13 +60,16 @@ public class ImageMessageHolder extends MessageHolder implements MessageContentT
         return drawable;
     }
 
-    public int defaultPlaceholder() {
+    public static int defaultPlaceholder(Message message) {
         if (message.typeIs(MessageType.Location)) {
             return R.drawable.icn_200_location_message_placeholder;
         }
         return R.drawable.icn_200_image_message_placeholder;
     }
 
+    public int defaultPlaceholder() {
+        return defaultPlaceholder(message);
+    }
     @Override
     public boolean canSave() {
         return true;

@@ -171,7 +171,7 @@ public class FirebaseUploadHandler extends AbstractUploadHandler {
         return TransferStatus.None;
     }
 
-    public static FirebaseStorage storage () {
+    public static FirebaseStorage storage() {
         if (FirebaseUploadModule.config().firebaseStorageUrl != null) {
             return FirebaseStorage.getInstance(FirebaseCoreHandler.app(), FirebaseUploadModule.config().firebaseStorageUrl);
         } else {

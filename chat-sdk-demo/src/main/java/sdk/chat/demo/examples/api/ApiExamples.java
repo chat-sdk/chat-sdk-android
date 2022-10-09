@@ -24,13 +24,10 @@ import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
-import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.push.BroadcastHandler;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.types.MessageSendProgress;
-import sdk.chat.core.types.MessageSendStatus;
 import sdk.chat.core.types.MessageType;
 import sdk.chat.core.ui.ProfileFragmentProvider;
 import sdk.chat.demo.examples.activities.AProfileFragment;
@@ -186,23 +183,6 @@ public class ApiExamples {
     public int getUnreadMessageCount (Thread thread) {
         return thread.getUnreadMessagesCount();
     }
-
-    /**
-     * How to determine when a text has been sent / uploaded etc...
-     * @param thread
-     */
-    public void getNotificationWhenFileUploaded (Thread thread) {
-        ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageSendStatusUpdated)).subscribe(networkEvent -> {
-            MessageSendProgress progress = (MessageSendProgress) networkEvent.getData().get(NetworkEvent.MessageSendProgress);
-            if (progress.getStatus() == MessageSendStatus.Uploading) {
-                // BaseMessage type uploading
-            }
-            if (progress.getStatus() == MessageSendStatus.Sent) {
-                // BaseMessage has finished uploading
-            }
-        });
-    }
-
 
     /**
      * How to detect when a new text has been received

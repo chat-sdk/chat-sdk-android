@@ -20,7 +20,7 @@ import java.util.Date;
                 @Index(value = "messageId,userId", unique = true)
         }
 )
-public class ReadReceiptUserLink {
+public class ReadReceiptUserLink implements Updatable {
 
     @Id
     private Long id;

@@ -4,8 +4,11 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.DrawableRes;
+import androidx.appcompat.content.res.AppCompatResources;
 
 import com.stfalcon.chatkit.commons.models.IMessage;
+
+import org.pmw.tinylog.Logger;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -45,6 +48,7 @@ public class MessageHolder implements IMessage, Consumer<Throwable> {
     protected boolean previousSenderEqualsSender;
     protected boolean nextSenderEqualsSender;
     protected boolean showDate;
+    protected boolean isLast;
     protected String quotedImageURL;
     protected Drawable quotedImagePlaceholder;
     protected MessageDirection direction;
@@ -89,6 +93,13 @@ public class MessageHolder implements IMessage, Consumer<Throwable> {
                     updateReadStatus();
                 }, this));
 
+        dm.add(ChatSDK.events().prioritySourceOnSingle()
+                .filter(NetworkEvent.filterType(EventType.MessageUpdated))
+                .filter(NetworkEvent.filterMessageEntityID(getId()))
+                .subscribe(networkEvent -> {
+                    updateNextAndPreviousMessages();
+                }, this));
+
         userHolder = ChatSDKUI.provider().holderProvider().getUserHolder(message.getSender());
 
         updateSendStatus(message.getMessageStatus());
@@ -101,6 +112,9 @@ public class MessageHolder implements IMessage, Consumer<Throwable> {
             ImageMessagePayload ip = (ImageMessagePayload) replyPayload;
             quotedImageURL = ip.imageURL();
             quotedImagePlaceholder = ip.getPlaceholder();
+            if (quotedImagePlaceholder == null) {
+                quotedImagePlaceholder = AppCompatResources.getDrawable(ChatSDK.ctx(), ImageMessageHolder.defaultPlaceholder(message));
+            }
         }
 
         isReply = message.isReply();
@@ -111,6 +125,12 @@ public class MessageHolder implements IMessage, Consumer<Throwable> {
     public void updateNextAndPreviousMessages() {
         Message nextMessage = message.getNextMessage();
         Message previousMessage = message.getPreviousMessage();
+
+        boolean isLast = nextMessage == null;
+        if (isLast != this.isLast) {
+            this.isLast = isLast;
+            isDirty = true;
+        }
 
         if (!isDirty) {
             String oldNextMessageId = this.nextMessage != null ? this.nextMessage.getEntityID() : "";
@@ -133,6 +153,8 @@ public class MessageHolder implements IMessage, Consumer<Throwable> {
         DateFormat format = UIModule.shared().getMessageBinder().messageTimeComparisonDateFormat(ChatSDK.ctx());
         showDate = nextMessage == null || !(format.format(message.getDate()).equals(format.format(nextMessage.getDate())) && nextSenderEqualsSender);
         isGroup = message.getThread().typeIs(ThreadType.Group);
+
+        Logger.warn("Message: " + message.getText() + ", showDate: " + showDate);
     }
 
     public void updateSendStatus(MessageSendStatus status) {
@@ -263,7 +285,7 @@ public class MessageHolder implements IMessage, Consumer<Throwable> {
     }
 
     public String getIcon() {
-        return null;
+        return payload.imageURL();
     }
 
     public static List<Message> toMessages(List<MessageHolder> messageHolders) {
@@ -328,4 +350,11 @@ public class MessageHolder implements IMessage, Consumer<Throwable> {
         return payload;
     }
 
+    public boolean isLast() {
+        return isLast;
+    }
+
+    public boolean enableLinkify() {
+        return true;
+    }
 }

@@ -440,7 +440,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
             thread.setCreator(ChatSDK.currentUser());
             thread.setCreationDate(new Date());
             thread.setType(ThreadType.PrivateGroup);
-            thread.update();
+            ChatSDK.db().update(thread);
             ChatSDK.events().source().accept(NetworkEvent.threadAdded(thread));
         }
         return thread;

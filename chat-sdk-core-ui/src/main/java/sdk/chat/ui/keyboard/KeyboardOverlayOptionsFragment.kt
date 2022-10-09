@@ -17,14 +17,13 @@ import smartadapter.viewevent.listener.OnClickEventListener
 
 open class KeyboardOverlayOptionsFragment(): AbstractKeyboardOverlayFragment() {
 
-    open interface OptionExecutor {
-        fun execute(option: ChatOption)
+    companion object {
+        const val key = "options"
     }
 
     open lateinit var smartRecyclerAdapter: SmartRecyclerAdapter
     open lateinit var recyclerView: RecyclerView
     open lateinit var rootView: View
-    open var optionExecutor: OptionExecutor? = null
 
     open var screenWidth: Int = 0
     open var screenHeight: Int = 0
@@ -74,6 +73,10 @@ open class KeyboardOverlayOptionsFragment(): AbstractKeyboardOverlayFragment() {
 
     override fun onResume() {
         super.onResume()
+    }
+
+    override fun key(): String {
+        return key
     }
 
     override fun onAttach(context: Context) {
@@ -127,8 +130,8 @@ open class KeyboardOverlayOptionsFragment(): AbstractKeyboardOverlayFragment() {
         if (option.hasOverlay()) {
             keyboardOverlayHandler.get()?.showOverlay(option.getOverlay(keyboardOverlayHandler.get()))
         } else {
-            keyboardOverlayHandler.get()?.send(Sendable { activity, thread ->
-                option.execute(activity, thread)
+            keyboardOverlayHandler.get()?.send(Sendable { activity, launcher, thread ->
+                option.execute(activity, launcher, thread)
             })
         }
     }

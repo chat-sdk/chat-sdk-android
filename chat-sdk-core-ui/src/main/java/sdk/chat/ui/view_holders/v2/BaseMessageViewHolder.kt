@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import com.stfalcon.chatkit.messages.MessageHolders
+import com.stfalcon.chatkit.messages.MessagesListAdapter
 import com.stfalcon.chatkit.messages.MessagesListStyle
 import de.hdodenhof.circleimageview.CircleImageView
 import io.reactivex.functions.Consumer
@@ -52,10 +53,16 @@ open class BaseMessageViewHolder<T : MessageHolder>(itemView: View, direction: M
     open var progressView: ProgressView? = itemView.findViewById(R.id.progressView)
     open var bubbleOverlay: View? = itemView.findViewById(R.id.bubbleOverlay)
 
+    open var resendTextView: TextView? = itemView.findViewById(R.id.resendTextView)
+    open var resendContainer: ConstraintLayout? = itemView.findViewById(R.id.resendContainer)
+    open var resendImageView: ImageView? = itemView.findViewById(R.id.resendImageView)
+
     open var format: DateFormat? = null
 
     open val dm = DisposableMap()
     open val direction: MessageDirection
+
+    open var userClickListener: MessagesListAdapter.UserClickListener? = null
 
     init {
         this.direction = direction
@@ -82,10 +89,7 @@ open class BaseMessageViewHolder<T : MessageHolder>(itemView: View, direction: M
             it.isSelected = isSelected
         }
 
-        text?.let {
-            it.text = t?.text
-            it.autoLinkMask = Linkify.ALL
-        }
+        setText(t.text, t.enableLinkify())
 
         if (replyView != null && replyTextView != null && replyImageView != null) {
             UIModule.shared().replyViewBinder.onBind(
@@ -97,9 +101,6 @@ open class BaseMessageViewHolder<T : MessageHolder>(itemView: View, direction: M
 
         time?.let {
             UIModule.shared().timeBinder.bind(it, t)
-
-            // Hide the time if it's the same as the next message
-            it.visibility = if (t.showDate()) View.VISIBLE else View.INVISIBLE
         }
 
         messageIcon?.let {
@@ -112,11 +113,22 @@ open class BaseMessageViewHolder<T : MessageHolder>(itemView: View, direction: M
         bindUser(t)
     }
 
+    open fun setText(value: String, linkify: Boolean) {
+        text?.let {
+            if (linkify) {
+                it.autoLinkMask = Linkify.ALL
+            } else {
+                it.autoLinkMask = 0
+            }
+            it.text = value
+        }
+    }
+
     open fun bindUser(t: T) {
         userAvatar?.let {
 
             // TODO:
-//            val pl = payload as? BaseIncomingTextMessageViewHolder.Payload
+//            val pl = payload as? DefaultMessageRegistration.AvatarClickPayload
 //            if(pl != null) {
 //                it.setOnClickListener { _ ->
 //                    if (pl.avatarClickListener != null && UIModule.config().startProfileActivityOnChatViewIconClick) {
@@ -127,7 +139,7 @@ open class BaseMessageViewHolder<T : MessageHolder>(itemView: View, direction: M
 
             if (UIModule.config().startProfileActivityOnChatViewIconClick) {
                 it.setOnClickListener { _ ->
-                    ChatSDK.ui().startProfileActivity(itemView.context, t.user.id)
+                    userClickListener?.onClick(t.user.id)
                 }
             }
 
@@ -167,11 +179,24 @@ open class BaseMessageViewHolder<T : MessageHolder>(itemView: View, direction: M
             }
         }
 
+        bindResend(holder)
+
         return showOverlay
+    }
+
+    open fun bindResend(holder: T) {
+        resendContainer?.let {
+            if (holder.canResend()) {
+                it.visibility = View.VISIBLE
+            } else {
+                it.visibility = View.GONE
+            }
+        }
     }
 
     open fun bindProgress(t: T) {
         progressView?.bindProgress(t)
+        bindResend(t)
     }
 
     open fun bindListeners(t: T) {
@@ -337,6 +362,10 @@ open class BaseMessageViewHolder<T : MessageHolder>(itemView: View, direction: M
                 }))
             }
         }
+    }
+
+    override fun setAvatarClickListener(l: MessagesListAdapter.UserClickListener?) {
+        userClickListener = l
     }
 
     override fun accept(t: Throwable?) {

@@ -66,6 +66,7 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
         migrations.add(new MigrationV27());
         migrations.add(new MigrationV28());
         migrations.add(new MigrationV29());
+        migrations.add(new MigrationV30());
 
         // Sorting just to be safe, in case other people add migrations in the wrong order.
         Comparator<Migration> migrationComparator = (m1, m2) -> m1.getVersion().compareTo(m2.getVersion());
@@ -471,5 +472,18 @@ public class DatabaseUpgradeHelper extends DaoMaster.OpenHelper {
 
         }
     }
+
+    private static class MigrationV30 implements Migration {
+        @Override
+        public Integer getVersion() {
+            return 30;
+        }
+
+        @Override
+        public void runMigration(Database db) {
+            db.execSQL("ALTER TABLE " + CachedFileDao.TABLENAME + " ADD COLUMN " + CachedFileDao.Properties.Hash.columnName + " TEXT");
+        }
+    }
+
 
 }

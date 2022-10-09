@@ -46,11 +46,13 @@ import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.performance.ThreadHoldersDiffCallback;
 import sdk.chat.ui.provider.MenuItemProvider;
 import sdk.chat.ui.view_holders.ThreadViewHolder;
+import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
 
 public abstract class ThreadsFragment extends BaseFragment implements SearchSupported {
 
     protected String filter;
+    protected boolean startingChat = false;
 
     protected DialogsListAdapter<ThreadHolder> dialogsListAdapter;
 
@@ -62,6 +64,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @BindView(R2.id.dialogsList) protected DialogsList dialogsList;
     @BindView(R2.id.root) protected RelativeLayout root;
 
+    protected DisposableMap keep = new DisposableMap();
+
     protected boolean listenersAdded = false;
 
     @Override
@@ -72,6 +76,14 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        keep.add(ChatSDK.events().sourceOnMain()
+                .filter(NetworkEvent.filterType(
+                        EventType.Logout
+                )).subscribe(networkEvent -> {
+                    clearData();
+                }));
+
     }
 
     @Override
@@ -162,12 +174,6 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             });
         }));
 
-        dm.add(ChatSDK.events().sourceOnMain()
-            .filter(NetworkEvent.filterType(
-                EventType.Logout
-            )).subscribe(networkEvent -> {
-                clearData();
-            }));
     }
 
     public void removeListeners() {
@@ -183,9 +189,9 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 //            asyncDialogsListAdapter = new AsyncDialogsListAdapter(R.layout.view_holder_thread, ThreadViewHolder.class, loader);
 //        }
 
-        if (UIModule.config().threadTimeFormat != null) {
+        if (UIModule.config().getThreadTimeFormat() != null) {
             dialogsListAdapter().setDatesFormatter(date -> {
-                return DateFormatter.format(date, UIModule.config().threadTimeFormat);
+                return DateFormatter.format(date, UIModule.config().getThreadTimeFormat());
             });
         }
 
@@ -219,7 +225,10 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     }
 
     protected void startChatActivity(String threadEntityID) {
-        ChatSDK.ui().startChatActivityForID(getContext(), threadEntityID);
+        if (!startingChat) {
+            startingChat = true;
+            ChatSDK.ui().startChatActivityForID(getContext(), threadEntityID);
+        }
     }
 
     protected abstract Predicate<NetworkEvent> mainEventFilter();
@@ -248,6 +257,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @Override
     public void onResume() {
         super.onResume();
+        startingChat = false;
         if (threadHolders.isEmpty()) {
             dm.add(loadInitialData().subscribe(() -> {
                 addListeners();
@@ -267,7 +277,9 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         threadHolders.clear();
         if (dialogsListAdapter != null) {
             dialogsListAdapter.clear();
+            synchronize(true);
         }
+//        synchronize(true);
 //        if (asyncDialogsListAdapter != null) {
 //            asyncDialogsListAdapter.submitList(new ArrayList<>());
 //        }
@@ -302,7 +314,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 getThreads().map(threads -> {
                     threads = filter(threads);
 
-//                    threadHolders.clear();
+                    threadHolders.clear();
                     for (Thread thread : threads) {
                         addThread(thread, false, false);
                     }

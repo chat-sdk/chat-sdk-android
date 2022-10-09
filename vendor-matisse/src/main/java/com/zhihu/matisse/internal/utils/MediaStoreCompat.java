@@ -72,7 +72,7 @@ public class MediaStoreCompat {
     public void dispatchCaptureIntent(Context context, int requestCode) {
         if (!mCaptureStrategy.isVideo) {
             Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (captureIntent.resolveActivity(context.getPackageManager()) != null) {
+//            if (captureIntent.resolveActivity(context.getPackageManager()) != null) {
                 File photoFile = null;
                 try {
                     photoFile = createImageFile();
@@ -102,7 +102,7 @@ public class MediaStoreCompat {
                         mContext.get().startActivityForResult(captureIntent, requestCode);
                     }
                 }
-            }
+//            }
         } else {
             // TODO: Video Capture
             Intent captureIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);

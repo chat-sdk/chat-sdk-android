@@ -101,7 +101,7 @@ open class XMPPMessageWrapper(val message: Stanza) {
 
     open fun isOneToOne(): Boolean {
         return ((getType() == Message.Type.chat || getType() == Message.Type.normal)
-                && body() != null)
+                && (body() != null))
     }
 
     open fun getThread(): Thread? {
@@ -177,11 +177,13 @@ open class XMPPMessageWrapper(val message: Stanza) {
     }
 
     open fun date(): Date {
-        val delay = delayInformation()?.stamp ?: Date()
-        return XMPPManager.shared().serverToClientTime(delay);
+        delayInformation()?.let {
+            return XMPPManager.shared().serverToClientTime(it.stamp);
+        }
+        return Date()
     }
 
-    open fun rawDate(): Date {
+    open fun serverDate(): Date {
         return delayInformation()?.stamp ?: XMPPManager.shared().clientToServerTime(Date())
     }
 
@@ -286,8 +288,8 @@ fun Stanza.delayInformation(): DelayInformation? {
     } else return null
 }
 
-fun Stanza.date(): Date {
-    val delay = delayInformation()?.stamp ?: Date()
-    return XMPPManager.shared().serverToClientTime(delay);
-}
+//fun Stanza.date(): Date {
+//    val delay = delayInformation()?.stamp ?: Date()
+//    return XMPPManager.shared().serverToClientTime(delay);
+//}
 

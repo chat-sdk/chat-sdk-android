@@ -16,7 +16,7 @@ import org.greenrobot.greendao.annotation.ToOne;
                 @Index(value = "threadId,key", unique = true)
         }
 )
-public class ThreadMetaValue implements MetaValue<Object> {
+public class ThreadMetaValue implements MetaValue<Object>, Updatable {
 
     @Id
     private Long id;

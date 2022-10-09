@@ -3,6 +3,7 @@ package sdk.chat.core.rigs;
 import androidx.annotation.Nullable;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import sdk.chat.core.storage.FileManager;
 import sdk.chat.core.storage.TransferManager;
@@ -13,6 +14,7 @@ public abstract class Uploadable {
     public static String nameKey = "name";
     public static String pathKey = "path";
 
+    public String identifier;
     public String name;
     public String mimeType;
     public String messageKey;
@@ -54,7 +56,24 @@ public abstract class Uploadable {
 
     @Nullable
     public String hash() {
-        return TransferManager.hash(getBytes());
+//        // Limit the number of bytes for the hash...
+//        byte[] hashBytes = new byte[30];
+//        byte[] bytes = getBytes();
+//        int length = bytes.length;
+//
+//        for (int i = 0; i < 30; i++) {
+//            if (length > i) {
+//                hashBytes[i] = bytes[i];
+//            }
+//        }
+//
+//        return TransferManager.hash(hashBytes);
+
+        if (identifier == null) {
+            identifier = UUID.randomUUID().toString();
+        }
+        return identifier;
+
     }
 
 

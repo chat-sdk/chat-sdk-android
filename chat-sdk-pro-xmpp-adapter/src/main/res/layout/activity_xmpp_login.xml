@@ -40,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:gravity="start"
+            android:gravity="center"
             android:inputType="textEmailAddress"
             android:nextFocusDown="@+id/passwordTextInput" />
 
@@ -51,7 +51,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="italic"
-        android:gravity="start"
+        android:gravity="center"
         android:layout_margin="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -73,7 +73,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:gravity="start"
+            android:gravity="center"
             android:inputType="textPassword" />
 
     </com.google.android.material.textfield.TextInputLayout>

@@ -59,7 +59,7 @@ public class BaseFileMessageHandler extends AbstractMessageHandler implements Fi
             message.setValueForKey(mimeType, Keys.MessageMimeType);
             message.setValueForKey(file.length(), Keys.MessageSize);
             message.setFilePath(file.getPath());
-            message.update();
+            ChatSDK.db().update(message);
 
         }).setUploadables(uploadables, null);
         return rig.run();

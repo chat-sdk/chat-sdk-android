@@ -2,6 +2,7 @@ package sdk.chat.ui.chat;
 
 import static android.app.Activity.RESULT_OK;
 
+
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -39,6 +40,7 @@ import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import sdk.chat.core.utils.Device;
 import sdk.chat.core.utils.PermissionRequestHandler;
 import sdk.chat.ui.R;
+import sdk.chat.ui.activities.preview.ChatPreviewActivity;
 import sdk.chat.ui.chat.options.MediaType;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.Cropper;
@@ -89,7 +91,8 @@ public class MediaSelector {
 
         if (type.isEqual(MediaType.ChoosePhoto)) {
             single = startChooseMediaActivity(
-                    activity, MimeType.ofImage(),
+                    activity,
+                    MimeType.ofImage(),
                     this.cropType,
                     UIModule.config().canSelectMultipleImages,
                     false,
@@ -142,6 +145,8 @@ public class MediaSelector {
 
             int spanCount = Device.isPortrait() ? 3 : 10;
 
+            ChatSDK.core().addBackgroundDisconnectExemption();
+
             Matisse.from(activity)
                     .choose(mimeTypeSet)
                     .showSingleMediaType(true)
@@ -157,12 +162,23 @@ public class MediaSelector {
         });
     }
 
-    public Single<List<File>> startTakeVideoActivity (Activity activity) {
+    public Single<List<File>> startTakeVideoActivity(Activity activity) {
         return Single.create(emitter -> {
             MediaSelector.this.emitter = emitter;
 
             Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
             if (!startActivityForResult(activity, intent, TAKE_VIDEO)) {
+                notifyError(new Exception(activity.getString(R.string.unable_to_start_activity)));
+            }
+        });
+    }
+
+    public Single<List<File>> startChoosePhotoActivity(Activity activity) {
+        return Single.create(emitter -> {
+            MediaSelector.this.emitter = emitter;
+
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            if (!startActivityForResult(activity, intent, CHOOSE_PHOTO)) {
                 notifyError(new Exception(activity.getString(R.string.unable_to_start_activity)));
             }
         });
@@ -180,7 +196,7 @@ public class MediaSelector {
         });
     }
 
-    public Single<List<File>> startMatisseChooseVideoActivity (Activity activity) {
+    public Single<List<File>> startMatisseChooseVideoActivity(Activity activity) {
         return Single.create(emitter -> {
             this.emitter = emitter;
 
@@ -190,6 +206,7 @@ public class MediaSelector {
 
             int spanCount = Device.isPortrait() ? 3 : 10;
 
+            ChatSDK.core().addBackgroundDisconnectExemption();
             Matisse.from(activity)
                     .choose(MimeType.ofVideo())
                     .showSingleMediaType(true)
@@ -198,16 +215,18 @@ public class MediaSelector {
                     .capture(true)
                     .spanCount(spanCount)
                     .chatMode(true)
-                    .maxSelectable(1)
+                    .maxSelectable(UIModule.config().canSelectMultipleImages ? SELECTION_MAX_SIZE : 1)
                     .thumbnailScale(1)
                     .imageEngine(new GlideEngine())
                     .forResult(CHOOSE_VIDEO);
 
         });
     }
-    protected boolean startActivityForResult (Activity activity, Intent intent, int tag) {
+    protected boolean startActivityForResult(Activity activity, Intent intent, int tag) {
         if (disposable == null && intent.resolveActivity(activity.getPackageManager()) != null) {
             disposable = ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> handleResult(activity, activityResult.requestCode, activityResult.resultCode, activityResult.data));
+
+            ChatSDK.core().addBackgroundDisconnectExemption();
             activity.startActivityForResult(intent, tag);
             return true;
         }
@@ -233,8 +252,8 @@ public class MediaSelector {
                     }
                     if (scale) {
                         File compressed = new Compressor(ChatSDK.ctx())
-                                .setMaxHeight(width)
-                                .setMaxWidth(height)
+                                .setMaxWidth(width)
+                                .setMaxHeight(height)
                                 .compressToFile(imageFile);
 
                         files.add(compressed);
@@ -244,7 +263,7 @@ public class MediaSelector {
                 }
             }
             // New
-            handleImageFiles(activity, files);
+            handleImageFiles(files);
         }
         else {
             Uri uri = uris.get(0);
@@ -256,11 +275,15 @@ public class MediaSelector {
             }
             else if (cropType == CropType.Editor) {
                 File imageFile = fileFromURI(uri, activity, MediaStore.Images.Media.DATA);
-                String path = imageFile.getPath();
-
-                ChatSDK.ui().startImageEditorActivity(activity, path, EDITOR);
+                if (imageFile != null) {
+                    String path = imageFile.getPath();
+                    ChatSDK.ui().startImageEditorActivity(activity, path, EDITOR);
+                } else {
+                    notifyError(new Throwable("Image not found"));
+                }
             }
             else {
+                ChatSDK.core().addBackgroundDisconnectExemption();
                 Cropper.startActivity(activity, uri);
             }
         }
@@ -331,7 +354,7 @@ public class MediaSelector {
         }
         else if (resultCode == RESULT_OK) {
             try {
-                handleImageFiles(activity, new File(result.getUri().getPath()));
+                handleImageFiles(new File(result.getUri().getPath()));
             }
             catch (NullPointerException e){
                 notifyError(new Exception(activity.getString(R.string.unable_to_fetch_image)));
@@ -345,7 +368,7 @@ public class MediaSelector {
             try {
                 String uriString = data.getStringExtra(Keys.IntentKeyImagePath);
                 Uri uri = Uri.parse(uriString);
-                handleImageFiles(activity, new File(uri.getPath()));
+                handleImageFiles(new File(uri.getPath()));
             }
             catch (NullPointerException e){
                 notifyError(new Exception(activity.getString(R.string.unable_to_fetch_image)));
@@ -355,11 +378,11 @@ public class MediaSelector {
         }
     }
 
-    public void handleImageFiles (Activity activity, File... files) {
-        handleImageFiles(activity, Arrays.asList(files));
+    public void handleImageFiles(File... files) {
+        handleImageFiles(Arrays.asList(files));
     }
 
-    public void handleImageFiles (Activity activity, List<File> files) {
+    public void handleImageFiles(List<File> files) {
 
         // Scanning the messageImageView so it would be visible in the gallery images.
         if (UIModule.config().saveImagesToDirectory) {
@@ -370,12 +393,19 @@ public class MediaSelector {
         notifySuccess(files);
     }
 
-    public void handleResult (Activity activity, int requestCode, int resultCode, Intent intent) throws Exception {
+    public void handleResult(Activity activity, int requestCode, int resultCode, Intent intent) throws Exception {
 
         if (resultCode == RESULT_OK) {
             if (requestCode == CHOOSE_PHOTO) {
                 List<Uri> result = Matisse.obtainResult(intent);
-                processPickedImages(activity, result);
+
+/*
+                Intent i = new Intent(activity, ChatPreviewActivity.class);
+                activity.startActivity(i);
+*/
+
+
+//                processPickedImages(activity, result);
             }
             else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
                 processCroppedPhoto(activity, resultCode, intent);
@@ -386,8 +416,14 @@ public class MediaSelector {
             else if (requestCode == TAKE_VIDEO || requestCode == CHOOSE_VIDEO) {
                 List<Uri> result = Matisse.obtainResult(intent);
                 if (result != null && !result.isEmpty()) {
-                    // TODO: Currently we only support one video not multiple
-                    notifySuccess(fileFromURI(result.get(0), activity, MediaStore.Video.Media.DATA));
+                    List<File> files = new ArrayList<>();
+                    for (Uri uri: result) {
+                        File file = fileFromURI(uri, activity, MediaStore.Video.Media.DATA);
+                        if (file != null) {
+                            files.add(file);
+                        }
+                    }
+                    notifySuccess(files);
                 } else {
                     Uri videoUri = intent.getData();
                     notifySuccess(fileFromURI(videoUri, activity, MediaStore.Video.Media.DATA));
