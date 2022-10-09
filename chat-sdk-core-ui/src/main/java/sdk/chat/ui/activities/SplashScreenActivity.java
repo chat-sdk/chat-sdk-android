@@ -33,7 +33,7 @@ public class SplashScreenActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         // TODO: This could be image_view or imageView.
-        imageView = findViewById(R.id.image_view);
+        imageView = findViewById(R.id.imageView);
         progressBar = findViewById(R.id.progressBar);
         root = findViewById(R.id.root);
 

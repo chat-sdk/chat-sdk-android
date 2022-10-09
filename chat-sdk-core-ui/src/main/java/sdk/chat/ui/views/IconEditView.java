@@ -43,7 +43,7 @@ public class IconEditView extends LinearLayout {
     public void initViews() {
 
         //TODO: This could be image_view or imageView.
-        imageView = findViewById(R.id.image_view);
+        imageView = findViewById(R.id.imageView);
         textInput = findViewById(R.id.textInput);
         textInputLayout = findViewById(R.id.textInputLayout);
         root = findViewById(R.id.root);

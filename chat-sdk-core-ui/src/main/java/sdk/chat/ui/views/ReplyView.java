@@ -49,6 +49,7 @@ public class ReplyView extends ConstraintLayout {
         cancelButton.setImageDrawable(Icons.get(getContext(), Icons.choose().cancel, R.color.gray_light));
         hide();
 
+        // TODO: This could be image_view or imageView.
         imageView = findViewById(R.id.imageView);
         divider = findViewById(R.id.divider);
         replyTextView = findViewById(R.id.replyTextView);

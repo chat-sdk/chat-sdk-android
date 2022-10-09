@@ -27,8 +27,8 @@ public class BaseIncomingBase64ImageMessageViewHolder <T extends Base64ImageMess
     public BaseIncomingBase64ImageMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
 
-        // Todo: Cannot find "image", I selected image_view. Is that correct? Or is it imageView?
-        image = itemView.findViewById(R.id.image_view);
+        // Todo: Cannot find "image", I selected imageView. Is that correct? Or is it image_view?
+        image = itemView.findViewById(R.id.imageView);
         imageOverlay = itemView.findViewById(R.id.imageOverlay);
         imageOverlayContainer = itemView.findViewById(R.id.imageOverlayContainer);
         onlineIndicator = itemView.findViewById(R.id.onlineIndicator);

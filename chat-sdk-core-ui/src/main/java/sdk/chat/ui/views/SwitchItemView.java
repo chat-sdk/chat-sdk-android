@@ -45,7 +45,7 @@ public class SwitchItemView extends LinearLayout {
     public void initViews() {
 
         // TODO: I used image_view but it might be imageView.
-        imageView = findViewById(R.id.image_view);
+        imageView = findViewById(R.id.imageView);
         textView = findViewById(R.id.textView);
         switchMaterial = findViewById(R.id.switchMaterial);
         root = findViewById(R.id.root);

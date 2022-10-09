@@ -26,8 +26,8 @@ public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> e
         super(itemView, payload);
 
         readStatus = itemView.findViewById(R.id.readStatus);
-        // TODO: image_view selected, but it could be imageView.
-        image = itemView.findViewById(R.id.image_view);
+        // TODO: imageView selected, but it could be image_view.
+        image = itemView.findViewById(R.id.imageView);
         imageOverlay = itemView.findViewById(R.id.imageOverlay);
         imageOverlayContainer = itemView.findViewById(R.id.imageOverlayContainer);
 

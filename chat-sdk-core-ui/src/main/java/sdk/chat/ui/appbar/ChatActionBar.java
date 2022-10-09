@@ -64,7 +64,7 @@ public class ChatActionBar extends AppBarLayout {
 
         titleTextView = findViewById(R.id.titleTextView);
         // TODO: This could be image_view or imageView.
-        imageView = findViewById(R.id.image_view);
+        imageView = findViewById(R.id.imageView);
         subtitleTextView = findViewById(R.id.subtitleTextView);
         searchImageView = findViewById(R.id.searchImageView);
         toolbar = findViewById(R.id.toolbar);

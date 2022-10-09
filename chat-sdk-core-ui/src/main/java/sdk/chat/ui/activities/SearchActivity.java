@@ -80,7 +80,7 @@ public class SearchActivity extends BaseActivity {
         fab = findViewById(R.id.fab);
         searchView = findViewById(R.id.searchView);
         root = findViewById(R.id.root);
-        // should this be progress or progressBar?
+        // TODO: should this be progress or progressBar?
         progressBar = findViewById(R.id.progress);
 
         initViews();

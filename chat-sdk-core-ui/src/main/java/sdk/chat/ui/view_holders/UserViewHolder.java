@@ -43,26 +43,12 @@ public class UserViewHolder extends SmartViewHolder<UserListItem> {
     public UserViewHolder(ViewGroup parentView) {
 
         super(parentView, R.layout.view_user_row);
-
-        avatarImageView = parentView.findViewById(R.id.avatarImageView);
-        onlineIndicator = parentView.findViewById(R.id.onlineIndicator);
-        nameTextView = parentView.findViewById(R.id.nameTextView);
-        checkbox = parentView.findViewById(R.id.checkbox);
-        statusTextView = parentView.findViewById(R.id.statusTextView);
-        availabilityImageView = parentView.findViewById(R.id.availabilityImageView);
-        root = parentView.findViewById(R.id.root);
+        connectViewsToVariables(parentView);
     }
 
     public UserViewHolder(View view, boolean multiSelectEnabled) {
         this(view, multiSelectEnabled, null);
-
-        avatarImageView = view.findViewById(R.id.avatarImageView);
-        onlineIndicator = view.findViewById(R.id.onlineIndicator);
-        nameTextView = view.findViewById(R.id.nameTextView);
-        checkbox = view.findViewById(R.id.checkbox);
-        statusTextView = view.findViewById(R.id.statusTextView);
-        availabilityImageView = view.findViewById(R.id.availabilityImageView);
-        root = view.findViewById(R.id.root);
+        connectViewsToVariables(view);
     }
 
     public UserViewHolder(View view, boolean multiSelectEnabled, UsersListAdapter.SubtitleProvider provider) {
@@ -71,7 +57,10 @@ public class UserViewHolder extends SmartViewHolder<UserListItem> {
         this.provider = provider;
 
         this.multiSelectEnabled = multiSelectEnabled;
+        connectViewsToVariables(view);
+    }
 
+    private void connectViewsToVariables(View view) {
         avatarImageView = view.findViewById(R.id.avatarImageView);
         onlineIndicator = view.findViewById(R.id.onlineIndicator);
         nameTextView = view.findViewById(R.id.nameTextView);
