@@ -22,7 +22,6 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.utils.PermissionRequestHandler;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.utils.ToastHelper;
 import sdk.guru.common.DisposableMap;
@@ -31,10 +30,10 @@ import sdk.guru.common.RX;
 public class PopupImageView extends RelativeLayout {
 
 
-    @BindView(R2.id.photoView) protected PhotoView photoView;
-    @BindView(R2.id.progressBar) protected ProgressBar progressBar;
-    @BindView(R2.id.fab) protected FloatingActionButton fab;
-    @BindView(R2.id.popupView) protected RelativeLayout popupView;
+    protected PhotoView photoView;
+    protected ProgressBar progressBar;
+    protected FloatingActionButton fab;
+    protected RelativeLayout popupView;
 
     DisposableMap dm = new DisposableMap();
 
@@ -55,6 +54,11 @@ public class PopupImageView extends RelativeLayout {
 
     public void initViews() {
         LayoutInflater inflater = LayoutInflater.from(getContext());
+
+        photoView = findViewById(R.id.photoView);
+        progressBar = findViewById(R.id.progressBar);
+        fab = findViewById(R.id.fab);
+        popupView = findViewById(R.id.popupView);
 
         inflater.inflate(R.layout.view_popup_image, this);
         ButterKnife.bind(this);

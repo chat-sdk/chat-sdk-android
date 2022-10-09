@@ -36,7 +36,6 @@ import sdk.chat.core.types.ConnectionType;
 import sdk.chat.core.utils.ProfileOption;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.binders.AvailabilityHelper;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
@@ -53,26 +52,26 @@ public class ProfileFragment extends BaseFragment {
     protected User user;
     protected boolean startingChat = false;
 
-    @BindView(R2.id.headerImageView) protected ImageView headerImageView;
-    @BindView(R2.id.toolbar) protected Toolbar toolbar;
-    @BindView(R2.id.titleTextView) protected TextView titleTextView;
-    @BindView(R2.id.collapsingToolbar) protected CollapsingToolbarLayout collapsingToolbar;
-    @BindView(R2.id.appbar) protected AppBarLayout appbar;
-    @BindView(R2.id.topSpace) protected Space topSpace;
-    @BindView(R2.id.statusTitleTextView) protected TextView statusTitleTextView;
-    @BindView(R2.id.statusTextView2) protected TextView statusTextView2;
-    @BindView(R2.id.statusLinearLayout) protected LinearLayout statusLinearLayout;
-    @BindView(R2.id.statusCardView) protected CardView statusCardView;
-    @BindView(R2.id.availabilityLinearLayout) protected LinearLayout availabilityLinearLayout;
-    @BindView(R2.id.availabilityCardView) protected CardView availabilityCardView;
-    @BindView(R2.id.iconLinearLayout) protected LinearLayout iconLinearLayout;
-    @BindView(R2.id.buttonsLinearLayout) protected LinearLayout buttonsLinearLayout;
-    @BindView(R2.id.editFab) protected FloatingActionButton editFab;
-    @BindView(R2.id.optionsFab) protected FloatingActionButton optionsFab;
-    @BindView(R2.id.avatarImageView) protected CircleImageView avatarImageView;
-    @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
-    @BindView(R2.id.avatarContainerLayout) protected RelativeLayout avatarContainerLayout;
-    @BindView(R2.id.root) protected CoordinatorLayout root;
+    protected ImageView headerImageView;
+    protected Toolbar toolbar;
+    protected TextView titleTextView;
+    protected CollapsingToolbarLayout collapsingToolbar;
+    protected AppBarLayout appbar;
+    protected Space topSpace;
+    protected TextView statusTitleTextView;
+    protected TextView statusTextView2;
+    protected LinearLayout statusLinearLayout;
+    protected CardView statusCardView;
+    protected LinearLayout availabilityLinearLayout;
+    protected CardView availabilityCardView;
+    protected LinearLayout iconLinearLayout;
+    protected LinearLayout buttonsLinearLayout;
+    protected FloatingActionButton editFab;
+    protected FloatingActionButton optionsFab;
+    protected CircleImageView avatarImageView;
+    protected View onlineIndicator;
+    protected RelativeLayout avatarContainerLayout;
+    protected CoordinatorLayout root;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -82,6 +81,27 @@ public class ProfileFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        headerImageView = view.findViewById(R.id.headerImageView);
+        toolbar = view.findViewById(R.id.toolbar);
+        titleTextView = view.findViewById(R.id.titleTextView);
+        collapsingToolbar = view.findViewById(R.id.collapsingToolbar);
+        appbar = view.findViewById(R.id.appbar);
+        topSpace = view.findViewById(R.id.topSpace);
+        statusTitleTextView = view.findViewById(R.id.statusTitleTextView);
+        statusTextView2 = view.findViewById(R.id.statusTextView2);
+        statusLinearLayout = view.findViewById(R.id.statusLinearLayout);
+        statusCardView = view.findViewById(R.id.statusCardView);
+        availabilityLinearLayout = view.findViewById(R.id.availabilityLinearLayout);
+        availabilityCardView = view.findViewById(R.id.availabilityCardView);
+        iconLinearLayout = view.findViewById(R.id.iconLinearLayout);
+        buttonsLinearLayout = view.findViewById(R.id.buttonsLinearLayout);
+        editFab = view.findViewById(R.id.editFab);
+        optionsFab = view.findViewById(R.id.optionsFab);
+        avatarImageView = view.findViewById(R.id.avatarImageView);
+        onlineIndicator = view.findViewById(R.id.onlineIndicator);
+        avatarContainerLayout = view.findViewById(R.id.avatarContainerLayout);
+        root = view.findViewById(R.id.root);
 
         if (savedInstanceState != null && savedInstanceState.getString(Keys.UserId) != null) {
             user = ChatSDK.db().fetchUserWithEntityID(savedInstanceState.getString(Keys.UserId));

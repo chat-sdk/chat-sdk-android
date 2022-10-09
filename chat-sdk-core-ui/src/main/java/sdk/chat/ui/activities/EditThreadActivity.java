@@ -34,7 +34,6 @@ import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.MediaSelector;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
@@ -55,11 +54,11 @@ public class EditThreadActivity extends BaseActivity {
     protected String threadImageURL;
     protected ImagePickerUploader pickerUploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
 
-    @BindView(R2.id.threadImageView) protected CircleImageView threadImageView;
-    @BindView(R2.id.nameTextInput) protected TextInputEditText nameTextInput;
-    @BindView(R2.id.nameTextInputLayout) protected TextInputLayout nameTextInputLayout;
-    @BindView(R2.id.fab) protected FloatingActionButton fab;
-    @BindView(R2.id.root) protected ConstraintLayout root;
+    protected CircleImageView threadImageView;
+    protected TextInputEditText nameTextInput;
+    protected TextInputLayout nameTextInputLayout;
+    protected FloatingActionButton fab;
+    protected ConstraintLayout root;
 
     @Override
     protected int getLayout() {
@@ -69,6 +68,12 @@ public class EditThreadActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        threadImageView = findViewById(R.id.threadImageView);
+        nameTextInput = findViewById(R.id.nameTextInput);
+        nameTextInputLayout = findViewById(R.id.nameTextInputLayout);
+        fab = findViewById(R.id.fab);
+        root = findViewById(R.id.root);
 
         threadEntityID = getIntent().getStringExtra(Keys.IntentKeyThreadEntityID);
         if (threadEntityID != null) {

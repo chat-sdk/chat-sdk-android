@@ -13,9 +13,7 @@ import io.reactivex.annotations.NonNull;
 
 public class FirebaseLoginTypeFragment extends CardViewFragment {
 
-    @BindView(R2.id.firebaseUICardView)
     CardView firebaseUICardView;
-    @BindView(R2.id.customLoginCardView)
     CardView customLoginCardView;
 
     @Override
@@ -26,6 +24,9 @@ public class FirebaseLoginTypeFragment extends CardViewFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        firebaseUICardView = view.findViewById(R.id.firebaseUICardView);
+        customLoginCardView = view.findViewById(R.id.customLoginCardView);
 
         initViews();
 

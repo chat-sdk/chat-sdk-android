@@ -12,9 +12,8 @@ import io.reactivex.Completable;
 import io.reactivex.annotations.NonNull;
 
 public class XMPPServerFragment extends CardViewFragment {
-    @BindView(R2.id.openFireCardView)
+
     CardView openFireCardView;
-    @BindView(R2.id.customServerCardView)
     CardView customServerCardView;
 
     @Override
@@ -24,7 +23,12 @@ public class XMPPServerFragment extends CardViewFragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        // Not sure if these should be in initViews(), but since view is created here, why not.
+        openFireCardView = view.findViewById(R.id.openFireCardView);
+        customServerCardView = view.findViewById(R.id.customServerCardView);
 
         initViews();
 

@@ -9,18 +9,22 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import sdk.chat.ui.R2;
+import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.ThreadHolder;
 import sdk.chat.ui.chat.model.UserHolder;
 import sdk.chat.ui.module.UIModule;
 
 public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<ThreadHolder> {
 
-    @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
-    @BindView(R2.id.readStatus) protected ImageView readStatus;
+    protected View onlineIndicator;
+    protected ImageView readStatus;
 
     public ThreadViewHolder(View itemView) {
         super(itemView);
+
+        onlineIndicator = itemView.findViewById(R.id.onlineIndicator);
+        readStatus = itemView.findViewById(R.id.readStatus);
+
         ButterKnife.bind(this, itemView);
     }
 

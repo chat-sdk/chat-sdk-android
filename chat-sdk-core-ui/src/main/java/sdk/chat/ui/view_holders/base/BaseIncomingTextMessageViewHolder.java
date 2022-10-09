@@ -18,7 +18,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import sdk.chat.core.dao.User;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.DrawableUtil;
@@ -26,12 +25,12 @@ import sdk.chat.ui.utils.DrawableUtil;
 public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
         extends MessageHolders.IncomingTextMessageViewHolder<T>  {
 
-    @BindView(R2.id.messageIcon) @Nullable protected ImageView messageIcon;
-    @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
-    @BindView(R2.id.userName) protected TextView userName;
-    @BindView(R2.id.replyView) @Nullable protected View replyView;
-    @BindView(R2.id.replyImageView) @Nullable protected ImageView replyImageView;
-    @BindView(R2.id.replyTextView) @Nullable protected TextView replyTextView;
+    @Nullable protected ImageView messageIcon;
+    protected View onlineIndicator;
+    protected TextView userName;
+    @Nullable protected View replyView;
+    @Nullable protected ImageView replyImageView;
+    @Nullable protected TextView replyTextView;
 
     protected View itemView;
 
@@ -42,6 +41,15 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
         super(itemView, payload);
 
         this.itemView = itemView;
+
+        // Todo: What do we do if any of these are null?
+        messageIcon = itemView.findViewById(R.id.messageIcon);
+        onlineIndicator = itemView.findViewById(R.id.onlineIndicator);
+        userName = itemView.findViewById(R.id.userName);
+        replyView = itemView.findViewById(R.id.replyView);
+        replyImageView = itemView.findViewById(R.id.replyImageView);
+        replyTextView = itemView.findViewById(R.id.replyTextView);
+
         bindButterKnife();
 
         context = new WeakReference<>(itemView.getContext());

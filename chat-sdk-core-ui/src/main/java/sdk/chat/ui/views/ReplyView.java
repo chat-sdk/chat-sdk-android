@@ -17,16 +17,15 @@ import com.bumptech.glide.Glide;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.icons.Icons;
 
 public class ReplyView extends ConstraintLayout {
 
-    @BindView(R2.id.imageView) protected ImageView imageView;
-    @BindView(R2.id.divider) protected View divider;
-    @BindView(R2.id.replyTextView) protected TextView replyTextView;
-    @BindView(R2.id.cancelButton) protected ImageButton cancelButton;
-    @BindView(R2.id.root) protected ConstraintLayout root;
+    protected ImageView imageView;
+    protected View divider;
+    protected TextView replyTextView;
+    protected ImageButton cancelButton;
+    protected ConstraintLayout root;
 
     public ReplyView(Context context) {
         super(context);
@@ -49,6 +48,12 @@ public class ReplyView extends ConstraintLayout {
 
         cancelButton.setImageDrawable(Icons.get(getContext(), Icons.choose().cancel, R.color.gray_light));
         hide();
+
+        imageView = findViewById(R.id.imageView);
+        divider = findViewById(R.id.divider);
+        replyTextView = findViewById(R.id.replyTextView);
+        cancelButton = findViewById(R.id.cancelButton);
+        root = findViewById(R.id.root);
     }
 
     public void show(String title, @Nullable String imageURL, String text) {

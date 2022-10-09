@@ -28,7 +28,6 @@ import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.core.utils.Strings;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ThreadImageBuilder;
@@ -37,12 +36,12 @@ import sdk.guru.common.RX;
 public class ChatActionBar extends AppBarLayout {
 
     protected OnClickListener onClickListener;
-    @BindView(R2.id.titleTextView) public TextView titleTextView;
-    @BindView(R2.id.imageView) public CircleImageView imageView;
-    @BindView(R2.id.subtitleTextView) public TextView subtitleTextView;
-    @BindView(R2.id.searchImageView) public ImageView searchImageView;
-    @BindView(R2.id.toolbar) public Toolbar toolbar;
-    @BindView(R2.id.appBarLayout) public AppBarLayout appBarLayout;
+    public TextView titleTextView;
+    public CircleImageView imageView;
+    public TextView subtitleTextView;
+    public ImageView searchImageView;
+    public Toolbar toolbar;
+    public AppBarLayout appBarLayout;
 
     final PrettyTime pt = new PrettyTime(CurrentLocale.get());
 
@@ -62,6 +61,15 @@ public class ChatActionBar extends AppBarLayout {
     }
 
     public void initViews() {
+
+        titleTextView = findViewById(R.id.titleTextView);
+        // TODO: This could be image_view or imageView.
+        imageView = findViewById(R.id.image_view);
+        subtitleTextView = findViewById(R.id.subtitleTextView);
+        searchImageView = findViewById(R.id.searchImageView);
+        toolbar = findViewById(R.id.toolbar);
+        appBarLayout = findViewById(R.id.appBarLayout);
+
         LayoutInflater.from(getContext()).inflate(R.layout.app_bar_chat, this);
         ButterKnife.bind(this);
 

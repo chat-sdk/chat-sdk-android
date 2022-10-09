@@ -17,14 +17,13 @@ import com.google.android.material.textfield.TextInputLayout;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 
 public class IconEditView extends LinearLayout {
 
-    @BindView(R2.id.imageView) protected ImageView imageView;
-    @BindView(R2.id.textInput) protected TextInputEditText textInput;
-    @BindView(R2.id.textInputLayout) protected TextInputLayout textInputLayout;
-    @BindView(R2.id.root) protected LinearLayout root;
+    protected ImageView imageView;
+    protected TextInputEditText textInput;
+    protected TextInputLayout textInputLayout;
+    protected LinearLayout root;
 
     public IconEditView(Context context) {
         super(context);
@@ -42,6 +41,13 @@ public class IconEditView extends LinearLayout {
     }
 
     public void initViews() {
+
+        //TODO: This could be image_view or imageView.
+        imageView = findViewById(R.id.image_view);
+        textInput = findViewById(R.id.textInput);
+        textInputLayout = findViewById(R.id.textInputLayout);
+        root = findViewById(R.id.root);
+
         LayoutInflater.from(getContext()).inflate(R.layout.view_icon_edit, this, true);
         ButterKnife.bind(this);
     }

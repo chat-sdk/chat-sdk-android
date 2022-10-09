@@ -49,9 +49,9 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
     protected boolean hideButton = false;
     protected String limitWarning = null;
 
-    @BindView(R2.id.imageView) protected ImageView imageView;
-    @BindView(R2.id.gridLayout) protected GridLayout gridLayout;
-    @BindView(R2.id.root) protected LinearLayout root;
+    protected ImageView imageView;
+    protected GridLayout gridLayout;
+    protected LinearLayout root;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -61,6 +61,10 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        imageView = findViewById(R.id.imageView);
+        gridLayout = findViewById(R.id.gridLayout);
+        root = findViewById(R.id.root);
 
         String userEntityID = getIntent().getStringExtra(Keys.IntentKeyUserEntityID);
         if (userEntityID != null && !userEntityID.isEmpty()) {

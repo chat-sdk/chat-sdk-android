@@ -10,7 +10,6 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.Base64ImageMessageHolder;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
@@ -18,15 +17,23 @@ import sdk.chat.ui.utils.ImageLoaderPayload;
 
 public class BaseIncomingBase64ImageMessageViewHolder <T extends Base64ImageMessageHolder> extends MessageHolders.BaseIncomingMessageViewHolder<T>  {
 
-    @BindView(R2.id.image) protected ImageView image;
-    @BindView(R2.id.imageOverlay) protected ImageView imageOverlay;
-    @BindView(R2.id.imageOverlayContainer) protected LinearLayout imageOverlayContainer;
+    protected ImageView image;
+    protected ImageView imageOverlay;
+    protected LinearLayout imageOverlayContainer;
 
-    @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
-    @BindView(R2.id.userName) protected TextView userName;
+    protected View onlineIndicator;
+    protected TextView userName;
 
     public BaseIncomingBase64ImageMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
+
+        // Todo: Cannot find "image", I selected image_view. Is that correct? Or is it imageView?
+        image = itemView.findViewById(R.id.image_view);
+        imageOverlay = itemView.findViewById(R.id.imageOverlay);
+        imageOverlayContainer = itemView.findViewById(R.id.imageOverlayContainer);
+        onlineIndicator = itemView.findViewById(R.id.onlineIndicator);
+        userName = itemView.findViewById(R.id.userName);
+
         ButterKnife.bind(this, itemView);
     }
 

@@ -13,17 +13,17 @@ import butterknife.BindView;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.demo.DemoConfigBuilder;
 import sdk.chat.demo.R;
-import sdk.chat.demo.R2;
 import sdk.chat.demo.WelcomeFragment;
 
 public class WelcomeActivity extends AbstractDemoActivity {
 
-    @BindView(R2.id.launch)
     protected FloatingActionButton launch;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        launch = findViewById(R.id.launch);
 
         ChatSDK.shared().stop();
 

@@ -13,13 +13,12 @@ import androidx.annotation.DrawableRes;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 
 public class IconItemView extends LinearLayout {
 
-    @BindView(R2.id.imageView) protected ImageView imageView;
-    @BindView(R2.id.textView) protected TextView textView;
-    @BindView(R2.id.root) protected LinearLayout root;
+    protected ImageView imageView;
+    protected TextView textView;
+    protected LinearLayout root;
 
     public IconItemView(Context context) {
         super(context);
@@ -37,6 +36,12 @@ public class IconItemView extends LinearLayout {
     }
 
     public void initViews() {
+
+        // TODO: This could be image_view or imageView.
+        imageView = findViewById(R.id.image_view);
+        textView = findViewById(R.id.textView);
+        root = findViewById(R.id.root);
+
         LayoutInflater.from(getContext()).inflate(R.layout.view_icon_item, this, true);
         ButterKnife.bind(this);
     }

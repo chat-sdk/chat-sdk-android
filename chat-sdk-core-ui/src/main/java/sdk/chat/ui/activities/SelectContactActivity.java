@@ -32,7 +32,6 @@ import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.chat.ui.icons.Icons;
 
@@ -44,10 +43,10 @@ public abstract class SelectContactActivity extends BaseActivity {
     protected UsersListAdapter adapter;
     protected boolean multiSelectEnabled;
 
-    @BindView(R2.id.toolbar) protected Toolbar toolbar;
-    @BindView(R2.id.recyclerView) protected RecyclerView recyclerView;
-    @BindView(R2.id.fab) protected FloatingActionButton fab;
-    @BindView(R2.id.root) protected ConstraintLayout root;
+    protected Toolbar toolbar;
+    protected RecyclerView recyclerView;
+    protected FloatingActionButton fab;
+    protected ConstraintLayout root;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -57,6 +56,11 @@ public abstract class SelectContactActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        toolbar = findViewById(R.id.toolbar);
+        recyclerView = findViewById(R.id.recyclerView);
+        fab = findViewById(R.id.fab);
+        root = findViewById(R.id.root);
 
         Predicate<NetworkEvent> contactChanged = ne -> {
             // Make a filter for user update events

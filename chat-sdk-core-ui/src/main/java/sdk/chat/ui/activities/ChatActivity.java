@@ -53,7 +53,6 @@ import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.appbar.ChatActionBar;
 import sdk.chat.ui.audio.AudioBinder;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
@@ -81,15 +80,15 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
 
     protected Thread thread;
 
-    @BindView(R2.id.chatActionBar) protected ChatActionBar chatActionBar;
-    @BindView(R2.id.chatView) protected ChatView chatView;
-    @BindView(R2.id.divider) protected View divider;
-    @BindView(R2.id.replyView) protected ReplyView replyView;
-    @BindView(R2.id.input) protected MessageInput input;
-    @BindView(R2.id.viewContainer) protected CoordinatorLayout viewContainer;
-    @BindView(R2.id.searchView) protected MaterialSearchView searchView;
-    @BindView(R2.id.root) protected FrameLayout root;
-    @BindView(R2.id.messageInputLinearLayout) protected LinearLayout messageInputLinearLayout;
+    protected ChatActionBar chatActionBar;
+    protected ChatView chatView;
+    protected View divider;
+    protected ReplyView replyView;
+    protected MessageInput input;
+    protected CoordinatorLayout viewContainer;
+    protected MaterialSearchView searchView;
+    protected FrameLayout root;
+    protected LinearLayout messageInputLinearLayout;
 
     protected AudioBinder audioBinder = null;
 
@@ -101,6 +100,16 @@ public class ChatActivity extends BaseActivity implements TextInputDelegate, Cha
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        chatActionBar = findViewById(R.id.chatActionBar);
+        chatView = findViewById(R.id.chatView);
+        divider = findViewById(R.id.divider);
+        replyView = findViewById(R.id.replyView);
+        input = findViewById(R.id.input);
+        viewContainer = findViewById(R.id.viewContainer);
+        searchView = findViewById(R.id.searchView);
+        root = findViewById(R.id.root);
+        messageInputLinearLayout = findViewById(R.id.messageInputLinearLayout);
 
         updateThread(savedInstanceState);
         initViews();

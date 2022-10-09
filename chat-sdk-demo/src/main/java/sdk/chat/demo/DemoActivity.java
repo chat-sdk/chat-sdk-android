@@ -28,10 +28,8 @@ public class DemoActivity extends BaseActivity {
 
     protected DemoPagerAdapter adapter;
 
-    @BindView(R2.id.viewPager)
     ViewPager viewPager;
 
-    @BindView(R2.id.pageIndicatorView)
     PageIndicatorView pageIndicatorView;
 
     BaseFragment currentFragment = null;
@@ -54,6 +52,9 @@ public class DemoActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        viewPager = findViewById(R.id.viewPager);
+        pageIndicatorView = findViewById(R.id.pageIndicatorView);
 
         RxJavaPlugins.setErrorHandler(this);
 

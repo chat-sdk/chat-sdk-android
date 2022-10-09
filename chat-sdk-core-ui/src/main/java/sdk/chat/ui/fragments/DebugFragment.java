@@ -20,17 +20,17 @@ import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 
 public class DebugFragment extends BaseFragment {
 
-
-    @BindView(R2.id.deleteThreadsButton)
     Button deleteThreadsButton;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        deleteThreadsButton = view.findViewById(R.id.deleteThreadsButton);
+
         initViews();
         return view;
     }

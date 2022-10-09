@@ -50,7 +50,6 @@ import sdk.chat.core.utils.CurrentLocale;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.activities.BaseActivity;
 import sdk.chat.ui.appbar.ChatActionBar;
 import sdk.chat.ui.audio.AudioBinder;
@@ -86,15 +85,15 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
     protected static boolean enableTrace = false;
 
-    @BindView(R2.id.chatActionBar) protected ChatActionBar chatActionBar;
-    @BindView(R2.id.chatView) protected ChatView chatView;
-    @BindView(R2.id.divider) protected View divider;
-    @BindView(R2.id.replyView) protected ReplyView replyView;
-    @BindView(R2.id.input) protected MessageInput input;
-    @BindView(R2.id.viewContainer) protected CoordinatorLayout viewContainer;
-    @BindView(R2.id.searchView) protected MaterialSearchView searchView;
-    @BindView(R2.id.root) protected FrameLayout root;
-    @BindView(R2.id.messageInputLinearLayout) protected LinearLayout messageInputLinearLayout;
+    protected ChatActionBar chatActionBar;
+    protected ChatView chatView;
+    protected View divider;
+    protected ReplyView replyView;
+    protected MessageInput input;
+    protected CoordinatorLayout viewContainer;
+    protected MaterialSearchView searchView;
+    protected FrameLayout root;
+    protected LinearLayout messageInputLinearLayout;
 
     protected AudioBinder audioBinder = null;
     protected DisposableMap dm = new DisposableMap();
@@ -110,6 +109,17 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         super.onCreateView(inflater, container, savedInstanceState);
 
         rootView = inflater.inflate(getLayout(), container, false);
+
+        chatActionBar = rootView.findViewById(R.id.chatActionBar);
+        chatView = rootView.findViewById(R.id.chatView);
+        divider = rootView.findViewById(R.id.divider);
+        replyView = rootView.findViewById(R.id.replyView);
+        input = rootView.findViewById(R.id.input);
+        viewContainer = rootView.findViewById(R.id.viewContainer);
+        searchView = rootView.findViewById(R.id.searchView);
+        root = rootView.findViewById(R.id.root);
+        messageInputLinearLayout = rootView.findViewById(R.id.messageInputLinearLayout);
+
         ButterKnife.bind(this, rootView);
 
         // HERE

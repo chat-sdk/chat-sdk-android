@@ -42,7 +42,6 @@ import sdk.chat.core.utils.Debug;
 import sdk.chat.core.utils.Dimen;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.utils.ImageLoaderPayload;
 import sdk.guru.common.DisposableMap;
@@ -50,8 +49,8 @@ import sdk.guru.common.RX;
 
 public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoadMoreListener {
 
-    @BindView(R2.id.messagesList) protected MessagesList messagesList;
-    @BindView(R2.id.root) protected LinearLayout root;
+    protected MessagesList messagesList;
+    protected LinearLayout root;
     protected boolean listenersAdded = false;
 
     public interface Delegate {
@@ -92,6 +91,10 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     }
 
     public void initViews() {
+
+        messagesList = findViewById(R.id.messageText);
+        root = findViewById(R.id.root);
+
         LayoutInflater.from(getContext()).inflate(getLayout(), this);
         ButterKnife.bind(this);
 

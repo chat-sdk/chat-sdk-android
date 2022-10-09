@@ -12,9 +12,8 @@ import io.reactivex.Completable;
 import io.reactivex.annotations.NonNull;
 
 public class DatabaseFragment extends CardViewFragment {
-    @BindView(R2.id.firestoreCardView)
+
     CardView firestoreCardView;
-    @BindView(R2.id.realtimeCardView)
     CardView realtimeCardView;
 
     @Override
@@ -25,6 +24,10 @@ public class DatabaseFragment extends CardViewFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        // Not sure if these should be in initViews(), but since view is created here, why not.
+        firestoreCardView = view.findViewById(R.id.firestoreCardView);
+        realtimeCardView = view.findViewById(R.id.realtimeCardView);
 
         initViews();
 

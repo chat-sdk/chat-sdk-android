@@ -10,18 +10,17 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import butterknife.BindView;
 import sdk.chat.demo.R;
-import sdk.chat.demo.R2;
 import sdk.chat.ui.activities.BaseActivity;
 
 public abstract class AbstractDemoActivity extends BaseActivity {
 
-    @BindView(R2.id.fab)
     protected FloatingActionButton fab;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        fab = findViewById(R.id.fab);
         fab.setVisibility(View.VISIBLE);
         fab.setOnClickListener(v -> {
             fab.setEnabled(false);

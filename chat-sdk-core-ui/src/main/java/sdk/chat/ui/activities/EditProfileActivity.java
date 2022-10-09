@@ -38,7 +38,6 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.binders.AvailabilityHelper;
 import sdk.chat.ui.chat.MediaSelector;
 import sdk.chat.ui.fragments.ProfileViewOffsetChangeListener;
@@ -55,27 +54,27 @@ import sdk.guru.common.RX;
 
 public class EditProfileActivity extends BaseActivity {
 
-    @BindView(R2.id.headerImageView) protected ImageView headerImageView;
-    @BindView(R2.id.toolbar) protected Toolbar toolbar;
-    @BindView(R2.id.titleTextView) protected TextView titleTextView;
-    @BindView(R2.id.collapsingToolbar) protected CollapsingToolbarLayout collapsingToolbar;
-    @BindView(R2.id.appbar) protected AppBarLayout appbar;
-    @BindView(R2.id.topSpace) protected Space topSpace;
-    @BindView(R2.id.statusTitleTextView) protected TextView statusTitleTextView;
-    @BindView(R2.id.statusEditText) protected EditText statusEditText;
-    @BindView(R2.id.statusLinearLayout) protected LinearLayout statusLinearLayout;
-    @BindView(R2.id.statusCardView) protected CardView statusCardView;
-    @BindView(R2.id.spinner) protected MaterialSpinner spinner;
-    @BindView(R2.id.availabilityCardView) protected CardView availabilityCardView;
-    @BindView(R2.id.nameEditView) protected IconEditView nameEditView;
-    @BindView(R2.id.locationEditView) protected IconEditView locationEditView;
-    @BindView(R2.id.phoneEditView) protected IconEditView phoneEditView;
-    @BindView(R2.id.emailEditView) protected IconEditView emailEditView;
-    @BindView(R2.id.iconLinearLayout) protected LinearLayout iconLinearLayout;
-    @BindView(R2.id.doneFab) protected FloatingActionButton doneFab;
-    @BindView(R2.id.logoutFab) protected FloatingActionButton logoutFab;
-    @BindView(R2.id.avatarImageView) protected CircleImageView avatarImageView;
-    @BindView(R2.id.root) protected CoordinatorLayout root;
+    protected ImageView headerImageView;
+    protected Toolbar toolbar;
+    protected TextView titleTextView;
+    protected CollapsingToolbarLayout collapsingToolbar;
+    protected AppBarLayout appbar;
+    protected Space topSpace;
+    protected TextView statusTitleTextView;
+    protected EditText statusEditText;
+    protected LinearLayout statusLinearLayout;
+    protected CardView statusCardView;
+    protected MaterialSpinner spinner;
+    protected CardView availabilityCardView;
+    protected IconEditView nameEditView;
+    protected IconEditView locationEditView;
+    protected IconEditView phoneEditView;
+    protected IconEditView emailEditView;
+    protected LinearLayout iconLinearLayout;
+    protected FloatingActionButton doneFab;
+    protected FloatingActionButton logoutFab;
+    protected CircleImageView avatarImageView;
+    protected CoordinatorLayout root;
 
     protected User currentUser;
     protected Map<String, Object> userMeta;
@@ -117,6 +116,28 @@ public class EditProfileActivity extends BaseActivity {
 
     protected void initViews() {
         super.initViews();
+
+        headerImageView = findViewById(R.id.headerImageView);
+        toolbar = findViewById(R.id.toolbar);
+        titleTextView = findViewById(R.id.titleTextView);
+        collapsingToolbar = findViewById(R.id.collapsingToolbar);
+        appbar = findViewById(R.id.appbar);
+        topSpace = findViewById(R.id.topSpace);
+        statusTitleTextView = findViewById(R.id.statusTitleTextView);
+        statusEditText = findViewById(R.id.statusEditText);
+        statusLinearLayout = findViewById(R.id.statusLinearLayout);
+        statusCardView = findViewById(R.id.statusCardView);
+        spinner = findViewById(R.id.spinner);
+        availabilityCardView = findViewById(R.id.availabilityCardView);
+        nameEditView = findViewById(R.id.nameEditView);
+        locationEditView = findViewById(R.id.locationEditView);
+        phoneEditView = findViewById(R.id.phoneEditView);
+        emailEditView = findViewById(R.id.emailEditView);
+        iconLinearLayout = findViewById(R.id.iconLinearLayout);
+        doneFab = findViewById(R.id.doneFab);
+        logoutFab = findViewById(R.id.logoutFab);
+        avatarImageView = findViewById(R.id.avatarImageView);
+        root = findViewById(R.id.root);
 
         avatarImageView.setOnClickListener(view -> {
             avatarImageView.setEnabled(false);
