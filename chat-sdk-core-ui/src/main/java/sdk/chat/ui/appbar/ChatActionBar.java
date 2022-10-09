@@ -29,7 +29,6 @@ import sdk.chat.core.utils.StringChecker;
 import sdk.chat.core.utils.Strings;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.module.UIModule;
 import sdk.guru.common.RX;
 
@@ -63,6 +62,10 @@ public class ChatActionBar extends AppBarLayout {
     public void initViews() {
         LayoutInflater.from(getContext()).inflate(R.layout.app_bar_chat, this);
         ButterKnife.bind(this);
+
+        titleTextView = findViewById(R.id.titleTextView);
+        imageView = findViewById(R.id.imageView);
+        subtitleTextView = findViewById(R.id.subtitleTextView);
 
         titleTextView.setOnClickListener(this::onClick);
         imageView.setOnClickListener(this::onClick);

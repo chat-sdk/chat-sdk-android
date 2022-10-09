@@ -10,13 +10,12 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ui.PlayerView;
 
-import butterknife.BindView;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.ui.activities.BaseActivity;
 
 public class ExoVideoActivity extends BaseActivity {
 
-    @BindView(R2.id.videoPlayerView) PlayerView playerView;
+    protected PlayerView playerView;
 
     protected SimpleExoPlayer player;
 
@@ -36,6 +35,8 @@ public class ExoVideoActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        playerView = findViewById(R.id.videoPlayerView);
 
 //        databaseProvider = new ExoDatabaseProvider(this);
 //        evictor = new LeastRecentlyUsedCacheEvictor(VideoMessageModule.shared().config.cacheSizeMB * 1024 * 1024);

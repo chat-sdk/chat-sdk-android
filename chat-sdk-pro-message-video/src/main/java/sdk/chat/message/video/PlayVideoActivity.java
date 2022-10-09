@@ -11,7 +11,6 @@ import android.widget.VideoView;
 
 import androidx.annotation.Nullable;
 
-import butterknife.BindView;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.ui.activities.BaseActivity;
 
@@ -21,9 +20,7 @@ import sdk.chat.ui.activities.BaseActivity;
 
 public class PlayVideoActivity extends BaseActivity implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, View.OnTouchListener {
 
-    @BindView(R2.id.videoView)
     VideoView videoView;
-    @BindView(R2.id.root)
     RelativeLayout root;
 
     @Override
@@ -34,6 +31,9 @@ public class PlayVideoActivity extends BaseActivity implements MediaPlayer.OnCom
     @Override
     public void onCreate(@Nullable Bundle bundle) {
         super.onCreate(bundle);
+
+        videoView = findViewById(R.id.videoView);
+        root = findViewById(R.id.root);
 
         String videoPath = "";
         Bundle e = getIntent().getExtras();
