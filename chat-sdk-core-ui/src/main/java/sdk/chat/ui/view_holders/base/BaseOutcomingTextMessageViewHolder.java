@@ -14,7 +14,6 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.DrawableUtil;
@@ -23,14 +22,22 @@ import sdk.chat.ui.utils.DrawableUtil;
 public class BaseOutcomingTextMessageViewHolder<T extends MessageHolder>
         extends MessageHolders.OutcomingTextMessageViewHolder<T> {
 
-    @BindView(R2.id.messageIcon) @Nullable protected ImageView messageIcon;
-    @BindView(R2.id.readStatus) protected ImageView readStatus;
-    @BindView(R2.id.replyView) @Nullable protected View replyView;
-    @BindView(R2.id.replyImageView) @Nullable protected ImageView replyImageView;
-    @BindView(R2.id.replyTextView) @Nullable protected TextView replyTextView;
+    @Nullable protected ImageView messageIcon;
+    protected ImageView readStatus;
+    @Nullable protected View replyView;
+    @Nullable protected ImageView replyImageView;
+    @Nullable protected TextView replyTextView;
 
     public BaseOutcomingTextMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
+
+        messageIcon = itemView.findViewById(R.id.messageIcon);
+        readStatus = itemView.findViewById(R.id.readStatus);
+        replyView = itemView.findViewById(R.id.replyView);
+        replyImageView = itemView.findViewById(R.id.replyImageView);
+        replyTextView = itemView.findViewById(R.id.replyTextView);
+
+
         bindButterKnife();
    }
 

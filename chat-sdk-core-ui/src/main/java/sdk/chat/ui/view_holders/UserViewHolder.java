@@ -21,7 +21,6 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.Dimen;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.chat.ui.binders.AvailabilityHelper;
 import sdk.chat.ui.module.UIModule;
@@ -31,30 +30,43 @@ public class UserViewHolder extends SmartViewHolder<UserListItem> {
 
     protected boolean multiSelectEnabled = false;
 
-    @BindView(R2.id.avatarImageView) protected CircleImageView avatarImageView;
-    @BindView(R2.id.onlineIndicator) protected View onlineIndicator;
-    @BindView(R2.id.nameTextView) protected TextView nameTextView;
-    @BindView(R2.id.checkbox) protected CheckBox checkbox;
-    @BindView(R2.id.statusTextView) protected TextView statusTextView;
-    @BindView(R2.id.availabilityImageView) protected ImageView availabilityImageView;
-    @BindView(R2.id.root) protected RelativeLayout root;
+    protected CircleImageView avatarImageView;
+    protected View onlineIndicator;
+    protected TextView nameTextView;
+    protected CheckBox checkbox;
+    protected TextView statusTextView;
+    protected ImageView availabilityImageView;
+    protected RelativeLayout root;
 
     UsersListAdapter.SubtitleProvider provider;
 
     public UserViewHolder(ViewGroup parentView) {
         super(parentView, R.layout.view_user_row);
+        setViews(parentView);
     }
 
     public UserViewHolder(View view, boolean multiSelectEnabled) {
         this(view, multiSelectEnabled, null);
+        setViews(view);
     }
 
     public UserViewHolder(View view, boolean multiSelectEnabled, UsersListAdapter.SubtitleProvider provider) {
         super(view);
+        setViews(view);
         ButterKnife.bind(this, view);
         this.provider = provider;
 
         this.multiSelectEnabled = multiSelectEnabled;
+    }
+
+    private void setViews(View view) {
+        avatarImageView = view.findViewById(R.id.avatarImageView);
+        onlineIndicator = view.findViewById(R.id.onlineIndicator);
+        nameTextView = view.findViewById(R.id.nameTextView);
+        checkbox = view.findViewById(R.id.checkbox);
+        statusTextView = view.findViewById(R.id.statusTextView);
+        availabilityImageView = view.findViewById(R.id.availabilityImageView);
+        root = view.findViewById(R.id.root);
     }
 
     public void bind(UserListItem item) {

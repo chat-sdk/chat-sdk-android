@@ -18,15 +18,14 @@ import androidx.core.content.ContextCompat;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.utils.ColorStateListUtil;
 
 public class SwitchItemView extends LinearLayout {
 
-    @BindView(R2.id.imageView) protected ImageView imageView;
-    @BindView(R2.id.textView) protected TextView textView;
-    @BindView(R2.id.switchMaterial) protected SwitchCompat switchMaterial;
-    @BindView(R2.id.root) protected LinearLayout root;
+    protected ImageView imageView;
+    protected TextView textView;
+    protected SwitchCompat switchMaterial;
+    protected LinearLayout root;
 
     public SwitchItemView(Context context) {
         super(context, null);
@@ -44,6 +43,12 @@ public class SwitchItemView extends LinearLayout {
     }
 
     public void initViews() {
+
+        imageView = findViewById(R.id.imageView);
+        textView = findViewById(R.id.textView);
+        switchMaterial = findViewById(R.id.switchMaterial);
+        root = findViewById(R.id.root);
+
         LayoutInflater.from(getContext()).inflate(R.layout.view_switch_item, this, true);
         ButterKnife.bind(this);
     }

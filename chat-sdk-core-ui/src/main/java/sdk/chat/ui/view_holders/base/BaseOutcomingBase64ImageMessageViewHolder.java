@@ -10,7 +10,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.Base64ImageMessageHolder;
 import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
@@ -18,14 +17,20 @@ import sdk.chat.ui.utils.ImageLoaderPayload;
 
 public class BaseOutcomingBase64ImageMessageViewHolder <T extends Base64ImageMessageHolder> extends MessageHolders.BaseOutcomingMessageViewHolder<T>  {
 
-    @BindView(R2.id.readStatus) protected ImageView readStatus;
+    protected ImageView readStatus;
 
-    @BindView(R2.id.image) protected ImageView image;
-    @BindView(R2.id.imageOverlay) protected ImageView imageOverlay;
-    @BindView(R2.id.imageOverlayContainer) protected LinearLayout imageOverlayContainer;
+    protected ImageView image;
+    protected ImageView imageOverlay;
+    protected LinearLayout imageOverlayContainer;
 
     public BaseOutcomingBase64ImageMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
+
+        readStatus = itemView.findViewById(R.id.readStatus);
+        image = itemView.findViewById(R.id.image);
+        imageOverlay = itemView.findViewById(R.id.imageOverlay);
+        imageOverlayContainer = itemView.findViewById(R.id.imageOverlayContainer);
+
         ButterKnife.bind(this, itemView);
     }
 

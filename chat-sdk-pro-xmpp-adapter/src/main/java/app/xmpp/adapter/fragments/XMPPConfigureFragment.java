@@ -11,7 +11,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import app.xmpp.adapter.R;
-import app.xmpp.adapter.R2;
 import app.xmpp.adapter.XMPPManager;
 import app.xmpp.adapter.utils.ServerKeyStorage;
 import app.xmpp.adapter.utils.XMPPServer;
@@ -23,23 +22,14 @@ import sdk.chat.core.utils.StringChecker;
 
 public class XMPPConfigureFragment extends BaseFragment {
 
-    @BindView(R2.id.addressTextInput)
     TextInputEditText addressTextInput;
-    @BindView(R2.id.addressTextInputLayout)
     TextInputLayout addressTextInputLayout;
-    @BindView(R2.id.domainTextInput)
     TextInputEditText domainTextInput;
-    @BindView(R2.id.domainTextInputLayout)
     TextInputLayout domainTextInputLayout;
-    @BindView(R2.id.portTextInput)
     TextInputEditText portTextInput;
-    @BindView(R2.id.portTextInputLayout)
     TextInputLayout portTextInputLayout;
-    @BindView(R2.id.resourceTextInput)
     TextInputEditText resourceTextInput;
-    @BindView(R2.id.resourceTextInputLayout)
     TextInputLayout resourceTextInputLayout;
-    @BindView(R2.id.cardView)
     CardView cardView;
 
     ServerKeyStorage keyStorage;
@@ -52,6 +42,16 @@ public class XMPPConfigureFragment extends BaseFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        addressTextInput = view.findViewById(R.id.addressTextInput);
+        addressTextInputLayout = view.findViewById(R.id.addressTextInputLayout);
+        domainTextInput = view.findViewById(R.id.domainTextInput);
+        domainTextInputLayout = view.findViewById(R.id.domainTextInputLayout);
+        portTextInput = view.findViewById(R.id.portTextInput);
+        portTextInputLayout = view.findViewById(R.id.portTextInputLayout);
+        resourceTextInput = view.findViewById(R.id.resourceTextInput);
+        resourceTextInputLayout = view.findViewById(R.id.resourceTextInputLayout);
+        cardView = view.findViewById(R.id.cardView);
 
         keyStorage = new ServerKeyStorage(getContext());
 

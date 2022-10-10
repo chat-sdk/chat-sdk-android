@@ -4,14 +4,12 @@ import android.os.Bundle;
 import android.view.View;
 
 import app.xmpp.adapter.R;
-import app.xmpp.adapter.R2;
 import app.xmpp.adapter.fragments.XMPPConfigureFragment;
 import butterknife.BindView;
 import sdk.chat.ui.activities.BaseActivity;
 
 public class XMPPConfigureActivity extends BaseActivity {
 
-    @BindView(R2.id.fragment)
     View fragment;
 
     @Override
@@ -22,6 +20,7 @@ public class XMPPConfigureActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        fragment = findViewById(R.id.fragment);
     }
 
     @Override

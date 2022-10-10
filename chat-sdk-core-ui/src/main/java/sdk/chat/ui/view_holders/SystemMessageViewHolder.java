@@ -8,19 +8,23 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import sdk.chat.ui.R2;
+import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.SystemMessageHolder;
 
 public class SystemMessageViewHolder extends MessageHolders.BaseMessageViewHolder<SystemMessageHolder> {
 
-    @BindView(R2.id.bubble) protected ViewGroup bubble;
-    @BindView(R2.id.messageText) protected TextView messageText;
+    protected ViewGroup bubble;
+    protected TextView messageText;
 
     protected View itemView;
 
     public SystemMessageViewHolder(View itemView, Object payload) {
         super(itemView, payload);
         this.itemView = itemView;
+
+        bubble = itemView.findViewById(R.id.bubble);
+        messageText = itemView.findViewById(R.id.messageText);
+
         bindButterKnife();
     }
 

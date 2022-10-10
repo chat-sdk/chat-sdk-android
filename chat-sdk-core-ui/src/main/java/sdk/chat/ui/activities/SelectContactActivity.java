@@ -34,7 +34,6 @@ import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.chat.ui.provider.MenuItemProvider;
 
@@ -46,10 +45,10 @@ public abstract class SelectContactActivity extends BaseActivity {
     protected UsersListAdapter adapter;
     protected boolean multiSelectEnabled;
 
-    @BindView(R2.id.toolbar) protected Toolbar toolbar;
-    @BindView(R2.id.recyclerView) protected RecyclerView recyclerView;
-    @BindView(R2.id.fab) protected FloatingActionButton fab;
-    @BindView(R2.id.root) protected ConstraintLayout root;
+    protected Toolbar toolbar;
+    protected RecyclerView recyclerView;
+    protected FloatingActionButton fab;
+    protected ConstraintLayout root;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -97,6 +96,12 @@ public abstract class SelectContactActivity extends BaseActivity {
 
     protected void initViews() {
         super.initViews();
+
+        toolbar = findViewById(R.id.toolbar);
+        recyclerView = findViewById(R.id.recyclerView);
+        fab = findViewById(R.id.fab);
+        root = findViewById(R.id.root);
+
         fab.setOnClickListener(v -> {
             fab.setEnabled(false);
             doneButtonPressed(adapter.getSelectedUsers());

@@ -21,7 +21,6 @@ import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.PermissionRequestHandler;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.chat.ui.fragments.BaseFragment;
 import sdk.chat.ui.utils.ToastHelper;
@@ -34,10 +33,7 @@ public class NearbyUsersFragment extends BaseFragment {
 
     protected UsersListAdapter adapter;
 
-    @BindView(R2.id.recyclerView)
     protected RecyclerView recyclerView;
-
-    @BindView(R2.id.textView)
     protected TextView textView;
 
     protected boolean didStart = false;
@@ -59,7 +55,6 @@ public class NearbyUsersFragment extends BaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     public void start() {
@@ -79,6 +74,8 @@ public class NearbyUsersFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
+        recyclerView = view.findViewById(R.id.recyclerView);
+        textView = view.findViewById(R.id.textView);
         adapter = new UsersListAdapter();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));

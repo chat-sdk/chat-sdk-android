@@ -39,7 +39,6 @@ import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.model.ThreadHolder;
 import sdk.chat.ui.interfaces.SearchSupported;
 import sdk.chat.ui.module.UIModule;
@@ -61,8 +60,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     protected List<ThreadHolder> threadHolders = new Vector<>();
 
-    @BindView(R2.id.dialogsList) protected DialogsList dialogsList;
-    @BindView(R2.id.root) protected RelativeLayout root;
+    protected DialogsList dialogsList;
+    protected RelativeLayout root;
 
     protected DisposableMap keep = new DisposableMap();
 
@@ -101,6 +100,9 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        dialogsList = view.findViewById(R.id.dialogsList);
+        root = view.findViewById(R.id.root);
 
         initViews();
         hideKeyboard();

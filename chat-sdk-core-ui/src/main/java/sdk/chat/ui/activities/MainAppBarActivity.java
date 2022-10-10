@@ -22,7 +22,6 @@ import sdk.chat.core.Tab;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.PagerAdapterTabs;
 import sdk.chat.ui.fragments.BaseFragment;
 import sdk.chat.ui.interfaces.SearchSupported;
@@ -31,12 +30,12 @@ public class MainAppBarActivity extends MainActivity {
 
     protected PagerAdapterTabs adapter;
 
-    @BindView(R2.id.toolbar) protected Toolbar toolbar;
-    @BindView(R2.id.tabLayout) protected TabLayout tabLayout;
-    @BindView(R2.id.viewPager) protected ViewPager2 viewPager;
-    @BindView(R2.id.content) protected RelativeLayout content;
-    @BindView(R2.id.searchView) protected MaterialSearchView searchView;
-    @BindView(R2.id.root) protected FrameLayout root;
+    protected Toolbar toolbar;
+    protected TabLayout tabLayout;
+    protected ViewPager2 viewPager;
+    protected RelativeLayout content;
+    protected MaterialSearchView searchView;
+    protected FrameLayout root;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -46,7 +45,6 @@ public class MainAppBarActivity extends MainActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         initViews();
     }
 
@@ -70,6 +68,13 @@ public class MainAppBarActivity extends MainActivity {
 
     protected void initViews() {
         super.initViews();
+
+        toolbar = findViewById(R.id.toolbar);
+        tabLayout = findViewById(R.id.tabLayout);
+        viewPager = findViewById(R.id.viewPager);
+        content = findViewById(R.id.content);
+        searchView = findViewById(R.id.searchView);
+        root = findViewById(R.id.root);
 
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
