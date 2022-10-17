@@ -14,8 +14,8 @@ import androidx.annotation.StringRes;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 import sdk.chat.ui.R;
 
 public class IconEditView extends LinearLayout {
@@ -48,7 +48,7 @@ public class IconEditView extends LinearLayout {
         textInputLayout = findViewById(R.id.textInputLayout);
         root = findViewById(R.id.root);
 
-        ButterKnife.bind(this);
+        
     }
 
     public void setIcon(Drawable icon) {

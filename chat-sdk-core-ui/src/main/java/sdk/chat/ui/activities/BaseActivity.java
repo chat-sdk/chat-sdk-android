@@ -45,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import butterknife.ButterKnife;
 import io.reactivex.CompletableObserver;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
@@ -97,7 +96,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
 
         if (getLayout() != 0) {
             setContentView(getLayout());
-            ButterKnife.bind(this);
         }
 
         Logger.debug("onCreate: " + this);

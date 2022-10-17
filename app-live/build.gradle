@@ -72,10 +72,10 @@ dependencies {
     implementation project(':chat-sdk-demo')
 
     // Recommended: Add the Firebase SDK for Google Analytics.
-    implementation "com.google.firebase:firebase-analytics:$firebaseAnalyticsVersion"
+    implementation "com.google.firebase:firebase-analytics"
 
     // Add the Firebase Crashlytics SDK.
-    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
-    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
+    implementation "com.google.firebase:firebase-crashlytics"
+    implementation "com.google.firebase:firebase-perf"
 
 }

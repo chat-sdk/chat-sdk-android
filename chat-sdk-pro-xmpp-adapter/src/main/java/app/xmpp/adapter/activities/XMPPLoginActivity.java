@@ -14,7 +14,7 @@ import app.xmpp.adapter.XMPPManager;
 import app.xmpp.adapter.module.XMPPModule;
 import app.xmpp.adapter.utils.XMPPServer;
 import app.xmpp.adapter.utils.XMPPServerDetails;
-import butterknife.BindView;
+
 import sdk.chat.ui.activities.LoginActivity;
 import sdk.chat.core.utils.StringChecker;
 
@@ -31,12 +31,13 @@ public class XMPPLoginActivity extends LoginActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        advancedConfigurationButton = findViewById(R.id.advancedConfigurationButton);
-        usernameSubtitleTextView = findViewById(R.id.usernameSubtitleTextView);
     }
 
     protected void initViews() {
         super.initViews();
+
+        advancedConfigurationButton = findViewById(R.id.advancedConfigurationButton);
+        usernameSubtitleTextView = findViewById(R.id.usernameSubtitleTextView);
 
         advancedConfigurationButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, XMPPConfigureActivity.class);

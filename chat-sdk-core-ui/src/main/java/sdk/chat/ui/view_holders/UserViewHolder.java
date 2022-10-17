@@ -13,8 +13,8 @@ import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
@@ -53,7 +53,6 @@ public class UserViewHolder extends SmartViewHolder<UserListItem> {
     public UserViewHolder(View view, boolean multiSelectEnabled, UsersListAdapter.SubtitleProvider provider) {
         super(view);
         setViews(view);
-        ButterKnife.bind(this, view);
         this.provider = provider;
 
         this.multiSelectEnabled = multiSelectEnabled;

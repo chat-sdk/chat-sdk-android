@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 import androidx.cardview.widget.CardView;
 
-import butterknife.BindView;
+
 import io.reactivex.Completable;
 import io.reactivex.annotations.NonNull;
 

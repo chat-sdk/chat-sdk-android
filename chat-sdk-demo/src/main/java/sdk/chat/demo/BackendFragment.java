@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 
-import butterknife.BindView;
+
 import io.reactivex.Completable;
 import io.reactivex.annotations.NonNull;
 

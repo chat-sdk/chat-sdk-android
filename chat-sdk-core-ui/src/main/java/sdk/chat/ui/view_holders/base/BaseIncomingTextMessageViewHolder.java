@@ -14,8 +14,8 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.module.UIModule;
@@ -48,15 +48,9 @@ public class BaseIncomingTextMessageViewHolder<T extends MessageHolder>
         replyImageView = itemView.findViewById(R.id.replyImageView);
         replyTextView = itemView.findViewById(R.id.replyTextView);
 
-        bindButterKnife();
-
         context = new WeakReference<>(itemView.getContext());
 
         format = UIModule.shared().getMessageBinder().messageTimeComparisonDateFormat(context.get());
-    }
-
-    protected void bindButterKnife() {
-        ButterKnife.bind(this, itemView);
     }
 
     @Override

@@ -10,8 +10,8 @@ import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 import sdk.chat.ui.R;
 
 public class IconItemView extends LinearLayout {
@@ -42,7 +42,7 @@ public class IconItemView extends LinearLayout {
         textView = findViewById(R.id.textView);
         root = findViewById(R.id.root);
 
-        ButterKnife.bind(this);
+        
     }
 
     public void setIcon(Drawable icon) {

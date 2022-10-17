@@ -91,7 +91,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
     public void initViews() {
         LayoutInflater.from(getContext()).inflate(getLayout(), this);
-//        ButterKnife.bind(this);
+//        
 
         messagesList = findViewById(R.id.messagesList);
         root = findViewById(R.id.root);

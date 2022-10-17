@@ -14,8 +14,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.bumptech.glide.Glide;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 
@@ -51,7 +51,7 @@ public class ReplyView extends ConstraintLayout {
         cancelButton = findViewById(R.id.cancelButton);
         root = findViewById(R.id.root);
 
-        ButterKnife.bind(this);
+        
 
         cancelButton.setImageDrawable(ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().cancel, R.color.gray_light));
         hide();

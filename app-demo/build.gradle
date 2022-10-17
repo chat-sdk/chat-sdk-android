@@ -62,7 +62,7 @@ dependencies {
     implementation project(':chat-sdk-demo')
     api project(':chat-sdk-app-firebase')
 
-    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
-    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
+    implementation "com.google.firebase:firebase-crashlytics"
+    implementation "com.google.firebase:firebase-perf"
 
 }

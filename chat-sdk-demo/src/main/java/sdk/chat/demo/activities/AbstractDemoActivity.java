@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import butterknife.BindView;
+
 import sdk.chat.demo.R;
 import sdk.chat.ui.activities.BaseActivity;
 

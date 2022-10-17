@@ -17,8 +17,8 @@ import com.bumptech.glide.Glide;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.utils.PermissionRequestHandler;
@@ -70,7 +70,7 @@ public class PopupImageView extends RelativeLayout {
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
         inflater.inflate(getLayout(), this);
-        ButterKnife.bind(this);
+        
 
         fab.setImageDrawable(ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().save, R.color.fab_icon_color));
 

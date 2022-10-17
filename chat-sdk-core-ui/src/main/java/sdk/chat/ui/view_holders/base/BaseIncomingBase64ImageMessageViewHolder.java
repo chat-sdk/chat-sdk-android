@@ -7,12 +7,9 @@ import android.widget.TextView;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.Base64ImageMessageHolder;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ImageLoaderPayload;
 
@@ -34,7 +31,7 @@ public class BaseIncomingBase64ImageMessageViewHolder <T extends Base64ImageMess
         onlineIndicator = itemView.findViewById(R.id.onlineIndicator);
         userName = itemView.findViewById(R.id.userName);
 
-        ButterKnife.bind(this, itemView);
+
     }
 
     @Override

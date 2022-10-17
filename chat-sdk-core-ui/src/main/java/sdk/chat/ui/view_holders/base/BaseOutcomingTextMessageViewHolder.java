@@ -11,8 +11,8 @@ import androidx.annotation.Nullable;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.MessageHolder;
 import sdk.chat.ui.module.UIModule;
@@ -37,12 +37,6 @@ public class BaseOutcomingTextMessageViewHolder<T extends MessageHolder>
         replyImageView = itemView.findViewById(R.id.replyImageView);
         replyTextView = itemView.findViewById(R.id.replyTextView);
 
-
-        bindButterKnife();
-   }
-
-    public void bindButterKnife() {
-        ButterKnife.bind(this, itemView);
     }
 
     @Override

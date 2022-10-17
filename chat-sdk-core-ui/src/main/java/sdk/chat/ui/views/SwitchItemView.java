@@ -15,8 +15,6 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import sdk.chat.ui.R;
 import sdk.chat.ui.utils.ColorStateListUtil;
 
@@ -44,13 +42,12 @@ public class SwitchItemView extends LinearLayout {
 
     public void initViews() {
 
+        LayoutInflater.from(getContext()).inflate(R.layout.view_switch_item, this, true);
+
         imageView = findViewById(R.id.imageView);
         textView = findViewById(R.id.textView);
         switchMaterial = findViewById(R.id.switchMaterial);
         root = findViewById(R.id.root);
-
-        LayoutInflater.from(getContext()).inflate(R.layout.view_switch_item, this, true);
-        ButterKnife.bind(this);
     }
 
     public void setTrackColor(@ColorInt int color) {

@@ -5,7 +5,6 @@ import android.widget.Button;
 
 import androidx.annotation.Nullable;
 
-import butterknife.BindView;
 import sdk.chat.android.live.R;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;

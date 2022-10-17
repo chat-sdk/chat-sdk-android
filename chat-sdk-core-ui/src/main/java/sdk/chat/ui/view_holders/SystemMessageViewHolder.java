@@ -6,8 +6,6 @@ import android.widget.TextView;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.SystemMessageHolder;
 
@@ -24,12 +22,6 @@ public class SystemMessageViewHolder extends MessageHolders.BaseMessageViewHolde
 
         bubble = itemView.findViewById(R.id.bubble);
         messageText = itemView.findViewById(R.id.messageText);
-
-        bindButterKnife();
-    }
-
-    protected void bindButterKnife() {
-        ButterKnife.bind(this, itemView);
     }
 
     @Override

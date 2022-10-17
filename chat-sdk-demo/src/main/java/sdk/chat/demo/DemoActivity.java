@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 import app.xmpp.adapter.fragments.XMPPConfigureFragment;
-import butterknife.BindView;
+
 import io.reactivex.plugins.RxJavaPlugins;
 import sdk.chat.ui.activities.BaseActivity;
 import sdk.chat.ui.fragments.BaseFragment;

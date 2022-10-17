@@ -10,8 +10,6 @@ import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 
 import java.util.Date;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
@@ -33,8 +31,6 @@ public class ThreadViewHolder extends DialogsListAdapter.DialogViewHolder<Thread
 
         onlineIndicator = itemView.findViewById(R.id.onlineIndicator);
         readStatus = itemView.findViewById(R.id.readStatus);
-
-        ButterKnife.bind(this, itemView);
     }
 
     @Override

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import butterknife.BindView;
+
 import io.reactivex.disposables.Disposable;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;

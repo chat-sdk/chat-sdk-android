@@ -9,7 +9,7 @@ import android.widget.Button;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
+
 import io.reactivex.annotations.NonNull;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.MessageMetaValue;

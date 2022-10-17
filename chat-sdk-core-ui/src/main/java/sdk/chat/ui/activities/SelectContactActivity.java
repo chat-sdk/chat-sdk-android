@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import butterknife.BindView;
+
 import io.reactivex.functions.Predicate;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;

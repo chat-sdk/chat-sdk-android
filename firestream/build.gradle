@@ -42,7 +42,8 @@ dependencies {
 //    api project(':sdk-guru-realtime')
 
 //    implementation "com.google.firebase:firebase-firestore:$firebaseFirestoreVersion"
-    implementation "com.google.firebase:firebase-auth:$firebaseAuthVersion"
+    api platform("com.google.firebase:firebase-bom:$firebaseBOM")
+    implementation "com.google.firebase:firebase-auth"
 //    implementation "com.google.firebase:firebase-database:$firebaseDatabaseVersion"
     implementation "com.victorrendina:rxqueue2:$rxQueueVersion"
 

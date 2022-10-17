@@ -66,7 +66,7 @@ dependencies {
     api project(':chat-sdk-pro-firestream-read-receipts')
     api project(':chat-sdk-pro-firestream-typing-indicator')
 
-    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
-    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
+    implementation "com.google.firebase:firebase-crashlytics"
+    implementation "com.google.firebase:firebase-perf"
 
 }

@@ -16,7 +16,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.List;
 
-import butterknife.BindView;
+
 import materialsearchview.MaterialSearchView;
 import sdk.chat.core.Tab;
 import sdk.chat.core.session.ChatSDK;

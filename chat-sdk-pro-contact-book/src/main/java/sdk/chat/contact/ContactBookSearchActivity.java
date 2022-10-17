@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import butterknife.BindView;
+
 import io.reactivex.Single;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;

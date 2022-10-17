@@ -14,7 +14,7 @@ import app.xmpp.adapter.R;
 import app.xmpp.adapter.XMPPManager;
 import app.xmpp.adapter.utils.ServerKeyStorage;
 import app.xmpp.adapter.utils.XMPPServer;
-import butterknife.BindView;
+
 import sdk.chat.ui.fragments.BaseFragment;
 import io.reactivex.annotations.NonNull;
 import sdk.chat.core.utils.Device;

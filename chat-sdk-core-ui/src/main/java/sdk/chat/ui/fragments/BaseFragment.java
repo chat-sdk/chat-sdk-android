@@ -19,7 +19,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 
-import butterknife.ButterKnife;
 import io.reactivex.CompletableObserver;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
@@ -61,8 +60,6 @@ public abstract class BaseFragment extends Fragment implements Consumer<Throwabl
         }
         rootView = inflate(localInflater, container);
 //        rootView = localInflater.inflate(getLayout(), container, false);
-
-        ButterKnife.bind(this, rootView);
 
         setHasOptionsMenu(true);
 

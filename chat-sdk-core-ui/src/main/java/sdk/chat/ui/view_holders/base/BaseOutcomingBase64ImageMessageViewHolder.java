@@ -6,8 +6,8 @@ import android.widget.LinearLayout;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.Base64ImageMessageHolder;
@@ -31,7 +31,7 @@ public class BaseOutcomingBase64ImageMessageViewHolder <T extends Base64ImageMes
         imageOverlay = itemView.findViewById(R.id.imageOverlay);
         imageOverlayContainer = itemView.findViewById(R.id.imageOverlayContainer);
 
-        ButterKnife.bind(this, itemView);
+        
     }
 
     @Override

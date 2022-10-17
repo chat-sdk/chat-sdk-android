@@ -5,7 +5,6 @@ plugins {
     id 'maven-publish'
     id 'kotlin-android'
     id 'kotlin-kapt'
-    id 'com.jakewharton.butterknife'
 }
 
 android {
@@ -65,9 +64,6 @@ dependencies {
     implementation "com.github.chat-sdk:QRGenerator:$qrGenerator"
 
     implementation "com.github.chat-sdk:barcodescanner:$zxing"
-
-    implementation "com.jakewharton:butterknife:$butterKnifeVersion"
-    annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
 
 }
 

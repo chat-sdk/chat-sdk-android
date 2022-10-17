@@ -26,7 +26,7 @@ import com.jakewharton.rxrelay2.PublishRelay;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
+
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;

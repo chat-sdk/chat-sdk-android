@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
-import butterknife.BindView;
+
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
 import io.reactivex.Observable;

@@ -17,7 +17,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 
-import butterknife.BindView;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;

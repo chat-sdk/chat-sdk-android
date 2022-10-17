@@ -8,7 +8,7 @@ import android.widget.Button;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
-import butterknife.BindView;
+
 import io.reactivex.annotations.NonNull;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.fragments.BaseFragment;

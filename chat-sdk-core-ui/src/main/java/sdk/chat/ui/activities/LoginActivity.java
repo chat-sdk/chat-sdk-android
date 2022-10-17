@@ -28,7 +28,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import org.pmw.tinylog.Logger;
 
-import butterknife.BindView;
+
 import io.reactivex.Completable;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.AccountDetails;

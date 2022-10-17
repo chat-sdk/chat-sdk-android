@@ -16,8 +16,6 @@ import org.ocpsoft.prettytime.PrettyTime;
 
 import java.util.concurrent.Callable;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
@@ -61,7 +59,6 @@ public class ChatActionBar extends AppBarLayout {
 
     public void initViews() {
         LayoutInflater.from(getContext()).inflate(R.layout.app_bar_chat, this);
-        ButterKnife.bind(this);
 
         titleTextView = findViewById(R.id.titleTextView);
         imageView = findViewById(R.id.imageView);

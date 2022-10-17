@@ -11,10 +11,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Space;
 import android.widget.TextView;
-import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
@@ -28,7 +28,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.User;
@@ -42,7 +41,6 @@ import sdk.chat.ui.R;
 import sdk.chat.ui.binders.AvailabilityHelper;
 import sdk.chat.ui.chat.MediaSelector;
 import sdk.chat.ui.fragments.ProfileViewOffsetChangeListener;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ImagePickerUploader;
 import sdk.chat.ui.utils.UserImageBuilder;
@@ -132,7 +130,7 @@ public class EditProfileActivity extends BaseActivity {
         availabilityCardView = findViewById(R.id.availabilityCardView);
         nameEditView = findViewById(R.id.nameEditView);
         locationEditView = findViewById(R.id.locationEditView);
-        phoneEditView = findViewById(R.id.photoView);
+        phoneEditView = findViewById(R.id.phoneEditView);
         emailEditView = findViewById(R.id.emailEditView);
         iconLinearLayout = findViewById(R.id.iconLinearLayout);
         doneFab = findViewById(R.id.doneFab);

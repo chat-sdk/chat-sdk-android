@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
-import butterknife.BindView;
+
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.demo.DemoConfigBuilder;
 import sdk.chat.demo.R;

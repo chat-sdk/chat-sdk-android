@@ -7,8 +7,8 @@ import android.widget.TextView;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
@@ -34,7 +34,7 @@ public class BaseIncomingImageMessageViewHolder<T extends ImageMessageHolder> ex
         onlineIndicator = itemView.findViewById(R.id.onlineIndicator);
         userName = itemView.findViewById(R.id.userName);
 
-        ButterKnife.bind(this, itemView);
+        
     }
 
     @Override

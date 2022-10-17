@@ -17,11 +17,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,7 +33,6 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
 import io.reactivex.Completable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -45,7 +44,6 @@ import sdk.chat.core.types.ConnectionType;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.adapters.UsersListAdapter;
-import sdk.chat.ui.icons.Icons;
 import sdk.guru.common.RX;
 
 /**
@@ -86,7 +84,7 @@ public class SearchActivity extends BaseActivity {
         fab = findViewById(R.id.fab);
         searchView = findViewById(R.id.searchView);
         root = findViewById(R.id.root);
-        progressBar = findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progress);
 
         if (getActionBar() != null) {
             getActionBar().setHomeButtonEnabled(true);

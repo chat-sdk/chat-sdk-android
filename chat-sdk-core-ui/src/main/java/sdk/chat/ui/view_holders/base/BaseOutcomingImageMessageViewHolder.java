@@ -6,12 +6,9 @@ import android.widget.LinearLayout;
 
 import com.stfalcon.chatkit.messages.MessageHolders;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.chat.model.ImageMessageHolder;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ImageLoaderPayload;
 
@@ -32,7 +29,6 @@ public class BaseOutcomingImageMessageViewHolder<T extends ImageMessageHolder> e
         imageOverlay = itemView.findViewById(R.id.imageOverlay);
         imageOverlayContainer = itemView.findViewById(R.id.imageOverlayContainer);
 
-        ButterKnife.bind(this, itemView);
     }
 
     @Override

@@ -5,7 +5,7 @@ import android.view.View;
 
 import app.xmpp.adapter.R;
 import app.xmpp.adapter.fragments.XMPPConfigureFragment;
-import butterknife.BindView;
+
 import sdk.chat.ui.activities.BaseActivity;
 
 public class XMPPConfigureActivity extends BaseActivity {

@@ -1,6 +1,5 @@
 plugins {
     id 'com.android.application'
-    id 'com.jakewharton.butterknife'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
     id 'kotlin-android'
@@ -128,22 +127,8 @@ dependencies {
     implementation project(path: ':chat-sdk-pro-xmpp-adapter')
     implementation project(path: ':chat-sdk-pro-xmpp-read-receipts')
 
-//    api project(path: ':chat-sdk-xmpp-ejabberd-file-storage')
-//    api project(':chat-sdk-image-canvas')
 
     implementation "org.greenrobot:greendao:$greenDaoVersion"
-
-//    // Recommended: Add the Firebase SDK for Google Analytics.
-//    implementation "com.google.firebase:firebase-analytics:$firebaseAnalyticsVersion"
-//
-//    // Add the Firebase Crashlytics SDK.
-//    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
-//    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
-
-//    implementation "com.google.firebase:firebase-perf:$firebasePerformanceVersion"
-
-    implementation "com.jakewharton:butterknife:$butterKnifeVersion"
-    annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
 
     implementation 'com.thedeanda:lorem:2.1'
 }
