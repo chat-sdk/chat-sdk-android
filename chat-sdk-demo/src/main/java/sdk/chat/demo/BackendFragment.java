@@ -16,17 +16,11 @@ import io.reactivex.annotations.NonNull;
 
 public class BackendFragment extends CardViewFragment {
 
-    @BindView(R2.id.firebaseLegacyCardView)
     CardView firebaseLegacyCardView;
-    @BindView(R2.id.firestreamCardView)
     CardView firestreamCardView;
-    @BindView(R2.id.xmppCardView)
     CardView xmppCardView;
-    @BindView(R2.id.firebaseTextView)
     TextView firebaseTextView;
-    @BindView(R2.id.firestreamTextView)
     TextView firestreamTextView;
-    @BindView(R2.id.xmppTextView)
     TextView xmppTextView;
 
     @Override
@@ -37,6 +31,13 @@ public class BackendFragment extends CardViewFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        firebaseLegacyCardView = view.findViewById(R.id.firebaseLegacyCardView);
+        firestreamCardView = view.findViewById(R.id.firestreamCardView);
+        xmppCardView = view.findViewById(R.id.xmppCardView);
+        firebaseTextView = view.findViewById(R.id.firebaseTextView);
+        firestreamTextView = view.findViewById(R.id.firestreamTextView);
+        xmppTextView = view.findViewById(R.id.xmppTextView);
 
         initViews();
 

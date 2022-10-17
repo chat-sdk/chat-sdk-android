@@ -33,8 +33,8 @@ import sdk.guru.common.RX;
 public class ContactBookSearchActivity extends BaseActivity {
 
     protected UsersListAdapter adapter;
-    @BindView(R2.id.recyclerView) protected RecyclerView recyclerView;
-    @BindView(R2.id.progressBar) protected ProgressBar progressBar;
+    protected RecyclerView recyclerView;
+    protected ProgressBar progressBar;
 
     @Override
     protected int getLayout() {
@@ -44,6 +44,10 @@ public class ContactBookSearchActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        recyclerView = findViewById(R.id.recyclerView);
+        progressBar = findViewById(R.id.progressBar);
+
         initViews();
         setActionBarTitle(R.string.add_user_from_contacts);
 

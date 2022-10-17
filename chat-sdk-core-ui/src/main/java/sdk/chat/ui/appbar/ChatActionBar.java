@@ -35,12 +35,12 @@ import sdk.guru.common.RX;
 public class ChatActionBar extends AppBarLayout {
 
     protected OnClickListener onClickListener;
-    @BindView(R2.id.titleTextView) public TextView titleTextView;
-    @BindView(R2.id.imageView) public CircleImageView imageView;
-    @BindView(R2.id.subtitleTextView) public TextView subtitleTextView;
-    @BindView(R2.id.searchImageView) public ImageView searchImageView;
-    @BindView(R2.id.toolbar) public Toolbar toolbar;
-    @BindView(R2.id.appBarLayout) public AppBarLayout appBarLayout;
+    public TextView titleTextView;
+    public CircleImageView imageView;
+    public TextView subtitleTextView;
+    public ImageView searchImageView;
+    public Toolbar toolbar;
+    public AppBarLayout appBarLayout;
 
     final PrettyTime pt = new PrettyTime(CurrentLocale.get());
 
@@ -66,6 +66,10 @@ public class ChatActionBar extends AppBarLayout {
         titleTextView = findViewById(R.id.titleTextView);
         imageView = findViewById(R.id.imageView);
         subtitleTextView = findViewById(R.id.subtitleTextView);
+        searchImageView = findViewById(R.id.searchImageView);
+        toolbar = findViewById(R.id.toolbar);
+        appBarLayout = findViewById(R.id.appBarLayout);
+
 
         titleTextView.setOnClickListener(this::onClick);
         imageView.setOnClickListener(this::onClick);

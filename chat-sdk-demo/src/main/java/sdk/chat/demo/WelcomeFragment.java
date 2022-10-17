@@ -13,7 +13,6 @@ import sdk.chat.ui.fragments.BaseFragment;
 
 public class WelcomeFragment extends BaseFragment {
 
-    @BindView(R2.id.button)
     public Button button;
 
     @Override
@@ -24,6 +23,8 @@ public class WelcomeFragment extends BaseFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        button = view.findViewById(R.id.button);
 
         initViews();
 

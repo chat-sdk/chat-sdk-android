@@ -34,7 +34,6 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.AccountDetails;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.module.UIModule;
 import sdk.guru.common.RX;
 
@@ -47,16 +46,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected boolean exitOnBackPressed = false;
     protected boolean authenticating = false;
 
-    @BindView(R2.id.appIconImageView) protected ImageView appIconImageView;
-    @BindView(R2.id.usernameTextInput) protected TextInputEditText usernameTextInput;
-    @BindView(R2.id.usernameTextInputLayout) protected TextInputLayout usernameTextInputLayout;
-    @BindView(R2.id.passwordTextInput) protected TextInputEditText passwordTextInput;
-    @BindView(R2.id.passwordTextInputLayout) protected TextInputLayout passwordTextInputLayout;
-    @BindView(R2.id.loginButton) protected MaterialButton loginButton;
-    @BindView(R2.id.registerButton) protected MaterialButton registerButton;
-    @BindView(R2.id.anonymousButton) protected MaterialButton anonymousButton;
-    @BindView(R2.id.resetPasswordButton) protected MaterialButton resetPasswordButton;
-    @BindView(R2.id.root) protected ConstraintLayout root;
+    protected ImageView appIconImageView;
+    protected TextInputEditText usernameTextInput;
+    protected TextInputLayout usernameTextInputLayout;
+    protected TextInputEditText passwordTextInput;
+    protected TextInputLayout passwordTextInputLayout;
+    protected MaterialButton loginButton;
+    protected MaterialButton registerButton;
+    protected MaterialButton anonymousButton;
+    protected MaterialButton resetPasswordButton;
+    protected ConstraintLayout root;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -82,6 +81,17 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     protected void initViews() {
         super.initViews();
+
+        appIconImageView = findViewById(R.id.appIconImageView);
+        usernameTextInput = findViewById(R.id.usernameTextInput);
+        usernameTextInputLayout = findViewById(R.id.usernameTextInputLayout);
+        passwordTextInput = findViewById(R.id.passwordTextInput);
+        passwordTextInputLayout = findViewById(R.id.passwordTextInputLayout);
+        loginButton = findViewById(R.id.loginButton);
+        registerButton = findViewById(R.id.registerButton);
+        anonymousButton = findViewById(R.id.anonymousButton);
+        resetPasswordButton = findViewById(R.id.resetPasswordButton);
+        root = findViewById(R.id.root);
 
         resetPasswordButton.setVisibility(UIModule.config().resetPasswordEnabled ? View.VISIBLE : View.INVISIBLE);
 

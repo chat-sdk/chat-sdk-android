@@ -14,7 +14,7 @@ import sdk.chat.ui.activities.BaseActivity;
 
 public class TestActivity extends BaseActivity {
 
-    @BindView(R.id.testButton) Button button;
+    Button button;
     @Override
     protected int getLayout() {
         return R.layout.activity_test;
@@ -23,6 +23,8 @@ public class TestActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        button = findViewById(R.id.testButton);
 
         button.setOnClickListener(v -> {
             String otherUser = "9tJUx1iT5LQ1bC1J952No6sNZjZ2";

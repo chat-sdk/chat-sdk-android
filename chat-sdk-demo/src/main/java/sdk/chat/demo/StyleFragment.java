@@ -13,9 +13,7 @@ import io.reactivex.annotations.NonNull;
 
 public class StyleFragment extends CardViewFragment {
 
-    @BindView(R2.id.drawerCardView)
     CardView drawerCardView;
-    @BindView(R2.id.tabsCardView)
     CardView tabsCardView;
 
     @Override
@@ -26,6 +24,9 @@ public class StyleFragment extends CardViewFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        drawerCardView = view.findViewById(R.id.drawerCardView);
+        tabsCardView = view.findViewById(R.id.tabsCardView);
 
         initViews();
 

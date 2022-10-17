@@ -44,7 +44,6 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ConnectionType;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.chat.ui.icons.Icons;
 import sdk.guru.common.RX;
@@ -57,13 +56,13 @@ public class SearchActivity extends BaseActivity {
     protected UsersListAdapter adapter;
     protected Disposable searchDisposable;
 
-    @BindView(R2.id.toolbar) protected Toolbar toolbar;
-    @BindView(R2.id.addUserButton) protected Button addUserButton;
-    @BindView(R2.id.recyclerView) protected RecyclerView recyclerView;
-    @BindView(R2.id.fab) protected FloatingActionButton fab;
-    @BindView(R2.id.searchView) protected MaterialSearchView searchView;
-    @BindView(R2.id.root) protected FrameLayout root;
-    @BindView(R2.id.progress) protected ProgressBar progressBar;
+    protected Toolbar toolbar;
+    protected Button addUserButton;
+    protected RecyclerView recyclerView;
+    protected FloatingActionButton fab;
+    protected MaterialSearchView searchView;
+    protected FrameLayout root;
+    protected ProgressBar progressBar;
 
     protected String text = "";
 
@@ -80,6 +79,14 @@ public class SearchActivity extends BaseActivity {
 
     protected void initViews() {
         super.initViews();
+
+        toolbar = findViewById(R.id.toolbar);
+        addUserButton = findViewById(R.id.addUserButton);
+        recyclerView = findViewById(R.id.recyclerView);
+        fab = findViewById(R.id.fab);
+        searchView = findViewById(R.id.searchView);
+        root = findViewById(R.id.root);
+        progressBar = findViewById(R.id.progressBar);
 
         if (getActionBar() != null) {
             getActionBar().setHomeButtonEnabled(true);

@@ -26,7 +26,6 @@ import sdk.chat.core.utils.Dimen;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.chat.MediaSelector;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ImagePickerUploader;
@@ -36,14 +35,14 @@ import sdk.guru.common.RX;
 
 public class PostRegistrationActivity extends BaseActivity {
 
-    @BindView(R2.id.avatarImageView) protected CircleImageView avatarImageView;
-    @BindView(R2.id.nameEditView) protected IconEditView nameEditView;
-    @BindView(R2.id.locationEditView) protected IconEditView locationEditView;
-    @BindView(R2.id.phoneEditView) protected IconEditView phoneEditView;
-    @BindView(R2.id.emailEditView) protected IconEditView emailEditView;
-    @BindView(R2.id.iconLinearLayout) protected LinearLayout iconLinearLayout;
-    @BindView(R2.id.doneFab) protected FloatingActionButton doneFab;
-    @BindView(R2.id.root) protected RelativeLayout root;
+    protected CircleImageView avatarImageView;
+    protected IconEditView nameEditView;
+    protected IconEditView locationEditView;
+    protected IconEditView phoneEditView;
+    protected IconEditView emailEditView;
+    protected LinearLayout iconLinearLayout;
+    protected FloatingActionButton doneFab;
+    protected RelativeLayout root;
 
     protected String avatarImageURL = null;
 
@@ -60,6 +59,15 @@ public class PostRegistrationActivity extends BaseActivity {
 
     protected void initViews() {
         super.initViews();
+
+        avatarImageView = findViewById(R.id.avatarImageView);
+        nameEditView = findViewById(R.id.nameEditView);
+        locationEditView = findViewById(R.id.locationEditView);
+        phoneEditView = findViewById(R.id.phoneEditView);
+        emailEditView = findViewById(R.id.emailEditView);
+        iconLinearLayout = findViewById(R.id.iconLinearLayout);
+        doneFab = findViewById(R.id.doneFab);
+        root = findViewById(R.id.root);
 
         avatarImageView.setOnClickListener(view -> {
             ImagePickerUploader uploader = new ImagePickerUploader(MediaSelector.CropType.Circle);

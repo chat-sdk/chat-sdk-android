@@ -13,16 +13,15 @@ import butterknife.BindView;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.guru.common.RX;
 
 public class SplashScreenActivity extends BaseActivity {
 
     public static int AUTH = 1;
 
-    @BindView(R2.id.imageView) protected ImageView imageView;
-    @BindView(R2.id.progressBar) protected ProgressBar progressBar;
-    @BindView(R2.id.root) protected ConstraintLayout root;
+    protected ImageView imageView;
+    protected ProgressBar progressBar;
+    protected ConstraintLayout root;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -32,6 +31,12 @@ public class SplashScreenActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // TODO: This better me imageView and not image_view.
+        imageView = findViewById(R.id.imageView);
+        progressBar = findViewById(R.id.progressBar);
+        root = findViewById(R.id.root);
+
 
         imageView.setImageResource(ChatSDK.config().logoDrawableResourceID);
 

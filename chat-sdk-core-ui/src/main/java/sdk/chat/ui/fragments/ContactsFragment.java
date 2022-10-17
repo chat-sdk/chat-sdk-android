@@ -41,7 +41,6 @@ import sdk.chat.core.types.SearchActivityType;
 import sdk.chat.core.utils.UserListItemConverter;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.R2;
 import sdk.chat.ui.adapters.UsersListAdapter;
 import sdk.chat.ui.interfaces.SearchSupported;
 import sdk.chat.ui.provider.MenuItemProvider;
@@ -65,8 +64,8 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
 
     protected List<User> sourceUsers = new ArrayList<>();
 
-    @BindView(R2.id.recyclerView) protected RecyclerView recyclerView;
-    @BindView(R2.id.root) protected FrameLayout root;
+    protected RecyclerView recyclerView;
+    protected FrameLayout root;
 
     @Override
     protected @LayoutRes int getLayout() {
@@ -76,6 +75,9 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        recyclerView = view.findViewById(R.id.recyclerView);
+        root = view.findViewById(R.id.root);
 
         initViews();
 
