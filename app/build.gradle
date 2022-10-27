@@ -10,12 +10,14 @@ android {
 
     defaultConfig {
         applicationId "sdk.chat.android.live"
+//        manifestPlaceholders += [applicationId: "sdk.chat.android.live"]
 
         multiDexEnabled = true
         minSdkVersion Integer.parseInt(project.DEMO_MIN_SDK)
 
         versionName CHAT_SDK_VERSION
         versionCode CHAT_SDK_BUILD_NUMBER as int
+
     }
 
     signingConfigs {

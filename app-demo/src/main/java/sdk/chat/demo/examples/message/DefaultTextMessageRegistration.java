@@ -12,8 +12,8 @@ public class DefaultTextMessageRegistration extends TextMessageRegistration {
 
     @Override
     public void onBindMessageHolders(Context context, MessageHolders holders) {
-        holders.setIncomingTextConfig(IncomingTextMessageViewHolder.class, R.layout.view_holder_incoming_text_message, getAvatarClickPayload(context))
-                .setOutcomingTextConfig(CustomOutcomingTextMessageViewHolder.class, R.layout.view_holder_outcoming_text_message, getAvatarClickPayload(context));
+        holders.setIncomingTextConfig(IncomingTextMessageViewHolder.class, R.layout.view_holder_incoming_text_message)
+                .setOutcomingTextConfig(CustomOutcomingTextMessageViewHolder.class, R.layout.view_holder_outcoming_text_message);
     }
 
 }

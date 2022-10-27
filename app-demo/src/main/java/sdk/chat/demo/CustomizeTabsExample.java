@@ -1,14 +1,10 @@
 package sdk.chat.demo;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.iconics.typeface.library.fontawesome.FontAwesome;
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial;
-
-import sdk.chat.demo.pre.R;
-import sdk.chat.ui.icons.Icons;
 
 public class CustomizeTabsExample {
 
@@ -20,7 +16,6 @@ public class CustomizeTabsExample {
         IconicsDrawable fawIcon = new IconicsDrawable(context, FontAwesome.Icon.faw_user);
         IconicsDrawable gmdIcon = new IconicsDrawable(context, GoogleMaterial.Icon.gmd_blur_on);
 
-        Drawable drawable = ChatSDKUI.icons().get(fawIcon, R.color.red);
 
 //        Fragment fragment = new ChatFragment();
 

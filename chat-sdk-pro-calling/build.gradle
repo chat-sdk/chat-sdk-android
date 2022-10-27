@@ -82,4 +82,4 @@ ext {
     libraryDescription = 'Calling '
 }
 
-apply from: '../bintray.gradle'
+//apply from: '../bintray.gradle'

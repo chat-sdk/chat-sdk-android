@@ -59,9 +59,6 @@ ext {
 }
 
 if (project.hasProperty("mavenPublish") && mavenPublish) {
-    if (project.hasProperty("mavenPublish") && mavenPublish) {
     apply from: '../bintray.gradle'
-}
-
 }
 

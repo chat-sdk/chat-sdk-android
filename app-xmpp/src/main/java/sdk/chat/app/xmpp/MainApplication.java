@@ -11,6 +11,7 @@ import app.xmpp.receipts.XMPPReadReceiptsModule;
 import sdk.chat.app.xmpp.utils.SecureKeyStore;
 import sdk.chat.core.module.ImageMessageModule;
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.encryption.xmpp.XMPPEncryptionModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.message.audio.AudioMessageModule;
@@ -67,9 +68,9 @@ public class MainApplication extends Application {
                     .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
-                            .setXMPP("75.119.138.93", "xmpp.app")
-//                            .setXMPP("141.105.64.219", "liveodds.es")
-                            .setSecurityMode("disabled")
+//                            .setXMPP("75.119.138.93", "xmpp.app")
+                            .setXMPP("141.105.64.219", "liveodds.es")
+                            .setSecurityMode("ifpossible")
                             .setAllowServerConfiguration(false)
 
                             .setPingInterval(5)
@@ -85,6 +86,7 @@ public class MainApplication extends Application {
                     .addModule(StickerMessageModule.builder()
                             .build())
 
+                    .addModule(XMPPEncryptionModule.shared())
                     .addModule(UIModule.builder()
                             .setRequestPermissionsOnStartup(false)
                             .setMessageSelectionEnabled(true)

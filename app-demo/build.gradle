@@ -8,6 +8,7 @@ android {
 
     defaultConfig {
         applicationId "sdk.chat.android.live"
+//        manifestPlaceholders += [applicationId: "sdk.chat.android.live"]
 
         multiDexEnabled = true
         minSdkVersion Integer.parseInt(project.DEMO_MIN_SDK)

@@ -22,7 +22,7 @@ public class MainApp extends Application {
         try {
 
             // Setup Chat SDK
-            ChatSDKFirebase.quickStartWithEmail(this, "pre_3", "AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE", !Device.honor(this), "team@sdk.chat",
+            ChatSDKFirebase.quickStartWithEmail(this, "pre_3", "AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE", !Device.honor(), "team@sdk.chat",
                     AudioMessageModule.shared(),
                     FirebaseBlockingModule.shared(),
                     FirebaseReadReceiptsModule.shared(),

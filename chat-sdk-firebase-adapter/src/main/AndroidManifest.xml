@@ -1,2 +1,3 @@
-<manifest>
+<manifest
+    package="sdk.chat.firebase.adapter">
 </manifest>

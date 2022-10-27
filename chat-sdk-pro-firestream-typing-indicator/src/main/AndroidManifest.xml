@@ -1,2 +1,2 @@
-<manifest>
-</manifest>
+<manifest package="sdk.chat.firestream.typing" />
+

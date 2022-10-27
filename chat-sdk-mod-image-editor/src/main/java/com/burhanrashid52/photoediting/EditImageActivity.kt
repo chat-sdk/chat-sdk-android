@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Typeface
-import android.media.ExifInterface.*
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -411,6 +410,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             }
             ToolType.EMOJI -> showBottomSheetDialogFragment(mEmojiBSFragment)
             ToolType.STICKER -> showBottomSheetDialogFragment(mStickerBSFragment)
+            else -> {}
         }
     }
 

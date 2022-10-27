@@ -20,9 +20,9 @@ import sdk.chat.core.handlers.MessageHandler;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.module.Module;
+import sdk.chat.core.push.BroadcastHandler;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.session.Configure;
-import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.chat.sinch.calling.IncomingCallActivity;
 import sdk.guru.common.BaseConfig;
 import sdk.guru.common.RX;
@@ -117,26 +117,34 @@ public class SinchModule implements Module {
         ChatSDK.a().call = new SinchCallHandler();
 
         // Add a broadcast handler for sinch messages
-        ChatSDK.shared().addBroadcastHandler((ctx, intent) -> {
-            Map<String, String> data = new HashMap<>();
-            for (String key: intent.getExtras().keySet()) {
-                String value = intent.getExtras().getString(key);
-                if (value != null) {
-                    data.put(key, value);
-                }
-            }
 
-            if (SinchHelpers.isSinchPushPayload(data)) {
-                NotificationResult result = sinchService.client().relayRemotePushNotificationPayload(data);
-                if (result.isValid() && ChatSDK.appBackgroundMonitor().inBackground()) {
-                    Intent appIntent = new Intent(context, IncomingCallActivity.class);
-                    appIntent.putExtra(SinchService.CALL_ID, result.getCallResult().getCallId());
-                    appIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    ChatSDK.ui().notificationDisplayHandler().createCallNotification(context, appIntent, result.getCallResult().getRemoteUserId(), result.getDisplayName());
-                    return true;
+        ChatSDK.shared().addBroadcastHandler(new BroadcastHandler() {
+            @Override
+            public boolean onReceive(Context context, Intent intent) {
+                Map<String, String> data = new HashMap<>();
+                for (String key: intent.getExtras().keySet()) {
+                    String value = intent.getExtras().getString(key);
+                    if (value != null) {
+                        data.put(key, value);
+                    }
                 }
+
+                if (SinchHelpers.isSinchPushPayload(data)) {
+                    NotificationResult result = sinchService.client().relayRemotePushNotificationPayload(data);
+                    if (result.isValid() && ChatSDK.appBackgroundMonitor().inBackground()) {
+                        Intent appIntent = new Intent(context, IncomingCallActivity.class);
+                        appIntent.putExtra(SinchService.CALL_ID, result.getCallResult().getCallId());
+                        appIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        ChatSDK.ui().notificationDisplayHandler().createCallNotification(context, appIntent, result.getCallResult().getRemoteUserId(), result.getDisplayName());
+                        return true;
+                    }
+                }
+                return false;            }
+
+            @Override
+            public boolean canHandle(Intent intent) {
+                return true;
             }
-            return false;
         }, 0);
 
     }

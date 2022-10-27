@@ -8,6 +8,7 @@ android {
 
     defaultConfig {
         applicationId "sdk.chat.android.firestream"
+//        manifestPlaceholders += [applicationId: "sdk.chat.android.firestream"]
 
         multiDexEnabled = true
         minSdkVersion Integer.parseInt(project.DEMO_MIN_SDK)
