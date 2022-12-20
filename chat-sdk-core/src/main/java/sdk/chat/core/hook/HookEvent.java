@@ -29,6 +29,8 @@ public class HookEvent {
     public static String ContactWillBeDeleted = "ContactWillBeDeleted";
     public static String ContactWasDeleted = "ContactWasDeleted";
 
+    public static String AppWasDismissedFromTray = "AppWasDismissedFromTray";
+
     public static HashMap<String, Object> userData (sdk.chat.core.dao.User user) {
         HashMap<String, Object> data = new HashMap<>();
         data.put(HookEvent.User, user);

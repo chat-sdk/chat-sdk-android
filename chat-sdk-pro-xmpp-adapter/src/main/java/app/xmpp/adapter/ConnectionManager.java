@@ -9,7 +9,6 @@ import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.StanzaFilter;
 import org.jivesoftware.smack.packet.Stanza;
-import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smackx.ping.PingFailedListener;
 import org.pmw.tinylog.Logger;
 
@@ -23,6 +22,8 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
+import sdk.chat.core.hook.Hook;
+import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.guru.common.DisposableMap;
@@ -56,15 +57,18 @@ public class ConnectionManager implements ConnectionListener, AppBackgroundMonit
                     internetConnectivityChanged(networkEvent.getIsOnline());
                 }));
 
-        connectionCheckerDisposable = Observable.timer(5, TimeUnit.SECONDS).subscribe(aLong -> {
-            XMPPConnection connection = manager.get().getConnection();
-            if (connection instanceof XMPPTCPConnection) {
-                XMPPTCPConnection tcp = (XMPPTCPConnection) connection;
-                int maxRes = tcp.getMaxSmResumptionTime();
+//        connectionCheckerDisposable = Observable.timer(5, TimeUnit.SECONDS).subscribe(aLong -> {
+//            XMPPConnection connection = manager.get().getConnection();
+//            if (connection instanceof XMPPTCPConnection) {
+//                XMPPTCPConnection tcp = (XMPPTCPConnection) connection;
+//                int maxRes = tcp.getMaxSmResumptionTime();
+//
+//            }
+//        });
 
-            }
-        });
-
+        ChatSDK.hook().addHook(Hook.sync(data -> {
+            manager.get().disconnect();
+        }), HookEvent.AppWasDismissedFromTray);
     }
 
     public ConnectionManager(XMPPManager manager) {

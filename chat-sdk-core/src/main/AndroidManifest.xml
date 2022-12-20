@@ -17,6 +17,10 @@
         <service android:name="sdk.chat.core.notifications.MessagingService"
             android:exported="false" />
 
+        <service android:enabled="true"
+            android:stopWithTask="false"
+            android:name=".ui.LifecycleService" />
+
     </application>
 
 </manifest>

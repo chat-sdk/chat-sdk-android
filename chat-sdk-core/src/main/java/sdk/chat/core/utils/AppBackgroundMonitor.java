@@ -62,7 +62,7 @@ public class AppBackgroundMonitor implements LifecycleObserver, DefaultLifecycle
         return ChatSDK.backgroundMonitor();
     }
 
-    public void setEnabled (boolean enabled) {
+    public void setEnabled(boolean enabled) {
         if (enabled == this.enabled) {
             return;
         }

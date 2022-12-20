@@ -1,5 +1,6 @@
 package sdk.chat.ui.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -9,8 +10,8 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.core.ui.LifecycleService;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.R;
 import sdk.guru.common.RX;
@@ -31,6 +32,8 @@ public class SplashScreenActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        startService(new Intent(getBaseContext(), LifecycleService.class));
 
         // TODO: This better me imageView and not image_view.
         imageView = findViewById(R.id.imageView);
