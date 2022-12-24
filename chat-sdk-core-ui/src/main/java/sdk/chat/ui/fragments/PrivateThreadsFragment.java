@@ -44,6 +44,7 @@ public class PrivateThreadsFragment extends ThreadsFragment {
                     dm.add(ChatSDK.thread().deleteThread(thread)
                             .observeOn(RX.main())
                             .subscribe(() -> {
+                                removeThread(thread);
 //                                clearData();
 //                                loadData();
                             }, throwable -> ToastHelper.show(getContext(), throwable.getLocalizedMessage())));

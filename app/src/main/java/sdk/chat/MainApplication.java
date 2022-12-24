@@ -33,12 +33,8 @@ import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.location.LocationMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
-import sdk.chat.message.video.VideoMessageRegistration;
-import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
-import sdk.chat.ui.view_holders.v2.V2ImageMessageRegistration;
-import sdk.chat.ui.view_holders.v2.V2TextMessageRegistration;
 
 /**
  * Created by Ben Smiley on 6/8/2014.
@@ -228,9 +224,9 @@ public class MainApplication extends Application {
                 .build()
                 .activateWithEmail(this, "team@sdk.chat");
 
-        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2TextMessageRegistration());
-        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2ImageMessageRegistration());
-        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new VideoMessageRegistration());
+//        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2TextMessageRegistration());
+//        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2ImageMessageRegistration());
+//        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new VideoMessageRegistration());
 
 
     }

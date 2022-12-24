@@ -37,7 +37,6 @@ import sdk.chat.core.session.ChatSDK
 import sdk.chat.ui.ChatSDKUI
 import sdk.chat.ui.activities.MainActivity
 import sdk.chat.ui.fragments.BaseFragment
-import sdk.chat.ui.icons.Icons
 import sdk.chat.ui.interfaces.SearchSupported
 import sdk.chat.ui.module.UIModule
 import sdk.guru.common.RX
@@ -64,11 +63,11 @@ open class MainDrawerActivity : MainActivity() {
         super.onCreate(savedInstanceState)
         setContentView(layout)
 
-        initViews()
-
         slider = findViewById(R.id.slider)
         root = findViewById(R.id.root)
         searchView = findViewById(R.id.searchView)
+
+        initViews()
 
         dm.add(ChatSDK.events().sourceOnMain().filter(NetworkEvent.filterType(EventType.MessageReadReceiptUpdated, EventType.MessageAdded)).subscribe(Consumer {
             // Refresh the read count

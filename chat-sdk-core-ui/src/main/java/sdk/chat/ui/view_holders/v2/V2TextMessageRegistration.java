@@ -7,6 +7,7 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 import sdk.chat.ui.custom.TextMessageRegistration;
 import sdk.chat.ui.view_holders.v2.outer.V2;
 
+@Deprecated
 public class V2TextMessageRegistration extends TextMessageRegistration {
 
     @Override

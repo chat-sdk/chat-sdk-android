@@ -1,7 +1,6 @@
 package sdk.chat.core.notifications;
 
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -240,14 +239,14 @@ public class NotificationBuilder {
                 // the NotificationChannel class is new and not in the support library
                 builder.setChannelId(ChatSDKMessageChannel);
 
-                NotificationChannel channel = new NotificationChannel(ChatSDKMessageChannel, channelName, NotificationManager.IMPORTANCE_HIGH);
-                channel.enableVibration(vibrationEnabled);
-
-                if (channelDescription != null) {
-                    channel.setDescription(channelDescription);
-                }
-
-                notificationManager.createNotificationChannel(channel);
+//                NotificationChannel channel = new NotificationChannel(ChatSDKMessageChannel, channelName, NotificationManager.IMPORTANCE_HIGH);
+//                channel.enableVibration(vibrationEnabled);
+//
+//                if (channelDescription != null) {
+//                    channel.setDescription(channelDescription);
+//                }
+//
+//                notificationManager.createNotificationChannel(channel);
             }
 
             if (messageReplyActionThread != null) {
