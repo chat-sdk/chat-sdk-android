@@ -5,13 +5,13 @@ import static com.google.android.exoplayer2.Player.STATE_READY;
 import android.content.Context;
 import android.net.Uri;
 
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.jakewharton.rxrelay2.PublishRelay;
 
 import org.pmw.tinylog.Logger;
@@ -38,8 +38,13 @@ public class AudioPlayer {
 
     protected String mediaSource = null;
 
-    public AudioPlayer(String source, Player.EventListener listener) {
+    public interface AudioPlayerListener {
+        void onPlayerStateChanged(boolean playWhenReady, int playbackState);
+    }
+
+    public AudioPlayer(String source, AudioPlayerListener listener) {
         setSource(source);
+
 
         player.addListener(new Player.Listener() {
             @Override
@@ -76,13 +81,15 @@ public class AudioPlayer {
 
             Context context = ChatSDK.ctx();
 
-            DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(context,
-                    Util.getUserAgent(context, "ChatSDK"));
+            DefaultDataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(context);
+
+//            DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(context,
+//                    Util.getUserAgent(context, "ChatSDK"));
 
             // This is the MediaSource representing the media to be played.
             MediaSource audioSource =
                     new ProgressiveMediaSource.Factory(dataSourceFactory)
-                            .createMediaSource(Uri.parse(url));
+                            .createMediaSource(MediaItem.fromUri(Uri.parse(url)));
 
             // Prepare the player with the source.
             player.prepare(audioSource, true, true);

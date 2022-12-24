@@ -18,8 +18,6 @@ import androidx.annotation.ColorInt;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.ColorUtils;
 
-import com.google.android.exoplayer2.Player;
-
 import sdk.chat.core.audio.AudioPlayer;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.guru.common.DisposableMap;
@@ -113,16 +111,13 @@ public class AudioPlayerView extends LinearLayout {
 
                 updatePlayPauseButton();
 
-                player = new AudioPlayer(source, new Player.EventListener() {
-                    @Override
-                    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                        if (playbackState == STATE_ENDED) {
-                            stop();
-                        }
-                        if (playbackState == STATE_READY) {
-                            updateTime();
-                            updatePlayPauseButton();
-                        }
+                player = new AudioPlayer(source, (playWhenReady, playbackState) -> {
+                    if (playbackState == STATE_ENDED) {
+                        stop();
+                    }
+                    if (playbackState == STATE_READY) {
+                        updateTime();
+                        updatePlayPauseButton();
                     }
                 });
 
