@@ -1,6 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="sdk.chat.encryption"
-    >
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application android:hardwareAccelerated="true">
         <activity
             android:name="sdk.chat.encryption.ImportKeyQRActivity"

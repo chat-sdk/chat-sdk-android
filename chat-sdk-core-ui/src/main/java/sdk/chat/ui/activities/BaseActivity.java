@@ -80,6 +80,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
                 return getContentView();
             }
         });
+
+
     }
 
     @Override

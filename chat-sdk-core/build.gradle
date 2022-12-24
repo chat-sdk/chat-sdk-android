@@ -62,7 +62,7 @@ dependencies {
 
     api "com.github.amitshekhariitbhu.Fast-Android-Networking:android-networking:$androidNetworkingVersion"
 
-    // Needed to surpress error with GreenDao
+    // Needed to suppress error with GreenDao
     if (project.hasProperty("daoEncrypted")) {
         implementation "net.zetetic:android-database-sqlcipher:$androidDatabaseSQLCipher"
     }
@@ -83,8 +83,8 @@ dependencies {
 
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
-    implementation "androidx.activity:activity-ktx:1.4.0"
-    implementation "androidx.fragment:fragment-ktx:1.4.1"
+    implementation "androidx.activity:activity-ktx:$activityKtxVersion"
+    implementation "androidx.fragment:fragment-ktx:$fragmentKtxVersion"
 }
 
 ext {

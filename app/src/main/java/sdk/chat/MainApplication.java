@@ -46,83 +46,8 @@ public class MainApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-//        PublishSubject<NetworkEvent> ps = PublishSubject.create();
-//
-//        ps.subscribe(networkEvent -> {
-//            if (networkEvent.typeIs(EventType.ContactAdded)) {
-//                System.out.println("");
-//            }
-//        });
-//
-//        long start = System.currentTimeMillis();
-//        ps.onNext(new NetworkEvent(EventType.MessageAdded));
-//        long split1 = System.currentTimeMillis();
-//
-//        for (int i = 0; i < 10000; i++) {
-//            if (i%100 == 0) {
-//                Disposable d = ps.subscribe(networkEvent -> {
-//                    if (networkEvent.typeIs(EventType.ContactAdded)) {
-//                        System.out.println("");
-//                    }
-//                });
-//            } else {
-//                Disposable d = ps.subscribe(networkEvent -> {
-//                    if (networkEvent.typeIs(EventType.MessageAdded)) {
-//                        System.out.println("Ok");
-//                    }
-//                });
-//            }
-//        }
-//
-//        long split2 = System.currentTimeMillis();
-//        ps.onNext(new NetworkEvent(EventType.MessageAdded));
-//        long split3 = System.currentTimeMillis();
-//
-//        System.out.println("Diff 1: " + (split1 - start));
-//        System.out.println("Diff 2: " + (split3 - split2));
-//        System.out.println("Done");
-
-
         try {
             firebase();
-
-            ChatSDK.hook().addHook(Hook.sync(data -> {
-
-                Lorem lorem = LoremIpsum.getInstance();
-
-                List<Completable> createThreadEvents = new ArrayList<>();
-
-                for (int i = 1; i < 2; i++) {
-                    createThreadEvents.add(ChatSDK.thread().createThread(i + ": " + lorem.getName(), ChatSDK.contact().contacts()).flatMapCompletable(thread -> {
-
-                            List<Completable> sendMessageEvents = new ArrayList<>();
-
-                            // Add some messages
-                            for (int j = 1; j < 101; j++) {
-                                sendMessageEvents.add(ChatSDK.thread().sendMessageWithText(j + ": " +lorem.getCity(), thread));
-                            }
-
-                            Completable current = Completable.complete();
-                            for (Completable c: sendMessageEvents) {
-                                current = current.andThen(c);
-                            }
-
-                            return current;
-
-                    }).doOnError(throwable -> {
-                        Logger.info("");
-                    }));
-                }
-
-                Completable current = Completable.complete();
-                for (Completable c: createThreadEvents) {
-                    current = current.andThen(c);
-                }
-
-//                current.subscribe();
-
-            }), HookEvent.DidAuthenticate);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -133,12 +58,47 @@ public class MainApplication extends Application {
         });
     }
 
-    public void logTime() {
+    public void generateMessages() {
+        ChatSDK.hook().addHook(Hook.sync(data -> {
 
+            Lorem lorem = LoremIpsum.getInstance();
+
+            List<Completable> createThreadEvents = new ArrayList<>();
+
+            for (int i = 1; i < 2; i++) {
+                createThreadEvents.add(ChatSDK.thread().createThread(i + ": " + lorem.getName(), ChatSDK.contact().contacts()).flatMapCompletable(thread -> {
+
+                    List<Completable> sendMessageEvents = new ArrayList<>();
+
+                    // Add some messages
+                    for (int j = 1; j < 101; j++) {
+                        sendMessageEvents.add(ChatSDK.thread().sendMessageWithText(j + ": " +lorem.getCity(), thread));
+                    }
+
+                    Completable current = Completable.complete();
+                    for (Completable c: sendMessageEvents) {
+                        current = current.andThen(c);
+                    }
+
+                    return current;
+
+                }).doOnError(throwable -> {
+                    Logger.info("");
+                }));
+            }
+
+            Completable current = Completable.complete();
+            for (Completable c: createThreadEvents) {
+                current = current.andThen(c);
+            }
+
+//                current.subscribe();
+
+        }), HookEvent.DidAuthenticate);
     }
 
     public void firebase() throws Exception {
-        String rootPath = "pre_999";
+        String rootPath = "pre_998";
 
         String username = "1@d.co";
         if (Device.honor()) {
