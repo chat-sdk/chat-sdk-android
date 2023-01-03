@@ -46,7 +46,9 @@ public class HolderProvider {
         MessageHolder holder = messageHolders.get(message);
         if (holder == null) {
             holder = ChatSDKUI.shared().getMessageRegistrationManager().onNewMessageHolder(message);
-            messageHolders.put(message, holder);
+            if (holder != null) {
+                messageHolders.put(message, holder);
+            }
         }
         return holder;
     }

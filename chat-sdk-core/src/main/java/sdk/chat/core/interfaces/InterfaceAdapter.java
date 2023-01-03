@@ -28,6 +28,7 @@ import sdk.chat.core.utils.ProfileOption;
 
 public interface InterfaceAdapter {
 
+    void initialize(Context context);
     Fragment privateThreadsFragment();
     Fragment publicThreadsFragment();
     Fragment contactsFragment();

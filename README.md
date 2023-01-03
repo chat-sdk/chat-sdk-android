@@ -5,14 +5,18 @@
 
 Chat SDK is a fully featured open source instant messaging framework for Android. Chat SDK is fully featured, scalable and flexible and follows the following key principles:
 
-- **Free.** Chat SDK uses the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0)
-- **Open Source.** Chat SDK is open source
+- **Free.** 
+- **Open Source.** 
 - **Full control of the data.** You have full and exclusive access to the user's chat data
 - **Quick integration.** Chat SDK is fully featured out of the box
 - **Scalable.** Supports millons of daily users [[1](https://firebase.google.com/docs/database/usage/limits), [2](https://blog.process-one.net/ejabberd-massive-scalability-1node-2-million-concurrent-users/)]
 - **Backend agnostic.** Chat SDK can be customized to [support any backend](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/SJUgMoJTU) 
 
 [![](https://raw.githubusercontent.com/chat-sdk/chat-sdk-android/master/graphics/chat-sdk-play.png)](https://play.google.com/store/apps/details?id=sdk.chat.live)
+
+## License
+
+
 
 ## Technical details
 

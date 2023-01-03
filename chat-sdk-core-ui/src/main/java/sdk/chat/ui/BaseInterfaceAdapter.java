@@ -109,7 +109,15 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
     protected List<ProfileOption> profileOptions = new ArrayList<>();
 
-    public BaseInterfaceAdapter (Context context) {
+    public BaseInterfaceAdapter() {
+
+    }
+
+    public BaseInterfaceAdapter(Context context) {
+        initialize(context);
+    }
+
+    public void initialize(Context context) {
         this.context = new WeakReference<>(context);
 
         ChatSDKUI.icons().initialize(context);
@@ -117,7 +125,6 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         searchActivities.add(new SearchActivityType(searchActivity, context.getString(R.string.search_with_name)));
 
         Glide.init(context, new GlideBuilder().setLogLevel(Log.ERROR));
-
     }
 
     @Override

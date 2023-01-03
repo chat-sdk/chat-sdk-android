@@ -33,7 +33,6 @@ public class SinchCallHandler implements CallHandler {
         return false;
     }
 
-
     public void startCallActivity(Context context, String callId) {
         Intent callScreen = new Intent(context, CallActivity.class);
         callScreen.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

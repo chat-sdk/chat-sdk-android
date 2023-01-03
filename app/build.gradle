@@ -113,7 +113,7 @@ dependencies {
     implementation project(':chat-sdk-pro-message-file')
     implementation project(':chat-sdk-pro-message-video')
 //
-//    implementation project(':chat-sdk-pro-encryption')
+    implementation project(':chat-sdk-pro-encryption')
     implementation project(':chat-sdk-pro-contact-book')
 //
     implementation project(':chat-sdk-pro-firebase-nearby-users')

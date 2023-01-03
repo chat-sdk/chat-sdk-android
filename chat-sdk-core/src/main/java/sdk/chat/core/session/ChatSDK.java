@@ -10,7 +10,6 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import org.pmw.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -261,10 +260,15 @@ public class ChatSDK {
         }
 
         if (interfaceAdapter != null) {
-            Constructor<? extends InterfaceAdapter> constructor = interfaceAdapter.getConstructor(Context.class);
-            Object[] parameters = {context};
+            InterfaceAdapter adapter = interfaceAdapter.newInstance();
+            adapter.initialize(context);
+            setInterfaceAdapter(adapter);
 
-            setInterfaceAdapter(constructor.newInstance(parameters));
+
+//            Constructor<? extends InterfaceAdapter> constructor = interfaceAdapter.getConstructor(Context.class);
+//            Object[] parameters = {context};
+//
+//            setInterfaceAdapter(constructor.newInstance(parameters));
         } else {
             throw new Exception("The interface adapter cannot be null. An interface adapter must be defined using ChatSDK.configure(...) or by a module");
         }

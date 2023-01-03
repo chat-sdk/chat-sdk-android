@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-sdk android:targetSdkVersion="33" />
+
     <application
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
@@ -9,7 +11,9 @@
         android:theme="@style/CustomChatSDKTheme"
         android:name="sdk.chat.demo.MainApp"
         android:hardwareAccelerated="true"
-        tools:replace="allowBackup, icon">
+        tools:replace="allowBackup, icon"
+        >
+
 <!--        <activity android:name="sdk.chat.demo.DemoActivity">-->
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->

@@ -22,14 +22,13 @@ public class MainApp extends Application {
         try {
 
             // Setup Chat SDK
-            ChatSDKFirebase.quickStartWithEmail(this, "pre_3", "AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE", !Device.honor(), "team@sdk.chat",
+            ChatSDKFirebase.quickStartWithEmail(this, "pre_998", "AIzaSyCwwtZrlY9Rl8paM0R6iDNBEit_iexQ1aE", !Device.honor(), "team@sdk.chat",
                     AudioMessageModule.shared(),
                     FirebaseBlockingModule.shared(),
                     FirebaseReadReceiptsModule.shared(),
                     FirebaseLastOnlineModule.shared(),
                     ContactBookModule.shared()
             );
-
 
             ChatSDK.events().sourceOnMain().subscribe(event -> {
                 Logger.debug(event);
@@ -39,42 +38,6 @@ public class MainApp extends Application {
                 Logger.debug(event);
                 event.printStackTrace();
             });
-
-
-            //
-//            MessageCustomizer.shared().addMessageHandler(new IMessageHandler() {
-//                @Override
-//                public void onBindMessageHolders(Context context, MessageHolders holders) {
-//
-//                    holders.setIncomingTextConfig(CustomIncomingTextMessageViewHolder.class, sdk.chat.ui.R.layout.view_holder_incoming_text_message)
-//                            .setOutcomingTextConfig(CustomOutcomingTextMessageViewHolder.class, sdk.chat.ui.R.layout.view_holder_outcoming_text_message);
-//
-//                }
-//
-//                @Override
-//                public MessageHolder onNewMessageHolder(Message message) {
-//                    return new CustomTextMessageHolder(message);
-//                }
-//
-//                @Override
-//                public void onClick(ChatActivity activity, View rootView, Message message) {
-//
-//                }
-//
-//                @Override
-//                public void onLongClick(ChatActivity activity, View rootView, Message message) {
-//
-//                }
-//
-//                @Override
-//                public boolean hasContentFor(MessageHolder message, byte type) {
-//                    return type == MessageType.Text && message instanceof CustomTextMessageHolder;
-//                }
-//            });
-
-
-//            OverrideViewExample.run();
-
 
         } catch (Exception e) {
             e.printStackTrace();

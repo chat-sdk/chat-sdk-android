@@ -11,6 +11,10 @@ import sdk.chat.ui.BaseInterfaceAdapter;
 
 public class XMPPInterfaceAdapter extends BaseInterfaceAdapter {
 
+    public XMPPInterfaceAdapter() {
+
+    }
+
     public XMPPInterfaceAdapter(Context context) {
         super(context);
 //        searchActivity = XMPPSearchActivity.class;

@@ -3,6 +3,7 @@
     <string name="app_name" translatable="false">Chat SDK Core</string>
 
     <string name="image_message">📷 Image</string>
+    <string name="location_message">📍 Location</string>
     <string name="audio_message">🎤 Recording</string>
     <string name="video_message">📹 Video</string>
     <string name="sticker_message">🙂 Sticker</string>
@@ -119,7 +120,6 @@
     <string name="phone_number_hint">Phone Number</string>
     <string name="email_hint">Email</string>
     <string name="location">Location</string>
-    <string name="location_message">@string/location</string>
     <string name="image_or_photo">Photo</string>
 
     <string name="availability">Availability</string>
