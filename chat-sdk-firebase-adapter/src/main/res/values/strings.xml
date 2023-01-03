@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chat SDK Firebase Adapter</string>
+    <string name="no_login_type_defined">No login type defined</string>
+</resources>

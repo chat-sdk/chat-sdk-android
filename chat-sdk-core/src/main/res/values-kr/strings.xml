@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Chat SDK Core</string>
+
+    <string name="image_message">📷 이미지</string>
+    <string name="audio_message">🎤 소리</string>
+    <string name="video_message">📹 비디오</string>
+    <string name="sticker_message">🙂 스티커</string>
+    <string name="file_message">📂 파일</string>
+    <string name="no_name">이름없음</string>
+
+    <string name="message_send_failed">발송 실패</string>
+    <string name="try_to_resend_the_message">메시지를 다시 보내 보세요.</string>
+    <string name="send">보내기</string>
+    <string name="encrypted_message">암호화된 메시지</string>
+
+
+    <string name="register">등록</string>
+    <string name="login">로그인</string>
+    <string name="anonymous_login">익명 로그인</string>
+    <string name="email">이메일</string>
+    <string name="password">암호</string>
+    <string name="logout">로그아웃</string>
+    <string name="search">검색</string>
+    <string name="leave_chat">채팅 중지</string>
+    <string name="destroy">삭제</string>
+    <string name="add_users">사용자 추가</string>
+    <string name="tap_here_for_contact_info">연락처 정보를 확인하려면 탭하세요</string>
+    <string name="search_with_name">🔍 검색</string>
+    <string name="search_field_empty">검색란 공란</string>
+
+    <string name="new_chat">새 채팅</string>
+    <string name="add_user_by_id">ID로 사용자 추가</string>
+
+    <string name="settings">⚙️ 설정</string>
+
+    <string name="you_were_removed_from_the_thread">채팅에서 제외되었습니다.</string>
+    <string name="you_were_added_to_the_thread">채팅에서 추가되었습니다.</string>
+
+    <string name="thread_users_have_no_valid_avatar_urls">사용자들의 프로필정보가 적절하지 않습니다.</string>
+    <string name="__typing" formatted="false">%s 입력중...</string>
+    <string name="message_doesnt_have_a_thread">메시지에 적절한 채팅연결이 없습니다.</string>
+
+    <!--CoreMessage list adapter-->
+    <string name="message_adapter_no_google_maps">단말기에 구글맵이 없습니다.</string>
+
+    <!-- Login Activity-->
+    <string name="login_activity_no_mail_toast">이메일을 입력해 주세요</string>
+    <string name="login_activity_no_password_toast">암호를 입력해 주세요</string>
+    <string name="login_activity_failed_to_login_toast">로그인 실패</string>
+    <string name="login_activity_failed_to_register_toast">등록 실패</string>
+
+    <!--SelectContactActivity-->
+    <string name="select_at_least_one_user">적어도 하나의 사용자를 선택해 주세요</string>
+    <string name="adding_users">사용자를 연결하고 있습니다&#8230;</string>
+    <string name="creating_thread">채팅 연결 만드는 중</string>
+
+    <!--ExitHelper-->
+    <!-- Exit Dialog-->
+    <string name="cancel">취소</string>
+    <string name="submit">제출</string>
+
+
+    <string name="location_services_not_enabled">위치 서비스가 가능하지 않습니다.</string>
+    <string name="location_services_problem_message">위치 서비스에 문제가 있습니다. 폰설정에서 허용해 주세요.</string>
+    <string name="location_is_null">위치 정보가 없습니다.</string>
+
+    <!--SearchActivity-->
+    <string name="search_activity_no_user_found_toast">해당 사용자 정보가 없습니다</string>
+
+    <string name="add_public_chat_dialog_progress_message">채팅 연결 만드는 중&#8230;</string>
+
+    <!--PublicThreadFragment-->
+
+    <!--Save Contact Dialog-->
+    <string name="alert_save_contact">저장</string>
+    <string name="contact_book">📗 연락처</string>
+
+    <!--Delete CoreThread Dialog-->
+    <string name="alert_delete_thread">이 채팅 연결을 정말 삭제하겠습니까?</string>
+
+    <string name="permission_denied">기능을 모두 이용하려면 권한 승인이 필요합니다.</string>
+
+    <string name="delete">삭제</string>
+
+    <!-- Login Dialog-->
+    <string name="authenticating">인증 중&#8230;</string>
+    <string name="connecting">연결 중&#8230;</string>
+
+    <string name="mute_notifications">묵음 통지</string>
+    <string name="unmute_notifications">소리 통지</string>
+
+    <string name="actions">액션</string>
+
+    <!--Error-->
+    <string name="unable_to_fetch_image">이미지를 가져올 수 없습니다&#8230;</string>
+    <string name="unable_to_start_activity">앱을 실행할 수 없습니다</string>
+    <string name="error_processing_image">이미지 처리 오류</string>
+    <string name="error_launching_activity">앱 실행 오류</string>
+    <string name="error_thread_not_found">오류 연결을 발견하지 못했습니다.</string>
+
+    <string name="name_field_must_be_set">이름을 설정해야 합니다.</string>
+
+    <!--State-->
+    <string name="status">상태</string>
+    <string name="location_hint">위치</string>
+    <string name="name_hint">이름</string>
+    <string name="name_hint_required">이름 *</string>
+    <string name="phone_number_hint">전화번호</string>
+    <string name="email_hint">이메일</string>
+    <string name="location">📍 위치</string>
+    <string name="location_message">@string/location</string>
+    <string name="image_or_photo">📷 사진</string>
+
+    <string name="availability">연결 가능성</string>
+    <string name="blocked">차단됨</string>
+    <string name="contact_deleted">연락처 삭제됨</string>
+    <string name="contact_added">연락처 추가됨</string>
+    <string name="contact">연락처</string>
+    <string name="delete_contact">연락처 삭제</string>
+    <string name="user_blocked">사용자 차단됨</string>
+    <string name="user_unblocked">사용자 차단 해제됨</string>
+    <string name="user_entity_id_not_set">사용자 고유 ID 설정 안됨</string>
+    <string name="typing">입력 중&#8230;</string>
+
+    <string name="image_saved">이미지 저장 성공</string>
+    <string name="image_save_failed">이미지 저장 실패</string>
+
+
+    <string name="edit">편집</string>
+    <string name="join">참가</string>
+
+    <string name="availability_unavailable">연결 불능</string>
+    <string name="availability_available">연결 가능</string>
+    <string name="availability_away">잠깐동안 폰을 사용 안함</string>
+    <string name="availability_busy">바쁨</string>
+    <string name="availability_extended_away">폰을 사용안한지 오래됨</string>
+
+    <string name="conversations__" formatted="false">대화%s</string>
+    <string name="chat_rooms">채팅 룸</string>
+    <string name="contacts">연락처</string>
+    <string name="profile">프로필</string>
+    <string name="edit_profile">프로필 편집</string>
+
+    <string name="forgot_password">암호 잊음</string>
+    <string name="requesting">요청</string>
+    <string name="password_reset_success">암호 재설정 안내 메일을 보내드렸습니다.</string>
+    <string name="reset_password">암호 재설정</string>
+    <string name="last_seen__" formatted="false">지난 번 본 %s</string>
+    <string name="last_seen_on__at__" formatted="false">%s요일 %s에 마지막으로 봄</string>
+
+    <string name="push_channel_name">메시지 통지</string>
+    <string name="uploading">업로드</string>
+
+    <string name="copy">복사</string>
+    <string name="forward_message">메시지 전달</string>
+    <string name="copied_to_clipboard">클립보드에 복사됨</string>
+    <string name="add_user_to_chat">채팅에 사용자 추가</string>
+    <string name="success">성공!</string>
+    <string name="online">온라인</string>
+    <string name="add">추가</string>
+
+    <string name="options">옵션</string>
+    <string name="info">정보</string>
+    <string name="change_role">변경 역할</string>
+    <string name="remove_from_group">그룹에서 제외</string>
+    <string name="feature_not_supported">기능 제공 안됨</string>
+
+    <string name="reply">회신</string>
+    <string name="mark_as_read">읽음 표시</string>
+
+<!--    <string name="revoke_voice">Silence user</string>-->
+<!--    <string name="grant_voice">Un-silence user</string>-->
+
+<!--    <string name="revoke_moderator">Remove Moderator</string>-->
+<!--    <string name="grant_moderator">Make Moderator</string>-->
+    <string name="moderator">채팅방 관리자</string>
+    <string name="silence">참관인</string>
+    <string name="role">역할</string>
+    <string name="moderation">채팅방 관리</string>
+    <string name="view_profile">프로필 보기</string>
+
+    <string name="none">없음</string>
+    <string name="created">생성됨</string>
+    <string name="compressing">압축 중</string>
+    <string name="will_upload">업로드 예정</string>
+    <string name="uploading__" formatted="false">업로드%s</string>
+    <string name="did_upload">업로드 됨</string>
+    <string name="will_send">전송 예정</string>
+    <string name="sent">보냄</string>
+    <string name="failed">실패함</string>
+
+    <string name="choose_video">🎞️ 비디오 선택</string>
+    <string name="take_video">📹 비디오 촬영</string>
+    <string name="seconds_remaining__" formatted="false">%d 초 남음</string>
+    <string name="recording_too_short">녹음 길이 너무 짧음</string>
+
+    <string name="role_changed_to__" formatted="false"> %s로 역할 변경됨</string>
+    <string name="__role_changed_to__" formatted="false">%s 역할이 %s 역할로 변경됨</string>
+    <string name="__granted" formatted="false">%s 부여됨</string>
+    <string name="__revoked" formatted="false">%s 취소됨</string>
+    <string name="__left_the_group" formatted="false">%s가(이) 그룹을 떠났습니다.</string>
+
+    <string name="already_authenticated">이미 인증되었습니다. 다시 인증하려면 로그아웃하세요.</string>
+    <string name="authentication_required">인증이 필요합니다.</string>
+
+    <string name="owner">소유자</string>
+    <string name="admin">관리자</string>
+    <string name="member">구성원</string>
+    <string name="watcher">감시인</string>
+    <string name="banned">금지된</string>
+
+    <string name="me">나</string>
+    <string name="participants">참가자</string>
+
+</resources>

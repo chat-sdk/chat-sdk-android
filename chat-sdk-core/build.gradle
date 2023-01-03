@@ -1,0 +1,100 @@
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.artifactory' version "$jfrogVersion"
+
+    id 'maven-publish'
+    id 'org.greenrobot.greendao'
+}
+
+android {
+
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+
+    defaultConfig {
+        minSdkVersion Integer.parseInt(project.MIN_SDK)
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled project.hasProperty('minifyDebug') && minifyDebug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled project.hasProperty('minifyRelease') && minifyRelease
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lint {
+        abortOnError false
+        lintConfig file('lint.xml')
+    }
+    namespace 'sdk.chat.core'
+
+}
+
+greendao {
+    schemaVersion 30
+    targetGenDir "src/main/java"
+    daoPackage "sdk.chat.core.dao"
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+    }
+}
+
+dependencies {
+
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    api project(':sdk-guru-common')
+    api project(':chat-sdk-vendor')
+
+    implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
+    implementation "androidx.lifecycle:lifecycle-extensions:$androidxLifecycleExtensionsVersion"
+
+    api "com.github.amitshekhariitbhu.Fast-Android-Networking:android-networking:$androidNetworkingVersion"
+
+    // Needed to suppress error with GreenDao
+    if (project.hasProperty("daoEncrypted")) {
+        implementation "net.zetetic:android-database-sqlcipher:$androidDatabaseSQLCipher"
+    }
+
+    // Dependencies that are also used by other Chat SDK libraries
+    api "org.greenrobot:greendao:$greenDaoVersion"
+
+
+    implementation "id.zelory:compressor:$compressorVersion"
+
+
+    implementation "com.karumi:dexter:$dexterVersion"
+
+    // Audio
+    implementation "com.google.android.exoplayer:exoplayer:$exoplayerVersion"
+
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+
+    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
+
+    implementation "androidx.activity:activity-ktx:$activityKtxVersion"
+    implementation "androidx.fragment:fragment-ktx:$fragmentKtxVersion"
+}
+
+ext {
+    libraryName = 'Core'
+    artifact = 'core'
+    libraryDescription = 'Core'
+}
+
+if (project.hasProperty("mavenPublish") && mavenPublish) {
+    apply from: '../bintray.gradle'
+}
+
+

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="image_message">Afbeelding</string>
+    <string name="location_message">Plaatsbepaling</string>
+    <string name="audio_message">Audio-opname</string>
+    <string name="video_message">Video-opname</string>
+    <string name="sticker_message">Sticker</string>
+    <string name="file_message">Bestand</string>
+    <string name="no_name">Naamloos</string>
+    <string name="register">Registreren</string>
+    <string name="login">Inloggen</string>
+    <string name="anonymous_login">Anonieme login</string>
+    <string name="email">E-mail</string>
+    <string name="password">Paswoord</string>
+    <string name="logout">Uitloggen</string>
+    <string name="search">Zoeken</string>
+    <string name="add_users">Gebruikers toevoegen;</string>
+    <string name="tap_here_for_contact_info">Tik voor meer contactinformatie</string>
+    <string name="search_with_name">Zoeken volgens naam</string>
+    <string name="creating_thread">Bezig met het aanmaken van het gesprek</string>
+    <string name="thread_users_have_no_valid_avatar_urls">De gespreksdeelnemers hebben geen geldige avatar-url</string>
+    <string name="__typing" formatted="false">is iets aan het schrijven</string>
+    <string name="message_doesnt_have_a_thread">Dit bericht hoort bij geen gesprek</string>
+    <string name="seconds_remaining__" formatted="false">Resterende seconden %d</string>
+    <string name="recording_too_short">Te korte opname</string>
+    <string name="message_adapter_no_google_maps">O jee. Je toestel heeft geen Google Maps</string>
+    <string name="login_activity_no_mail_toast">Je e-mail</string>
+    <string name="login_activity_no_password_toast">Je paswoord</string>
+    <string name="login_activity_failed_to_login_toast">Verbinden mislukt</string>
+    <string name="login_activity_failed_to_register_toast">Registratie mislukt</string>
+    <string name="select_at_least_one_user">Minstens één gebruiker kiezen</string>
+    <string name="adding_users">Gebruikers toevoegen aan gesprek &#8230;</string>
+    <string name="cancel">Annuleer</string>
+    <string name="submit">Verstuur</string>
+    <string name="search_activity_no_user_found_toast">Meh. Niks gevonden</string>
+    <string name="add_public_chat_dialog_progress_message">Bezig met het maken van thread&#8230;</string>
+    <string name="alert_save_contact">Bezig met opslaan</string>
+    <string name="contact_book">Contactenlijst</string>
+    <string name="alert_delete_thread">Ben je zeker dat je dit gesprek wil verwijderen?</string>
+    <string name="delete">Verwijderen</string>
+    <!-- Login Dialog-->
+    <string name="authenticating">Bezig met authentificatie&#8230;</string>
+    <string name="connecting">Aan het verbinden&#8230;</string>
+    <string name="actions">Handelingen</string>
+    <string name="unable_to_fetch_image">Onmogelijk afbeelding image&#8230; op te halen</string>
+    <string name="status">Status</string>
+    <string name="location_hint">Plaats</string>
+    <string name="name_hint">Name</string>
+    <string name="phone_number_hint">Telefoonnummer</string>
+    <string name="email_hint">E-mail</string>
+    <string name="location">Locatie</string>
+    <string name="take_video">Maak een video</string>
+    <string name="choose_video">Kies een video</string>
+    <string name="availability">Beschikbaarheid</string>
+    <string name="blocked">Geblokkeerd</string>
+    <string name="contact_deleted">Contact verwijderd</string>
+    <string name="contact_added">Contact toegevoegd</string>
+    <string name="user_blocked">Deze gebruiker is geblokkeerd</string>
+    <string name="user_unblocked">Deze gebruiker is niet meer geblokkeerd</string>
+    <string name="user_entity_id_not_set">Gebruikers-id niet ingesteld</string>
+    <string name="typing">Bezig met schrijven&#8230;</string>
+    <string name="image_saved">De afbeelding is opgeslagen</string>
+    <string name="image_save_failed">De afbeelding is niet opgeslagen</string>
+    <string name="edit">Wijzigen</string>
+    <string name="availability_unavailable">Niet beschikbaar</string>
+    <string name="availability_available">Beschikbaar</string>
+    <string name="availability_away">Weg</string>
+    <string name="availability_busy">Bezig</string>
+    <string name="availability_extended_away">Een tijdje weg</string>
+    <!--Tabs-->
+    <string name="conversations__" formatted="false">Gesprekken%s</string>
+    <string name="chat_rooms">Gespreksruimten</string>
+    <string name="contacts">Contacten</string>
+    <string name="profile">Profiel</string>
+    <string name="forgot_password">Paswoord vergeten</string>
+    <string name="requesting">Paswoord aanvragen</string>
+    <string name="password_reset_success">Kijk in je mailbox. Ik heb iets gestuurd.</string>
+    <string name="reset_password">Paswoord opnieuw instellen</string>
+    <string name="last_seen__" formatted="false">Laatst gezien %s</string>
+    <string name="last_seen_on__at__" formatted="false">Laatst gezien op %s om %s</string>
+    <string name="push_channel_name">Berichtmeldingen</string>
+    <string name="location_services_not_enabled">Locatieservices niet ingeschakeld</string>
+    <string name="location_services_problem_message">Er was een probleem met de locatieservices. Zorg ervoor dat je ze hebt ingeschakeld in je telefooninstellingen.</string>s
+    <string name="location_is_null">Locatie is null</string>
+
+</resources>

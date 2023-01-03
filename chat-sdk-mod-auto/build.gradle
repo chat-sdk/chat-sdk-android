@@ -1,0 +1,54 @@
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.artifactory' version "$jfrogVersion"
+
+    id 'maven-publish'
+}
+
+android {
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+
+    defaultConfig {
+        minSdkVersion Integer.parseInt(project.MIN_SDK)
+
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled project.hasProperty('minifyDebug') && minifyDebug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled project.hasProperty('minifyRelease') && minifyRelease
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
+    }
+    namespace 'sdk.chat.auto'
+
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+ext {
+    libraryName = 'Auto'
+    artifact = 'mod-auto'
+    libraryDescription = 'Auto'
+}
+
+if (project.hasProperty("mavenPublish") && mavenPublish) {
+    apply from: '../bintray.gradle'
+}
+

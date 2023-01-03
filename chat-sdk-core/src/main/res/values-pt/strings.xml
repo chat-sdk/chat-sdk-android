@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="image_message">Imagem</string>
+    <string name="location_message">Localização</string>
+    <string name="audio_message">Gravação</string>
+    <string name="video_message">Vídeo</string>
+    <string name="sticker_message">Adesivo</string>
+    <string name="file_message">Arquivo</string>
+    <string name="no_name">Sem nome</string>
+
+    <string name="register">registo</string>
+    <string name="login">Entrar</string>
+    <string name="anonymous_login">Login anônimo</string>
+    <string name="email">O email</string>
+    <string name="password">Senha</string>
+    <string name="logout">Sair</string>
+    <string name="search">Procurar</string>
+    <string name="add_users">Adicionar usuários</string>
+    <string name="tap_here_for_contact_info">Toque aqui para informações de contato</string>
+    <string name="search_with_name">Pesquisar com nome</string>
+    <string name="creating_thread">Criando Thread</string>
+
+    <string name="thread_users_have_no_valid_avatar_urls">Os usuários de segmento não têm URLs de avatar válidos</string>
+    <string name="__typing" formatted="false">%s digitando ..</string>
+    <string name="message_doesnt_have_a_thread">A mensagem não tem um fio</string>
+    <string name="seconds_remaining__" formatted="false">Segundos restantes %d</string>
+    <string name="recording_too_short">Gravação muito curta</string>
+
+    <string name="message_adapter_no_google_maps">Este dispositivo não tem mapas do google</string>
+
+    <string name="login_activity_no_mail_toast">Por favor introduza o seu e-mail</string>
+    <string name="login_activity_no_password_toast">Por favor insira a senha</string>
+    <string name="login_activity_failed_to_login_toast">Falhou ao conectar</string>
+    <string name="login_activity_failed_to_register_toast">Falha ao registrar</string>
+
+    <string name="select_at_least_one_user">Por favor, selecione pelo menos um usuário</string>
+    <string name="adding_users">Adicionando usuários ao thread…</string>
+    <string name="cancel">Cancelar</string>
+    <string name="submit">Enviar</string>
+    <string name="location_services_not_enabled">Serviços de localização não ativados</string>
+    <string name="location_services_problem_message">Houve um problema com os serviços de localização. Certifique-se de que você os habilitou nas configurações do seu telefone.</string>
+    <string name="location_is_null">Localização é nula</string>
+
+    <string name="search_activity_no_user_found_toast">Nenhuma combinação encontrada</string>
+    <string name="add_public_chat_dialog_progress_message">Criando thread…</string>
+
+    <string name="alert_save_contact">Salvando</string>
+    <string name="contact_book">Contato Livro</string>
+    <string name="alert_delete_thread">Tem certeza de que deseja excluir este tópico?</string>
+
+    <string name="delete">Excluir</string>
+
+    
+    <string name="authenticating">Autenticando…</string>
+    <string name="connecting">Conectando&#8230;</string>
+    <string name="actions">Ações</string>
+
+    <string name="unable_to_fetch_image">Não é possível buscar a imagem&#8230;</string>
+
+    <string name="status">Status</string>
+    <string name="location_hint">Localização</string>
+    <string name="name_hint">Nome</string>
+    <string name="phone_number_hint">Número de telefone</string>
+    <string name="email_hint">O email</string>
+    <string name="location">Localização</string>
+    <string name="take_video">Tomar vídeo</string>
+    <string name="choose_video">Escolha o vídeo</string>
+
+    <string name="availability">Disponibilidade</string>
+    <string name="blocked">Bloqueado</string>
+    <string name="contact_deleted">Contato excluído</string>
+    <string name="contact_added">Contato adicionado</string>
+    <string name="user_blocked">Usuário bloqueado</string>
+    <string name="user_unblocked">Usuário desbloqueado</string>
+    <string name="user_entity_id_not_set">ID da entidade do usuário não definida</string>
+    <string name="typing">Digitando…</string>
+
+    <string name="image_saved">Imagem salva com sucesso</string>
+    <string name="image_save_failed">O salvamento da imagem falhou</string>
+
+
+    <string name="edit">Editar</string>
+
+    <string name="availability_unavailable">Indisponível</string>
+    <string name="availability_available">acessível</string>
+    <string name="availability_away">Longe</string>
+    <string name="availability_busy">Ocupado</string>
+    <string name="availability_extended_away">Afastado</string>
+
+
+    <string name="conversations__" formatted="false">Conversas%s</string>
+    <string name="chat_rooms">Salas de conversa</string>
+    <string name="contacts">Contatos</string>
+    <string name="profile">Perfil</string>
+
+    <string name="forgot_password">Esqueceu a senha</string>
+    <string name="requesting">Solicitando</string>
+    <string name="password_reset_success">Você recebeu um email com instruções para redefinir sua senha</string>
+    <string name="reset_password">Redefinir Senha</string>
+    <string formatted="false" name="last_seen__">Visto pela última vez %s</string>
+    <string formatted="false" name="last_seen_on__at__">Visto pela última vez em %s em %s</string>
+
+    <string name="push_channel_name">Notificações de mensagens</string>
+
+</resources>

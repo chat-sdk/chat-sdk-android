@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="action_bar_avatar_size">32dp</dimen>
+
+    <dimen name="thread_image_size">32dp</dimen>
+
+    <dimen name="small_icon_width">48dp</dimen>
+    <dimen name="small_icon_height">48dp</dimen>
+
+    <dimen name="large_icon_width">100dp</dimen>
+    <dimen name="large_icon_height">100dp</dimen>
+
+    <dimen name="message_image_width">300dp</dimen>
+    <dimen name="message_image_height">300dp</dimen>
+
+    <dimen name="small_avatar_width">38dp</dimen>
+    <dimen name="small_avatar_height">38dp</dimen>
+
+    <dimen name="large_avatar_width">@dimen/large_icon_width</dimen>
+    <dimen name="large_avatar_height">@dimen/large_icon_height</dimen>
+
+    <dimen name="material_button_height">60dp</dimen>
+
+    <dimen name="reply_image_width">40dp</dimen>
+    <dimen name="reply_image_height">40dp</dimen>
+
+    <dimen name="reply_corner_radius">4dp</dimen>
+
+    <dimen name="icon_corner_radius">8dp</dimen>
+
+    <dimen name="profile_header_height">300dp</dimen>
+    <dimen name="profile_header_width">540dp</dimen>
+
+</resources>

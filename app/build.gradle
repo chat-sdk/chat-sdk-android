@@ -1,0 +1,122 @@
+plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
+    id 'kotlin-android'
+}
+
+android {
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+
+    defaultConfig {
+        applicationId "sdk.chat.android.live"
+//        manifestPlaceholders += [applicationId: "sdk.chat.android.live"]
+
+        multiDexEnabled = true
+        minSdkVersion Integer.parseInt(project.DEMO_MIN_SDK)
+
+        versionName CHAT_SDK_VERSION
+        versionCode CHAT_SDK_BUILD_NUMBER as int
+
+    }
+
+    signingConfigs {
+        debug {
+            keyAlias 'androiddebugkey'
+            keyPassword 'D3bug123'
+            storeFile file('debug.keystore')
+            storePassword 'D3bug123'
+        }
+        release {
+            keyAlias 'androiddebugkey'
+            keyPassword 'D3bug123'
+            storeFile file('debug.keystore')
+            storePassword 'D3bug123'
+        }
+    }
+
+    if(project.hasProperty('devBuild')) {
+        splits.abi.enable = false
+        splits.density.enable = false
+        aaptOptions.cruncherEnabled = false
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled project.hasProperty('minifyRelease') && minifyRelease
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false//project.hasProperty('minifyDebug') && minifyDebug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+            debuggable true
+            jniDebuggable true
+            ext.alwaysUpdateBuildId = false
+        }
+    }
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/license.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt', 'META-INF/notice.txt', 'META-INF/ASL2.0', 'META-INF/*.kotlin_module']
+        }
+    }
+
+
+//    flavorDimensions "default"
+//    productFlavors {
+//        development {
+//            dimension "default"
+//            minSdkVersion 21
+//            resConfigs("en", "xxhdpi")
+//        }
+//    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
+    }
+    namespace 'sdk.chat.android.live'
+
+}
+
+dependencies {
+
+    implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
+
+//    implementation project(':chat-sdk-demo')
+
+//    implementation project(':chat-sdk-pro-calling')
+
+    implementation project(':chat-sdk-core-ui')
+    implementation project(':chat-sdk-firebase-adapter')
+    implementation project(':chat-sdk-firebase-push')
+    implementation project(':chat-sdk-firebase-upload')
+
+//    api project(':chat-sdk-mod-image-editor')
+
+
+//    implementation project(':chat-sdk-firestream-adapter')
+//
+    implementation project(':chat-sdk-mod-ui-extras')
+//    implementation project(':chat-sdk-mod-firebase-ui')
+//    implementation project(':chat-sdk-mod-profile-pictures')
+//
+    implementation project(':chat-sdk-mod-message-location')
+//
+    implementation project(':chat-sdk-pro-firebase-nearby-users')
+
+    implementation "org.greenrobot:greendao:$greenDaoVersion"
+
+    implementation 'com.thedeanda:lorem:2.1'
+}
+
+
+//task copyDependencies(type: Copy) {
+//    from configurations.compile
+//    into 'dependencies'
+//}

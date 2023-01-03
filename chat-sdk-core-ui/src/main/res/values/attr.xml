@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <attr name="actionBarBackgroundColor" format="reference|color" />
+    <attr name="actionBarTextColor" format="reference|color" />
+    <attr name="actionBarSubtitleTextColor" format="reference|color" />
+    <attr name="activityBackgroundColor" format="reference|color" />
+
+<!--    <declare-styleable name="ChatSDK">-->
+
+    <attr name="recyclerSectionBackgroundColor" format="reference|color" />
+    <attr name="recyclerSectionBorderColor" format="reference|color" />
+
+    <attr name="avatarBorderColor" format="reference|color" />
+    <attr name="avatarBackgroundColor" format="reference|color" />
+    <attr name="dialogUnreadBubbleBorderColor" format="reference|color" />
+    <attr name="onlineIndicatorBorderColor" format="reference|color" />
+    <attr name="onlineIndicatorOnlineColor" format="reference|color" />
+    <attr name="onlineIndicatorOfflineColor" format="reference|color" />
+
+    <attr name="systemDefaultBubbleColor" format="reference|color" />
+    <attr name="systemDefaultBubblePressedColor" format="reference|color" />
+    <attr name="systemDefaultBubbleSelectedColor" format="reference|color" />
+
+    <attr name="systemMessageTextColor" format="reference|color" />
+    <attr name="systemMessageTextSize" format="reference|dimension" />
+    <attr name="systemMessageBubbleDrawable" format="reference" />
+
+    <attr name="replyBackgroundColor" format="reference|color" />
+    <attr name="replyDividerColor" format="reference|color" />
+    <attr name="replyTextSize" format="dimension|reference" />
+    <attr name="replyTextPadding" format="dimension|reference" />
+    <attr name="bubbleOverlayBackgroundColor" format="reference|color" />
+
+<!--    <attr name="messageTransferProgressBarBackgroundColor" format="reference|color" />-->
+<!--    <attr name="messageTransferProgressBarForegroundColor" format="reference|color" />-->
+
+    <attr name="incomingBubbleOverlayDrawable" format="reference" />
+    <attr name="incomingReplyDrawable" format="reference" />
+    <attr name="incomingReplyImageDrawable" format="reference" />
+    <attr name="incomingReplyDividerColor" format="reference|color" />
+    <attr name="incomingReplyBackgroundColor" format="reference|color" />
+    <attr name="incomingReplyTextColor" format="reference|color" />
+    <attr name="incomingReplyTextSize" format="reference|dimension" />
+    <attr name="incomingTextLinkColor" format="reference|color" />
+
+    <attr name="incomingUserNameTextColor" format="reference|color" />
+    <attr name="incomingUserNameTextFont" format="reference|string" />
+    <attr name="incomingUserNameTextSize" format="reference|dimension" />
+    <attr name="incomingIconDrawable" format="reference" />
+
+    <attr name="outcomingBubbleOverlayDrawable" format="reference" />
+    <attr name="outcomingReplyDividerColor" format="reference|color" />
+    <attr name="outcomingReplyDrawable" format="reference" />
+    <attr name="outcomingReplyImageDrawable" format="reference" />
+    <attr name="outcomingReplyBackgroundColor" format="reference|color" />
+    <attr name="outcomingReplyTextColor" format="reference|color" />
+    <attr name="outcomingReplyTextSize" format="reference|dimension" />
+    <attr name="outcomingTextLinkColor" format="reference|color" />
+
+    <attr name="outcomingIconDrawable" format="reference" />
+
+    <attr name="chatViewDividerColor" format="reference|color" />
+    <attr name="chatViewMessageInputBackgroundColor" format="reference|color" />
+
+    <attr name="logoutButtonColor" format="reference|color" />
+    <attr name="loginButtonColor" format="reference|color" />
+    <attr name="registerButtonColor" format="reference|color" />
+    <attr name="anonymousButtonColor" format="reference|color" />
+    <attr name="resetPasswordButtonTextColor" format="reference|color" />
+    <attr name="resetPasswordButtonColor" format="reference|color" />
+
+    <attr name="chatCollapsingToolbarStyle" format="reference" />
+    <attr name="chatTextInputStyle" format="reference" />
+    <attr name="chatLightTextInputStyle" format="reference" />
+    <attr name="chatMaterialButtonStyle" format="reference" />
+    <attr name="chatCircleIconStyle" format="reference" />
+    <attr name="chatCardHeaderStyle" format="reference" />
+    <attr name="chatImagePopupAnimationStyle" format="reference" />
+
+    <attr name="chatOptionBackground" format="reference" />
+    <attr name="chatOptionBackgroundColor" format="reference" />
+    <attr name="chatOptionBackgroundCornerRadius" format="reference" />
+    <attr name="chatOptionTextColor" format="reference" />
+
+<!--    <attr name="incomingMessageBubbleTopLeftCornerRadius" format="reference|dimension" />-->
+<!--    <attr name="incomingMessageBubbleTopRightCornerRadius" format="reference|dimension" />-->
+<!--    <attr name="incomingMessageBubbleBottomLeftCornerRadius" format="reference|dimension" />-->
+<!--    <attr name="incomingMessageBubbleBottomRightCornerRadius" format="reference|dimension" />-->
+
+<!--    <attr name="outcomingMessageBubbleTopLeftCornerRadius" format="reference|dimension" />-->
+<!--    <attr name="outcomingMessageBubbleTopRightCornerRadius" format="reference|dimension" />-->
+<!--    <attr name="outcomingMessageBubbleBottomLeftCornerRadius" format="reference|dimension" />-->
+<!--    <attr name="outcomingMessageBubbleBottomRightCornerRadius" format="reference|dimension" />-->
+
+    <!--    </declare-styleable>-->
+    <!--    <attr name="" format="reference|color" />-->
+
+</resources>

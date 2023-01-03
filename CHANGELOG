@@ -1,0 +1,15 @@
+## v4.0.0
+
+- Complete rewrite of the project
+- Upgraded image handling to use Fresco
+- Replaced promises with RxAndroid
+- Upgraded user profiles
+- Improved efficiency and multi-threading
+- Brought architecture up to date with iOS
+- Made the project more modular
+- Upgraded all project dependencies
+
+## v4.0.7
+
+- Multiple bug fixes
+- Removed PagerSlidingTabBar in favor of native TabLayout 

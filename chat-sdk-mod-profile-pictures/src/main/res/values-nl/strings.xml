@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_add_picture">Een afbeelding toevoegen</string>
+    <string name="action_delete_picture">De afbeelding verwijderen</string>
+    <string name="set_as_default">Als standaard instellen</string>
+    <string name="uploading_picture">Afbeelding aan het laden</string>
+    <string name="updating_pictures">Afbeeldingen aan het bijwerken</string>
+    <string name="deleting_picture">Afbeelding aan het verwijderen</string>
+</resources>

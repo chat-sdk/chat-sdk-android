@@ -1,0 +1,12 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <corners
+        android:bottomLeftRadius="?incomingMessageBubbleBottomLeftCornerRadius"
+        android:bottomRightRadius="?incomingMessageBubbleBottomRightCornerRadius"
+        android:topLeftRadius="?incomingMessageBubbleTopLeftCornerRadius"
+        android:topRightRadius="?incomingMessageBubbleTopRightCornerRadius" />
+
+    <solid android:color="@color/white" />
+
+</shape>

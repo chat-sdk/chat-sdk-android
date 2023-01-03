@@ -1,0 +1,85 @@
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.artifactory' version "$jfrogVersion"
+
+    id 'maven-publish'
+    id 'kotlin-android'
+}
+
+
+android {
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+
+    defaultConfig {
+        minSdkVersion Integer.parseInt(project.MIN_SDK)
+
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled project.hasProperty('minifyDebug')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled project.hasProperty('minifyCore')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
+    }
+    namespace 'sdk.chat.sinch'
+
+}
+//
+//repositories {
+//    flatDir {
+//        dirs '../libs'
+//    }
+//}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
+
+    implementation project(':chat-sdk-core')
+    implementation project(':chat-sdk-core-ui')
+    implementation project(':chat-sdk-firebase-push')
+
+//    implementation(name: 'sinch-android-rtc', version: '+', ext: 'aar')
+
+//    implementation 'com.github.chat-sdk:sinchlib:3.12.5'
+    implementation 'com.github.chat-sdk:sinchlib:4.8.6'
+
+//    api(name:'sinch-android-rtc', version:'3.12.5', ext:'aar')
+    implementation "com.google.code.gson:gson:$gsonVersion"
+
+    api "androidx.appcompat:appcompat:$androidxAppcompatVersion"
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
+
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
+
+//    implementation 'com.facebook.fresco:fresco:2.6.0'
+    implementation "com.google.firebase:firebase-messaging"
+
+    api "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    api "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+
+}
+
+
+
+ext {
+    libraryName = 'CallingPro'
+    artifact = 'pro-calling'
+    libraryDescription = 'Calling '
+}
+
+//apply from: '../bintray.gradle'

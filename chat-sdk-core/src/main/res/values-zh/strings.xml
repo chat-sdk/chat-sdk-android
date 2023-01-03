@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="image_message">图片</string>
+    <string name="location_message">地点</string>
+    <string name="audio_message">记录</string>
+    <string name="video_message">视频</string>
+    <string name="sticker_message">贴纸</string>
+    <string name="file_message">文件</string>
+    <string name="no_name">无名</string>
+
+    <string name="register">寄存器</string>
+    <string name="login">登录</string>
+    <string name="anonymous_login">匿名登录</string>
+    <string name="email">电子邮件</string>
+    <string name="password">密码</string>
+    <string name="logout">登出</string>
+    <string name="search">搜索</string>
+    <string name="add_users">添加用户</string>
+    <string name="tap_here_for_contact_info">点击此处获取联系信息</string>
+    <string name="search_with_name">搜索姓名</string>
+    <string name="creating_thread">创建线程</string>
+
+    <string name="thread_users_have_no_valid_avatar_urls">线程用户没有有效的头像URL</string>
+    <string name="__typing" formatted="false">%s打字..</string>
+    <string name="message_doesnt_have_a_thread">消息没有线程</string>
+    <string name="seconds_remaining__" formatted="false">剩余秒数 ％d</string>
+    <string name="recording_too_short">录音太短</string>
+
+    <string name="message_adapter_no_google_maps">此设备没有谷歌地图</string>
+    <string name="login_activity_no_mail_toast">请输入您的电子邮件</string>
+    <string name="login_activity_no_password_toast">请输入密码</string>
+    <string name="login_activity_failed_to_login_toast">连接失败</string>
+    <string name="login_activity_failed_to_register_toast">注册失败</string>
+
+    <string name="select_at_least_one_user">请至少选择一个用户</string>
+    <string name="adding_users">将用户添加到线程...</string>
+    <string name="cancel">取消</string>
+    <string name="submit">提交</string>
+
+    <string name="location_services_not_enabled">位置服务未启用</string>
+    <string name="location_services_problem_message">位置服务出现问题。 确保在手机设置中启用它们。</string>
+    <string name="location_is_null">位置为空</string>
+    <string name="add_public_chat_dialog_progress_message">创建线程......</string>
+
+    <string name="alert_save_contact">保存</string>
+    <string name="contact_book">联系书</string>
+    <string name="alert_delete_thread">您确定要删除此主题吗？</string>
+
+    <string name="delete">删除</string>
+
+    
+    <string name="authenticating">验证...</string>
+    <string name="connecting">连接...</string>
+    <string name="actions">操作</string>
+
+    
+    <string name="unable_to_fetch_image">无法获取图片...</string>
+    <string name="status">状态</string>
+    <string name="location_hint">地点</string>
+    <string name="name_hint">名称</string>
+    <string name="phone_number_hint">电话号码</string>
+    <string name="email_hint">电子邮件</string>
+    <string name="location">地点</string>
+    <string name="take_video">拍视频</string>
+    <string name="choose_video">选择视频</string>
+
+    <string name="availability">可用性</string>
+    <string name="blocked">阻止</string>
+    <string name="contact_deleted">联系已删除</string>
+    <string name="contact_added">联系人已添加</string>
+    <string name="user_blocked">用户被阻止</string>
+    <string name="user_unblocked">用户畅通无阻</string>
+    <string name="user_entity_id_not_set">未设置用户实体ID</string>
+    <string name="typing">打字...</string>
+
+    <string name="image_saved">图像已成功保存</string>
+    <string name="image_save_failed">图像保存失败</string>
+
+    <string name="edit">编辑</string>
+
+    <string name="availability_unavailable">不可用</string>
+    <string name="availability_available">可得到</string>
+    <string name="availability_away">远</string>
+    <string name="availability_busy">忙</string>
+    <string name="availability_extended_away">延长离开</string>
+
+
+    <string name="conversations__" formatted="false">对话%s</string>
+    <string name="chat_rooms">聊天室</string>
+    <string name="contacts">往来</string>
+    <string name="profile">轮廓</string>
+
+    <string name="forgot_password">忘记密码</string>
+    <string name="requesting">请求</string>
+    <string name="password_reset_success">您收到了一封电子邮件，其中包含重置密码的说明</string>
+    <string name="reset_password">重设密码</string>
+    <string formatted="false" name="last_seen__">上次见过%s</string>
+    <string formatted="false" name="last_seen_on__at__">最后一次出现在%s的%s上</string>
+
+    <string name="push_channel_name">消息通知</string>
+
+</resources>

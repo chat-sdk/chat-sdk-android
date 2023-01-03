@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Firestream for Firestore</string>
+    <string name="error_null_snapshot">Snapshot is null</string>
+    <string name="error_no_authenticated_user">Firebase must be authenticated to connect</string>
+    <string name="error_initialize_not_run">You need to call FireStream.api().initialize(…)</string>
+    <string name="error_null_data">Null data returned</string>
+    <string name="error_no_value">No value present</string>
+    <string name="error_mismatched_doc_reference">DocumentReference expected but path points to collection</string>
+    <string name="error_mismatched_col_reference">CollectionReference expected but path points to document</string>
+    <string name="error_owner_permission_required">You must be a group owner to perform this action</string>
+    <string name="error_admin_permission_required">You must be a group admin to perform this action</string>
+    <string name="error_member_permission_required">You must be a group member to perform this action</string>
+    <string name="error_write_cancelled">Write cancelled</string>
+    <string name="error_invalid_path">Invalid path, path can only contain letters, numbers and underscores</string>
+    <string name="error_group_must_be_empty_to_close">Remove the other users before you can delete the group</string>
+
+    <string name="owner">Owner</string>
+    <string name="admin">Admin</string>
+    <string name="member">Member</string>
+    <string name="watcher">Watcher</string>
+    <string name="banned">Banned</string>
+
+</resources>

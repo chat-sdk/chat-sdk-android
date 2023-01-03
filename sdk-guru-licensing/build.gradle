@@ -1,0 +1,58 @@
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.artifactory' version "$jfrogVersion"
+
+    id 'maven-publish'
+}
+
+android {
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+
+    defaultConfig {
+        minSdkVersion Integer.parseInt(project.MIN_SDK)
+
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled project.hasProperty('minifyDebug') && minifyDebug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled project.hasProperty('minifyRelease') && minifyRelease
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
+    }
+    namespace 'sdk.guru.licensing'
+
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':sdk-guru-common')
+    implementation project(':chat-sdk-core')
+    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
+    implementation "com.google.code.gson:gson:$gsonVersion"
+}
+
+ext {
+    libraryName = 'GuruLicensing'
+    artifact = 'guru-licensing'
+    libraryDescription = 'Guru Licensing'
+}
+
+if (project.hasProperty("mavenPublish") && mavenPublish) {
+    apply from: '../bintray.gradle'
+}
+

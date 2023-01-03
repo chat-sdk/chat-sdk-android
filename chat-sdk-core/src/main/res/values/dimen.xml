@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="large_notification_width">48dp</dimen>
+    <dimen name="large_notification_height">48dp</dimen>
+</resources>

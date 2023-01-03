@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginBottom="8dp">
+
+    <TextView
+        android:id="@+id/userName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@id/image"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="0dp"
+        android:fontFamily="?incomingUserNameTextFont"
+        android:textColor="?incomingUserNameTextColor"
+        android:textSize="?incomingUserNameTextSize"
+        app:layout_constraintEnd_toEndOf="@id/image"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@id/messageUserAvatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        app:civ_circle_background_color="?avatarBackgroundColor"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/onlineIndicator"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:layout_alignTop="@id/messageUserAvatar"
+        android:layout_alignEnd="@id/messageUserAvatar"
+        android:layout_marginEnd="0dp"
+        app:layout_constraintEnd_toEndOf="@id/messageUserAvatar"
+        app:layout_constraintTop_toTopOf="@id/messageUserAvatar" />
+
+    <siyamed.shapeimageview.PorterShapeImageView
+        android:id="@id/image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="@dimen/message_incoming_bubble_margin_right"
+        android:layout_toEndOf="@id/messageUserAvatar"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toEndOf="@id/messageUserAvatar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:siShape="?incomingBubbleDrawable"
+        app:siSquare="false" />
+
+    <View
+        android:id="@+id/bubbleOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_alignStart="@id/image"
+        android:layout_alignTop="@id/image"
+        android:layout_alignEnd="@id/image"
+        android:layout_alignBottom="@id/image"
+        android:background="?incomingBubbleOverlayDrawable"
+        app:layout_constraintBottom_toBottomOf="@id/image"
+        app:layout_constraintEnd_toEndOf="@id/image"
+        app:layout_constraintStart_toStartOf="@id/image"
+        app:layout_constraintTop_toTopOf="@id/image">
+
+    </View>
+
+    <sdk.chat.ui.views.ProgressView
+        android:id="@+id/progressView"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        app:layout_constraintHeight="true"
+        app:layout_constraintWidth="true"
+
+        app:layout_constraintBottom_toBottomOf="@id/bubbleOverlay"
+        app:layout_constraintLeft_toLeftOf="@id/bubbleOverlay"
+        app:layout_constraintRight_toRightOf="@id/bubbleOverlay"
+        app:layout_constraintTop_toTopOf="@id/bubbleOverlay"
+        />
+
+<!--    <com.mikhaellopez.circularprogressbar.CircularProgressBar-->
+<!--        android:id="@+id/circularProgressBar"-->
+<!--        android:layout_width="80dp"-->
+<!--        android:layout_height="80dp"-->
+<!--        app:cpb_background_progressbar_color="?messageTransferProgressBarBackgroundColor"-->
+<!--        app:cpb_background_progressbar_width="3dp"-->
+<!--        app:cpb_progress="0"-->
+<!--        app:cpb_progress_direction="to_right"-->
+<!--        app:cpb_progressbar_color="?messageTransferProgressBarForegroundColor"-->
+<!--        app:cpb_progressbar_width="4dp"-->
+<!--        app:cpb_round_border="false"-->
+<!--        app:layout_constraintBottom_toBottomOf="@id/bubbleOverlay"-->
+<!--        app:layout_constraintLeft_toLeftOf="@id/bubbleOverlay"-->
+<!--        app:layout_constraintRight_toRightOf="@id/bubbleOverlay"-->
+<!--        app:layout_constraintTop_toTopOf="@id/bubbleOverlay" />-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/progressText"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="50%"-->
+<!--        android:textColor="@color/white"-->
+<!--        app:layout_constraintEnd_toEndOf="@id/bubbleOverlay"-->
+<!--        app:layout_constraintStart_toStartOf="@id/bubbleOverlay"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/circularProgressBar" />-->
+
+<!--    <ImageButton-->
+<!--        android:id="@+id/actionButton"-->
+<!--        android:layout_width="60dp"-->
+<!--        android:layout_height="60dp"-->
+<!--        android:layout_centerInParent="true"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:layout_centerVertical="true"-->
+<!--        android:background="@drawable/icn_60_download"-->
+<!--        android:scaleType="centerInside"-->
+<!--        app:layout_constraintBottom_toBottomOf="@id/bubbleOverlay"-->
+<!--        app:layout_constraintLeft_toLeftOf="@id/bubbleOverlay"-->
+<!--        app:layout_constraintRight_toRightOf="@id/bubbleOverlay"-->
+<!--        app:layout_constraintTop_toTopOf="@id/bubbleOverlay" />-->
+
+    <LinearLayout
+        android:id="@+id/imageOverlayContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@id/image"
+        android:layout_alignBottom="@id/image"
+        android:layout_margin="5dp"
+        android:background="@drawable/overlay_background_circle"
+        app:layout_constraintBottom_toBottomOf="@id/image"
+        app:layout_constraintEnd_toEndOf="@id/image">
+
+        <ImageView
+            android:id="@+id/imageOverlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@id/messageTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/image"
+        android:layout_alignEnd="@id/image"
+        android:layout_marginStart="16dp"
+        app:layout_constraintEnd_toEndOf="@id/image"
+        app:layout_constraintTop_toBottomOf="@id/image" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

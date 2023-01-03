@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Chat SDK Firebase UI</string>
+    <string name="sign_in_cancelled">Sign in cancelled</string>
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="unknown_error">Unknown Error</string>
+    <string name="unknown_sign_in_response">Unknown sign in response</string>
+    <string name="back_not_available">Back not available</string>
+</resources>

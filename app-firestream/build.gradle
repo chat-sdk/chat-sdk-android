@@ -1,0 +1,68 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'com.google.firebase.firebase-perf'
+
+android {
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+
+    defaultConfig {
+        applicationId "sdk.chat.android.firestream"
+//        manifestPlaceholders += [applicationId: "sdk.chat.android.firestream"]
+
+        multiDexEnabled = true
+        minSdkVersion Integer.parseInt(project.DEMO_MIN_SDK)
+
+
+        versionName CHAT_SDK_VERSION
+        versionCode CHAT_SDK_BUILD_NUMBER as int
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/license.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt', 'META-INF/notice.txt', 'META-INF/ASL2.0', 'META-INF/*.kotlin_module']
+        }
+    }
+
+
+    signingConfigs {
+        debug {
+            keyAlias 'androiddebugkey'
+            keyPassword 'D3bug123'
+            storeFile file('debug.keystore')
+            storePassword 'D3bug123'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled project.hasProperty('minifyRelease') && minifyRelease
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled project.hasProperty('minifyDebug') && minifyDebug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+            ext.alwaysUpdateBuildId = false
+        }
+    }
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
+    }
+    namespace 'sdk.chat.demo.firestream'
+
+
+}
+
+dependencies {
+    api project(':chat-sdk-app-firestream')
+
+    implementation "com.google.firebase:firebase-crashlytics"
+    implementation "com.google.firebase:firebase-perf"
+
+}

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="image_message">Imagen</string>
+    <string name="location_message">Ubicación</string>
+    <string name="audio_message">Grabación</string>
+    <string name="video_message">Vídeo</string>
+    <string name="sticker_message">Pegatina</string>
+    <string name="file_message">Expediente</string>
+    <string name="no_name">Sin nombre</string>
+
+    <string name="register">Registro</string>
+    <string name="login">Iniciar sesión</string>
+    <string name="anonymous_login">Inicio de sesión anónimo</string>
+    <string name="email">Email</string>
+    <string name="password">Contraseña</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="search">Buscar</string>
+    <string name="add_users">Añadir Usuarios</string>
+    <string name="tap_here_for_contact_info">Toque aquí para información de contacto</string>
+    <string name="search_with_name">Buscar con nombre</string>
+    <string name="creating_thread">Creación de hilo</string>
+
+    <string name="thread_users_have_no_valid_avatar_urls">Los usuarios de subprocesos no tienen URL de avatar válidas</string>
+    <string name="__typing" formatted="false">%s escribiendo &#8230;</string>
+    <string name="message_doesnt_have_a_thread">El mensaje no tiene un hilo</string>
+    <string name="seconds_remaining__" formatted="false">Segundos restantes %d</string>
+    <string name="recording_too_short">Grabación demasiado corta</string>
+
+    <string name="message_adapter_no_google_maps">Este dispositivo no tiene google maps</string>
+
+    <string name="login_activity_no_mail_toast">Por favor introduzca su correo electrónico</string>
+    <string name="login_activity_no_password_toast">Por favor, ingrese contraseña</string>
+    <string name="login_activity_failed_to_login_toast">Error al conectar</string>
+    <string name="login_activity_failed_to_register_toast">Fallo el registro</string>
+
+    <string name="select_at_least_one_user">Por favor seleccione al menos un usuario</string>
+    <string name="adding_users">Añadiendo usuarios al hilo &#8230;</string>
+    <string name="cancel">Cancelar</string>
+    <string name="submit">Enviar</string>
+
+    <string name="location_services_not_enabled">Servicios de localización no habilitados.</string>
+    <string name="location_services_problem_message">Hubo un problema con los servicios de localización. Asegúrate de habilitarlos en la configuración de tu teléfono.</string>
+    <string name="location_is_null">La ubicación es nula</string>
+
+    
+    <string name="search_activity_no_user_found_toast">No se encontraron coincidencias</string>
+
+    <string name="add_public_chat_dialog_progress_message">Creando hilo &#8230;</string>
+
+    <string name="alert_save_contact">Ahorro</string>
+    <string name="contact_book">Libro de contactos</string>
+
+    <string name="alert_delete_thread">¿Estás seguro de que quieres eliminar este hilo?</string>
+    <string name="delete">Borrar</string>
+    <string name="authenticating">Autentificando&#8230;</string>
+    <string name="connecting">Conectando&#8230;</string>
+    <string name="actions">Comportamiento</string>
+
+    
+    <string name="unable_to_fetch_image">No se puede obtener la imagen &#8230;</string>
+
+    <string name="status">Estado</string>
+    <string name="location_hint">Ubicación</string>
+    <string name="name_hint">Nombre</string>
+    <string name="phone_number_hint">Número de teléfono</string>
+    <string name="email_hint">Email</string>
+    <string name="location">Ubicación</string>
+    <string name="take_video">Toma video</string>
+    <string name="choose_video">Elegir video</string>
+
+    <string name="availability">Disponibilidad</string>
+    <string name="blocked">Obstruido</string>
+    <string name="contact_deleted">Contacto eliminado</string>
+    <string name="contact_added">Contacto añadido</string>
+    <string name="user_blocked">Usuario bloqueado</string>
+    <string name="user_unblocked">Usuario desbloqueado</string>
+    <string name="user_entity_id_not_set">ID de entidad de usuario no establecida</string>
+    <string name="typing">Mecanografía…</string>
+
+    <string name="image_saved">Imagen guardada exitosamente</string>
+    <string name="image_save_failed">Error al guardar la imagen</string>
+    <string name="edit">Editar</string>
+
+    <string name="availability_unavailable">Indisponible</string>
+    <string name="availability_available">Disponible</string>
+    <string name="availability_away">Lejos</string>
+    <string name="availability_busy">Ocupado</string>
+    <string name="availability_extended_away">Extendido de distancia</string>
+
+    
+    <string name="conversations__" formatted="false">Conversaciones%s</string>
+    <string name="chat_rooms">Salas de chat</string>
+    <string name="contacts">Contactos</string>
+    <string name="profile">Perfil</string>
+    <string name="forgot_password">Se te olvidó tu contraseña</string>
+    <string name="requesting">Solicitando</string>
+    <string name="password_reset_success">Se le ha enviado un correo electrónico con instrucciones para restablecer su contraseña.</string>
+    <string name="reset_password">Restablecer la contraseña</string>
+    <string formatted="false" name="last_seen__">Último visto %s</string>
+    <string formatted="false" name="last_seen_on__at__">Visto por última vez en %s en %s</string>
+    <string name="push_channel_name">Notificaciones de mensajes</string>
+
+
+</resources>

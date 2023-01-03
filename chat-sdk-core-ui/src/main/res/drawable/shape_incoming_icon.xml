@@ -1,0 +1,12 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <corners
+        android:bottomLeftRadius="@dimen/icon_corner_radius"
+        android:bottomRightRadius="@dimen/icon_corner_radius"
+        android:topLeftRadius="0dp"
+        android:topRightRadius="@dimen/icon_corner_radius" />
+
+    <solid android:color="@color/white" />
+
+</shape>

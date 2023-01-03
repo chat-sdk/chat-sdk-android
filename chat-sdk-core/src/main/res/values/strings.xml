@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Chat SDK Core</string>
+
+    <string name="image_message">📷 Image</string>
+    <string name="location_message">📍 Location</string>
+    <string name="audio_message">🎤 Recording</string>
+    <string name="video_message">📹 Video</string>
+    <string name="sticker_message">🙂 Sticker</string>
+    <string name="file_message">File</string>
+    <string name="no_name">No Name</string>
+    <string name="sticker">Sticker</string>
+
+    <string name="message_send_failed">Message send failed</string>
+    <string name="try_to_resend_the_message">Try to resend the message</string>
+    <string name="send">Send</string>
+    <string name="encrypted_message">Encrypted Message</string>
+
+    <string name="file_too_large_max_size__" formatted="false">File too large. Max size: %dMB</string>
+
+    <string name="register">Register</string>
+    <string name="login">Login</string>
+    <string name="anonymous_login">Anonymous Login</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="logout">Logout</string>
+    <string name="search">Search</string>
+    <string name="leave_chat">Leave Chat</string>
+    <string name="destroy">Destroy</string>
+    <string name="add_users">Add Users</string>
+    <string name="tap_here_for_contact_info">Tap here for contact info</string>
+    <string name="search_with_name">🔍 Search</string>
+    <string name="search_field_empty">Search field is empty</string>
+
+    <string name="new_chat">New Chat</string>
+    <string name="add_user_by_id">Add User by ID</string>
+    <string name="__percent" formatted="false">%.0f%%</string>
+
+    <string name="download_failed">Download failed</string>
+
+    <string name="settings">⚙️ Settings</string>
+
+    <string name="__kb">%.0f KB</string>
+    <string name="__mb">%.0f MB</string>
+
+    <string name="you_were_removed_from_the_thread">You were removed</string>
+    <string name="you_were_added_to_the_thread">You were added</string>
+
+    <string name="thread_users_have_no_valid_avatar_urls">Thread users have no valid avatar URLs</string>
+    <string name="__typing" formatted="false">%s typing...</string>
+    <string name="message_doesnt_have_a_thread">Message doesn\'t have a thread</string>
+
+    <!--CoreMessage list adapter-->
+    <string name="message_adapter_no_google_maps">This device does not have google maps</string>
+
+    <!-- Login Activity-->
+    <string name="login_activity_no_mail_toast">Please enter your email</string>
+    <string name="login_activity_no_password_toast">Please enter password</string>
+    <string name="login_activity_failed_to_login_toast">Login Failed</string>
+    <string name="login_activity_failed_to_register_toast">Registration Failed</string>
+
+    <!--SelectContactActivity-->
+    <string name="select_at_least_one_user">Please select at least one user</string>
+    <string name="adding_users">Adding users to thread&#8230;</string>
+    <string name="creating_thread">Creating</string>
+
+    <!--ExitHelper-->
+    <!-- Exit Dialog-->
+    <string name="cancel">Cancel</string>
+    <string name="submit">Submit</string>
+
+
+    <string name="message_failed_to_send">Message failed to send. Click to retry</string>
+
+    <string name="location_services_not_enabled">Location services not enabled</string>
+    <string name="location_services_problem_message">There was a problem with the location services. Make sure you enabled them in your phone settings.</string>
+    <string name="location_is_null">Location is null</string>
+
+    <!--SearchActivity-->
+    <string name="search_activity_no_user_found_toast">No match found</string>
+
+    <string name="add_public_chat_dialog_progress_message">Creating thread&#8230;</string>
+
+    <!--PublicThreadFragment-->
+
+    <!--Save Contact Dialog-->
+    <string name="alert_save_contact">Saving</string>
+    <string name="contact_book">📗 Contact Book</string>
+
+    <!--Delete CoreThread Dialog-->
+    <string name="alert_delete_thread">Are you sure you want to delete this thread?</string>
+
+    <string name="permission_denied">Permissions must be enabled to access all the chat features</string>
+
+    <string name="delete">Delete</string>
+
+    <!-- Login Dialog-->
+    <string name="authenticating">Authenticating&#8230;</string>
+    <string name="connecting">Connecting&#8230;</string>
+
+    <string name="mute_notifications">Mute Notifications</string>
+    <string name="unmute_notifications">Unmute Notifications</string>
+
+    <string name="actions">Actions</string>
+
+    <!--Error-->
+    <string name="unable_to_fetch_image">Unable to fetch image&#8230;</string>
+    <string name="unable_to_start_activity">Unable to start activity</string>
+    <string name="error_processing_image">Error processing image</string>
+    <string name="error_launching_activity">Error launching activity</string>
+    <string name="error_thread_not_found">Error thread not found</string>
+
+    <string name="name_field_must_be_set">You must set a name</string>
+
+    <!--State-->
+    <string name="status">Status</string>
+    <string name="location_hint">Location</string>
+    <string name="name_hint">Name</string>
+    <string name="name_hint_required">Name *</string>
+    <string name="phone_number_hint">Phone Number</string>
+    <string name="email_hint">Email</string>
+    <string name="location">Location</string>
+    <string name="image_or_photo">Photo</string>
+
+    <string name="availability">Availability</string>
+    <string name="blocked">Blocked</string>
+    <string name="contact_deleted">Contact deleted</string>
+    <string name="contact_added">Contact added</string>
+    <string name="contact">Contact</string>
+    <string name="delete_contact">Delete Contact</string>
+    <string name="user_blocked">User blocked</string>
+    <string name="user_unblocked">User unblocked</string>
+    <string name="user_entity_id_not_set">User Entity ID not set</string>
+    <string name="typing">Typing&#8230;</string>
+
+    <string name="downloading_to_downloads_folder">Downloading to downloads folder</string>
+    <string name="saved">Saved successfully</string>
+    <string name="save_failed">Save failed</string>
+
+    <string name="image_saved">Image saved successfully</string>
+    <string name="image_save_failed">Image save failed</string>
+
+
+    <string name="edit">Edit</string>
+    <string name="join">Join</string>
+
+    <string name="availability_unavailable">Unavailable</string>
+    <string name="availability_available">Available</string>
+    <string name="availability_away">Away</string>
+    <string name="availability_busy">Busy</string>
+    <string name="availability_extended_away">Extended Away</string>
+
+    <string name="conversations__" formatted="false">Conversations%s</string>
+    <string name="chat_rooms">Chat Rooms</string>
+    <string name="contacts">Contacts</string>
+    <string name="profile">Profile</string>
+    <string name="edit_profile">Edit Profile</string>
+
+    <string name="forgot_password">Forgot Password</string>
+    <string name="requesting">Requesting</string>
+    <string name="password_reset_success">You have been sent an email with instructions to reset your password</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="last_seen__" formatted="false">Last seen %s</string>
+    <string name="last_seen_on__at__" formatted="false">Last seen on %s at %s</string>
+
+    <string name="push_channel_name">Message Notifications</string>
+    <string name="uploading">Uploading</string>
+
+    <string name="copy">Copy</string>
+    <string name="forward_message">Forward Message</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="add_user_to_chat">Add User To Chat</string>
+    <string name="success">Success!</string>
+    <string name="online">Online</string>
+    <string name="add">Add</string>
+    <string name="call">Call</string>
+    <string name="save">Save</string>
+
+    <string name="options">Options</string>
+    <string name="info">Info</string>
+    <string name="change_role">Change role</string>
+    <string name="remove_from_group">Remove from group</string>
+    <string name="feature_not_supported">Feature not supported</string>
+
+    <string name="reply">Reply</string>
+    <string name="mark_as_read">Mark as Read</string>
+
+<!--    <string name="revoke_voice">Silence user</string>-->
+<!--    <string name="grant_voice">Un-silence user</string>-->
+
+<!--    <string name="revoke_moderator">Remove Moderator</string>-->
+<!--    <string name="grant_moderator">Make Moderator</string>-->
+    <string name="moderator">Moderator</string>
+    <string name="silence">Silence</string>
+    <string name="role">Role</string>
+    <string name="moderation">Moderation</string>
+    <string name="view_profile">View Profile</string>
+
+    <string name="none">None</string>
+    <string name="created">Created</string>
+    <string name="compressing">Compressing</string>
+    <string name="will_upload">Will upload</string>
+    <string name="uploading__" formatted="false">Uploading%s</string>
+    <string name="did_upload">Did upload</string>
+    <string name="will_send">Will send</string>
+    <string name="sent">Sent</string>
+    <string name="failed">Failed</string>
+
+    <string name="choose_video">Choose Video</string>
+    <string name="take_video">Take Video</string>
+    <string name="seconds_remaining__" formatted="false">Seconds remaining %d</string>
+    <string name="recording_too_short">Recording too short</string>
+
+    <string name="role_changed_to__" formatted="false">Role changed to %s</string>
+    <string name="__role_changed_to__" formatted="false">%s Role changed to %s</string>
+    <string name="__granted" formatted="false">%s Granted</string>
+    <string name="__revoked" formatted="false">%s Revoked</string>
+    <string name="__left_the_group" formatted="false">%s left the group</string>
+
+    <string name="already_authenticated">Already authenticated, logout before trying to re-authenticate</string>
+    <string name="authentication_required">Authentication required</string>
+
+    <string name="owner">Owner</string>
+    <string name="admin">Admin</string>
+    <string name="member">Member</string>
+    <string name="watcher">Watcher</string>
+    <string name="banned">Banned</string>
+
+    <string name="me">Me</string>
+    <string name="participants">Participants</string>
+
+    <string name="incoming_call">Incoming Call</string>
+
+</resources>

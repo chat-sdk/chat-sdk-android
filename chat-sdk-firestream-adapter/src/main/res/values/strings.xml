@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Chat SDK Firestore Adapter</string>
+    <string name="error_private_chat_needs_two_members">"Private chat needs two members"</string>
+</resources>

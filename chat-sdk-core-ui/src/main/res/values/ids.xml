@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="resendTextView" type="id" />
+    <item name="resendContainer" type="id" />
+    <item name="resendImageView" type="id" />
+</resources>

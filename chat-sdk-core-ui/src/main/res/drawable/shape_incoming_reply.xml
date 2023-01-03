@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape android:shape="rectangle">
+
+            <corners
+                android:bottomLeftRadius="@dimen/reply_corner_radius"
+                android:bottomRightRadius="@dimen/reply_corner_radius"
+                android:topLeftRadius="0dp"
+                android:topRightRadius="@dimen/reply_corner_radius" />
+
+            <solid android:color="?incomingReplyDividerColor"/>
+        </shape>
+    </item>
+
+    <item android:left="4dp">
+        <shape android:shape="rectangle">
+
+            <corners
+                android:bottomLeftRadius="0dp"
+                android:bottomRightRadius="@dimen/reply_corner_radius"
+                android:topLeftRadius="0dp"
+                android:topRightRadius="@dimen/reply_corner_radius" />
+
+            <solid android:color="?incomingReplyBackgroundColor"/>
+        </shape>
+    </item>
+
+</layer-list>

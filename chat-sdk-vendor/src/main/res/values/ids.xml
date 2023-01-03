@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- View ids -->
+    <id name="undefined" />
+
+    <!-- View events -->
+    <id name="event_on_click" />
+    <id name="event_on_long_click" />
+    <id name="event_on_item_selected" />
+</resources>

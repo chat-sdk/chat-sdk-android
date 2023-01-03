@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+
+    <!--    If you wanted to remove permissions -->
+    <!--    <uses-permission-->
+    <!--        android:name="android.permission.ACCESS_FINE_LOCATION"-->
+    <!--        tools:node="remove" />-->
+
+    <!--    <uses-permission-->
+    <!--        android:name="android.permission.ACCESS_COARSE_LOCATION"-->
+    <!--        tools:node="remove" />-->
+
+    <application
+        android:allowBackup="false"
+        android:icon="@drawable/ic_launcher"
+        android:logo="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/GGTheme"
+        android:name="sdk.chat.MainApplication"
+        android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="true"
+        tools:replace="allowBackup, icon"
+        >
+
+        <profileable
+            android:enabled="true"
+            android:shell="true"
+            tools:ignore="UnusedAttribute" />
+
+<!--                <activity android:name="sdk.chat.custom.EmptyActivity">-->
+<!--                    <intent-filter>-->
+<!--                        <action android:name="android.intent.action.MAIN" />-->
+<!--                        <category android:name="android.intent.category.LAUNCHER" />-->
+<!--                    </intent-filter>-->
+<!--                </activity>-->
+
+<!--        <activity android:name="sdk.chat.demo.DemoActivity">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+
+        <activity
+            android:name="sdk.chat.ui.activities.SplashScreenActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="sdk.chat.test.TestActivity"/>
+        <activity android:name="sdk.chat.waka.ZChatActivity"/>
+
+
+        <!--        Remove Android Auto-->
+<!--        <meta-data android:name="com.google.android.gms.car.application"-->
+<!--            android:resource="@xml/automotive_app_desc" tools:node="remove" />-->
+
+    </application>
+
+</manifest>

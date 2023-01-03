@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sdk.chat.ui.keyboard.KeyboardAwareFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    >
+<!--    android:background="@color/gray_10"-->
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/listContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true">
+
+        <sdk.chat.ui.appbar.ChatActionBar
+            android:id="@+id/chatActionBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <sdk.chat.ui.views.ChatView
+            android:id="@+id/chatView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/messageInputLinearLayout"
+            />
+
+        <LinearLayout
+            android:id="@+id/messageInputLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="bottom"
+            >
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="?chatViewDividerColor"/>
+
+            <sdk.chat.ui.views.ReplyView
+                android:id="@+id/replyView"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                />
+
+            <com.stfalcon.chatkit.messages.MessageInput
+                android:id="@+id/input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:showAttachmentButton="true"
+                android:background="?chatViewMessageInputBackgroundColor"/>
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/keyboardOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+
+                />
+            <!--            android:background="@color/gray_10"-->
+
+        </LinearLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <materialsearchview.MaterialSearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!--    <LinearLayout-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="20dp"-->
+    <!--        android:background="@color/red"-->
+    <!--        android:layout_gravity="bottom"-->
+    <!--        />-->
+
+</sdk.chat.ui.keyboard.KeyboardAwareFrameLayout>

@@ -1,0 +1,79 @@
+plugins {
+    id 'com.android.library'
+    id 'com.jfrog.artifactory' version "$jfrogVersion"
+
+    id 'maven-publish'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+}
+
+android {
+
+    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+
+    defaultConfig {
+        minSdkVersion Integer.parseInt(project.MIN_SDK)
+
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled project.hasProperty('minifyDebug') && minifyDebug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled project.hasProperty('minifyRelease') && minifyRelease
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+        lintConfig file('lint.xml')
+    }
+    namespace 'sdk.chat.ui.extras'
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api project(':chat-sdk-core-ui')
+
+    //required support lib modules
+    implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
+    implementation "androidx.annotation:annotation:$androidxAnnotation"
+
+    // Add for NavController support
+    api "com.mikepenz:materialdrawer-nav:$materialDrawerVersion"
+
+    // Need this: maven { url "https://dl.bintray.com/mikepenz/maven" }
+    api "com.mikepenz:materialdrawer-iconics:$materialDrawerVersion"
+
+    api "sdk.chat:material-search-view:$materialSearchVersion"
+
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+//    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
+
+//    implementation "androidmads.library.qrgenearator:QRGenearator:$qrGenerator"
+
+    implementation "com.github.chat-sdk:QRGenerator:$qrGenerator"
+
+    implementation "com.github.chat-sdk:barcodescanner:$zxing"
+
+}
+
+ext {
+    libraryName = 'UIExtrasMod'
+    artifact = 'mod-ui-extras'
+    libraryDescription = 'UI Extras Module'
+}
+
+if (project.hasProperty("mavenPublish") && mavenPublish) {
+    apply from: '../bintray.gradle'
+}
+
