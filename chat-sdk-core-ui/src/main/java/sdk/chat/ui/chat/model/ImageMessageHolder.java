@@ -89,7 +89,7 @@ public class ImageMessageHolder extends MessageHolder implements MessageContentT
 
     public Size getSize() {
         ImageMessagePayload payload = getPayload();
-        if (payload != null) {
+        if (payload != null && payload.getSize() != null) {
             return payload.getSize();
         }
         return new Size(0, 0);
