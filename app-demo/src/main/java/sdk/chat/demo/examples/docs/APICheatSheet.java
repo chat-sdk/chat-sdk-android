@@ -1,5 +1,7 @@
 package sdk.chat.demo.examples.docs;
 
+import android.content.Context;
+
 import org.pmw.tinylog.Logger;
 
 import java.util.Collections;
@@ -19,8 +21,8 @@ import sdk.chat.core.handlers.AuthenticationHandler;
 import sdk.chat.core.handlers.BlockingHandler;
 import sdk.chat.core.handlers.ContactHandler;
 import sdk.chat.core.handlers.CoreHandler;
-import sdk.chat.core.handlers.IEncryptionHandler;
 import sdk.chat.core.handlers.FileMessageHandler;
+import sdk.chat.core.handlers.IEncryptionHandler;
 import sdk.chat.core.handlers.ImageMessageHandler;
 import sdk.chat.core.handlers.LastOnlineHandler;
 import sdk.chat.core.handlers.LocationMessageHandler;
@@ -57,6 +59,8 @@ public class APICheatSheet {
 
     public void messagingServerAPI() {
         BaseNetworkAdapter networkAdapter = ChatSDK.shared().a();
+
+        Context context = ChatSDK.ctx();
 
         // Core Methods
         CoreHandler core = networkAdapter.core;
@@ -117,6 +121,8 @@ public class APICheatSheet {
         // Create thread
         User otherUser = ChatSDK.core().getUserNowForEntityID("EntityID");
         ChatSDK.thread().createThread("Name", Collections.singletonList(otherUser)).subscribe(thread1 -> {
+
+            ChatSDK.ui().startChatActivityForID(context, thread1.getEntityID());
 
             // Send a message
             ChatSDK.thread().sendMessageWithText("Hi", thread1).subscribe();

@@ -79,9 +79,10 @@ public interface ThreadHandler {
      * Send different types of text to a particular thread
      */
     Completable sendMessageWithText(String text, Thread thread);
-    /**
-     * Send a text object
-     */
+
+        /**
+         * Send a text object
+         */
     Completable sendMessage(Message message);
     Completable forwardMessage(Thread thread, Message message);
     Completable forwardMessages(Thread thread, Message... messages);
@@ -152,5 +153,7 @@ public interface ThreadHandler {
 
     boolean isActive(Thread thread, User user);
     String generateNewMessageID(Thread thread);
+
+    String readableEntityId(String entityID);
 }
 

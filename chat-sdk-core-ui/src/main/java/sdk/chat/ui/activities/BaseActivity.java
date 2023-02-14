@@ -30,6 +30,7 @@ import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,6 +56,7 @@ import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import sdk.chat.ui.R;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.AlertUtils;
+import sdk.chat.ui.utils.ImagePickerUploader;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
 
@@ -69,6 +71,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
 
     protected AlertUtils alert;
 
+    protected ImagePickerUploader.Contract contract = makeContract();
+
     public BaseActivity() {
         alert = new AlertUtils(new AlertUtils.Provider() {
             @Override
@@ -80,8 +84,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
                 return getContentView();
             }
         });
-
-
     }
 
     @Override
@@ -466,4 +468,13 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     protected void dismissProgressDialog() {
         alert.dismissProgressDialog();
     }
+
+    private ImagePickerUploader.Contract makeContract() {
+        final ImagePickerUploader.Contract contract = new ImagePickerUploader.Contract(this);
+        contract.setLauncher(registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                contract::setActivityResult));
+        return contract;
+    }
+
+
 }

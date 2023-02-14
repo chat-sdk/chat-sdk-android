@@ -69,6 +69,15 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
         return new MessageSendRig(new MessageType(MessageType.Text), thread, message -> message.setText(text)).run();
     }
 
+//    @Override
+//    public Completable sendSilentMessage(final Map<String, String> data, final Thread thread) {
+//        return new MessageSendRig(new MessageType(MessageType.Silent), thread, message -> {
+//            message.setMetaValues(data);
+//        }).run().doFinally(() -> {
+//            ChatSDK.db().dele
+//        });
+//    }
+
     @Override
     public Single<Thread> createThread(final String name, final List<User> users) {
         return createThread(name, users, ThreadType.None);
@@ -316,6 +325,11 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     @Override
     public Completable replyToMessage(Thread thread, Message message, String reply) {
         return Completable.defer(() -> {
+
+//            return new MessageSendRig(new MessageType(MessageType.Text), thread, m -> {
+//
+//            }).run();
+
             Message newMessage = newMessage(MessageType.Text, thread, false);
             // If this is already a reply, then don't copy the meta data
             if (message.isReply()) {
@@ -323,6 +337,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
             } else {
                 newMessage.setMetaValues(message.getMetaValuesAsMap());
                 newMessage.setValueForKey(message.getType(), Keys.Type);
+//                newMessage.setType(message.getType());
                 newMessage.setValueForKey(message.getEntityID(), Keys.Id);
                 newMessage.setValueForKey(message.getSender().getEntityID(), Keys.From);
             }
@@ -336,6 +351,9 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
                 newMessage.setValueForKey(GoogleUtils.getMapImageURL(latitude, longitude, size, size), Keys.ImageUrl);
             }
+
+            ChatSDK.db().update(newMessage, false);
+            ChatSDK.events().source().accept(NetworkEvent.messageAdded(newMessage));
 
             return new MessageSendRig(newMessage, thread).run();
 
@@ -478,4 +496,10 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
     public boolean isActive(Thread thread, User user) {
         return user.getIsOnline();
     }
+
+    @Override
+    public String readableEntityId(String entityID) {
+        return entityID;
+    }
+
 }

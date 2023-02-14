@@ -271,7 +271,7 @@ class DialogListStyle extends Style {
     }
 
     public boolean isDialogMessageAvatarEnabled() {
-        return dialogMessageAvatarEnabled;
+        return false;
     }
 
     public int getDialogMessageAvatarWidth() {

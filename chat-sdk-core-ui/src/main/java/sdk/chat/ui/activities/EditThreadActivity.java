@@ -24,19 +24,16 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.functions.BiConsumer;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.dao.User;
-import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.chat.MediaSelector;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ImagePickerUploader;
 import sdk.guru.common.RX;
@@ -52,7 +49,7 @@ public class EditThreadActivity extends BaseActivity {
     protected ArrayList<User> users = new ArrayList<>();
 
     protected String threadImageURL;
-    protected ImagePickerUploader pickerUploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
+    protected ImagePickerUploader pickerUploader = new ImagePickerUploader();
 
     protected CircleImageView threadImageView;
     protected TextInputEditText nameTextInput;
@@ -122,17 +119,13 @@ public class EditThreadActivity extends BaseActivity {
         if (UIModule.config().customizeGroupImageEnabled && ChatSDK.upload() != null) {
             threadImageView.setOnClickListener(view -> {
                 threadImageView.setEnabled(false);
-                dm.add(pickerUploader.choosePhoto(this).subscribe(files -> {
-                    if (!files.isEmpty()) {
-                        showProgressDialog(EditThreadActivity.this.getString(R.string.uploading));
-                        dm.add(ImageUtils.uploadImageFile(files.get(0)).subscribe(result -> {
-                            if (result != null) {
-                                updateThreadImageURL(result.url);
-                                refreshView();
-                            }
-                            dismissProgressDialog();
-                        }, this));
+                showProgressDialog(EditThreadActivity.this.getString(R.string.uploading));
+                dm.add(pickerUploader.chooseCircularPhoto(contract, ChatSDK.config().imageMaxThumbnailDimension).subscribe(results -> {
+                    if (results != null && results.size() == 1) {
+                        updateThreadImageURL(results.get(0).url);
+                        refreshView();
                     }
+                    dismissProgressDialog();
                 }, this));
             });
         }

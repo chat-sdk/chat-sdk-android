@@ -1,6 +1,5 @@
-include ':chat-sdk-vendor'
-include ':app-xmpp'
 include 'app',
+        ':app-xmpp',
         'chat-sdk-app-firestream',
         'chat-sdk-app-firebase',
         'chat-sdk-app-xmpp',
@@ -12,7 +11,7 @@ include 'app',
         'chat-sdk-firestream-adapter',
         'chat-sdk-mod-firebase-ui',
         'chat-sdk-mod-message-location',
-        'chat-sdk-mod-profile-pictures',
+//        'chat-sdk-mod-profile-pictures',
         'chat-sdk-mod-ui-extras',
         'chat-sdk-mod-auto',
         'chat-sdk-demo',
@@ -26,7 +25,6 @@ include 'app',
         'chat-sdk-pro-firestream-read-receipts',
         'chat-sdk-pro-firestream-typing-indicator',
         'chat-sdk-pro-firestream-blocking',
-//        'chat-sdk-pro-image-canvas',
         'chat-sdk-pro-message-audio',
         'chat-sdk-pro-message-file',
         'chat-sdk-pro-message-sticker',
@@ -45,7 +43,6 @@ include 'app',
         'app-live',
         'chat-sdk-pro-calling',
         'chat-sdk-pro-xmpp-omemo',
-        'chat-sdk-mod-image-editor'
-
-include ':vendor-chatkit'
-include ':vendor-matisse'
+        'chat-sdk-mod-image-editor',
+        'vendor-chatkit',
+        'chat-sdk-vendor'

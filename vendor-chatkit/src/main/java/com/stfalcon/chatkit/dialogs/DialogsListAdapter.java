@@ -544,7 +544,6 @@ public class DialogsListAdapter<DIALOG extends IDialog>
         public TextView tvName;
         public TextView tvDate;
         public ImageView ivAvatar;
-        public ImageView ivLastMessageUser;
         public TextView tvLastMessage;
         public TextView tvBubble;
         public ViewGroup dividerContainer;
@@ -558,7 +557,6 @@ public class DialogsListAdapter<DIALOG extends IDialog>
             tvDate = (TextView) itemView.findViewById(R.id.dialogDate);
             tvLastMessage = (TextView) itemView.findViewById(R.id.dialogLastMessage);
             tvBubble = (TextView) itemView.findViewById(R.id.dialogUnreadBubble);
-            ivLastMessageUser = (ImageView) itemView.findViewById(R.id.dialogLastMessageUserAvatar);
             ivAvatar = (ImageView) itemView.findViewById(R.id.dialogAvatar);
             dividerContainer = (ViewGroup) itemView.findViewById(R.id.dialogDividerContainer);
             divider = itemView.findViewById(R.id.dialogDivider);
@@ -590,12 +588,6 @@ public class DialogsListAdapter<DIALOG extends IDialog>
                 if (ivAvatar != null) {
                     ivAvatar.getLayoutParams().width = dialogStyle.getDialogAvatarWidth();
                     ivAvatar.getLayoutParams().height = dialogStyle.getDialogAvatarHeight();
-                }
-
-                //Last message user avatar
-                if (ivLastMessageUser != null) {
-                    ivLastMessageUser.getLayoutParams().width = dialogStyle.getDialogMessageAvatarWidth();
-                    ivLastMessageUser.getLayoutParams().height = dialogStyle.getDialogMessageAvatarHeight();
                 }
 
                 //Unread bubble
@@ -686,15 +678,6 @@ public class DialogsListAdapter<DIALOG extends IDialog>
             if (imageLoader != null) {
                 imageLoader.loadImage(ivAvatar, dialog.getDialogPhoto(), dialog);
             }
-
-            //Set Last message user avatar with check if there is last message
-            if (imageLoader != null && dialog.getLastMessage() != null) {
-                IUser user = dialog.getLastMessage().getUser();
-                imageLoader.loadImage(ivLastMessageUser, user.getAvatar(), user);
-            }
-            ivLastMessageUser.setVisibility(dialogStyle.isDialogMessageAvatarEnabled()
-                    && dialog.getUsers().size() > 1
-                    && dialog.getLastMessage() != null ? VISIBLE : GONE);
 
             //Set Last message text
             if (dialog.getLastMessage() != null) {

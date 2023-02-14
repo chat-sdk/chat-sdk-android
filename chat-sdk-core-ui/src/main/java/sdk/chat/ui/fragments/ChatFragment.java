@@ -408,7 +408,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
         if (replyView.isVisible()) {
             MessageHolder holder = chatView.getSelectedMessages().get(0);
-            handleMessageSend(ChatSDK.thread().replyToMessage(thread, holder.getMessage(), text));
+            handleMessageSend(ChatSDK.thread().replyToMessage(thread, holder.getMessage(), text.trim()));
             hideReplyView();
         } else {
             handleMessageSend(ChatSDK.thread().sendMessageWithText(text.trim(), thread));
@@ -672,7 +672,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
             if (holder instanceof ImageMessageHolder) {
                 imageURL = ((ImageMessageHolder) holder).getImageUrl();
             }
-            showReplyView(holder.getUser().getName(), imageURL, holder.getText());
+            showReplyView(holder.getUser().getName(), imageURL, holder.getPayload().lastMessageText());
             input.requestFocus();
             showKeyboard();
         }

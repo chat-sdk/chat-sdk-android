@@ -2,9 +2,6 @@ package sdk.chat.demo;
 
 import android.app.Application;
 
-import com.google.firebase.auth.EmailAuthProvider;
-import com.google.firebase.auth.PhoneAuthProvider;
-
 import org.pmw.tinylog.Logger;
 
 import java.util.Arrays;
@@ -15,7 +12,6 @@ import sdk.chat.core.module.ImageMessageModule;
 import sdk.chat.core.module.Module;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.firebase.push.FirebasePushModule;
-import sdk.chat.firebase.ui.FirebaseUIModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
 import sdk.chat.firestream.adapter.FireStreamModule;
 import sdk.chat.firestream.adapter.FirebaseServiceType;
@@ -55,11 +51,11 @@ public class MainApp extends Application {
 
                     ExtrasModule.builder(config -> {
                         config.setDrawerEnabled(false);
-                    }),
+                    })
 
-                    FirebaseUIModule.builder()
-                            .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)
-                            .build()
+//                    FirebaseUIModule.builder()
+//                            .setProviders(EmailAuthProvider.PROVIDER_ID, PhoneAuthProvider.PROVIDER_ID)
+//                            .build()
             );
 
             ChatSDK.builder()
@@ -81,10 +77,12 @@ public class MainApp extends Application {
                 Logger.debug(event);
             });
 
+
             ChatSDK.events().errorSourceOnMain().subscribe(event -> {
                 Logger.debug(event);
                 event.printStackTrace();
             });
+
 
         } catch (Exception e) {
             e.printStackTrace();

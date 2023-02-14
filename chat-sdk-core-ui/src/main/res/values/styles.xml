@@ -144,6 +144,9 @@
     <item name="chatViewDividerColor">@color/gray_light</item>
     <item name="chatViewMessageInputBackgroundColor">@color/white</item>
 
+<!--    <item name="dialogMessageAvatarWidth">0dp</item>-->
+<!--    <item name="dialogMessageAvatarHeight">0dp</item>-->
+
     <!--    Button colors-->
 
     <item name="logoutButtonColor">@color/logout_button_color</item>

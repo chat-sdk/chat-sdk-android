@@ -53,21 +53,11 @@
             android:layout_toEndOf="@id/dialogAvatar"
             android:layout_toRightOf="@id/dialogAvatar">
 
-            <com.stfalcon.chatkit.utils.ShapeImageView
-                android:id="@id/dialogLastMessageUserAvatar"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="7dp"
-                android:layout_marginRight="7dp"/>
-
-
             <TextView
                 android:id="@id/dialogLastMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/dialogLastMessageUserAvatar"
-                android:layout_toRightOf="@id/dialogLastMessageUserAvatar"
                 android:ellipsize="end"
                 android:gravity="top"
                 android:maxLines="1"/>

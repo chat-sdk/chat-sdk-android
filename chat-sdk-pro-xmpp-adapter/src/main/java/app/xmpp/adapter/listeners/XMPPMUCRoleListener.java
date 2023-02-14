@@ -203,8 +203,8 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
     public void updateMembershipMap(List<Affiliate> affiliates) {
         Iterator<Affiliate> iterator = affiliates.iterator();
 
-        affiliationMap.clear();
-        roleMap.clear();
+//        affiliationMap.clear();
+//        roleMap.clear();
 
         while(iterator.hasNext()) {
             Affiliate a = iterator.next();
@@ -213,9 +213,17 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
     }
 
     public void updateMembershipMap(Jid jid, Resourcepart nick, MUCAffiliation affiliation, MUCRole role) {
+
         affiliationMap.put(jid, affiliation);
-        roleMap.put(jid, role);
-        nickMap.put(jid, nick);
+
+        if (role != null) {
+            roleMap.put(jid, role);
+        }
+        if (nick != null) {
+            nickMap.put(jid, nick);
+        } else {
+            Logger.debug("Nick is null");
+        }
 
         User user = ChatSDK.core().getUserNowForEntityID(jid.toString());
 //        if (role != null && role != MUCRole.none) {

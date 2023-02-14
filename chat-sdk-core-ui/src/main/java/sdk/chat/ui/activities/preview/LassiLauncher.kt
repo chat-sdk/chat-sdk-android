@@ -5,46 +5,58 @@ import android.content.Intent
 import com.lassi.domain.media.LassiOption
 import com.lassi.domain.media.MediaType
 import com.lassi.presentation.builder.Lassi
-import sdk.chat.core.dao.Keys
+import com.lassi.presentation.cropper.CropImageView.CropShape
 import sdk.chat.core.utils.Device
 import sdk.chat.ui.R
 
 open class LassiLauncher {
 
-//    private val mPermissionSettingResult =
-//        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-//            requestPermissionForDocument()
-//        }
     companion object {
+
         open fun launchImagePicker(activity: Activity): Intent {
+            return launchImagePicker(activity, 8, null, false)
+        }
 
-                val spanCount = if (Device.isPortrait()) 3 else 5
+        open fun launchImagePicker(activity: Activity, maxCount: Int? = 8, cropType: CropShape? = null, circleCrop: Boolean? = false): Intent {
 
-                val intent = Lassi(activity)
-                    .with(LassiOption.CAMERA_AND_GALLERY)
-                    .setMaxCount(8)
-                    .setGridSize(spanCount)
-                    .setPlaceHolder(R.drawable.ic_image_placeholder)
-                    .setErrorDrawable(R.drawable.ic_image_placeholder)
-                    .setSelectionDrawable(R.drawable.ic_checked_media)
-                    .setStatusBarColor(R.color.colorPrimaryDark)
-                    .setToolbarColor(R.color.colorPrimary)
-                    .setToolbarResourceColor(R.color.white)
-                    .setProgressBarColor(R.color.colorAccent)
-        //                .setCropType(CropImageView.CropShape.OVAL)
-        //                .setCropAspectRatio(1, 1)
-                    .setCompressionRation(10)
-                    .setMinFileSize(0)
-                    .setMaxFileSize(10000)
-        //                .enableActualCircleCrop()
-                    .setSupportedFileTypes("jpg", "jpeg", "png", "webp", "gif")
-        //                .enableFlip()
-        //                .enableRotate()
-                    .build()
+            val spanCount = if (Device.isPortrait()) 3 else 5
 
-//                intent.putExtra(Keys.IntentKeyPreviewActivityType, Keys.IntentKeyPreviewActivityTypeImage)
-                return intent
+            val builder = Lassi(activity)
+                .with(LassiOption.CAMERA_AND_GALLERY)
+                .setGridSize(spanCount)
+                .setPlaceHolder(R.drawable.ic_image_placeholder)
+                .setErrorDrawable(R.drawable.ic_image_placeholder)
+                .setSelectionDrawable(R.drawable.ic_checked_media)
+                .setStatusBarColor(R.color.colorPrimaryDark)
+                .setToolbarColor(R.color.colorPrimary)
+                .setToolbarResourceColor(R.color.white)
+                .setProgressBarColor(R.color.colorAccent)
+                //                .setCropType(CropImageView.CropShape.OVAL)
+                //                .setCropAspectRatio(1, 1)
+                .setCompressionRation(10)
+                .setMinFileSize(0)
+                .setMaxFileSize(10000)
 
+                //                .enableActualCircleCrop()
+                .setSupportedFileTypes("jpg", "jpeg", "png", "webp", "gif");
+
+            cropType?.let {
+                builder.setCropType(it)
+            }
+
+            circleCrop?.let {
+                if (it) {
+                    builder.enableActualCircleCrop()
+                    builder.setCropType(CropShape.OVAL)
+                    builder.setCropAspectRatio(1, 1)
+                }
+            }
+
+            maxCount?.let {
+                builder.setMaxCount(it)
+            }
+
+            return builder.build()
         }
 
     open fun launchVideoPicker(activity: Activity): Intent {

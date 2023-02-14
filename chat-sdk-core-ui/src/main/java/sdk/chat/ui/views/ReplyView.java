@@ -46,12 +46,12 @@ public class ReplyView extends ConstraintLayout {
         LayoutInflater.from(getContext()).inflate(R.layout.view_chat_reply, this, true);
 
         imageView = findViewById(R.id.imageView);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
         divider = findViewById(R.id.divider);
         replyTextView = findViewById(R.id.replyTextView);
         cancelButton = findViewById(R.id.cancelButton);
         root = findViewById(R.id.root);
-
-        
 
         cancelButton.setImageDrawable(ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().cancel, R.color.gray_light));
         hide();

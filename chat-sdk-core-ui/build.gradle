@@ -64,14 +64,14 @@ rootProject.allprojects {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(':chat-sdk-core')
+//    implementation project(':vendor-matisse')
+//    implementation project(':vendor-filepicker')
     api project(':vendor-chatkit')
     implementation 'com.yanzhenjie:album:2.1.3'
     // Test
 
     api "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     implementation "org.ocpsoft.prettytime:prettytime:$prettyTimeVersion"
-
-    implementation "sdk.chat:android-image-cropper:$imageCropperVersion"
 
     implementation "com.github.chrisbanes:PhotoView:$photoViewVersion"
 //    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"

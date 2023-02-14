@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
-
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
@@ -111,10 +110,10 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         return view;
     }
 
-    public void addListeners() {
+    public boolean addListeners() {
 
         if (listenersAdded) {
-            return;
+            return false;
         }
         listenersAdded = true;
 
@@ -176,6 +175,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             });
         }));
 
+        return true;
     }
 
     public void removeListeners() {
@@ -196,6 +196,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 return DateFormatter.format(date, UIModule.config().getThreadTimeFormat());
             });
         }
+
+
 
         dialogsList.setAdapter(dialogsListAdapter());
 
@@ -405,7 +407,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     }
 
     public void updateThread(final Thread thread) {
-        final ThreadHolder holder = ChatSDKUI.provider().holderProvider().getThreadHolder(thread);
+        final ThreadHolder holder = ChatSDKUI.provider().holderProvider().getOrCreateThreadHolder(thread);
         if (holder != null) {
             holder.update();
             synchronize(false);
@@ -422,13 +424,15 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
     }
 
     public ThreadHolder getOrCreateThreadHolder(Thread thread) {
-        return ChatSDKUI.provider().holderProvider().getThreadHolder(thread);
+        return ChatSDKUI.provider().holderProvider().getOrCreateThreadHolder(thread);
     }
 
     public void removeThread(Thread thread) {
-        ThreadHolder holder = getOrCreateThreadHolder(thread);
-        threadHolders.remove(holder);
-        synchronize(false);
+        ThreadHolder holder = ChatSDKUI.provider().holderProvider().getThreadHolder(thread);
+        if (holder != null) {
+            threadHolders.remove(holder);
+            synchronize(false);
+        }
     }
 
     protected abstract Single<List<Thread>> getThreads();

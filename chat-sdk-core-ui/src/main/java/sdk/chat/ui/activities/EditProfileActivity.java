@@ -39,7 +39,6 @@ import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
 import sdk.chat.ui.binders.AvailabilityHelper;
-import sdk.chat.ui.chat.MediaSelector;
 import sdk.chat.ui.fragments.ProfileViewOffsetChangeListener;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ImagePickerUploader;
@@ -144,10 +143,13 @@ public class EditProfileActivity extends BaseActivity {
             if (ChatSDK.profilePictures() != null) {
                 ChatSDK.profilePictures().startProfilePicturesActivity(this, currentUser.getEntityID());
             } else {
-                ImagePickerUploader uploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
-                dm.add(uploader.choosePhoto(EditProfileActivity.this, false).subscribe(results -> {
-                    avatarImageView.setImageURI(Uri.fromFile(new File(results.get(0).uri)));
-                    avatarImageURL = results.get(0).url;
+                ImagePickerUploader uploader = new ImagePickerUploader();
+                showProgressDialog(R.string.uploading);
+                dm.add(uploader.chooseCircularPhoto(contract).doFinally(this::dismissProgressDialog).subscribe(results -> {
+                    if (!results.isEmpty()) {
+                        avatarImageView.setImageURI(Uri.fromFile(new File(results.get(0).uri)));
+                        avatarImageURL = results.get(0).url;
+                    }
                 }, this));
             }
         });
@@ -157,10 +159,13 @@ public class EditProfileActivity extends BaseActivity {
         appbar.addOnOffsetChangedListener(new ProfileViewOffsetChangeListener(avatarImageView));
         appbar.setOnClickListener(v -> {
             appbar.setEnabled(false);
-            ImagePickerUploader uploader = new ImagePickerUploader(MediaSelector.CropType.None);
-            dm.add(uploader.choosePhoto(this, false).subscribe(results -> {
-                setHeaderImage(results.get(0).url);
-                headerImageURL = results.get(0).url;
+            ImagePickerUploader uploader = new ImagePickerUploader();
+            showProgressDialog(R.string.uploading);
+            dm.add(uploader.choosePhoto(contract, false).doFinally(this::dismissProgressDialog).subscribe(results -> {
+                if (!results.isEmpty()) {
+                    headerImageView.setImageURI(Uri.fromFile(new File(results.get(0).uri)));
+                    headerImageURL = results.get(0).url;
+                }
             }, this));
         });
 

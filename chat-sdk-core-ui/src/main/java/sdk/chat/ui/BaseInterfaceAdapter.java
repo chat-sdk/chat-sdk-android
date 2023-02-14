@@ -64,7 +64,7 @@ import sdk.chat.ui.settings.SettingsActivity;
 
 public class BaseInterfaceAdapter implements InterfaceAdapter {
 
-    private WeakReference<Context> context;
+    public WeakReference<Context> context;
 
     public List<SearchActivityType> searchActivities = new ArrayList<>();
     public List<ChatOption> chatOptions = new ArrayList<>();
@@ -617,8 +617,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
             if(UIModule.config().imageMessagesEnabled) {
                 chatOptions.add(new MediaChatOption(R.string.image_or_photo,
                         R.drawable.icn_100_camera,
-                        MediaType.choosePhoto(),
-                        UIModule.config().cropType));
+                        MediaType.choosePhoto()));
             }
             defaultChatOptionsAdded = true;
         }

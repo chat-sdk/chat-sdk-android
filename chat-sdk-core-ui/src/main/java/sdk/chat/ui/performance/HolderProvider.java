@@ -57,7 +57,7 @@ public class HolderProvider {
         messageHolders.remove(message);
     }
 
-    public ThreadHolder getThreadHolder(Thread thread) {
+    public ThreadHolder getOrCreateThreadHolder(Thread thread) {
         if (thread == null) {
             return null;
         }
@@ -67,6 +67,13 @@ public class HolderProvider {
             threadHolders.put(thread, holder);
         }
         return holder;
+    }
+
+    public ThreadHolder getThreadHolder(Thread thread) {
+        if (thread == null) {
+            return null;
+        }
+        return threadHolders.get(thread);
     }
 
     public void removeThreadHolder(Thread thread) {

@@ -242,6 +242,9 @@ public class User extends AbstractEntity implements UserListItem {
         if (name == null || name.isEmpty()) {
             name = metaStringForKey(Keys.Phone);
         }
+        if (name == null || name.isEmpty()) {
+            name = ChatSDK.thread().readableEntityId(getEntityID());
+        }
         return name;
 //        return getName(true);
     }

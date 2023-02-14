@@ -2,6 +2,7 @@ package app.xmpp.adapter.handlers;
 
 import org.jivesoftware.smackx.muc.MUCAffiliation;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 
 import java.util.ArrayList;
@@ -137,8 +138,9 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     @Override
     public Completable deleteThread(Thread thread) {
         return leaveThread(thread).doOnComplete(() -> {
-            ChatSDK.events().source().accept(NetworkEvent.threadRemoved(thread));
+
         }).doFinally(() -> {
+            ChatSDK.events().source().accept(NetworkEvent.threadRemoved(thread));
             thread.removeMessagesAndMarkDeleted();
         });
 
@@ -525,6 +527,20 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     @Override
     public String generateNewMessageID(Thread thread) {
         return UUID.randomUUID().toString();
+    }
+
+    @Override
+    public String readableEntityId(String entityID) {
+        String readable = super.readableEntityId(entityID);
+        try {
+            Jid jid = JidCreate.bareFrom(entityID);
+            if (jid.hasLocalpart()) {
+                readable = jid.getLocalpartOrNull().toString();
+            }
+        } catch (Exception e) {
+
+        }
+        return readable;
     }
 
 }

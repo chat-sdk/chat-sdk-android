@@ -59,26 +59,16 @@
                 android:layout_marginTop="5dp"
                 android:layout_alignParentStart="true" />
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@id/dialogLastMessageUserAvatar"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="7dp"
-                android:layout_toEndOf="@id/readStatus"
-                app:civ_circle_background_color="?avatarBackgroundColor"
-                />
-
             <TextView
                 android:id="@id/dialogLastMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/dialogLastMessageUserAvatar"
+                android:layout_toEndOf="@id/readStatus"
                 android:layout_alignParentEnd="true"
                 android:ellipsize="end"
                 android:gravity="top"
                 android:maxLines="2"/>
-
 
         </RelativeLayout>
 

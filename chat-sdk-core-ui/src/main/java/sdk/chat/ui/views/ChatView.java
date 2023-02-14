@@ -116,7 +116,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
 
         messagesListAdapter.setOnMessageClickListener(holder -> {
             Message message = holder.getMessage();
-            if (message.isReply()) {
+            if (!message.canResend() && message.isReply()) {
                 String originalMessageEntityID = message.stringForKey(Keys.Id);
                 if (originalMessageEntityID != null) {
                     Message originalMessage = ChatSDK.db().fetchEntityWithEntityID(originalMessageEntityID, Message.class);
@@ -125,12 +125,12 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
                         int index = messageHolders.indexOf(originalHolder);
                         if (index >= 0) {
                             messagesList.smoothScrollToPosition(index);
-                            return;
                         }
                     }
                 }
+            } else {
+                delegate.onClick(holder.getMessage());
             }
-            delegate.onClick(holder.getMessage());
         });
 
         messagesListAdapter.setOnMessageLongClickListener(holder -> {
@@ -254,28 +254,46 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
             return;
         }
 
-        Date loadMessagesFrom = delegate.getThread().getLoadMessagesFrom();
+        Date loadMessagesAfter = delegate.getThread().getLoadMessagesFrom();
+        Date loadMessageBefore = null;
 
         // If there are already items in the list, load messages before oldest
         if (messageHolders.size() > 0) {
-            loadMessagesFrom = messageHolders.get(messageHolders.size() - 1).getCreatedAt();
+            loadMessageBefore = messageHolders.get(messageHolders.size() - 1).getCreatedAt();
         }
 
-        if (loadMessagesFrom != null) {
-            Logger.debug("Load messages from: " + loadMessagesFrom.getTime());
+        if (loadMessageBefore != null) {
+            Logger.debug("Load messages from: " + loadMessageBefore.getTime());
         }
 
-        dm.add(ChatSDK.thread()
-                .loadMoreMessagesBefore(delegate.getThread(), loadMessagesFrom, true)
-                .flatMap((Function<List<Message>, SingleSource<List<MessageHolder>>>) messages -> {
-                    return getMessageHoldersAsync(messages, false);
-                })
-                .observeOn(RX.main())
-                .subscribe(messages -> {
-                    synchronize(() -> {
-                        addMessageHoldersToEnd(messages, false);
-                    });
-                }));
+        if (loadMessageBefore != null) {
+            dm.add(ChatSDK.thread()
+                    // Changed this from before to after because it makes more sense...
+                    .loadMoreMessagesBefore(delegate.getThread(), loadMessageBefore, true)
+                    .flatMap((Function<List<Message>, SingleSource<List<MessageHolder>>>) messages -> {
+                        return getMessageHoldersAsync(messages, false);
+                    })
+                    .observeOn(RX.main())
+                    .subscribe(messages -> {
+                        synchronize(() -> {
+                            addMessageHoldersToEnd(messages, false);
+                        });
+                    }));
+        } else {
+            dm.add(ChatSDK.thread()
+                    // Changed this from before to after because it makes more sense...
+                    .loadMoreMessagesAfter(delegate.getThread(), loadMessagesAfter, true)
+                    .flatMap((Function<List<Message>, SingleSource<List<MessageHolder>>>) messages -> {
+                        return getMessageHoldersAsync(messages, false);
+                    })
+                    .observeOn(RX.main())
+                    .subscribe(messages -> {
+                        synchronize(() -> {
+                            addMessageHoldersToEnd(messages, false);
+                        });
+                    }));
+        }
+
 }
 
     /**
@@ -314,12 +332,14 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     }
 
     protected void updatePreviousMessage(MessageHolder holder) {
-        MessageHolder previous = ChatSDKUI.provider().holderProvider().getMessageHolder(holder.previousMessage());
-        if (previous != null) {
-            previous.updateNextAndPreviousMessages();
-            if (previous.isDirty()) {
-                previous.makeClean();
-                messagesListAdapter.update(previous);
+        if (holder != null) {
+            MessageHolder previous = ChatSDKUI.provider().holderProvider().getMessageHolder(holder.previousMessage());
+            if (previous != null) {
+                previous.updateNextAndPreviousMessages();
+                if (previous.isDirty()) {
+                    previous.makeClean();
+                    messagesListAdapter.update(previous);
+                }
             }
         }
     }

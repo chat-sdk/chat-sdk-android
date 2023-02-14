@@ -6,10 +6,8 @@ import android.graphics.BitmapFactory;
 import org.pmw.tinylog.Logger;
 
 import java.io.File;
-import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import sdk.chat.core.dao.CachedFile;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
@@ -71,7 +69,7 @@ public class BaseImageMessageHandler extends AbstractMessageHandler implements I
 
     @Override
     public MessagePayload payloadFor(Message message) {
-        if (message.typeIs(MessageType.Image)) {
+        if (message.typeIs(MessageType.Image) || message.isReply() && message.getReplyType().is(MessageType.Image)) {
             return new ImageMessagePayload(message);
         }
         return null;

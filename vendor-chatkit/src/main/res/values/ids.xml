@@ -23,7 +23,6 @@
     <item name="dialogLastMessage" type="id" />
     <item name="dialogUnreadBubble" type="id" />
     <item name="dialogAvatar" type="id" />
-    <item name="dialogLastMessageUserAvatar" type="id" />
     <item name="dialogDividerContainer" type="id" />
     <item name="dialogDivider" type="id" />
 

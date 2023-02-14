@@ -479,7 +479,7 @@ public class Message extends AbstractEntity {
     }
 
     public void setupInitialReadReceipts() {
-        for (User user: thread.getMembers()) {
+        for (User user: getThread().getMembers()) {
             if (user.isMe()) {
                 setUserReadStatus(user, ReadStatus.read(), new Date(), false);
             } else {
@@ -893,8 +893,8 @@ public class Message extends AbstractEntity {
     }
 
     public boolean isLastMessage() {
-        if (thread != null) {
-            return getId().equals(thread.getLastMessageId());
+        if (getThread() != null) {
+            return getId().equals(getThread().getLastMessageId());
         }
         return false;
     }

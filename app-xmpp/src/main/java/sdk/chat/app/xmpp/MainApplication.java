@@ -56,25 +56,20 @@ public class MainApplication extends Application {
                     .setClientPushEnabled(true)
                     .setAllowUserToRejoinGroup(true)
 
-                    .setDebugUsername("2")
-                    .setDebugPassword("123")
+//                    .setDebugUsername("1")
+//                    .setDebugPassword("123")
 
                     .build()
-
-
 
                     // Add modules to handle file uploads, push notifications
                     .addModule(FirebaseUploadModule.shared())
                     .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
-                            .setXMPP("75.119.138.93", "xmpp.app")
-//                            .setXMPP("141.105.64.219", "liveodds.es")
+                            .setXMPP("36.255.71.143", "localhost", 5222)
                             .setSecurityMode("disabled")
                             .setAllowServerConfiguration(false)
-
                             .setPingInterval(5)
-
                             .setDebugEnabled(true)
                             .build())
 

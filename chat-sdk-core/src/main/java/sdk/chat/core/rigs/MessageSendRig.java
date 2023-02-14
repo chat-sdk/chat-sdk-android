@@ -12,8 +12,6 @@ import java.util.concurrent.Callable;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
-import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.CachedFile;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.Thread;
@@ -50,6 +48,7 @@ public class MessageSendRig {
 
     public MessageSendRig(MessageType type, Thread thread, MessageDidCreateUpdateAction action) {
         this.messageType = type;
+//        this.messageType = new MessageType(MessageType.Silent);
         this.thread = thread;
         this.messageDidCreateUpdateAction = action;
     }

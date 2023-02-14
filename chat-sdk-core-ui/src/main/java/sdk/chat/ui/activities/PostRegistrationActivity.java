@@ -17,7 +17,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 
-
 import de.hdodenhof.circleimageview.CircleImageView;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
@@ -26,7 +25,6 @@ import sdk.chat.core.utils.Dimen;
 import sdk.chat.core.utils.StringChecker;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.chat.MediaSelector;
 import sdk.chat.ui.module.UIModule;
 import sdk.chat.ui.utils.ImagePickerUploader;
 import sdk.chat.ui.utils.UserImageBuilder;
@@ -70,8 +68,8 @@ public class PostRegistrationActivity extends BaseActivity {
         root = findViewById(R.id.root);
 
         avatarImageView.setOnClickListener(view -> {
-            ImagePickerUploader uploader = new ImagePickerUploader(MediaSelector.CropType.Circle);
-            dm.add(uploader.choosePhoto(this, false).subscribe(results -> {
+            ImagePickerUploader uploader = new ImagePickerUploader();
+            dm.add(uploader.chooseCircularPhoto(contract, ChatSDK.config().imageMaxThumbnailDimension).subscribe(results -> {
                 avatarImageView.setImageURI(Uri.fromFile(new File(results.get(0).uri)));
                 avatarImageURL = results.get(0).url;
             }, this));

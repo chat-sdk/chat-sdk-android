@@ -262,7 +262,7 @@ public class MessageHolder implements IMessage, Consumer<Throwable> {
 
     public String getQuotedText() {
         if (payload.replyPayload() != null) {
-            return payload.replyPayload().getText();
+            return payload.replyPayload().lastMessageText();
         }
         return null;
 //        return message.getText();

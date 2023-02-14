@@ -13,6 +13,7 @@ import org.jivesoftware.smackx.muc.MUCRole;
 import org.jivesoftware.smackx.muc.MucEnterConfiguration;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
+import org.jivesoftware.smackx.muc.Occupant;
 import org.jivesoftware.smackx.muc.RoomInfo;
 import org.jivesoftware.smackx.xdata.form.FillableForm;
 import org.jxmpp.jid.DomainBareJid;
@@ -21,13 +22,11 @@ import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
-import org.jxmpp.jid.util.JidUtil;
 import org.jxmpp.stringprep.XmppStringprepException;
 import org.pmw.tinylog.Logger;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -116,48 +115,10 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
             form.setAnswer("muc#roomconfig_roomname", name);
             form.setAnswer("muc#roomconfig_roomdesc", description);
             form.setAnswer("muc#roomconfig_allowinvites", isPublic);
-            form.setAnswer("muc#roomconfig_roomowners", JidUtil.toStringList(Collections.singleton(currentJid)));
+
+//            form.setAnswer("muc#roomconfig_roomowners", JidUtil.toStringList(Collections.singleton(currentJid)));
 
             chat.sendConfigurationForm(form);
-
-//            for(FormField f : form.getDataForm().getFields()) {
-//                String fieldName = f.getFieldName();
-//                if(fieldName.equals("muc#roomconfig_persistentroom")) {
-//                    form.setAnswer(fieldName, true);
-//                }
-//                if(fieldName.equals("muc#roomconfig_publicroom")) {
-//                    form.setAnswer(fieldName, isPublic);
-//                }
-//                if(fieldName.equals("muc#roomconfig_maxusers")) {
-//                    List<String> list = new ArrayList<>();
-//                    list.add("200");
-//                    form.setAnswer(fieldName, list);
-//                }
-//                if(fieldName.equals("muc#roomconfig_whois")) {
-//                    List<String> list = new ArrayList<>();
-//                    list.add("anyone");
-//                    form.setAnswer(fieldName, list);
-//                }
-//                if(fieldName.equals("muc#roomconfig_membersonly")) {
-//                    form.setAnswer(fieldName, !isPublic);
-//                }
-//                if(fieldName.equals("muc#roomconfig_moderatedroom")) {
-//                    form.setAnswer(fieldName, true);
-//                }
-//                if(fieldName.equals("muc#roomconfig_roomname")) {
-//                    form.setAnswer(fieldName, name);
-//                }
-//                if(fieldName.equals("muc#roomconfig_roomdesc")) {
-//                    form.setAnswer(fieldName, description);
-//                }
-//                if(fieldName.equals("muc#roomconfig_roomowners")) {
-//                    ArrayList<String> owners = new ArrayList<>();
-//                    owners.add(ChatSDK.currentUserID());
-//                    form.setAnswer(fieldName, owners);                    }
-//                if(fieldName.equals("muc#roomconfig_allowinvites")) {
-//                    form.setAnswer(fieldName, isPublic);
-//                }
-//            }
 
             // If this fails, we will jit the error block immediately...
             chat.sendConfigurationForm(form);
@@ -473,8 +434,15 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
     public String userJID(Jid from) {
         MultiUserChat chat = chatManager.getMultiUserChat(from.asEntityBareJidIfPossible());
         if (chat != null) {
-            return chat.getOccupant(from.asEntityFullJidIfPossible()).getJid().asBareJid().toString();
+            Occupant occupant = chat.getOccupant(from.asEntityFullJidIfPossible());
+            if (occupant != null) {
+                return occupant.getJid().asBareJid().toString();
+            } else {
+                Logger.debug("Test");
+            }
         }
+
+
         return null;
     }
 

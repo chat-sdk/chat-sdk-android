@@ -49,7 +49,6 @@ dependencies {
 
         api project(':chat-sdk-mod-ui-extras')
         api project(':chat-sdk-mod-firebase-ui')
-        api project(':chat-sdk-mod-profile-pictures')
 
         api project(':chat-sdk-pro-message-audio')
         api project(':chat-sdk-pro-message-sticker')

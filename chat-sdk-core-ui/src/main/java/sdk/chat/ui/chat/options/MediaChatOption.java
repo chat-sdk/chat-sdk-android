@@ -8,7 +8,6 @@ import androidx.annotation.StringRes;
 import io.reactivex.Completable;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.activities.preview.LassiLauncher;
-import sdk.chat.ui.chat.MediaSelector;
 
 
 /**
@@ -17,7 +16,7 @@ import sdk.chat.ui.chat.MediaSelector;
 
 public class MediaChatOption extends BaseChatOption {
 
-    public MediaChatOption(@StringRes int title, @DrawableRes int image, final MediaType type, MediaSelector.CropType cropType) {
+    public MediaChatOption(@StringRes int title, @DrawableRes int image, final MediaType type) {
         super(title, image, null);
         action = (activity, launcher, thread) -> {
             return Completable.create(emitter -> {
@@ -33,24 +32,6 @@ public class MediaChatOption extends BaseChatOption {
                 }
             });
         };
-
-//        action = (activity, thread) -> new MediaSelector().startActivity(activity, type, cropType, true).flatMapCompletable(files -> {
-//
-//            ArrayList<Completable> completables = new ArrayList<>();
-//            for (File file: files) {
-//                if (type.is(MediaType.Photo)) {
-//                    completables.add(ChatSDK.imageMessage().sendMessageWithImage(file, thread));
-//                }
-//                if (type.is(MediaType.Video)) {
-//                    completables.add(ChatSDK.videoMessage().sendMessageWithVideo(file, thread));
-//                }
-//            }
-//            return Completable.concat(completables);
-//
-//        });
     }
 
-    public MediaChatOption(@StringRes int title, @DrawableRes int image, MediaType type) {
-        this(title, image, type, MediaSelector.CropType.Rectangle);
-    }
 }

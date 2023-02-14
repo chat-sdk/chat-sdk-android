@@ -493,7 +493,8 @@ public class XMPPManager {
             // Also check to see if this information is contained in the user jid
             if (username != null) {
                 Jid jid = JidCreate.bareFrom(username);
-                if (jid.getDomain() != null) {
+
+                if (username.contains("@") && jid.getDomain() != null) {
                     domain = JidCreate.domainBareFrom(jid.getDomain());
                 }
                 if (jid.getResourceOrNull() != null) {

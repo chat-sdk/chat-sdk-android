@@ -31,11 +31,16 @@ public class PrivateThreadsFragment extends ThreadsFragment {
         super.initViews();
     }
 
-    @Override public void addListeners() {
-        super.addListeners();
-        dm.add(getOnLongClickObservable().subscribe(thread -> {
-            showLongPressDialog(thread);
-        }));
+    @Override public boolean addListeners() {
+        if(super.addListeners()) {
+
+            dm.add(getOnLongClickObservable().subscribe(thread -> {
+                showLongPressDialog(thread);
+            }));
+
+            return true;
+        }
+        return false;
     }
 
     public void showLongPressDialog(Thread thread) {

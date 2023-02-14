@@ -277,7 +277,9 @@ fun Stanza.extFrom(): String? {
             fromJID = XMPPManager.shared().mucManager.userJID(from)
         }
     }
-    fromJID = JidCreate.bareFrom(fromJID).toString()
+    if (fromJID != null) {
+        fromJID = JidCreate.bareFrom(fromJID).toString()
+    }
     return fromJID;
 }
 
