@@ -26,7 +26,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 
 > Please bear in mind that this version is a major update. As a result we are making new releases every few days to fix bugs and crashes. If you see an issue, please report it on the Github bug tracker and we will fix it. 
 
-## Features (Apache 2.0 License)
+## Features
 
 - Powered by Firebase Firestore, Realtime database or XMPP
 - Private and group messages [⇘GIF](https://giphy.com/gifs/chat-sdk-group-chat-l10OaBC7ce7zaJKvDe)
@@ -44,7 +44,7 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - Firebase UI [⇘GIF](https://giphy.com/gifs/chat-sdk-firebase-ui-hrps78wBSz49QXbuv3)
 - [iOS Version](https://github.com/chat-sdk/chat-sdk-ios)
 
-## Pro Features (GPLv3 or commercial license)
+## Pro Features
 
 If you are an open source project using GPLv3 you can use all the features with that license. 
 
