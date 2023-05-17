@@ -1,3 +1,4 @@
 /build
 .gitignore
 release-key.keystore
+google-services.json
