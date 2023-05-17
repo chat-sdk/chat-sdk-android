@@ -188,7 +188,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         return findViewById(R.id.content);
     }
 
-    protected void setActionBarTitle (int resourceId) {
+    protected void setActionBarTitle(int resourceId) {
         ActionBar ab = getActionBar();
         if (ab != null) {
             ab.setTitle(getString(resourceId));

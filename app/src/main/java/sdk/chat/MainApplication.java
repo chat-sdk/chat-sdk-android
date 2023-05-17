@@ -98,7 +98,7 @@ public class MainApplication extends Application {
     }
 
     public void firebase() throws Exception {
-        String rootPath = "pre_998";
+        String rootPath = "pre_988";
 
         String username = "1@d.co";
         if (Device.honor()) {

@@ -10,13 +10,9 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Full control of the data.** You have full and exclusive access to the user's chat data
 - **Quick integration.** Chat SDK is fully featured out of the box
 - **Scalable.** Supports millons of daily users [[1](https://firebase.google.com/docs/database/usage/limits), [2](https://blog.process-one.net/ejabberd-massive-scalability-1node-2-million-concurrent-users/)]
-- **Backend agnostic.** Chat SDK can be customized to [support any backend](https://hackmd.io/@dyR2Vn0UTFaO8tZjyiJyHw/SJUgMoJTU) 
+- **Backend agnostic.** Supports Firebase and XMPP (ejabberd, Prosody, MongooseIM, Tigase, OpenFire)
 
 [![](https://raw.githubusercontent.com/chat-sdk/chat-sdk-android/master/graphics/chat-sdk-play.png)](https://play.google.com/store/apps/details?id=sdk.chat.live)
-
-## License
-
-
 
 ## Technical details
 
@@ -25,17 +21,17 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - **Reactive -** [RXAndroid](https://github.com/ReactiveX/RxAndroid)
 - **Java 8** supports Java 8 and lamda expressions
 - **Multi-threaded** agressively multi-threaded
-- **API Level 16+** Compatible with 99.3% of Android devices
+- **API Level 23+** 
 - **Demo** [Google Play Store](https://play.google.com/store/apps/details?id=sdk.chat.live)
 
 > Please bear in mind that this version is a major update. As a result we are making new releases every few days to fix bugs and crashes. If you see an issue, please report it on the Github bug tracker and we will fix it. 
 
-## Features
+## Features (Apache 2.0 License)
 
 - Powered by Firebase Firestore, Realtime database or XMPP
 - Private and group messages [⇘GIF](https://giphy.com/gifs/chat-sdk-group-chat-l10OaBC7ce7zaJKvDe)
 - Public chat rooms
-- Username / password, Facebook, Twitter, Anonymous and custom login
+- Username / password, Social, Anonymous and custom login
 - Phone number authentication
 - Push notifications (using FCM)
 - Text, Image [⇘GIF](https://giphy.com/gifs/chat-sdk-image-message-MXLfUgTh3LFjVzC1BV) and Location [⇘GIF](https://giphy.com/gifs/chat-sdk-location-message-gM0wVTbTnG0H8JQuBS) messages
@@ -47,11 +43,12 @@ Chat SDK is a fully featured open source instant messaging framework for Android
 - Add contact by QR code [⇘GIF](https://giphy.com/gifs/jOnq7hTrHMFEHJDbim)
 - Firebase UI [⇘GIF](https://giphy.com/gifs/chat-sdk-firebase-ui-hrps78wBSz49QXbuv3)
 - [iOS Version](https://github.com/chat-sdk/chat-sdk-ios)
-- [Web Version](https://github.com/chat-sdk/chat-sdk-web)
 
-## Extras
+## Pro Features (GPLv3 or commercial license)
 
-Sponsor us on either [Github sponsors](https://github.com/sponsors/chat-sdk) or [Paetron](https://www.patreon.com/chatsdk) and get these features. For full details visit our [Modules](https://chat-sdk.gitbook.io/chat-sdk/commercial/module-licensing) page.
+If you are an open source project using GPLv3 you can use all the features with that license. 
+
+For commercial projects, sponsor us on either [Github sponsors](https://github.com/sponsors/chat-sdk) or [Paetron](https://www.patreon.com/chatsdk) and get these features. For full details visit our [Modules](https://chat-sdk.gitbook.io/chat-sdk/commercial/module-licensing) page.
 
 When you support us on Patreon, you get: **extra modules**, **code updates**, **support** as well as special access to the Discord Server. 
 
@@ -64,7 +61,6 @@ When you support us on Patreon, you get: **extra modules**, **code updates**, **
 - User blocking [⇘GIF](https://giphy.com/gifs/blocking-chat-sdk-SSiqIHMBddhbyt5US9)
 - File Messages [⇘GIF](https://giphy.com/gifs/chat-sdk-file-message-ihAaHtT8POJElt47A7)
 - End-to-end encryption
-- Nearby Users
 - Contact book integration [⇘GIF](https://giphy.com/gifs/TgbLHgDIwcuGX9SDuV)
 - Location based chat [⇘GIF](https://giphy.com/gifs/chat-sdk-nearby-users-J5qXSwAhkjLx0Aqk4O)
 - XMPP Server Support
@@ -75,6 +71,82 @@ When you support us on Patreon, you get: **extra modules**, **code updates**, **
 	- MongooseIM
 
 Visit our [Animated GIF Gallery](https://giphy.com/channel/chat-sdk) to see all the features.
+
+## License
+
+This project is covered by multiple different licenses. Use the flowchart to determine which license you can use. 
+
+<img src="https://github.com/chat-sdk/files/blob/main/ios/license-flowchart.png?raw=true" width="400" />
+
+### Standard modules:
+
+- app
+- app-demo
+- app-firestream
+- chat-sdk-app-firebase
+- chat-sdk-app-firestream
+- chat-sdk-core
+- chat-sdk-core-ui
+- chat-sdk-demo
+- chat-sdk-firebase-adapter
+- chat-sdk-firebase-push
+- chat-sdk-firebase-upload
+- chat-sdk-firestream-adapter
+- chat-sdk-mod-auto
+- chat-sdk-mod-firebase-ui
+- chat-sdk-mod-image-editor
+- chat-sdk-mod-message-location
+- chat-sdk-mod-ui-extras
+- firestream
+- firestream-firestore
+- firestream-realtime
+- sdk-guru-common
+- sdk-guru-firestore
+- sdk-guru-realtime
+- vendor-chatkit
+
+#### License:  
+
+| Monthly Active Users  |  |
+|---|---|
+| Less than 1 million  | [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)  |
+| More than 1 million  | [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html) or [Commercial License](https://github.com/chat-sdk/chat-sdk-android#commercial-license) |
+
+### Pro modules:
+
+- app-xmpp
+- chat-sdk-app-xmpp
+- chat-sdk-pro-contact-book
+- chat-sdk-pro-encryption
+- chat-sdk-pro-firebase-blocking
+- chat-sdk-pro-firebase-last-online
+- chat-sdk-pro-firebase-nearby-users
+- chat-sdk-pro-firebase-read-receipts
+- chat-sdk-pro-firebase-typing-indicator
+- chat-sdk-pro-firestream-blocking
+- chat-sdk-pro-firestream-read-receipts
+- chat-sdk-pro-firestream-typing-indicator
+- chat-sdk-pro-message-audio
+- chat-sdk-pro-message-file
+- chat-sdk-pro-message-sticker
+- chat-sdk-pro-message-video
+- chat-sdk-pro-xmpp-adapter
+- chat-sdk-pro-xmpp-omemo
+- chat-sdk-pro-xmpp-read-receipts
+
+#### License:  
+
+| Monthly Active Users  |  |
+|---|---|
+| Any  | [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html) or [Commercial License](https://github.com/chat-sdk/chat-sdk-android#commercial-license) |
+
+## Commercial Licensing
+
+For commercial licensing, you have several options: 
+
+1. Pay monthly: [Patreon](https://www.patreon.com/chatsdk) or [Github Sponsors](https://github.com/sponsors/chat-sdk)
+2. [Buy a one-off license](https://chatsdk.co/features)
+2. If your project has over 1m MAU or XMPP contact [team@chatsdk.co](mailto: team@chatsdk.co)
 
 ## About Us
 
@@ -92,7 +164,6 @@ The Chat SDK library with **ALL** modules is around 20mb
 
 + **Discord:** If you need support, join our [Server](https://discord.gg/abT5BM4)
 + **Support the project:** [Patreon](https://www.patreon.com/chatsdk) or [Github Sponsors](https://github.com/sponsors/chat-sdk) 🙏 and get access to premium modules
-+ **Upvote:** our advert on [StackOverflow](https://meta.stackoverflow.com/questions/394409/open-source-advertising-1h-2020/396154#396154)
 + **Contribute by writing code:** Email the [Contributing
 Document](https://github.com/chat-sdk/chat-sdk-ios/blob/master/CONTRIBUTING.md) to [**team@sdk.chat**](mailto:team@sdk.chat)
 + **Give us a star** on Github ⭐
@@ -129,7 +200,6 @@ If you are looking for something that is more-light weight than Chat SDK, we als
 You can check out the project: [Firestream on Github](https://github.com/chat-sdk/firestream-android). 
 
 ## Chat SDK Firebase Documentation
-
 
 #### Quick Start
 

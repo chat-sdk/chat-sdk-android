@@ -9,7 +9,8 @@ android {
 //        manifestPlaceholders += [applicationId: "sdk.chat.android.xmpp"]
 
         multiDexEnabled = true
-        minSdkVersion 23
+        minSdkVersion Integer.parseInt(project.MIN_SDK)
+        targetSdk Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
 
 
         versionName CHAT_SDK_VERSION
@@ -78,6 +79,9 @@ dependencies {
     implementation project(':chat-sdk-pro-xmpp-read-receipts')
 
     api project(':chat-sdk-pro-message-audio')
+//    implementation('sdk.chat:chat-sdk-pro-message-audio:5.5.3')
+//    api "sdk.chat:pro-message-audio:5.5.0"
+
     api project(':chat-sdk-pro-message-sticker')
     api project(':chat-sdk-pro-message-file')
     api project(':chat-sdk-pro-message-video')
@@ -85,4 +89,13 @@ dependencies {
 
     implementation 'androidx.security:security-crypto:1.0.0'
 
+//    configurations.all {
+//        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+//            if (details.requested.group + ":" + details.requested.name == 'chat-sdk-core') {
+//                details.useVersion "5.5.2"
+//                //details.useTarget "com.google.guava:guava:15.0:cdi1.0"
+//            }
+//        }
+//    }
 }
+

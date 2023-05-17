@@ -78,7 +78,8 @@ public class PermissionRequestHandler {
 //        return requestPermissions(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA);
 
         // Apparently camera not required for image messages
-        return requestPermissions(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//        return requestPermissions(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        return Completable.complete();
     }
 
     public static Completable requestCameraAccess(Activity activity) {
@@ -101,7 +102,7 @@ public class PermissionRequestHandler {
         return Completable.create(emitter -> {
             Logger.debug("Start Dexter " + new Date().getTime());
             try {
-                Dexter.withActivity(activity)
+                Dexter.withContext(activity)
                         .withPermissions(permissions)
                         .withListener(new MultiplePermissionsListener() {
                             @Override
