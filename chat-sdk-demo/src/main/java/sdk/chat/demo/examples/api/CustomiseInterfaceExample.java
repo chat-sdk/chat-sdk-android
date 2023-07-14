@@ -15,7 +15,6 @@ import sdk.chat.demo.examples.activities.APrivateThreadsFragment;
 import sdk.chat.firebase.adapter.module.FirebaseModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
-import sdk.chat.profile.pictures.ProfilePicturesModule;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
@@ -55,7 +54,6 @@ public class CustomiseInterfaceExample extends BaseExample {
                     // Add modules to handle file uploads, push notifications
                     .addModule(FirebaseUploadModule.shared())
                     .addModule(FirebasePushModule.shared())
-                    .addModule(ProfilePicturesModule.shared())
 
 //                    .addModule(FirestreamModule.shared(config -> config
 //                            .setRoot(rootPath)

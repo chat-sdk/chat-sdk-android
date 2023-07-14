@@ -118,6 +118,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         listenersAdded = true;
 
         dm.add(ChatSDK.events().sourceOnSingle()
+            .filter(mainEventFilter())
             .filter(NetworkEvent.filterType(
                 EventType.ThreadMetaUpdated,
                 EventType.TypingStateUpdated,
@@ -136,29 +137,34 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                 });
             }));
 
-        dm.add(ChatSDK.events().sourceOnSingle().filter(NetworkEvent.filterType(
-            EventType.ThreadsUpdated
-        )).subscribe(networkEvent -> {
+        dm.add(ChatSDK.events().sourceOnSingle()
+                .filter(mainEventFilter())
+                .filter(NetworkEvent.filterType(EventType.ThreadsUpdated))
+                .subscribe(networkEvent -> {
             loadData();
         }));
 
-        dm.add(ChatSDK.events().sourceOnSingle().filter(NetworkEvent.filterType(
-            EventType.ThreadAdded
-        )).subscribe(networkEvent -> {
+        dm.add(ChatSDK.events().sourceOnSingle()
+                .filter(mainEventFilter())
+                .filter(NetworkEvent.filterType(EventType.ThreadAdded))
+                .subscribe(networkEvent -> {
             root.post(() -> {
                 addThread(networkEvent.getThread(), true, true);
             });
         }));
 
-        dm.add(ChatSDK.events().sourceOnSingle().filter(NetworkEvent.filterType(
-            EventType.ThreadRemoved
-        )).subscribe(networkEvent -> {
+        dm.add(ChatSDK.events().sourceOnSingle()
+                .filter(mainEventFilter())
+                .filter(NetworkEvent.filterType(EventType.ThreadRemoved))
+                .subscribe(networkEvent -> {
             root.post(() -> {
                 removeThread(networkEvent.getThread());
             });
         }));
 
-        dm.add(ChatSDK.events().sourceOnSingle().filter(NetworkEvent.filterType(
+        dm.add(ChatSDK.events().sourceOnSingle()
+        .filter(mainEventFilter())
+        .filter(NetworkEvent.filterType(
             EventType.MessageAdded,
             EventType.MessageRemoved,
             EventType.ThreadMessagesUpdated

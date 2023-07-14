@@ -10,7 +10,6 @@ import java.util.Map;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Thread;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.chat.core.utils.StringChecker;
 
 public class BaseBroadcastHandler implements BroadcastHandler {
@@ -37,7 +36,7 @@ public class BaseBroadcastHandler implements BroadcastHandler {
             return false;
         }
 
-//        android.os.Debug.waitForDebugger();
+        android.os.Debug.waitForDebugger();
 
         Bundle extras = intent.getExtras();
 
@@ -48,6 +47,7 @@ public class BaseBroadcastHandler implements BroadcastHandler {
         if(!ChatSDK.push().enabled() && ChatSDK.config().disablePushHandlingWhenOnline) {
             return false;
         }
+
 
         if(!ChatSDK.shared().isValid() || !ChatSDK.config().inboundPushHandlingEnabled) {
             return false;

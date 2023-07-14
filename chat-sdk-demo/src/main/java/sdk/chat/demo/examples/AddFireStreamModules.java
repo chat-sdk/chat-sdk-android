@@ -20,7 +20,6 @@ import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
-import sdk.chat.profile.pictures.ProfilePicturesModule;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIModule;
 
@@ -104,9 +103,6 @@ public class AddFireStreamModules extends Activity {
                 .addModule(FirebasePushModule.builder()
                         .setFirebaseFunctionsRegion(null)
                         .build())
-
-                // Profile pictures module
-                .addModule(ProfilePicturesModule.shared())
 
                 // Contact book module
                 .addModule(ContactBookModule.builder()

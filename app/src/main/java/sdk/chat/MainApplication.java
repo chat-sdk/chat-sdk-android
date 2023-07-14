@@ -98,7 +98,7 @@ public class MainApplication extends Application {
     }
 
     public void firebase() throws Exception {
-        String rootPath = "pre_988";
+        String rootPath = "pre_998";
 
         String username = "1@d.co";
         if (Device.honor()) {
@@ -135,6 +135,7 @@ public class MainApplication extends Application {
                 .setPublicChatRoomLifetimeMinutes(TimeUnit.HOURS.toMinutes(24))
                 .setSendSystemMessageWhenRoleChanges(true)
                 .setRemoteConfigEnabled(true)
+                .setDisablePushHandlingWhenOnline(false)
 //                .setDatabaseEncryptionKey("test")
 
                 .setDebugUsername(username)
@@ -183,6 +184,7 @@ public class MainApplication extends Application {
                 }))
                 .build()
                 .activateWithEmail(this, "team@sdk.chat");
+
 
 //        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2TextMessageRegistration());
 //        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2ImageMessageRegistration());

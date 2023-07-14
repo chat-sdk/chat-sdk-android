@@ -31,7 +31,6 @@ import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.location.LocationMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
 import sdk.chat.message.video.VideoMessageModule;
-import sdk.chat.profile.pictures.ProfilePicturesModule;
 import sdk.chat.ui.extras.ExtrasModule;
 import sdk.chat.ui.module.UIConfig;
 import sdk.chat.ui.module.UIModule;
@@ -266,7 +265,7 @@ public class DemoConfigBuilder {
                 // Add modules to handle file uploads, push notifications
                 .addModule(FirebaseUploadModule.shared())
                 .addModule(FirebasePushModule.shared())
-                .addModule(ProfilePicturesModule.shared())
+//                .addModule(ProfilePicturesModule.shared())
                 .addModule(LocationMessageModule.shared())
                 .addModule(ImageMessageModule.shared())
 

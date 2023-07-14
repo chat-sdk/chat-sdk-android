@@ -658,6 +658,8 @@ public class XMPPManager {
 
     public void performPostAuthenticationSetup() {
 
+        
+
         sendAvailablePresence();
 
         userManager.loadContactsFromRoster().subscribe(ChatSDK.events());

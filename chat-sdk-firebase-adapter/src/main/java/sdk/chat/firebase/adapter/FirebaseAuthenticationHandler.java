@@ -39,6 +39,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
     protected FirebaseAuth.AuthStateListener authStateListener;
 
     public FirebaseAuthenticationHandler() {
+
         // Handle login and log out automatically
         authStateListener = firebaseAuth -> {
             if (ChatSDK.shared().isValid() && !isAuthenticating() && loggingOut == null) {
