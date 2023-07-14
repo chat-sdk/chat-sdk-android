@@ -46,3 +46,5 @@ include 'app',
         'chat-sdk-mod-image-editor',
         'vendor-chatkit',
         'chat-sdk-vendor'
+include ':vendor-material-search-view'
+include ':vendor-android-audio-recorder'

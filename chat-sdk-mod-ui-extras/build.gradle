@@ -54,7 +54,8 @@ dependencies {
     // Need this: maven { url "https://dl.bintray.com/mikepenz/maven" }
     api "com.mikepenz:materialdrawer-iconics:$materialDrawerVersion"
 
-    api "sdk.chat:material-search-view:$materialSearchVersion"
+//    api "sdk.chat:material-search-view:$materialSearchVersion"
+    api project(':vendor-material-search-view')
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
 //    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"

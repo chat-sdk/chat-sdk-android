@@ -55,9 +55,10 @@ rootProject.allprojects {
 
 //        maven { url "https://chatsdk.jfrog.io/artifactory/release/chatkit" }
 //        maven { url "https://chatsdk.jfrog.io/artifactory/release/matisse" }
-        maven { url "https://chatsdk.jfrog.io/artifactory/release/material-search-view" }
-        maven { url "https://chatsdk.jfrog.io/artifactory/release/android-image-cropper" }
-        maven { url "https://chatsdk.jfrog.io/artifactory/release/android-audio-recorder" }
+
+//        maven { url "https://chatsdk.jfrog.io/artifactory/release/material-search-view" }
+//        maven { url "https://chatsdk.jfrog.io/artifactory/release/android-image-cropper" }
+//        maven { url "https://chatsdk.jfrog.io/artifactory/release/android-audio-recorder" }
     }
 }
 
@@ -98,7 +99,9 @@ dependencies {
     implementation "net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:$keyboardVisibilityEventVersion"
 
     // Audio
-    implementation "sdk.chat:android-audio-recorder:$androidAudioRecorderVersion"
+//    implementation "sdk.chat:android-audio-recorder:$androidAudioRecorderVersion"
+    api project(':vendor-android-audio-recorder')
+
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
