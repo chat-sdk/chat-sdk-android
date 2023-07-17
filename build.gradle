@@ -102,6 +102,12 @@ allprojects {
 //        maven { url "https://chatsdk.jfrog.io/artifactory/release/chat-sdk-android" }
         maven { url 'https://jitpack.io' }
     }
+
+//    signing {
+//        // Configure signing properties
+//        sign configurations.archives
+//    }
+
 }
 
 subprojects {

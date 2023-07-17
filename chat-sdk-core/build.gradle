@@ -1,8 +1,7 @@
 plugins {
     id 'com.android.library'
-    id 'com.jfrog.artifactory' version "$jfrogVersion"
-
     id 'maven-publish'
+    id 'signing'
     id 'org.greenrobot.greendao'
 }
 

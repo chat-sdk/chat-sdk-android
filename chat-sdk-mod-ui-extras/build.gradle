@@ -1,8 +1,9 @@
 plugins {
     id 'com.android.library'
-    id 'com.jfrog.artifactory' version "$jfrogVersion"
+
 
     id 'maven-publish'
+    id 'signing'
     id 'kotlin-android'
     id 'kotlin-kapt'
 }

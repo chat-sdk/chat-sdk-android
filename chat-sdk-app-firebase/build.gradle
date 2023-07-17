@@ -1,8 +1,7 @@
 plugins {
     id 'com.android.library'
-    id 'com.jfrog.artifactory' version "$jfrogVersion"
-
     id 'maven-publish'
+    id 'signing'
 }
 
 android {
@@ -58,11 +57,5 @@ ext {
 }
 
 if (project.hasProperty("mavenPublish") && mavenPublish) {
-    if (project.hasProperty("mavenPublish") && mavenPublish) {
-    if (project.hasProperty("mavenPublish") && mavenPublish) {
     apply from: '../bintray.gradle'
-}
-
-}
-
 }
