@@ -3,26 +3,37 @@ name: Publish Library
 on:
   push:
     branches:
-      - Mike-Builds-ChatSDK # or your default branch
+      - Mike-Builds-ChatSDK   # or your default branch
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+  jobs:
+    build:
+      runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+          with:
+            token: ${{ secrets.GITHUB_TOKEN }}  # Pass the GITHUB_TOKEN to the checkout action
 
-      - name: Set up JDK 11
-        uses: actions/setup-java@v2
-        with:
-          java-version: '11'
-          distribution: 'adopt'
-          server-id: maven  # Value of the distributionManagement/repository/id field of the pom.xml
-          settings-path: ${{ github.workspace }}  # location for the settings.xml file
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        - name: Set up JDK 11
+          uses: actions/setup-java@v2
+          with:
+            java-version: '11'
+            distribution: 'adopt'
 
-      - name: Build with Gradle
-        run: ./gradlew build
+        - name: Grant execute permission for gradlew
+          run: chmod +x gradlew
+
+        - name: Build with Gradle
+          run: ./gradlew build
+
+        - name: Commit and push changes
+          run: |
+            git config --global user.name 'github-actions'
+            git config --global user.email 'github-actions@github.com'
+            git add .
+            git commit -m "Commit message"
+            git push
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
