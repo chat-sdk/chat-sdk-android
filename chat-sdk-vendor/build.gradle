@@ -68,7 +68,7 @@ ext {
     libraryDescription = 'Vendor Libraries for Chat SDK'
 }
 
-if (project.hasProperty("mavenPublish") && mavenPublish) {
-    apply from: '../bintray.gradle'
-}
+//if (project.hasProperty("mavenPublish") && mavenPublish) {
+//    apply from: '../bintray.gradle'
+//}
 

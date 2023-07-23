@@ -58,7 +58,7 @@ ext {
     libraryDescription = 'Firebase Nearby Users Pro Module'
 }
 
-if (project.hasProperty("mavenPublish") && mavenPublish) {
-    apply from: '../bintray.gradle'
-}
+//if (project.hasProperty("mavenPublish") && mavenPublish) {
+//    apply from: '../bintray.gradle'
+//}
 

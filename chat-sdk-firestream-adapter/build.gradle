@@ -52,7 +52,7 @@ ext {
     libraryDescription = 'Firestream Adapter'
 }
 
-if (project.hasProperty("mavenPublish") && mavenPublish) {
-    apply from: '../bintray.gradle'
-}
+//if (project.hasProperty("mavenPublish") && mavenPublish) {
+//    apply from: '../bintray.gradle'
+//}
 

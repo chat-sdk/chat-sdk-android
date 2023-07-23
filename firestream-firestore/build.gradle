@@ -50,8 +50,8 @@ ext {
     libraryDescription = 'FireStream: Messaging Framework for Firebase and Firestore'
 }
 
-if (project.hasProperty("mavenPublish") && mavenPublish) {
-    apply from: '../bintray.gradle'
-}
+//if (project.hasProperty("mavenPublish") && mavenPublish) {
+//    apply from: '../bintray.gradle'
+//}
 
 

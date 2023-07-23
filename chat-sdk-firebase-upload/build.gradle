@@ -53,7 +53,7 @@ ext {
     libraryDescription = 'Firebase Upload'
 }
 
-if (project.hasProperty("mavenPublish") && mavenPublish) {
-    apply from: '../bintray.gradle'
-}
+//if (project.hasProperty("mavenPublish") && mavenPublish) {
+//    apply from: '../bintray.gradle'
+//}
 
