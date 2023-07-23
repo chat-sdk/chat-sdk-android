@@ -3,7 +3,7 @@ name: My Workflow
 on:
   push:
     branches:
-      - main  # or your default branch
+      - Mike-Builds-ChatSDK  # or your default branch
 
 jobs:
   build:
