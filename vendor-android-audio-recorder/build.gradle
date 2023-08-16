@@ -1,5 +1,7 @@
 plugins {
     id 'com.android.library'
+    id 'maven-publish'
+    id 'signing'
 }
 
 android {
@@ -34,4 +36,14 @@ dependencies {
     implementation 'com.github.piasy:rxandroidaudio:1.7.0'
     implementation 'com.github.piasy:AudioProcessor:1.7.0'
 
+}
+
+ext {
+    libraryName = 'VendorAndroidAudioRecorder'
+    artifact = 'vendor-android-audio-recorder'
+    libraryDescription = 'Vendor Android Audio Recorder'
+}
+
+if (project.hasProperty("mavenPublish") && mavenPublish) {
+    apply from: '../bintray.gradle'
 }

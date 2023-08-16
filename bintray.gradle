@@ -1,9 +1,8 @@
 
-def localProperties = new Properties()
-localProperties.load(new FileInputStream(rootProject.file("local.properties")))
+//def localProperties = new Properties()
+//localProperties.load(new FileInputStream(rootProject.file("local.properties")))
 
 afterEvaluate {
-//    artifactoryPublish.dependsOn('build')
     publishing {
         publications {
             release(MavenPublication) {
@@ -43,17 +42,19 @@ afterEvaluate {
             maven {
                 url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
                 credentials {
-                    username = localProperties['mavenUser']
-                    password = localProperties['mavenPassword']
+//                    username=mavenUser
+//                    password=mavenPassword
+                    username="100bears"
+                    password=""
                 }
             }
         }
     }
+
+    signing {
+        sign publishing.publications
+    }
+
 }
 
-//Properties properties = new Properties()
-//properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-//def user = properties.getProperty('jFrogUser')
-//def pw = properties.getProperty('jFrogPassword')
 

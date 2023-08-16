@@ -16,6 +16,11 @@ buildscript {
     }
 }
 
+//plugins {
+//    id 'signing'
+//    id 'maven-publish'
+//}
+
 ext {
     jfrogVersion = "4.29.1"
     mavenGradleVersion = "2.1"
@@ -97,18 +102,11 @@ ext {
 allprojects {
     repositories {
         google()
-//        jcenter()
         mavenCentral()
-//        maven { url "https://chatsdk.jfrog.io/artifactory/release/chat-sdk-android" }
         maven { url 'https://jitpack.io' }
     }
-
-//    signing {
-//        // Configure signing properties
-//        sign configurations.archives
-//    }
-
 }
+
 
 subprojects {
     tasks.withType(Javadoc).all { enabled = false }

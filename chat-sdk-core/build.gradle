@@ -6,6 +6,7 @@ plugins {
 }
 
 android {
+    namespace 'sdk.chat.core'
 
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
 
@@ -32,8 +33,14 @@ android {
         abortOnError false
         lintConfig file('lint.xml')
     }
-    namespace 'sdk.chat.core'
 
+//    publishing {
+//        singleVariant("release") {
+//            // if you don't want sources/javadoc, remove these lines
+//            withSourcesJar()
+//            withJavadocJar()
+//        }
+//    }
 }
 
 greendao {

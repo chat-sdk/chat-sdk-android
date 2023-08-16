@@ -1,18 +1,16 @@
 plugins {
     id 'com.android.library'
-
-
-id 'maven-publish'
+    id 'maven-publish'
     id 'signing'
 }
 
 android {
 
+    namespace 'sdk.chat.firebase.adapter'
     compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
 
     defaultConfig {
         minSdkVersion Integer.parseInt(project.MIN_SDK)
-
     }
 
     buildTypes {
@@ -35,19 +33,14 @@ android {
         checkReleaseBuilds false
         lintConfig file('lint.xml')
     }
-    namespace 'sdk.chat.firebase.adapter'
 
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     api project(':chat-sdk-core')
     api project(':sdk-guru-realtime')
-
-//    api "com.google.firebase:firebase-core:$firebaseCoreVersion"
     api "com.google.firebase:firebase-auth"
-
 }
 
 ext {
