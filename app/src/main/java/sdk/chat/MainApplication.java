@@ -52,6 +52,8 @@ public class MainApplication extends Application {
             e.printStackTrace();
         }
 
+
+
         Disposable d3 = ChatSDK.events().errorSourceOnMain().subscribe(throwable -> {
             //
             throwable.printStackTrace();
@@ -129,6 +131,7 @@ public class MainApplication extends Application {
                 .setReuseDeleted1to1Threads(false)
                 .setLogLevel(Level.DEBUG)
                 .addProvider(new CustomProvider())
+
 //                .setMessagesToLoadPerBatch(5)
 
                 .setRemoteConfigEnabled(false)
@@ -184,6 +187,8 @@ public class MainApplication extends Application {
                 }))
                 .build()
                 .activateWithEmail(this, "team@sdk.chat");
+
+//        ChatSDK.shared(). new FirebaseEventHandler();
 
 
 //        ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new V2TextMessageRegistration());

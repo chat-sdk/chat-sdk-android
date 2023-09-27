@@ -524,8 +524,6 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
      * We mark the thread as deleted and mark the user in the thread users ref as deleted.
      **/
     public Completable deleteThread() {
-
-
         return new ThreadDeleter(model).execute();
     }
 

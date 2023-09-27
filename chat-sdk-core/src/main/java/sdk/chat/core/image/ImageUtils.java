@@ -79,10 +79,11 @@ public class ImageUtils {
                 case ExifInterface.ORIENTATION_ROTATE_180:
                     rotate = 180;
                     break;
-
                 case ExifInterface.ORIENTATION_ROTATE_90:
-                case ExifInterface.ORIENTATION_ROTATE_270:
                     rotate = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    rotate = 270;
                     break;
                 default:
                     rotate = 0;

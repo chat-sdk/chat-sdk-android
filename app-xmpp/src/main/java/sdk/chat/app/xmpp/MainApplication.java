@@ -117,6 +117,7 @@ public class MainApplication extends Application {
             assert(false);
         }
 
+
         XMPPModule.config().setConnectionConfigProvider(builder -> {
             try {
                 builder.setCustomX509TrustManager(new TLSUtils.AcceptAllTrustManager());
