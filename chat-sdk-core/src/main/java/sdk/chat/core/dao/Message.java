@@ -310,16 +310,18 @@ public class Message extends AbstractEntity {
         if (sender.isMe()) {
             isRead = true;
         }
-        else if (user.isMe()) {
-            if (status.is(ReadStatus.read())) {
-                isRead = true;
-            } else {
-                isRead = false;
-            }
-            ChatSDK.db().update(this);
-        }
 
         if (link == null || link.getStatus() < status.getValue()) {
+
+            if (!user.isMe()) {
+                if (status.is(ReadStatus.read())) {
+                    isRead = true;
+                } else {
+                    isRead = false;
+                }
+                ChatSDK.db().update(this);
+            }
+
             if (link == null) {
                 link = new ReadReceiptUserLink();
                 link.setMessageId(getId());

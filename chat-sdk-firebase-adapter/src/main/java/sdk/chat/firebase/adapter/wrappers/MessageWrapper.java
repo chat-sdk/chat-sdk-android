@@ -129,6 +129,7 @@ public class MessageWrapper  {
             }
 
             model.setMetaValues(meta);
+
         } else {
             Logger.debug("Message has no meta");
 //            model.setText("");
@@ -159,6 +160,13 @@ public class MessageWrapper  {
 
         Map<String, Map<String, Long>> readMap = snapshot.child(Keys.Read).getValue(Generic.readReceiptHashMap());
         if (readMap != null) {
+
+//            Map<String, Long> userMap = readMap.get(ChatSDK.currentUserID());
+//            if (userMap != null && userMap.get(Keys.Status) == ReadStatus.Read) {
+//                Logger.debug("Message Read: " + model.getEntityID());
+//                model.setIsRead(true);
+//            }
+
             updateReadReceipts(readMap).doOnSuccess(aBoolean -> {
                 if (aBoolean) {
                     ChatSDK.events().source().accept(NetworkEvent.messageReadReceiptUpdated(model));
