@@ -14,7 +14,6 @@ import sdk.chat.core.session.ChatSDK;
 import sdk.chat.encryption.xmpp.XMPPEncryptionModule;
 import sdk.chat.firebase.push.FirebasePushModule;
 import sdk.chat.firebase.upload.FirebaseUploadModule;
-import sdk.chat.message.audio.AudioMessageModule;
 import sdk.chat.message.file.FileMessageModule;
 import sdk.chat.message.location.LocationMessageModule;
 import sdk.chat.message.sticker.module.StickerMessageModule;
@@ -74,7 +73,7 @@ public class MainApplication extends Application {
                             .setDebugEnabled(true)
                             .build())
 
-                    .addModule(AudioMessageModule.shared())
+//                    .addModule(AudioMessageModule.shared())
                     .addModule(LocationMessageModule.shared())
                     .addModule(ImageMessageModule.shared())
                     .addModule(VideoMessageModule.shared())

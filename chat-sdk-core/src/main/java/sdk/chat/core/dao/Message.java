@@ -311,6 +311,11 @@ public class Message extends AbstractEntity {
             isRead = true;
         }
 
+        if(!isRead && status.is(ReadStatus.read())) {
+            isRead = true;
+            ChatSDK.db().update(this);
+        }
+
         if (link == null || link.getStatus() < status.getValue()) {
 
             if (!user.isMe()) {

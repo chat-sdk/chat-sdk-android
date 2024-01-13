@@ -179,6 +179,7 @@ public class ChatSDK {
             throw new Exception("Chat SDK is already active. It is not recommended to call activate twice. If you must do this, make sure to call stop() first.");
         }
 
+
         ProcessLifecycleOwner.get().getLifecycle().addObserver(appBackgroundMonitor);
 
         setContext(context);

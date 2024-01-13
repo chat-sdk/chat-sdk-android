@@ -17,14 +17,11 @@ import com.bumptech.glide.Glide;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-
-
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.utils.PermissionRequestHandler;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
-import sdk.chat.ui.icons.Icons;
 import sdk.chat.ui.utils.ToastHelper;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
@@ -63,14 +60,13 @@ public class PopupImageView extends RelativeLayout {
 
     public void initViews() {
 
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        inflater.inflate(getLayout(), this);
+
         photoView = findViewById(R.id.photoView);
         progressBar = findViewById(R.id.progressBar);
         fab = findViewById(R.id.fab);
         popupView = findViewById(R.id.popupView);
-
-        LayoutInflater inflater = LayoutInflater.from(getContext());
-        inflater.inflate(getLayout(), this);
-        
 
         fab.setImageDrawable(ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().save, R.color.fab_icon_color));
 
