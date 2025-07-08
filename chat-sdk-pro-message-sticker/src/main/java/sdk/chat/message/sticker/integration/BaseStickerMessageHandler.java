@@ -4,7 +4,7 @@ import io.reactivex.Completable;
 import sdk.chat.core.base.AbstractMessageHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.handlers.StickerMessageHandler;
 import sdk.chat.core.manager.MessagePayload;
 import sdk.chat.core.rigs.MessageSendRig;
@@ -23,12 +23,12 @@ import sdk.chat.message.sticker.keyboard.StickerKeyboardOverlayFragment;
 public class BaseStickerMessageHandler extends AbstractMessageHandler implements StickerMessageHandler {
 
     @Override
-    public Completable sendMessageWithSticker(final String name, final Thread thread) {
+    public Completable sendMessageWithSticker(final String name, final ThreadX thread) {
         return sendMessageWithSticker(name, null, thread);
     }
 
     @Override
-    public Completable sendMessageWithSticker(final String name, final String url, final Thread thread) {
+    public Completable sendMessageWithSticker(final String name, final String url, final ThreadX thread) {
         return new MessageSendRig(new MessageType(MessageType.Sticker), thread, message -> {
             message.setText(name);
             message.setValueForKey(name, Keys.MessageStickerName);

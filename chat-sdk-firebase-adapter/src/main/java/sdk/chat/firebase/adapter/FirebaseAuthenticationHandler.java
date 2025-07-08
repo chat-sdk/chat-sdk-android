@@ -29,6 +29,7 @@ import sdk.guru.common.EventType;
 import sdk.guru.common.RX;
 import sdk.guru.realtime.RXRealtime;
 import sdk.guru.realtime.RealtimeReferenceManager;
+import sdk.chat.core.R;
 
 /**
  * Created by benjaminsmiley-andrews on 03/05/2017.
@@ -113,7 +114,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                         FirebaseCoreHandler.auth().signInWithCustomToken(details.token).addOnCompleteListener(resultHandler);
                         break;
                     default:
-                        emitter.onError(ChatSDK.getException(R.string.no_login_type_defined));
+                        emitter.onError(ChatSDK.getException(sdk.chat.firebase.adapter.R.string.no_login_type_defined));
                         break;
                 }
             }).subscribeOn(RX.io()).flatMapCompletable(this::authenticateWithUser).cache();

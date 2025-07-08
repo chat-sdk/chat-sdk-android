@@ -19,7 +19,7 @@ import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import sdk.chat.core.dao.Keys
-import sdk.chat.core.dao.Thread
+import sdk.chat.core.dao.ThreadX
 import sdk.chat.core.dao.User
 import sdk.chat.core.events.EventType
 import sdk.chat.core.events.NetworkEvent
@@ -45,7 +45,7 @@ import kotlin.math.abs
  */
 open class ThreadDetailsActivity: ImagePreviewActivity() {
 
-    open lateinit var thread: Thread
+    open lateinit var thread: ThreadX
     open lateinit var adapter: SmartRecyclerAdapter
 
     open var onClickRelay = PublishRelay.create<User>()
@@ -76,7 +76,7 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var thread: Thread? = null
+        var thread: ThreadX? = null
         if (savedInstanceState != null) {
             thread = getDataFromBundle(savedInstanceState)
         } else {
@@ -380,7 +380,7 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
         }
     }
 
-    open fun getDataFromBundle(bundle: Bundle?): Thread? {
+    open fun getDataFromBundle(bundle: Bundle?): ThreadX? {
         if (bundle == null) {
             return null
         }

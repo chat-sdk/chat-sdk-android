@@ -18,7 +18,7 @@ import io.reactivex.Completable;
 import io.reactivex.plugins.RxJavaPlugins;
 import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.handlers.AudioMessageHandler;
 import sdk.chat.core.handlers.AuthenticationHandler;
@@ -298,9 +298,9 @@ public class ChatSDK {
             if (ChatSDK.config().disablePushHandlingWhenOnline) {
                 Object messageObject = data.get(HookEvent.Message);
                 Object threadObject = data.get(HookEvent.Thread);
-                if (messageObject instanceof Message && threadObject instanceof Thread) {
+                if (messageObject instanceof Message && threadObject instanceof ThreadX) {
                     Message message = (Message) messageObject;
-                    Thread thread = (Thread) threadObject;
+                    ThreadX thread = (ThreadX) threadObject;
 
                     if (!thread.isMuted() && !thread.isDeleted()) {
                         if (thread.typeIs(ThreadType.Private) || ChatSDK.config().localPushNotificationsForPublicChatRoomsEnabled) {

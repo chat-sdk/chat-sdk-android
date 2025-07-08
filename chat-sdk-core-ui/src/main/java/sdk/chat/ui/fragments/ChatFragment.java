@@ -40,7 +40,7 @@ import io.reactivex.annotations.NonNull;
 import materialsearchview.MaterialSearchView;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
@@ -79,7 +79,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
     protected View rootView;
 
-    protected Thread thread;
+    protected ThreadX thread;
 
 
     protected ChatOptionsHandler optionsHandler;
@@ -113,12 +113,12 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         super();
     }
 
-    public ChatFragment(Thread thread) {
+    public ChatFragment(ThreadX thread) {
         super();
         setThread(thread);
     }
 
-    public void setThread(Thread thread) {
+    public void setThread(ThreadX thread) {
         this.thread = thread;
         Bundle bundle = new Bundle();
         bundle.putString(Keys.IntentKeyThreadEntityID, thread.getEntityID());
@@ -514,7 +514,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     }
 
     @Override
-    public void onNewIntent(Thread thread) {
+    public void onNewIntent(ThreadX thread) {
         this.thread = thread;
         clear();
         chatView.onLoadMore(0, 0);
@@ -793,7 +793,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     }
 
     @Override
-    public Thread getThread() {
+    public ThreadX getThread() {
         return thread;
     }
 

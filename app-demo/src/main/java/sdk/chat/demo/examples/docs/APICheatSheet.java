@@ -12,7 +12,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Predicate;
 import sdk.chat.core.base.BaseNetworkAdapter;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
@@ -130,7 +130,7 @@ public class APICheatSheet {
         });
 
         // Get a list of public threads
-        List<Thread> threads = ChatSDK.thread().getThreads(ThreadType.Private1to1);
+        List<ThreadX> threads = ChatSDK.thread().getThreads(ThreadType.Private1to1);
 
     }
 
@@ -192,7 +192,7 @@ public class APICheatSheet {
         User user = ChatSDK.db().createEntity(User.class);
 
         // Fetch an entity with a given ID
-        Thread thread = ChatSDK.db().fetchThreadWithEntityID("threadEntityID");
+        ThreadX thread = ChatSDK.db().fetchThreadWithEntityID("threadEntityID");
 
         // Fetch or create an entity with a given ID
         User otherUser = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, "userEntityID'");

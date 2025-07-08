@@ -42,7 +42,7 @@ import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.events.NetworkEvent;
@@ -89,7 +89,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         });
     }
 
-    public Single<Thread> createRoom(final String name, final String description, final ArrayList<User> users, boolean isPublic) {
+    public Single<ThreadX> createRoom(final String name, final String description, final ArrayList<User> users, boolean isPublic) {
         return Single.defer(() -> {
             // Create a new group chat
             final String roomID = generateRoomId(name);
@@ -134,14 +134,14 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         }).subscribeOn(RX.io());
     }
 
-    public Single<Thread> joinRoom(String roomJID) throws Exception {
+    public Single<ThreadX> joinRoom(String roomJID) throws Exception {
         return joinRoom(getChat(roomJID), true);
     }
 
-    public Single<Thread> joinRoom(MultiUserChat chat, boolean bookmark) {
+    public Single<ThreadX> joinRoom(MultiUserChat chat, boolean bookmark) {
         return Single.defer(() -> {
 
-            Thread thread = threadForRoomID(chat.getRoom().toString());
+            ThreadX thread = threadForRoomID(chat.getRoom().toString());
             thread.setDeleted(false);
 
             Resourcepart nickname = nickname();
@@ -271,14 +271,14 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         } else {
             try {
                 manager.get().bookmarkManager().removeBookmarkedConference(bookmark.getJid());
-                Thread thread = threadForRoomID(bookmark.getJid().toString());
+                ThreadX thread = threadForRoomID(bookmark.getJid().toString());
                 ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(R.string.room_no_longer_active), thread);
                 // TODO: Handle this
             } catch (Exception e) {}
         }
     }
 
-    public Completable destroy(Thread thread) {
+    public Completable destroy(ThreadX thread) {
         return Completable.defer(() -> {
             MultiUserChat chat = getChatOrNull(thread.getEntityID());
             if (chat != null) {
@@ -288,7 +288,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         }).subscribeOn(RX.io());
     }
 
-    public Completable updateName(Thread thread, String name) {
+    public Completable updateName(ThreadX thread, String name) {
         return Completable.defer(() -> {
             MultiUserChat chat = getChatOrNull(thread.getEntityID());
             if (chat != null) {
@@ -339,7 +339,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         }).subscribeOn(RX.io());
     }
 
-    public Completable inviteUser(final Thread thread, final User user) {
+    public Completable inviteUser(final ThreadX thread, final User user) {
         return Completable.defer(() -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
             if (chat != null) {
@@ -358,7 +358,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         }).subscribeOn(RX.io());
     }
 
-    public Completable removeUser(final Thread thread, final User user) {
+    public Completable removeUser(final ThreadX thread, final User user) {
         return Completable.defer(() -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
             if (chat != null) {
@@ -386,15 +386,15 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         }
     }
 
-    public Thread threadForRoomID(MultiUserChat chat) {
+    public ThreadX threadForRoomID(MultiUserChat chat) {
         return threadForRoomID(chat.getRoom().toString());
     }
 
-    public Thread threadForRoomID(String roomJID) {
+    public ThreadX threadForRoomID(String roomJID) {
         Logger.debug("Thread For Room " + roomJID);
-        Thread thread = ChatSDK.db().fetchThreadWithEntityID(roomJID);
+        ThreadX thread = ChatSDK.db().fetchThreadWithEntityID(roomJID);
         if(thread == null) {
-            thread = ChatSDK.db().createEntity(Thread.class);
+            thread = ChatSDK.db().createEntity(ThreadX.class);
 
             thread.setEntityID(roomJID);
 
@@ -450,7 +450,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         dm.dispose();
     }
 
-    public Single<List<Affiliate>> requestAffiliatesFromServer(Thread thread) {
+    public Single<List<Affiliate>> requestAffiliatesFromServer(ThreadX thread) {
         return Single.create((SingleOnSubscribe<List<Affiliate>>)emitter -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
             emitter.onSuccess(getAffiliates(chat));
@@ -489,7 +489,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
 //        return Role.fromAffiliate(getAffiliateForUser(thread, user));
 //    }
 
-    public MUCAffiliation getAffiliation(Thread thread, User user) {
+    public MUCAffiliation getAffiliation(ThreadX thread, User user) {
         XMPPMUCRoleListener listener = getUserStatusListener(thread.getEntityID());
         if (listener != null) {
             MUCAffiliation affiliation = listener.getAffiliation(user);
@@ -498,7 +498,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         return MUCAffiliation.none;
     }
 
-    public MUCRole getRole(Thread thread, User user) {
+    public MUCRole getRole(ThreadX thread, User user) {
         XMPPMUCRoleListener listener = getUserStatusListener(thread.getEntityID());
         if (listener != null) {
             MUCRole role = listener.getRole(user);
@@ -507,7 +507,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         return MUCRole.none;
     }
 
-    public Resourcepart getNick(Thread thread, User user) {
+    public Resourcepart getNick(ThreadX thread, User user) {
         XMPPMUCRoleListener listener = getUserStatusListener(thread.getEntityID());
         if (listener != null) {
             return listener.getNick(user);
@@ -515,7 +515,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         return null;
     }
 
-    public Completable grantModerator(Thread thread, User user) {
+    public Completable grantModerator(ThreadX thread, User user) {
         return Completable.defer(() -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
             MUCRole role = getRole(thread, user);
@@ -535,7 +535,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         }).subscribeOn(RX.io());
     }
 
-    public Completable revokeModerator(Thread thread, User user) {
+    public Completable revokeModerator(ThreadX thread, User user) {
         return Completable.defer(() -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
             MUCRole role = getRole(thread, user);
@@ -554,7 +554,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         }).subscribeOn(RX.io());
     }
 
-    public Completable grantVoice(Thread thread, User user) {
+    public Completable grantVoice(ThreadX thread, User user) {
         return Completable.defer(() -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
             Resourcepart nick = getNick(thread, user);
@@ -568,7 +568,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         }).subscribeOn(RX.io());
     }
 
-    public Completable revokeVoice(Thread thread, User user) {
+    public Completable revokeVoice(ThreadX thread, User user) {
         return Completable.defer(() -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
             Resourcepart nick = getNick(thread, user);
@@ -582,7 +582,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         }).subscribeOn(RX.io());
     }
 
-    public Completable setRole(Thread thread, User user, MUCAffiliation affiliation) {
+    public Completable setRole(ThreadX thread, User user, MUCAffiliation affiliation) {
         return Completable.defer(() -> {
             MultiUserChat chat = chatForThreadID(thread.getEntityID());
             MUCAffiliation currentAffiliation = getAffiliation(thread, user);
@@ -611,7 +611,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         }).subscribeOn(RX.io());
     }
 
-    public Completable refreshRoomAffiliation(Thread thread) {
+    public Completable refreshRoomAffiliation(ThreadX thread) {
         return Completable.defer(() -> {
             MultiUserChat chat = getChat(thread.getEntityID());
             return refreshRoomAffiliation(chat);
@@ -636,7 +636,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
         userStatusListeners.put(threadEntityID, listener);
     }
 
-    public void deactivateThread(Thread thread) {
+    public void deactivateThread(ThreadX thread) {
         for (UserThreadLink l: thread.getUserThreadLinks()) {
             // If they are banned, they are hidden anyway
             if (!l.isBanned()) {
@@ -665,7 +665,7 @@ public class XMPPMUCManager implements IncomingChatMessageListener {
                     if (element != null) {
                         String chatId = element.getText();
                         if (chatId != null && !chatId.isEmpty()) {
-                            Thread theThread = ChatSDK.db().fetchThreadWithEntityID(chatId);
+                            ThreadX theThread = ChatSDK.db().fetchThreadWithEntityID(chatId);
                             // Check to see if this room already exists?
                             if (theThread == null) {
                                 // Join the room

@@ -39,7 +39,7 @@ public class ThreadMetaValueDao extends AbstractDao<ThreadMetaValue, Long> {
 
     private DaoSession daoSession;
 
-    private Query<ThreadMetaValue> thread_MetaValuesQuery;
+    private Query<ThreadMetaValue> threadX_MetaValuesQuery;
 
     public ThreadMetaValueDao(DaoConfig config) {
         super(config);
@@ -230,16 +230,16 @@ public class ThreadMetaValueDao extends AbstractDao<ThreadMetaValue, Long> {
         return true;
     }
     
-    /** Internal query to resolve the "metaValues" to-many relationship of Thread. */
-    public List<ThreadMetaValue> _queryThread_MetaValues(Long threadId) {
+    /** Internal query to resolve the "metaValues" to-many relationship of ThreadX. */
+    public List<ThreadMetaValue> _queryThreadX_MetaValues(Long threadId) {
         synchronized (this) {
-            if (thread_MetaValuesQuery == null) {
+            if (threadX_MetaValuesQuery == null) {
                 QueryBuilder<ThreadMetaValue> queryBuilder = queryBuilder();
                 queryBuilder.where(Properties.ThreadId.eq(null));
-                thread_MetaValuesQuery = queryBuilder.build();
+                threadX_MetaValuesQuery = queryBuilder.build();
             }
         }
-        Query<ThreadMetaValue> query = thread_MetaValuesQuery.forCurrentThread();
+        Query<ThreadMetaValue> query = threadX_MetaValuesQuery.forCurrentThread();
         query.setParameter(0, threadId);
         return query.list();
     }
@@ -251,9 +251,9 @@ public class ThreadMetaValueDao extends AbstractDao<ThreadMetaValue, Long> {
             StringBuilder builder = new StringBuilder("SELECT ");
             SqlUtils.appendColumns(builder, "T", getAllColumns());
             builder.append(',');
-            SqlUtils.appendColumns(builder, "T0", daoSession.getThreadDao().getAllColumns());
+            SqlUtils.appendColumns(builder, "T0", daoSession.getThreadXDao().getAllColumns());
             builder.append(" FROM THREAD_META_VALUE T");
-            builder.append(" LEFT JOIN THREAD T0 ON T.\"THREAD_ID\"=T0.\"_id\"");
+            builder.append(" LEFT JOIN Thread T0 ON T.\"THREAD_ID\"=T0.\"_id\"");
             builder.append(' ');
             selectDeep = builder.toString();
         }
@@ -264,7 +264,7 @@ public class ThreadMetaValueDao extends AbstractDao<ThreadMetaValue, Long> {
         ThreadMetaValue entity = loadCurrent(cursor, 0, lock);
         int offset = getAllColumns().length;
 
-        Thread thread = loadCurrentOther(daoSession.getThreadDao(), cursor, offset);
+        ThreadX thread = loadCurrentOther(daoSession.getThreadXDao(), cursor, offset);
         entity.setThread(thread);
 
         return entity;    

@@ -21,7 +21,7 @@ import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.User;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.handlers.IEncryptionHandler;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
@@ -62,7 +62,7 @@ public abstract class EncryptionHandler implements IEncryptionHandler {
     }
 
     @Override
-    public Map<String, String> encryptMeta(Thread thread, Map<String, String> meta) {
+    public Map<String, String> encryptMeta(ThreadX thread, Map<String, String> meta) {
         // Get the list of keys
         List<VirgilPublicKey> keys = extractKeysSync(thread);
 
@@ -105,7 +105,7 @@ public abstract class EncryptionHandler implements IEncryptionHandler {
         }).subscribeOn(RX.computation());
     }
 
-    public List<VirgilPublicKey> extractKeysSync(final Thread thread) {
+    public List<VirgilPublicKey> extractKeysSync(final ThreadX thread) {
         List<VirgilPublicKey> publicKeyList = new ArrayList<>();
 
         if (!thread.typeIs(ThreadType.Public)) {

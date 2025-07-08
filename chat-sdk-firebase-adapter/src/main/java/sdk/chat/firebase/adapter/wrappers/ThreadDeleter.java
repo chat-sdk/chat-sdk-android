@@ -9,7 +9,7 @@ import java.util.List;
 
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -19,9 +19,9 @@ import sdk.guru.common.RX;
 
 public class ThreadDeleter {
 
-    Thread thread;
+    ThreadX thread;
 
-    public ThreadDeleter (Thread thread) {
+    public ThreadDeleter (ThreadX thread) {
         this.thread = thread;
     }
 

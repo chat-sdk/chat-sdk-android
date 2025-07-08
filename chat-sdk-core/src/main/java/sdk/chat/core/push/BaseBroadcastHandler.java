@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.StringChecker;
 
@@ -69,7 +69,7 @@ public class BaseBroadcastHandler implements BroadcastHandler {
         }
 
         // Check if notifications are muted
-        Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
+        ThreadX thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
         if (thread != null) {
             if (thread.isMuted()) {
                 return true;

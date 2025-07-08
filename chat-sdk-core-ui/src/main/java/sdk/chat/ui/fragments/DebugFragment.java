@@ -14,7 +14,7 @@ import io.reactivex.annotations.NonNull;
 import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.MessageMetaValue;
 import sdk.chat.core.dao.ReadReceiptUserLink;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.ThreadMetaValue;
 import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.events.NetworkEvent;
@@ -46,7 +46,7 @@ public class DebugFragment extends BaseFragment {
         deleteThreadsButton.setOnClickListener(v -> {
             List<Object> toDelete = new ArrayList<>();
 
-            toDelete.addAll(ChatSDK.db().getDaoCore().fetchEntitiesOfClass(Thread.class));
+            toDelete.addAll(ChatSDK.db().getDaoCore().fetchEntitiesOfClass(ThreadX.class));
             toDelete.addAll(ChatSDK.db().getDaoCore().fetchEntitiesOfClass(Message.class));
             toDelete.addAll(ChatSDK.db().getDaoCore().fetchEntitiesOfClass(UserThreadLink.class));
             toDelete.addAll(ChatSDK.db().getDaoCore().fetchEntitiesOfClass(ThreadMetaValue.class));
@@ -55,8 +55,8 @@ public class DebugFragment extends BaseFragment {
 
             for (Object o: toDelete) {
                 ChatSDK.db().delete(o);
-                if (o instanceof Thread) {
-                    ChatSDK.events().source().accept(NetworkEvent.threadRemoved((Thread) o));
+                if (o instanceof ThreadX) {
+                    ChatSDK.events().source().accept(NetworkEvent.threadRemoved((ThreadX) o));
                 }
                 if (o instanceof Message) {
                     ChatSDK.events().source().accept(NetworkEvent.messageRemoved((Message) o));

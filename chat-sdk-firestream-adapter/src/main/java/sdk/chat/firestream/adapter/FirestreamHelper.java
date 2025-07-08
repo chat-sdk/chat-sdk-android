@@ -10,13 +10,13 @@ import firestream.chat.message.Sendable;
 import io.reactivex.Single;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ReadStatus;
 
 public class FirestreamHelper {
 
-    public static Single<Message> sendableToMessage(final Thread thread, Sendable sendable, boolean notify) {
+    public static Single<Message> sendableToMessage(final ThreadX thread, Sendable sendable, boolean notify) {
         return Single.defer(() -> {
             return ChatSDK.core().getUserForEntityID(sendable.getFrom()).map(user -> {
 

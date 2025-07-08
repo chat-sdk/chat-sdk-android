@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Single;
 import io.reactivex.functions.Predicate;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -43,7 +43,7 @@ public class PrivateThreadsFragment extends ThreadsFragment {
         return false;
     }
 
-    public void showLongPressDialog(Thread thread) {
+    public void showLongPressDialog(ThreadX thread) {
         DialogUtils.showToastDialog(getContext(), 0, R.string.alert_delete_thread, R.string.delete,
                 R.string.cancel,  () -> {
                     dm.add(ChatSDK.thread().deleteThread(thread)
@@ -58,18 +58,18 @@ public class PrivateThreadsFragment extends ThreadsFragment {
     }
 
     @Override
-    protected Single<List<Thread>> getThreads() {
+    protected Single<List<ThreadX>> getThreads() {
         return Single.defer(() -> {
 
-            List<Thread> threads = ChatSDK.thread().getThreads(ThreadType.Private);
+            List<ThreadX> threads = ChatSDK.thread().getThreads(ThreadType.Private);
 
             if (ChatSDK.config().privateChatRoomLifetimeMinutes == 0) {
                 return Single.just(threads);
             } else {
                 // Do we need to filter the list to remove old chat rooms?
                 long now = new Date().getTime();
-                List<Thread> filtered = new ArrayList<>();
-                for (Thread t : threads) {
+                List<ThreadX> filtered = new ArrayList<>();
+                for (ThreadX t : threads) {
                     if (t.getCreationDate() == null || now - t.getCreationDate().getTime() < TimeUnit.MINUTES.toMillis(ChatSDK.config().privateChatRoomLifetimeMinutes)) {
                         filtered.add(t);
                     }

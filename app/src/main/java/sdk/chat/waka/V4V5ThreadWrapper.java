@@ -6,13 +6,13 @@ import com.google.firebase.database.DatabaseReference;
 import java.util.Map;
 
 import io.reactivex.Completable;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.firebase.adapter.FirebasePaths;
 import sdk.chat.firebase.adapter.wrappers.ThreadWrapper;
 
 public class V4V5ThreadWrapper extends ThreadWrapper {
 
-    public V4V5ThreadWrapper(Thread thread) {
+    public V4V5ThreadWrapper(ThreadX thread) {
         super(thread);
     }
 

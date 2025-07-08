@@ -45,7 +45,7 @@ public class MessageDao extends AbstractDao<Message, Long> {
 
     private DaoSession daoSession;
 
-    private Query<Message> thread_MessagesQuery;
+    private Query<Message> threadX_MessagesQuery;
 
     public MessageDao(DaoConfig config) {
         super(config);
@@ -310,17 +310,17 @@ public class MessageDao extends AbstractDao<Message, Long> {
         return true;
     }
     
-    /** Internal query to resolve the "messages" to-many relationship of Thread. */
-    public List<Message> _queryThread_Messages(Long threadId) {
+    /** Internal query to resolve the "messages" to-many relationship of ThreadX. */
+    public List<Message> _queryThreadX_Messages(Long threadId) {
         synchronized (this) {
-            if (thread_MessagesQuery == null) {
+            if (threadX_MessagesQuery == null) {
                 QueryBuilder<Message> queryBuilder = queryBuilder();
                 queryBuilder.where(Properties.ThreadId.eq(null));
                 queryBuilder.orderRaw("T.'DATE' ASC");
-                thread_MessagesQuery = queryBuilder.build();
+                threadX_MessagesQuery = queryBuilder.build();
             }
         }
-        Query<Message> query = thread_MessagesQuery.forCurrentThread();
+        Query<Message> query = threadX_MessagesQuery.forCurrentThread();
         query.setParameter(0, threadId);
         return query.list();
     }
@@ -334,14 +334,14 @@ public class MessageDao extends AbstractDao<Message, Long> {
             builder.append(',');
             SqlUtils.appendColumns(builder, "T0", daoSession.getUserDao().getAllColumns());
             builder.append(',');
-            SqlUtils.appendColumns(builder, "T1", daoSession.getThreadDao().getAllColumns());
+            SqlUtils.appendColumns(builder, "T1", daoSession.getThreadXDao().getAllColumns());
             builder.append(',');
             SqlUtils.appendColumns(builder, "T2", daoSession.getMessageDao().getAllColumns());
             builder.append(',');
             SqlUtils.appendColumns(builder, "T3", daoSession.getMessageDao().getAllColumns());
             builder.append(" FROM MESSAGE T");
             builder.append(" LEFT JOIN USER T0 ON T.\"SENDER_ID\"=T0.\"_id\"");
-            builder.append(" LEFT JOIN THREAD T1 ON T.\"THREAD_ID\"=T1.\"_id\"");
+            builder.append(" LEFT JOIN Thread T1 ON T.\"THREAD_ID\"=T1.\"_id\"");
             builder.append(" LEFT JOIN MESSAGE T2 ON T.\"NEXT_MESSAGE_ID\"=T2.\"_id\"");
             builder.append(" LEFT JOIN MESSAGE T3 ON T.\"PREVIOUS_MESSAGE_ID\"=T3.\"_id\"");
             builder.append(' ');
@@ -358,9 +358,9 @@ public class MessageDao extends AbstractDao<Message, Long> {
         entity.setSender(sender);
         offset += daoSession.getUserDao().getAllColumns().length;
 
-        Thread thread = loadCurrentOther(daoSession.getThreadDao(), cursor, offset);
+        ThreadX thread = loadCurrentOther(daoSession.getThreadXDao(), cursor, offset);
         entity.setThread(thread);
-        offset += daoSession.getThreadDao().getAllColumns().length;
+        offset += daoSession.getThreadXDao().getAllColumns().length;
 
         Message nextMessage = loadCurrentOther(daoSession.getMessageDao(), cursor, offset);
         entity.setNextMessage(nextMessage);

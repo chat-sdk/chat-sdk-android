@@ -11,7 +11,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import sdk.chat.core.base.AbstractPublicThreadHandler;
 import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -24,11 +24,11 @@ import sdk.guru.common.RX;
 
 public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
 
-    public Single<Thread> createPublicThreadWithName(final String name, final String entityID, Map<String, Object> meta, String imageURL) {
+    public Single<ThreadX> createPublicThreadWithName(final String name, final String entityID, Map<String, Object> meta, String imageURL) {
         return Single.defer(() -> {
             // If the entity ID is set, see if the thread exists and return it if it does
             if (entityID != null) {
-                Thread t = ChatSDK.db().fetchThreadWithEntityID(entityID);
+                ThreadX t = ChatSDK.db().fetchThreadWithEntityID(entityID);
                 if (t != null) {
                     return Single.just(t);
                 }
@@ -36,7 +36,7 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
 
             // Creating the new thread.
             // This thread would not be saved to the local db until it is successfully uploaded to the firebase server.
-            final Thread thread = ChatSDK.db().createEntity(Thread.class);
+            final ThreadX thread = ChatSDK.db().createEntity(ThreadX.class);
 
             User currentUser = ChatSDK.currentUser();
             thread.setCreator(currentUser);
@@ -54,7 +54,7 @@ public class FirebasePublicThreadHandler extends AbstractPublicThreadHandler {
                     .doOnError(throwable -> {
                         thread.cascadeDelete();
                     })
-                    .andThen((SingleSource<Thread>) observer -> {
+                    .andThen((SingleSource<ThreadX>) observer -> {
                         ChatSDK.db().update(thread);
 
                         // Add the thread to the list of public threads

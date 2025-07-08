@@ -7,7 +7,7 @@ import androidx.fragment.app.Fragment;
 
 import com.sinch.android.rtc.calling.Call;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.handlers.CallHandler;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -26,7 +26,7 @@ public class SinchCallHandler implements CallHandler {
         if (fragment.getActivity() == null) {
             return false;
         }
-        Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
+        ThreadX thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
         if (thread != null) {
             return thread.typeIs(ThreadType.Private1to1);
         }

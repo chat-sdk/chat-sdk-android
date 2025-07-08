@@ -7,7 +7,7 @@ import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import org.pmw.tinylog.Logger
 import sdk.chat.core.dao.Keys
-import sdk.chat.core.dao.Thread
+import sdk.chat.core.dao.ThreadX
 import sdk.chat.core.dao.User
 import sdk.chat.core.events.NetworkEvent
 import sdk.chat.core.session.ChatSDK
@@ -25,7 +25,7 @@ open class ModerationActivity: BaseActivity() {
 //    )
 
     open var user: User? = null
-    open var thread: Thread? = null
+    open var thread: ThreadX? = null
 
     open lateinit var smartRecyclerAdapter: SmartRecyclerAdapter
     open lateinit var recyclerView: RecyclerView

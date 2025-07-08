@@ -3,7 +3,7 @@ package sdk.chat.dcom;
 import java.util.HashMap;
 
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.MessageType;
@@ -11,7 +11,7 @@ import sdk.chat.firebase.adapter.wrappers.ThreadWrapper;
 
 public class DComThreadWrapper extends ThreadWrapper {
 
-    public DComThreadWrapper(Thread thread) {
+    public DComThreadWrapper(ThreadX thread) {
         super(thread);
     }
 

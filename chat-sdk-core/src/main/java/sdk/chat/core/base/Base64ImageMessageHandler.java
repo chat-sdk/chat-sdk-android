@@ -8,7 +8,7 @@ import java.io.File;
 import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.manager.Base64ImageMessagePayload;
 import sdk.chat.core.manager.MessagePayload;
 import sdk.chat.core.rigs.MessageSendRig;
@@ -21,7 +21,7 @@ public class Base64ImageMessageHandler extends BaseImageMessageHandler {
     public int jpegQuality = 20;
 
     @Override
-    public Completable sendMessageWithImage(final File imageFile, final Thread thread) {
+    public Completable sendMessageWithImage(final File imageFile, final ThreadX thread) {
         MessageSendRig rig = new MessageSendRig(new MessageType(MessageType.Base64Image), thread, message -> {
 
             // Get the image and set the image text dimensions

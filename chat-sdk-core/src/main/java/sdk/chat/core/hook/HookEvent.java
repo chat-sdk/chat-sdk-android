@@ -2,6 +2,8 @@ package sdk.chat.core.hook;
 
 import java.util.HashMap;
 
+import sdk.chat.core.dao.ThreadX;
+
 public class HookEvent {
 
     public static String DidAuthenticate = "DidAuthenticate";
@@ -43,7 +45,7 @@ public class HookEvent {
         return data;
     }
 
-    public static HashMap<String, Object> threadData (sdk.chat.core.dao.Thread thread) {
+    public static HashMap<String, Object> threadData (ThreadX thread) {
         HashMap<String, Object> data = new HashMap<>();
         data.put(HookEvent.Thread, thread);
         return data;

@@ -25,7 +25,7 @@ import sdk.chat.core.avatar.AvatarGenerator;
 import sdk.chat.core.avatar.HashAvatarGenerator;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ChatOption;
 import sdk.chat.core.interfaces.ChatOptionsDelegate;
@@ -518,7 +518,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public void startForwardMessageActivityForResult(Activity activity, Thread thread, List<Message> messages, int code) {
+    public void startForwardMessageActivityForResult(Activity activity, ThreadX thread, List<Message> messages, int code) {
         Intent intent = new Intent(activity, getForwardMessageActivity());
         intent.putExtra(Keys.IntentKeyThreadEntityID, thread.getEntityID());
 
@@ -656,7 +656,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     }
 
     @Override
-    public boolean showLocalNotifications(Thread thread) {
+    public boolean showLocalNotifications(ThreadX thread) {
         if(ChatSDK.config().showLocalNotifications && localNotificationHandler != null) {
             return localNotificationHandler.showLocalNotification(thread);
         }

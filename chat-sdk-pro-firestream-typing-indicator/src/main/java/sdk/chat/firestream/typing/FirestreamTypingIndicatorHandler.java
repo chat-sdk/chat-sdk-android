@@ -5,7 +5,7 @@ import firestream.chat.interfaces.IChat;
 import firestream.chat.namespace.Fire;
 import firestream.chat.types.TypingStateType;
 import io.reactivex.Completable;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.handlers.TypingIndicatorHandler;
@@ -27,7 +27,7 @@ public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler 
                     if (!senderId.equals(ChatSDK.currentUserID())) {
                         Fire.stream().manage(ChatSDK.core().getUserForEntityID(senderId).subscribe((user, throwable) -> {
                             if (throwable == null) {
-                                Thread thread = ChatSDK.db().fetchThreadWithEntityID(senderId);
+                                ThreadX thread = ChatSDK.db().fetchThreadWithEntityID(senderId);
                                 if (thread != null) {
                                     NetworkEvent networkEvent = NetworkEvent.typingStateChanged(null, thread);
                                     if (event.get().getTypingStateType().equals(TypingStateType.typing())) {
@@ -44,16 +44,16 @@ public class FirestreamTypingIndicatorHandler implements TypingIndicatorHandler 
     }
 
     @Override
-    public void typingOn(Thread thread) {
+    public void typingOn(ThreadX thread) {
     }
 
     @Override
-    public void typingOff(Thread thread) {
+    public void typingOff(ThreadX thread) {
 
     }
 
     @Override
-    public Completable setChatState(State state, Thread thread) {
+    public Completable setChatState(State state, ThreadX thread) {
         if (thread.typeIs(ThreadType.Private1to1)) {
             User otherUser = thread.otherUser();
             if (state == State.composing) {

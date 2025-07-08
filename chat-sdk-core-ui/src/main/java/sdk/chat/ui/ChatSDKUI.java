@@ -5,7 +5,7 @@ import android.content.Intent;
 import java.util.ArrayList;
 import java.util.List;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
@@ -40,7 +40,7 @@ import sdk.chat.ui.utils.FragmentLifecycleManager;
 public class ChatSDKUI {
 
     public interface ChatFragmentProvider {
-        AbstractChatFragment provide(Thread thread);
+        AbstractChatFragment provide(ThreadX thread);
     }
 
     protected static final ChatSDKUI instance = new ChatSDKUI();
@@ -87,7 +87,7 @@ public class ChatSDKUI {
         shared().chatFragmentProvider = provider;
     }
 
-    public static AbstractChatFragment getChatFragment(Thread thread) {
+    public static AbstractChatFragment getChatFragment(ThreadX thread) {
         return shared().chatFragmentProvider.provide(thread);
     }
 

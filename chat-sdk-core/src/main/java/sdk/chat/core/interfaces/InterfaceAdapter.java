@@ -15,7 +15,7 @@ import java.util.Map;
 import sdk.chat.core.Tab;
 import sdk.chat.core.avatar.AvatarGenerator;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.notifications.NotificationDisplayHandler;
 import sdk.chat.core.types.SearchActivityType;
@@ -116,7 +116,7 @@ public interface InterfaceAdapter {
     void startMainActivity(Context context);
     void startMainActivity(Context context, Map<String, Object> extras);
     void startSearchActivity(Context context);
-    void startForwardMessageActivityForResult(Activity activity, Thread thread, List<Message> message, int code);
+    void startForwardMessageActivityForResult(Activity activity, ThreadX thread, List<Message> message, int code);
     void startPostRegistrationActivity(Context context, Map<String, Object> extras);
 
     void startAddUsersToThreadActivity(Context context, String threadEntityID);
@@ -139,7 +139,7 @@ public interface InterfaceAdapter {
     void setChatOptionsHandler(ChatOptionsHandler handler);
     ChatOptionsHandler getChatOptionsHandler(ChatOptionsDelegate delegate);
 
-    boolean showLocalNotifications(Thread thread);
+    boolean showLocalNotifications(ThreadX thread);
     void setLocalNotificationHandler(LocalNotificationHandler handler);
 
     NotificationDisplayHandler notificationDisplayHandler();

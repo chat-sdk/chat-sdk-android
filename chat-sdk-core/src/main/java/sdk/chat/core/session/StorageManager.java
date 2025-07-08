@@ -27,7 +27,7 @@ import sdk.chat.core.dao.PublicKey;
 import sdk.chat.core.dao.PublicKeyDao;
 import sdk.chat.core.dao.ReadReceiptUserLink;
 import sdk.chat.core.dao.ReadReceiptUserLinkDao;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.ThreadDao;
 import sdk.chat.core.dao.Updatable;
 import sdk.chat.core.dao.User;
@@ -57,15 +57,15 @@ public class StorageManager {
         return daoCore;
     }
 
-    public List<Thread> fetchThreadsForCurrentUser() {
+    public List<ThreadX> fetchThreadsForCurrentUser() {
 //        Logger.debug(java.lang.Thread.currentThread().getName());
 
-        List<Thread> threads = new ArrayList<>();
+        List<ThreadX> threads = new ArrayList<>();
 
         List<UserThreadLink> links = daoCore.fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.UserId, ChatSDK.currentUser().getId());
 
         for (UserThreadLink link : links) {
-            Thread thread = link.getThread();
+            ThreadX thread = link.getThread();
             if (thread != null) {
                 threads.add(thread);
             }
@@ -78,7 +78,7 @@ public class StorageManager {
         return threads;
     }
 
-    public Single<List<Thread>> fetchThreadsForCurrentUserAsync() {
+    public Single<List<ThreadX>> fetchThreadsForCurrentUserAsync() {
         return Single.defer(() -> Single.just(fetchThreadsForCurrentUser())).subscribeOn(RX.db());
     }
 
@@ -169,8 +169,8 @@ public class StorageManager {
         if (c == User.class) {
             entity = (T) new User();
         }
-        if (c == Thread.class) {
-            entity = (T) new Thread();
+        if (c == ThreadX.class) {
+            entity = (T) new ThreadX();
         }
         if (c == Message.class) {
             entity = (T) new Message();
@@ -218,7 +218,7 @@ public class StorageManager {
 
         QueryBuilder<T> qb = daoCore.getDaoSession().queryBuilder(c);
 
-        if (c == Thread.class) {
+        if (c == ThreadX.class) {
             qb.where(ThreadDao.Properties.EntityID.eq(entityID));
         }
         else if (c == PublicKey.class) {
@@ -262,29 +262,29 @@ public class StorageManager {
         return Single.defer(() -> Single.just(fetchUserWithEntityID(entityID)).subscribeOn(RX.db()));
     }
 
-    public List<Thread> fetchThreadsWithType(int type) {
-        QueryBuilder<Thread> qb = daoCore.getDaoSession().queryBuilder(Thread.class);
+    public List<ThreadX> fetchThreadsWithType(int type) {
+        QueryBuilder<ThreadX> qb = daoCore.getDaoSession().queryBuilder(ThreadX.class);
         qb.where(ThreadDao.Properties.Type.eq(type));
         return qb.list();
     }
 
-    public synchronized Thread fetchOrCreateThreadWithEntityID(String entityId) {
-        return fetchOrCreateEntityWithEntityID(Thread.class, entityId);
+    public synchronized ThreadX fetchOrCreateThreadWithEntityID(String entityId) {
+        return fetchOrCreateEntityWithEntityID(ThreadX.class, entityId);
     }
 
     public synchronized User fetchUserWithEntityID(String entityID) {
         return fetchEntityWithEntityID(entityID, User.class);
     }
 
-    public synchronized Thread fetchThreadWithEntityID(String entityID) {
-        return fetchEntityWithEntityID(entityID, Thread.class);
+    public synchronized ThreadX fetchThreadWithEntityID(String entityID) {
+        return fetchEntityWithEntityID(entityID, ThreadX.class);
     }
 
     public synchronized Message fetchMessageWithEntityID(String entityID) {
         return fetchEntityWithEntityID(entityID, Message.class);
     }
 
-    public Single<List<Thread>> fetchThreadsWithTypeAsync(int type) {
+    public Single<List<ThreadX>> fetchThreadsWithTypeAsync(int type) {
         return Single.defer(() -> Single.just(fetchThreadsWithType(type)).subscribeOn(RX.db()));
     }
 
@@ -334,22 +334,22 @@ public class StorageManager {
 //        return qb.list().size();
 //    }
 
-    public Thread fetchThreadWithID(long threadID) {
-        return daoCore.fetchEntityWithProperty(Thread.class, ThreadDao.Properties.Id, threadID);
+    public ThreadX fetchThreadWithID(long threadID) {
+        return daoCore.fetchEntityWithProperty(ThreadX.class, ThreadDao.Properties.Id, threadID);
     }
 
-    public Single<Thread> fetchThreadWithIDAsync (long threadID) {
+    public Single<ThreadX> fetchThreadWithIDAsync (long threadID) {
         return Single.defer(() -> Single.just(fetchThreadWithID(threadID)).subscribeOn(RX.db()));
     }
 
-    public Single<Thread> fetchThreadWithEntityIDAsync (String entityID) {
+    public Single<ThreadX> fetchThreadWithEntityIDAsync (String entityID) {
         return Single.defer(() -> Single.just(fetchThreadWithEntityID(entityID)).subscribeOn(RX.db()));
     }
 
-    public Thread fetchThreadWithUsers (List<User> users) {
+    public ThreadX fetchThreadWithUsers (List<User> users) {
         // Logger.debug(java.lang.Thread.currentThread().getName());
         Set<User> set = new HashSet<>(users);
-        for(Thread t : allThreads()) {
+        for(ThreadX t : allThreads()) {
             Set<User> compareTo = new HashSet<>(t.getUsers());
             if(set.equals(compareTo)) {
                 return t;
@@ -362,11 +362,11 @@ public class StorageManager {
 //        return Single.defer(() -> Single.just(fetchThreadWithUsers(users)).subscribeOn(RX.db()));
 //    }
 
-    public List<Thread> allThreads() {
+    public List<ThreadX> allThreads() {
         // Logger.debug(java.lang.Thread.currentThread().getName());
 
         List<UserThreadLink> links =  ChatSDK.db().getDaoCore().fetchEntitiesWithProperty(UserThreadLink.class, UserThreadLinkDao.Properties.UserId, ChatSDK.currentUser().getId());
-        ArrayList<Thread> threads = new ArrayList<>();
+        ArrayList<ThreadX> threads = new ArrayList<>();
         for(UserThreadLink link : links) {
             threads.add(link.getThread());
         }
@@ -374,7 +374,7 @@ public class StorageManager {
         return threads;
     }
 
-    public Single<List<Thread>> allThreadsAsync() {
+    public Single<List<ThreadX>> allThreadsAsync() {
         return Single.defer(() -> Single.just(allThreads()).subscribeOn(RX.db()));
     }
 
@@ -431,7 +431,7 @@ public class StorageManager {
 
         QueryBuilder<Message> qb = daoCore.getDaoSession().queryBuilder(Message.class);
         qb.where(MessageDao.Properties.EncryptedText.isNotNull())
-                .join(MessageDao.Properties.ThreadId, Thread.class);
+                .join(MessageDao.Properties.ThreadId, ThreadX.class);
         return qb.list();
 
 //        qb.where(MessageDao.Properties.ThreadId.eq(threadID));

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.firebase.adapter.R;
+
 
 public class Permission {
 
@@ -78,19 +78,19 @@ public class Permission {
         int resId = -1;
 
         if (permission.equals(Owner)) {
-            resId = R.string.owner;
+            resId = sdk.chat.core.R.string.owner;
         }
         else if (permission.equals(Admin)) {
-            resId = R.string.admin;
+            resId = sdk.chat.core.R.string.admin;
         }
         else if (permission.equals(Member)) {
-            resId = R.string.member;
+            resId = sdk.chat.core.R.string.member;
         }
         else if (permission.equals(Watcher)) {
-            resId = R.string.watcher;
+            resId = sdk.chat.core.R.string.watcher;
         }
         else if (permission.equals(Banned)) {
-            resId = R.string.banned;
+            resId = sdk.chat.core.R.string.banned;
         }
 
         if (resId != -1) {

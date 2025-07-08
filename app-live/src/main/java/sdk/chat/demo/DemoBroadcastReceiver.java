@@ -8,9 +8,8 @@ import android.os.Bundle;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.chat.demo.activities.WelcomeActivity;
 
 public class DemoBroadcastReceiver extends BroadcastReceiver {
@@ -63,7 +62,7 @@ public class DemoBroadcastReceiver extends BroadcastReceiver {
         final String body = extras.getString(Keys.PushKeyBody);
 
         // Check if notifications are muted
-        Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
+        ThreadX thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
         if (thread != null) {
             if (thread.isMuted()) {
                 return;

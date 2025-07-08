@@ -12,7 +12,7 @@ import org.jivesoftware.smackx.delay.packet.DelayInformation
 import org.jivesoftware.smackx.receipts.DeliveryReceipt
 import org.jxmpp.jid.impl.JidCreate
 import org.pmw.tinylog.Logger
-import sdk.chat.core.dao.Thread
+import sdk.chat.core.dao.ThreadX
 import sdk.chat.core.dao.User
 import sdk.chat.core.interfaces.ThreadType
 import sdk.chat.core.session.ChatSDK
@@ -104,7 +104,7 @@ open class XMPPMessageWrapper(val message: Stanza) {
                 && (body() != null))
     }
 
-    open fun getThread(): Thread? {
+    open fun getThread(): ThreadX? {
 
         // There are three options:
         // 1-to-1 message incoming - from other user, to me
@@ -119,7 +119,7 @@ open class XMPPMessageWrapper(val message: Stanza) {
             // Set the thread
             var thread = ChatSDK.db().fetchThreadWithEntityID(threadID)
             if (thread == null) {
-                thread = ChatSDK.db().createEntity(Thread::class.java)
+                thread = ChatSDK.db().createEntity(ThreadX::class.java)
                 thread.entityID = threadID
                 thread.type = ThreadType.Private1to1
                 thread.creationDate = Date()

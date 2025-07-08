@@ -11,7 +11,7 @@ import firestream.chat.types.RoleType;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
@@ -53,9 +53,9 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
             if (chatEvent.isAdded()) {
 
                 // Get the thread
-                Thread thread = ChatSDK.db().fetchThreadWithEntityID(chat.getId());
+                ThreadX thread = ChatSDK.db().fetchThreadWithEntityID(chat.getId());
                 if (thread == null) {
-                    thread = ChatSDK.db().createEntity(Thread.class);
+                    thread = ChatSDK.db().createEntity(ThreadX.class);
                     thread.setEntityID(chat.getId());
                     thread.setType(ThreadType.PrivateGroup);
                     thread.setCreationDate(new Date());
@@ -64,7 +64,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
                     eventSource.accept(NetworkEvent.threadAdded(thread));
                 }
 
-                final Thread finalThread = thread;
+                final ThreadX finalThread = thread;
 
                 // TODO: manage name image change
                 cdm.add(chat.getNameChangeEvents().subscribe(s -> {
@@ -105,7 +105,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
 
             }
             if (chatEvent.isRemoved()) {
-                Thread thread = ChatSDK.db().fetchThreadWithEntityID(chat.getId());
+                ThreadX thread = ChatSDK.db().fetchThreadWithEntityID(chat.getId());
                 if (thread != null) {
                     eventSource.accept(NetworkEvent.threadRemoved(thread));
                 }
@@ -119,9 +119,9 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
             dm.add(ChatSDK.core().getUserForEntityID(event.get().getFrom()).subscribe(user -> {
 
                 // Get the thread
-                Thread thread = ChatSDK.db().fetchThreadWithEntityID(event.get().getFrom());
+                ThreadX thread = ChatSDK.db().fetchThreadWithEntityID(event.get().getFrom());
                 if (thread == null) {
-                    thread = ChatSDK.db().createEntity(Thread.class);
+                    thread = ChatSDK.db().createEntity(ThreadX.class);
 
                     thread.setEntityID(event.get().getFrom());
                     thread.setType(ThreadType.Private1to1);
@@ -154,7 +154,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
     }
 
     protected void removeMessage(String messageId, String threadId) {
-        Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadId);
+        ThreadX thread = ChatSDK.db().fetchThreadWithEntityID(threadId);
         if (thread != null) {
             Message message = thread.getMessageWithEntityID(messageId);
             if (message != null) {
@@ -163,7 +163,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
         }
     }
 
-    protected Disposable addMessage(FireStreamMessage mm, Thread thread) {
+    protected Disposable addMessage(FireStreamMessage mm, ThreadX thread) {
         if (!thread.containsMessageWithID(mm.getId())) {
             return FirestreamHelper.sendableToMessage(thread, mm, true).subscribe(message -> {
                 thread.setDeleted(false);
@@ -211,7 +211,7 @@ public class FirestreamEventHandler extends FirebaseEventHandler implements Cons
         throwable.printStackTrace();
     }
 
-    public void handleMessageEvent(DisposableMap dm, Thread thread, Event<FireStreamMessage> event) {
+    public void handleMessageEvent(DisposableMap dm, ThreadX thread, Event<FireStreamMessage> event) {
         if (event.isAdded()) {
             dm.add(addMessage(event.get(), thread));
         }

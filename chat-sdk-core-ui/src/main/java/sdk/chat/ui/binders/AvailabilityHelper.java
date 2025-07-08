@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sdk.chat.core.defines.Availability;
-import sdk.chat.ui.R;
+import sdk.chat.core.R;
 
 /**
  * Created by ben on 8/23/17.

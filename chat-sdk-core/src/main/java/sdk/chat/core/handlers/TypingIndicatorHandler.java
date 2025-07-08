@@ -1,6 +1,6 @@
 package sdk.chat.core.handlers;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import io.reactivex.Completable;
 
 /**
@@ -32,7 +32,7 @@ public interface TypingIndicatorHandler {
         gone
     }
 
-    void typingOn(Thread thread);
-    void typingOff(Thread thread);
-    Completable setChatState(State state, Thread thread);
+    void typingOn(ThreadX thread);
+    void typingOff(ThreadX thread);
+    Completable setChatState(State state, ThreadX thread);
 }

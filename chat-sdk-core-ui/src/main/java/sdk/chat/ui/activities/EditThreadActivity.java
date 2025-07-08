@@ -27,7 +27,7 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.functions.BiConsumer;
 import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -45,7 +45,7 @@ public class EditThreadActivity extends BaseActivity {
 
     protected String threadEntityID;
 
-    protected Thread thread;
+    protected ThreadX thread;
     protected ArrayList<User> users = new ArrayList<>();
 
     protected String threadImageURL;
@@ -181,7 +181,7 @@ public class EditThreadActivity extends BaseActivity {
         if (thread == null) {
             showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
 
-            BiConsumer<Thread, Throwable> consumer = (thread, throwable) -> {
+            BiConsumer<ThreadX, Throwable> consumer = (thread, throwable) -> {
                 dismissProgressDialog();
                 if (throwable == null) {
                     // Finish this activity before opening the new thread to prevent the

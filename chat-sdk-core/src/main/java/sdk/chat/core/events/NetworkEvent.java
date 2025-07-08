@@ -11,7 +11,7 @@ import java.util.Map;
 
 import io.reactivex.functions.Predicate;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.interfaces.ThreadType;
@@ -27,7 +27,7 @@ public class NetworkEvent {
 
     final public EventType type;
     protected Message message;
-    protected Thread thread;
+    protected ThreadX thread;
     protected User user;
     protected String text;
     protected Map<String, Object> data;
@@ -45,37 +45,37 @@ public class NetworkEvent {
         this.type = type;
     }
 
-    public NetworkEvent(EventType type, Thread thread) {
+    public NetworkEvent(EventType type, ThreadX thread) {
         this(type, thread, null, null);
     }
 
-    public NetworkEvent(EventType type, Thread thread, Message message) {
+    public NetworkEvent(EventType type, ThreadX thread, Message message) {
         this(type, thread, message, null);
     }
 
-    public NetworkEvent(EventType type, Thread thread, Message message, User user) {
+    public NetworkEvent(EventType type, ThreadX thread, Message message, User user) {
         this.type = type;
         this.thread = thread;
         this.message = message;
         this.user = user;
     }
 
-    public NetworkEvent(EventType type, Thread thread, Message message, User user, MessageSendStatus status) {
+    public NetworkEvent(EventType type, ThreadX thread, Message message, User user, MessageSendStatus status) {
         this(type, thread, message, user);
         this.messageSendstatus = status;
     }
 
-    public NetworkEvent(EventType type, Thread thread, Message message, User user, Progress progress) {
+    public NetworkEvent(EventType type, ThreadX thread, Message message, User user, Progress progress) {
         this(type, thread, message, user);
         this.progress = progress;
     }
 
-    public NetworkEvent(EventType type, Thread thread, Message message, User user, Map<String, Object> data) {
+    public NetworkEvent(EventType type, ThreadX thread, Message message, User user, Map<String, Object> data) {
         this(type, thread, message, user);
         this.data = data;
     }
 
-    public static NetworkEvent threadAdded(Thread thread) {
+    public static NetworkEvent threadAdded(ThreadX thread) {
         return new NetworkEvent(EventType.ThreadAdded, thread);
     }
 
@@ -91,7 +91,7 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.ThreadsUpdated);
     }
 
-    public static NetworkEvent threadRemoved(Thread thread) {
+    public static NetworkEvent threadRemoved(ThreadX thread) {
         return new NetworkEvent(EventType.ThreadRemoved, thread);
     }
 
@@ -103,7 +103,7 @@ public class NetworkEvent {
 //        return new NetworkEvent(EventType.ThreadMarkedRead, thread);
 //    }
 
-    public static NetworkEvent threadMetaUpdated(Thread thread) {
+    public static NetworkEvent threadMetaUpdated(ThreadX thread) {
         return new NetworkEvent(EventType.ThreadMetaUpdated, thread);
     }
 
@@ -112,7 +112,7 @@ public class NetworkEvent {
     }
 
     @Deprecated
-    public static NetworkEvent messageAdded(Thread thread, Message message) {
+    public static NetworkEvent messageAdded(ThreadX thread, Message message) {
         return new NetworkEvent(EventType.MessageAdded, thread, message);
     }
 
@@ -120,12 +120,12 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.MessageUpdated, message.getThread(), message);
     }
 
-    public static NetworkEvent threadMessagesUpdated(Thread thread) {
+    public static NetworkEvent threadMessagesUpdated(ThreadX thread) {
         return new NetworkEvent(EventType.ThreadMessagesUpdated, thread);
     }
 
     @Deprecated
-    public static NetworkEvent messageUpdated(Thread thread, Message message) {
+    public static NetworkEvent messageUpdated(ThreadX thread, Message message) {
         return new NetworkEvent(EventType.MessageUpdated, thread, message);
     }
 
@@ -141,23 +141,23 @@ public class NetworkEvent {
     }
 
     @Deprecated
-    public static NetworkEvent messageRemoved(Thread thread, Message message) {
+    public static NetworkEvent messageRemoved(ThreadX thread, Message message) {
         return new NetworkEvent(EventType.MessageRemoved, thread, message);
     }
 
-    public static NetworkEvent threadUserUpdated(Thread thread, User user) {
+    public static NetworkEvent threadUserUpdated(ThreadX thread, User user) {
         return new NetworkEvent(EventType.ThreadUserUpdated, thread, null, user);
     }
 
-    public static NetworkEvent threadUserAdded(Thread thread, User user) {
+    public static NetworkEvent threadUserAdded(ThreadX thread, User user) {
         return new NetworkEvent(EventType.ThreadUserAdded, thread, null, user);
     }
 
-    public static NetworkEvent threadUserRemoved(Thread thread, User user) {
+    public static NetworkEvent threadUserRemoved(ThreadX thread, User user) {
         return new NetworkEvent(EventType.ThreadUserRemoved, thread, null, user);
     }
 
-    public static NetworkEvent threadUsersRoleUpdated(Thread thread, User user) {
+    public static NetworkEvent threadUsersRoleUpdated(ThreadX thread, User user) {
         return new NetworkEvent(EventType.ThreadUserRoleUpdated, thread, null, user);
     }
 
@@ -181,7 +181,7 @@ public class NetworkEvent {
         return new NetworkEvent(EventType.ContactsUpdated);
     }
 
-    public static NetworkEvent threadRead(Thread thread) {
+    public static NetworkEvent threadRead(ThreadX thread) {
         return new NetworkEvent(EventType.ThreadRead, thread);
     }
 
@@ -200,11 +200,11 @@ public class NetworkEvent {
     }
 
     @Deprecated
-    public static NetworkEvent messageReadReceiptUpdated(Thread thread, Message message) {
+    public static NetworkEvent messageReadReceiptUpdated(ThreadX thread, Message message) {
         return new NetworkEvent(EventType.MessageReadReceiptUpdated, thread, message);
     }
 
-    public static NetworkEvent typingStateChanged(String message, Thread thread) {
+    public static NetworkEvent typingStateChanged(String message, ThreadX thread) {
         NetworkEvent event = new NetworkEvent(EventType.TypingStateUpdated);
         event.text = message;
         event.thread = thread;
@@ -252,18 +252,18 @@ public class NetworkEvent {
         return networkEvent -> networkEvent.type == type;
     }
 
-    public static Predicate<NetworkEvent> filterRoleUpdated(final Thread thread) {
+    public static Predicate<NetworkEvent> filterRoleUpdated(final ThreadX thread) {
         return filterRoleUpdated(thread, null);
     }
 
-    public static Predicate<NetworkEvent> filterPresence(final Thread thread) {
+    public static Predicate<NetworkEvent> filterPresence(final ThreadX thread) {
         return networkEvent -> {
             boolean match = networkEvent.typeIs(EventType.UserPresenceUpdated);
             return  match && thread.containsUser(networkEvent.getUser());
         };
     }
 
-    public static Predicate<NetworkEvent> filterRoleUpdated(final Thread thread, @Nullable final User user) {
+    public static Predicate<NetworkEvent> filterRoleUpdated(final ThreadX thread, @Nullable final User user) {
         return networkEvent -> {
             boolean match = networkEvent.typeIs(EventType.ThreadUserRoleUpdated);
             match = match && networkEvent.getThread().equalsEntity(thread);
@@ -336,14 +336,14 @@ public class NetworkEvent {
     public static Predicate<NetworkEvent> filterThreadType(final int type) {
         return networkEvent -> {
             if(networkEvent.getThread() != null) {
-                Thread thread = networkEvent.getThread();
+                ThreadX thread = networkEvent.getThread();
                 return thread.typeIs(type);
             }
             return false;
         };
     }
 
-    public static Predicate<NetworkEvent> filterThreadContainsUser(final Thread thread) {
+    public static Predicate<NetworkEvent> filterThreadContainsUser(final ThreadX thread) {
         return networkEvent -> {
             if(networkEvent.getUser() != null && thread != null) {
                 return thread.containsUser(networkEvent.getUser());
@@ -355,7 +355,7 @@ public class NetworkEvent {
     public static Predicate<NetworkEvent> filterThreadTypeOrNull(final int type) {
         return networkEvent -> {
             if(networkEvent.getThread() != null) {
-                Thread thread = networkEvent.getThread();
+                ThreadX thread = networkEvent.getThread();
                 return thread.typeIs(type);
             }
             return true;
@@ -457,7 +457,7 @@ public class NetworkEvent {
         return isOnline;
     }
 
-    public Thread getThread() {
+    public ThreadX getThread() {
         if (thread != null) {
             return thread;
         }

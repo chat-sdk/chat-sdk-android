@@ -2,7 +2,7 @@ package sdk.chat.core.api;
 
 import android.content.Context;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.guru.common.RX;
 import sdk.chat.core.session.ChatSDK;
@@ -18,7 +18,7 @@ public class APIHelper {
      * @param userEntityID
      * @return
      */
-    public static Single<Thread> createPrivateChatWithUser (String userEntityID) {
+    public static Single<ThreadX> createPrivateChatWithUser (String userEntityID) {
         return ChatSDK.thread().createThread("", ChatSDK.core().getUserNowForEntityID(userEntityID));
     }
 

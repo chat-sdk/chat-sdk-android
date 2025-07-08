@@ -9,9 +9,9 @@ package sdk.chat.core.dao.sorter;
 
 import java.util.Comparator;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 
-public class ThreadsSorter implements Comparator<Thread> {
+public class ThreadsSorter implements Comparator<ThreadX> {
     public static final int ORDER_TYPE_ASC = 0;
     public static final int ORDER_TYPE_DESC = 1;
 
@@ -24,7 +24,7 @@ public class ThreadsSorter implements Comparator<Thread> {
     }
 
     @Override
-    public int compare(Thread t1, Thread t2) {
+    public int compare(ThreadX t1, ThreadX t2) {
         if (order == ORDER_TYPE_ASC) {
             return t1.orderDate().compareTo(t2.orderDate());
         }

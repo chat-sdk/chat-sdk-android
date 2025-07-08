@@ -9,7 +9,7 @@ import org.jivesoftware.smackx.chatstates.packet.ChatStateExtension;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jxmpp.jid.impl.JidCreate;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.handlers.TypingIndicatorHandler;
 import sdk.chat.core.interfaces.ThreadType;
 import app.xmpp.adapter.XMPPManager;
@@ -23,16 +23,16 @@ import sdk.guru.common.RX;
 
 public class XMPPTypingIndicatorHandler implements TypingIndicatorHandler {
     @Override
-    public void typingOn(Thread thread) {
+    public void typingOn(ThreadX thread) {
 
     }
 
     @Override
-    public void typingOff(Thread thread) {
+    public void typingOff(ThreadX thread) {
 
     }
 
-    public Completable setChatState(final State state, final Thread thread) {
+    public Completable setChatState(final State state, final ThreadX thread) {
         return Completable.create(e -> {
             ChatState xmppState;
             switch (state) {

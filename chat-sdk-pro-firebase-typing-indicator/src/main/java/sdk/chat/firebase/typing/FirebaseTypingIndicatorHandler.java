@@ -7,7 +7,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import sdk.chat.firebase.adapter.utils.Generic;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.handlers.TypingIndicatorHandler;
 import sdk.chat.core.interfaces.ThreadType;
@@ -28,7 +28,7 @@ public class FirebaseTypingIndicatorHandler implements TypingIndicatorHandler {
     private boolean typing = false;
 
     @Override
-    public void typingOn(final Thread thread) {
+    public void typingOn(final ThreadX thread) {
 
         DatabaseReference ref = ref(thread);
 
@@ -64,18 +64,18 @@ public class FirebaseTypingIndicatorHandler implements TypingIndicatorHandler {
     }
 
     @Override
-    public void typingOff(Thread thread) {
+    public void typingOff(ThreadX thread) {
         DatabaseReference ref = ref(thread);
         RealtimeReferenceManager.shared().removeListeners(ref);
     }
 
-    protected DatabaseReference ref(Thread thread) {
+    protected DatabaseReference ref(ThreadX thread) {
         return FirebasePaths.threadRef(thread.getEntityID())
                 .child(FirebasePaths.TypingPath);
     }
 
     @Override
-    public Completable setChatState (State state, Thread thread) {
+    public Completable setChatState (State state, ThreadX thread) {
         if(state == State.composing) {
             if(!typing) {
                 typing = true;
@@ -92,7 +92,7 @@ public class FirebaseTypingIndicatorHandler implements TypingIndicatorHandler {
         return Completable.complete();
     }
 
-    private void startTypingTimer (final Thread thread) {
+    private void startTypingTimer (final ThreadX thread) {
         if(timer != null) {
             timer.cancel();
         }
@@ -105,13 +105,13 @@ public class FirebaseTypingIndicatorHandler implements TypingIndicatorHandler {
         }, FirebaseTypingIndicatorModule.config().typingTimeout);
     }
 
-    private Completable startTyping(Thread thread) {
+    private Completable startTyping(ThreadX thread) {
         DatabaseReference ref = FirebasePaths.threadRef(thread.getEntityID())
                 .child(FirebasePaths.TypingPath).child(ChatSDK.currentUser().getEntityID());
         return FirebaseRX.set(ref, ChatSDK.currentUser().getName(), true);
     }
 
-    private Completable stopTyping(Thread thread){
+    private Completable stopTyping(ThreadX thread){
         if(timer != null) {
             timer.cancel();
         }

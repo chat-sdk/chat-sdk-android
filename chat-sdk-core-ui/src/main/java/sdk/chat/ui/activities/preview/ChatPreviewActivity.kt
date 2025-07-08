@@ -13,7 +13,7 @@ import com.lassi.data.media.MiMedia
 import io.reactivex.Completable
 import org.pmw.tinylog.Logger
 import sdk.chat.core.dao.Keys
-import sdk.chat.core.dao.Thread
+import sdk.chat.core.dao.ThreadX
 import sdk.chat.core.session.ChatSDK
 import sdk.chat.core.ui.ThemeProvider
 import sdk.chat.ui.R
@@ -101,7 +101,7 @@ open class ChatPreviewActivity: BaseActivity() {
         sendButton?.setOnClickListener(View.OnClickListener {
             adapter?.let { it ->
 
-                val thread = ChatSDK.db().fetchEntityWithEntityID(threadEntityID, Thread::class.java)
+                val thread = ChatSDK.db().fetchEntityWithEntityID(threadEntityID, ThreadX::class.java)
                 if (thread != null) {
                     for(item in it.media) {
 

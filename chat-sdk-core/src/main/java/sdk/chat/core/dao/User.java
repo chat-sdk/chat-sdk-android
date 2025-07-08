@@ -53,7 +53,7 @@ public class User extends AbstractEntity implements UserListItem {
             sourceProperty = "userId",
             targetProperty = "threadId"
     )
-    private List<Thread> threads;
+    private List<ThreadX> threads;
 
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
@@ -604,15 +604,43 @@ public class User extends AbstractEntity implements UserListItem {
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
      */
-    @Generated(hash = 799628800)
-    public List<Thread> getThreads() {
+//    @Generated(hash = 799628800)
+//    public List<ThreadX> getThreads() {
+//        if (threads == null) {
+//            final DaoSession daoSession = this.daoSession;
+//            if (daoSession == null) {
+//                throw new DaoException("Entity is detached from DAO context");
+//            }
+//            ThreadDao targetDao = daoSession.getThreadDao();
+//            List<ThreadX> threadsNew = targetDao._queryUser_Threads(id);
+//            synchronized (this) {
+//                if (threads == null) {
+//                    threads = threadsNew;
+//                }
+//            }
+//        }
+//        return threads;
+//    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 1164718580)
+    public synchronized void resetThreads() {
+        threads = null;
+    }
+
+    /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 659810896)
+    public List<ThreadX> getThreads() {
         if (threads == null) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            ThreadDao targetDao = daoSession.getThreadDao();
-            List<Thread> threadsNew = targetDao._queryUser_Threads(id);
+            ThreadXDao targetDao = daoSession.getThreadXDao();
+            List<ThreadX> threadsNew = targetDao._queryUser_Threads(id);
             synchronized (this) {
                 if (threads == null) {
                     threads = threadsNew;
@@ -620,12 +648,6 @@ public class User extends AbstractEntity implements UserListItem {
             }
         }
         return threads;
-    }
-
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    @Generated(hash = 1164718580)
-    public synchronized void resetThreads() {
-        threads = null;
     }
 
 }

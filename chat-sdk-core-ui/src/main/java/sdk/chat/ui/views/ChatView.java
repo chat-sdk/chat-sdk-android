@@ -30,7 +30,7 @@ import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.session.ChatSDK;
@@ -54,7 +54,7 @@ public class ChatView extends LinearLayout implements MessagesListAdapter.OnLoad
     protected boolean listenersAdded = false;
 
     public interface Delegate {
-        Thread getThread();
+        ThreadX getThread();
         void onClick(Message message);
         void onLongClick(Message message);
     }

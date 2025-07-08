@@ -31,7 +31,7 @@ import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Predicate;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
@@ -54,8 +54,8 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     protected DialogsListAdapter<ThreadHolder> dialogsListAdapter;
 
-    protected PublishRelay<Thread> onClickPublishRelay = PublishRelay.create();
-    protected PublishRelay<Thread> onLongClickPublishRelay = PublishRelay.create();
+    protected PublishRelay<ThreadX> onClickPublishRelay = PublishRelay.create();
+    protected PublishRelay<ThreadX> onLongClickPublishRelay = PublishRelay.create();
 
     protected List<ThreadHolder> threadHolders = new Vector<>();
 
@@ -227,7 +227,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
             startChatActivity(dialog.getId());
         });
         dialogsListAdapter().setOnDialogLongClickListener(dialog -> {
-            Thread thread = ChatSDK.db().fetchThreadWithEntityID(dialog.getId());
+            ThreadX thread = ChatSDK.db().fetchThreadWithEntityID(dialog.getId());
             if (thread != null) {
                 onLongClickPublishRelay.accept(thread);
             }
@@ -325,7 +325,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
                     threads = filter(threads);
 
                     threadHolders.clear();
-                    for (Thread thread : threads) {
+                    for (ThreadX thread : threads) {
                         addThread(thread, false, false);
                     }
                     return threadHolders;
@@ -344,7 +344,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         return Completable.defer((Callable<CompletableSource>) () -> {
             if (dialogsListAdapter() != null) {
                 return getThreads().map(threads -> {
-                    for (Thread thread : threads) {
+                    for (ThreadX thread : threads) {
                         addThread(thread, false, false);
                     }
                     return threadHolders;
@@ -357,7 +357,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         });
     }
 
-    public boolean addThread(Thread thread, boolean sort, boolean sync) {
+    public boolean addThread(ThreadX thread, boolean sort, boolean sync) {
 //        if (!threadHolderExists(thread)) {
 
         ThreadHolder holder = getOrCreateThreadHolder(thread);
@@ -412,7 +412,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
 
     }
 
-    public void updateThread(final Thread thread) {
+    public void updateThread(final ThreadX thread) {
         final ThreadHolder holder = ChatSDKUI.provider().holderProvider().getOrCreateThreadHolder(thread);
         if (holder != null) {
             holder.update();
@@ -429,11 +429,11 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         });
     }
 
-    public ThreadHolder getOrCreateThreadHolder(Thread thread) {
+    public ThreadHolder getOrCreateThreadHolder(ThreadX thread) {
         return ChatSDKUI.provider().holderProvider().getOrCreateThreadHolder(thread);
     }
 
-    public void removeThread(Thread thread) {
+    public void removeThread(ThreadX thread) {
         ThreadHolder holder = ChatSDKUI.provider().holderProvider().getThreadHolder(thread);
         if (holder != null) {
             threadHolders.remove(holder);
@@ -441,15 +441,15 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         }
     }
 
-    protected abstract Single<List<Thread>> getThreads();
+    protected abstract Single<List<ThreadX>> getThreads();
 
-    public List<Thread> filter(List<Thread> threads) {
+    public List<ThreadX> filter(List<ThreadX> threads) {
         if (filter == null || filter.isEmpty()) {
             return threads;
         }
 
-        List<Thread> filteredThreads = new ArrayList<>();
-        for (Thread t : threads) {
+        List<ThreadX> filteredThreads = new ArrayList<>();
+        for (ThreadX t : threads) {
             if (t.getName() != null && t.getName().toLowerCase().contains(filter.toLowerCase())) {
                 filteredThreads.add(t);
             } else {
@@ -464,7 +464,7 @@ public abstract class ThreadsFragment extends BaseFragment implements SearchSupp
         return filteredThreads;
     }
 
-    public Observable<Thread> getOnLongClickObservable() {
+    public Observable<ThreadX> getOnLongClickObservable() {
         return onLongClickPublishRelay.hide();
     }
 

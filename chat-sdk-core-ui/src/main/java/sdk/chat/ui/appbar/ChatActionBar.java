@@ -19,7 +19,7 @@ import java.util.concurrent.Callable;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.CurrentLocale;
@@ -80,7 +80,7 @@ public class ChatActionBar extends AppBarLayout {
         }
     }
 
-    public void reload(Thread thread) {
+    public void reload(ThreadX thread) {
         String displayName = Strings.nameForThread(thread);
 //        setTitle(displayName);
         titleTextView.setText(displayName);
@@ -95,11 +95,11 @@ public class ChatActionBar extends AppBarLayout {
         this.onClickListener = onClickListener;
     }
 
-    public void setTypingText(Thread thread, final String text) {
+    public void setTypingText(ThreadX thread, final String text) {
         setSubtitleText(thread, text);
     }
 
-    public void setSubtitleText(Thread thread, final String text) {
+    public void setSubtitleText(ThreadX thread, final String text) {
         if (StringChecker.isNullOrEmpty(text)) {
 
             final String defaultText = getDefaultText();

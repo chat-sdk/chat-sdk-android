@@ -1,7 +1,7 @@
 package sdk.chat.core.interfaces;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 
 public interface LocalNotificationHandler {
-    boolean showLocalNotification(Thread thread);
+    boolean showLocalNotification(ThreadX thread);
 }

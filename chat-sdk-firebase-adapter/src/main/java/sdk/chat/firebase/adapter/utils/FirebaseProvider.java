@@ -4,7 +4,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.firebase.adapter.wrappers.MessageWrapper;
 import sdk.chat.firebase.adapter.wrappers.ThreadWrapper;
@@ -31,7 +31,7 @@ public class FirebaseProvider {
     public ThreadWrapper threadWrapper(String value) {
         return new ThreadWrapper(value);
     }
-    public ThreadWrapper threadWrapper(Thread value) {
+    public ThreadWrapper threadWrapper(ThreadX value) {
         return new ThreadWrapper(value);
     }
 

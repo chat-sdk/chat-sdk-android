@@ -2,13 +2,13 @@ package sdk.chat.dcom;
 
 import android.app.AlertDialog;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.fragments.PrivateThreadsFragment;
 
 public class DComPrivateThreadsFragment extends PrivateThreadsFragment {
 
-    public void showLongPressDialog(Thread thread) {
+    public void showLongPressDialog(ThreadX thread) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
         builder.setItems(new CharSequence[]{"Clear messages", "Delete conversation"}, (dialogInterface, i) -> {

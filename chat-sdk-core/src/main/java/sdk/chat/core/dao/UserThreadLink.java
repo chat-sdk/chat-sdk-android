@@ -39,7 +39,7 @@ public class UserThreadLink {
     @ToOne(joinProperty = "userId")
     private User user;
     @ToOne(joinProperty = "threadId")
-    private Thread thread;
+    private ThreadX thread;
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
@@ -111,33 +111,33 @@ public class UserThreadLink {
     }
 
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 1483947909)
-    public Thread getThread() {
-        Long __key = this.threadId;
-        if (thread__resolvedKey == null || !thread__resolvedKey.equals(__key)) {
-            final DaoSession daoSession = this.daoSession;
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            ThreadDao targetDao = daoSession.getThreadDao();
-            Thread threadNew = targetDao.load(__key);
-            synchronized (this) {
-                thread = threadNew;
-                thread__resolvedKey = __key;
-            }
-        }
-        return thread;
-    }
-
-    /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1938921797)
-    public void setThread(Thread thread) {
-        synchronized (this) {
-            this.thread = thread;
-            threadId = thread == null ? null : thread.getId();
-            thread__resolvedKey = threadId;
-        }
-    }
+//    @Generated(hash = 1483947909)
+//    public ThreadX getThread() {
+//        Long __key = this.threadId;
+//        if (thread__resolvedKey == null || !thread__resolvedKey.equals(__key)) {
+//            final DaoSession daoSession = this.daoSession;
+//            if (daoSession == null) {
+//                throw new DaoException("Entity is detached from DAO context");
+//            }
+//            ThreadDao targetDao = daoSession.getThreadDao();
+//            ThreadX threadNew = targetDao.load(__key);
+//            synchronized (this) {
+//                thread = threadNew;
+//                thread__resolvedKey = __key;
+//            }
+//        }
+//        return thread;
+//    }
+//
+//    /** called by internal mechanisms, do not call yourself. */
+//    @Generated(hash = 1938921797)
+//    public void setThread(ThreadX thread) {
+//        synchronized (this) {
+//            this.thread = thread;
+//            threadId = thread == null ? null : thread.getId();
+//            thread__resolvedKey = threadId;
+//        }
+//    }
 
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
@@ -310,5 +310,34 @@ public class UserThreadLink {
             value.delete();
         }
         delete();
+    }
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 1065770894)
+    public ThreadX getThread() {
+        Long __key = this.threadId;
+        if (thread__resolvedKey == null || !thread__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            ThreadXDao targetDao = daoSession.getThreadXDao();
+            ThreadX threadNew = targetDao.load(__key);
+            synchronized (this) {
+                thread = threadNew;
+                thread__resolvedKey = __key;
+            }
+        }
+        return thread;
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 962689633)
+    public void setThread(ThreadX thread) {
+        synchronized (this) {
+            this.thread = thread;
+            threadId = thread == null ? null : thread.getId();
+            thread__resolvedKey = threadId;
+        }
     }
 }

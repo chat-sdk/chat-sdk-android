@@ -49,11 +49,11 @@ android {
         release {
             minifyEnabled project.hasProperty('minifyRelease') && minifyRelease
             signingConfig signingConfigs.release
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.txt', 'proguard-rules.txt'
         }
         debug {
             minifyEnabled project.hasProperty('minifyDebug') && minifyDebug
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.txt', 'proguard-rules.txt'
             signingConfig signingConfigs.release
             debuggable true
             jniDebuggable true

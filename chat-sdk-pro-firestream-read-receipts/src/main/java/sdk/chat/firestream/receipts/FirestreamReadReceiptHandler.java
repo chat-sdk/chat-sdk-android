@@ -11,7 +11,7 @@ import firestream.chat.types.DeliveryReceiptType;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.handlers.ReadReceiptHandler;
 import sdk.chat.core.interfaces.ThreadType;
@@ -46,7 +46,7 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
             // get the message
             Message message = ChatSDK.db().fetchEntityWithEntityID(receipt.getMessageId(), Message.class);
             if (message != null) {
-                Thread thread = message.getThread();
+                ThreadX thread = message.getThread();
                 if (thread != null) {
                     if (receipt.getDeliveryReceiptType().equals(DeliveryReceiptType.read())) {
                         message.setUserReadStatus(user, ReadStatus.read(), new Date());
@@ -60,7 +60,7 @@ public class FirestreamReadReceiptHandler implements ReadReceiptHandler, Consume
 
     @Override
     public void markRead(Message message) {
-        Thread thread = message.getThread();
+        ThreadX thread = message.getThread();
 
         if (thread.typeIs(ThreadType.Private1to1)) {
             User otherUser = thread.otherUser();

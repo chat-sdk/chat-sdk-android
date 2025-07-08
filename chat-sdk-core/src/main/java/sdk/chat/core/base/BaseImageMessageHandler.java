@@ -11,7 +11,7 @@ import io.reactivex.Completable;
 import sdk.chat.core.dao.CachedFile;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.handlers.ImageMessageHandler;
 import sdk.chat.core.manager.ImageMessagePayload;
 import sdk.chat.core.manager.MessagePayload;
@@ -30,7 +30,7 @@ import sdk.guru.common.RX;
 public class BaseImageMessageHandler extends AbstractMessageHandler implements ImageMessageHandler {
 
     @Override
-    public Completable sendMessageWithImage(final File imageFile, final Thread thread) {
+    public Completable sendMessageWithImage(final File imageFile, final ThreadX thread) {
         return Completable.defer(() -> {
 
             final Uploadable uploadable = new JPEGUploadable(imageFile, "image.jpg", Keys.MessageImageURL);

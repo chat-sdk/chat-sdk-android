@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 import io.reactivex.Completable;
 import sdk.chat.core.base.AbstractEventHandler;
 import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.hook.HookEvent;
@@ -28,6 +28,7 @@ import sdk.guru.common.EventType;
 import sdk.guru.realtime.RXRealtime;
 import sdk.guru.realtime.RealtimeEventListener;
 import sdk.guru.realtime.RealtimeReferenceManager;
+import sdk.chat.core.R;
 
 /**
  * Created by benjaminsmiley-andrews on 10/05/2017.
@@ -200,7 +201,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
     protected void threadsOff(User user) {
         String entityID = user.getEntityID();
         RealtimeReferenceManager.shared().removeListeners(FirebasePaths.userThreadsRef(entityID));
-        for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Private)) {
+        for (ThreadX thread : ChatSDK.thread().getThreads(ThreadType.Private)) {
             ThreadWrapper wrapper = FirebaseModule.config().provider.threadWrapper(thread);
             wrapper.off();
         }
@@ -209,7 +210,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
     protected void publicThreadsOff(User user) {
         if (!FirebaseModule.config().disablePublicThreads) {
             RealtimeReferenceManager.shared().removeListeners(FirebasePaths.publicThreadsRef());
-            for (Thread thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
+            for (ThreadX thread : ChatSDK.thread().getThreads(ThreadType.Public)) {
                 ThreadWrapper wrapper = FirebaseModule.config().provider.threadWrapper(thread);
                 wrapper.off();
             }

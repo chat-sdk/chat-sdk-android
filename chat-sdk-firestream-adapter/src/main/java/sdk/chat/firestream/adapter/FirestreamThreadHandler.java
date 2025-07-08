@@ -23,7 +23,7 @@ import io.reactivex.functions.Function;
 import sdk.chat.core.base.AbstractThreadHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -63,8 +63,8 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Single<Thread> createThread(String name, List<User> users, final int type, String entityID, String imageURL, Map<String, Object> meta) {
-        return Single.create((SingleOnSubscribe<Thread>) e -> {
+    public Single<ThreadX> createThread(String name, List<User> users, final int type, String entityID, String imageURL, Map<String, Object> meta) {
+        return Single.create((SingleOnSubscribe<ThreadX>) e -> {
 
         // Make sure that the current user type in the list and
         // that they are not the first item
@@ -74,11 +74,11 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         allUsers.remove(ChatSDK.currentUser());
         allUsers.add(ChatSDK.currentUser());
 
-        Thread thread = ChatSDK.db().fetchThreadWithUsers(allUsers);
+        ThreadX thread = ChatSDK.db().fetchThreadWithUsers(allUsers);
         if(thread != null) {
             e.onSuccess(thread);
         } else {
-            thread = ChatSDK.db().createEntity(Thread.class);
+            thread = ChatSDK.db().createEntity(ThreadX.class);
 
             int threadType = type;
 
@@ -123,7 +123,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                     }
                 }
 
-                final Thread finalThread = thread;
+                final ThreadX finalThread = thread;
 
                 // We need to actually create the chat
                 Fire.stream().manage(Fire.stream().createChat(name, imageURL, meta, new ArrayList<>(usersToAdd)).subscribe((groupChat, throwable) -> {
@@ -142,7 +142,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable pushThread(Thread thread) {
+    public Completable pushThread(ThreadX thread) {
         return Completable.defer(() -> {
             // Get the chat
             IChat chat = Fire.stream().getChat(thread.getEntityID());
@@ -187,7 +187,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                     || !message.getMessageType().is(MessageType.System)) {
 
                 // Get the thread
-                Thread thread = message.getThread();
+                ThreadX thread = message.getThread();
                 if (thread.typeIs(ThreadType.Private1to1)) {
                     User otherUser = thread.otherUser();
                     return Fire.stream().deleteSendable(otherUser.getEntityID(), message.getEntityID());
@@ -221,11 +221,11 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean rolesEnabled(Thread thread) {
+    public boolean rolesEnabled(ThreadX thread) {
         return ChatSDK.config().rolesEnabled && thread.typeIs(ThreadType.Group);
     }
 
-    public String roleForUser(Thread thread, User user) {
+    public String roleForUser(ThreadX thread, User user) {
         if (rolesEnabled(thread)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
@@ -235,7 +235,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         return null;
     }
 
-    public List<String> availableRoles(Thread thread, User user) {
+    public List<String> availableRoles(ThreadX thread, User user) {
         if (rolesEnabled(thread)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
@@ -250,7 +250,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         return new RoleType(role).localized();
     }
 
-    public Completable setRole(String role, Thread thread, User user) {
+    public Completable setRole(String role, ThreadX thread, User user) {
         return Completable.defer(() -> {
             if (rolesEnabled(thread)) {
                 IChat chat = Fire.stream().getChat(thread.getEntityID());
@@ -263,11 +263,11 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean muteEnabled(Thread thread) {
+    public boolean muteEnabled(ThreadX thread) {
         return true;
     }
 
-    public Completable mute(Thread thread) {
+    public Completable mute(ThreadX thread) {
         return Completable.defer(() -> {
             if (thread.typeIs(ThreadType.Private1to1)) {
                 return Fire.stream().mute(new FireStreamUser(thread.getEntityID()));
@@ -282,7 +282,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         }).doOnComplete(() -> thread.setMuted(true));
     }
 
-    public Completable unmute(Thread thread) {
+    public Completable unmute(ThreadX thread) {
         return Completable.defer(() -> {
             if (thread.typeIs(ThreadType.Private1to1)) {
                 return Fire.stream().unmute(new FireStreamUser(thread.getEntityID()));
@@ -298,16 +298,16 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean canDestroy(Thread thread) {
+    public boolean canDestroy(ThreadX thread) {
         return false;
     }
 
     @Override
-    public Completable destroy(Thread thread) {
+    public Completable destroy(ThreadX thread) {
         return null;
     }
 
-    public Completable removeUsersFromThread(final Thread thread, List<User> users) {
+    public Completable removeUsersFromThread(final ThreadX thread, List<User> users) {
         return Completable.defer(() -> {
             if (thread.typeIs(ThreadType.Group)) {
                 IChat chat = Fire.stream().getChat(thread.getEntityID());
@@ -323,7 +323,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
         });
     }
 
-    public Completable addUsersToThread(final Thread thread, final List<User> users, @Nullable List<String> permissions) {
+    public Completable addUsersToThread(final ThreadX thread, final List<User> users, @Nullable List<String> permissions) {
         return Completable.defer(() -> {
             if (thread.typeIs(ThreadType.Group)) {
                 IChat chat = Fire.stream().getChat(thread.getEntityID());
@@ -340,7 +340,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable deleteThread(Thread thread) {
+    public Completable deleteThread(ThreadX thread) {
         return Completable.defer(() -> {
             if (thread.typeIs(ThreadType.Private1to1)) {
                 return super.deleteThread(thread);
@@ -356,7 +356,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean canLeaveThread(Thread thread) {
+    public boolean canLeaveThread(ThreadX thread) {
         if (super.canLeaveThread(thread)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             return chat != null;
@@ -365,7 +365,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable leaveThread(Thread thread) {
+    public Completable leaveThread(ThreadX thread) {
         return Completable.defer(() -> {
             if (thread.typeIs(ThreadType.Group)) {
                 IChat chat = Fire.stream().getChat(thread.getEntityID());
@@ -378,17 +378,17 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable joinThread(Thread thread) {
+    public Completable joinThread(ThreadX thread) {
         return Completable.complete();
     }
 
     @Override
-    public boolean canJoinThread(Thread thread) {
+    public boolean canJoinThread(ThreadX thread) {
         return false;
     }
 
     @Override
-    public Single<List<Message>> loadMoreMessagesBefore(final Thread thread, final Date olderThan, boolean loadFromServer) {
+    public Single<List<Message>> loadMoreMessagesBefore(final ThreadX thread, final Date olderThan, boolean loadFromServer) {
         return super.loadMoreMessagesBefore(thread, olderThan, loadFromServer).flatMap(localMessages -> {
 
             // This function converts a list of sendables to a list of messages
@@ -447,7 +447,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean canAddUsersToThread(Thread thread) {
+    public boolean canAddUsersToThread(ThreadX thread) {
         if (thread.typeIs(ThreadType.Group)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
@@ -458,7 +458,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean canRemoveUsersFromThread(Thread thread, List<User> users) {
+    public boolean canRemoveUsersFromThread(ThreadX thread, List<User> users) {
         if (thread.typeIs(ThreadType.Group)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
@@ -469,7 +469,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean canEditThreadDetails(Thread thread) {
+    public boolean canEditThreadDetails(ThreadX thread) {
         if (thread.typeIs(ThreadType.Group)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
@@ -480,7 +480,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean canChangeRole(Thread thread, User user) {
+    public boolean canChangeRole(ThreadX thread, User user) {
         if (thread.typeIs(ThreadType.Group)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
@@ -491,7 +491,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean isBanned(Thread thread, User user) {
+    public boolean isBanned(ThreadX thread, User user) {
         if (thread.typeIs(ThreadType.Group)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {
@@ -502,12 +502,12 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public String generateNewMessageID(Thread thread) {
+    public String generateNewMessageID(ThreadX thread) {
         return FirebasePaths.threadMessagesRef(thread.getEntityID()).push().getKey();
     }
 
     @Override
-    public boolean hasVoice(Thread thread, User user) {
+    public boolean hasVoice(ThreadX thread, User user) {
         if (thread.typeIs(ThreadType.Group)) {
             IChat chat = Fire.stream().getChat(thread.getEntityID());
             if (chat != null) {

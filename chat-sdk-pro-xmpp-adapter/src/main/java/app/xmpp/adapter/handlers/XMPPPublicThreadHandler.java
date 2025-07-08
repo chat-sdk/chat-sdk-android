@@ -8,17 +8,17 @@ import app.xmpp.adapter.XMPPManager;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import sdk.chat.core.base.AbstractPublicThreadHandler;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.session.ChatSDK;
 import sdk.guru.common.RX;
 
 public class XMPPPublicThreadHandler extends AbstractPublicThreadHandler {
     @Override
-    public Single<Thread> createPublicThreadWithName(String name, String entityID, Map<String, Object> meta, String imageURL) {
-        return Single.defer((Callable<SingleSource<Thread>>) () -> {
+    public Single<ThreadX> createPublicThreadWithName(String name, String entityID, Map<String, Object> meta, String imageURL) {
+        return Single.defer((Callable<SingleSource<ThreadX>>) () -> {
 
             if (entityID != null) {
-                Thread t = ChatSDK.db().fetchThreadWithEntityID(entityID);
+                ThreadX t = ChatSDK.db().fetchThreadWithEntityID(entityID);
                 if (t != null) {
                     return Single.just(t);
                 }

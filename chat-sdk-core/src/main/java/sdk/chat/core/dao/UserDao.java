@@ -33,7 +33,7 @@ public class UserDao extends AbstractDao<User, Long> {
 
     private DaoSession daoSession;
 
-    private Query<User> thread_UsersQuery;
+    private Query<User> threadX_UsersQuery;
 
     public UserDao(DaoConfig config) {
         super(config);
@@ -168,17 +168,17 @@ public class UserDao extends AbstractDao<User, Long> {
         return true;
     }
     
-    /** Internal query to resolve the "users" to-many relationship of Thread. */
-    public List<User> _queryThread_Users(Long threadId) {
+    /** Internal query to resolve the "users" to-many relationship of ThreadX. */
+    public List<User> _queryThreadX_Users(Long threadId) {
         synchronized (this) {
-            if (thread_UsersQuery == null) {
+            if (threadX_UsersQuery == null) {
                 QueryBuilder<User> queryBuilder = queryBuilder();
                 queryBuilder.join(UserThreadLink.class, UserThreadLinkDao.Properties.UserId)
                     .where(UserThreadLinkDao.Properties.ThreadId.eq(threadId));
-                thread_UsersQuery = queryBuilder.build();
+                threadX_UsersQuery = queryBuilder.build();
             }
         }
-        Query<User> query = thread_UsersQuery.forCurrentThread();
+        Query<User> query = threadX_UsersQuery.forCurrentThread();
         query.setParameter(0, threadId);
         return query.list();
     }

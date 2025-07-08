@@ -17,7 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import materialsearchview.MaterialSearchView;
 import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.push.PushQueueAction;
 import sdk.chat.core.session.ChatSDK;
@@ -157,7 +157,7 @@ public abstract class MainActivity extends BaseActivity {
 
     }
 
-    public boolean showLocalNotificationsForTab(Fragment fragment, Thread thread) {
+    public boolean showLocalNotificationsForTab(Fragment fragment, ThreadX thread) {
         // Don't show notifications on the threads tabs
         if (thread.typeIs(ThreadType.Private)) {
             Class privateThreadsFragmentClass = ChatSDK.ui().privateThreadsFragment().getClass();

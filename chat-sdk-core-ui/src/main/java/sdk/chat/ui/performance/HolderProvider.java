@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.chat.model.MessageHolder;
@@ -21,7 +21,7 @@ public class HolderProvider {
 
     Map<User, UserHolder> userHolders = new ConcurrentHashMap<>();
     Map<Message, MessageHolder> messageHolders = new ConcurrentHashMap<>();
-    Map<Thread, ThreadHolder> threadHolders = new ConcurrentHashMap<>();
+    Map<ThreadX, ThreadHolder> threadHolders = new ConcurrentHashMap<>();
 
     public UserHolder getUserHolder(User user) {
         if (user == null) {
@@ -57,7 +57,7 @@ public class HolderProvider {
         messageHolders.remove(message);
     }
 
-    public ThreadHolder getOrCreateThreadHolder(Thread thread) {
+    public ThreadHolder getOrCreateThreadHolder(ThreadX thread) {
         if (thread == null) {
             return null;
         }
@@ -69,14 +69,14 @@ public class HolderProvider {
         return holder;
     }
 
-    public ThreadHolder getThreadHolder(Thread thread) {
+    public ThreadHolder getThreadHolder(ThreadX thread) {
         if (thread == null) {
             return null;
         }
         return threadHolders.get(thread);
     }
 
-    public void removeThreadHolder(Thread thread) {
+    public void removeThreadHolder(ThreadX thread) {
         threadHolders.remove(thread);
     }
 

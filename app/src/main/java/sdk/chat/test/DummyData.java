@@ -11,7 +11,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.hook.Hook;
@@ -59,7 +59,7 @@ public class DummyData {
 
     public void createThread() {
 
-        final Thread thread = ChatSDK.db().createEntity(Thread.class);
+        final ThreadX thread = ChatSDK.db().createEntity(ThreadX.class);
 
         User currentUser = ChatSDK.currentUser();
         thread.setCreator(currentUser);
@@ -81,7 +81,7 @@ public class DummyData {
         ChatSDK.events().source().accept(NetworkEvent.threadAdded(thread));
     }
 
-    public void addMessage(Thread thread, String text) {
+    public void addMessage(ThreadX thread, String text) {
 
         Message message = ChatSDK.db().createEntity(Message.class);
 

@@ -6,7 +6,7 @@ import io.reactivex.Completable;
 import sdk.chat.core.base.AbstractMessageHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.handlers.LocationMessageHandler;
 import sdk.chat.core.manager.MessagePayload;
 import sdk.chat.core.rigs.MessageSendRig;
@@ -21,7 +21,7 @@ import sdk.chat.core.utils.GoogleUtils;
 public class BaseLocationMessageHandler extends AbstractMessageHandler implements LocationMessageHandler {
 
     @Override
-    public Completable sendMessageWithLocation(final String filePath, final Location location, final Thread thread) {
+    public Completable sendMessageWithLocation(final String filePath, final Location location, final ThreadX thread) {
         return new MessageSendRig(new MessageType(MessageType.Location), thread, message -> {
 
             int maxSize = ChatSDK.config().imageMaxThumbnailDimension;

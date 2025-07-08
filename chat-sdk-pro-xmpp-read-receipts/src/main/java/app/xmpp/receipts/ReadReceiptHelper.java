@@ -7,14 +7,14 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.receipts.DeliveryReceipt;
 import org.jxmpp.jid.impl.JidCreate;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.interfaces.ThreadType;
 import app.xmpp.adapter.XMPPManager;
 import app.xmpp.adapter.defines.XMPPDefines;
 
 public class ReadReceiptHelper {
 
-    public static Message getAck (String messageId, Thread thread) throws Exception {
+    public static Message getAck (String messageId, ThreadX thread) throws Exception {
 
         Message ack = new Message();
 
@@ -35,7 +35,7 @@ public class ReadReceiptHelper {
         return ack;
     }
 
-    public static Message getReadAck (String messageId, Thread thread) throws Exception {
+    public static Message getReadAck (String messageId, ThreadX thread) throws Exception {
         Message ack = getAck(messageId, thread);
         ExtensionElement extension = StandardExtensionElement.builder(XMPPDefines.Extras, XMPPDefines.MessageReadNamespace).build();
         ack.addExtension(extension);

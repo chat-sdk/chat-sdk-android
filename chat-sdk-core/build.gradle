@@ -17,11 +17,11 @@ android {
     buildTypes {
         debug {
             minifyEnabled project.hasProperty('minifyDebug') && minifyDebug
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.txt', 'proguard-rules.txt'
         }
         release {
             minifyEnabled project.hasProperty('minifyRelease') && minifyRelease
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.pro', 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../chat-sdk-proguard-rules.txt', 'proguard-rules.txt'
         }
     }
 
@@ -42,6 +42,10 @@ android {
 //        }
 //    }
 }
+
+//tasks.named("extractDebugAnnotations") {
+//    dependsOn "greendao"
+//}
 
 greendao {
     schemaVersion 30

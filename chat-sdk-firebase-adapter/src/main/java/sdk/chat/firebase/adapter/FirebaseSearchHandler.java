@@ -17,6 +17,8 @@ import sdk.chat.firebase.adapter.wrappers.UserWrapper;
 import sdk.guru.common.RX;
 import sdk.guru.realtime.RealtimeEventListener;
 
+import sdk.chat.core.R;
+
 /**
  * Created by benjaminsmiley-andrews on 24/05/2017.
  */

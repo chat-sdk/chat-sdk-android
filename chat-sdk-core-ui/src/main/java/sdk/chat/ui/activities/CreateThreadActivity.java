@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
@@ -17,7 +17,7 @@ import sdk.guru.common.RX;
 
 public class CreateThreadActivity extends SelectContactActivity {
 
-    protected Thread thread;
+    protected ThreadX thread;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

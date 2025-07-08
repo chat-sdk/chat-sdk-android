@@ -22,7 +22,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import sdk.chat.core.R;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.session.ChatSDK;
 
@@ -71,7 +71,7 @@ public class NotificationDisplayHandler implements Consumer<Throwable> {
 
     public Disposable createMessageNotification(final Context context, Intent resultIntent, String userEntityID, String threadEntityId, String title, String message) {
 
-        Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityId);
+        ThreadX thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityId);
 
         // We are not connected... so we can't mark read or reply
         NotificationBuilder builder = new NotificationBuilder(context);

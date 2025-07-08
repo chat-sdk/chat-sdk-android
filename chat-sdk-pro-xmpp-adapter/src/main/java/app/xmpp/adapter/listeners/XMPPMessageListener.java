@@ -25,7 +25,7 @@ import app.xmpp.adapter.message.queue.OutgoingStanza;
 import app.xmpp.adapter.utils.PublicKeyExtras;
 import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.hook.HookEvent;
@@ -58,7 +58,7 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
         // 3fH2ULC6
 
         if (xmr.isOneToOne()) {
-            Thread thread = xmr.getThread();
+            ThreadX thread = xmr.getThread();
             addMessageToThread(thread, xmr, true);
         }
 
@@ -95,7 +95,7 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
         } else if (xmr.isChatState()) {
             XMPPManager.shared().typingIndicatorManager.handleMessage(message, xmr.user());
         } else {
-            Thread thread = xmr.getThread();
+            ThreadX thread = xmr.getThread();
             addMessageToThread(thread, xmr, true);
         }
     }
@@ -138,7 +138,7 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
         return addMessageToThread(null, xmr, notify);
     }
 
-    public sdk.chat.core.dao.Message addMessageToThread(Thread thread, final XMPPMessageWrapper xmr, boolean notify) {
+    public sdk.chat.core.dao.Message addMessageToThread(ThreadX thread, final XMPPMessageWrapper xmr, boolean notify) {
         if (xmr.isSilent()) {
             return null;
         }
@@ -147,7 +147,7 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
             return null;
         }
 
-        final Thread finalThread = thread != null ? thread : xmr.getThread();
+        final ThreadX finalThread = thread != null ? thread : xmr.getThread();
         if (finalThread == null) {
             return null;
         }
@@ -337,7 +337,7 @@ public class XMPPMessageListener implements IncomingChatMessageListener, Outgoin
             String from = carbonCopy.getTo().asBareJid().toString();
 
             User user = ChatSDK.db().fetchUserWithEntityID(from);
-            Thread thread = ChatSDK.db().fetchEntityWithEntityID(from, Thread.class);
+            ThreadX thread = ChatSDK.db().fetchEntityWithEntityID(from, ThreadX.class);
 //            User user = xmr.user();
             XMPPManager.shared().typingIndicatorManager.handleMessage(null, carbonCopy, user, thread);
         }

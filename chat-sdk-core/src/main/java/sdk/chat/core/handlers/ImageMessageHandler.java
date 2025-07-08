@@ -2,7 +2,7 @@ package sdk.chat.core.handlers;
 
 import java.io.File;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import io.reactivex.Completable;
 
 /**
@@ -20,6 +20,6 @@ public interface ImageMessageHandler extends MessageHandler {
      * @param imageFile is a file that contain the image. For now the file will be decoded to a Base64 image representation.
      * @param thread   thread that the text is sent to.
      */
-    Completable sendMessageWithImage(File imageFile, Thread thread);
+    Completable sendMessageWithImage(File imageFile, ThreadX thread);
 
 }

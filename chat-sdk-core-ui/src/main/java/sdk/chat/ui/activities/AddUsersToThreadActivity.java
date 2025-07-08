@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
@@ -18,7 +18,7 @@ import sdk.guru.common.RX;
 
 public class AddUsersToThreadActivity extends SelectContactActivity {
 
-    protected Thread thread;
+    protected ThreadX thread;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

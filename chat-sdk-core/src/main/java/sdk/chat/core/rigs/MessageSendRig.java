@@ -14,7 +14,7 @@ import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
 import sdk.chat.core.dao.CachedFile;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.hook.HookEvent;
 import sdk.chat.core.session.ChatSDK;
@@ -35,7 +35,7 @@ public class MessageSendRig {
     }
 
     protected MessageType messageType;
-    protected Thread thread;
+    protected ThreadX thread;
     protected Message message;
     protected ArrayList<Uploadable> uploadables = new ArrayList<>();
     protected boolean local = false;
@@ -46,14 +46,14 @@ public class MessageSendRig {
     // This is called after the text had been uploaded. Use it to update the text payload's url data
     protected MessageDidUploadUpdateAction messageDidUploadUpdateAction;
 
-    public MessageSendRig(MessageType type, Thread thread, MessageDidCreateUpdateAction action) {
+    public MessageSendRig(MessageType type, ThreadX thread, MessageDidCreateUpdateAction action) {
         this.messageType = type;
 //        this.messageType = new MessageType(MessageType.Silent);
         this.thread = thread;
         this.messageDidCreateUpdateAction = action;
     }
 
-    public MessageSendRig(Message message, Thread thread) {
+    public MessageSendRig(Message message, ThreadX thread) {
         this.thread = thread;
         this.message = message;
     }
@@ -82,11 +82,11 @@ public class MessageSendRig {
         }
     }
 
-    public static MessageSendRig create(MessageType type, Thread thread, MessageDidCreateUpdateAction action) {
+    public static MessageSendRig create(MessageType type, ThreadX thread, MessageDidCreateUpdateAction action) {
         return new MessageSendRig(type, thread, action);
     }
 
-    public static MessageSendRig create(Message message, Thread thread) {
+    public static MessageSendRig create(Message message, ThreadX thread) {
         return new MessageSendRig(message, thread);
     }
 

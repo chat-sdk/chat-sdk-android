@@ -6,7 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.R;
@@ -16,7 +16,7 @@ import sdk.chat.ui.module.UIModule;
 
 public class ChatActivity extends BaseActivity {
 
-    protected Thread thread;
+    protected ThreadX thread;
     protected AbstractChatFragment chatFragment;
 
     @Override

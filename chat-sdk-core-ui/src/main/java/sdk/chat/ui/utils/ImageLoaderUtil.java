@@ -14,7 +14,7 @@ import com.bumptech.glide.RequestManager;
 
 import org.pmw.tinylog.Logger;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -57,7 +57,7 @@ public class ImageLoaderUtil {
         load(imageView, url, placeholder, new Size(size));
     }
 
-    public void loadThread(ImageView imageView, Thread thread, @DimenRes int sizeRes) {
+    public void loadThread(ImageView imageView, ThreadX thread, @DimenRes int sizeRes) {
         int size = Dimen.from(imageView.getContext(), sizeRes);
         String url = null;
         if (thread != null) {

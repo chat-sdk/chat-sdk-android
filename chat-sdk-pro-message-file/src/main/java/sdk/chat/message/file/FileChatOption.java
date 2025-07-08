@@ -20,7 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import io.reactivex.Completable;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.utils.ActivityResultPushSubjectHolder;
 import sdk.chat.ui.chat.options.BaseChatOption;
@@ -41,7 +41,7 @@ public class FileChatOption extends BaseChatOption {
         });
     }
 
-    protected Completable selectFileWithDefaultPicker(Activity activity, Thread thread) {
+    protected Completable selectFileWithDefaultPicker(Activity activity, ThreadX thread) {
         return Completable.create(emitter -> {
 
             filePicked = false;

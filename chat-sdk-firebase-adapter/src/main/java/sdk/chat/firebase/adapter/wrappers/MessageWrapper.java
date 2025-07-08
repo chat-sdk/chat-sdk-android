@@ -33,10 +33,10 @@ import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.core.types.ReadStatus;
 import sdk.chat.firebase.adapter.FirebasePaths;
-import sdk.chat.firebase.adapter.R;
 import sdk.chat.firebase.adapter.utils.Generic;
 import sdk.guru.common.RX;
 import sdk.guru.realtime.RXRealtime;
+
 
 public class MessageWrapper  {
 
@@ -234,7 +234,7 @@ public class MessageWrapper  {
                     e.onComplete();
                 } else {
                     firebaseError.toException().printStackTrace();
-                    e.onError(new Exception(ChatSDK.getString(R.string.message_failed_to_send)));
+                    e.onError(new Exception(ChatSDK.getString(sdk.chat.core.R.string.message_failed_to_send)));
                 }
             });
         }).subscribeOn(RX.io());
@@ -245,7 +245,7 @@ public class MessageWrapper  {
             if (model.getThread() != null) {
                 return push();
             } else {
-                return Completable.error(ChatSDK.getException(R.string.message_doesnt_have_a_thread));
+                return Completable.error(ChatSDK.getException(sdk.chat.core.R.string.message_doesnt_have_a_thread));
             }
         }).subscribeOn(RX.io());
     }

@@ -1,7 +1,7 @@
 package sdk.chat.core.handlers;
 
 import io.reactivex.Completable;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.ui.AbstractKeyboardOverlayFragment;
 import sdk.chat.core.ui.KeyboardOverlayHandler;
 
@@ -10,7 +10,7 @@ import sdk.chat.core.ui.KeyboardOverlayHandler;
  */
 
 public interface StickerMessageHandler extends MessageHandler {
-    Completable sendMessageWithSticker(String stickerImageName, final Thread thread);
-    Completable sendMessageWithSticker(final String name, final String url, final Thread thread);
+    Completable sendMessageWithSticker(String stickerImageName, final ThreadX thread);
+    Completable sendMessageWithSticker(final String name, final String url, final ThreadX thread);
     AbstractKeyboardOverlayFragment keyboardOverlay(KeyboardOverlayHandler sender);
 }

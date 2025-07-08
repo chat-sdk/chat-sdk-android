@@ -18,7 +18,7 @@ import sdk.chat.core.base.AbstractThreadHandler;
 import sdk.chat.core.dao.CachedFile;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.interfaces.ThreadType;
@@ -39,7 +39,7 @@ import sdk.guru.realtime.RXRealtime;
 public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     @Override
-    public Single<List<Message>> loadMoreMessagesAfter(Thread thread, @Nullable Date after, boolean loadFromServer) {
+    public Single<List<Message>> loadMoreMessagesAfter(ThreadX thread, @Nullable Date after, boolean loadFromServer) {
         return super.loadMoreMessagesAfter(thread, after, loadFromServer).flatMap(localMessages -> {
             // If we have messages
             // If we did load some messages locally, update the from date to the last of those messages
@@ -63,7 +63,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         });
     }
 
-    public Single<List<Message>> loadMoreMessagesBefore(final Thread thread, final Date fromDate, boolean loadFromServer) {
+    public Single<List<Message>> loadMoreMessagesBefore(final ThreadX thread, final Date fromDate, boolean loadFromServer) {
         return super.loadMoreMessagesBefore(thread, fromDate, loadFromServer).flatMap(localMessages -> {
 
             int messageToLoad = ChatSDK.config().messagesToLoadPerBatch;
@@ -99,12 +99,12 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
      * In the "onItemFailed" you can get all users that the system could not add to the server.
      * When all users are added the system will call the "onDone" method.
      **/
-    public Completable addUsersToThread(final Thread thread, final List<User> users) {
+    public Completable addUsersToThread(final ThreadX thread, final List<User> users) {
         return FirebaseModule.config().provider.threadWrapper(thread).addUsers(users);
     }
 
     @Override
-    public boolean canAddUsersToThread(Thread thread) {
+    public boolean canAddUsersToThread(ThreadX thread) {
         if (thread.typeIs(ThreadType.PrivateGroup)) {
             String role = roleForUser(thread, ChatSDK.currentUser());
             return Permission.isOr(role, Permission.Owner, Permission.Admin);
@@ -112,7 +112,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return false;
     }
 
-    public Completable mute(Thread thread) {
+    public Completable mute(ThreadX thread) {
         return Completable.defer(() -> {
             DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(ChatSDK.currentUserID()).child(Keys.Mute);
             RXRealtime realtime = new RXRealtime();
@@ -120,7 +120,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         });
     }
 
-    public Completable unmute(Thread thread) {
+    public Completable unmute(ThreadX thread) {
         return Completable.defer(() -> {
             DatabaseReference threadUsersRef = FirebasePaths.threadUsersRef(thread.getEntityID()).child(ChatSDK.currentUserID()).child(Keys.Mute);
             RXRealtime realtime = new RXRealtime();
@@ -128,20 +128,20 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         });
     }
 
-    public Completable removeUsersFromThread(final Thread thread, List<User> users) {
+    public Completable removeUsersFromThread(final ThreadX thread, List<User> users) {
         return FirebaseModule.config().provider.threadWrapper(thread).removeUsers(users);
     }
 
-    public Completable pushThread(Thread thread) {
+    public Completable pushThread(ThreadX thread) {
         return FirebaseModule.config().provider.threadWrapper(thread).push();
     }
 
-    public Completable pushThreadMeta(Thread thread) {
+    public Completable pushThreadMeta(ThreadX thread) {
         return FirebaseModule.config().provider.threadWrapper(thread).pushMeta();
     }
 
     @Override
-    public boolean muteEnabled(Thread thread) {
+    public boolean muteEnabled(ThreadX thread) {
         return true;
     }
 
@@ -161,13 +161,13 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         });
     }
 
-    public Single<Thread> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL, Map<String, Object> meta) {
+    public Single<ThreadX> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL, Map<String, Object> meta) {
         return Single.defer(() -> {
 
             // If the entity ID is set, see if the thread exists and return it if it does
             // TODO: Check this - what if for some reason the user isn't a member of this thread?
             if (entityID != null) {
-                Thread t = ChatSDK.db().fetchThreadWithEntityID(entityID);
+                ThreadX t = ChatSDK.db().fetchThreadWithEntityID(entityID);
                 if (t != null) {
                     return Single.just(t);
                 }
@@ -182,7 +182,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             if (users.size() == 2 && (type == ThreadType.None || ThreadType.is(type, ThreadType.Private1to1))) {
 
                 User otherUser = null;
-                Thread jointThread = null;
+                ThreadX jointThread = null;
 
                 for (User user : users) {
                     if (!user.equals(currentUser)) {
@@ -193,7 +193,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
                 // Check to see if a thread already exists with these
                 // two users
-                for(Thread thread : getThreads(ThreadType.Private1to1, ChatSDK.config().reuseDeleted1to1Threads, true)) {
+                for(ThreadX thread : getThreads(ThreadType.Private1to1, ChatSDK.config().reuseDeleted1to1Threads, true)) {
                     if(thread.getUsers().size() == 2 &&
                             thread.containsUser(currentUser) &&
                             thread.containsUser(otherUser))
@@ -211,7 +211,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
             }
 
             // TODO: Thread
-            final Thread thread = ChatSDK.db().createEntity(Thread.class);
+            final ThreadX thread = ChatSDK.db().createEntity(ThreadX.class);
 
 //            ChatSDK.db().getDaoCore().getDaoSession().runInTx(() -> {
 
@@ -260,7 +260,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         }).subscribeOn(RX.db());
     }
 
-    public Completable deleteThread(Thread thread) {
+    public Completable deleteThread(ThreadX thread) {
         return Completable.defer(() -> {
             return FirebaseModule.config().provider.threadWrapper(thread).deleteThread()
                     // Added to make sure thread removed (bug report from Dcom)
@@ -314,7 +314,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         }
 
         User currentUser = ChatSDK.currentUser();
-        Thread thread = message.getThread();
+        ThreadX thread = message.getThread();
 
         if (rolesEnabled(thread) && !thread.typeIs(ThreadType.Public)) {
             String role = roleForUser(thread, currentUser);
@@ -343,12 +343,12 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return false;
     }
 
-    public Completable leaveThread(Thread thread) {
+    public Completable leaveThread(ThreadX thread) {
         return Completable.defer(() -> FirebaseModule.config().provider.threadWrapper(thread).leave());
     }
 
     @Override
-    public boolean canLeaveThread(Thread thread) {
+    public boolean canLeaveThread(ThreadX thread) {
         if (thread.typeIs(ThreadType.PrivateGroup)) {
             // Get the link
             String role = roleForUser(thread, ChatSDK.currentUser());
@@ -357,22 +357,22 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
         return false;
     }
 
-    public Completable joinThread(Thread thread) {
+    public Completable joinThread(ThreadX thread) {
         return null;
     }
 
     @Override
-    public boolean canJoinThread(Thread thread) {
+    public boolean canJoinThread(ThreadX thread) {
         return false;
     }
 
     @Override
-    public boolean rolesEnabled(Thread thread) {
+    public boolean rolesEnabled(ThreadX thread) {
         return thread.typeIs(ThreadType.Group);
     }
 
     @Override
-    public boolean canChangeRole(Thread thread, User user) {
+    public boolean canChangeRole(ThreadX thread, User user) {
         if (!ChatSDK.config().rolesEnabled || !thread.typeIs(ThreadType.Group)) {
             return false;
         }
@@ -388,7 +388,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public String roleForUser(Thread thread, @NonNull User user) {
+    public String roleForUser(ThreadX thread, @NonNull User user) {
         UserThreadLink link = thread.getUserThreadLink(user.getId());
         if (link != null && link.hasLeft()) {
             return Permission.None;
@@ -404,7 +404,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable setRole(final String role, Thread thread, User user) {
+    public Completable setRole(final String role, ThreadX thread, User user) {
         return Completable.defer(() -> {
 //            role = Permission.fromLocalized(role);
             return FirebaseModule.config().provider.threadWrapper(thread).setPermission(user.getEntityID(), role);
@@ -412,7 +412,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public List<String> availableRoles(Thread thread, User user) {
+    public List<String> availableRoles(ThreadX thread, User user) {
         List<String> roles = new ArrayList<>();
 
         String myRole = roleForUser(thread, ChatSDK.currentUser());
@@ -439,17 +439,17 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
 
     // Moderation
     @Override
-    public Completable grantVoice(Thread thread, User user) {
+    public Completable grantVoice(ThreadX thread, User user) {
         return Completable.complete();
     }
 
     @Override
-    public Completable revokeVoice(Thread thread, User user) {
+    public Completable revokeVoice(ThreadX thread, User user) {
         return Completable.complete();
     }
 
     @Override
-    public boolean hasVoice(Thread thread, User user) {
+    public boolean hasVoice(ThreadX thread, User user) {
         if (thread.containsUser(user) || thread.typeIs(ThreadType.Public)) {
             String role = roleForUser(thread, user);
             return Permission.isOr(role, Permission.Owner, Permission.Admin, Permission.Member);
@@ -458,32 +458,32 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean canChangeVoice(Thread thread, User user) {
+    public boolean canChangeVoice(ThreadX thread, User user) {
         return false;
     }
 
     @Override
-    public Completable grantModerator(Thread thread, User user) {
+    public Completable grantModerator(ThreadX thread, User user) {
         return Completable.complete();
     }
 
     @Override
-    public Completable revokeModerator(Thread thread, User user) {
+    public Completable revokeModerator(ThreadX thread, User user) {
         return Completable.complete();
     }
 
     @Override
-    public boolean canChangeModerator(Thread thread, User user) {
+    public boolean canChangeModerator(ThreadX thread, User user) {
         return false;
     }
 
     @Override
-    public boolean isModerator(Thread thread, User user) {
+    public boolean isModerator(ThreadX thread, User user) {
         return false;
     }
 
     @Override
-    public boolean isBanned(Thread thread, User user) {
+    public boolean isBanned(ThreadX thread, User user) {
         if (thread.containsUser(user) || thread.typeIs(ThreadType.Public)) {
             String role = thread.getPermission(user);
             return Permission.isOr(role, Permission.Banned);
@@ -492,30 +492,30 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public String generateNewMessageID(Thread thread) {
+    public String generateNewMessageID(ThreadX thread) {
         // User Firebase to generate an ID
         return FirebasePaths.threadMessagesRef(thread.getEntityID()).push().getKey();
     }
 
     @Override
-    public Message newMessage(int type, Thread thread, boolean notify) {
+    public Message newMessage(int type, ThreadX thread, boolean notify) {
         Message message = super.newMessage(type, thread, notify);
         ChatSDK.db().update(message);
         return message;
     }
 
     @Override
-    public boolean canDestroy(Thread thread) {
+    public boolean canDestroy(ThreadX thread) {
         return false;
     }
 
     @Override
-    public Completable destroy(Thread thread) {
+    public Completable destroy(ThreadX thread) {
         return Completable.complete();
     }
 
     @Override
-    public boolean canEditThreadDetails(Thread thread) {
+    public boolean canEditThreadDetails(ThreadX thread) {
         if (thread.typeIs(ThreadType.Group)) {
             String role = roleForUser(thread, ChatSDK.currentUser());
             return Permission.isOr(role, Permission.Owner, Permission.Admin);
@@ -524,7 +524,7 @@ public class FirebaseThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean canRemoveUserFromThread(Thread thread, User user) {
+    public boolean canRemoveUserFromThread(ThreadX thread, User user) {
         if (thread.typeIs(ThreadType.PrivateGroup)) {
             String myRole = roleForUser(thread, ChatSDK.currentUser());
             String role = roleForUser(thread, user);

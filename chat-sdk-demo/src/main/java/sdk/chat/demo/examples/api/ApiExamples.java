@@ -21,7 +21,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.hook.Hook;
@@ -66,7 +66,7 @@ public class ApiExamples {
      * @param filePath - Local path to image file
      * @param thread - The thread to send the text to
      */
-    public void sendImageMessage (File filePath, Thread thread) {
+    public void sendImageMessage (File filePath, ThreadX thread) {
         Disposable d = ChatSDK.imageMessage().sendMessageWithImage(filePath, thread).subscribe(() -> {
             // Handle Success
         }, (Consumer<Throwable>) throwable -> {
@@ -74,7 +74,7 @@ public class ApiExamples {
         });
     }
 
-    public void sendTextMessage (String message, Thread thread) {
+    public void sendTextMessage (String message, ThreadX thread) {
         Disposable d = ChatSDK.thread().sendMessageWithText(message, thread).subscribe(() -> {
             // Handle Success
         }, throwable -> {
@@ -118,7 +118,7 @@ public class ApiExamples {
 
     }
 
-    public void openChatActivityWithThread (Context context, Thread thread) {
+    public void openChatActivityWithThread (Context context, ThreadX thread) {
         ChatSDK.ui().startChatActivityForID(context, thread.getEntityID());
     }
 
@@ -180,7 +180,7 @@ public class ApiExamples {
      * How to get the unread text count for a thread
      * @param thread
      */
-    public int getUnreadMessageCount (Thread thread) {
+    public int getUnreadMessageCount (ThreadX thread) {
         return thread.getUnreadMessagesCount();
     }
 

@@ -7,7 +7,7 @@ import org.jxmpp.jid.EntityFullJid;
 import java.lang.ref.WeakReference;
 
 import sdk.chat.core.dao.Keys;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.session.ChatSDK;
 import io.reactivex.disposables.Disposable;
 
@@ -26,7 +26,7 @@ public class XMPPSubjectUpdatedListener implements SubjectUpdatedListener, Dispo
     public void subjectUpdated(String subject, EntityFullJid from) {
         // Get the thread
         if (from != null) {
-            Thread thread = ChatSDK.db().fetchThreadWithEntityID(from.asBareJid().toString());
+            ThreadX thread = ChatSDK.db().fetchThreadWithEntityID(from.asBareJid().toString());
             if (thread != null) {
                 thread.setMetaValue(Keys.Subject, subject);
             }

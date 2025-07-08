@@ -8,7 +8,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
 
 import io.reactivex.Completable;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.interfaces.ChatOption;
 import sdk.chat.core.ui.AbstractKeyboardOverlayFragment;
 import sdk.chat.core.ui.KeyboardOverlayHandler;
@@ -42,7 +42,7 @@ public class BaseChatOption implements ChatOption {
     }
 
     @Override
-    public Completable execute(Activity activity, ActivityResultLauncher<Intent> launcher, Thread thread) {
+    public Completable execute(Activity activity, ActivityResultLauncher<Intent> launcher, ThreadX thread) {
         if(action != null) {
             return action.execute(activity, launcher, thread);
         }
@@ -50,7 +50,7 @@ public class BaseChatOption implements ChatOption {
     }
 
     public interface Action {
-        Completable execute(Activity activity, ActivityResultLauncher<Intent> launcher, Thread thread);
+        Completable execute(Activity activity, ActivityResultLauncher<Intent> launcher, ThreadX thread);
     }
 
     protected void dispose () {

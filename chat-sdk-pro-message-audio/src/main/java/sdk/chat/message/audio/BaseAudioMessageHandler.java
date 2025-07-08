@@ -9,7 +9,7 @@ import io.reactivex.Single;
 import sdk.chat.core.base.AbstractMessageHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.handlers.AudioMessageHandler;
 import sdk.chat.core.manager.MessagePayload;
 import sdk.chat.core.rigs.FileUploadable;
@@ -35,7 +35,7 @@ public class BaseAudioMessageHandler extends AbstractMessageHandler implements A
     protected boolean compressionEnabled = false;
 
     @Override
-    public Completable sendMessage(Context context, final File file, String mimeType, long duration, final Thread thread) {
+    public Completable sendMessage(Context context, final File file, String mimeType, long duration, final ThreadX thread) {
         return compressAudio(context, file).flatMapCompletable(file1 -> {
             return new MessageSendRig(new MessageType(MessageType.Audio), thread, message -> {
                 message.setText(ChatSDK.getString(R.string.audio_message));

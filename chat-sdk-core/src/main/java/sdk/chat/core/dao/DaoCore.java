@@ -231,7 +231,7 @@ public class DaoCore {
         return entity;
     }
 
-    public boolean connectUserAndThread(User user, Thread thread) {
+    public boolean connectUserAndThread(User user, ThreadX thread) {
         Logger.debug("connectUserAndThread, Name: "+ user.getName() +", ThreadID: " + thread.getEntityID());
 
         UserThreadLink link = new UserThreadLink();
@@ -251,7 +251,7 @@ public class DaoCore {
         }
     }
 
-    public synchronized boolean breakUserAndThread(User user, Thread thread) {
+    public synchronized boolean breakUserAndThread(User user, ThreadX thread) {
         Logger.debug("breakUserAndThread, CoreUser ID: "+ user.getId() +" , Name: "+ user.getName() +", ThreadID: " + thread.getId());
 //        UserThreadLink linkData = fetchEntityWithProperties(UserThreadLink.class, new Property[] {UserThreadLinkDao.Properties.ThreadId, UserThreadLinkDao.Properties.UserId}, thread.getId(), user.getId());
         UserThreadLink link = thread.getUserThreadLink(user.getId());

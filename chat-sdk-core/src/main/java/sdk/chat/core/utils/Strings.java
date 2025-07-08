@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import sdk.chat.core.R;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -33,7 +33,7 @@ public class Strings {
         return new SimpleDateFormat("dd/MM/yy", CurrentLocale.get()).format(date);
     }
 
-    public static String nameForThread (Thread thread) {
+    public static String nameForThread (ThreadX thread) {
         if (thread == null) return null;
 
         String displayName = thread.getDisplayName();

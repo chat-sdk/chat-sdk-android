@@ -32,7 +32,7 @@ import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.DaoCore;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.dao.sorter.MessageSorter;
@@ -57,9 +57,9 @@ import sdk.guru.realtime.RealtimeReferenceManager;
 
 public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
 
-    protected Thread model;
+    protected ThreadX model;
 
-    public ThreadWrapper(Thread thread){
+    public ThreadWrapper(ThreadX thread){
         this.model = thread;
     }
     
@@ -67,7 +67,7 @@ public class ThreadWrapper implements RXRealtime.DatabaseErrorListener {
         this(ChatSDK.db().fetchOrCreateThreadWithEntityID(entityId));
     }
 
-    public Thread getModel(){
+    public ThreadX getModel(){
         return model;
     }
 

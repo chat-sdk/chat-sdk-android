@@ -7,7 +7,7 @@ import org.jivesoftware.smackx.chatstates.packet.ChatStateExtension;
 import java.util.HashMap;
 import java.util.Map;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
@@ -33,7 +33,7 @@ public class XMPPTypingIndicatorManager {
         handleMessage(state, message, user, null);
     }
 
-    public void handleMessage (ChatState state, Message message, User user, Thread thread) {
+    public void handleMessage (ChatState state, Message message, User user, ThreadX thread) {
 
         if (state == null) {
             ChatStateExtension extension = (ChatStateExtension) message.getExtension(ChatStateExtension.NAMESPACE);
@@ -54,7 +54,7 @@ public class XMPPTypingIndicatorManager {
 
     }
 
-    private void setTyping (Thread thread, User user, boolean isTyping) {
+    private void setTyping (ThreadX thread, User user, boolean isTyping) {
         HashMap map = typing.get(thread.getEntityID());
         if(map == null) {
             map = new HashMap();
@@ -68,7 +68,7 @@ public class XMPPTypingIndicatorManager {
         }
     }
 
-    private String notificationForThread (Thread thread) {
+    private String notificationForThread (ThreadX thread) {
         if (thread.getEntityID() != null) {
             Map<String, String> map = typing.get(thread.getEntityID());
             if(map == null || map.keySet().size() == 0) {

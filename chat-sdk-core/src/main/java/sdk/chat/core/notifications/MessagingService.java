@@ -7,7 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.core.app.RemoteInput;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.session.ChatSDK;
 
 
@@ -30,7 +30,7 @@ public class MessagingService extends IntentService {
 
         String threadEntityID = intent.getStringExtra(EXTRA_CONVERSATION_ENTITY_ID_KEY);
 
-        final Thread thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
+        final ThreadX thread = ChatSDK.db().fetchThreadWithEntityID(threadEntityID);
 
         String action = intent.getAction();
 

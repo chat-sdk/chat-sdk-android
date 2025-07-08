@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Predicate;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -43,17 +43,17 @@ public class PublicThreadsFragment extends ThreadsFragment {
 
 
     @Override
-    protected Single<List<Thread>> getThreads() {
-        return Single.create((SingleOnSubscribe<List<Thread>>) emitter -> {
-            List<Thread> threads =  ChatSDK.thread().getThreads(ThreadType.Public);
+    protected Single<List<ThreadX>> getThreads() {
+        return Single.create((SingleOnSubscribe<List<ThreadX>>) emitter -> {
+            List<ThreadX> threads =  ChatSDK.thread().getThreads(ThreadType.Public);
 
             if (ChatSDK.config().publicChatRoomLifetimeMinutes == 0) {
                 emitter.onSuccess(threads);
             } else {
                 // Do we need to filter the list to remove old chat rooms?
                 long now = new Date().getTime();
-                List<Thread> filtered = new ArrayList<>();
-                for (Thread t : threads) {
+                List<ThreadX> filtered = new ArrayList<>();
+                for (ThreadX t : threads) {
                     if (t.getCreationDate() == null || now - t.getCreationDate().getTime() < TimeUnit.MINUTES.toMillis(ChatSDK.config().publicChatRoomLifetimeMinutes)) {
                         filtered.add(t);
                     }

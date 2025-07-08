@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
@@ -26,7 +26,7 @@ import sdk.guru.common.DisposableMap;
 
 public class ThreadHolder implements IDialog<MessageHolder> {
 
-    protected Thread thread;
+    protected ThreadX thread;
 
     protected List<UserHolder> users = new ArrayList<>();
     protected User otherUser = null;
@@ -42,7 +42,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
 
     protected String typingText = null;
 
-    public ThreadHolder(Thread thread) {
+    public ThreadHolder(ThreadX thread) {
         this.thread = thread;
         creationDate = thread.getCreationDate();
         update();
@@ -260,7 +260,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
         return object instanceof ThreadHolder && getId().equals(((ThreadHolder)object).getId());
     }
 
-    public Thread getThread() {
+    public ThreadX getThread() {
         return thread;
     }
 

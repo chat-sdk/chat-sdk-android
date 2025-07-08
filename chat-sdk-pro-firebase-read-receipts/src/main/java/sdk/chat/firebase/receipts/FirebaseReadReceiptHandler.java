@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.events.EventType;
 import sdk.chat.core.events.NetworkEvent;
 import sdk.chat.core.handlers.ReadReceiptHandler;
@@ -31,7 +31,7 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
 
     public FirebaseReadReceiptHandler() {
         ChatSDK.hook().addHook(Hook.sync(data -> {
-            for (Thread t: ChatSDK.db().fetchThreadsForCurrentUser()) {
+            for (ThreadX t: ChatSDK.db().fetchThreadsForCurrentUser()) {
                 threadReadReceiptsOn(t);
             }
         }), HookEvent.DidAuthenticate);
@@ -44,7 +44,7 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
         }), HookEvent.MessageReceived);
 
         dm.add(ChatSDK.events().source().filter(NetworkEvent.filterType(EventType.ThreadUserRoleUpdated)).subscribe(event -> {
-            Thread thread = event.getThread();
+            ThreadX thread = event.getThread();
             if (ChatSDK.thread().isBanned(thread, event.getUser())) {
                 threadReadReceiptsOff(thread);
             } else {
@@ -54,14 +54,14 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
 
     }
 
-    public void threadReadReceiptsOff(Thread thread) {
+    public void threadReadReceiptsOff(ThreadX thread) {
         List<Message> messages = ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), null, null, FirebaseReadReceiptsModule.config().maxMessagesPerThread);
         for(Message message : messages) {
             messageReadReceiptsOff(message);
         }
     }
 
-    public void threadReadReceiptsOn(Thread thread) {
+    public void threadReadReceiptsOn(ThreadX thread) {
         if(readReceiptsEnabledForThread(thread)) {
             List<Message> messages = ChatSDK.db().fetchMessagesForThreadWithID(thread.getId(), null, null, FirebaseReadReceiptsModule.config().maxMessagesPerThread);
             for(Message message : messages) {
@@ -132,7 +132,7 @@ public class FirebaseReadReceiptHandler implements ReadReceiptHandler {
 //        return false;
     }
 
-    private boolean readReceiptsEnabledForThread (Thread thread) {
+    private boolean readReceiptsEnabledForThread (ThreadX thread) {
         return thread.typeIs(ThreadType.Private) && !ChatSDK.thread().isBanned(thread, ChatSDK.currentUser());
     }
 

@@ -21,7 +21,7 @@ import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.R;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.image.ImageUtils;
 import sdk.chat.core.manager.MessagePayload;
@@ -52,7 +52,7 @@ public class NotificationBuilder {
     protected boolean replyEnabled = true;
     protected boolean markReadEnabled = true;
 
-    protected Thread messageReplyActionThread = null;
+    protected ThreadX messageReplyActionThread = null;
 
     public NotificationBuilder(Context context) {
         this.context = new WeakReference<>(context);
@@ -315,7 +315,7 @@ public class NotificationBuilder {
         return builder;
     }
 
-    public NotificationBuilder forAuto(String title, String text, Thread thread) {
+    public NotificationBuilder forAuto(String title, String text, ThreadX thread) {
         return useDefaultIcons()
                 .setVibrationEnabled(true)
                 .useDefaultChannel()
@@ -334,7 +334,7 @@ public class NotificationBuilder {
         return this;
     }
 
-    public NotificationBuilder addMessageReplyActionsForThread(Thread thread) {
+    public NotificationBuilder addMessageReplyActionsForThread(ThreadX thread) {
         messageReplyActionThread = thread;
         return this;
     }

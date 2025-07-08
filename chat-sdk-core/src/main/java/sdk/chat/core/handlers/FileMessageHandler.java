@@ -2,7 +2,7 @@ package sdk.chat.core.handlers;
 
 import java.io.File;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import io.reactivex.Completable;
 
 /**
@@ -10,5 +10,5 @@ import io.reactivex.Completable;
  */
 
 public interface FileMessageHandler extends MessageHandler {
-    Completable sendMessageWithFile(String name, String mimeType, File file, final Thread thread);
+    Completable sendMessageWithFile(String name, String mimeType, File file, final ThreadX thread);
 }

@@ -34,7 +34,7 @@ import app.xmpp.adapter.utils.Role;
 import app.xmpp.adapter.utils.XMPPMessageWrapper;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.events.NetworkEvent;
@@ -47,11 +47,11 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
 
     protected WeakReference<XMPPMUCManager> manager;
     protected MultiUserChat chat;
-    protected Thread thread;
+    protected ThreadX thread;
     protected DisposableMap dm = new DisposableMap();
     protected boolean disposed = false;
 
-    public XMPPMUCRoleListener(XMPPMUCManager manager, MultiUserChat chat, Thread thread) {
+    public XMPPMUCRoleListener(XMPPMUCManager manager, MultiUserChat chat, ThreadX thread) {
         this.chat = chat;
         this.thread = thread;
         this.manager = new WeakReference<>(manager);

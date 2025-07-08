@@ -8,7 +8,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
 
 import io.reactivex.Completable;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.ui.AbstractKeyboardOverlayFragment;
 import sdk.chat.core.ui.KeyboardOverlayHandler;
 
@@ -20,7 +20,7 @@ public interface ChatOption {
 
     @StringRes int getTitle();
     @DrawableRes int getImage();
-    Completable execute(Activity activity, ActivityResultLauncher<Intent> launcher, Thread thread);
+    Completable execute(Activity activity, ActivityResultLauncher<Intent> launcher, ThreadX thread);
 
     AbstractKeyboardOverlayFragment getOverlay(KeyboardOverlayHandler sender);
     boolean hasOverlay();

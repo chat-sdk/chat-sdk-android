@@ -13,7 +13,7 @@ import java.util.List;
 import io.reactivex.Completable;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.UserListItem;
 import sdk.chat.core.session.ChatSDK;
@@ -24,7 +24,7 @@ public class ForwardMessageActivity extends SelectContactActivity {
 
     public static int RESULT_ERROR = 100;
 
-    protected Thread thread;
+    protected ThreadX thread;
     protected ArrayList<Message> messages = new ArrayList<>();
 
     @Override

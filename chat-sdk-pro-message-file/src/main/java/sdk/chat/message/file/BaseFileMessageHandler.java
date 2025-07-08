@@ -16,7 +16,7 @@ import io.reactivex.Completable;
 import sdk.chat.core.base.AbstractMessageHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.handlers.FileMessageHandler;
 import sdk.chat.core.manager.MessagePayload;
 import sdk.chat.core.rigs.BitmapUploadable;
@@ -35,7 +35,7 @@ public class BaseFileMessageHandler extends AbstractMessageHandler implements Fi
     public static String imageName = "image.jpg";
     public static String imageMimeType = "image/jpeg";
 
-    public Completable sendMessageWithFile(final String fileName, final String mimeType, File file, final Thread thread) {
+    public Completable sendMessageWithFile(final String fileName, final String mimeType, File file, final ThreadX thread) {
 
         List<Uploadable> uploadables = new ArrayList<>();
         uploadables.add(new FileUploadable(file, fileName, mimeType, Keys.MessageFileURL));

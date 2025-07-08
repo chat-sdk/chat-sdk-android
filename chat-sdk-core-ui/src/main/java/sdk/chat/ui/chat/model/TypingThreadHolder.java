@@ -1,12 +1,12 @@
 package sdk.chat.ui.chat.model;
 
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 
 public class TypingThreadHolder extends ThreadHolder {
 
     protected String text;
 
-    public TypingThreadHolder(Thread thread, String text) {
+    public TypingThreadHolder(ThreadX thread, String text) {
         super(thread);
         this.text = text;
     }

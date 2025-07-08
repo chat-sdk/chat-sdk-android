@@ -13,7 +13,7 @@
  import sdk.chat.core.base.AbstractMessageHandler;
  import sdk.chat.core.dao.Keys;
  import sdk.chat.core.dao.Message;
- import sdk.chat.core.dao.Thread;
+ import sdk.chat.core.dao.ThreadX;
  import sdk.chat.core.handlers.VideoMessageHandler;
  import sdk.chat.core.image.ImageUtils;
  import sdk.chat.core.manager.MessagePayload;
@@ -38,7 +38,7 @@ public class BaseVideoMessageHandler extends AbstractMessageHandler implements V
     public static String imageName = "image.jpg";
     public static String imageMimeType = "image/jpeg";
 
-    public Completable sendMessageWithVideo(final File videoFile, final Thread thread) {
+    public Completable sendMessageWithVideo(final File videoFile, final ThreadX thread) {
         return Completable.defer(() -> {
             // Check the file size.. and if it's bigger than max, report error
 

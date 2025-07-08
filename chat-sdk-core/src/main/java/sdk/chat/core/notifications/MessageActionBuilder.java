@@ -11,7 +11,7 @@ import androidx.core.app.RemoteInput;
 
 import sdk.chat.core.R;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.interfaces.ThreadType;
 import sdk.chat.core.session.ChatSDK;
@@ -91,7 +91,7 @@ public class MessageActionBuilder {
         return markAsReadAction;
     }
 
-    public NotificationCompat.MessagingStyle createMessagingStyle(Thread thread) {
+    public NotificationCompat.MessagingStyle createMessagingStyle(ThreadX thread) {
 
         User user = ChatSDK.currentUser();
 
@@ -121,7 +121,7 @@ public class MessageActionBuilder {
         return style;
     }
 
-    public void addStyle(NotificationCompat.Builder builder, Context context, Thread thread) {
+    public void addStyle(NotificationCompat.Builder builder, Context context, ThreadX thread) {
 
         NotificationCompat.MessagingStyle style = createMessagingStyle(thread);
 
@@ -130,14 +130,14 @@ public class MessageActionBuilder {
         }
     }
 
-    public void addReply(NotificationCompat.Builder builder, Context context, Thread thread) {
+    public void addReply(NotificationCompat.Builder builder, Context context, ThreadX thread) {
         if (ChatSDK.config().replyFromNotificationEnabled) {
             NotificationCompat.Action replyAction = createReplyAction(context, thread.getEntityID(), getReplyId(thread.getId()));
             builder.addAction(replyAction);
         }
     }
 
-    public void addMarkRead(NotificationCompat.Builder builder, Context context, Thread thread) {
+    public void addMarkRead(NotificationCompat.Builder builder, Context context, ThreadX thread) {
         if (ChatSDK.config().markAsReadFromNotificationEnabled) {
             NotificationCompat.Action markAsReadAction = createMarkAsReadAction(context, thread.getEntityID(), getMarkReadId(thread.getId()));
             builder.addAction(markAsReadAction);

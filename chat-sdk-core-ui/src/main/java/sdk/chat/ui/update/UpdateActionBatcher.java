@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import sdk.guru.common.DisposableMap;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.guru.common.RX;
 
 @Deprecated
@@ -21,7 +21,7 @@ public class UpdateActionBatcher {
 
     DisposableMap dm = new DisposableMap();
 
-    protected Map<Thread, Map<ThreadUpdateAction.Type, ThreadUpdateAction>> map = new HashMap<>();
+    protected Map<ThreadX, Map<ThreadUpdateAction.Type, ThreadUpdateAction>> map = new HashMap<>();
 
     protected boolean reload;
     protected boolean softReload;
@@ -66,10 +66,10 @@ public class UpdateActionBatcher {
             }
             if (!map.isEmpty()) {
 
-                Map<Thread, Map<ThreadUpdateAction.Type, ThreadUpdateAction>> actionMap = new HashMap<>(map);
+                Map<ThreadX, Map<ThreadUpdateAction.Type, ThreadUpdateAction>> actionMap = new HashMap<>(map);
                 map.clear();
 
-                for (Thread thread: actionMap.keySet()) {
+                for (ThreadX thread: actionMap.keySet()) {
                     Map<ThreadUpdateAction.Type, ThreadUpdateAction> innerMap = actionMap.get(thread);
                     if (innerMap != null && !innerMap.isEmpty()) {
                         List<ThreadUpdateAction> actions = new ArrayList<>(innerMap.values());

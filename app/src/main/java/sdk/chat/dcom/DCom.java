@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.ChatSDKUI;
 import sdk.chat.ui.fragments.ChatFragment;
@@ -18,7 +18,7 @@ public class DCom {
         return instance;
     }
 
-    public void deleteAllMessages(Thread thread) {
+    public void deleteAllMessages(ThreadX thread) {
         thread.markRead();
         List<Message> messages = new ArrayList<>();
         for (Message message: thread.getMessages()) {

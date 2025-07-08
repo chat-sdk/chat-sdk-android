@@ -22,7 +22,7 @@ import io.reactivex.SingleSource;
 import sdk.chat.core.base.AbstractThreadHandler;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.Thread;
+import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.dao.UserThreadLink;
 import sdk.chat.core.events.NetworkEvent;
@@ -41,11 +41,11 @@ import sdk.guru.common.RX;
 public class XMPPThreadHandler extends AbstractThreadHandler {
 
     @Override
-    public Single<Thread> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL, Map<String, Object> meta) {
-        return Single.defer((Callable<SingleSource<Thread>>) () -> {
+    public Single<ThreadX> createThread(String name, List<User> theUsers, int type, String entityID, String imageURL, Map<String, Object> meta) {
+        return Single.defer((Callable<SingleSource<ThreadX>>) () -> {
 
             if (entityID != null) {
-                Thread t = ChatSDK.db().fetchThreadWithEntityID(entityID);
+                ThreadX t = ChatSDK.db().fetchThreadWithEntityID(entityID);
                 if (t != null) {
                     return Single.just(t);
                 }
@@ -64,13 +64,13 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
                 User otherUser = users.get(0);
 
                 // Check if the thread exists
-                Thread thread = ChatSDK.db().fetchThreadWithEntityID(otherUser.getEntityID());
+                ThreadX thread = ChatSDK.db().fetchThreadWithEntityID(otherUser.getEntityID());
                 if (thread != null && (ChatSDK.config().reuseDeleted1to1Threads || !thread.isDeleted())) {
                     thread.setDeleted(false);
                     return Single.just(thread);
                 }
 
-                thread = ChatSDK.db().createEntity(Thread.class);
+                thread = ChatSDK.db().createEntity(ThreadX.class);
                 thread.setCreator(currentUser);
                 thread.setCreationDate(new Date());
                 thread.setName(name);
@@ -94,7 +94,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean canRemoveUserFromThread(Thread thread, User user) {
+    public boolean canRemoveUserFromThread(ThreadX thread, User user) {
         if (thread.typeIs(ThreadType.Group)) {
             String myRole = roleForUser(thread, ChatSDK.currentUser());
             String role = roleForUser(thread, user);
@@ -104,7 +104,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable removeUsersFromThread(Thread thread, List<User> users) {
+    public Completable removeUsersFromThread(ThreadX thread, List<User> users) {
         return Completable.defer(() -> {
             List<Completable> completables = new ArrayList<>();
             for (User user: users) {
@@ -115,7 +115,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean canAddUsersToThread(Thread thread) {
+    public boolean canAddUsersToThread(ThreadX thread) {
         if (thread.typeIs(ThreadType.Group)) {
             String myRole = roleForUser(thread, ChatSDK.currentUser());
             return Role.isOwnerOrAdmin(myRole);
@@ -125,7 +125,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable addUsersToThread(final Thread thread, List<User> users) {
+    public Completable addUsersToThread(final ThreadX thread, List<User> users) {
         return Completable.defer(() -> {
             List<Completable> completables = new ArrayList<>();
             for (User user: users) {
@@ -136,7 +136,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable deleteThread(Thread thread) {
+    public Completable deleteThread(ThreadX thread) {
         return leaveThread(thread).doOnComplete(() -> {
 
         }).doFinally(() -> {
@@ -165,7 +165,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable leaveThread(Thread thread) {
+    public Completable leaveThread(ThreadX thread) {
         return Completable.defer(() -> {
             if (thread.typeIs(ThreadType.Group)) {
                 MultiUserChat chat = XMPPManager.shared().mucManager.chatForThreadID(thread.getEntityID());
@@ -197,7 +197,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable joinThread(Thread thread) {
+    public Completable joinThread(ThreadX thread) {
         return Completable.defer(() -> {
             if (thread.typeIs(ThreadType.Group)) {
                 return XMPPManager.shared().mucManager.joinRoom(thread.getEntityID()).ignoreElement();
@@ -207,7 +207,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean canJoinThread(Thread thread) {
+    public boolean canJoinThread(ThreadX thread) {
         if (thread.typeIs(ThreadType.Group) && ChatSDK.config().allowUserToRejoinGroup) {
             // Get the link
             UserThreadLink link = thread.getUserThreadLink(ChatSDK.currentUser().getId());
@@ -219,7 +219,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean canLeaveThread(Thread thread) {
+    public boolean canLeaveThread(ThreadX thread) {
         if (thread.typeIs(ThreadType.Group)) {
             // Get the link
             UserThreadLink link = thread.getUserThreadLink(ChatSDK.currentUser().getId());
@@ -326,7 +326,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable pushThread(Thread thread) {
+    public Completable pushThread(ThreadX thread) {
         return Completable.complete();
     }
 
@@ -336,13 +336,13 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
 //    }
 
     @Override
-    public boolean muteEnabled(Thread thread) {
+    public boolean muteEnabled(ThreadX thread) {
         return false;
     }
 
 
     @Override
-    public boolean canDestroy(Thread thread) {
+    public boolean canDestroy(ThreadX thread) {
         if(ChatSDK.config().threadDestructionEnabled && thread.typeIs(ThreadType.Group) && rolesEnabled(thread)) {
             String myRole = roleForUser(thread, ChatSDK.currentUser());
             return Role.isOwner(myRole);
@@ -351,13 +351,13 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable destroy(Thread thread) {
+    public Completable destroy(ThreadX thread) {
         return XMPPManager.shared().mucManager.destroy(thread);
     }
 
     // Moderation
     @Override
-    public Completable grantVoice(Thread thread, User user) {
+    public Completable grantVoice(ThreadX thread, User user) {
         if (!hasVoice(thread, user)) {
             return XMPPManager.shared().mucManager.grantVoice(thread, user).concatWith(super.grantVoice(thread, user)).subscribeOn(RX.io());
         } else {
@@ -366,7 +366,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable revokeVoice(Thread thread, User user) {
+    public Completable revokeVoice(ThreadX thread, User user) {
         if (hasVoice(thread, user)) {
             return XMPPManager.shared().mucManager.revokeVoice(thread, user).concatWith(super.revokeVoice(thread, user)).subscribeOn(RX.io());
         } else {
@@ -375,7 +375,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean hasVoice(Thread thread, User user) {
+    public boolean hasVoice(ThreadX thread, User user) {
 
         if (thread.typeIs(ThreadType.Group)) {
             UserThreadLink link = thread.getUserThreadLink(user.getId());
@@ -394,7 +394,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
         return true;
     }
 
-    public boolean canChangeVoice(Thread thread, User user) {
+    public boolean canChangeVoice(ThreadX thread, User user) {
         // Are they active?
         UserThreadLink link = thread.getUserThreadLink(user.getId());
         if (link != null && link.isActive()) {
@@ -406,7 +406,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable grantModerator(Thread thread, User user) {
+    public Completable grantModerator(ThreadX thread, User user) {
         if (!isModerator(thread, user)) {
             return XMPPManager.shared().mucManager.grantModerator(thread, user).subscribeOn(RX.io());
         } else {
@@ -415,7 +415,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable revokeModerator(Thread thread, User user) {
+    public Completable revokeModerator(ThreadX thread, User user) {
         if (isModerator(thread, user)) {
             return XMPPManager.shared().mucManager.revokeModerator(thread, user).subscribeOn(RX.io());
         } else {
@@ -424,7 +424,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean canChangeModerator(Thread thread, User user) {
+    public boolean canChangeModerator(ThreadX thread, User user) {
         UserThreadLink link = thread.getUserThreadLink(user.getId());
         if (link != null && link.isActive()) {
             String myRole = roleForUser(thread, ChatSDK.currentUser());
@@ -435,7 +435,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean isModerator(Thread thread, User user) {
+    public boolean isModerator(ThreadX thread, User user) {
         UserThreadLink link = thread.getUserThreadLink(user.getId());
         if (link != null && link.hasLeft()) {
             return false;
@@ -448,7 +448,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
         return Role.isModerator(role);
     }
 
-    public List<String> availableRoles(Thread thread, User user) {
+    public List<String> availableRoles(ThreadX thread, User user) {
         List<String> roles = new ArrayList<>();
 
         String myRole = roleForUser(thread, ChatSDK.currentUser());
@@ -468,16 +468,16 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean rolesEnabled(Thread thread) {
+    public boolean rolesEnabled(ThreadX thread) {
         return ChatSDK.config().rolesEnabled && thread.typeIs(ThreadType.Group);
     }
 
     @Override
-    public boolean canChangeRole(Thread thread, User user) {
+    public boolean canChangeRole(ThreadX thread, User user) {
         return rolesEnabled(thread) && availableRoles(thread, user).size() > 1;
     }
 
-    public String roleForUser(Thread thread, User user) {
+    public String roleForUser(ThreadX thread, User user) {
         UserThreadLink link = thread.getUserThreadLink(user.getId());
         if (link != null && !link.hasLeft()) {
             return link.getAffiliation();
@@ -486,7 +486,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
         }
     }
 
-    public Completable setRole(String role, Thread thread, User user) {
+    public Completable setRole(String role, ThreadX thread, User user) {
         return Completable.defer(() -> {
             MUCAffiliation newAffiliation = MUCAffiliation.fromString(role);
             if (newAffiliation != null) {
@@ -497,18 +497,18 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public Completable refreshRoles(Thread thread) {
+    public Completable refreshRoles(ThreadX thread) {
         return XMPPManager.shared().mucManager.refreshRoomAffiliation(thread);
     }
 
     @Override
-    public boolean canRefreshRoles(Thread thread) {
+    public boolean canRefreshRoles(ThreadX thread) {
         String role = roleForUser(thread, ChatSDK.currentUser());
         return rolesEnabled(thread) && Role.canRead(role);
     }
 
     @Override
-    public boolean canEditThreadDetails(Thread thread) {
+    public boolean canEditThreadDetails(ThreadX thread) {
 //        if (thread.typeIs(ThreadType.Group)) {
 //            String role = roleForUser(thread, ChatSDK.currentUser());
 //            return Role.isOwnerOrAdmin(role);
@@ -517,7 +517,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public boolean isActive(Thread thread, User user) {
+    public boolean isActive(ThreadX thread, User user) {
         if (thread != null && user != null && thread.getUserThreadLink(user.getId()) != null) {
             return thread.getUserThreadLink(user.getId()).isActive();
         }
@@ -525,7 +525,7 @@ public class XMPPThreadHandler extends AbstractThreadHandler {
     }
 
     @Override
-    public String generateNewMessageID(Thread thread) {
+    public String generateNewMessageID(ThreadX thread) {
         return UUID.randomUUID().toString();
     }
 
