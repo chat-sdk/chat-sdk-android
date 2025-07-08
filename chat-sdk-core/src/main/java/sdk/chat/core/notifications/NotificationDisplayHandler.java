@@ -60,7 +60,7 @@ public class NotificationDisplayHandler implements Consumer<Throwable> {
                     .setIntent(resultIntent)
                     .addIconForUserEntityID(userEntityID)
                     .setTitle(title)
-                    .setText(context.getResources().getString(R.string.incoming_call));
+                    .setText(context.getResources().getString(sdk.chat.core.R.string.incoming_call));
 
         return builder.build().subscribe(nb -> {
             NotificationManagerCompat.from(context).notify(MESSAGE_NOTIFICATION_ID, nb.build());

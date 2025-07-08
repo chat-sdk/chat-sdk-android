@@ -87,7 +87,7 @@ public class ContactBookSearchActivity extends BaseActivity {
                         ChatSDK.contact().addContact(searchResult.user, ConnectionType.Contact)
                                 .observeOn(RX.main())
                                 .doOnComplete(() -> {
-                                    showToast(R.string.contact_added);
+                                    showToast(sdk.chat.core.R.string.contact_added);
                                     adapter.getItems().remove(item);
                                     adapter.notifyDataSetChanged();
                                 })
@@ -170,7 +170,7 @@ public class ContactBookSearchActivity extends BaseActivity {
         final ArrayList<Runnable> runnables = new ArrayList<>();
 
         if (user.getEmailAddresses().size() > 0) {
-            titles.add(getString(R.string.email));
+            titles.add(getString(sdk.chat.core.R.string.email));
             runnables.add(() -> sendEmail(
                     user.getEmailAddresses().get(0),
                     ContactBookModule.config().contactBookInviteContactEmailSubject,

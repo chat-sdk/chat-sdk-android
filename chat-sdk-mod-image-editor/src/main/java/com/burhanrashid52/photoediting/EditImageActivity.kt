@@ -164,7 +164,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
                 if (rootView != null) {
                     mPhotoEditor?.editText(rootView, inputText, styleBuilder)
                 }
-                mTxtCurrentTool?.setText(R.string.label_text)
+                mTxtCurrentTool?.setText(sdk.chat.core.R.string.label_text)
             }
         })
     }
@@ -215,11 +215,11 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         intent.type = "image/*"
         val saveImageUri = mSaveImageUri
         if (saveImageUri == null) {
-            showSnackbar(getString(R.string.msg_save_image_to_share))
+            showSnackbar(getString(sdk.chat.core.R.string.msg_save_image_to_share))
             return
         }
         intent.putExtra(Intent.EXTRA_STREAM, buildFileProviderUri(saveImageUri))
-        startActivity(Intent.createChooser(intent, getString(R.string.msg_share_image)))
+        startActivity(Intent.createChooser(intent, getString(sdk.chat.core.R.string.msg_share_image)))
     }
 
     private fun buildFileProviderUri(uri: Uri): Uri {
@@ -332,17 +332,17 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 
     override fun onColorChanged(colorCode: Int) {
         mPhotoEditor?.setShape(mShapeBuilder?.withShapeColor(colorCode))
-        mTxtCurrentTool?.setText(R.string.label_brush)
+        mTxtCurrentTool?.setText(sdk.chat.core.R.string.label_brush)
     }
 
     override fun onOpacityChanged(opacity: Int) {
         mPhotoEditor?.setShape(mShapeBuilder?.withShapeOpacity(opacity))
-        mTxtCurrentTool?.setText(R.string.label_brush)
+        mTxtCurrentTool?.setText(sdk.chat.core.R.string.label_brush)
     }
 
     override fun onShapeSizeChanged(shapeSize: Int) {
         mPhotoEditor?.setShape(mShapeBuilder?.withShapeSize(shapeSize.toFloat()))
-        mTxtCurrentTool?.setText(R.string.label_brush)
+        mTxtCurrentTool?.setText(sdk.chat.core.R.string.label_brush)
     }
 
     override fun onShapePicked(shapeType: ShapeType?) {
@@ -351,12 +351,12 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 
     override fun onEmojiClick(emojiUnicode: String?) {
         mPhotoEditor?.addEmoji(emojiUnicode)
-        mTxtCurrentTool?.setText(R.string.label_emoji)
+        mTxtCurrentTool?.setText(sdk.chat.core.R.string.label_emoji)
     }
 
     override fun onStickerClick(bitmap: Bitmap?) {
         mPhotoEditor?.addImage(bitmap)
-        mTxtCurrentTool?.setText(R.string.label_sticker)
+        mTxtCurrentTool?.setText(sdk.chat.core.R.string.label_sticker)
     }
 
     @SuppressLint("MissingPermission")
@@ -369,7 +369,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     @SuppressLint("MissingPermission")
     private fun showSaveDialog() {
         val builder = AlertDialog.Builder(this)
-        builder.setMessage(getString(R.string.msg_save_image))
+        builder.setMessage(getString(sdk.chat.core.R.string.msg_save_image))
         builder.setPositiveButton("Save") { _: DialogInterface?, _: Int -> sendImage() }
         builder.setNegativeButton("Cancel") { dialog: DialogInterface, _: Int -> dialog.dismiss() }
         builder.setNeutralButton("Discard") { _: DialogInterface?, _: Int -> finish() }
@@ -386,7 +386,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
                 mPhotoEditor?.setBrushDrawingMode(true)
                 mShapeBuilder = ShapeBuilder()
                 mPhotoEditor?.setShape(mShapeBuilder)
-                mTxtCurrentTool?.setText(R.string.label_shape)
+                mTxtCurrentTool?.setText(sdk.chat.core.R.string.label_shape)
                 showBottomSheetDialogFragment(mShapeBSFragment)
             }
             ToolType.TEXT -> {
@@ -396,16 +396,16 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
                         val styleBuilder = TextStyleBuilder()
                         styleBuilder.withTextColor(colorCode)
                         mPhotoEditor?.addText(inputText, styleBuilder)
-                        mTxtCurrentTool?.setText(R.string.label_text)
+                        mTxtCurrentTool?.setText(sdk.chat.core.R.string.label_text)
                     }
                 })
             }
             ToolType.ERASER -> {
                 mPhotoEditor?.brushEraser()
-                mTxtCurrentTool?.setText(R.string.label_eraser_mode)
+                mTxtCurrentTool?.setText(sdk.chat.core.R.string.label_eraser_mode)
             }
             ToolType.FILTER -> {
-                mTxtCurrentTool?.setText(R.string.label_filter)
+                mTxtCurrentTool?.setText(sdk.chat.core.R.string.label_filter)
                 showFilter(true)
             }
             ToolType.EMOJI -> showBottomSheetDialogFragment(mEmojiBSFragment)
@@ -454,7 +454,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 
         if (mIsFilterVisible) {
             showFilter(false)
-//            mTxtCurrentTool?.setText(R.string.app_name)
+//            mTxtCurrentTool?.setText(sdk.chat.core.R.string.app_name)
         } else {
 //            showSaveDialog()
 //        } else {

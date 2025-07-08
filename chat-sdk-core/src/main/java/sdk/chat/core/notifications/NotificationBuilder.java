@@ -167,8 +167,8 @@ public class NotificationBuilder {
     }
 
     public NotificationBuilder useDefaultChannel() {
-        return setChannelName(context.get().getString(R.string.app_name))
-                .setChannelDescription(context.get().getString(R.string.push_channel_name));
+        return setChannelName(context.get().getString(sdk.chat.core.R.string.app_name))
+                .setChannelDescription(context.get().getString(sdk.chat.core.R.string.push_channel_name));
     }
 
     public NotificationBuilder setColor(@ColorInt int color) {

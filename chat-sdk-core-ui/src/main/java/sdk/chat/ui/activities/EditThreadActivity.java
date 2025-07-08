@@ -119,7 +119,7 @@ public class EditThreadActivity extends BaseActivity {
         if (UIModule.config().customizeGroupImageEnabled && ChatSDK.upload() != null) {
             threadImageView.setOnClickListener(view -> {
                 threadImageView.setEnabled(false);
-                showProgressDialog(EditThreadActivity.this.getString(R.string.uploading));
+                showProgressDialog(EditThreadActivity.this.getString(sdk.chat.core.R.string.uploading));
                 dm.add(pickerUploader.chooseCircularPhoto(contract, ChatSDK.config().imageMaxThumbnailDimension).subscribe(results -> {
                     if (results != null && results.size() == 1) {
                         updateThreadImageURL(results.get(0).url);
@@ -179,7 +179,7 @@ public class EditThreadActivity extends BaseActivity {
         // 2. Create a Private Group
         // 3. Update a thread
         if (thread == null) {
-            showOrUpdateProgressDialog(getString(R.string.add_public_chat_dialog_progress_message));
+            showOrUpdateProgressDialog(getString(sdk.chat.core.R.string.add_public_chat_dialog_progress_message));
 
             BiConsumer<ThreadX, Throwable> consumer = (thread, throwable) -> {
                 dismissProgressDialog();

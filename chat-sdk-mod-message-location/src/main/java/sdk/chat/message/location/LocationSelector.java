@@ -52,7 +52,7 @@ public class LocationSelector {
 //            try {
 //                Intent intent = builder.build(activity);
 //                if(!startActivityForResult(activity, intent, PICK_LOCATION)) {
-//                    notifyError(new Exception(activity.getString(R.string.unable_to_start_activity)));
+//                    notifyError(new Exception(activity.getString(sdk.chat.core.R.string.unable_to_start_activity)));
 //                }
 //            }
 //            catch (GooglePlayServicesRepairableException e) {
@@ -86,7 +86,7 @@ public class LocationSelector {
 //        if (resultCode == Activity.RESULT_OK && requestCode == PICK_LOCATION) {
 //            processPickedLocation(data);
 //        } else {
-//            notifyError(new Exception(activity.getString(R.string.error_picking_location)));
+//            notifyError(new Exception(activity.getString(sdk.chat.core.R.string.error_picking_location)));
 //        }
 //    }
 

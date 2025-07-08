@@ -81,7 +81,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
                             if (thread.getModel().typeIs(ThreadType.Group)) {
                                 String permission = thread.getModel().getPermission(user.getEntityID());
                                 if (permission != null && permission.equals(Permission.None)) {
-                                    ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(R.string.you_were_added_to_the_thread), thread.getModel());
+                                    ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(sdk.chat.core.R.string.you_were_added_to_the_thread), thread.getModel());
                                 }
                             }
 
@@ -101,7 +101,7 @@ public class FirebaseEventHandler extends AbstractEventHandler {
                         Logger.debug("Thread removed: " + change.getSnapshot().getKey());
 
                         if (thread.getModel().typeIs(ThreadType.Group)) {
-                            ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(R.string.you_were_removed_from_the_thread), thread.getModel());
+                            ChatSDK.thread().sendLocalSystemMessage(ChatSDK.getString(sdk.chat.core.R.string.you_were_removed_from_the_thread), thread.getModel());
                         }
                         thread.getModel().setPermission(user.getEntityID(), Permission.None, true, false);
                         thread.getModel().getUserThreadLink(ChatSDK.currentUser().getId()).setHasLeft(true);

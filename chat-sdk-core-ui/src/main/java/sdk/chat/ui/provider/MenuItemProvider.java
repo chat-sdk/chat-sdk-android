@@ -22,7 +22,7 @@ public class MenuItemProvider {
     public MenuItem addAddItem(Context context, Menu menu, int order) {
         MenuItem item = menu.findItem(addItemId);
         if (item == null) {
-            item = menu.add(Menu.NONE, addItemId, order, R.string.add)
+            item = menu.add(Menu.NONE, addItemId, order, sdk.chat.core.R.string.add)
                     .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().add, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
@@ -33,7 +33,7 @@ public class MenuItemProvider {
     public MenuItem addSearchItem(Context context, Menu menu, int order) {
         MenuItem item = menu.findItem(searchItemId);
         if (item == null) {
-            item = menu.add(Menu.NONE, searchItemId, order, R.string.search)
+            item = menu.add(Menu.NONE, searchItemId, order, sdk.chat.core.R.string.search)
                     .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().search, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
@@ -43,7 +43,7 @@ public class MenuItemProvider {
     public MenuItem addCopyItem(Context context, Menu menu, int order) {
         MenuItem item = menu.findItem(copyItemId);
         if (item == null) {
-            item = menu.add(Menu.NONE, copyItemId, order, R.string.copy)
+            item = menu.add(Menu.NONE, copyItemId, order, sdk.chat.core.R.string.copy)
                     .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().copy, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
@@ -53,7 +53,7 @@ public class MenuItemProvider {
     public MenuItem addDeleteItem(Context context, Menu menu, int order) {
         MenuItem item = menu.findItem(deleteItemId);
         if (item == null) {
-            item = menu.add(Menu.NONE, deleteItemId, order, R.string.delete)
+            item = menu.add(Menu.NONE, deleteItemId, order, sdk.chat.core.R.string.delete)
                     .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().delete, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
@@ -63,7 +63,7 @@ public class MenuItemProvider {
     public MenuItem addForwardItem(Context context, Menu menu, int order) {
         MenuItem item = menu.findItem(forwardItemId);
         if (item == null) {
-            item = menu.add(Menu.NONE, forwardItemId, order, R.string.forward_message)
+            item = menu.add(Menu.NONE, forwardItemId, order, sdk.chat.core.R.string.forward_message)
                     .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().forward, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
@@ -73,7 +73,7 @@ public class MenuItemProvider {
     public MenuItem addReplyItem(Context context, Menu menu, int order) {
         MenuItem item = menu.findItem(replyItemId);
         if (item == null) {
-            item = menu.add(Menu.NONE, replyItemId, order, R.string.reply)
+            item = menu.add(Menu.NONE, replyItemId, order, sdk.chat.core.R.string.reply)
                     .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().reply, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
@@ -83,7 +83,7 @@ public class MenuItemProvider {
     public MenuItem addCallItem(Context context, Menu menu, int order) {
         MenuItem item = menu.findItem(callItemId);
         if (item == null) {
-            item = menu.add(Menu.NONE, callItemId, order, R.string.call)
+            item = menu.add(Menu.NONE, callItemId, order, sdk.chat.core.R.string.call)
                     .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().call, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
@@ -93,7 +93,7 @@ public class MenuItemProvider {
     public MenuItem addSaveItem(Context context, Menu menu, int order) {
         MenuItem item = menu.findItem(saveItemId);
         if (item == null) {
-            item = menu.add(Menu.NONE, saveItemId, order, R.string.save)
+            item = menu.add(Menu.NONE, saveItemId, order, sdk.chat.core.R.string.save)
                     .setIcon(ChatSDKUI.icons().get(context, ChatSDKUI.icons().save, ChatSDKUI.icons().actionBarIconColor));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }

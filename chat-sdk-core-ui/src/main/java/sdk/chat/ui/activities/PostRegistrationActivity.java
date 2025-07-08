@@ -94,7 +94,7 @@ public class PostRegistrationActivity extends BaseActivity {
         String email = emailEditView.getText();
 
         if (StringChecker.isNullOrEmpty(name)) {
-            showToast(R.string.name_field_must_be_set);
+            showToast(sdk.chat.core.R.string.name_field_must_be_set);
             return;
         }
 
@@ -144,24 +144,24 @@ public class PostRegistrationActivity extends BaseActivity {
         nameEditView.setText(name);
         nameEditView.setNextFocusDown(R.id.locationEditView);
         nameEditView.setIcon(ChatSDKUI.icons().get(this, ChatSDKUI.icons().user, R.color.edit_profile_icon_color));
-        nameEditView.setHint(R.string.name_hint_required);
+        nameEditView.setHint(sdk.chat.core.R.string.name_hint_required);
         nameEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
         locationEditView.setText(location);
         locationEditView.setNextFocusDown(R.id.phoneEditView);
         locationEditView.setIcon(ChatSDKUI.icons().get(this, ChatSDKUI.icons().location, R.color.edit_profile_icon_color));
-        locationEditView.setHint(R.string.location_hint);
+        locationEditView.setHint(sdk.chat.core.R.string.location_hint);
         locationEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
         phoneEditView.setText(phoneNumber);
         phoneEditView.setNextFocusDown(R.id.emailEditView);
         phoneEditView.setIcon(ChatSDKUI.icons().get(this, ChatSDKUI.icons().phone, R.color.edit_profile_icon_color));
-        phoneEditView.setHint(R.string.phone_number_hint);
+        phoneEditView.setHint(sdk.chat.core.R.string.phone_number_hint);
         phoneEditView.setInputType(InputType.TYPE_CLASS_PHONE);
 
         emailEditView.setText(email);
         emailEditView.setIcon(ChatSDKUI.icons().get(this, ChatSDKUI.icons().email, R.color.edit_profile_icon_color));
-        emailEditView.setHint(R.string.email_hint);
+        emailEditView.setHint(sdk.chat.core.R.string.email_hint);
         emailEditView.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
     }
 

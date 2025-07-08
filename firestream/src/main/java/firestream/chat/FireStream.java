@@ -132,10 +132,10 @@ public class FireStream extends AbstractChat implements IFireStream {
     public void connect () throws Exception {
 
         if (this.config == null) {
-            throw new Exception(context().getString(R.string.error_initialize_not_run));
+            throw new Exception(context().getString(sdk.chat.core.R.string.error_initialize_not_run));
         }
         if (this.user == null) {
-            throw new Exception(context().getString(R.string.error_no_authenticated_user));
+            throw new Exception(context().getString(sdk.chat.core.R.string.error_no_authenticated_user));
         }
 
         connectionEvents.onNext(ConnectionEvent.willConnect());

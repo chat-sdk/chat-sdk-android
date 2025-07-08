@@ -180,7 +180,7 @@ package sdk.chat.encryption;
 //                    String encryptedMessageString = Base64.encode(encryptedMessage);
 //
 //                    HashMap<String, Object> newMessageMeta = new HashMap<>();
-//                    newMessageMeta.put(Keys.MessageText, ChatSDK.shared().context().getString(R.string.encrypted_message));
+//                    newMessageMeta.put(Keys.MessageText, ChatSDK.shared().context().getString(sdk.chat.core.R.string.encrypted_message));
 //                    newMessageMeta.put(EncryptedMessageKey, encryptedMessageString);
 //
 //                    message.setMetaValues(newMessageMeta);

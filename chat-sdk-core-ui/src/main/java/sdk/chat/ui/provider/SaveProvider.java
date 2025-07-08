@@ -19,7 +19,7 @@ public class SaveProvider {
                 Bitmap bitmap = Glide.with(context).asBitmap().load(imageURL).submit().get();
                 String bitmapURL = MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, "", "");
                 if (bitmapURL != null) {
-                    emitter.onSuccess(context.getString(R.string.image_saved));
+                    emitter.onSuccess(context.getString(sdk.chat.core.R.string.image_saved));
                 } else {
                     emitter.onError(new Throwable());
                 }

@@ -37,8 +37,8 @@ public class VideoMessageModule extends AbstractModule {
         Report.shared().add(getName());
         ChatSDK.a().videoMessage = new BaseVideoMessageHandler();
 
-        ChatSDK.ui().addChatOption(new MediaChatOption(R.string.take_video, R.drawable.icn_100_take_video, MediaType.takeVideo()));
-        ChatSDK.ui().addChatOption(new MediaChatOption(R.string.choose_video, R.drawable.icn_100_video, MediaType.chooseVideo()));
+        ChatSDK.ui().addChatOption(new MediaChatOption(sdk.chat.core.R.string.take_video, R.drawable.icn_100_take_video, MediaType.takeVideo()));
+        ChatSDK.ui().addChatOption(new MediaChatOption(sdk.chat.core.R.string.choose_video, R.drawable.icn_100_video, MediaType.chooseVideo()));
         
         ChatSDKUI.shared().getMessageRegistrationManager().addMessageRegistration(new VideoMessageRegistration());
 

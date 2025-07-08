@@ -169,7 +169,7 @@ public class ProfileFragment extends BaseFragment {
         dm.add(ChatSDK.blocking().blockUser(getUser().getEntityID())
                 .observeOn(RX.main())
                 .subscribe(() -> {
-                    showSnackbar(R.string.user_blocked);
+                    showSnackbar(sdk.chat.core.R.string.user_blocked);
                 }, this));
     }
 
@@ -179,7 +179,7 @@ public class ProfileFragment extends BaseFragment {
         dm.add(ChatSDK.blocking().unblockUser(getUser().getEntityID())
                 .observeOn(RX.main())
                 .subscribe(() -> {
-                    showSnackbar(R.string.user_unblocked);
+                    showSnackbar(sdk.chat.core.R.string.user_unblocked);
                 }, this));
     }
 
@@ -200,7 +200,7 @@ public class ProfileFragment extends BaseFragment {
         dm.add(ChatSDK.contact().addContact(getUser(), ConnectionType.Contact)
                 .observeOn(RX.main())
                 .subscribe(() -> {
-                    showSnackbar(R.string.contact_added);
+                    showSnackbar(sdk.chat.core.R.string.contact_added);
                 }, this));
     }
 
@@ -210,7 +210,7 @@ public class ProfileFragment extends BaseFragment {
         dm.add(ChatSDK.contact().deleteContact(getUser(), ConnectionType.Contact)
                 .observeOn(RX.main())
                 .subscribe(() -> {
-                    showSnackbar(R.string.contact_deleted);
+                    showSnackbar(sdk.chat.core.R.string.contact_deleted);
                 }, this));
     }
 
@@ -245,7 +245,7 @@ public class ProfileFragment extends BaseFragment {
             optionsFab.setOnClickListener(v -> {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.options);
+                builder.setTitle(sdk.chat.core.R.string.options);
 
                 List<String> options = new ArrayList<>();
                 for (ProfileOption option: ChatSDK.ui().getProfileOptions(user)) {
@@ -330,7 +330,7 @@ public class ProfileFragment extends BaseFragment {
 
                 buttonsLinearLayout.addView(SwitchItemView.create(
                         getContext(),
-                        R.string.blocked,
+                        sdk.chat.core.R.string.blocked,
                         ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().block, R.color.blocked_primary_icon_color),
                         isBlocked,
                         R.color.blocked_primary_icon_color, R.color.blocked_secondary_icon_color, (buttonView, isChecked) -> {
@@ -342,7 +342,7 @@ public class ProfileFragment extends BaseFragment {
 
             buttonsLinearLayout.addView(SwitchItemView.create(
                     getContext(),
-                    R.string.contact,
+                    sdk.chat.core.R.string.contact,
                     ChatSDKUI.icons().get(getContext(), ChatSDKUI.icons().contact, R.color.contacts_primary_color),
                     isContact,
                     R.color.contacts_primary_color, R.color.contacts_secondary_color, (buttonView, isChecked) -> {

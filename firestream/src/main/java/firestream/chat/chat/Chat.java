@@ -127,7 +127,7 @@ public class Chat extends AbstractChat implements IChat {
         return Completable.defer(() -> {
             if (getMyRoleType().equals(RoleType.owner()) && getUsers().size() > 1) {
                 if (getUsers().size() > 1) {
-                    return Completable.error(Fire.internal().getError(R.string.error_group_must_be_empty_to_close));
+                    return Completable.error(Fire.internal().getError(sdk.chat.core.R.string.error_group_must_be_empty_to_close));
                 } else {
                     return delete().doOnComplete(this::disconnect);
                 }
@@ -456,15 +456,15 @@ public class Chat extends AbstractChat implements IChat {
     }
 
     protected Exception ownerPermissionRequired() {
-        return new Exception(Fire.internal().context().getString(R.string.error_owner_permission_required));
+        return new Exception(Fire.internal().context().getString(sdk.chat.core.R.string.error_owner_permission_required));
     }
 
     protected Exception adminPermissionRequired() {
-        return new Exception(Fire.internal().context().getString(R.string.error_admin_permission_required));
+        return new Exception(Fire.internal().context().getString(sdk.chat.core.R.string.error_admin_permission_required));
     }
 
     protected Exception memberPermissionRequired() {
-        return new Exception(Fire.internal().context().getString(R.string.error_member_permission_required));
+        return new Exception(Fire.internal().context().getString(sdk.chat.core.R.string.error_member_permission_required));
     }
 
     public static Single<Chat> create(final String name, final String imageURL, final Map<String, Object> data, final List<? extends User> users) {

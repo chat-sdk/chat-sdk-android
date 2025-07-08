@@ -54,7 +54,7 @@ public class ForwardMessageActivity extends SelectContactActivity {
 
         super.onCreate(savedInstanceState);
 
-        setActionBarTitle(R.string.forward_message);
+        setActionBarTitle(sdk.chat.core.R.string.forward_message);
         setMultiSelectEnabled(true);
     }
 

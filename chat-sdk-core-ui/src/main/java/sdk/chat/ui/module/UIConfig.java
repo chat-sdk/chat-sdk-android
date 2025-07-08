@@ -61,7 +61,7 @@ public class UIConfig<T> extends BaseConfig<T> {
 
     public boolean showFileSizeDuringUpload = false;
 
-    public int cropperButtonResourceId = R.string.send;
+    public int cropperButtonResourceId = sdk.chat.core.R.string.send;
 
     public boolean messageForwardingEnabled = true;
     public boolean messageReplyEnabled = true;

@@ -50,7 +50,7 @@ open class ModerationActivity: BaseActivity() {
         }
 
         if (user == null || thread === null) {
-            ToastHelper.show(this, R.string.user_entity_id_not_set)
+            ToastHelper.show(this, sdk.chat.core.R.string.user_entity_id_not_set)
             finish()
             return
         }
@@ -133,8 +133,8 @@ open class ModerationActivity: BaseActivity() {
     protected fun items(): MutableList<Any> {
         var items = arrayListOf<Any>()
 
-        items.add(SectionViewModel(getString(R.string.profile)))
-        items.add(NavigationViewModel(getString(R.string.view_profile), Runnable { showProfile(user) }))
+        items.add(SectionViewModel(getString(sdk.chat.core.R.string.profile)))
+        items.add(NavigationViewModel(getString(sdk.chat.core.R.string.view_profile), Runnable { showProfile(user) }))
 
         // Edit roles
         if (ChatSDK.thread().canChangeRole(thread, user)) {
@@ -144,7 +144,7 @@ open class ModerationActivity: BaseActivity() {
             val currentRole = ChatSDK.thread().roleForUser(thread, user)
 
             if (roles.size > 0) {
-                var group = getString(R.string.role)
+                var group = getString(sdk.chat.core.R.string.role)
                 items.add(SectionViewModel(group))
 
                 var roleRunnable = object : RadioRunnable {
@@ -173,7 +173,7 @@ open class ModerationActivity: BaseActivity() {
         val canChangeVoice = ChatSDK.thread().canChangeVoice(thread, user)
 
         if (canChangeModerator || canChangeVoice) {
-            items.add(SectionViewModel(getString(R.string.moderation)))
+            items.add(SectionViewModel(getString(sdk.chat.core.R.string.moderation)))
 
             if (canChangeModerator) {
 
@@ -183,7 +183,7 @@ open class ModerationActivity: BaseActivity() {
                     }
                 }
 
-                items.add(ToggleViewModel(getString(R.string.moderator), startingValue, object : ToggleRunnable {
+                items.add(ToggleViewModel(getString(sdk.chat.core.R.string.moderator), startingValue, object : ToggleRunnable {
                     override fun run(value: Boolean) {
                         if (value) {
                             dm.add(ChatSDK.thread().grantModerator(thread, user).observeOn(RX.main()).subscribe(Action {
@@ -206,7 +206,7 @@ open class ModerationActivity: BaseActivity() {
                     }
                 }
 
-                items.add(ToggleViewModel(getString(R.string.silence), startingValue, object : ToggleRunnable {
+                items.add(ToggleViewModel(getString(sdk.chat.core.R.string.silence), startingValue, object : ToggleRunnable {
                     override fun run(value: Boolean) {
                         if (value) {
                             dm.add(ChatSDK.thread().revokeVoice(thread, user).observeOn(RX.main()).subscribe(Action {
@@ -228,7 +228,7 @@ open class ModerationActivity: BaseActivity() {
             items.add(ButtonViewModel("Remove from Group", resources.getColor(R.color.red) , object : ButtonRunnable {
                 override fun run(value: Activity) {
                     dm.add(ChatSDK.thread().removeUsersFromThread(thread, listOf(user)).observeOn(RX.main()).subscribe(Action {
-//                    ToastHelper.show(this@ModerationActivity, R.string.success)
+//                    ToastHelper.show(this@ModerationActivity, sdk.chat.core.R.string.success)
                         finish()
                     }, this@ModerationActivity))
                 }

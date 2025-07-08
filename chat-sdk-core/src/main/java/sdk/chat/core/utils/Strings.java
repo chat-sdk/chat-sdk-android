@@ -59,7 +59,7 @@ public class Strings {
         }
 
         if(name.length() == 0) {
-            name = Strings.t(R.string.no_name);
+            name = Strings.t(sdk.chat.core.R.string.no_name);
         }
         return name;
     }

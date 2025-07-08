@@ -82,9 +82,9 @@ public class PopupImageView extends RelativeLayout {
             if (bitmap != null) {
                 String bitmapURL = MediaStore.Images.Media.insertImage(activity.getContentResolver(), bitmap, "", "");
                 if (bitmapURL != null) {
-                    ToastHelper.show(activity, activity.getString(R.string.image_saved));
+                    ToastHelper.show(activity, activity.getString(sdk.chat.core.R.string.image_saved));
                 } else {
-                    ToastHelper.show(activity, activity.getString(R.string.image_save_failed));
+                    ToastHelper.show(activity, activity.getString(sdk.chat.core.R.string.image_save_failed));
                 }
             }
         }, throwable -> ToastHelper.show(activity, throwable.getLocalizedMessage())));

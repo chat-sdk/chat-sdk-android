@@ -257,7 +257,7 @@ open class RecordAudioKeyboardOverlayFragment(): AbstractKeyboardOverlayFragment
         } else {
             permissionGranted = false
             setRecordButtonMode(RecordButtonMode.permission)
-            infoTextView?.text = resources.getString(R.string.permission_denied)
+            infoTextView?.text = resources.getString(sdk.chat.core.R.string.permission_denied)
         }
     }
 

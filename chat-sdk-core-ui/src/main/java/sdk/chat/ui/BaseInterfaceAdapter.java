@@ -122,7 +122,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
 
         ChatSDKUI.icons().initialize(context);
 
-        searchActivities.add(new SearchActivityType(searchActivity, context.getString(R.string.search_with_name)));
+        searchActivities.add(new SearchActivityType(searchActivity, context.getString(sdk.chat.core.R.string.search_with_name)));
 
         Glide.init(context, new GlideBuilder().setLogLevel(Log.ERROR));
     }
@@ -177,7 +177,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab privateThreadsTab() {
         if (privateThreadsTab == null) {
-            privateThreadsTab = new Tab(String.format(context.get().getString(R.string.conversations__), ""), ChatSDKUI.icons().get(context.get(), ChatSDKUI.icons().chat, ChatSDKUI.icons().tabIconColor), privateThreadsFragment());
+            privateThreadsTab = new Tab(String.format(context.get().getString(sdk.chat.core.R.string.conversations__), ""), ChatSDKUI.icons().get(context.get(), ChatSDKUI.icons().chat, ChatSDKUI.icons().tabIconColor), privateThreadsFragment());
         }
         return privateThreadsTab;
     }
@@ -185,7 +185,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab publicThreadsTab() {
         if (publicThreadsTab == null) {
-            publicThreadsTab = new Tab(context.get().getString(R.string.chat_rooms), ChatSDKUI.icons().get(context.get(), ChatSDKUI.icons().publicChat, ChatSDKUI.icons().tabIconColor), publicThreadsFragment());
+            publicThreadsTab = new Tab(context.get().getString(sdk.chat.core.R.string.chat_rooms), ChatSDKUI.icons().get(context.get(), ChatSDKUI.icons().publicChat, ChatSDKUI.icons().tabIconColor), publicThreadsFragment());
         }
         return publicThreadsTab;
     }
@@ -193,7 +193,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
     @Override
     public Tab contactsTab() {
         if (contactsTab == null) {
-            contactsTab = new Tab(context.get().getString(R.string.contacts), ChatSDKUI.icons().get(context.get(), ChatSDKUI.icons().contact, ChatSDKUI.icons().tabIconColor), contactsFragment());
+            contactsTab = new Tab(context.get().getString(sdk.chat.core.R.string.contacts), ChatSDKUI.icons().get(context.get(), ChatSDKUI.icons().contact, ChatSDKUI.icons().tabIconColor), contactsFragment());
         }
         return contactsTab;
     }
@@ -615,7 +615,7 @@ public class BaseInterfaceAdapter implements InterfaceAdapter {
         if (!defaultChatOptionsAdded) {
 
             if(UIModule.config().imageMessagesEnabled) {
-                chatOptions.add(new MediaChatOption(R.string.image_or_photo,
+                chatOptions.add(new MediaChatOption(sdk.chat.core.R.string.image_or_photo,
                         R.drawable.icn_100_camera,
                         MediaType.choosePhoto()));
             }

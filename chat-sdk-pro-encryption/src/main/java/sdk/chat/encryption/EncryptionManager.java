@@ -1,9 +1,9 @@
+package sdk.chat.encryption;
+
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
 
 import sdk.chat.core.session.ChatSDK;
-import sdk.chat.encryption.EncryptionHandler;
-import sdk.chat.encryption.PublicKeyStorage;
 
 public class EncryptionManager {
 

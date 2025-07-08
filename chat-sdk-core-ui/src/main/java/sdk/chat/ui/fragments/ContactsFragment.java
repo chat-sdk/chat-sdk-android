@@ -123,7 +123,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
                 final User user = (User) o;
                 onLongClickRelay.accept(user);
 
-                DialogUtils.showToastDialog(getContext(), R.string.delete_contact, 0, R.string.delete, R.string.cancel, () -> {
+                DialogUtils.showToastDialog(getContext(), sdk.chat.core.R.string.delete_contact, 0, sdk.chat.core.R.string.delete, sdk.chat.core.R.string.cancel, () -> {
                     ChatSDK.contact()
                             .deleteContact(user, ConnectionType.Contact)
                             .subscribe(ContactsFragment.this);
@@ -197,7 +197,7 @@ public class ContactsFragment extends BaseFragment implements SearchSupported {
             items[i++] = activity.title;
         }
 
-        builder.setTitle(getActivity().getString(R.string.search)).setItems(items, (dialogInterface, index) -> {
+        builder.setTitle(getActivity().getString(sdk.chat.core.R.string.search)).setItems(items, (dialogInterface, index) -> {
             // Launch the appropriate context
             activities.get(index).startFrom(getActivity());
         });

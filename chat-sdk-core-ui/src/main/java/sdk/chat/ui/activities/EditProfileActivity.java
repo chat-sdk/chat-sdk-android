@@ -144,7 +144,7 @@ public class EditProfileActivity extends BaseActivity {
                 ChatSDK.profilePictures().startProfilePicturesActivity(this, currentUser.getEntityID());
             } else {
                 ImagePickerUploader uploader = new ImagePickerUploader();
-                showProgressDialog(R.string.uploading);
+                showProgressDialog(sdk.chat.core.R.string.uploading);
                 dm.add(uploader.chooseCircularPhoto(contract).doFinally(this::dismissProgressDialog).subscribe(results -> {
                     if (!results.isEmpty()) {
                         avatarImageView.setImageURI(Uri.fromFile(new File(results.get(0).uri)));
@@ -160,7 +160,7 @@ public class EditProfileActivity extends BaseActivity {
         appbar.setOnClickListener(v -> {
             appbar.setEnabled(false);
             ImagePickerUploader uploader = new ImagePickerUploader();
-            showProgressDialog(R.string.uploading);
+            showProgressDialog(sdk.chat.core.R.string.uploading);
             dm.add(uploader.choosePhoto(contract, false).doFinally(this::dismissProgressDialog).subscribe(results -> {
                 if (!results.isEmpty()) {
                     headerImageView.setImageURI(Uri.fromFile(new File(results.get(0).uri)));
@@ -223,7 +223,7 @@ public class EditProfileActivity extends BaseActivity {
         int width = Dimen.from(this, R.dimen.large_avatar_width);
         int height = Dimen.from(this, R.dimen.large_avatar_height);
 
-        collapsingToolbar.setTitle(getString(R.string.edit_profile));
+        collapsingToolbar.setTitle(getString(sdk.chat.core.R.string.edit_profile));
         Glide.with(this).load(currentUser.getAvatarURL()).dontAnimate().placeholder(UIModule.config().defaultProfilePlaceholder).into(avatarImageView);
 
         UserImageBuilder.loadAvatar(currentUser, avatarImageView, width, height);
@@ -239,24 +239,24 @@ public class EditProfileActivity extends BaseActivity {
         nameEditView.setText(name);
         nameEditView.setNextFocusDown(R.id.locationEditView);
         nameEditView.setIcon(ChatSDKUI.icons().get(this, ChatSDKUI.icons().user, R.color.edit_profile_icon_color));
-        nameEditView.setHint(R.string.name_hint);
+        nameEditView.setHint(sdk.chat.core.R.string.name_hint);
         nameEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
         locationEditView.setText(location);
         locationEditView.setNextFocusDown(R.id.phoneEditView);
         locationEditView.setIcon(ChatSDKUI.icons().get(this, ChatSDKUI.icons().location, R.color.edit_profile_icon_color));
-        locationEditView.setHint(R.string.location_hint);
+        locationEditView.setHint(sdk.chat.core.R.string.location_hint);
         locationEditView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
         phoneEditView.setText(phoneNumber);
         phoneEditView.setNextFocusDown(R.id.emailEditView);
         phoneEditView.setIcon(ChatSDKUI.icons().get(this, ChatSDKUI.icons().phone, R.color.edit_profile_icon_color));
-        phoneEditView.setHint(R.string.phone_number_hint);
+        phoneEditView.setHint(sdk.chat.core.R.string.phone_number_hint);
         phoneEditView.setInputType(InputType.TYPE_CLASS_PHONE);
 
         emailEditView.setText(email);
         emailEditView.setIcon(ChatSDKUI.icons().get(this, ChatSDKUI.icons().email, R.color.edit_profile_icon_color));
-        emailEditView.setHint(R.string.email_hint);
+        emailEditView.setHint(sdk.chat.core.R.string.email_hint);
         emailEditView.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
     }
 
@@ -275,7 +275,7 @@ public class EditProfileActivity extends BaseActivity {
         String name = nameEditView.getText();
 
         if (StringChecker.isNullOrEmpty(name)) {
-            showToast(R.string.name_field_must_be_set);
+            showToast(sdk.chat.core.R.string.name_field_must_be_set);
             return;
         }
 
@@ -318,7 +318,7 @@ public class EditProfileActivity extends BaseActivity {
 
             ChatSDK.db().update(currentUser);
 
-            showOrUpdateProgressDialog(getString(R.string.alert_save_contact));
+            showOrUpdateProgressDialog(getString(sdk.chat.core.R.string.alert_save_contact));
             dm.add(ChatSDK.core().pushUser()
                     .observeOn(RX.main())
                     .doOnError(throwable -> doneFab.setEnabled(true))

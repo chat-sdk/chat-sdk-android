@@ -110,7 +110,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
 
             if(threadType == ThreadType.Private1to1) {
                 if (allUsers.size() != 2) {
-                    e.onError(new Throwable(Fire.internal().context().getString(R.string.error_private_chat_needs_two_members)));
+                    e.onError(new Throwable(Fire.internal().context().getString(sdk.chat.core.R.string.error_private_chat_needs_two_members)));
                 } else {
                     e.onSuccess(thread);
                 }
@@ -258,7 +258,7 @@ public class FirestreamThreadHandler extends AbstractThreadHandler {
                     return chat.setRole(new FireStreamUser(user.getEntityID()), RoleType.reverseMap().get(role));
                 }
             }
-            return Completable.error(ChatSDK.getException(R.string.feature_not_supported));
+            return Completable.error(ChatSDK.getException(sdk.chat.core.R.string.feature_not_supported));
         });
     }
 

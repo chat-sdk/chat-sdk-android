@@ -28,7 +28,7 @@ public abstract class DefaultMessageRegistration implements MessageRegistration 
         // Check if we are inside avatar
 
         if (message.canResend()) {
-            DialogUtils.showToastDialog(activity, R.string.message_send_failed, R.string.try_to_resend_the_message, R.string.send, R.string.cancel, () -> {
+            DialogUtils.showToastDialog(activity, sdk.chat.core.R.string.message_send_failed, sdk.chat.core.R.string.try_to_resend_the_message, sdk.chat.core.R.string.send, sdk.chat.core.R.string.cancel, () -> {
                 MessageSendRig.create(message).run().subscribe(ChatSDK.events());
             }, null);
             return true;

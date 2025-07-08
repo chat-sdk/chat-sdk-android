@@ -66,7 +66,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
         if (userEntityID != null && !userEntityID.isEmpty()) {
             user = ChatSDK.db().fetchUserWithEntityID(userEntityID);
             if (user == null) {
-                ToastHelper.show(this, R.string.user_entity_id_not_set);
+                ToastHelper.show(this, sdk.chat.core.R.string.user_entity_id_not_set);
                 finish();
                 return;
             }
@@ -86,7 +86,7 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
             limitWarning = warning;
         }
 
-        setActionBarTitle(R.string.profile);
+        setActionBarTitle(sdk.chat.core.R.string.profile);
         initViews();
 
     }
@@ -116,9 +116,9 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
                 boolean isDefault = ChatSDK.profilePictures().fromUser(getUser()).indexOf(url) == 0;
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 if (!isDefault) {
-                    builder.setTitle(getString(R.string.set_as_default));
-                    builder.setPositiveButton(getString(R.string.set_as_default), (dialog, which) -> {
-                        showOrUpdateProgressDialog(getString(R.string.updating_pictures));
+                    builder.setTitle(getString(sdk.chat.core.R.string.set_as_default));
+                    builder.setPositiveButton(getString(sdk.chat.core.R.string.set_as_default), (dialog, which) -> {
+                        showOrUpdateProgressDialog(getString(sdk.chat.core.R.string.updating_pictures));
                         ChatSDK.profilePictures().setDefaultPicture(user, url);
                         dm.add(ChatSDK.core().pushUser().observeOn(RX.main()).subscribe(() -> {
                             dismissProgressDialog();
@@ -126,17 +126,17 @@ public class ProfilePicturesActivity extends ImagePreviewActivity {
                         }));
                     });
                 } else {
-                    builder.setTitle(getString(R.string.action_delete_picture));
+                    builder.setTitle(getString(sdk.chat.core.R.string.action_delete_picture));
                 }
-                builder.setNegativeButton(getString(R.string.delete), (dialog, which) -> {
-                    showOrUpdateProgressDialog(getString(R.string.deleting_picture));
+                builder.setNegativeButton(getString(sdk.chat.core.R.string.delete), (dialog, which) -> {
+                    showOrUpdateProgressDialog(getString(sdk.chat.core.R.string.deleting_picture));
                     ChatSDK.profilePictures().removePicture(user, url);
                     dm.add(ChatSDK.core().pushUser().observeOn(RX.main()).subscribe(() -> {
                         dismissProgressDialog();
                         updateGallery();
                     }));
                 });
-                builder.setNeutralButton(R.string.cancel, (dialog, which) -> dialog.cancel());
+                builder.setNeutralButton(sdk.chat.core.R.string.cancel, (dialog, which) -> dialog.cancel());
                 builder.show();
                 return true;
             });

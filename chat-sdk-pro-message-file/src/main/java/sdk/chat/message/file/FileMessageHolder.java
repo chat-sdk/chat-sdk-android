@@ -31,7 +31,7 @@ public class FileMessageHolder extends MessageHolder implements MessageContentTy
     public Single<String> save(Context context) {
         return Single.create(emitter -> {
             ChatSDK.downloadManager().downloadInBackground(getFileURL(), "File");
-            emitter.onSuccess(context.getString(R.string.downloading_to_downloads_folder));
+            emitter.onSuccess(context.getString(sdk.chat.core.R.string.downloading_to_downloads_folder));
         });
     }
 

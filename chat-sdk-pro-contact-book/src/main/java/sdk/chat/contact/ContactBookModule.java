@@ -37,7 +37,7 @@ public class ContactBookModule extends AbstractModule {
     @Override
     public void activate(Context context) {
         Report.shared().add(getName());
-        ChatSDK.ui().addSearchActivity(ContactBookSearchActivity.class, context.getString(R.string.contact_book));
+        ChatSDK.ui().addSearchActivity(ContactBookSearchActivity.class, context.getString(sdk.chat.core.R.string.contact_book));
 
     }
 

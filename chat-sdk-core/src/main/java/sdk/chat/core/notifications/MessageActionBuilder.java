@@ -64,7 +64,7 @@ public class MessageActionBuilder {
             replyPendingIntent = PendingIntent.getService(context, replyID, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
-        NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(0, context.getString(R.string.reply), replyPendingIntent)
+        NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(0, context.getString(sdk.chat.core.R.string.reply), replyPendingIntent)
                 .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
                 .setShowsUserInterface(true)
                 .addRemoteInput(createReplyRemoteInput())
@@ -83,7 +83,7 @@ public class MessageActionBuilder {
             markAsReadPendingIntent = PendingIntent.getService(context, markAsReadId, markAsReadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
-        NotificationCompat.Action markAsReadAction = new NotificationCompat.Action.Builder(0, context.getString(R.string.mark_as_read), markAsReadPendingIntent)
+        NotificationCompat.Action markAsReadAction = new NotificationCompat.Action.Builder(0, context.getString(sdk.chat.core.R.string.mark_as_read), markAsReadPendingIntent)
                 .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ)
                 .setShowsUserInterface(false)
                 .build();

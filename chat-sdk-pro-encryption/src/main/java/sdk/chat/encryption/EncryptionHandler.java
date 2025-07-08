@@ -76,7 +76,7 @@ public abstract class EncryptionHandler implements IEncryptionHandler {
 
                 Map<String, String> newMessageMeta = new HashMap<>();
                 newMessageMeta.put(Keys.MessageEncryptedPayloadKey, encryptedMessageString);
-                newMessageMeta.put(Keys.MessageText, ChatSDK.shared().context().getString(R.string.encrypted_message));
+                newMessageMeta.put(Keys.MessageText, ChatSDK.shared().context().getString(sdk.chat.core.R.string.encrypted_message));
 
                 return newMessageMeta;
 

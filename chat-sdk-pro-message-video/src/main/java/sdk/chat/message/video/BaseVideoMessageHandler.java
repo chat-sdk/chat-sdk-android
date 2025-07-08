@@ -43,7 +43,7 @@ public class BaseVideoMessageHandler extends AbstractMessageHandler implements V
             // Check the file size.. and if it's bigger than max, report error
 
             if (videoFile.length() > VideoMessageModule.shared().config.maxFileSizeInBytes()) {
-                return Completable.error(new Throwable(String.format(ChatSDK.getString(R.string.file_too_large_max_size__), VideoMessageModule.shared().config.maxFileSizeInMB)));
+                return Completable.error(new Throwable(String.format(ChatSDK.getString(sdk.chat.core.R.string.file_too_large_max_size__), VideoMessageModule.shared().config.maxFileSizeInMB)));
             } else {
 
                 // Generate thumbnail
@@ -66,7 +66,7 @@ public class BaseVideoMessageHandler extends AbstractMessageHandler implements V
 
                     message.setValueForKey(placeholder.getWidth(), Keys.MessageImageWidth);
                     message.setValueForKey(placeholder.getHeight(), Keys.MessageImageHeight);
-                    message.setText(ChatSDK.getString(R.string.video_message));
+                    message.setText(ChatSDK.getString(sdk.chat.core.R.string.video_message));
                     message.setValueForKey(videoFile.length(), Keys.MessageSize);
 
                     message.setFilePath(videoFile.getPath());

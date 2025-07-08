@@ -44,8 +44,8 @@ public class PrivateThreadsFragment extends ThreadsFragment {
     }
 
     public void showLongPressDialog(ThreadX thread) {
-        DialogUtils.showToastDialog(getContext(), 0, R.string.alert_delete_thread, R.string.delete,
-                R.string.cancel,  () -> {
+        DialogUtils.showToastDialog(getContext(), 0, sdk.chat.core.R.string.alert_delete_thread, sdk.chat.core.R.string.delete,
+                sdk.chat.core.R.string.cancel,  () -> {
                     dm.add(ChatSDK.thread().deleteThread(thread)
                             .observeOn(RX.main())
                             .subscribe(() -> {

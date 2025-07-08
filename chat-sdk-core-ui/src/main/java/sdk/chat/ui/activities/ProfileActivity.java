@@ -41,7 +41,7 @@ public class ProfileActivity extends BaseActivity {
                         finish();
                     }
                 } else {
-                    ToastHelper.show(this, R.string.user_entity_id_not_set);
+                    ToastHelper.show(this, sdk.chat.core.R.string.user_entity_id_not_set);
                     finish();
                 }
             }).ignoreElement().subscribe(this);

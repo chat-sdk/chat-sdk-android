@@ -55,7 +55,7 @@ public class ImageMessageRegistration extends DefaultMessageRegistration {
                 double longitude = message.doubleForKey(Keys.MessageLongitude);
                 double latitude = message.doubleForKey(Keys.MessageLatitude);
 
-                Location location = new Location(ChatSDK.getString(R.string.app_name));
+                Location location = new Location(ChatSDK.getString(sdk.chat.core.R.string.app_name));
                 location.setLatitude(latitude);
                 location.setLongitude(longitude);
 

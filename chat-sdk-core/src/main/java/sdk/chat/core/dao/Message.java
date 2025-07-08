@@ -353,7 +353,7 @@ public class Message extends AbstractEntity {
     public Location getLocation () {
         Double latitude = doubleForKey(Keys.MessageLatitude);
         Double longitude = doubleForKey(Keys.MessageLongitude);
-        Location location = new Location(ChatSDK.getString(R.string.app_name));
+        Location location = new Location(ChatSDK.getString(sdk.chat.core.R.string.app_name));
         location.setLatitude(latitude);
         location.setLongitude(longitude);
         return location;

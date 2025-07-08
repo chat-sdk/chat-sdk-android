@@ -69,7 +69,7 @@ public class IncomingCallActivity extends Activity {
                 tvUsername.setText(remoteUser.getName());
                 tvEmail.setText(remoteUser.getEmail());
             } else {
-                tvUsername.setText(getResources().getText(R.string.call_anonymous));
+                tvUsername.setText(getResources().getText(sdk.chat.core.R.string.call_anonymous));
                 tvEmail.setText("");
             }
         } else {
@@ -112,7 +112,7 @@ public class IncomingCallActivity extends Activity {
 
         @Override
         public void onCallEnded(Call call) {
-//            ToastHelper.show(getApplicationContext(), getResources().getString(R.string.call_ended));
+//            ToastHelper.show(getApplicationContext(), getResources().getString(sdk.chat.core.R.string.call_ended));
             CallEndCause cause = call.getDetails().getEndCause();
             Log.d(TAG, "Call ended, cause: " + cause.toString());
             audioPlayer.stopRingtone();

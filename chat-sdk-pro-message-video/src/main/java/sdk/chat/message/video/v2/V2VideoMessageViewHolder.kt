@@ -11,7 +11,7 @@ import sdk.chat.ui.view_holders.v2.V2ImageMessageViewHolder
 
 open class V2VideoMessageViewHolder<T: VideoMessageHolder>(itemView: View, direction: MessageDirection): V2ImageMessageViewHolder<T>(itemView, direction) {
 
-    open val playImageView: ImageView
+    lateinit var playImageView: ImageView
 
     init {
         playImageView = ImageView(itemView.context)

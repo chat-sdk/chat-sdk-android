@@ -23,7 +23,7 @@ public class LocationMessageOnClickHandler {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
             activity.startActivity(intent);
         } catch (ActivityNotFoundException e) {
-            ToastHelper.show(activity, R.string.message_adapter_no_google_maps);
+            ToastHelper.show(activity, sdk.chat.core.R.string.message_adapter_no_google_maps);
         }
     }
 

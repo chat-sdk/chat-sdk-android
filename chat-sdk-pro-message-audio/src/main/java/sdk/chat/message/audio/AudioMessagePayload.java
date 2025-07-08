@@ -30,7 +30,7 @@ public class AudioMessagePayload extends AbstractMessagePayload implements Downl
 
     @Override
     public String lastMessageText() {
-        return ChatSDK.getString(R.string.audio_message);
+        return ChatSDK.getString(sdk.chat.core.R.string.audio_message);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class AudioMessagePayload extends AbstractMessagePayload implements Downl
                 ChatSDK.downloadManager().download(message, Keys.MessageAudioURL, audioURL(), "Audio_" + message.getEntityID());
                 emitter.onComplete();
             } else {
-                emitter.onError(new Throwable(ChatSDK.getString(R.string.download_failed)));
+                emitter.onError(new Throwable(ChatSDK.getString(sdk.chat.core.R.string.download_failed)));
             }
         });
     }

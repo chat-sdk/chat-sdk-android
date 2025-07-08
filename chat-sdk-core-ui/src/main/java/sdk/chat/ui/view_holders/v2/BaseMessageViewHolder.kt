@@ -60,7 +60,7 @@ open class BaseMessageViewHolder<T : MessageHolder>(itemView: View, direction: M
     open var format: DateFormat? = null
 
     open val dm = DisposableMap()
-    open val direction: MessageDirection
+    lateinit var direction: MessageDirection
 
     open var userClickListener: MessagesListAdapter.UserClickListener? = null
 

@@ -30,8 +30,8 @@ public class PublicThreadsFragment extends ThreadsFragment {
         super.initViews();
 
 
-//        dm.add(getOnLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), 0, R.string.alert_delete_thread, R.string.delete,
-//                R.string.cancel, () -> {
+//        dm.add(getOnLongClickObservable().subscribe(thread -> DialogUtils.showToastDialog(getContext(), 0, sdk.chat.core.R.string.alert_delete_thread, sdk.chat.core.R.string.delete,
+//                sdk.chat.core.R.string.cancel, () -> {
 //                    dm.add(ChatSDK.thread().deleteThread(thread)
 //                            .observeOn(RX.main())
 //                            .subscribe(() -> {

@@ -42,7 +42,7 @@ public class DialogChatOptionsHandler extends AbstractChatOptionsHandler {
 
         hasExecuted = false;
 
-        builder.setTitle(activity.getString(R.string.actions)).setItems(items, (dialogInterface, i1) -> {
+        builder.setTitle(activity.getString(sdk.chat.core.R.string.actions)).setItems(items, (dialogInterface, i1) -> {
             if(!hasExecuted) {
                 executeOption(options.get(i1));
             }

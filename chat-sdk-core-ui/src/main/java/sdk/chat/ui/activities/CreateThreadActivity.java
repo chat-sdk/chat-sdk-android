@@ -22,7 +22,7 @@ public class CreateThreadActivity extends SelectContactActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setActionBarTitle(R.string.new_chat);
+        setActionBarTitle(sdk.chat.core.R.string.new_chat);
         setMultiSelectEnabled(UIModule.config().groupsEnabled);
     }
 
@@ -34,7 +34,7 @@ public class CreateThreadActivity extends SelectContactActivity {
     @Override
     protected void doneButtonPressed(List<UserListItem> users) {
 //        if (adapter.getSelectedCount() == 0 && multiSelectEnabled) {
-//            showSnackbar(getString(R.string.select_at_least_one_user));
+//            showSnackbar(getString(sdk.chat.core.R.string.select_at_least_one_user));
 //            return;
 //        }
 

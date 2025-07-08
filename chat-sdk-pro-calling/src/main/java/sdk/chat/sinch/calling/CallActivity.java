@@ -233,10 +233,10 @@ public class CallActivity extends Activity {
 //                ivAvatar.setImageURI(remoteUser.getAvatarURL());
                 tvRemoteUser.setText(remoteUser.getName());
             } else {
-                tvRemoteUser.setText(getResources().getText(R.string.call_anonymous));
+                tvRemoteUser.setText(getResources().getText(sdk.chat.core.R.string.call_anonymous));
             }
             if (call.getState() == CallState.INITIATING || call.getState() == CallState.PROGRESSING) {
-                tvCallState.setText(R.string.call_progressing);
+                tvCallState.setText(sdk.chat.core.R.string.call_progressing);
             }
         }
     }

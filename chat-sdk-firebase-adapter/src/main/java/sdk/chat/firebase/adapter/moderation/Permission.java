@@ -101,19 +101,19 @@ public class Permission {
     }
 
 //    public static String fromLocalized(String localized) {
-//        if (localized.equals(ChatSDK.getString(R.string.owner))) {
+//        if (localized.equals(ChatSDK.getString(sdk.chat.core.R.string.owner))) {
 //            return Owner;
 //        }
-//        if (localized.equals(ChatSDK.getString(R.string.admin))) {
+//        if (localized.equals(ChatSDK.getString(sdk.chat.core.R.string.admin))) {
 //            return Admin;
 //        }
-//        if (localized.equals(ChatSDK.getString(R.string.member))) {
+//        if (localized.equals(ChatSDK.getString(sdk.chat.core.R.string.member))) {
 //            return Member;
 //        }
-//        if (localized.equals(ChatSDK.getString(R.string.watcher))) {
+//        if (localized.equals(ChatSDK.getString(sdk.chat.core.R.string.watcher))) {
 //            return Watcher;
 //        }
-//        if (localized.equals(ChatSDK.getString(R.string.banned))) {
+//        if (localized.equals(ChatSDK.getString(sdk.chat.core.R.string.banned))) {
 //            return Banned;
 //        }
 //        return null;

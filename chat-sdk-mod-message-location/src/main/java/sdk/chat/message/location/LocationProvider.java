@@ -69,18 +69,18 @@ public class LocationProvider {
                 try {
                     LocationSettingsResponse response = task.getResult(ApiException.class);
                     if (response == null) {
-                        e.onError(new Error(context().getString(R.string.location_services_problem_message)));
+                        e.onError(new Error(context().getString(sdk.chat.core.R.string.location_services_problem_message)));
                         return;
                     }
                     LocationSettingsStates states = response.getLocationSettingsStates();
                     if (states == null) {
-                        e.onError(new Error(context().getString(R.string.location_services_problem_message)));
+                        e.onError(new Error(context().getString(sdk.chat.core.R.string.location_services_problem_message)));
                         return;
                     }
                     if (states.isLocationUsable()) {
                         e.onComplete();
                     } else {
-                        e.onError(new Error(context().getString(R.string.location_services_not_enabled)));
+                        e.onError(new Error(context().getString(sdk.chat.core.R.string.location_services_not_enabled)));
                     }
                 } catch (ApiException exception) {
                     if (exception.getStatusCode() == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
@@ -93,7 +93,7 @@ public class LocationProvider {
                                         if (activityResult.resultCode == Activity.RESULT_OK) {
                                             e.onComplete();
                                         } else {
-                                            e.onError(new Error(context().getString(R.string.location_services_not_enabled)));
+                                            e.onError(new Error(context().getString(sdk.chat.core.R.string.location_services_not_enabled)));
                                         }
                                     }));
                         } catch (IntentSender.SendIntentException exeption) {
@@ -147,7 +147,7 @@ public class LocationProvider {
                 if (location != null) {
                     emitter.onSuccess(location);
                 } else {
-                    emitter.onError(new Error(context().getResources().getString(R.string.location_is_null)));
+                    emitter.onError(new Error(context().getResources().getString(sdk.chat.core.R.string.location_is_null)));
                 }
             }).addOnFailureListener(emitter::onError);
         }).subscribeOn(RX.io());

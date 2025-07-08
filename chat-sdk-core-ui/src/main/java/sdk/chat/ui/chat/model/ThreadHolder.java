@@ -98,7 +98,7 @@ public class ThreadHolder implements IDialog<MessageHolder> {
                 .subscribe(networkEvent -> {
                     if (networkEvent.getText() != null) {
                         typingText = networkEvent.getText();
-                        typingText += ChatSDK.getString(R.string.typing);
+                        typingText += ChatSDK.getString(sdk.chat.core.R.string.typing);
                     } else {
                         typingText = null;
                     }

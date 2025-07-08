@@ -90,7 +90,7 @@ public class SearchActivity extends BaseActivity {
             getActionBar().setHomeButtonEnabled(true);
         }
 
-        setActionBarTitle(R.string.search);
+        setActionBarTitle(sdk.chat.core.R.string.search);
 
         adapter = new UsersListAdapter(true);
 
@@ -249,7 +249,7 @@ public class SearchActivity extends BaseActivity {
                     public void onComplete() {
                         adapter.setUsers(users, true);
                         if (users.size() == 0) {
-                            showSnackbar(R.string.search_activity_no_user_found_toast, Snackbar.LENGTH_LONG);
+                            showSnackbar(sdk.chat.core.R.string.search_activity_no_user_found_toast, Snackbar.LENGTH_LONG);
                             if (!searchText.isEmpty()) {
                                 showAddUserButton();
                             }

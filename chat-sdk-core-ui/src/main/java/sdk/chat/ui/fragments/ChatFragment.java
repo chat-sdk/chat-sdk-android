@@ -340,7 +340,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
                 .subscribe(networkEvent -> {
                     String typingText = networkEvent.getText();
                     if (typingText != null) {
-                        typingText += getString(R.string.typing);
+                        typingText += getString(sdk.chat.core.R.string.typing);
                     }
                     Logger.debug(typingText);
                     chatActionBar.setTypingText(thread, typingText);
@@ -636,7 +636,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
                     return holder.getText();
                 }
             }, false);
-            showToast(R.string.copied_to_clipboard);
+            showToast(sdk.chat.core.R.string.copied_to_clipboard);
         }
         if (id == MenuItemProvider.forwardItemId) {
 
@@ -645,7 +645,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
             dm.put(Keys.messageForwardActivityCode, ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
                 if (activityResult.requestCode == Keys.messageForwardActivityCode) {
                     if (activityResult.resultCode == Activity.RESULT_OK) {
-                        showToast(R.string.success);
+                        showToast(sdk.chat.core.R.string.success);
                     } else {
                         if (activityResult.data != null) {
                             String errorMessage = activityResult.data.getStringExtra(Keys.IntentKeyErrorMessage);

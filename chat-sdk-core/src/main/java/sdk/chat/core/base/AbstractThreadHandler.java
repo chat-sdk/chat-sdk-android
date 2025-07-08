@@ -389,7 +389,7 @@ public abstract class AbstractThreadHandler implements ThreadHandler {
 
     @Override
     public Completable setRole(String role, ThreadX thread, User user) {
-        return Completable.error(ChatSDK.getException(R.string.feature_not_supported));
+        return Completable.error(ChatSDK.getException(sdk.chat.core.R.string.feature_not_supported));
     }
 
     @Override

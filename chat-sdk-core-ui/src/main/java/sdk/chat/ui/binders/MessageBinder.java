@@ -29,7 +29,7 @@ public class MessageBinder {
         // If the upload failed..
         String status;
         if (holder.canResend()) {
-            status = textView.getContext().getString(R.string.failed);
+            status = textView.getContext().getString(sdk.chat.core.R.string.failed);
         } else {
             status = format(textView.getContext(), holder.getStatus(), holder.getTransferPercentage(), holder.getFileSize());
         }
@@ -42,21 +42,21 @@ public class MessageBinder {
     public String format(Context context, MessageSendStatus status, float percentage, float fileSize) {
         switch (status) {
             case Initial:
-                return context.getString(R.string.created);
+                return context.getString(sdk.chat.core.R.string.created);
 //            case Compressing:
-//                return context.getString(R.string.compressing);
+//                return context.getString(sdk.chat.core.R.string.compressing);
 //            case WillUpload:
-//                return context.getString(R.string.will_upload);
+//                return context.getString(sdk.chat.core.R.string.will_upload);
             case Uploading:
                 return getUploadingText(context, percentage, fileSize);
 //            case DidUpload:
-//                return context.getString(R.string.did_upload);
+//                return context.getString(sdk.chat.core.R.string.did_upload);
 //            case WillSend:
-//                return context.getString(R.string.will_send);
+//                return context.getString(sdk.chat.core.R.string.will_send);
             case Sent:
-                return ""; // context.getString(R.string.sent);
+                return ""; // context.getString(sdk.chat.core.R.string.sent);
             case Failed:
-                return context.getString(R.string.failed);
+                return context.getString(sdk.chat.core.R.string.failed);
             default:
                 return "";
 
@@ -78,7 +78,7 @@ public class MessageBinder {
         if (percentage >= 0) {
             output = percentage + "%";
         } else {
-            output = String.format(context.getString(R.string.uploading__), "");
+            output = String.format(context.getString(sdk.chat.core.R.string.uploading__), "");
         }
         if (UIModule.config().showFileSizeDuringUpload && fileSize >= 0) {
             output += " " + getFileSize(fileSize);

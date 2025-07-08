@@ -93,10 +93,10 @@ public class ProgressView extends ConstraintLayout {
                         showProgressText(true);
                         float size = dp.size() / 1000f;
                         if (size < 1000) {
-                            progressText.setText(String.format(ChatSDK.getString(R.string.__kb), size));
+                            progressText.setText(String.format(ChatSDK.getString(sdk.chat.core.R.string.__kb), size));
                         } else {
                             size /= 1000f;
-                            progressText.setText(String.format(ChatSDK.getString(R.string.__mb), size));
+                            progressText.setText(String.format(ChatSDK.getString(sdk.chat.core.R.string.__mb), size));
                         }
                     }
                     return true;
@@ -122,7 +122,7 @@ public class ProgressView extends ConstraintLayout {
         boolean transferInProgress = holder.getTransferPercentage() > 0 && holder.getTransferPercentage() < 100;
         if (transferInProgress) {
             circularProgressBar.setProgress(holder.getTransferPercentage());
-            progressText.setText(String.format(ChatSDK.getString(R.string.__percent), holder.getTransferPercentage()));
+            progressText.setText(String.format(ChatSDK.getString(sdk.chat.core.R.string.__percent), holder.getTransferPercentage()));
             circularProgressBar.setProgressBarColor(ColorUtils.blendARGB(Color.WHITE, bubbleColor, 0.6f));
 
             // Hide the download button

@@ -87,7 +87,7 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
             }
         }
         if (thread == null) {
-            ToastHelper.show(this, R.string.error_thread_not_found)
+            ToastHelper.show(this, sdk.chat.core.R.string.error_thread_not_found)
             finish()
         } else {
             this.thread = thread
@@ -127,19 +127,19 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
             }
         })
 
-        leaveButton = ButtonViewModel(getString(R.string.leave_chat), resources.getColor(R.color.red), object : ButtonRunnable {
+        leaveButton = ButtonViewModel(getString(sdk.chat.core.R.string.leave_chat), resources.getColor(R.color.red), object : ButtonRunnable {
             override fun run(value: Activity) {
                 ChatSDK.thread().leaveThread(thread).doOnComplete { }.subscribe(this@ThreadDetailsActivity)
             }
         })
 
-        destroyButton = ButtonViewModel(getString(R.string.destroy), resources.getColor(R.color.red), object : ButtonRunnable {
+        destroyButton = ButtonViewModel(getString(sdk.chat.core.R.string.destroy), resources.getColor(R.color.red), object : ButtonRunnable {
             override fun run(value: Activity) {
                 ChatSDK.thread().destroy(thread).subscribe()
             }
         })
 
-        editButton = ButtonViewModel(getString(R.string.edit), resources.getColor(R.color.blue), object : ButtonRunnable {
+        editButton = ButtonViewModel(getString(sdk.chat.core.R.string.edit), resources.getColor(R.color.blue), object : ButtonRunnable {
             override fun run(value: Activity) {
 
                 val intent = Intent(this@ThreadDetailsActivity, ChatSDK.ui().editThreadActivity)
@@ -153,7 +153,7 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
             }
         })
 
-        joinButton = ButtonViewModel(getString(R.string.join), resources.getColor(R.color.blue), object : ButtonRunnable {
+        joinButton = ButtonViewModel(getString(sdk.chat.core.R.string.join), resources.getColor(R.color.blue), object : ButtonRunnable {
             override fun run(value: Activity) {
                 ChatSDK.thread().joinThread(thread).doOnError(this@ThreadDetailsActivity).subscribe()
             }
@@ -298,10 +298,10 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
         }
 
         if (isGroup) {
-            items.add(SectionViewModel(getString(R.string.me)).hideBorders(true))
+            items.add(SectionViewModel(getString(sdk.chat.core.R.string.me)).hideBorders(true))
             items.add(getThreadUser(ChatSDK.currentUser()))
             if (threadUsers.isNotEmpty()) {
-                items.add(SectionViewModel(getString(R.string.participants)))
+                items.add(SectionViewModel(getString(sdk.chat.core.R.string.participants)))
             }
         } else {
             items.add(SectionViewModel(""))
@@ -425,9 +425,9 @@ open class ThreadDetailsActivity: ImagePreviewActivity() {
         val item = menu.findItem(R.id.action_mute)
         if (item != null) {
             if (thread.isMuted) {
-                item.title = getString(R.string.unmute_notifications)
+                item.title = getString(sdk.chat.core.R.string.unmute_notifications)
             } else {
-                item.title = getString(R.string.mute_notifications)
+                item.title = getString(sdk.chat.core.R.string.mute_notifications)
             }
         }
         return super.onPrepareOptionsMenu(menu)

@@ -59,5 +59,5 @@ public class StickerMessagePayload extends ImageMessagePayload {
 
     @Override
     public String lastMessageText() {
-        return ChatSDK.getString(R.string.sticker_message);
+        return ChatSDK.getString(sdk.chat.core.R.string.sticker_message);
     }}

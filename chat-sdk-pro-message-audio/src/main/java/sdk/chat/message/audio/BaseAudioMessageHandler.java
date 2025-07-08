@@ -38,7 +38,7 @@ public class BaseAudioMessageHandler extends AbstractMessageHandler implements A
     public Completable sendMessage(Context context, final File file, String mimeType, long duration, final ThreadX thread) {
         return compressAudio(context, file).flatMapCompletable(file1 -> {
             return new MessageSendRig(new MessageType(MessageType.Audio), thread, message -> {
-                message.setText(ChatSDK.getString(R.string.audio_message));
+                message.setText(ChatSDK.getString(sdk.chat.core.R.string.audio_message));
                 message.setValueForKey(duration, Keys.MessageAudioLength);
                 message.setValueForKey(file.length(), Keys.MessageSize);
                 message.setFilePath(file.getPath());

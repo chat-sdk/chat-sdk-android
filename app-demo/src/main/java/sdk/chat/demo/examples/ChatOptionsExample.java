@@ -9,7 +9,7 @@ public class ChatOptionsExample {
 
     public static void run() {
 
-        ChatOption option = new ChatOptionBuilder().title(R.string.no_name).action((activity, launcher, thread) -> {
+        ChatOption option = new ChatOptionBuilder().title(sdk.chat.core.R.string.no_name).action((activity, launcher, thread) -> {
             // When the option is pressed, you can perform an action
 
             return null;

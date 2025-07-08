@@ -72,7 +72,7 @@ public class ThreadExamples extends BaseExample {
 
             }, this));
 
-            Location location = new Location(ChatSDK.getString(R.string.app_name));
+            Location location = new Location(ChatSDK.getString(sdk.chat.core.R.string.app_name));
             location.setLatitude(0.0);
             location.setLongitude(1.1);
 

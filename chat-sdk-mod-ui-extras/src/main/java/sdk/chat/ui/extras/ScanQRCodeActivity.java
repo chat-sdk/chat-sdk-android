@@ -51,7 +51,7 @@ public class ScanQRCodeActivity extends Activity implements ZXingScannerView.Res
         if (!StringChecker.isNullOrEmpty(rawResult.getText())) {
             User user = ChatSDK.db().fetchOrCreateEntityWithEntityID(User.class, rawResult.getText());
             ChatSDK.contact().addContact(user, ConnectionType.Contact).doOnComplete(() -> {
-                ToastHelper.show(this, R.string.contact_added);
+                ToastHelper.show(this, sdk.chat.core.R.string.contact_added);
             }).doOnError(throwable -> {
                 ToastHelper.show(this, throwable.getLocalizedMessage());
             }).subscribe();

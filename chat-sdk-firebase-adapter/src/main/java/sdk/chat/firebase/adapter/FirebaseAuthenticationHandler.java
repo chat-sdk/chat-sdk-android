@@ -29,7 +29,6 @@ import sdk.guru.common.EventType;
 import sdk.guru.common.RX;
 import sdk.guru.realtime.RXRealtime;
 import sdk.guru.realtime.RealtimeReferenceManager;
-import sdk.chat.core.R;
 
 /**
  * Created by benjaminsmiley-andrews on 03/05/2017.
@@ -73,7 +72,7 @@ public class FirebaseAuthenticationHandler extends AbstractAuthenticationHandler
                 return Completable.complete();
             }
             if (!isAuthenticated()) {
-                return Completable.error(ChatSDK.getException(R.string.authentication_required));
+                return Completable.error(ChatSDK.getException(sdk.chat.core.R.string.authentication_required));
             }
 
             authenticating = authenticateWithUser(FirebaseCoreHandler.auth().getCurrentUser());

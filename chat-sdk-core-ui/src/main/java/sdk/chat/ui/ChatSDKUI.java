@@ -183,7 +183,7 @@ public class ChatSDKUI {
     public void addSettingsItem(SmartViewModel item) {
         settingsItems.add(item);
         if (settingsProfileOption == null) {
-            settingsProfileOption = new ProfileOption(ChatSDK.getString(R.string.settings), (activity, userEntityID) -> {
+            settingsProfileOption = new ProfileOption(ChatSDK.getString(sdk.chat.core.R.string.settings), (activity, userEntityID) -> {
                 Intent intent = new Intent(activity, ChatSDK.ui().getSettingsActivity());
                 activity.startActivity(intent);
             }, User::isMe);

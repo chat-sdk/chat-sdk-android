@@ -20,7 +20,6 @@ import sdk.chat.core.utils.AppBackgroundMonitor;
 import sdk.chat.core.utils.PermissionRequestHandler;
 import sdk.chat.licensing.Report;
 import sdk.chat.ui.ChatSDKUI;
-import sdk.chat.ui.icons.Icons;
 import sdk.guru.common.BaseConfig;
 
 

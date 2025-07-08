@@ -43,7 +43,7 @@ public class VideoMessagePayload extends ImageMessagePayload implements Download
                 ChatSDK.downloadManager().download(message, Keys.MessageVideoURL, videoURL(), "Video_" + message.getEntityID());
                 emitter.onComplete();
             } else {
-                emitter.onError(new Throwable(ChatSDK.getString(R.string.download_failed)));
+                emitter.onError(new Throwable(ChatSDK.getString(sdk.chat.core.R.string.download_failed)));
             }
         });
     }
@@ -59,7 +59,7 @@ public class VideoMessagePayload extends ImageMessagePayload implements Download
 
     @Override
     public String lastMessageText() {
-        return ChatSDK.getString(R.string.video_message);
+        return ChatSDK.getString(sdk.chat.core.R.string.video_message);
     }
 
     @Override

@@ -967,7 +967,7 @@ public class ThreadX extends AbstractEntity {
                     Logger.info("Set Affiliation " + user.getEntityID() + " " + permission);
                     ChatSDK.events().source().accept(NetworkEvent.threadUsersRoleUpdated(this, user));
                     if (sendSystemMessage && user.isMe() && typeIs(ThreadType.Group)) {
-                        String message = String.format(ChatSDK.getString(R.string.role_changed_to__), ChatSDK.thread().localizeRole(permission));
+                        String message = String.format(ChatSDK.getString(sdk.chat.core.R.string.role_changed_to__), ChatSDK.thread().localizeRole(permission));
                         ChatSDK.thread().sendLocalSystemMessage(message, this);
                     }
                 }

@@ -111,7 +111,7 @@ public class PermissionRequestHandler {
                                     Logger.debug("Dexter Complete" + new Date().getTime());
                                     emitter.onComplete();
                                 } else { Logger.debug("Dexter Error" + new Date().getTime());
-                                    emitter.onError(new Throwable(activity.getString(R.string.permission_denied)));
+                                    emitter.onError(new Throwable(activity.getString(sdk.chat.core.R.string.permission_denied)));
                                 }
                             }
 

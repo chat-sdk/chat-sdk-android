@@ -45,7 +45,7 @@ public class ImageMessagePayload extends AbstractMessagePayload {
 
     @Override
     public String lastMessageText() {
-        return ChatSDK.getString(R.string.image_message);
+        return ChatSDK.getString(sdk.chat.core.R.string.image_message);
     }
 
     @Override

@@ -135,7 +135,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         int i = v.getId();
 
-        showProgressDialog(getString(R.string.authenticating));
+        showProgressDialog(getString(sdk.chat.core.R.string.authenticating));
 
         getProgressDialog().setOnDismissListener(dialog -> {
             v.setEnabled(true);
@@ -196,7 +196,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
         authenticating = true;
 
-        showProgressDialog(getString(R.string.connecting));
+        showProgressDialog(getString(sdk.chat.core.R.string.connecting));
 
 
         dm.add(ChatSDK.auth().authenticate(details)
@@ -260,9 +260,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         if (error.getMessage() != null && !error.getMessage().replace(" ", "").isEmpty()) {
             errorMessage = error.getMessage();
         } else if (login) {
-            errorMessage = getString(R.string.login_activity_failed_to_login_toast);
+            errorMessage = getString(sdk.chat.core.R.string.login_activity_failed_to_login_toast);
         } else {
-            errorMessage = getString(R.string.login_activity_failed_to_register_toast);
+            errorMessage = getString(sdk.chat.core.R.string.login_activity_failed_to_register_toast);
         }
 
         showToast(errorMessage);
@@ -270,12 +270,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     protected boolean checkFields() {
         if (usernameTextInput.getText().toString().isEmpty()) {
-            showToast(getString(R.string.login_activity_no_mail_toast));
+            showToast(getString(sdk.chat.core.R.string.login_activity_no_mail_toast));
             return false;
         }
 
         if (passwordTextInput.getText().toString().isEmpty()) {
-            showToast(getString(R.string.login_activity_no_password_toast));
+            showToast(getString(sdk.chat.core.R.string.login_activity_no_password_toast));
             return false;
         }
 
@@ -284,24 +284,24 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     protected void showForgotPasswordDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.forgot_password));
+        builder.setTitle(getString(sdk.chat.core.R.string.forgot_password));
 
         // Set up the input
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         builder.setView(input);
 
-        builder.setPositiveButton(getString(R.string.submit), (dialog, which) -> {
-            showOrUpdateProgressDialog(getString(R.string.requesting));
+        builder.setPositiveButton(getString(sdk.chat.core.R.string.submit), (dialog, which) -> {
+            showOrUpdateProgressDialog(getString(sdk.chat.core.R.string.requesting));
             dm.add(requestNewPassword(input.getText().toString()).observeOn(RX.main()).subscribe(() -> {
                 dismissProgressDialog();
-                showToast(getString(R.string.password_reset_success));
+                showToast(getString(sdk.chat.core.R.string.password_reset_success));
             }, throwable -> {
                 showToast(throwable.getLocalizedMessage());
             }));
         });
 
-        builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
+        builder.setNegativeButton(sdk.chat.core.R.string.cancel, (dialog, which) -> {
             dialog.cancel();
             dismissProgressDialog();
         });

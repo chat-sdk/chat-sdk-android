@@ -34,7 +34,7 @@ public class FileMessagePayload extends TextMessagePayload implements Downloadab
     public String getText() {
         String name = message.getText();
         if (StringChecker.isNullOrEmpty(name)) {
-            name = ChatSDK.getString(R.string.file_message);
+            name = ChatSDK.getString(sdk.chat.core.R.string.file_message);
         }
         return name;
     }
@@ -111,7 +111,7 @@ public class FileMessagePayload extends TextMessagePayload implements Downloadab
                 ChatSDK.downloadManager().download(message, Keys.MessageFileURL, fileURL(), "File_" + message.getEntityID());
                 emitter.onComplete();
             } else {
-                emitter.onError(new Throwable(ChatSDK.getString(R.string.download_failed)));
+                emitter.onError(new Throwable(ChatSDK.getString(sdk.chat.core.R.string.download_failed)));
             }
         });
     }

@@ -111,16 +111,16 @@ public class ChatActionBar extends AppBarLayout {
                             return ChatSDK.lastOnline().getLastOnline(thread.otherUser()).map(date -> {
                                 if (!date.isEmpty()) {
                                     if (thread.otherUser().getIsOnline()) {
-                                        return getContext().getString(R.string.online);
+                                        return getContext().getString(sdk.chat.core.R.string.online);
                                     } else {
-                                        return String.format(getContext().getString(R.string.last_seen__), pt.format(date.get()));
+                                        return String.format(getContext().getString(sdk.chat.core.R.string.last_seen__), pt.format(date.get()));
                                     }
                                 }
                                 return defaultText;
                             });
                         } else {
                             if (thread.otherUser().getIsOnline()) {
-                                return Single.just(getContext().getString(R.string.online));
+                                return Single.just(getContext().getString(sdk.chat.core.R.string.online));
                             }
                         }
                     }
@@ -137,7 +137,7 @@ public class ChatActionBar extends AppBarLayout {
     }
 
     public String getDefaultText() {
-        return getContext().getString(R.string.tap_here_for_contact_info);
+        return getContext().getString(sdk.chat.core.R.string.tap_here_for_contact_info);
     }
 
     public void hideText() {

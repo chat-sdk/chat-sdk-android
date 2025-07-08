@@ -23,7 +23,7 @@ public class AddUsersToThreadActivity extends SelectContactActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setActionBarTitle(R.string.add_user_to_chat);
+        setActionBarTitle(sdk.chat.core.R.string.add_user_to_chat);
     }
 
     @Override
@@ -57,11 +57,11 @@ public class AddUsersToThreadActivity extends SelectContactActivity {
     @Override
     protected void doneButtonPressed(List<UserListItem> users) {
         if (adapter.getSelectedCount() == 0) {
-            showToast(getString(R.string.select_at_least_one_user));
+            showToast(getString(sdk.chat.core.R.string.select_at_least_one_user));
             return;
         }
 
-        showProgressDialog( getString(R.string.adding_users));
+        showProgressDialog( getString(sdk.chat.core.R.string.adding_users));
 
         dm.add(ChatSDK.thread().addUsersToThread(thread, User.convertIfPossible(users))
                 .observeOn(RX.main())

@@ -43,7 +43,7 @@ public class LocationMessagePayload extends AbstractMessagePayload {
     public String toString() {
 //        String text = super.toString();
 //        if (StringChecker.isNullOrEmpty(text)) {
-//            text = ChatSDK.getString(sdk.chat.core.R.string.location_message);
+//            text = ChatSDK.getString(sdk.chat.core.sdk.chat.core.R.string.location_message);
 //        }
 //        return text;
         return ChatSDK.getString(sdk.chat.core.R.string.location_message);
