@@ -10,3 +10,4 @@ import kotlin.reflect.KClass
  
  val <T : Any> KClass<T>.name
     get() = qualifiedName ?: java.name
+

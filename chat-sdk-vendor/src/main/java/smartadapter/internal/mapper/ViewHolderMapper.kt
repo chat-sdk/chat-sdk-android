@@ -13,7 +13,6 @@ import smartadapter.internal.extension.name
 import smartadapter.internal.utils.ReflectionUtils
 import smartadapter.viewholder.SmartViewHolder
 import smartadapter.widget.ViewTypeResolver
-import java.util.HashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 
@@ -96,7 +95,8 @@ class ViewHolderMapper {
 }
 
 private fun <E : SmartViewHolderType> SparseArray<E>.put(value: E): Int {
-    val key = value.name.hashCode()
+    // HERE modified
+    val key = value.qualifiedName.hashCode()
     put(key, value)
     return key
 }
