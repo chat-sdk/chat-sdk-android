@@ -1,9 +1,9 @@
-package sdk.chat.encryption;
-
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
 
 import sdk.chat.core.session.ChatSDK;
+import sdk.chat.encryption.EncryptionHandler;
+import sdk.chat.encryption.PublicKeyStorage;
 
 public class EncryptionManager {
 
@@ -19,6 +19,7 @@ public class EncryptionManager {
 
     public KeyPair getKeyPair(String userId) {
 
+
         KeyPair pair = null;
 
         try {
@@ -29,7 +30,7 @@ public class EncryptionManager {
 
         if (pair == null) {
             try {
-                VirgilKeyPair vp = crypto.generateKeys();
+                VirgilKeyPair vp = crypto.generateKeyPair();
                 pair = new KeyPair(vp);
                 save(userId, pair);
             } catch (Exception e) {

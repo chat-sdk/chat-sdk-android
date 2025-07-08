@@ -10,7 +10,7 @@ public class PrivateKey {
 
     public PrivateKey(byte [] privateKeyBytes) throws Exception {
         VirgilCrypto crypto = new VirgilCrypto();
-        key = crypto.importPrivateKey(privateKeyBytes);
+        key = crypto.importPrivateKey(privateKeyBytes).getPrivateKey();
     }
 
     public PrivateKey(String privateKeyString) throws Exception  {

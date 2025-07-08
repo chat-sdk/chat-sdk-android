@@ -65,7 +65,8 @@ public class MainApplication extends Application {
                     .addModule(FirebasePushModule.shared())
 
                     .addModule(XMPPModule.builder()
-                            .setXMPP("75.119.138.93", "xmpp.app", 5222)
+//                            .setXMPP("75.119.138.93", "xmpp.app", 5222)
+                            .setXMPP("75.119.138.93", "ejabberd", 5322)
 //                            .setSecurityMode("disabled")
                             .setSecurityMode("disabled")
                             .setAllowServerConfiguration(false)

@@ -17,8 +17,8 @@ open class AudioMessageViewHolder<T: AudioMessageHolder>(itemView: View, directi
 
         audioPlayerView?.bind(t.audioURL(), t.totalTime)
 
-        // Bind the colors
 
+        // Bind the colors
 
     }
 

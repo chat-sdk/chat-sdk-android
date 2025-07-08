@@ -20,15 +20,14 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.util.AttributeSet;
+import android.util.TypedValue;
+
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DimenRes;
 import androidx.annotation.DrawableRes;
 import androidx.core.content.ContextCompat;
-import android.util.AttributeSet;
-import android.util.TypedValue;
-
-import com.stfalcon.chatkit.R;
 
 /**
  * Base class for chat component styles
@@ -46,15 +45,15 @@ public abstract class Style {
     }
 
     public final int getSystemAccentColor() {
-        return getSystemColor(R.attr.colorAccent);
+        return getSystemColor(android.R.attr.colorAccent);
     }
 
     public final int getSystemPrimaryColor() {
-        return getSystemColor(R.attr.colorPrimary);
+        return getSystemColor(android.R.attr.colorPrimary);
     }
 
     public final int getSystemPrimaryDarkColor() {
-        return getSystemColor(R.attr.colorPrimaryDark);
+        return getSystemColor(android.R.attr.colorPrimaryDark);
     }
 
     public final int getSystemPrimaryTextColor() {

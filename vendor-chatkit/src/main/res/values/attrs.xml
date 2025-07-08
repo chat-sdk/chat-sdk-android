@@ -8,6 +8,8 @@
         <attr name="inputButtonDefaultBgPressedColor" format="color|reference"/>
         <attr name="inputButtonDefaultBgDisabledColor" format="color|reference"/>
 
+<!--        <attr name="colorAccent" format="color|reference"/>-->
+
         <attr name="inputButtonIcon" format="reference"/>
         <attr name="inputButtonDefaultIconColor" format="color|reference"/>
         <attr name="inputButtonDefaultIconPressedColor" format="color|reference"/>

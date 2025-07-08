@@ -758,6 +758,7 @@ public class XMPPManager {
         if (ChatSDK.currentUserID() != null) {
             date = connectionManager.getLastOnline(ChatSDK.currentUserID());
         }
+
         loadArchiveMessages(date, notify);
     }
 

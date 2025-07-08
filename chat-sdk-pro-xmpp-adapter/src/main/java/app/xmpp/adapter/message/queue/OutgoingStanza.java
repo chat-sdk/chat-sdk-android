@@ -45,7 +45,7 @@ public class OutgoingStanza {
     }
 
     public Long getDelay() {
-        return -timeInQueue();
+        return -TimeUnit.MILLISECONDS.toSeconds(timeInQueue());
     }
 
     public void willTrySend() {

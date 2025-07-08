@@ -54,6 +54,9 @@ public class MainApplication extends Application {
 
 
 
+
+
+
         Disposable d3 = ChatSDK.events().errorSourceOnMain().subscribe(throwable -> {
             //
             throwable.printStackTrace();

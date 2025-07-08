@@ -14,8 +14,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 
     buildTypes {
@@ -45,8 +45,8 @@ dependencies {
 
     implementation "com.google.code.gson:gson:$gsonVersion"
 
-    implementation 'com.virgilsecurity.sdk:crypto-android:5.0.2@aar'
-    implementation 'com.virgilsecurity.sdk:sdk:5.0.9'
+    implementation 'com.virgilsecurity.sdk:crypto-android:5.1.2'
+    implementation 'com.virgilsecurity.sdk:sdk:5.1.2'
 
     implementation "com.github.chat-sdk:QRGenerator:$qrGenerator"
 

@@ -115,6 +115,7 @@ public class UIModule extends AbstractModule implements InterfaceAdapterProvider
 
     public void setNameBinder(NameBinder nameBinder) {
         this.nameBinder = nameBinder;
+
     }
 
     public OnlineStatusBinder getOnlineStatusBinder() {

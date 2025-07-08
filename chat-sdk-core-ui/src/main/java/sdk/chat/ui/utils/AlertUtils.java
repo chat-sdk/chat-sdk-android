@@ -13,6 +13,7 @@ import com.google.android.material.snackbar.Snackbar;
 import io.reactivex.functions.Consumer;
 import sdk.chat.core.session.ChatSDK;
 import sdk.chat.ui.R;
+import sdk.guru.common.RX;
 
 public class AlertUtils implements Consumer<Throwable> {
 
@@ -67,13 +68,17 @@ public class AlertUtils implements Consumer<Throwable> {
 
     /** Show a SuperToast with the given text. */
     public void showToast(@StringRes int textResourceId){
-        showToast(provider.getContext().getString(textResourceId));
+        RX.main().scheduleDirect(() -> {
+            showToast(provider.getContext().getString(textResourceId));
+        });
     }
 
     public void showToast(String text){
-        if (text != null && !text.isEmpty()) {
-            ToastHelper.show(provider.getContext(), text);
-        }
+        RX.main().scheduleDirect(() -> {
+            if (text != null && !text.isEmpty()) {
+                ToastHelper.show(provider.getContext(), text);
+            }
+        });
     }
 
     public void showSnackbar(@StringRes int textResourceId, int duration){

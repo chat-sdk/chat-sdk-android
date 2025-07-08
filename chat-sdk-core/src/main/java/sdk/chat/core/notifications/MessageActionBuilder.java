@@ -59,9 +59,9 @@ public class MessageActionBuilder {
 
         PendingIntent replyPendingIntent;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            replyPendingIntent = PendingIntent.getActivity(context, replyID, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+            replyPendingIntent = PendingIntent.getService(context, replyID, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
         } else {
-            replyPendingIntent = PendingIntent.getActivity(context, replyID, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            replyPendingIntent = PendingIntent.getService(context, replyID, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
         NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(0, context.getString(R.string.reply), replyPendingIntent)

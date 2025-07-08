@@ -7,12 +7,12 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.1'
-        classpath "com.google.gms:google-services:4.3.14"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.20"
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.2'
+        classpath 'com.android.tools.build:gradle:8.10.1'
+        classpath "com.google.gms:google-services:4.4.2"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.0"
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.4'
         classpath 'com.google.firebase:perf-plugin:1.4.2'
-        classpath "org.greenrobot:greendao-gradle-plugin:3.3.0"
+        classpath "org.greenrobot:greendao-gradle-plugin:3.3.1"
     }
 }
 
@@ -30,7 +30,7 @@ ext {
     androidxRecyclerViewVersion = "1.2.1"
     androidxMultidexVersion = "2.0.1"
     androidxAnnotation = "1.2.0"
-    materialVersion = "1.7.0"
+    materialVersion = "1.11.0"
     playAuthVersion = "17.0.0"
     playMapsVersion = "17.0.0"
     playLocationVersion = "17.0.0"
@@ -87,10 +87,10 @@ ext {
     zxing = "2.0"
 
     // Used by file messages
-    androidNetworkingVersion = "v1.0.2"
+    androidNetworkingVersion = "1.0.4"
     pdfiumVersion = "1.9.0"
 
-    smackVersion = "4.4.5"
+    smackVersion = "4.4.7"
     activity_ktx_version = "1.2.3"
 
     kotlin_version = "1.6.10"

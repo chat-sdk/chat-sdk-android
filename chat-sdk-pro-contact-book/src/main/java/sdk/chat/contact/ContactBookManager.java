@@ -25,7 +25,7 @@ import sdk.guru.common.RX;
 
 public class ContactBookManager {
 
-    public static Single<List<ContactBookUser>> getContactList(Context context) {
+    public Single<List<ContactBookUser>> getContactList(Context context) {
         return Single.create((SingleOnSubscribe<List<ContactBookUser>>) emitter -> {
             Logger.debug("Get contact list");
 
@@ -117,7 +117,7 @@ public class ContactBookManager {
         emailCursor.close();
     }
 
-    public static Maybe<SearchResult> searchServer(final ContactBookUser contactBookUser) {
+    public Maybe<SearchResult> searchServer(final ContactBookUser contactBookUser) {
         return Maybe.defer(() -> {
             List<Maybe<User>> maybeList = new ArrayList<>();
 

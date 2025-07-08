@@ -49,6 +49,8 @@ public class ContactBookModule extends AbstractModule {
         public String contactBookInviteContactEmailBody;
         public String contactBookInviteContactSmsBody;
 
+        public ContactBookManager contactBookManager = new ContactBookManager();
+
         public Config(T onBuild) {
             super(onBuild);
         }

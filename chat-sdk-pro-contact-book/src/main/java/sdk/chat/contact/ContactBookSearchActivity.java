@@ -82,7 +82,7 @@ public class ContactBookSearchActivity extends BaseActivity {
                 ContactBookUser contactUser = (ContactBookUser) item;
                 showProgressIndicator();
 
-                ContactBookManager.searchServer(contactUser).observeOn(RX.main()).doOnSuccess(searchResult -> {
+                ContactBookModule.config().contactBookManager.searchServer(contactUser).observeOn(RX.main()).doOnSuccess(searchResult -> {
                     if (searchResult.user != null) {
                         ChatSDK.contact().addContact(searchResult.user, ConnectionType.Contact)
                                 .observeOn(RX.main())
@@ -200,7 +200,7 @@ public class ContactBookSearchActivity extends BaseActivity {
 
     private Single<List<ContactBookUser>> loadUsersFromContactBook() {
         return PermissionRequestHandler.requestReadContact(this)
-                .andThen(ContactBookManager.getContactList(getApplicationContext())
+                .andThen(ContactBookModule.config().contactBookManager.getContactList(getApplicationContext())
                         .map(contactBookUsers -> {
                         List<User> contacts = ChatSDK.contact().contacts();
 

@@ -60,13 +60,13 @@ public class ThreadMetaValue implements MetaValue<Object>, Updatable {
     public ThreadMetaValue() {
     }
 
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+//    public Long getId() {
+//        return this.id;
+//    }
+//
+//    public void setId(Long id) {
+//        this.id = id;
+//    }
 
     public String getKey() {
         return this.key;

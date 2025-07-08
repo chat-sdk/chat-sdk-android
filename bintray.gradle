@@ -3,49 +3,51 @@
 //localProperties.load(new FileInputStream(rootProject.file("local.properties")))
 
 afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
+    if (project.plugins.hasPlugin('com.android.library')) {
+        publishing {
+            publications {
+                release(MavenPublication) {
+                    from components.findByName('release')
 
-                groupId CHAT_SDK_GROUP
-                artifactId artifact
-                version CHAT_SDK_VERSION
+                    groupId CHAT_SDK_GROUP
+                    artifactId artifact
+                    version CHAT_SDK_VERSION
 
-                // Include the generated POM file
-                pom {
-                    name = 'Chat SDK'
-                    description = 'Open Source Instant Messaging Framework'
-                    url = 'https://github.com/chat-sdk/chat-sdk-android'
-                    licenses {
-                        license {
-                            name = 'Dual licensing: GPL or Commercial / Apache 2.0'
-                            url = 'https://github.com/chat-sdk/chat-sdk-android/blob/master/LICENSE.md'
-                        }
-                    }
-                    developers {
-                        developer {
-                            id = '100bears'
-                            name = 'Benjamin Smiley-Andrews'
-                            email = 'ben@sdk.chat'
-                        }
-                    }
-                    scm {
-                        connection = 'scm:git:git@github.com:chat-sdk/chat-sdk-android.git'
-                        developerConnection = 'scm:git:ssh://github.com:chat-sdk/chat-sdk-android.git'
+                    // Include the generated POM file
+                    pom {
+                        name = 'Chat SDK'
+                        description = 'Open Source Instant Messaging Framework'
                         url = 'https://github.com/chat-sdk/chat-sdk-android'
+                        licenses {
+                            license {
+                                name = 'Dual licensing: GPL or Commercial / Apache 2.0'
+                                url = 'https://github.com/chat-sdk/chat-sdk-android/blob/master/LICENSE.md'
+                            }
+                        }
+                        developers {
+                            developer {
+                                id = '100bears'
+                                name = 'Benjamin Smiley-Andrews'
+                                email = 'ben@sdk.chat'
+                            }
+                        }
+                        scm {
+                            connection = 'scm:git:git@github.com:chat-sdk/chat-sdk-android.git'
+                            developerConnection = 'scm:git:ssh://github.com:chat-sdk/chat-sdk-android.git'
+                            url = 'https://github.com/chat-sdk/chat-sdk-android'
+                        }
                     }
                 }
             }
-        }
-        repositories {
-            maven {
-                url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-                credentials {
+            repositories {
+                maven {
+                    url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                    credentials {
 //                    username=mavenUser
 //                    password=mavenPassword
-                    username="100bears"
-                    password=""
+                        username = "8zUFe+sj"
+                        password = "96up4q2Zi+7OGyEvNvsYEWYBduopLFgIpauB4Y1C6Pry"
+                    }
                 }
             }
         }
@@ -54,7 +56,6 @@ afterEvaluate {
     signing {
         sign publishing.publications
     }
-
 }
 
 

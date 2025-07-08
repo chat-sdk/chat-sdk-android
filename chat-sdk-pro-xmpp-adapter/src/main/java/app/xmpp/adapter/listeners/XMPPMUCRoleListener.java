@@ -5,6 +5,8 @@ import org.jivesoftware.smack.PresenceListener;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.PresenceBuilder;
+import org.jivesoftware.smack.util.Consumer;
 import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MUCAffiliation;
 import org.jivesoftware.smackx.muc.MUCRole;
@@ -41,7 +43,7 @@ import sdk.chat.core.types.MessageType;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
 
-public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener, Disposable, MessageListener {
+public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener, Disposable, MessageListener, Consumer<PresenceBuilder> {
 
     protected WeakReference<XMPPMUCManager> manager;
     protected MultiUserChat chat;
@@ -387,6 +389,12 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
     public void addListeners() {
         if (chat != null) {
             removeListeners();
+            chat.addPresenceInterceptor(new Consumer<PresenceBuilder>() {
+                @Override
+                public void accept(PresenceBuilder presenceBuilder) {
+
+                }
+            });
             chat.addPresenceInterceptor(this);
             chat.addUserStatusListener(this);
             chat.addParticipantListener(this);
@@ -418,5 +426,10 @@ public class XMPPMUCRoleListener implements UserStatusListener, PresenceListener
                 }
             }
         }
+    }
+
+    @Override
+    public void accept(PresenceBuilder presenceBuilder) {
+        processPresence(presenceBuilder.build());
     }
 }

@@ -49,6 +49,9 @@ public class UIConfig<T> extends BaseConfig<T> {
     public boolean showNamesInGroupChatView = true;
     public boolean showAvatarInChatView = true;
 
+    public String lightToastColor = "#000000";
+    public String darkToastColor = "#EEEEEE";
+
     protected String messageTimeFormat12 = "K:mm";
     protected String messageTimeFormat24 = "HH:mm";
     protected String threadTimeFormat12 = "K:mm dd/MM";

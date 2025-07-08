@@ -319,7 +319,7 @@ open class OnMultiItemSelectListener(
             if (isSelected(viewHolder.adapterPosition)) {
                 viewHolder.itemView.setBackgroundColor(Color.RED)
             } else {
-                viewHolder.itemView.setBackgroundAttribute(R.attr.selectableItemBackground)
+                viewHolder.itemView.setBackgroundAttribute(android.R.attr.selectableItemBackground)
             }
         }
     }
