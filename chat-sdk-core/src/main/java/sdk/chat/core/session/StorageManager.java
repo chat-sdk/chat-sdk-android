@@ -28,7 +28,7 @@ import sdk.chat.core.dao.PublicKeyDao;
 import sdk.chat.core.dao.ReadReceiptUserLink;
 import sdk.chat.core.dao.ReadReceiptUserLinkDao;
 import sdk.chat.core.dao.ThreadX;
-import sdk.chat.core.dao.ThreadDao;
+import sdk.chat.core.dao.ThreadXDao;
 import sdk.chat.core.dao.Updatable;
 import sdk.chat.core.dao.User;
 import sdk.chat.core.dao.UserDao;
@@ -219,7 +219,7 @@ public class StorageManager {
         QueryBuilder<T> qb = daoCore.getDaoSession().queryBuilder(c);
 
         if (c == ThreadX.class) {
-            qb.where(ThreadDao.Properties.EntityID.eq(entityID));
+            qb.where(ThreadXDao.Properties.EntityID.eq(entityID));
         }
         else if (c == PublicKey.class) {
             qb.where(PublicKeyDao.Properties.EntityID.eq(entityID));
@@ -264,7 +264,7 @@ public class StorageManager {
 
     public List<ThreadX> fetchThreadsWithType(int type) {
         QueryBuilder<ThreadX> qb = daoCore.getDaoSession().queryBuilder(ThreadX.class);
-        qb.where(ThreadDao.Properties.Type.eq(type));
+        qb.where(ThreadXDao.Properties.Type.eq(type));
         return qb.list();
     }
 
@@ -335,7 +335,7 @@ public class StorageManager {
 //    }
 
     public ThreadX fetchThreadWithID(long threadID) {
-        return daoCore.fetchEntityWithProperty(ThreadX.class, ThreadDao.Properties.Id, threadID);
+        return daoCore.fetchEntityWithProperty(ThreadX.class, ThreadXDao.Properties.Id, threadID);
     }
 
     public Single<ThreadX> fetchThreadWithIDAsync (long threadID) {
