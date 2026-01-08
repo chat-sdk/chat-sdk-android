@@ -33,7 +33,8 @@ open class LassiLauncher {
                 .setProgressBarColor(R.color.colorAccent)
                 //                .setCropType(CropImageView.CropShape.OVAL)
                 //                .setCropAspectRatio(1, 1)
-                .setCompressionRation(10)
+//                .setCompressionRation(10)
+                .setCompressionRatio(10)
                 .setMinFileSize(0)
                 .setMaxFileSize(10000)
 

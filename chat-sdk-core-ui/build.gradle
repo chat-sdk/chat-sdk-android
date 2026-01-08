@@ -111,7 +111,7 @@ dependencies {
 
 //    api 'com.github.Mindinventory:Lassi:1.2.0'
 //    api 'com.github.Mindinventory:Lassi:1.1.0'
-    api 'com.github.Mindinventory:Lassi-Android:1.1.0'
+    api 'com.github.Mindinventory:Lassi-Android:1.4.3'
 
 //
 }

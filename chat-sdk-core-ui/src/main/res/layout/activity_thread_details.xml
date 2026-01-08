@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
     android:fitsSystemWindows="true"
-    android:background="?recyclerSectionBackgroundColor"
+    android:background="@color/red"
     >
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

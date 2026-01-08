@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-<!--    <style name="ChatSDKTheme" parent="Theme.MaterialComponents.Light.Bridge">-->
-<style name="ChatSDKTheme" parent="Theme.MaterialComponents.Light.Bridge">
+    <style name="ChatSDKTheme" parent="Theme.MaterialComponents.Light.Bridge">
+<!--<style name="ChatSDKTheme" parent="Theme.MaterialComponents.Light.Bridge">-->
+<!--<style name="ChatSDKTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">-->
 
-    <item name= "android:windowIsTranslucent">true</item>
+<!--    <item name= "android:windowIsTranslucent">true</item>-->
 
 <!--    <item name="android:windowBackground">@color/white</item>-->
 
 <!--    Important for keyboard overlay -->
-    <item name="android:windowFullscreen">false</item>
+<!--    <item name="android:windowFullscreen">false</item>-->
 
 <!--    <item name="android:windowLayoutInDisplayCutoutMode">-->
 <!--        shortEdges-->
@@ -22,8 +23,11 @@
 <!--    <item name="android:windowActivityTransitions">true</item>-->
 <!--    <item name="android:windowEnterTransition">@transition/explode</item>-->
 <!--    <item name="android:windowExitTransition">@transition/explode</item>-->
-    <item name="activityBackgroundColor">@color/activity_background</item>
+<!--    <item name="activityBackgroundColor">@color/activity_background</item>-->
+    <item name="activityBackgroundColor">@color/black</item>
+    <item name="activityContentBackgroundColor">@color/white</item>
 
+<!--    <item name="android:statusBarColor">@color/red</item>-->
     <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
 
     <item name="colorPrimary">@color/primary</item>

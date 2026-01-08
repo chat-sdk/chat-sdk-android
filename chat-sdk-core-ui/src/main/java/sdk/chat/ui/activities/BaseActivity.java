@@ -27,7 +27,6 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
@@ -38,9 +37,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
@@ -67,7 +63,7 @@ import sdk.guru.common.RX;
 public abstract class BaseActivity extends AppCompatActivity implements Consumer<Throwable>, CompletableObserver {
 
     // This is a list of extras that are passed to the login view
-//    protected Map<String, Object> extras = new HashMap<>();
+    // protected Map<String, Object> extras = new HashMap<>();
 
     protected DisposableMap dm = new DisposableMap();
 
@@ -83,6 +79,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
             public Context getContext() {
                 return BaseActivity.this;
             }
+
             @Override
             public View getRootView() {
                 return getContentView();
@@ -90,45 +87,64 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         });
     }
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-        if(UIModule.config().theme != 0) {
+        if (UIModule.config().theme != 0) {
             setTheme(UIModule.config().theme);
         }
 
-
-//        // Make status bar icons white
-//        WindowInsetsControllerCompat insetsController =
-//                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
-//        insetsController.setAppearanceLightStatusBars(false);
-//
-//        // Make sure we’re not drawing under system bars
-//        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
-//
-//        // Required to color the status bar on API 21+
-//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        // // Make status bar icons white
+        // WindowInsetsControllerCompat insetsController =
+        // WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        // insetsController.setAppearanceLightStatusBars(false);
+        //
+        // // Make sure we’re not drawing under system bars
+        // WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
+        //
+        // // Required to color the status bar on API 21+
+        // getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        // getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
         // Make status bar background black
-//        getWindow().setStatusBarColor(UIModule.config().statusBarColor);
-
-        Window window = getWindow();
-
-        WindowInsetsControllerCompat insets =
-                WindowCompat.getInsetsController(window, window.getDecorView());
-        if (insets != null) insets.setAppearanceLightStatusBars(false); // false = light icons
-
-        WindowCompat.setDecorFitsSystemWindows(window, true);
-
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-
-// pick a dark color from resources
-        window.setStatusBarColor(ContextCompat.getColor(this, R.color.primary_dark)); // e.g. #121212
+        // getWindow().setStatusBarColor(UIModule.config().statusBarColor);
+//
+//        Window window = getWindow();
+//
+//        WindowInsetsControllerCompat insets2 = WindowCompat.getInsetsController(window, window.getDecorView());
+//        if (insets2 != null)
+//            insets2.setAppearanceLightStatusBars(false); // false = light icons
+//
+//        WindowCompat.setDecorFitsSystemWindows(window, true);
+//
+//        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+//
+//        TypedValue typedValue = new TypedValue();
+//        Resources.Theme theme = getTheme();
+//        // Try resolving the app attribute first (likely what is overridden in custom
+//        // themes)
+//        boolean resolved = theme.resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
+//        if (!resolved) {
+//            // Fallback to android attribute
+//            resolved = theme.resolveAttribute(android.R.attr.colorPrimaryDark, typedValue, true);
+//        }
+//
+//        int color;
+//        if (resolved) {
+//            // Check if it's a resource reference or a raw color
+//            if (typedValue.resourceId != 0) {
+//                color = ContextCompat.getColor(this, typedValue.resourceId);
+//            } else {
+//                color = typedValue.data;
+//            }
+//        } else {
+//            color = ContextCompat.getColor(this, R.color.primary_dark);
+//        }
+//
+//        window.setStatusBarColor(color);
 
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         getWindow().setEnterTransition(new Explode());
@@ -138,9 +154,24 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
             setContentView(getLayout());
         }
 
+        // Manually handle insets to ensure content is below the status bar
+        // This is necessary because on some Android versions/configurations,
+        // setDecorFitsSystemWindows(true) might not sufficiently prevent overlap/white
+        // bands
+        // if the theme or system strongly enforces edge-to-edge.
+//        View content = findViewById(android.R.id.content);
+//        if (content != null) {
+//            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(content, (v, insets) -> {
+//                androidx.core.graphics.Insets systemBars = insets
+//                        .getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars());
+//                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+//                return androidx.core.view.WindowInsetsCompat.CONSUMED;
+//            });
+//        }
+
         Logger.debug("onCreate: " + this);
 
-//        updateExtras(getIntent().getExtras());
+        // updateExtras(getIntent().getExtras());
 
         // Setting the default task description.
         dm.add(getTaskDescriptionBitmap().subscribeOn(RX.computation()).subscribe(bitmap -> {
@@ -150,18 +181,18 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         }));
     }
 
-
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
 
-        if(windowBackground == null && UIModule.config().windowBackgroundColor != 0) {
+        if (windowBackground == null && UIModule.config().windowBackgroundColor != 0) {
             // Screen size
             DisplayMetrics metrics = new DisplayMetrics();
             getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
             Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
-            Bitmap bmp = Bitmap.createBitmap(metrics.widthPixels, metrics.heightPixels, conf); // this creates a MUTABLE bitmap
+            Bitmap bmp = Bitmap.createBitmap(metrics.widthPixels, metrics.heightPixels, conf); // this creates a MUTABLE
+                                                                                               // bitmap
             Canvas canvas = new Canvas(bmp);
             canvas.drawColor(UIModule.config().windowBackgroundColor);
 
@@ -170,42 +201,43 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
 
         }
 
-//        View decor = getWindow().getDecorView();
-//
-//        WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(decor);
-//        if (insets != null) {
-//            DisplayCutoutCompat cut = insets.getDisplayCutout();
-//
-//            if (cut == null) {
-//                return;
-//            }
-//
-//            // Screen size
-//            DisplayMetrics metrics = new DisplayMetrics();
-//            getWindowManager().getDefaultDisplay().getMetrics(metrics);
-//
-//            // Work out the safe area
-//            Rect safe = new Rect(
-//                    cut.getSafeInsetLeft(),
-//                    cut.getSafeInsetTop(),
-//                    metrics.widthPixels - cut.getSafeInsetRight(),
-//                    metrics.heightPixels - cut.getSafeInsetBottom()
-//            );
-//
-//            Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
-//            Bitmap bmp = Bitmap.createBitmap(metrics.widthPixels, metrics.heightPixels, conf); // this creates a MUTABLE bitmap
-//            Canvas canvas = new Canvas(bmp);
-//            canvas.drawColor(Color.BLACK);
-//
-//            Paint p = new Paint();
-//            p.setStyle(Paint.Style.FILL_AND_STROKE);
-//            p.setColor(Color.WHITE);
-//
-//            canvas.drawRect(safe, p);
-//
-//            getWindow().setBackgroundDrawable(new BitmapDrawable(getResources(), bmp));
-//
-//        }
+        // View decor = getWindow().getDecorView();
+        //
+        // WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(decor);
+        // if (insets != null) {
+        // DisplayCutoutCompat cut = insets.getDisplayCutout();
+        //
+        // if (cut == null) {
+        // return;
+        // }
+        //
+        // // Screen size
+        // DisplayMetrics metrics = new DisplayMetrics();
+        // getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        //
+        // // Work out the safe area
+        // Rect safe = new Rect(
+        // cut.getSafeInsetLeft(),
+        // cut.getSafeInsetTop(),
+        // metrics.widthPixels - cut.getSafeInsetRight(),
+        // metrics.heightPixels - cut.getSafeInsetBottom()
+        // );
+        //
+        // Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
+        // Bitmap bmp = Bitmap.createBitmap(metrics.widthPixels, metrics.heightPixels,
+        // conf); // this creates a MUTABLE bitmap
+        // Canvas canvas = new Canvas(bmp);
+        // canvas.drawColor(Color.BLACK);
+        //
+        // Paint p = new Paint();
+        // p.setStyle(Paint.Style.FILL_AND_STROKE);
+        // p.setColor(Color.WHITE);
+        //
+        // canvas.drawRect(safe, p);
+        //
+        // getWindow().setBackgroundDrawable(new BitmapDrawable(getResources(), bmp));
+        //
+        // }
     }
 
     protected void initViews() {
@@ -215,8 +247,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         }
     }
 
-    protected @Nullable
-    Toolbar getToolbar() {
+    protected @Nullable Toolbar getToolbar() {
         return findViewById(R.id.toolbar);
     }
 
@@ -240,7 +271,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     }
 
     /**
-     * @return the bitmap that will be used for the screen overview also called the recents apps.
+     * @return the bitmap that will be used for the screen overview also called the
+     *         recents apps.
      **/
     protected Single<Bitmap> getTaskDescriptionBitmap() {
         return Single.create(emitter -> {
@@ -255,21 +287,22 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         });
     }
 
-    protected int getTaskDescriptionColor(){
+    protected int getTaskDescriptionColor() {
         TypedValue typedValue = new TypedValue();
         Resources.Theme theme = getTheme();
         theme.resolveAttribute(R.attr.colorPrimary, typedValue, true);
         return typedValue.data;
     }
 
-    protected String getTaskDescriptionLabel(){
+    protected String getTaskDescriptionLabel() {
         return (String) getTitle();
     }
-    
-    protected void setTaskDescription(Bitmap bm, String label, int color){
+
+    protected void setTaskDescription(Bitmap bm, String label, int color) {
         // Color the app topbar label and icon in the overview screen
-        //http://www.bignerdranch.com/blog/polishing-your-Android-overview-screen-entry/
-        // Placed in the post create so it would be called after the action bar is initialized and we have a title.
+        // http://www.bignerdranch.com/blog/polishing-your-Android-overview-screen-entry/
+        // Placed in the post create so it would be called after the action bar is
+        // initialized and we have a title.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ActivityManager.TaskDescription td = new ActivityManager.TaskDescription(label, bm, color);
 
@@ -277,18 +310,18 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         }
     }
 
-//    protected void updateExtras (@Nullable Bundle bundle) {
-//        if (bundle != null) {
-//            for (String s : bundle.keySet()) {
-//                extras.put(s, bundle.get(s));
-//            }
-//        }
-//    }
+    // protected void updateExtras (@Nullable Bundle bundle) {
+    // if (bundle != null) {
+    // for (String s : bundle.keySet()) {
+    // extras.put(s, bundle.get(s));
+    // }
+    // }
+    // }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-//        updateExtras(intent.getExtras());
+        // updateExtras(intent.getExtras());
     }
 
     @Override
@@ -322,30 +355,31 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
-//        for (String key: extras.keySet()) {
-//            Object extra = extras.get(key);
-//            if (extra instanceof String) {
-//                outState.putString(key, (String) extra);
-//            }
-//            if (extra instanceof Integer) {
-//                outState.putInt(key, (Integer) extra);
-//            }
-//            if (extra instanceof Float) {
-//                outState.putFloat(key, (Float) extra);
-//            }
-//            if (extra instanceof Double) {
-//                outState.putDouble(key, (Double) extra);
-//            }
-//            if (extra instanceof Long) {
-//                outState.putLong(key, (Long) extra);
-//            }
-//        }
+        // for (String key: extras.keySet()) {
+        // Object extra = extras.get(key);
+        // if (extra instanceof String) {
+        // outState.putString(key, (String) extra);
+        // }
+        // if (extra instanceof Integer) {
+        // outState.putInt(key, (Integer) extra);
+        // }
+        // if (extra instanceof Float) {
+        // outState.putFloat(key, (Float) extra);
+        // }
+        // if (extra instanceof Double) {
+        // outState.putDouble(key, (Double) extra);
+        // }
+        // if (extra instanceof Long) {
+        // outState.putLong(key, (Long) extra);
+        // }
+        // }
     }
 
     /**
-     * Set up the ui so every view and nested view that is not EditText will listen to touch event and dismiss the keyboard if touched.
+     * Set up the ui so every view and nested view that is not EditText will listen
+     * to touch event and dismiss the keyboard if touched.
      * http://stackoverflow.com/questions/4165414/how-to-hide-soft-keyboard-on-android-after-clicking-outside-edittext
-     * */
+     */
     public void setupTouchUIToDismissKeyboard(View view) {
         setupTouchUIToDismissKeyboard(view, (v, event) -> {
             hideKeyboard();
@@ -353,23 +387,23 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         }, -1);
     }
 
-    public static void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener, final Integer... exceptIDs) {
+    public static void setupTouchUIToDismissKeyboard(View view, View.OnTouchListener onTouchListener,
+            final Integer... exceptIDs) {
         List<Integer> ids = new ArrayList<>();
         if (exceptIDs != null)
             ids = Arrays.asList(exceptIDs);
 
-        //Set up touch listener for non-text box views to hideName keyboard.
-        if(!(view instanceof EditText)) {
+        // Set up touch listener for non-text box views to hideName keyboard.
+        if (!(view instanceof EditText)) {
 
-            if (!ids.isEmpty() && ids.contains(view.getId()))
-            {
+            if (!ids.isEmpty() && ids.contains(view.getId())) {
                 return;
             }
 
             view.setOnTouchListener(onTouchListener);
         }
 
-        //If a layout container, iterate over children and seed recursion.
+        // If a layout container, iterate over children and seed recursion.
         if (view instanceof ViewGroup) {
 
             for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
@@ -394,13 +428,15 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     public static void hideKeyboard(@Nullable Activity activity) {
         hideKeyboard(activity, null);
     }
+
     public static void hideKeyboard(@Nullable Activity activity, View focus) {
         if (activity != null) {
             if (focus == null) {
                 focus = activity.getCurrentFocus();
             }
             if (focus != null) {
-                InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager inputManager = (InputMethodManager) activity
+                        .getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (inputManager != null) {
                     inputManager.hideSoftInputFromWindow(focus.getWindowToken(), 0);
                 }
@@ -409,14 +445,14 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     }
 
     public void showKeyboard() {
-        if(!KeyboardVisibilityEvent.INSTANCE.isKeyboardVisible(this)) {
+        if (!KeyboardVisibilityEvent.INSTANCE.isKeyboardVisible(this)) {
             BaseActivity.showKeyboard(this);
         }
     }
 
     public static void showKeyboard(@Nullable Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
     /**
@@ -426,7 +462,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     @Override
     public void onBackPressed() {
         finish();
-        super.onBackPressed();  // optional depending on your needs
+        super.onBackPressed(); // optional depending on your needs
     }
 
     @Override
@@ -453,35 +489,35 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
     }
 
     /** Show a SuperToast with the given text. */
-    public void showToast(@StringRes int textResourceId){
+    public void showToast(@StringRes int textResourceId) {
         alert.showToast(textResourceId);
     }
 
-    public void showToast(String text){
+    public void showToast(String text) {
         alert.showToast(text);
     }
 
-    public void showSnackbar(int textResourceId, int duration){
+    public void showSnackbar(int textResourceId, int duration) {
         alert.showSnackbar(textResourceId, duration);
     }
 
-    public void showSnackbar(int textResourceId){
+    public void showSnackbar(int textResourceId) {
         alert.showSnackbar(textResourceId);
     }
 
-    public void showSnackbar (String text) {
+    public void showSnackbar(String text) {
         alert.showSnackbar(text);
     }
 
-    public void showSnackbar (String text, int duration) {
+    public void showSnackbar(String text, int duration) {
         alert.showSnackbar(text, duration);
     }
 
-    protected Consumer<? super Throwable> toastOnErrorConsumer () {
+    protected Consumer<? super Throwable> toastOnErrorConsumer() {
         return alert.toastOnErrorConsumer();
     }
 
-    protected Consumer<? super Throwable> snackbarOnErrorConsumer () {
+    protected Consumer<? super Throwable> snackbarOnErrorConsumer() {
         return alert.snackbarOnErrorConsumer();
     }
 
@@ -511,6 +547,5 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
                 contract::setActivityResult));
         return contract;
     }
-
 
 }

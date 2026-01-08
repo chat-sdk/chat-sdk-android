@@ -12,7 +12,10 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:animateLayoutChanges="true">
+        android:animateLayoutChanges="true"
+        android:background="?activityContentBackgroundColor"
+
+        >
 
         <include
             layout="@layout/app_bar_default"/>
