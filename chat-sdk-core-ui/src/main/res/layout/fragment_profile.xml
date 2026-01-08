@@ -25,7 +25,7 @@
             android:fitsSystemWindows="true"
             app:contentScrim="?colorPrimary"
             app:collapsedTitleGravity="center_vertical|start"
-            app:expandedTitleGravity="center_horizontal|center_vertical"
+            app:expandedTitleGravity="center_horizontal|top"
             app:expandedTitleMarginTop="12dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:titleEnabled="true"
