@@ -1,7 +1,7 @@
 package sdk.chat.encryption;
 
+import com.virgilsecurity.common.util.Base64;
 import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
-import com.virgilsecurity.sdk.utils.Base64;
 
 public class KeyPair {
 

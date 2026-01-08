@@ -45,8 +45,7 @@ dependencies {
 
     implementation "com.google.code.gson:gson:$gsonVersion"
 
-    implementation 'com.virgilsecurity.sdk:crypto-android:5.1.2'
-    implementation 'com.virgilsecurity.sdk:sdk:5.1.2'
+    implementation 'com.virgilsecurity.sdk:crypto-android:7.3.2'
 
     implementation "com.github.chat-sdk:QRGenerator:$qrGenerator"
 

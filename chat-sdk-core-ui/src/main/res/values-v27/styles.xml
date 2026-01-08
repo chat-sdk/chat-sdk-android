@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-<style name="ChatSDKTheme" parent="Theme.MaterialComponents.Light.Bridge">
+<style name="ChatSDKTheme" parent="Theme.MaterialComponents.DayNight.Bridge">
 
     <item name= "android:windowIsTranslucent">false</item>
 <!--    <item name="android:windowBackground">@color/transparent</item>-->
     <item name="android:windowLayoutInDisplayCutoutMode">
         never
     </item>
+
+
 
     <item name="activityBackgroundColor">@color/activity_background</item>
 
@@ -16,9 +18,11 @@
     <item name="android:windowExitTransition">@transition/explode</item>
 
     <item name="android:statusBarColor">@color/primary_dark</item>
-
+    <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+§
     <item name="colorPrimary">@color/primary</item>
     <item name="colorPrimaryDark">@color/primary_dark</item>
+    <item name="android:windowLightStatusBar">false</item>
 
     <item name="colorPrimaryVariant">@color/black</item>
 

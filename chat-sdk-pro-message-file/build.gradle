@@ -49,8 +49,10 @@ dependencies {
     implementation "com.github.amitshekhariitbhu.Fast-Android-Networking:android-networking:$androidNetworkingVersion"
 //    implementation "com.amitshekhar.android:android-networking:$androidNetworkingVersion"
 
-    implementation "com.github.barteksc:pdfium-android:$pdfiumVersion"
+//    implementation "com.github.barteksc:pdfium-android:$pdfiumVersion"
 //    implementation "com.droidninja:filepicker:2.2.3"
+//    implementation 'com.github.lion1988dev:PdfiumAndroid:1.9.4'
+    implementation 'com.github.chat-sdk:PdfiumAndroid:2.0.2'
 }
 
 ext {

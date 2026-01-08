@@ -1,5 +1,6 @@
 package sdk.chat.ui.module;
 
+import android.graphics.Color;
 import android.text.format.DateFormat;
 
 import androidx.annotation.ColorInt;
@@ -20,6 +21,8 @@ public class UIConfig<T> extends BaseConfig<T> {
      */
     @StyleRes
     public int theme = R.style.ChatSDKTheme;
+
+    public int statusBarColor = Color.BLACK;
 
     /**
      * Default image for profile header

@@ -27,6 +27,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
@@ -37,6 +38,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
@@ -86,13 +90,45 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         });
     }
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         if(UIModule.config().theme != 0) {
             setTheme(UIModule.config().theme);
         }
+
+
+//        // Make status bar icons white
+//        WindowInsetsControllerCompat insetsController =
+//                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+//        insetsController.setAppearanceLightStatusBars(false);
+//
+//        // Make sure we’re not drawing under system bars
+//        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
+//
+//        // Required to color the status bar on API 21+
+//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        // Make status bar background black
+//        getWindow().setStatusBarColor(UIModule.config().statusBarColor);
+
+        Window window = getWindow();
+
+        WindowInsetsControllerCompat insets =
+                WindowCompat.getInsetsController(window, window.getDecorView());
+        if (insets != null) insets.setAppearanceLightStatusBars(false); // false = light icons
+
+        WindowCompat.setDecorFitsSystemWindows(window, true);
+
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+// pick a dark color from resources
+        window.setStatusBarColor(ContextCompat.getColor(this, R.color.primary_dark)); // e.g. #121212
 
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         getWindow().setEnterTransition(new Explode());

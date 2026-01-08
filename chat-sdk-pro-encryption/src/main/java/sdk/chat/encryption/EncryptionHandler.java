@@ -5,10 +5,10 @@ import android.content.Intent;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.virgilsecurity.common.util.Base64;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
 import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
-import com.virgilsecurity.sdk.utils.Base64;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,8 +20,8 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import sdk.chat.core.dao.Keys;
 import sdk.chat.core.dao.Message;
-import sdk.chat.core.dao.User;
 import sdk.chat.core.dao.ThreadX;
+import sdk.chat.core.dao.User;
 import sdk.chat.core.handlers.IEncryptionHandler;
 import sdk.chat.core.hook.Hook;
 import sdk.chat.core.hook.HookEvent;
