@@ -63,7 +63,9 @@ public abstract class AbstractPushHandler implements PushHandler {
 //                for (Thread t: ChatSDK.db().allThreads()) {
 //                    completables.add(unsubscribeToPushChannel(t.getEntityID()));
 //                }
-                return Completable.merge(completables);
+                return Completable.merge(completables).doOnComplete(() -> {
+                    int i = 0;
+                });
             });
 
         }), HookEvent.WillLogout);

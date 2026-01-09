@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="?activityBackgroundColor"
+    android:fitsSystemWindows="true"
     >
 
     <include
@@ -16,6 +17,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_below="@id/toolbar"
         android:layout_alignParentBottom="true"
+        android:background="@color/white"
         android:scrollbars="none"/>
 
     <ProgressBar

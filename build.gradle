@@ -88,7 +88,6 @@ ext {
 
     // Used by file messages
     androidNetworkingVersion = "1.0.4"
-    pdfiumVersion = "1.9.0"
 
     smackVersion = "4.4.7"
     activity_ktx_version = "1.2.3"

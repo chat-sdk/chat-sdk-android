@@ -1,11 +1,5 @@
 package sdk.chat.message.file;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-
-import com.shockwave.pdfium.PdfDocument;
-import com.shockwave.pdfium.PdfiumCore;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,7 +13,6 @@ import sdk.chat.core.dao.Message;
 import sdk.chat.core.dao.ThreadX;
 import sdk.chat.core.handlers.FileMessageHandler;
 import sdk.chat.core.manager.MessagePayload;
-import sdk.chat.core.rigs.BitmapUploadable;
 import sdk.chat.core.rigs.FileUploadable;
 import sdk.chat.core.rigs.MessageSendRig;
 import sdk.chat.core.rigs.Uploadable;
@@ -40,18 +33,18 @@ public class BaseFileMessageHandler extends AbstractMessageHandler implements Fi
         List<Uploadable> uploadables = new ArrayList<>();
         uploadables.add(new FileUploadable(file, fileName, mimeType, Keys.MessageFileURL));
 
-        if (mimeType.equals("application/pdf")) {
-            // Generate the preview image
-            try {
-                Bitmap bitmap = pdfPreview(file);
-                if (bitmap != null) {
-                    uploadables.add(new BitmapUploadable(bitmap, imageName, imageMimeType, Keys.MessageImageURL));
-                }
-            } catch (Exception e) {
-                // Just abort and don't send the preview
-                e.printStackTrace();
-            }
-        }
+//        if (mimeType.equals("application/pdf")) {
+//            // Generate the preview image
+//            try {
+//                Bitmap bitmap = pdfPreview(file);
+//                if (bitmap != null) {
+//                    uploadables.add(new BitmapUploadable(bitmap, imageName, imageMimeType, Keys.MessageImageURL));
+//                }
+//            } catch (Exception e) {
+//                // Just abort and don't send the preview
+//                e.printStackTrace();
+//            }
+//        }
 
         MessageSendRig rig = new MessageSendRig(new MessageType(MessageType.File), thread, message -> {
             // First pass back an empty result so that we add the cell to the table view
@@ -65,22 +58,22 @@ public class BaseFileMessageHandler extends AbstractMessageHandler implements Fi
         return rig.run();
     }
 
-    protected Bitmap pdfPreview(File file) throws Exception {
-        Context context = ChatSDK.shared().context();
-
-        int pageNumber = 0;
-        PdfiumCore pdfiumCore = new PdfiumCore(context);
-
-        PdfDocument pdf = pdfiumCore.newDocument(fileToBytes(file));
-        pdfiumCore.openPage(pdf, pageNumber);
-        int width = pdfiumCore.getPageWidthPoint(pdf, pageNumber);
-        int height = pdfiumCore.getPageHeightPoint(pdf, pageNumber);
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        pdfiumCore.renderPageBitmap(pdf, bitmap, pageNumber, 0, 0, width, height);
-        pdfiumCore.closeDocument(pdf); // important!
-
-        return bitmap;
-    }
+//    protected Bitmap pdfPreview(File file) throws Exception {
+//        Context context = ChatSDK.shared().context();
+//
+//        int pageNumber = 0;
+//        PdfiumCore pdfiumCore = new PdfiumCore(context);
+//
+//        PdfDocument pdf = pdfiumCore.newDocument(fileToBytes(file));
+//        pdfiumCore.openPage(pdf, pageNumber);
+//        int width = pdfiumCore.getPageWidthPoint(pdf, pageNumber);
+//        int height = pdfiumCore.getPageHeightPoint(pdf, pageNumber);
+//        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+//        pdfiumCore.renderPageBitmap(pdf, bitmap, pageNumber, 0, 0, width, height);
+//        pdfiumCore.closeDocument(pdf); // important!
+//
+//        return bitmap;
+//    }
 
     protected byte[] fileToBytes(File file) throws Exception {
         int size = (int) file.length();

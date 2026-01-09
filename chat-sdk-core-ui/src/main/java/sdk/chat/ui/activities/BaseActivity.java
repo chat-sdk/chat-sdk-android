@@ -27,6 +27,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
@@ -37,6 +38,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
@@ -110,41 +113,44 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
 
         // Make status bar background black
         // getWindow().setStatusBarColor(UIModule.config().statusBarColor);
-//
-//        Window window = getWindow();
-//
-//        WindowInsetsControllerCompat insets2 = WindowCompat.getInsetsController(window, window.getDecorView());
-//        if (insets2 != null)
-//            insets2.setAppearanceLightStatusBars(false); // false = light icons
-//
-//        WindowCompat.setDecorFitsSystemWindows(window, true);
-//
-//        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-//        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-//
-//        TypedValue typedValue = new TypedValue();
-//        Resources.Theme theme = getTheme();
-//        // Try resolving the app attribute first (likely what is overridden in custom
-//        // themes)
-//        boolean resolved = theme.resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
-//        if (!resolved) {
-//            // Fallback to android attribute
-//            resolved = theme.resolveAttribute(android.R.attr.colorPrimaryDark, typedValue, true);
-//        }
-//
-//        int color;
-//        if (resolved) {
-//            // Check if it's a resource reference or a raw color
-//            if (typedValue.resourceId != 0) {
-//                color = ContextCompat.getColor(this, typedValue.resourceId);
-//            } else {
-//                color = typedValue.data;
-//            }
-//        } else {
-//            color = ContextCompat.getColor(this, R.color.primary_dark);
-//        }
-//
-//        window.setStatusBarColor(color);
+        //
+        // Window window = getWindow();
+        //
+        // WindowInsetsControllerCompat insets2 =
+        // WindowCompat.getInsetsController(window, window.getDecorView());
+        // if (insets2 != null)
+        // insets2.setAppearanceLightStatusBars(false); // false = light icons
+        //
+        // WindowCompat.setDecorFitsSystemWindows(window, true);
+        //
+        // window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        // window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        //
+        // TypedValue typedValue = new TypedValue();
+        // Resources.Theme theme = getTheme();
+        // // Try resolving the app attribute first (likely what is overridden in custom
+        // // themes)
+        // boolean resolved = theme.resolveAttribute(R.attr.colorPrimaryDark,
+        // typedValue, true);
+        // if (!resolved) {
+        // // Fallback to android attribute
+        // resolved = theme.resolveAttribute(android.R.attr.colorPrimaryDark,
+        // typedValue, true);
+        // }
+        //
+        // int color;
+        // if (resolved) {
+        // // Check if it's a resource reference or a raw color
+        // if (typedValue.resourceId != 0) {
+        // color = ContextCompat.getColor(this, typedValue.resourceId);
+        // } else {
+        // color = typedValue.data;
+        // }
+        // } else {
+        // color = ContextCompat.getColor(this, R.color.primary_dark);
+        // }
+        //
+        // window.setStatusBarColor(color);
 
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         getWindow().setEnterTransition(new Explode());
@@ -159,15 +165,17 @@ public abstract class BaseActivity extends AppCompatActivity implements Consumer
         // setDecorFitsSystemWindows(true) might not sufficiently prevent overlap/white
         // bands
         // if the theme or system strongly enforces edge-to-edge.
-//        View content = findViewById(android.R.id.content);
-//        if (content != null) {
-//            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(content, (v, insets) -> {
-//                androidx.core.graphics.Insets systemBars = insets
-//                        .getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars());
-//                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-//                return androidx.core.view.WindowInsetsCompat.CONSUMED;
-//            });
-//        }
+        // View content = findViewById(android.R.id.content);
+        // if (content != null) {
+        // androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(content, (v,
+        // insets) -> {
+        // androidx.core.graphics.Insets systemBars = insets
+        // .getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars());
+        // v.setPadding(systemBars.left, systemBars.top, systemBars.right,
+        // systemBars.bottom);
+        // return androidx.core.view.WindowInsetsCompat.CONSUMED;
+        // });
+        // }
 
         Logger.debug("onCreate: " + this);
 
