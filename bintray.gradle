@@ -1,21 +1,63 @@
 
-//def localProperties = new Properties()
-//localProperties.load(new FileInputStream(rootProject.file("local.properties")))
+group = CHAT_SDK_GROUP   // Ensure this resolves to your dotted ID (e.g., 'com.chat.sdk')
+version = CHAT_SDK_VERSION
+
+//plugins.withId('com.android.library') {
+//    android {
+//    }
+//}
+
+tasks.register("androidSourcesJar", Jar) {
+    archiveClassifier.set("sources")
+    from android.sourceSets.main.java.srcDirs
+}
+
 
 afterEvaluate {
+
+    tasks.matching { it.name == "greendao" }.configureEach { greendaoTask ->
+        tasks.named("androidSourcesJar").configure {
+            dependsOn(greendaoTask)
+        }
+    }
+
     if (project.plugins.hasPlugin('com.android.library')) {
         publishing {
             publications {
                 release(MavenPublication) {
                     from components.findByName('release')
 
-                    groupId = CHAT_SDK_GROUP
+//                    def bundleTask = tasks.findByName("bundleReleaseAar")
+//                    if (bundleTask) {
+//                        // MavenPublish needs the specific file location
+//                        artifact(bundleTask.archiveFile) {
+//                            // Ensure the task runs before publishing
+//                            builtBy(bundleTask)
+//                        }
+//                    } else {
+//                        logger.error("Could not find bundleReleaseAar task.")
+//                    }
+
+                    // 3. Force packaging to 'aar' (Just in case the component defaults to 'pom')
+                    pom.packaging = 'aar'
+
+                    // 3. Optional: Attach Sources JAR (if you want them)
+                    // You can manually define this task if the component isn't doing it
+//                    task androidSourcesJar(type: Jar) {
+//                        archiveClassifier.set('sources')
+//                        from android.sourceSets.main.java.srcDirs
+//                    }
+//                    artifact(androidSourcesJar)
+
+                    artifact(tasks.named("androidSourcesJar"))
+
+                    groupId = group
                     artifactId = artifact
-                    version = CHAT_SDK_VERSION
+                    version = version
 
                     // Include the generated POM file
                     pom {
-                        name = 'Chat SDK'
+                        name ='Chat SDK'
                         description = 'Open Source Instant Messaging Framework'
                         url = 'https://github.com/chat-sdk/chat-sdk-android'
                         licenses {
@@ -40,21 +82,26 @@ afterEvaluate {
                 }
             }
             repositories {
+//                maven {
+//                    name = "ossrh-staging-api"
+//                    // KEY CHANGE: This URL acts as a bridge for the new Central Portal
+//                    url = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
+//
+//                    credentials {
+//                        username "q5d9xE"
+//                        password "7PWnEIQ7N82Q3huIsSRt4zw6owwKpVSrO"
+//                    }
+//                }
                 maven {
-                    url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-                    credentials {
-//                    username=mavenUser
-//                    password=mavenPassword
-                        username = "8zUFe+sj"
-                        password = "96up4q2Zi+7OGyEvNvsYEWYBduopLFgIpauB4Y1C6Pry"
-                    }
+                    name = "LocalMavenWithChecksums"
+                    url = uri(rootProject.layout.buildDirectory.dir("staging-deploy"))
                 }
             }
         }
     }
 
     signing {
-        sign publishing.publications
+        sign publishing.publications.release
     }
 }
 

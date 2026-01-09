@@ -1,5 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+
 buildscript {
     repositories {
         google()
@@ -16,12 +17,15 @@ buildscript {
     }
 }
 
+
 //plugins {
 //    id 'signing'
 //    id 'maven-publish'
 //}
 
+
 ext {
+    mavenPublishPlugin = "0.35.0"
     jfrogVersion = "4.29.1"
     mavenGradleVersion = "2.1"
     androidxAppcompatVersion = "1.7.1"

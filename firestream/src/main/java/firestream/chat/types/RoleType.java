@@ -100,19 +100,19 @@ public class RoleType extends BaseType {
         int resId = -1;
 
         if (equals(RoleType.owner())) {
-            resId = sdk.chat.core.R.string.owner;
+            resId = R.string.owner;
         }
         if (equals(RoleType.admin())) {
-            resId = sdk.chat.core.R.string.admin;
+            resId = R.string.admin;
         }
         if (equals(RoleType.member())) {
-            resId = sdk.chat.core.R.string.member;
+            resId = R.string.member;
         }
         if (equals(RoleType.watcher())) {
-            resId = sdk.chat.core.R.string.watcher;
+            resId = R.string.watcher;
         }
         if (equals(RoleType.banned())) {
-            resId = sdk.chat.core.R.string.banned;
+            resId = R.string.banned;
         }
 
         if (resId != -1) {
