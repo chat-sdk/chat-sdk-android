@@ -49,7 +49,7 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:$androidxRecyclerViewVersion"
     implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version_jdk7"
+//    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version_jdk7"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
     api "javax.inject:javax.inject:1"

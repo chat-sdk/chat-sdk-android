@@ -9,9 +9,9 @@ afterEvaluate {
                 release(MavenPublication) {
                     from components.findByName('release')
 
-                    groupId CHAT_SDK_GROUP
-                    artifactId artifact
-                    version CHAT_SDK_VERSION
+                    groupId = CHAT_SDK_GROUP
+                    artifactId = artifact
+                    version = CHAT_SDK_VERSION
 
                     // Include the generated POM file
                     pom {
