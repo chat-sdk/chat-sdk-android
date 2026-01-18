@@ -57,7 +57,6 @@ This project is covered by multiple different licenses. Use the flowchart to det
 - chat-sdk-pro-message-sticker
 - chat-sdk-pro-message-video
 - chat-sdk-pro-xmpp-adapter
-- chat-sdk-pro-xmpp-omemo
 - chat-sdk-pro-xmpp-read-receipts
 #### License:  
 

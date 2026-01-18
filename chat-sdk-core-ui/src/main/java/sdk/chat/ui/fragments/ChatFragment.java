@@ -75,12 +75,12 @@ import sdk.chat.ui.views.ReplyView;
 import sdk.guru.common.DisposableMap;
 import sdk.guru.common.RX;
 
-public class ChatFragment extends AbstractChatFragment implements ChatView.Delegate, TextInputDelegate, ChatOptionsDelegate, KeyboardOverlayHandler {
+public class ChatFragment extends AbstractChatFragment
+        implements ChatView.Delegate, TextInputDelegate, ChatOptionsDelegate, KeyboardOverlayHandler {
 
     protected View rootView;
 
     protected ThreadX thread;
-
 
     protected ChatOptionsHandler optionsHandler;
 
@@ -134,7 +134,6 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
         initViews();
 
-
         koh = new ChatFragmentKeyboardOverlayHelper(this);
         koh.showOptionsKeyboardOverlay();
 
@@ -163,20 +162,23 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         return inflater.inflate(getLayout(), container, false);
     }
 
-//    public void setChatViewBottomMargin(int margin) {
-//        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) chatView.getLayoutParams();
-//        params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, margin);
-//        chatView.setLayoutParams(params);
-//    }
+    // public void setChatViewBottomMargin(int margin) {
+    // CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams)
+    // chatView.getLayoutParams();
+    // params.setMargins(params.leftMargin, params.topMargin, params.rightMargin,
+    // margin);
+    // chatView.setLayoutParams(params);
+    // }
 
-    protected @LayoutRes
-    int getLayout() {
+    protected @LayoutRes int getLayout() {
         return R.layout.fragment_chat;
     }
 
     public void updateOptionsButton() {
-        input.findViewById(R.id.attachmentButton).setVisibility(chatView.getSelectedMessages().isEmpty() ? View.VISIBLE : View.GONE);
-        input.findViewById(R.id.attachmentButtonSpace).setVisibility(chatView.getSelectedMessages().isEmpty() ? View.VISIBLE : View.GONE);
+        input.findViewById(R.id.attachmentButton)
+                .setVisibility(chatView.getSelectedMessages().isEmpty() ? View.VISIBLE : View.GONE);
+        input.findViewById(R.id.attachmentButtonSpace)
+                .setVisibility(chatView.getSelectedMessages().isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     public void hideTextInput() {
@@ -310,12 +312,12 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
         addListeners();
 
-
     }
 
     protected void addListeners() {
         dm.add(ChatSDK.events().sourceOnMain()
-                .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated, EventType.ThreadUserAdded, EventType.ThreadUserRemoved))
+                .filter(NetworkEvent.filterType(EventType.ThreadMetaUpdated, EventType.ThreadUserAdded,
+                        EventType.ThreadUserRemoved))
                 .filter(NetworkEvent.filterThreadEntityID(thread.getEntityID()))
                 .subscribe(networkEvent -> {
                     chatActionBar.reload(thread);
@@ -355,7 +357,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
         if (chatView != null) {
             chatView.addListeners();
-//            chatView.onLoadMore(0, 0);
+            // chatView.onLoadMore(0, 0);
         }
 
     }
@@ -381,6 +383,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         Activity activity = getActivity();
         if (activity instanceof AppCompatActivity) {
             ((AppCompatActivity) activity).setSupportActionBar(chatActionBar.getToolbar());
+            ((AppCompatActivity) activity).getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
     }
@@ -392,6 +395,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
             hideTextInput();
         }
     }
+
     /**
      * Send text text
      *
@@ -424,7 +428,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     }
 
     public void reloadData() {
-//        chatView.notifyDataSetChanged();
+        // chatView.notifyDataSetChanged();
     }
 
     @Override
@@ -457,7 +461,6 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
         showOrHideTextInputView();
 
-
     }
 
     @Override
@@ -474,8 +477,10 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     }
 
     /**
-     * Sending a broadcast that the chat was closed, Only if there were new messageHolders on this chat.
-     * This is used for example to update the thread list that messageHolders has been read.
+     * Sending a broadcast that the chat was closed, Only if there were new
+     * messageHolders on this chat.
+     * This is used for example to update the thread list that messageHolders has
+     * been read.
      */
     @Override
     public void onStop() {
@@ -487,7 +492,8 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         becomeInactive();
 
         if (thread != null && thread.typeIs(ThreadType.Public) && (removeUserFromChatOnExit || thread.isMuted())) {
-            // Don't add this to activity disposable map because otherwise it can be cancelled before completion
+            // Don't add this to activity disposable map because otherwise it can be
+            // cancelled before completion
             ChatSDK.events().disposeOnLogout(ChatSDK.thread()
                     .removeUsersFromThread(thread, ChatSDK.currentUser())
                     .observeOn(RX.main()).subscribe());
@@ -495,7 +501,8 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     }
 
     /**
-     * Not used, There is a piece of code here that could be used to clean all images that was loaded for this chat from cache.
+     * Not used, There is a piece of code here that could be used to clean all
+     * images that was loaded for this chat from cache.
      */
     @Override
     public void onDestroy() {
@@ -526,7 +533,8 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     }
 
     @Override
-    public void onCreateOptionsMenu(@androidx.annotation.NonNull Menu menu, @androidx.annotation.NonNull MenuInflater inflater) {
+    public void onCreateOptionsMenu(@androidx.annotation.NonNull Menu menu,
+            @androidx.annotation.NonNull MenuInflater inflater) {
 
         if (thread != null) {
             if (!chatView.getSelectedMessages().isEmpty()) {
@@ -570,7 +578,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
                 // Check that the messages could be deleted
                 boolean canBeDeleted = true;
-                for (MessageHolder holder: chatView.getSelectedMessages()) {
+                for (MessageHolder holder : chatView.getSelectedMessages()) {
                     if (!ChatSDK.thread().canDeleteMessage(holder.getMessage())) {
                         canBeDeleted = false;
                     }
@@ -600,7 +608,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        /* Cant use switch in the library*/
+        /* Cant use switch in the library */
         int id = item.getItemId();
         if (id == MenuItemProvider.saveItemId) {
             List<MessageHolder> holders = chatView.getSelectedMessages();
@@ -608,7 +616,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
             Activity activity = getActivity();
             if (activity != null) {
                 dm.add(PermissionRequestHandler.requestWriteExternalStorage(activity).subscribe(() -> {
-                    for (MessageHolder holder: holders) {
+                    for (MessageHolder holder : holders) {
 
                         dm.add(holder.save(activity).subscribe(s -> {
                             ToastHelper.show(activity, s);
@@ -629,9 +637,11 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
         }
         if (id == MenuItemProvider.copyItemId && getActivity() != null) {
             chatView.copySelectedMessagesText(getActivity(), holder -> {
-                if (chatView.getSelectedMessages().size() > 1 && UIModule.config().includeDateAndNameWhenCopyingMessages) {
+                if (chatView.getSelectedMessages().size() > 1
+                        && UIModule.config().includeDateAndNameWhenCopyingMessages) {
                     DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", CurrentLocale.get());
-                    return dateFormatter.format(holder.getCreatedAt()) + ", " + holder.getUser().getName() + ": " + holder.getText();
+                    return dateFormatter.format(holder.getCreatedAt()) + ", " + holder.getUser().getName() + ": "
+                            + holder.getText();
                 } else {
                     return holder.getText();
                 }
@@ -642,26 +652,29 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
 
             List<MessageHolder> holders = chatView.getSelectedMessages();
 
-            dm.put(Keys.messageForwardActivityCode, ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
-                if (activityResult.requestCode == Keys.messageForwardActivityCode) {
-                    if (activityResult.resultCode == Activity.RESULT_OK) {
-                        showToast(sdk.chat.core.R.string.success);
-                    } else {
-                        if (activityResult.data != null) {
-                            String errorMessage = activityResult.data.getStringExtra(Keys.IntentKeyErrorMessage);
-                            showToast(errorMessage);
+            dm.put(Keys.messageForwardActivityCode,
+                    ActivityResultPushSubjectHolder.shared().subscribe(activityResult -> {
+                        if (activityResult.requestCode == Keys.messageForwardActivityCode) {
+                            if (activityResult.resultCode == Activity.RESULT_OK) {
+                                showToast(sdk.chat.core.R.string.success);
+                            } else {
+                                if (activityResult.data != null) {
+                                    String errorMessage = activityResult.data
+                                            .getStringExtra(Keys.IntentKeyErrorMessage);
+                                    showToast(errorMessage);
+                                }
+                            }
+                            dm.dispose(Keys.messageForwardActivityCode);
                         }
-                    }
-                    dm.dispose(Keys.messageForwardActivityCode);
-                }
-            }));
+                    }));
 
             // We don't want to remove the user if we load another activity
             // Like the sticker activity
             removeUserFromChatOnExit = false;
 
             if (getActivity() != null) {
-                ChatSDK.ui().startForwardMessageActivityForResult(getActivity(), thread, MessageHolder.toMessages(holders), Keys.messageForwardActivityCode);
+                ChatSDK.ui().startForwardMessageActivityForResult(getActivity(), thread,
+                        MessageHolder.toMessages(holders), Keys.messageForwardActivityCode);
             }
             clearSelection();
         }
@@ -697,7 +710,8 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     }
 
     /**
-     * Open the thread details context, Admin user can change thread name an messageImageView there.
+     * Open the thread details context, Admin user can change thread name an
+     * messageImageView there.
      */
     protected void openThreadDetailsActivity() {
 
@@ -747,7 +761,7 @@ public class ChatFragment extends AbstractChatFragment implements ChatView.Deleg
     }
 
     public static InputMethodManager getInputMethodManager(Context context) {
-        return (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        return (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 
     public void showKeyboard() {

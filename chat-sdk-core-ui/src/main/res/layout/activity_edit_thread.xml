@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:animateLayoutChanges="true"
     android:fitsSystemWindows="true"
-    android:background="?activityBackgroundColor"
+    android:background="?activityContentBackgroundColor"
     >
 
     <de.hdodenhof.circleimageview.CircleImageView

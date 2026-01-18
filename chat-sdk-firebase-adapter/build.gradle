@@ -40,6 +40,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api project(':chat-sdk-core')
     api project(':sdk-guru-realtime')
+    api platform("com.google.firebase:firebase-bom:$firebaseBOM")
     api "com.google.firebase:firebase-auth"
 }
 

@@ -44,6 +44,8 @@ dependencies {
     implementation project(':chat-sdk-core')
 
     implementation project(':chat-sdk-firebase-adapter')
+    api platform("com.google.firebase:firebase-bom:$firebaseBOM")
+
     implementation "com.google.firebase:firebase-storage"
 }
 

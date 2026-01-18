@@ -2,24 +2,28 @@
 group = CHAT_SDK_GROUP   // Ensure this resolves to your dotted ID (e.g., 'com.chat.sdk')
 version = CHAT_SDK_VERSION
 
-//plugins.withId('com.android.library') {
-//    android {
-//    }
-//}
-
-tasks.register("androidSourcesJar", Jar) {
-    archiveClassifier.set("sources")
-    from android.sourceSets.main.java.srcDirs
+plugins.withId('com.android.library') {
+    android {
+        publishing {
+            singleVariant('release') {
+                withSourcesJar()
+                withJavadocJar()
+            }
+        }
+    }
 }
+
+//tasks.register("androidSourcesJar", Jar) {
+//    archiveClassifier.set("sources")
+//    from android.sourceSets.main.java.srcDirs
+//}
 
 
 afterEvaluate {
 
-    tasks.matching { it.name == "greendao" }.configureEach { greendaoTask ->
-        tasks.named("androidSourcesJar").configure {
-            dependsOn(greendaoTask)
-        }
-    }
+//    tasks.named("androidSourcesJar").configure {
+//        dependsOn(tasks.matching { it.name == "greendao" })
+//    }
 
     if (project.plugins.hasPlugin('com.android.library')) {
         publishing {
@@ -27,29 +31,10 @@ afterEvaluate {
                 release(MavenPublication) {
                     from components.findByName('release')
 
-//                    def bundleTask = tasks.findByName("bundleReleaseAar")
-//                    if (bundleTask) {
-//                        // MavenPublish needs the specific file location
-//                        artifact(bundleTask.archiveFile) {
-//                            // Ensure the task runs before publishing
-//                            builtBy(bundleTask)
-//                        }
-//                    } else {
-//                        logger.error("Could not find bundleReleaseAar task.")
-//                    }
-
                     // 3. Force packaging to 'aar' (Just in case the component defaults to 'pom')
                     pom.packaging = 'aar'
 
-                    // 3. Optional: Attach Sources JAR (if you want them)
-                    // You can manually define this task if the component isn't doing it
-//                    task androidSourcesJar(type: Jar) {
-//                        archiveClassifier.set('sources')
-//                        from android.sourceSets.main.java.srcDirs
-//                    }
-//                    artifact(androidSourcesJar)
-
-                    artifact(tasks.named("androidSourcesJar"))
+//                    artifact(tasks.named("androidSourcesJar"))
 
                     groupId = group
                     artifactId = artifact

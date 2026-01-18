@@ -25,12 +25,14 @@ android {
         }
     }
 
-    publishing {
-        singleVariant('release') {
-            withSourcesJar()
-            withJavadocJar()
-        }
-    }
+
+
+//    publishing {
+//        singleVariant('release') {
+//            withSourcesJar()
+//            withJavadocJar()
+//        }
+//    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -112,6 +114,19 @@ ext {
 
 if (project.hasProperty("mavenPublish") && mavenPublish) {
     apply from: '../bintray.gradle'
+}
+
+// Needed because of the greendao dependency
+afterEvaluate {
+    tasks.matching { it.name == "extractReleaseAnnotations" }.configureEach {
+        dependsOn(tasks.named("greendao"))
+    }
+    tasks.matching { it.name == "javaDocReleaseGeneration" }.configureEach {
+        dependsOn(tasks.named("greendao"))
+    }
+    tasks.matching { it.name == "sourceReleaseJar" }.configureEach {
+        dependsOn(tasks.named("greendao"))
+    }
 }
 
 
