@@ -64,6 +64,12 @@ This project is covered by multiple different licenses. Use the flowchart to det
 |---|---|
 | Any  | [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html) or [Commercial License](https://github.com/chat-sdk/chat-sdk-ios#commercial-license) |
 
+## Third-Party Dependency Disclaimer
+
+The license granted for the Chat SDK applies strictly to the source code developed by the Chat SDK team. This project contains third-party code, dependent modules, and libraries (specifically those located in the vendors directory) which are distributed under their own respective licenses.
+
+It is the sole responsibility of the user/developer to review and ensure compliance with all third-party licenses. The Chat SDK maintainers assume no liability for the user's failure to adhere to the terms of these external licenses.
+
 ## Commercial Licensing
 
 For commercial licensing, you have several options: 
